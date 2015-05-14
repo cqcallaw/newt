@@ -1,0 +1,7 @@
+*.o
+*.d
+lex.yy.c
+newt
+y.output
+y.tab.c
+y.tab.h
