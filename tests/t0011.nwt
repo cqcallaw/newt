@@ -1,0 +1,2 @@
+// test handling of invalid doubles
+double x = 42.42.;

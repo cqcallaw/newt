@@ -1,0 +1,3 @@
+// test redeclaration error
+int i;
+double i;

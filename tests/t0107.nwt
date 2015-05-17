@@ -1,0 +1,3 @@
+// test duplicate array declaration of different types
+int number[10];
+string number[10];

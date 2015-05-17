@@ -1,0 +1,3 @@
+// test error redeclaration of integer symbol as a string
+int i;
+string i;

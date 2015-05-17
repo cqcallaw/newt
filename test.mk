@@ -11,7 +11,7 @@ $(TEST_PATH)output:
 
 %: $(TEST_PATH)%.nwt $(TEST_PATH)output
 	-@echo ' '
-	./newt $< &>$(TEST_PATH)output/$@ 
+	./newt $< >$(TEST_PATH)output/$@ 2>&1
 	diff $(TEST_PATH)reference/$@ $(TEST_PATH)output/$@
 
 test-clean:

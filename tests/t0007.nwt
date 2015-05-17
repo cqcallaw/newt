@@ -1,0 +1,1 @@
+string c = "this is two strings" "and should be an error";
