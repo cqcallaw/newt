@@ -10,6 +10,7 @@
 
 #include <symbol_table.h>
 #include <symbol.h>
+#include <array_symbol.h>
 #include <utils.h>
 #include <assert.h>
 #include <type.h>

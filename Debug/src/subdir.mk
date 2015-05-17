@@ -8,6 +8,7 @@ CPP_SRCS += \
 ../src/parameter.cpp \
 ../src/parameterlist.cpp \
 ../src/symbol.cpp \
+../src/array_symbol.cpp \
 ../src/symbol_table.cpp \
 ../src/utils.cpp \
 ../src/variable.cpp
@@ -21,19 +22,21 @@ OBJS += \
 ./src/parameter.o \
 ./src/parameterlist.o \
 ./src/symbol.o \
+./src/array_symbol.o \
 ./src/symbol_table.o \
 ./src/utils.o \
 ./src/variable.o 
 
 CPP_DEPS += \
 ./src/error.d \
-./src/gpl_assert.d \
+./src/assert.d \
 ./src/type.d \
 ./src/indent.d \
 ./src/newt.d \
 ./src/parameter.d \
 ./src/parameterlist.d \
 ./src/symbol.d \
+./src/array_symbol.d \
 ./src/symbol_table.d \
 ./src/utils.d \
 ./src/variable.d

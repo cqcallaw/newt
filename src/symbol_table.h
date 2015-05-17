@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "symbol.h"
+#include "array_symbol.h"
 #include <map>
 
 using namespace std;
