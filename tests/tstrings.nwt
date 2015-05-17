@@ -1,0 +1,3 @@
+// test string declaration
+string a = "";
+string b = "newt";

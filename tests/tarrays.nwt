@@ -1,0 +1,5 @@
+// test array declarations
+
+int numbers[2000];
+double values[2000];
+string strings[2000];
