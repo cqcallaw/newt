@@ -2,9 +2,6 @@
 
 RM := rm -rf
 
-PCOMP = g++
-PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/statements" -I"../src" -I"./"
-
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include src/statements/subdir.mk
@@ -49,17 +46,7 @@ newt: $(OBJS) $(USER_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-y.tab.c y.tab.h: ../src/grammar.y
-	bison -vyd ../src/grammar.y -o y.tab.c
-
-y.tab.o: y.tab.c y.tab.h
-	$(PCOMP) $(PCOMPFLAGS) -w -c y.tab.c
-
-lex.yy.c: ../src/lexer.l
-	flex ../src/lexer.l
-
-lex.yy.o: lex.yy.c y.tab.h 
-	$(PCOMP) $(PCOMPFLAGS) -c lex.yy.c
+-include ../parser.mk
 
 # Other Targets
 clean:
