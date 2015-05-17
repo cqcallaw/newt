@@ -10,6 +10,7 @@ $(TEST_PATH)output:
 	mkdir -p $(TEST_PATH)output
 
 %: $(TEST_PATH)%.nwt $(TEST_PATH)output
+	-@echo ' '
 	./newt $< &>$(TEST_PATH)output/$@ 
 	diff $(TEST_PATH)reference/$@ $(TEST_PATH)output/$@
 
