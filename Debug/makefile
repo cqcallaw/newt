@@ -66,7 +66,10 @@ clean:
 	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CPP_DEPS)$(C_DEPS) y.tab.c y.tab.h lex.yy.c y.output y.tab.d lex.yy.d newt
 	-@echo ' '
 
-.PHONY: all clean dependents
+test: newt
+	./newt ../tests/test.nwt
+
+.PHONY: all clean test dependents
 .SECONDARY:
 
 -include ../makefile.targets
