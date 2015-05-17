@@ -6,13 +6,11 @@
  */
 
 #include <sstream>
-#include "variable.h"
+#include <defaults.h>
 
+#include "variable.h"
 #include "assert.h"
 #include "expression.h"
-
-const Variable* Variable::DefaultVariable = new Variable(
-		&Symbol::DefaultSymbolName);
 
 Variable::Variable(const string* name) :
 		m_name(name) {

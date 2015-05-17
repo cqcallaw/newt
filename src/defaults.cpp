@@ -6,6 +6,7 @@
  */
 
 #include <defaults.h>
+#include <symbol.h>
 #include <expression.h>
 #include <assignment_statement.h>
 #include <for_statement.h>
@@ -15,11 +16,15 @@
 #include <statement_block.h>
 #include "type.h"
 
+const string DefaultSymbolName = string("[!!_DEFAULT_!!]");
+const Symbol* DefaultSymbol = new Symbol(NONE, DefaultSymbolName, NULL);
+
+const Variable* DefaultVariable = new Variable(&DefaultSymbolName);
+
 const Expression* DefaultExpression = new Expression(NONE);
 
 const AssignmentStatement* DefaultAssignmentStatement = new AssignmentStatement(
-		Variable::DefaultVariable, AssignmentStatement::ASSIGN,
-		DefaultExpression);
+		DefaultVariable, AssignmentStatement::ASSIGN, DefaultExpression);
 
 const ExitStatement* DefaultExitStatement = new ExitStatement(-1,
 		DefaultExpression);

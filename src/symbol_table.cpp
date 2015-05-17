@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <defaults.h>
 #include "symbol_table.h"
 
 #include "type.h"
@@ -26,7 +27,7 @@ const Symbol* Symbol_table::GetSymbol(const string identifier) {
 		return result->second;
 	}
 
-	return Symbol::DefaultSymbol;
+	return DefaultSymbol;
 }
 
 const Symbol* Symbol_table::GetSymbol(const string* identifier) {
@@ -67,7 +68,7 @@ SetResult Symbol_table::SetSymbol(const string identifier, Type type,
 		const void* value) {
 	const Symbol* symbol = GetSymbol(identifier);
 
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
+	if (symbol == DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
 	} else if ((symbol->GetType() < STRING && symbol->GetType() > type)
 			|| (symbol->GetType() != type)) {
@@ -105,7 +106,7 @@ SetResult Symbol_table::SetArraySymbol(const string identifier, Type type,
 		int index, const void* value) {
 	const Symbol* symbol = GetSymbol(identifier);
 
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
+	if (symbol == DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
 	}
 
@@ -182,7 +183,7 @@ void Symbol_table::set(const string identifier, const string value) {
 
 const void Symbol_table::get(const string identifier, int &out) {
 	const Symbol* symbol = GetSymbol(identifier);
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL
+	if (symbol == DefaultSymbol || symbol == NULL
 			|| symbol->GetType() > INT) {
 		out = 0;
 	} else {
@@ -191,7 +192,7 @@ const void Symbol_table::get(const string identifier, int &out) {
 }
 const void Symbol_table::get(const string identifier, double &out) {
 	const Symbol* symbol = GetSymbol(identifier);
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL
+	if (symbol == DefaultSymbol || symbol == NULL
 			|| symbol->GetType() > DOUBLE) {
 		out = 0.0;
 	} else {
@@ -200,7 +201,7 @@ const void Symbol_table::get(const string identifier, double &out) {
 }
 const void Symbol_table::get(const string identifier, string &out) {
 	const Symbol* symbol = GetSymbol(identifier);
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL
+	if (symbol == DefaultSymbol || symbol == NULL
 			|| symbol->GetType() > STRING) {
 		out = "";
 	} else {
@@ -209,7 +210,7 @@ const void Symbol_table::get(const string identifier, string &out) {
 }
 const bool Symbol_table::get_type(const string identifier, Type &out) {
 	const Symbol* symbol = GetSymbol(identifier);
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
+	if (symbol == DefaultSymbol || symbol == NULL) {
 		return false;
 	}
 	out = symbol->GetType();

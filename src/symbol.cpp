@@ -6,11 +6,14 @@
  */
 
 #include <sstream>
-#include "symbol.h"
+#include <defaults.h>
 
+#include "symbol.h"
 #include "assert.h"
 #include "indent.h"
 #include "type.h"
+#include "error.h"
+#include "expression.h"
 
 Symbol::Symbol(const string name, const bool *value) :
 		Symbol(BOOLEAN, name, (void *) value) {
@@ -115,10 +118,6 @@ string Symbol::ToString() const {
 
 	return os.str();
 }
-
-const string Symbol::DefaultSymbolName = string("[!!_DEFAULT_!!]");
-const Symbol* Symbol::DefaultSymbol = new Symbol(NONE,
-		Symbol::DefaultSymbolName, NULL);
 
 ostream &operator<<(ostream &os, const Symbol &symbol) {
 	os << symbol.ToString();
@@ -252,4 +251,136 @@ const ArraySymbol* ArraySymbol::WithValue(const int index,
 	const string** existing = (const string**) as_symbol->GetValue();
 	existing[index] = value;
 	return new ArraySymbol(GetName(), existing, GetSize());
+}
+
+const Symbol* Symbol::GetSymbol(const Type type, const string* name,
+		const Expression* expression) {
+	Symbol* result = (Symbol*) DefaultSymbol;
+	switch (type) {
+	case BOOLEAN: {
+		bool *value;
+
+		if (expression != NULL && expression != nullptr
+				&& expression->GetType() != NONE) {
+			const void* evaluation = expression->Evaluate();
+			if (expression->GetType() == BOOLEAN) {
+				if (evaluation != NULL) {
+					value = (bool*) evaluation;
+				} else {
+					break;
+				}
+			} else {
+				Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *name);
+			}
+		} else {
+			value = new bool(false);
+		}
+
+		result = new Symbol(name, value);
+		break;
+	}
+	case INT: {
+		int *value;
+
+		if (expression != NULL && expression->GetType() != NONE) {
+			const void* evaluation = expression->Evaluate();
+			if (expression->GetType() == BOOLEAN) {
+				if (evaluation != NULL) {
+					value = new int(*((bool*) evaluation));
+				} else {
+					break;
+				}
+			} else if (expression->GetType() == INT) {
+				if (evaluation != NULL) {
+					value = (int*) (evaluation);
+				} else {
+					break;
+				}
+			} else {
+				Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *name);
+			}
+		} else {
+			value = new int(0);
+		}
+
+		result = new Symbol(name, value);
+		break;
+	}
+	case DOUBLE: {
+		double* value;
+
+		if (expression != NULL && expression->GetType() != NONE) {
+			const void* evaluation = expression->Evaluate();
+			if (expression->GetType() == BOOLEAN) {
+				if (evaluation != NULL) {
+					value = new double(*((bool*) (evaluation)));
+				} else {
+					break;
+				}
+			} else if (expression->GetType() == INT) {
+				if (evaluation != NULL) {
+					value = new double(*((int*) (evaluation)));
+				} else {
+					break;
+				}
+			} else if (expression->GetType() == DOUBLE) {
+				if (evaluation != NULL) {
+					value = (double*) (evaluation);
+				} else {
+					break;
+				}
+			} else {
+				Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *name);
+			}
+		} else {
+			value = new double(0.0);
+		}
+
+		result = new Symbol(name, value);
+		break;
+	}
+	case STRING: {
+		string* value;
+
+		if (expression != NULL && expression->GetType() != NONE) {
+			Type initializer_type = expression->GetType();
+			const void* evaluation = expression->Evaluate();
+			if (evaluation == NULL) {
+				break;
+			}
+
+			ostringstream buffer;
+			switch (initializer_type) {
+			case STRING: {
+				value = (string*) (evaluation);
+				break;
+			}
+			case BOOLEAN: {
+				value = AsString((bool*) (evaluation));
+				break;
+			}
+			case INT: {
+				value = AsString((int*) (evaluation));
+				break;
+			}
+			case DOUBLE: {
+				value = AsString((double*) (evaluation));
+				break;
+			}
+			default:
+				Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *name);
+				value = new string("");
+			}
+		} else {
+			value = new string("");
+		}
+
+		result = new Symbol(name, value);
+		break;
+	}
+	default:
+		break;
+	}
+
+	return result;
 }

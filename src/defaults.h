@@ -8,6 +8,8 @@
 #ifndef DEFAULTS_H_
 #define DEFAULTS_H_
 
+class Symbol;
+class Variable;
 class ForStatement;
 class Expression;
 class AssignmentStatement;
@@ -16,6 +18,8 @@ class ExitStatement;
 class PrintStatement;
 class StatementBlock;
 
+const static Symbol* DefaultSymbol;
+const static Variable* DefaultVariable;
 const static Expression* DefaultExpression;
 const static AssignmentStatement* DefaultAssignmentStatement;
 const static ForStatement* DefaultForStatement;
@@ -27,6 +31,8 @@ const static StatementBlock* DefaultStatementBlock;
 //suppress un-used variable compiler warnings
 //references to the defaults are generated from the Bison file,
 //and these references are not detected by gcc
+const static void* ref_symbol = (void*) (DefaultSymbol);
+const static void* ref_variable = (void*) (DefaultVariable);
 const static void* ref_expr = (void*) (DefaultExpression);
 const static void* ref_assignment = (void*) (DefaultAssignmentStatement);
 const static void* ref_exit = (void*) (DefaultExitStatement);

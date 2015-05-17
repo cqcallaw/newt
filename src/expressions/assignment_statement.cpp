@@ -177,7 +177,7 @@ void AssignmentStatement::execute() const {
 		return;
 	}
 
-	if (m_variable == Variable::DefaultVariable
+	if (m_variable == DefaultVariable
 			|| m_expression == DefaultExpression) {
 		return;
 	}

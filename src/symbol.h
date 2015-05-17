@@ -15,6 +15,8 @@
 
 using namespace std;
 
+class Expression;
+
 class Symbol {
 public:
 	Symbol(const string name, const bool* value);
@@ -30,6 +32,9 @@ public:
 	virtual ~Symbol() {
 	}
 
+	const static Symbol* GetSymbol(const Type type, const string* name,
+			const Expression* expression);
+
 	const Type GetType() const;
 	const string GetName() const;
 	const void* GetValue() const;
@@ -41,9 +46,6 @@ public:
 	const Symbol* WithValue(const Type type, const void* value) const;
 
 	virtual string ToString() const;
-
-	const static string DefaultSymbolName;
-	const static Symbol* DefaultSymbol;
 
 protected:
 	Symbol(Type type, const string name, const void* value);

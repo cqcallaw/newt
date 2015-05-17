@@ -170,208 +170,20 @@ declaration:
 variable_declaration:
 	simple_type T_ID optional_initializer
 	{
-		Symbol* symbol;
-		switch($1)
-		{
-			case BOOLEAN:
-			{
-				bool *value;
+		const Symbol* symbol = Symbol::GetSymbol($1, $2, $3);
 
-				if($3 != NULL && $3->GetType() != NONE)
-				{
-					const void* evaluation = $3->Evaluate();
-					if($3->GetType() == BOOLEAN)
-					{
-						if(evaluation != NULL)
-						{
-							value = (bool*)evaluation;
-						}
-						else
-						{
-							break;
-						}
-					}
-					else
-					{
-						Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *$2);
-					}
-				}
-				else
-				{
-					value = new bool(false);
-				}
-
-				symbol = new Symbol($2, value);
-				InsertResult result = Symbol_table::instance()->InsertSymbol(symbol);
-				if (result == SYMBOL_EXISTS)
-				{
-					Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
-				}
-				break;
+		if (symbol != DefaultSymbol) {
+			InsertResult result = Symbol_table::instance()->InsertSymbol(symbol);
+			if (result == SYMBOL_EXISTS) {
+				Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
 			}
-			case INT:
-			{
-				int *value;
-
-				if($3 != NULL && $3->GetType() != NONE)
-				{
-					const void* evaluation = $3->Evaluate();
-					if($3->GetType() == BOOLEAN)
-					{
-						if(evaluation != NULL)
-						{
-							value = new int(*((bool*)evaluation));
-						}
-						else
-						{
-							break;
-						}
-					}
-					else if($3->GetType() == INT)
-					{
-						if(evaluation != NULL)
-						{
-							value = (int*)(evaluation);
-						}
-						else
-						{
-							break;
-						}
-					}
-					else
-					{
-						Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *$2);
-					}
-				}
-				else
-				{
-					value = new int(0);
-				}
-
-				symbol = new Symbol($2, value);
-				InsertResult result = Symbol_table::instance()->InsertSymbol(symbol);
-				if (result == SYMBOL_EXISTS)
-				{
-					Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
-				}
-				break;
-			}
-			case DOUBLE:
-			{
-				double* value;
-
-				if($3 != NULL && $3->GetType() != NONE)
-				{
-					const void* evaluation = $3->Evaluate();
-					if ($3->GetType() == BOOLEAN)
-					{
-						if(evaluation != NULL)
-						{
-							value = new double(*((bool*)(evaluation)));
-						}
-						else
-						{
-							break;
-						}
-					}
-					else if ($3->GetType() == INT)
-					{
-						if(evaluation != NULL)
-						{
-							value = new double(*((int*)(evaluation)));
-						}
-						else
-						{
-							break;
-						}
-					}
-					else if($3->GetType() == DOUBLE)
-					{
-						if(evaluation != NULL)
-						{
-							value = (double*)(evaluation);
-						}
-						else
-						{
-							break;
-						}
-					}
-					else
-					{
-						Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *$2);
-					}
-				}
-				else
-				{
-					value = new double(0.0);
-				}
-
-				symbol = new Symbol($2, value);
-				InsertResult result = Symbol_table::instance()->InsertSymbol(symbol);
-				if (result == SYMBOL_EXISTS)
-				{
-					Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
-				}
-				break;
-			}
-			case STRING:
-			{
-				string* value;
-
-				if($3 != NULL && $3->GetType() != NONE)
-				{
-					Type initializer_type = $3->GetType();
-					const void* evaluation = $3->Evaluate();
-					if(evaluation == NULL)
-					{
-						break;
-					}
-
-					ostringstream buffer;
-					switch (initializer_type) {
-						case STRING: {
-							value = (string*)(evaluation);
-							break;
-						}
-						case BOOLEAN: {
-							value = AsString((bool*)(evaluation));
-							break;
-						}
-						case INT: {
-							value = AsString((int*)(evaluation));
-							break;
-						}
-						case DOUBLE: {
-							value = AsString((double*)(evaluation));
-							break;
-						}
-						default:
-							Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *$2);
-							value = new string("");
-					}
-				}
-				else
-				{
-					value = new string("");
-				}
-
-				symbol = new Symbol($2, value);
-				InsertResult result = Symbol_table::instance()->InsertSymbol(symbol);
-				if (result == SYMBOL_EXISTS)
-				{
-					Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
-				}
-				break;
-			}
-			default:
-				break;
 		}
 	}
 	| simple_type  T_ID  T_LBRACKET expression T_RBRACKET
 	{
 		const Symbol* existing_symbol = Symbol_table::instance()->GetSymbol($2);
 
-		if (existing_symbol != Symbol::DefaultSymbol)
+		if (existing_symbol != DefaultSymbol)
 		{
 			Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
 		}
@@ -663,10 +475,10 @@ variable_reference:
 	{
 		const Symbol* symbol = Symbol_table::instance()->GetSymbol($1);
 
-		if(symbol == NULL || symbol == Symbol::DefaultSymbol)
+		if(symbol == NULL || symbol == DefaultSymbol)
 		{
 			Error::error(Error::UNDECLARED_VARIABLE, *$1);
-			$$ = Variable::DefaultVariable;
+			$$ = DefaultVariable;
 		}
 		else
 		{
@@ -682,10 +494,10 @@ variable_reference:
 	{
 		const Symbol* symbol = Symbol_table::instance()->GetSymbol($1);
 
-		if(symbol == Symbol::DefaultSymbol)
+		if(symbol == DefaultSymbol)
 		{
 			Error::error(Error::UNDECLARED_VARIABLE, *$1);
-			$$ = Variable::DefaultVariable;
+			$$ = DefaultVariable;
 		}
 		else
 		{
@@ -703,7 +515,7 @@ variable_reference:
 						Error::error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, *$1, "A string expression");
 						break;
 				}
-				$$ = Variable::DefaultVariable;
+				$$ = DefaultVariable;
 			}
 			else if (symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))
 			{
@@ -712,7 +524,7 @@ variable_reference:
 			else
 			{
 				Error::error(Error::VARIABLE_NOT_AN_ARRAY, *$1);
-				$$ = Variable::DefaultVariable;
+				$$ = DefaultVariable;
 			}
 		}
 	}

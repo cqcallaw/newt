@@ -21,7 +21,7 @@ void get_int_value()
   // the union and its union_int field are declared in record.y
   yylval.union_int = atoi(yytext);
 }
- 
+
 void get_double_value()
 {
   // assumes that the string in yytext is a double
