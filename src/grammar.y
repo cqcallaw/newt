@@ -36,17 +36,17 @@ extern int line_count;            // current line in the input; from lexer
  int            union_int;
  double         union_double;
  std::string    *union_string;
- Type       union_type;
- const Expression*    union_expression;
- const Variable*    union_variable;
- OperatorType  union_operator_type;
- const Parameter* union_parameter_type;
- const ParameterList* union_parameter_list_type;
- const Symbol* union_symbol_type;
- const Statement* union_statement_type;
+ Type           union_type;
+ const Expression*          union_expression;
+ const Variable*            union_variable;
+ OperatorType               union_operator_type;
+ const Parameter*           union_parameter_type;
+ const ParameterList*       union_parameter_list_type;
+ const Symbol*              union_symbol_type;
+ const Statement*           union_statement_type;
+ const StatementList*       union_statement_list_type;
+ const StatementBlock*      union_statement_block_type;
  const AssignmentStatement* union_assignment_statement_type;
- const StatementList* union_statement_list_type;
- const StatementBlock* union_statement_block_type;
 }
 
 %error-verbose
@@ -150,7 +150,7 @@ extern int line_count;            // current line in the input; from lexer
 
 //---------------------------------------------------------------------
 program:
-	declaration_list main_statement_block
+	declaration_list statement_list
 	{
 	}
 	;
@@ -496,13 +496,6 @@ if_block:
 	}
 	;
 	
-//---------------------------------------------------------------------
-main_statement_block:
-	statement_block
-	|
-	empty
-	;
-
 //---------------------------------------------------------------------
 statement_block:
 	T_LBRACE statement_list T_RBRACE

@@ -1,0 +1,4 @@
+// test double declaration
+double x = -40.2;
+double y = 0.0;
+double z = 1000.00;
