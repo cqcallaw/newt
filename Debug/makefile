@@ -48,13 +48,12 @@ newt: $(OBJS) $(USER_OBJS)
 
 -include ../parser.mk
 
+-include ../test.mk
+
 # Other Targets
-clean:
+clean: test-clean
 	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CPP_DEPS)$(C_DEPS) y.tab.c y.tab.h lex.yy.c y.output y.tab.d lex.yy.d newt
 	-@echo ' '
-
-test: newt
-	./newt ../tests/test.nwt
 
 .PHONY: all clean test dependents
 .SECONDARY:

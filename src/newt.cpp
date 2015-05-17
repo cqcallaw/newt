@@ -27,6 +27,5 @@ int main(int argc, char *argv[]) {
 		return 2;
 	}
 
-	int parse_result = yyparse();
-	return parse_result;
+	yyparse();
 }
