@@ -1,45 +1,53 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/error.cpp \
-../src/defaults.cpp \
+../src/array_symbol.cpp \
 ../src/assert.cpp \
-../src/type.cpp \
+../src/defaults.cpp \
+../src/error.cpp \
 ../src/indent.cpp \
 ../src/newt.cpp \
 ../src/parameter.cpp \
 ../src/parameterlist.cpp \
 ../src/symbol.cpp \
-../src/array_symbol.cpp \
 ../src/symbol_table.cpp \
+../src/type.cpp \
 ../src/utils.cpp \
-../src/variable.cpp
+../src/variable.cpp 
 
 OBJS += \
-./src/error.o \
+./src/array_symbol.o \
 ./src/assert.o \
-./src/type.o \
+./src/defaults.o \
+./src/error.o \
 ./src/indent.o \
 ./src/newt.o \
 ./src/parameter.o \
 ./src/parameterlist.o \
 ./src/symbol.o \
-./src/array_symbol.o \
 ./src/symbol_table.o \
+./src/type.o \
 ./src/utils.o \
 ./src/variable.o 
 
 CPP_DEPS += \
-./src/error.d \
+./src/array_symbol.d \
 ./src/assert.d \
-./src/type.d \
+./src/defaults.d \
+./src/error.d \
 ./src/indent.d \
 ./src/newt.d \
 ./src/parameter.d \
 ./src/parameterlist.d \
 ./src/symbol.d \
-./src/array_symbol.d \
 ./src/symbol_table.d \
+./src/type.d \
 ./src/utils.d \
-./src/variable.d
+./src/variable.d 
+
 
 # Each subdirectory must supply rules for building sources it contributes
 src/%.o: ../src/%.cpp

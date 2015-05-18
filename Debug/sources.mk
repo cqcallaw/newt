@@ -1,3 +1,7 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
 C_UPPER_SRCS := 
 CXX_SRCS := 
 C++_SRCS := 
@@ -13,7 +17,7 @@ C++_DEPS :=
 EXECUTABLES := 
 C_UPPER_DEPS := 
 CXX_DEPS := 
-OBJS := lex.yy.o y.tab.o 
+OBJS := 
 CPP_DEPS := 
 C_DEPS := 
 
@@ -22,5 +26,4 @@ SUBDIRS := \
 src \
 src/statements \
 src/expressions \
-parser \
 

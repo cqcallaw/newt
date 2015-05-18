@@ -1,0 +1,44 @@
+#parser
+PCOMP = g++
+PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/statements" -I"../src" -I"./"
+
+parser: lexer y.tab.o
+
+parser-clean: lexer-clean
+	rm -rf y.tab.c y.tab.h y.output y.tab.d y.tab.o
+
+y.tab.c y.tab.h: ../src/grammar.y
+	bison -vyd ../src/grammar.y -o y.tab.c
+
+y.tab.o: y.tab.c y.tab.h
+	$(PCOMP) $(PCOMPFLAGS) -w -c y.tab.c
+
+lexer: lex.yy.o
+
+lexer-clean:
+	rm -rf lex.yy.o lex.yy.c lex.yy.d
+
+lex.yy.c: ../src/lexer.l
+	flex ../src/lexer.l
+
+lex.yy.o: lex.yy.c y.tab.h 
+	$(PCOMP) $(PCOMPFLAGS) -c lex.yy.c
+	
+#Tests
+TEST_PATH = ../tests/
+#ref: http://stackoverflow.com/a/2706067/577298
+TEST_FILES = $(wildcard $(TEST_PATH)*.nwt)
+TESTS = $(patsubst $(TEST_PATH)%.nwt,%,$(TEST_FILES))
+
+test: newt $(TESTS)
+
+$(TEST_PATH)output:
+	mkdir -p $(TEST_PATH)output
+
+%: $(TEST_PATH)%.nwt $(TEST_PATH)output
+	-@echo ' '
+	./newt $< >$(TEST_PATH)output/$@ 2>&1
+	diff $(TEST_PATH)reference/$@ $(TEST_PATH)output/$@
+
+test-clean:
+	rm -rf $(TEST_PATH)output/*
