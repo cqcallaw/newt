@@ -14,6 +14,16 @@ public:
 			m_data(data), m_next(next) {
 	}
 
+	//construct a linked list from the given input
+	//map null inputs to empty lists
+	LinkedList(const LinkedList<T>* list) :
+			m_data(
+					(list != nullptr && list != Terminator) ?
+							list->GetData() : nullptr), m_next(
+					(list != nullptr && list != Terminator) ?
+							list->GetNext() : Terminator) {
+	}
+
 	virtual ~LinkedList() {
 	}
 

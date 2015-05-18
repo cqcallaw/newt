@@ -18,6 +18,10 @@ public:
 			LinkedList(data, next) {
 	}
 
+	StatementList(const LinkedList<const Statement*>* list) :
+			LinkedList(list) {
+	}
+
 	static constexpr StatementList* Terminator = (StatementList*) LinkedList<
 			const Statement*>::Terminator;
 };

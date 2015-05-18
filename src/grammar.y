@@ -138,6 +138,7 @@ extern int line_count;            // current line in the input; from lexer
 %type <union_operator_type> math_operator
 %type <union_statement_type> statement
 %type <union_statement_list_type> statement_list
+%type <union_statement_list_type> main_statement_list
 %type <union_statement_block_type> if_block
 %type <union_statement_block_type> statement_block
 %type <union_statement_type> if_statement
@@ -150,7 +151,7 @@ extern int line_count;            // current line in the input; from lexer
 
 //---------------------------------------------------------------------
 program:
-	declaration_list statement_list
+	declaration_list main_statement_list
 	{
 	}
 	;
@@ -242,6 +243,14 @@ statement_block:
 	T_LBRACE statement_list T_RBRACE
 	{
 		$$ = new StatementBlock($2->Reverse(true)); //statement list comes in reverse order
+	}
+	;
+
+//---------------------------------------------------------------------
+main_statement_list:
+	statement_list
+	{
+		$$ = new StatementList($1->Reverse(true)); //statement list comes in reverse order
 	}
 	;
 
