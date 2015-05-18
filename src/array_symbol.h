@@ -20,6 +20,9 @@ public:
 	ArraySymbol(const string* name, const double value[], int size);
 	ArraySymbol(const string* name, const string* value[], int size);
 
+	const static ArraySymbol* GetSymbol(const Type type, const string* name,
+			const Expression* size_expression);
+
 	virtual string ToString() const override;
 
 	const void* GetValue(const int index) const;
@@ -29,6 +32,10 @@ public:
 	const ArraySymbol* WithValue(const int index, string* value) const;
 
 	const int GetSize() const;
+
+	const static std::string DefaultArraySymbolName;
+	const static ArraySymbol* DefaultArraySymbol;
+
 private:
 	int size;
 };

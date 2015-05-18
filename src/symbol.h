@@ -29,11 +29,11 @@ public:
 	Symbol(const string* name, const double* value);
 	Symbol(const string* name, const string* value);
 
+	const static Symbol* GetSymbol(const Type type, const string* name,
+			const Expression* initializer_expression);
+
 	virtual ~Symbol() {
 	}
-
-	const static Symbol* GetSymbol(const Type type, const string* name,
-			const Expression* expression);
 
 	const Type GetType() const;
 	const string GetName() const;

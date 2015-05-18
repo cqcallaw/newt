@@ -181,83 +181,12 @@ variable_declaration:
 	}
 	| simple_type  T_ID  T_LBRACKET expression T_RBRACKET
 	{
-		const Symbol* existing_symbol = Symbol_table::instance()->GetSymbol($2);
+		const ArraySymbol* symbol = ArraySymbol::GetSymbol($1, $2, $4);
 
-		if (existing_symbol != Symbol::DefaultSymbol)
-		{
-			Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
-		}
-
-		if($4->GetType() != INT)
-		{
-			Error::error(Error::INVALID_ARRAY_SIZE, *$2, *($4->ToString()));
-		}
-		else
-		{
-			const void* evaluation = $4->Evaluate();
-			if (evaluation != NULL)
-			{
-				int array_size = *((int*)(evaluation));
-
-				if (array_size <= 0)
-				{
-					ostringstream convert;
-					convert << array_size;
-					Error::error(Error::INVALID_ARRAY_SIZE, *$2, convert.str());
-					$$ = (Expression*)DefaultExpression;
-				}
-				else
-				{
-					Symbol* symbol;
-
-					switch($1)
-					{
-						case INT:
-						{
-							int* array = new int[array_size]();
-
-							for(int i = 0; i < array_size; i++)
-							{
-								array[i] = 0;
-							}
-
-							symbol = (Symbol*)new ArraySymbol($2, array, array_size);
-							Symbol_table::instance()->InsertSymbol(symbol);
-
-							break;
-						}
-						case DOUBLE:
-						{
-							double* array = new double[array_size]();
-
-							for(int i = 0; i < array_size; i++)
-							{
-								array[i] = 0.0;
-							}
-
-							symbol = (Symbol*)new ArraySymbol($2, array, array_size);
-							Symbol_table::instance()->InsertSymbol(symbol);
-
-							break;
-						}
-						case STRING:
-						{
-							const string** array = (const string**)new string*[array_size]();
-
-							for(int i = 0; i < array_size; i++)
-							{
-								array[i] = new string("");
-							}
-
-							symbol = (Symbol*)new ArraySymbol($2, array, array_size);
-							Symbol_table::instance()->InsertSymbol(symbol);
-
-							break;
-						}
-						default:
-							break;
-					}
-				}
+		if (symbol != ArraySymbol::DefaultArraySymbol) {
+			InsertResult result = Symbol_table::instance()->InsertSymbol(symbol);
+			if (result == SYMBOL_EXISTS) {
+				Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
 			}
 		}
 	}

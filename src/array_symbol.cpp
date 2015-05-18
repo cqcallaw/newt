@@ -9,6 +9,15 @@
 
 #include "assert.h"
 #include "array_symbol.h"
+#include "symbol_table.h"
+#include "error.h"
+#include "expression.h"
+
+const std::string ArraySymbol::DefaultArraySymbolName = std::string(
+		"[!!_DEFAULT_ARRAY_SYMBOL_!!]");
+
+const ArraySymbol* ArraySymbol::DefaultArraySymbol = new ArraySymbol(
+		DefaultArraySymbolName, new int[0](), 0);
 
 ArraySymbol::ArraySymbol(const string name, const int value[], int size) :
 		Symbol(INT_ARRAY, name, (const void*) value) {
@@ -35,6 +44,69 @@ ArraySymbol::ArraySymbol(const string* name, const double value[], int size) :
 
 ArraySymbol::ArraySymbol(const string* name, const string* value[], int size) :
 		ArraySymbol(*name, value, size) {
+}
+
+const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
+		const Expression* size_expression) {
+	ArraySymbol* result = (ArraySymbol*) DefaultArraySymbol;
+
+	const Symbol* existing_symbol = Symbol_table::instance()->GetSymbol(name);
+
+	if (existing_symbol != Symbol::DefaultSymbol) {
+		Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *name);
+	} else if (size_expression->GetType() != INT) {
+		Error::error(Error::INVALID_ARRAY_SIZE, *name,
+				*(size_expression->ToString()));
+	} else {
+		const void* evaluation = size_expression->Evaluate();
+		if (evaluation != NULL) {
+			int array_size = *((int*) (evaluation));
+
+			if (array_size <= 0) {
+				ostringstream convert;
+				convert << array_size;
+				Error::error(Error::INVALID_ARRAY_SIZE, *name, convert.str());
+			} else {
+				switch (type) {
+				case INT: {
+					int* array = new int[array_size]();
+
+					for (int i = 0; i < array_size; i++) {
+						array[i] = 0;
+					}
+
+					result = new ArraySymbol(name, array, array_size);
+					break;
+				}
+				case DOUBLE: {
+					double* array = new double[array_size]();
+
+					for (int i = 0; i < array_size; i++) {
+						array[i] = 0.0;
+					}
+
+					result = new ArraySymbol(name, array, array_size);
+					break;
+				}
+				case STRING: {
+					const string** array =
+							(const string**) new string*[array_size]();
+
+					for (int i = 0; i < array_size; i++) {
+						array[i] = new string("");
+					}
+
+					result = new ArraySymbol(name, array, array_size);
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+	}
+
+	return result;
 }
 
 const int ArraySymbol::GetSize() const {
