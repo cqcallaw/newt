@@ -172,7 +172,7 @@ variable_declaration:
 	{
 		const Symbol* symbol = Symbol::GetSymbol($1, $2, $3);
 
-		if (symbol != DefaultSymbol) {
+		if (symbol != Symbol::DefaultSymbol) {
 			InsertResult result = Symbol_table::instance()->InsertSymbol(symbol);
 			if (result == SYMBOL_EXISTS) {
 				Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
@@ -183,7 +183,7 @@ variable_declaration:
 	{
 		const Symbol* existing_symbol = Symbol_table::instance()->GetSymbol($2);
 
-		if (existing_symbol != DefaultSymbol)
+		if (existing_symbol != Symbol::DefaultSymbol)
 		{
 			Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
 		}
@@ -475,7 +475,7 @@ variable_reference:
 	{
 		const Symbol* symbol = Symbol_table::instance()->GetSymbol($1);
 
-		if(symbol == NULL || symbol == DefaultSymbol)
+		if(symbol == NULL || symbol == Symbol::DefaultSymbol)
 		{
 			Error::error(Error::UNDECLARED_VARIABLE, *$1);
 			$$ = DefaultVariable;
@@ -494,7 +494,7 @@ variable_reference:
 	{
 		const Symbol* symbol = Symbol_table::instance()->GetSymbol($1);
 
-		if(symbol == DefaultSymbol)
+		if(symbol == Symbol::DefaultSymbol)
 		{
 			Error::error(Error::UNDECLARED_VARIABLE, *$1);
 			$$ = DefaultVariable;

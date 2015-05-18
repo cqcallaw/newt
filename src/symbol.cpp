@@ -15,6 +15,10 @@
 #include "error.h"
 #include "expression.h"
 
+const std::string Symbol::DefaultSymbolName = std::string(
+		"[!!_DEFAULT_!!]");
+const Symbol* Symbol::DefaultSymbol = new Symbol(NONE, DefaultSymbolName, NULL);
+
 Symbol::Symbol(const string name, const bool *value) :
 		Symbol(BOOLEAN, name, (void *) value) {
 }

@@ -47,6 +47,9 @@ public:
 
 	virtual string ToString() const;
 
+	const static std::string DefaultSymbolName;
+	const static Symbol* DefaultSymbol;
+
 protected:
 	Symbol(Type type, const string name, const void* value);
 

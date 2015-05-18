@@ -14,12 +14,11 @@
 #include <exit_statement.h>
 #include <print_statement.h>
 #include <statement_block.h>
+#include <statement_list.h>
+#include <variable.h>
 #include "type.h"
 
-const string DefaultSymbolName = string("[!!_DEFAULT_!!]");
-const Symbol* DefaultSymbol = new Symbol(NONE, DefaultSymbolName, NULL);
-
-const Variable* DefaultVariable = new Variable(&DefaultSymbolName);
+const Variable* DefaultVariable = new Variable(&(Symbol::DefaultSymbolName));
 
 const Expression* DefaultExpression = new Expression(NONE);
 
@@ -35,7 +34,7 @@ const StatementBlock* DefaultStatementBlock = new StatementBlock(
 const IfStatement* DefaultIfStatement = new IfStatement(DefaultExpression,
 		DefaultStatementBlock);
 
-const static ForStatement* DefaultForStatement = new ForStatement(
+const ForStatement* DefaultForStatement = new ForStatement(
 		DefaultAssignmentStatement, DefaultExpression,
 		DefaultAssignmentStatement, DefaultStatementBlock);
 
