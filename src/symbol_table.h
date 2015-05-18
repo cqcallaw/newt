@@ -24,7 +24,7 @@ struct comparator {
 
 class Symbol_table {
 public:
-	static Symbol_table *instance();
+	static Symbol_table* instance();
 	void print(ostream &os);
 
 	const Symbol* GetSymbol(const string identifier);

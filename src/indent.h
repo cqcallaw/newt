@@ -1,7 +1,5 @@
-/***
- Overview:
-
- When printing large objects (such as a Symbol_table) and nested objects
+/*
+ When printing large objects (such as a symbol table or nested objects),
  indentation can be very helpful.
 
  class Indent provides an easy way to perform indentation
@@ -31,7 +29,7 @@
  one declared in indent.cpp), you can print nested structures and the
  indentation will always be correct.
 
- ***/
+ */
 
 #ifndef INDENT_H
 #define INDENT_H
@@ -49,6 +47,7 @@ public:
 		m_level += 2;
 		return *this;
 	}
+
 	Indent &operator--() {
 		m_level -= 2;
 		if (m_level < 0)
@@ -62,6 +61,7 @@ public:
 		m_level += 2;
 		return *this;
 	}
+
 	Indent &operator--(int) {
 		m_level -= 2;
 		if (m_level < 0)
@@ -73,6 +73,7 @@ public:
 		m_level += i;
 		return *this;
 	}
+
 	Indent &operator-=(int i) {
 		m_level -= i;
 		if (m_level < 0)
@@ -94,9 +95,6 @@ private:
 // overload the << operator for Indent
 std::ostream &operator<<(std::ostream &os, const Indent &indent);
 
-// since this file is included by other .cpp file, the following will
-// all the .cpp file to access the global indent object that is declared
-// in indent.cpp
 extern Indent indent;
 
 #endif // #ifndef INDENT_H

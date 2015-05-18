@@ -8,27 +8,10 @@
  string s2 = "",
  string s3 = "");
 
- Static functions can be called w/o instantiating an Error object:
+ Static functions can be called without instantiating an Error object:
 
  Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, name);
 
- Error_type is an enumerated type.  When you need to issue an error
- message look through the elements of Error_type to find the error
- message that matches what you want to issue.
-
- Each error message interprets the arguments (s1, s2, s3) differently.
- Most don't use all of them, some don't use any.  You need to look in
- error.cpp to see which argument is used for a particular message.
-
- For example, consider the error previously declared variable.  This
- error assumes that s1 contains the textual name of the variable that
- has been previously declared.
-
- case PREVIOUSLY_DECLARED_VARIABLE:
- error_header();
- cerr << "Variable '"<< s1 << "'" << " previously declared."
- << endl;
- break;
  */
 
 #ifndef ERROR_H
@@ -39,8 +22,6 @@
 class Error {
 public:
 	enum Error_type {
-		ANIMATION_PARAM_DOES_NOT_MATCH_FORWARD,
-		ANIMATION_PARAMETER_NAME_NOT_UNIQUE,
 		ARRAY_INDEX_MUST_BE_AN_INTEGER,
 		ARRAY_INDEX_OUT_OF_BOUNDS,
 		ASSIGNMENT_TYPE_ERROR,
@@ -62,13 +43,9 @@ public:
 		LHS_OF_PERIOD_MUST_BE_OBJECT,
 		MINUS_ASSIGNMENT_TYPE_ERROR,
 		NO_BODY_PROVIDED_FOR_FORWARD,
-		NO_FORWARD_FOR_ANIMATION_BLOCK,
 		PARSE_ERROR,
 		PLUS_ASSIGNMENT_TYPE_ERROR,
 		PREVIOUSLY_DECLARED_VARIABLE,
-		PREVIOUSLY_DEFINED_ANIMATION_BLOCK,
-		TYPE_MISMATCH_BETWEEN_ANIMATION_BLOCK_AND_OBJECT,
-		UNDECLARED_MEMBER,
 		UNDECLARED_VARIABLE,
 		UNKNOWN_CONSTRUCTOR_PARAMETER,
 		VARIABLE_NOT_AN_ARRAY,

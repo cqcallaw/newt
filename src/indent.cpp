@@ -6,13 +6,13 @@ using namespace std;
 
 /* static */int Indent::m_count = 0;
 
-Indent indent; // this is the global indent everyone will use
+Indent indent;
 
 Indent::Indent() {
 	m_level = 0;
 
 	// prevents more than one instance from ever being created
-	// not as elegant as implementing a singleton... quick and dirty
+	// not as elegant as implementing a singleton; quick and dirty
 	m_count++;
 	assert(m_count == 1);
 }

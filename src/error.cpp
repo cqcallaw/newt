@@ -20,17 +20,6 @@ extern int line_count; // the line number of current token
 		string s2 /* = "" */, string s3 /* = "" */
 		) {
 	switch (type) {
-	case ANIMATION_PARAM_DOES_NOT_MATCH_FORWARD:
-		error_header();
-		cerr << "The animation block's parameter does not match "
-				<< "the parameter specified in the forward statement." << endl;
-		break;
-	case ANIMATION_PARAMETER_NAME_NOT_UNIQUE:
-		error_header();
-		cerr << "The animation parameter '" << s1
-				<< "' is not a unique name.  Animation parameters must have"
-				<< " names that are unique in the global name space." << endl;
-		break;
 	case ARRAY_INDEX_MUST_BE_AN_INTEGER:
 		error_header();
 		// s2 is expected to be one of the following strings
@@ -169,12 +158,6 @@ extern int line_count; // the line number of current token
 	case PREVIOUSLY_DECLARED_VARIABLE:
 		error_header();
 		cerr << "Variable '" << s1 << "'" << " previously declared." << endl;
-		break;
-	case UNDECLARED_MEMBER:
-		error_header();
-		cerr << "Object '" << s1 << "'"
-				<< " does not contain the member variable '" << s2 << "'."
-				<< endl;
 		break;
 	case UNDECLARED_VARIABLE:
 		error_header();
