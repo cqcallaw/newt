@@ -10,6 +10,7 @@
 
 #include "expression.h"
 #include "variable.h"
+#include "array_variable.h"
 #include "error.h"
 #include "defaults.h"
 
@@ -177,8 +178,7 @@ void AssignmentStatement::execute() const {
 		return;
 	}
 
-	if (m_variable == DefaultVariable
-			|| m_expression == DefaultExpression) {
+	if (m_variable == DefaultVariable || m_expression == DefaultExpression) {
 		return;
 	}
 
@@ -257,107 +257,6 @@ void AssignmentStatement::execute() const {
 		symbol_table->SetSymbol(symbol_name, index, (string*) result);
 		break;
 	}
-		/*case GAME_OBJECT: {
-		 const MemberVariable* member_variable =
-		 dynamic_cast<const MemberVariable*>(m_variable);
-
-		 if (member_variable == NULL) {
-		 assert(false);
-		 }
-
-		 Game_object* object = (Game_object*) symbol_value;
-		 Gpl_type member_variable_type = member_variable->GetType();
-		 string member_name = *(member_variable->GetMemberVariableName());
-
-		 switch (member_variable_type) {
-		 case INT: {
-		 int value;
-		 object->get_member_variable(member_name, value);
-		 int result = *((int*) do_op(value, m_expression, m_op_type));
-		 object->set_member_variable(member_name, result);
-		 break;
-		 }
-		 case DOUBLE: {
-		 double value;
-		 object->get_member_variable(member_name, value);
-		 double result = *((double*) do_op(value, m_expression, m_op_type));
-		 object->set_member_variable(member_name, result);
-		 break;
-		 }
-		 case STRING: {
-		 string value;
-		 object->get_member_variable(member_name, value);
-		 string result = *((string*) do_op(&value, m_expression, m_op_type));
-		 object->set_member_variable(member_name, result);
-		 break;
-		 }
-		 default:
-		 assert(false);
-		 }
-		 break;
-		 }
-		 case GAME_OBJECT_ARRAY: {
-		 const ArrayMemberVariable* member_array_variable =
-		 dynamic_cast<const ArrayMemberVariable*>(m_variable);
-
-		 if (member_array_variable == NULL) {
-		 assert(false);
-		 }
-
-		 int index =
-		 *((int*) member_array_variable->GetIndexExpression()->Evaluate());
-
-		 ArraySymbol* array_symbol = (ArraySymbol*) symbol;
-		 if (index >= array_symbol->GetSize() || index < 0) {
-		 Error::error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-		 array_symbol->GetName(), *AsString(index));
-		 index = 0;
-		 }
-
-		 Game_object* object = ((Game_object**) symbol_value)[index];
-
-		 string member_name = *(member_array_variable->GetMemberVariableName());
-		 Gpl_type member_type;
-		 if (object->get_member_variable_type(member_name, member_type) != OK) {
-		 assert(false);
-		 }
-		 Gpl_type member_variable_type = member_array_variable->GetType();
-
-		 switch (member_variable_type) {
-		 case INT: {
-		 int value;
-		 object->get_member_variable(member_name, value);
-		 int result = *((int*) do_op(value, m_expression, m_op_type));
-		 object->set_member_variable(member_name, result);
-		 break;
-		 }
-		 case DOUBLE: {
-		 double value;
-		 object->get_member_variable(member_name, value);
-		 double result = *((double*) do_op(value, m_expression, m_op_type));
-		 object->set_member_variable(member_name, result);
-		 break;
-		 }
-		 case STRING: {
-		 string value;
-		 object->get_member_variable(member_name, value);
-		 string result = *((string*) do_op(&value, m_expression, m_op_type));
-		 object->set_member_variable(member_name, result);
-		 break;
-		 }
-		 case ANIMATION_BLOCK: {
-		 Animation_block* value;
-		 object->get_member_variable(member_name, value);
-		 Animation_block* result = (Animation_block*) do_op(value,
-		 m_expression, m_op_type);
-		 object->set_member_variable(member_name, result);
-		 break;
-		 }
-		 default:
-		 assert(false);
-		 }
-		 break;
-		 }*/
 	default:
 		assert(false);
 	}

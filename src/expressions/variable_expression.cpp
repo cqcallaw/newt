@@ -7,6 +7,7 @@
 
 #include <variable_expression.h>
 #include <variable.h>
+#include <array_variable.h>
 #include <error.h>
 #include <sstream>
 

@@ -5,6 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/array_symbol.cpp \
+../src/array_variable.cpp \
 ../src/assert.cpp \
 ../src/defaults.cpp \
 ../src/error.cpp \
@@ -20,6 +21,7 @@ CPP_SRCS += \
 
 OBJS += \
 ./src/array_symbol.o \
+./src/array_variable.o \
 ./src/assert.o \
 ./src/defaults.o \
 ./src/error.o \
@@ -35,6 +37,7 @@ OBJS += \
 
 CPP_DEPS += \
 ./src/array_symbol.d \
+./src/array_variable.d \
 ./src/assert.d \
 ./src/defaults.d \
 ./src/error.d \

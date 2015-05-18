@@ -13,6 +13,7 @@ extern int line_count;            // current line in the input; from lexer
 #include <error.h>
 #include <parser.h>
 #include <utils.h>
+#include <array_variable.h>
 #include <constant_expression.h>
 #include <comparison_expression.h>
 #include <arithmetic_expression.h>
