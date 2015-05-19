@@ -1,0 +1,4 @@
+Parsing file ../tests/t1415.nwt...
+Semantic error on line 6: Invalid left operand for operator '&&'.
+Parsed file ../tests/t1415.nwt.
+1 error found; giving up.

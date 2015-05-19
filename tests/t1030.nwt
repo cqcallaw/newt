@@ -1,0 +1,2 @@
+// since both left and right operands are ints should compare ints
+int result_should_be_1 = 42 < 1000;

@@ -1,0 +1,9 @@
+int a = 42;
+double b = 3.5;
+double c = 12.1;
+double q = asin(sin(a));
+double r = acos(cos(a));
+double s = atan(tan(a));
+double w = sqrt((a + .42) * (a + .42)) - .42;
+double y = abs(-1 * a);
+double z = floor(b * c);

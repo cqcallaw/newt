@@ -1,0 +1,7 @@
+Parsing file ../tests/t1041.nwt...
+Parsed file ../tests/t1041.nwt.
+Root Symbol Table:
+int w 1
+int x 1
+int y 1
+int z 0

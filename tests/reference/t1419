@@ -1,0 +1,7 @@
+Parsing file ../tests/t1419.nwt...
+Parsed file ../tests/t1419.nwt.
+Root Symbol Table:
+int i 42
+string s "hello"
+double x 3.14159
+double z 1.77245

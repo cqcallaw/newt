@@ -1,0 +1,5 @@
+// absolute value of an integer
+int one = abs(-1);
+
+// absolute value of a double
+double two_point_two = abs(-2.2);

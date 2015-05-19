@@ -1,0 +1,5 @@
+Parsing file ../tests/t1720.nwt...
+Semantic error on line 2: Arithmetic divide by zero at parse time.  Using zero as the result so parse can continue.
+Semantic error on line 2: The array 'nums' was declared with illegal size '0'.  Arrays sizes must be integers of 1 or larger.
+Parsed file ../tests/t1720.nwt.
+2 errors found; giving up.

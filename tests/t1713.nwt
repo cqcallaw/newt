@@ -1,0 +1,3 @@
+int should_be_negative_1 = -1;
+int should_be_positive_42 = --42;
+int should_be_negative_42 = -------42;

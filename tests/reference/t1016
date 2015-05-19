@@ -1,0 +1,6 @@
+Parsing file ../tests/t1016.nwt...
+Parsed file ../tests/t1016.nwt.
+Root Symbol Table:
+int a 3
+int b 86
+int c 777

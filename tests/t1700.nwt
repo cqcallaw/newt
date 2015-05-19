@@ -1,0 +1,3 @@
+int i = 2;
+
+int nums[i * 2];

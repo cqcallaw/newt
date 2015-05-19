@@ -1,0 +1,4 @@
+Parsing file ../tests/t1420.nwt...
+Semantic error on line 6: Invalid right operand for operator 'sqrt'.
+Parsed file ../tests/t1420.nwt.
+1 error found; giving up.

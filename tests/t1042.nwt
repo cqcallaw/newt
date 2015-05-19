@@ -1,0 +1,4 @@
+
+double k = 1.2;
+int z = 1;
+int x = k != z; // should be 1 (1.2 != 1), but if k is eval as int (1 != 1)

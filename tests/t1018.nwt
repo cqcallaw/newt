@@ -1,0 +1,9 @@
+
+int i = 42;
+double x = 3.14159;
+
+// this is legal since i should automatically convert to a string
+string s = "hello" + i;
+
+// this is also legal
+string s2 = "hello" + x;

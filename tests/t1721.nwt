@@ -1,0 +1,2 @@
+// do not allow mod by zero
+int nums[10%0];

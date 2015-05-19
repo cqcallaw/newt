@@ -1,0 +1,5 @@
+Parsing file ../tests/t1009.nwt...
+Parsed file ../tests/t1009.nwt.
+Root Symbol Table:
+string s "a string of characters"
+string t "a string of characters, concatenated together!"

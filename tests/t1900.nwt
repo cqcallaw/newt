@@ -1,0 +1,88 @@
+int ii = ("Charlie" < "Sally") && (42 + (67 || 12));
+int iii[ii * 3 + (8 - ii * 4)];
+int iiii = (4 / 2) % 7;
+double d = (3.14 - 3) + 24 - -9 * 2 + (ii == iii[3 * ii]);
+string s = "to you all.";
+string s2 = 74 + " hellos " + s;
+string s3 = "int i[0]" + iii[0] + iii[1] + iii[2] + iii[1 + 1 + 1];
+
+double d2 = ((((8) * 7 + -1)) + 3 - (3 + 7 * 1) - 4) / 5;
+double d3 = 1/2 * 3;
+int myInt = 1/2 * 3;
+double d16 = 1.0/2 * 3;
+double d17 = 1/2.0 * 3;
+double d18 = 1.0/2.0 * 3;
+
+double d4 = sin(42.0);
+double d5 = sin(d4);
+double d6 = cos(42);
+double d7 = cos(d6);
+double d8 = tan(42);
+double d9 = tan(d8);
+double d10 = asin(d4);
+double d11 = acos(d6);
+double d12 = atan(d8);
+double d13 = sqrt(100);
+double d14 = floor(d12 + 14.7);
+double d15 = d12 + 14.7;
+
+int abs1 = abs(-42) + abs(42);
+
+double pi = 3 + .14 + .0015;
+int i = 1 != 1;
+int i1 = 1 != 0;
+int i2 = 1 < 0;
+int i3 = 1 > 0;
+int i4 = 1 >= 0;
+int i5 = 1 <= 0;
+int i6 = 1 == 0;
+
+int i7 = "Charlie" != "Sally";
+int i8 = "Charlie" == "Sally";
+int i9 = "Charlie" > "Sally";
+int i10 = "Charlie" < "Sally";
+int i11 = "Charlie" >= "Sally";
+int i12 = "Charlie" <= "Sally";
+
+int i13 = 3.5 == 0.123;
+int i14 = 3.5 != 0.123;
+int i15 = 3.5 < .0123;
+int i16 = 3.5 <= .123;
+int i17 = 3.5 > 1.123;
+int i18 = 3.5 >= 1.123;
+
+int i43 = 3.14159 == 42;
+int i44 = 42 == 3.14159;
+int i45 = 42 == 42.0;
+int i46 = 42.0 == 42;
+
+int i47 = 3.14159 != 42;
+int i48 = 42 != 3.14159;
+int i49 = 42 != 42.0;
+int i50 = 42.0 != 42;
+
+int i51 = 3.14159 > 42;
+int i52 = 42 > 3.14159;
+int i53 = 42 > 42.0;
+int i54 = 42.0 > 42;
+
+int i55 = 3.14159 >= 42;
+int i56 = 42 >= 3.14159;
+int i57 = 42 >= 42.0;
+int i58 = 42.0 >= 42;
+
+int i59 = 3.14159 <= 42;
+int i60 = 42 <= 3.14159;
+int i61 = 42 <= 42.0;
+int i62 = 42.0 <= 42;
+
+int i63 = 3.14159 < 42;
+int i64 = 42 < 3.14159;
+int i65 = 42 < 42.0;
+int i66 = 42.0 < 42;
+
+int i67 = !42;
+int i68 = !3.14159;
+
+int i70 = !0;
+int i71 = !0.0;

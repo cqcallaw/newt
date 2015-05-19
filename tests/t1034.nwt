@@ -1,0 +1,4 @@
+// the sub-expression ("hello" == "goodbye") should evaluate to an int
+// it is legal to have (int && int)
+// since "hello" does not equal "goodbye" this is equiv. to (1 && 0) which is 0
+int result_should_be_0  = 1 && "hello" == "goodbye";

@@ -1,0 +1,2 @@
+// since 1 and 2 are integers, the following should use integer division
+int should_be_0 = 1/2 + 1/2;

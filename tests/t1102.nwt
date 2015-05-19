@@ -1,0 +1,3 @@
+int my_array[3];
+
+int a = my_array[42];

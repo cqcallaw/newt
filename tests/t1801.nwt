@@ -1,0 +1,11 @@
+double a = 1.1;
+double b = 2.2;
+double c = 3.3;
+double d = 4.4;
+double e = 5.5;
+double g = a + b - c * d / e;
+double h = a / b * c - d + e;
+double i = (a + b) / (c + d);
+double j = a + b / c + d;
+double k = (a * b) / (c * d);
+double l = a * b / c * d;

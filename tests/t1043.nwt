@@ -1,0 +1,9 @@
+// test to make sure >= has a high precedence than ==
+
+// >= should have higher precedence than ==
+// Thus this become a = 1 == (4 >= 3) which is 1 == 1 which is 1
+int a = 1 == 4 >= 3;
+
+// 1 == 4 is false (0)
+// b = 0 >= 3, which is false (0)
+int b = (1 == 4) >= 3;

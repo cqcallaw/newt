@@ -1,0 +1,5 @@
+int a = !(true && false);
+int b = !true || !false;
+int c = !(true && false || true);
+int d = true || false && true;
+int e = (true || false) && true;

@@ -1,0 +1,4 @@
+Parsing file ../tests/t1289.nwt...
+Semantic error on line 6: Invalid left operand for operator '-'.
+Parsed file ../tests/t1289.nwt.
+1 error found; giving up.

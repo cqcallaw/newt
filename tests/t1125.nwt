@@ -1,0 +1,7 @@
+// the result of floor is an int
+// this should not cause an error
+int a = floor(3.14159);
+
+
+// since an int can be cast up to a double, this isn't an error
+double x = floor(3.14159);

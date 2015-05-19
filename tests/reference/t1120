@@ -1,0 +1,5 @@
+Parsing file ../tests/t1120.nwt...
+Semantic error on line 5: Incorrect type for initial value of variable 'i'.
+Semantic error on line 11: Variable 'foo' was not declared before it was used.
+Parsed file ../tests/t1120.nwt.
+2 errors found; giving up.

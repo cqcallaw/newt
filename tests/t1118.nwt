@@ -1,0 +1,7 @@
+// x + y + str should be of type string
+// illegal to initialize double z with a string
+string str = "-- a string --";
+double x = 1.2;
+double y = 1.3;
+string s = x + y + str;  // this is ok
+double z = x + y + str;  // this is an error

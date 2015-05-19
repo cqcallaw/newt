@@ -1,0 +1,8 @@
+// test two things: 
+// (1) the type of a + b + c + x is a double
+// (2) that an int can't be initialized with a double
+double x = 3.14159;
+int a = 1;
+int b = 2;
+int c = 3;
+int d = a + b + c + x;

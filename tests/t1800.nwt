@@ -1,0 +1,12 @@
+int a = 1;
+int b = 2;
+int c = 3;
+int d = 4;
+int e = 5;
+int f = 6;
+int g = a + b - c * d / e % f;
+int h = a % b / c * d - e + f;
+int i = (a + b) / (c + d);
+int j = a + b / c + d;
+int k = (a * b) / (c * d);
+int l = a * b / c * d;

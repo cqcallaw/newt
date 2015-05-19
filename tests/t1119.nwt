@@ -1,0 +1,14 @@
+// a + b + c + d + x + y + z; should be a double
+// it is not an error to initialize a string with a double so 
+// string s = a + b + c + d + x + y + z; is ok
+// int i = s; is an error
+int a = 1;
+int b = 2;
+int c = 3;
+int d = 4;
+double x = 5;
+double y = 6;
+double z = 7;
+string s = a + b + c + d + x + y + z;
+int i = s;
+

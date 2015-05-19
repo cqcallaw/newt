@@ -1,0 +1,4 @@
+// this is not ok, it attempts to convert a double to int
+// when argument is an int, return type is an int
+// when argument is an double, return type is an double
+int a = abs(4.2);

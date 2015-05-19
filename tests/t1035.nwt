@@ -1,0 +1,5 @@
+// test for true and false
+int t = true;
+int f = false;
+int should_be_1 = t || f;
+int should_be_0 = t && f;

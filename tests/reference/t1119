@@ -1,0 +1,4 @@
+Parsing file ../tests/t1119.nwt...
+Semantic error on line 13: Incorrect type for initial value of variable 'i'.
+Parsed file ../tests/t1119.nwt.
+1 error found; giving up.

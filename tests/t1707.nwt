@@ -1,0 +1,7 @@
+// this is part of t2008.nwt
+int x = floor(100 * cos(20)) + 200;
+int y = floor(100 * sin(20));
+
+// floor works just like the C++ floor
+//  floor(-1.2) == -2.0
+int should_be_minus_2 = floor(-1.2);

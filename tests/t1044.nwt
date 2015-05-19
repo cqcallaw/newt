@@ -1,0 +1,10 @@
+// test to make sure that && has a higher precedence than ||
+
+// && should have higher precedence than ||
+// thus the following is 1 || (0 && 0) || 0 --> 1 || (0) || 0 --> 1 || 0 --> 1
+int a = 1 || 0 && 0 || 0;
+
+// but if you get the precedence wrong, you would have
+// (1 || 0) && 0 || 0 --> 0 && 0 || 0 --> 0 || 0 --> 0
+int b = (1 || 0) && 0 || 0;
+

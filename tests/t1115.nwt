@@ -1,0 +1,2 @@
+// test that an int can't be initialized with a string
+int i = "hello";

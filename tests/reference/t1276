@@ -1,0 +1,7 @@
+Parsing file ../tests/t1276.nwt...
+Parsed file ../tests/t1276.nwt.
+Root Symbol Table:
+int i 42
+string s "hello"
+string var "6.28318"
+double x 3.14159

@@ -1,0 +1,3 @@
+// ! does not work with strings
+string hello = "hello";
+int i = !hello;

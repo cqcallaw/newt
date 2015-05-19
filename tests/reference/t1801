@@ -1,0 +1,14 @@
+Parsing file ../tests/t1801.nwt...
+Parsed file ../tests/t1801.nwt.
+Root Symbol Table:
+double a 1.1
+double b 2.2
+double c 3.3
+double d 4.4
+double e 5.5
+double g 0.66
+double h 2.75
+double i 0.428571
+double j 6.16667
+double k 0.166667
+double l 3.22667

@@ -1,0 +1,7 @@
+// If you fail these tests, your precedence rules for && and || are incorrect
+int and_or12 = 0 && 1 || 1 && 1;
+int and_or15 = 1 && 1 || 1 && 0;
+int and_or16 = 0 && 0 || 1 && 1;
+int and_or19 = 0 && 0 || 1 && 1;
+int and_or24 = 1 && 1 || 0 && 0;
+int and_or27 = 1 && 1 || 0 && 0;

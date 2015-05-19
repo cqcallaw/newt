@@ -1,0 +1,15 @@
+int a = (false || false) && false;
+int b = (false || true) && false;
+int c = (false || false) && true;
+int d = (false || true) && true;
+int e = (true || false) && false;
+int f = (true || true) && false;
+int g = (true || false) && true;
+int h = (true || true) && true;
+int i = false && (false || false);
+int j = false && (true || false);
+int k = false && (false || true);
+int l = false && (true || true);
+int m = true && (false || false);
+int n = true && (true || false);
+int o = true && (false || true);

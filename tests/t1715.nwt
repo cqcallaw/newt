@@ -1,0 +1,2 @@
+// this should be an error; only ints allowed with %
+int i = 4.2 % 3;

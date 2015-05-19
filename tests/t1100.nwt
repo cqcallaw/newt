@@ -1,0 +1,3 @@
+int array[10];
+
+int x = array[3.4];

@@ -1,0 +1,3 @@
+// test that an int can't be initialized with a double expression
+double x = 42.1459;
+int i = x;

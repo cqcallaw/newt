@@ -1,0 +1,14 @@
+int i = 1;
+int j = 2;
+int k = 4;
+int l = 8;
+
+int num0[i*j*k - l + 1];
+int num1[l-k-j];
+int num2[k * 2 - i - k];
+int num3[j * i + i * j];
+int num4[k * j - (i + j)];
+int num5[k * l - l * k + j * (i + j)];
+int num6[i+j+k];
+int num7[i*j*k];
+int num8[l + i];

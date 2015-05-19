@@ -1,0 +1,12 @@
+Parsing file ../tests/t1015.nwt...
+Parsed file ../tests/t1015.nwt.
+Root Symbol Table:
+int a 42
+double b 3.5
+double c 12.1
+double q 42
+double r 42
+double s 42
+double w 42
+double y 42
+double z 42

@@ -1,0 +1,7 @@
+Parsing file ../tests/t1717.nwt...
+Parsed file ../tests/t1717.nwt.
+Root Symbol Table:
+double four_point_two 4.2
+int not_four_point_two 0
+int not_zero 1
+double zero 0

@@ -1,0 +1,3 @@
+// if you reverse the precedence order for || and && you will fail
+// this test
+int a = true || false && false;

@@ -1,0 +1,13 @@
+double a_cos0 = cos(0);
+double b_cos45 = cos(45);
+double c_cos135 = cos(135);
+double d_cos180 = cos(180);
+
+double e_sin0 = sin(0);
+double f_sin45 = sin(45);
+double g_sin90 = sin(90);
+double h_sin135 = sin(135);
+
+double i_tan0 = tan(0);
+double j_tan45 = tan(45);
+double k_tan135 = tan(135);

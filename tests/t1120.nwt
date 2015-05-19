@@ -1,0 +1,11 @@
+// test that variables are still inserted into the symbol table even
+// if the initialization fails
+
+// this is an error because 1.43 is not an int
+int i = 1.43;
+
+// this should not be an error (i should be in the symbol table)
+int j = i;
+
+// this should be an error (foo is not in the symbol table)
+int k = foo;

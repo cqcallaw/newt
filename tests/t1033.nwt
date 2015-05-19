@@ -1,0 +1,3 @@
+// since left child is string, right child will be converted to string
+// the strings "42" and "42" are equal
+int result_should_be_1 = "42" == 42;

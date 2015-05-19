@@ -1,0 +1,8 @@
+// test the precedence of ! and && and ||
+// ! has a higher precedence than &&
+
+int x = !0 && 1;  // should be !(0 && 1) == 1
+int y = !(0 && 1); // same as above
+
+int w = !0 || 1; // should be 1, if ! is not evaluated before || will get 0
+int z = !(0 || 1); // should be 0

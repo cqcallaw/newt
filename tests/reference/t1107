@@ -1,0 +1,4 @@
+Parsing file ../tests/t1107.nwt...
+Semantic error on line 3: The array 'my_values' was declared with illegal size '12five'.  Arrays sizes must be integers of 1 or larger.
+Parsed file ../tests/t1107.nwt.
+1 error found; giving up.

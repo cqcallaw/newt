@@ -1,0 +1,2 @@
+// this should work because ! evaluates to an int
+int i = ! 3.14159;

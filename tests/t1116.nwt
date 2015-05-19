@@ -1,0 +1,9 @@
+// value * x + str should be evaluated as:
+// (value * x) + str
+// where (value * x) is a double, and a double + string is a string
+// so a = value * x + str; should be an error, initializing an int w/a string
+int value = 1;
+double x = 5.5;
+string str = "value = ";
+
+int a = value * x + str;

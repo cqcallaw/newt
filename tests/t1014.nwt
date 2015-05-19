@@ -1,0 +1,6 @@
+double q = asin(sin(42.0));
+double r = acos(cos(42.0));
+double s = atan(tan(42.0));
+double w = sqrt(42.42 * 42.42) - .42;
+double y = abs(-1 * 42.0);
+double z = floor(3.5 * 12.1);

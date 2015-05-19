@@ -1,0 +1,4 @@
+int index = 3;
+string my_string = index;
+int array[10];
+int x = array[my_string];

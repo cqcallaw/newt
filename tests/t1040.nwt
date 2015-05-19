@@ -1,0 +1,4 @@
+// x should be 1.0
+// 1 and 2 are integers so 1/2 should be evaluated to 0 then converted to 0.0
+
+double x = 1.0 + 1/2; 

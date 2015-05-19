@@ -1,0 +1,7 @@
+Parsing file ../tests/t1018.nwt...
+Parsed file ../tests/t1018.nwt.
+Root Symbol Table:
+int i 42
+string s "hello42"
+string s2 "hello3.14159"
+double x 3.14159

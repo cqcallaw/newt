@@ -1,0 +1,6 @@
+// this is a generated tests
+// it may or may not be an error
+int i = 42;
+double x = 3.14159;
+string s = "hello";
+string var = i <= x;

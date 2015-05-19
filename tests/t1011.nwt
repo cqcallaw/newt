@@ -1,0 +1,4 @@
+// are variables w/o an initialization value initialized correctly?
+int a;
+double b;
+string c;
