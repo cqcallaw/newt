@@ -1,4 +1,3 @@
-// this is part of t2008.nwt
 int x = floor(100 * cos(20)) + 200;
 int y = floor(100 * sin(20));
 
