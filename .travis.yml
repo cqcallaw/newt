@@ -1,2 +1,3 @@
 language: cpp
-script: build.sh
+script: "./cqcallaw/newt/build.sh"
+after_script: "./cqcallaw/newt/test.sh"
