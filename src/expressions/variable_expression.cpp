@@ -28,7 +28,7 @@ VariableExpression::VariableExpression(const Variable* variable) :
 }
 
 const void* VariableExpression::Evaluate() const {
-	const Symbol* symbol = Symbol_table::instance()->GetSymbol(
+	const Symbol* symbol = SymbolTable::instance()->GetSymbol(
 			m_variable->GetName());
 	switch (symbol->GetType()) {
 	case NONE:

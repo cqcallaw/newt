@@ -62,7 +62,7 @@ const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 		const Expression* size_expression) {
 	ArraySymbol* result = (ArraySymbol*) DefaultArraySymbol;
 
-	const Symbol* existing_symbol = Symbol_table::instance()->GetSymbol(name);
+	const Symbol* existing_symbol = SymbolTable::instance()->GetSymbol(name);
 
 	if (existing_symbol != Symbol::DefaultSymbol) {
 		Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *name);

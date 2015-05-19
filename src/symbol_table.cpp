@@ -27,19 +27,19 @@
 
 using namespace std;
 
-Symbol_table * Symbol_table::m_instance = NULL;
+SymbolTable * SymbolTable::m_instance = NULL;
 
-Symbol_table::Symbol_table() {
+SymbolTable::SymbolTable() {
 	table = new map<const string, const Symbol*, comparator>();
 }
 
-Symbol_table* Symbol_table::instance() {
-	if (Symbol_table::m_instance == NULL)
-		Symbol_table::m_instance = new Symbol_table();
-	return Symbol_table::m_instance;
+SymbolTable* SymbolTable::instance() {
+	if (SymbolTable::m_instance == NULL)
+		SymbolTable::m_instance = new SymbolTable();
+	return SymbolTable::m_instance;
 }
 
-const Symbol* Symbol_table::GetSymbol(const string identifier) {
+const Symbol* SymbolTable::GetSymbol(const string identifier) {
 	auto result = table->find(identifier);
 
 	if (result != table->end()) {
@@ -49,10 +49,10 @@ const Symbol* Symbol_table::GetSymbol(const string identifier) {
 	return Symbol::DefaultSymbol;
 }
 
-const Symbol* Symbol_table::GetSymbol(const string* identifier) {
+const Symbol* SymbolTable::GetSymbol(const string* identifier) {
 	return GetSymbol(*identifier);
 }
-InsertResult Symbol_table::InsertSymbol(const Symbol* symbol) {
+InsertResult SymbolTable::InsertSymbol(const Symbol* symbol) {
 	std::map<const string, const Symbol*>::iterator search_result;
 
 	search_result = table->find(symbol->GetName());
@@ -68,22 +68,22 @@ InsertResult Symbol_table::InsertSymbol(const Symbol* symbol) {
 	}
 }
 
-SetResult Symbol_table::SetSymbol(const string identifier, const bool* value) {
+SetResult SymbolTable::SetSymbol(const string identifier, const bool* value) {
 	return SetSymbol(identifier, BOOLEAN, (void*) value);
 }
-SetResult Symbol_table::SetSymbol(const string identifier, const int* value) {
+SetResult SymbolTable::SetSymbol(const string identifier, const int* value) {
 	return SetSymbol(identifier, INT, (void*) value);
 }
-SetResult Symbol_table::SetSymbol(const string identifier,
+SetResult SymbolTable::SetSymbol(const string identifier,
 		const double* value) {
 	return SetSymbol(identifier, DOUBLE, (void*) value);
 }
-SetResult Symbol_table::SetSymbol(const string identifier,
+SetResult SymbolTable::SetSymbol(const string identifier,
 		const string* value) {
 	return SetSymbol(identifier, STRING, (void*) value);
 }
 
-SetResult Symbol_table::SetSymbol(const string identifier, Type type,
+SetResult SymbolTable::SetSymbol(const string identifier, Type type,
 		const void* value) {
 	const Symbol* symbol = GetSymbol(identifier);
 
@@ -104,24 +104,24 @@ SetResult Symbol_table::SetSymbol(const string identifier, Type type,
 	return SET_SUCCESS;
 }
 
-SetResult Symbol_table::SetSymbol(const string identifier, int index,
+SetResult SymbolTable::SetSymbol(const string identifier, int index,
 		const bool* value) {
 	return SetArraySymbol(identifier, BOOLEAN, index, (void*) value);
 }
-SetResult Symbol_table::SetSymbol(const string identifier, int index,
+SetResult SymbolTable::SetSymbol(const string identifier, int index,
 		const int* value) {
 	return SetArraySymbol(identifier, INT, index, (void*) value);
 }
-SetResult Symbol_table::SetSymbol(const string identifier, int index,
+SetResult SymbolTable::SetSymbol(const string identifier, int index,
 		const double* value) {
 	return SetArraySymbol(identifier, DOUBLE, index, (void*) value);
 }
-SetResult Symbol_table::SetSymbol(const string identifier, int index,
+SetResult SymbolTable::SetSymbol(const string identifier, int index,
 		const string* value) {
 	return SetArraySymbol(identifier, STRING, index, (void*) value);
 }
 
-SetResult Symbol_table::SetArraySymbol(const string identifier, Type type,
+SetResult SymbolTable::SetArraySymbol(const string identifier, Type type,
 		int index, const void* value) {
 	const Symbol* symbol = GetSymbol(identifier);
 
@@ -190,53 +190,7 @@ SetResult Symbol_table::SetArraySymbol(const string identifier, Type type,
 	return SET_SUCCESS;
 }
 
-void Symbol_table::set(const string identifier, const int value) {
-	SetSymbol(identifier, new int(value));
-}
-void Symbol_table::set(const string identifier, const double value) {
-	SetSymbol(identifier, new double(value));
-}
-void Symbol_table::set(const string identifier, const string value) {
-	SetSymbol(identifier, new string(value));
-}
-
-const void Symbol_table::get(const string identifier, int &out) {
-	const Symbol* symbol = GetSymbol(identifier);
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL
-			|| symbol->GetType() > INT) {
-		out = 0;
-	} else {
-		out = *((int*) symbol->GetValue());
-	}
-}
-const void Symbol_table::get(const string identifier, double &out) {
-	const Symbol* symbol = GetSymbol(identifier);
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL
-			|| symbol->GetType() > DOUBLE) {
-		out = 0.0;
-	} else {
-		out = *((double*) symbol->GetValue());
-	}
-}
-const void Symbol_table::get(const string identifier, string &out) {
-	const Symbol* symbol = GetSymbol(identifier);
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL
-			|| symbol->GetType() > STRING) {
-		out = "";
-	} else {
-		out = *((string*) symbol->GetValue());
-	}
-}
-const bool Symbol_table::get_type(const string identifier, Type &out) {
-	const Symbol* symbol = GetSymbol(identifier);
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
-		return false;
-	}
-	out = symbol->GetType();
-	return true;
-}
-
-void Symbol_table::print(ostream &os) {
+void SymbolTable::print(ostream &os) {
 	std::map<const string, const Symbol*>::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {
 		Symbol* symbol = (Symbol *) iter->second;

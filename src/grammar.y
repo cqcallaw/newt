@@ -194,7 +194,7 @@ variable_declaration:
 		const Symbol* symbol = Symbol::GetSymbol($1, $2, $3);
 
 		if (symbol != Symbol::DefaultSymbol) {
-			InsertResult result = Symbol_table::instance()->InsertSymbol(symbol);
+			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
 			if (result == SYMBOL_EXISTS) {
 				Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
 			}
@@ -205,7 +205,7 @@ variable_declaration:
 		const ArraySymbol* symbol = ArraySymbol::GetSymbol($1, $2, $4);
 
 		if (symbol != ArraySymbol::DefaultArraySymbol) {
-			InsertResult result = Symbol_table::instance()->InsertSymbol(symbol);
+			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
 			if (result == SYMBOL_EXISTS) {
 				Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
 			}
@@ -431,7 +431,7 @@ assign_statement:
 variable_reference:
 	T_ID
 	{
-		const Symbol* symbol = Symbol_table::instance()->GetSymbol($1);
+		const Symbol* symbol = SymbolTable::instance()->GetSymbol($1);
 
 		if(symbol == NULL || symbol == Symbol::DefaultSymbol)
 		{
@@ -450,7 +450,7 @@ variable_reference:
 	}
 	| T_ID T_LBRACKET expression T_RBRACKET
 	{
-		const Symbol* symbol = Symbol_table::instance()->GetSymbol($1);
+		const Symbol* symbol = SymbolTable::instance()->GetSymbol($1);
 
 		if(symbol == Symbol::DefaultSymbol)
 		{

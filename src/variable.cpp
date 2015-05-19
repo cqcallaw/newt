@@ -30,7 +30,7 @@ Variable::Variable(const string* name) :
 }
 
 const Type Variable::GetType() const {
-	return Symbol_table::instance()->GetSymbol(m_name)->GetType();
+	return SymbolTable::instance()->GetSymbol(m_name)->GetType();
 }
 
 const string* Variable::ToString() const {

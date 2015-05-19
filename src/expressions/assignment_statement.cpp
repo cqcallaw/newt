@@ -194,7 +194,7 @@ void AssignmentStatement::execute() const {
 		return;
 	}
 
-	Symbol_table* symbol_table = Symbol_table::instance();
+	SymbolTable* symbol_table = SymbolTable::instance();
 	const Symbol* symbol = symbol_table->GetSymbol(m_variable->GetName());
 	const string symbol_name = symbol->GetName();
 	const Type symbol_type = symbol->GetType();

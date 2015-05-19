@@ -41,9 +41,9 @@ struct comparator {
 	}
 };
 
-class Symbol_table {
+class SymbolTable {
 public:
-	static Symbol_table* instance();
+	static SymbolTable* instance();
 	void print(ostream &os);
 
 	const Symbol* GetSymbol(const string identifier);
@@ -63,18 +63,8 @@ public:
 	SetResult SetSymbol(const string identifier, int index,
 			const string* value);
 
-	//compatibility functions for Tyson's test harness
-	const void get(const string identifier, int &out);
-	const void get(const string identifier, double &out);
-	const void get(const string identifier, string &out);
-	const bool get_type(const string identifier, Type &out);
-
-	void set(const string identifier, const int value);
-	void set(const string identifier, const double value);
-	void set(const string identifier, const string value);
-
 private:
-	static Symbol_table* m_instance;
+	static SymbolTable* m_instance;
 
 	std::map<const string, const Symbol*, comparator>* table;
 
@@ -83,12 +73,12 @@ private:
 	SetResult SetArraySymbol(const string identifier, Type type, int index,
 			const void* value);
 
-	Symbol_table();
+	SymbolTable();
 
 	// disable default copy constructor and default assignment
 	// done as a precaution, they should never be called
-	Symbol_table(const Symbol_table &);
-	const Symbol_table &operator=(const Symbol_table &);
+	SymbolTable(const SymbolTable &);
+	const SymbolTable &operator=(const SymbolTable &);
 };
 
 #endif /* SYMBOL_TABLE_H_ */

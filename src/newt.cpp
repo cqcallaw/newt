@@ -76,6 +76,6 @@ int main(int argc, char *argv[]) {
 
 	if (parse_result == 0 && Error::num_errors() == 0 && debug) {
 		cout << "Root Symbol Table:" << endl;
-		Symbol_table::instance()->print(cout);
+		SymbolTable::instance()->print(cout);
 	}
 }
