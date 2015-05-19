@@ -1,0 +1,7 @@
+Parsing file ../tests/t0002.nwt...
+Parsed file ../tests/t0002.nwt.
+Root Symbol Table:
+double n 10
+double x -40.2
+double y 0
+double z 1000

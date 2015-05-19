@@ -151,36 +151,28 @@ string ArraySymbol::ToString() const {
 	Type type = GetType();
 	const string name = GetName();
 
+	os << type << " " << name << ":" << endl;
 	switch (type) {
 	case INT_ARRAY:
 		for (int i = 0; i < size; i++) {
-			os << type << " " << name << "[" << i << "] "
-					<< *((int *) GetValue(i)) << "\n";
+			os << "  [" << i << "] " << *((int *) GetValue(i)) << endl;
 		}
 		break;
 	case DOUBLE_ARRAY:
 		for (int i = 0; i < size; i++) {
-			os << type << " " << name << "[" << i << "] "
-					<< *((double *) GetValue(i)) << "\n";
+			os << "  [" << i << "] " << *((double *) GetValue(i)) << endl;
 		}
 		break;
 	case STRING_ARRAY:
 		for (int i = 0; i < size; i++) {
-			os << type << " " << name << "[" << i << "] \""
-					<< *((string *) GetValue(i)) << "\"\n";
+			os << "  [" << i << "] \"" << *((string *) GetValue(i)) << "\""
+					<< endl;
 		}
 		break;
-		/*case GAME_OBJECT_ARRAY:
-		 for (int i = 0; i < size; i++) {
-		 os << type << " " << name << "[" << i << "]\n";
-		 indent++;
-		 os << *((Game_object *) GetValue(i)) << "\n";
-		 indent--;
-		 }
-		 break;*/
 	default:
 		assert(false);
 	}
+	os << "end array " << name << endl;
 
 	return os.str();
 }

@@ -1,0 +1,5 @@
+Parsing file ../tests/t0003.nwt...
+Parsed file ../tests/t0003.nwt.
+Root Symbol Table:
+string a ""
+string b "newt"

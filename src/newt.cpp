@@ -18,8 +18,10 @@
  */
 
 #include <iostream>
+#include <string.h>
 
 #include "error.h"
+#include "symbol_table.h"
 
 using namespace std;
 
@@ -38,13 +40,42 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	char *filename = argv[1];
+	bool debug = false;
+	for (int i = 1; i < argc - 1; i++) {
+		int compare = strcmp(argv[i], "--debug");
+		if (compare == 0) {
+			debug = true;
+		}
+	}
 
+	char *filename = argv[argc - 1];
 	yyin = fopen(filename, "r");
 	if (!yyin) {
 		cerr << "Cannot open input file <" << filename << ">." << endl;
 		return 2;
 	}
 
-	yyparse();
+	if (debug) {
+		cout << "Parsing file " << filename << "..." << endl;
+	}
+
+	int parse_result = yyparse();
+
+	if (debug) {
+		cout << "Parsed file " << filename << "." << endl;
+	}
+
+	if (parse_result != 0 || Error::num_errors() != 0) {
+		cerr << Error::num_errors() << " error";
+		if (Error::num_errors() > 1)
+			cout << "s";
+		cout << " found; giving up." << endl;
+
+		exit (EXIT_FAILURE);
+	}
+
+	if (parse_result == 0 && Error::num_errors() == 0 && debug) {
+		cout << "Root Symbol Table:" << endl;
+		Symbol_table::instance()->print(cout);
+	}
 }
