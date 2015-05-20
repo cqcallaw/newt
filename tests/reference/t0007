@@ -1,4 +1,4 @@
 Parsing file ../tests/t0007.nwt...
-Parse error on line 1 reported by parser: syntax error, unexpected string constant, expecting ;.
+Parse error on line 1 reported by parser: syntax error, unexpected string constant, expecting newline.
 Parsed file ../tests/t0007.nwt.
 1 error found; giving up.

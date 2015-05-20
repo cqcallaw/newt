@@ -1,2 +1,2 @@
 // test valid array size
-int nums[-5];
+int nums[-5]

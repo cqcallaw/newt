@@ -76,74 +76,92 @@ void error()
   yylval.union_string = new string(yytext);
 }
 
+bool newline = false;
+void check_newline()
+{
+	//because a newline is a statement and expression terminator, 
+	//we may get an error when encountering a newline.
+	//thus, we must increment the line counter _after_ the 
+	//newline token has been processed by the parser.
+	if (newline)
+	{
+		newline = false;
+		line_count++; // count the lines for error reporting
+	}
+}
+void set_newline()
+{
+	newline = true;
+}
+
 %}
 
 %%
 
-[\n]            line_count++; // count the lines for error reporting
-[ \t\r]         ; // ignore spaces, tabs and the microsoft line feed (\r)
+[\n]            check_newline(); set_newline(); return T_NEWLINE; 
+[ \t\r]         check_newline(); // ignore spaces, tabs and the carriage return
 
-\/\/.*$	; // ignore comments
+\/\/.*$         check_newline(); // ignore comments
 
-"bool" return T_BOOLEAN;
-"int" return T_INT;
-"double" return T_DOUBLE;
-"string" return T_STRING;
+"bool"          check_newline(); return T_BOOLEAN;
+"int"           check_newline(); return T_INT;
+"double"        check_newline(); return T_DOUBLE;
+"string"        check_newline(); return T_STRING;
 
-"if" return T_IF;
-"for" return T_FOR;
-"else" return T_ELSE;
+"if"            check_newline(); return T_IF;
+"for"           check_newline(); return T_FOR;
+"else"          check_newline(); return T_ELSE;
 
-"exit" yylval.union_int = line_count; return T_EXIT;
-"print" yylval.union_int = line_count; return T_PRINT;
-"true" return T_TRUE;
-"false" return T_FALSE;
+"exit"          check_newline(); yylval.union_int = line_count; return T_EXIT;
+"print"         check_newline(); yylval.union_int = line_count; return T_PRINT;
+"true"          check_newline(); return T_TRUE;
+"false"         check_newline(); return T_FALSE;
 
-"sin" return T_SIN;
-"cos" return T_COS;
-"tan" return T_TAN;
-"asin" return T_ASIN;
-"acos" return T_ACOS;
-"atan" return T_ATAN;
-"sqrt" return T_SQRT;
+"sin"           check_newline(); return T_SIN;
+"cos"           check_newline(); return T_COS;
+"tan"           check_newline(); return T_TAN;
+"asin"          check_newline(); return T_ASIN;
+"acos"          check_newline(); return T_ACOS;
+"atan"          check_newline(); return T_ATAN;
+"sqrt"          check_newline(); return T_SQRT;
 
-"abs" return T_ABS;
-"floor" return T_FLOOR;
-"random" return T_RANDOM;
+"abs"           check_newline(); return T_ABS;
+"floor"         check_newline(); return T_FLOOR;
+"random"        check_newline(); return T_RANDOM;
 
-"="             return T_ASSIGN;
-"{"             return T_LBRACE;
-"}"             return T_RBRACE;
-";"             return T_SEMIC;
-","             return T_COMMA;
+"="             check_newline(); return T_ASSIGN;
+"{"             check_newline(); return T_LBRACE;
+"}"             check_newline(); return T_RBRACE;
+";"             check_newline(); return T_SEMIC;
+","             check_newline(); return T_COMMA;
 
-"("             return T_LPAREN;
-")"             return T_RPAREN;
-"["             return T_LBRACKET;
-"]"             return T_RBRACKET;
-"."             return T_PERIOD;
-"+="            return T_PLUS_ASSIGN;
-"-="            return T_MINUS_ASSIGN;
+"("             check_newline(); return T_LPAREN;
+")"             check_newline(); return T_RPAREN;
+"["             check_newline(); return T_LBRACKET;
+"]"             check_newline(); return T_RBRACKET;
+"."             check_newline(); return T_PERIOD;
+"+="            check_newline(); return T_PLUS_ASSIGN;
+"-="            check_newline(); return T_MINUS_ASSIGN;
 
-"*"             return T_ASTERISK;
-"/"             return T_DIVIDE;
-"+"             return T_PLUS;
-"-"             return T_MINUS;
-"%"             return T_MOD;
-"<"             return T_LESS;
-">"             return T_GREATER;
-"<="            return T_LESS_EQUAL;
-">="            return T_GREATER_EQUAL;
-"=="            return T_EQUAL;
-"!="            return T_NOT_EQUAL;
-"!"             return T_NOT;
-"&&"            return T_AND;
-"||"            return T_OR;
+"*"             check_newline(); return T_ASTERISK;
+"/"             check_newline(); return T_DIVIDE;
+"+"             check_newline(); return T_PLUS;
+"-"             check_newline(); return T_MINUS;
+"%"             check_newline(); return T_MOD;
+"<"             check_newline(); return T_LESS;
+">"             check_newline(); return T_GREATER;
+"<="            check_newline(); return T_LESS_EQUAL;
+">="            check_newline(); return T_GREATER_EQUAL;
+"=="            check_newline(); return T_EQUAL;
+"!="            check_newline(); return T_NOT_EQUAL;
+"!"             check_newline(); return T_NOT;
+"&&"            check_newline(); return T_AND;
+"||"            check_newline(); return T_OR;
 
-[0-9]+          get_int_value(); return T_INT_CONSTANT;
-([0-9]+\.[0-9]+|[0-9]+\.|\.[0-9]+)  get_double_value(); return T_DOUBLE_CONSTANT;
-\"(\\.|[^\"])*\" get_quoted_string_value(); return T_STRING_CONSTANT; //regex taken from http://stackoverflow.com/a/2039820/577298 and http://stackoverflow.com/a/9260547/577298
+[0-9]+                              check_newline(); get_int_value(); return T_INT_CONSTANT;
+([0-9]+\.[0-9]+|[0-9]+\.|\.[0-9]+)  check_newline(); get_double_value(); return T_DOUBLE_CONSTANT;
+\"(\\.|[^\"])*\"                    check_newline(); get_quoted_string_value(); return T_STRING_CONSTANT; //regex taken from http://stackoverflow.com/a/2039820/577298 and http://stackoverflow.com/a/9260547/577298
 
-[_A-Za-z][_A-Za-z0-9]*       get_string_value(); return T_ID;
+[_A-Za-z][_A-Za-z0-9]*              check_newline(); get_string_value(); return T_ID;
 
-.               error(); return T_ERROR;
+.                                   error(); return T_ERROR;

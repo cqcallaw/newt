@@ -1,5 +1,5 @@
 // make sure we cast INT and DOUBLE expressions after evaluating them
 
-string a = -0;
-string b = !0;
-string c = sin(42);
+string a = -0
+string b = !0
+string c = sin(42)

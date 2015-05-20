@@ -1,4 +1,4 @@
 Parsing file ../tests/t0012.nwt...
-Parse error on line 2 reported by parser: syntax error, unexpected ., expecting ;.
+Parse error on line 2 reported by parser: syntax error, unexpected ., expecting newline.
 Parsed file ../tests/t0012.nwt.
 1 error found; giving up.

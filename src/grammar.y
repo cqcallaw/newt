@@ -126,6 +126,8 @@ extern int line_count;            // current line in the input; from lexer
 %token T_OR                  "||"
 %token T_NOT                 "!"
 
+%token T_NEWLINE             "newline"
+
 %token <union_string> T_ID               "identifier"
 %token <union_int> T_INT_CONSTANT        "int constant"
 %token <union_double > T_DOUBLE_CONSTANT "double constant"
@@ -157,8 +159,8 @@ extern int line_count;            // current line in the input; from lexer
 %type <union_variable> variable_reference
 %type <union_operator_type> math_operator
 %type <union_statement_type> statement
-%type <union_statement_list_type> statement_list
 %type <union_statement_list_type> main_statement_list
+%type <union_statement_list_type> statement_list
 %type <union_statement_block_type> if_block
 %type <union_statement_block_type> statement_block
 %type <union_statement_type> if_statement
@@ -179,12 +181,18 @@ program:
 //---------------------------------------------------------------------
 declaration_list:
 	declaration_list declaration
+	| newlines
 	| empty
 	;
 
 //---------------------------------------------------------------------
 declaration:
-	variable_declaration T_SEMIC
+	variable_declaration newlines
+	;
+
+newlines:
+	newlines T_NEWLINE
+	| T_NEWLINE
 	;
 
 //---------------------------------------------------------------------
@@ -296,15 +304,15 @@ statement:
 	{
 		$$ = $1;
 	}
-	| assign_statement T_SEMIC
+	| assign_statement newlines
 	{
 		$$ = $1;
 	}
-	| print_statement T_SEMIC
+	| print_statement newlines
 	{
 		$$ = $1;
 	}
-	| exit_statement T_SEMIC
+	| exit_statement newlines
 	{
 		$$ = $1;
 	}

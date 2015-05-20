@@ -1,2 +1,2 @@
-int values;
-double values[3];
+int values
+double values[3]

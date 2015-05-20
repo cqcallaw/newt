@@ -1,4 +1,4 @@
 // test error on redeclaration of int as a double and a string
-int a;
-double a;
-string a;
+int a
+double a
+string a

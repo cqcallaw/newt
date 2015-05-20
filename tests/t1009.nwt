@@ -1,2 +1,2 @@
-string s = "a string of characters";
-string t = s + ", concatenated together!";
+string s = "a string of characters"
+string t = s + ", concatenated together!"
