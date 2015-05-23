@@ -27,7 +27,8 @@ class Expression;
 
 class ArrayVariable: public Variable {
 public:
-	ArrayVariable(const std::string* name, const Expression* index_expression);
+	ArrayVariable(const std::string* name, YYLTYPE location,
+			const Expression* index_expression, YYLTYPE expression_location);
 	virtual ~ArrayVariable();
 
 	const Expression* GetIndexExpression() const {
@@ -38,8 +39,13 @@ public:
 
 	virtual const std::string* ToString() const;
 
+	const YYLTYPE GetExpressionLocation() const {
+		return m_expression_location;
+	}
+
 private:
 	const Expression* m_index_expression;
+	const YYLTYPE m_expression_location;
 };
 
 std::ostream &operator<<(std::ostream &os, const ArrayVariable &array_variable);

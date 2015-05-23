@@ -47,7 +47,9 @@ const void* VariableExpression::Evaluate() const {
 		if (index > as_array_symbol->GetSize()) {
 			ostringstream buffer;
 			buffer << index;
-			Error::error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+			Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+					m_variable->GetLocation().first_line,
+					m_variable->GetLocation().first_column,
 					*(m_variable->GetName()), buffer.str());
 			return NULL;
 		} else {

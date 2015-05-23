@@ -22,17 +22,14 @@
 
 #include <string>
 #include "symbol.h"
+#include "yyltype.h"
 
 class Expression;
 
 class Variable {
 public:
-	Variable(const string* name);
+	Variable(const string* name, YYLTYPE location);
 	virtual ~Variable();
-
-	const string* GetName() const {
-		return m_name;
-	}
 
 	virtual const string* ToString() const;
 
@@ -40,8 +37,17 @@ public:
 
 	virtual const Type GetType() const;
 
+	const string* GetName() const {
+		return m_name;
+	}
+
+	const YYLTYPE GetLocation() const {
+		return m_location;
+	}
+
 private:
 	const string* m_name;
+	const YYLTYPE m_location;
 };
 
 std::ostream &operator<<(std::ostream &os, const Variable &variable);

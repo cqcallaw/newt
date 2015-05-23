@@ -1,4 +1,4 @@
 Parsing file ../tests/t1715.nwt...
-Semantic error on line 2: Invalid left operand for operator '%'.
+Semantic error on line 2, column 9: Invalid left operand for operator '%'.
 Parsed file ../tests/t1715.nwt.
 1 error found; giving up.

@@ -23,17 +23,14 @@
 #include "error.h"
 #include "symbol_table.h"
 
+#include "parser.tab.h"
+#include "lexer.h"
+
 using namespace std;
 
-extern int yyparse();
-
-int yyerror(const char *str) {
-	Error::error(Error::PARSE_ERROR, str);
-	return 1;
-}
-
 int main(int argc, char *argv[]) {
-	extern FILE *yyin;
+	FILE* input_file;
+	yyscan_t scanner;
 
 	if (argc < 2) {
 		cerr << "Input script must be specified." << endl;
@@ -49,8 +46,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	char *filename = argv[argc - 1];
-	yyin = fopen(filename, "r");
-	if (!yyin) {
+	input_file = fopen(filename, "r");
+	if (!input_file) {
 		cerr << "Cannot open input file <" << filename << ">." << endl;
 		return 2;
 	}
@@ -59,7 +56,10 @@ int main(int argc, char *argv[]) {
 		cout << "Parsing file " << filename << "..." << endl;
 	}
 
-	int parse_result = yyparse();
+	yylex_init (&scanner);
+	yyset_in(input_file, scanner);
+	int parse_result = yyparse(scanner);
+	yylex_destroy(scanner);
 
 	if (debug) {
 		cout << "Parsed file " << filename << "." << endl;
@@ -73,9 +73,9 @@ int main(int argc, char *argv[]) {
 
 		if (debug) {
 			//return "success" so the test infrastructure doesn't barf
-			exit (EXIT_SUCCESS);
+			exit(EXIT_SUCCESS);
 		} else {
-			exit (EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 	}
 

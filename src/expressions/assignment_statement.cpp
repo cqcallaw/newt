@@ -231,7 +231,9 @@ void AssignmentStatement::execute() const {
 
 		ArraySymbol* array_symbol = (ArraySymbol*) symbol;
 		if (index >= array_symbol->GetSize() || index < 0) {
-			Error::error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+			Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+					m_variable->GetLocation().first_line,
+					m_variable->GetLocation().first_column,
 					array_symbol->GetName(), *AsString(index));
 			index = 0;
 		}
@@ -245,7 +247,9 @@ void AssignmentStatement::execute() const {
 		int index = *((int*) array_variable->GetIndexExpression()->Evaluate());
 		ArraySymbol* array_symbol = (ArraySymbol*) symbol;
 		if (index >= array_symbol->GetSize() || index < 0) {
-			Error::error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+			Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+					m_variable->GetLocation().first_line,
+					m_variable->GetLocation().first_column,
 					array_symbol->GetName(), *AsString(index));
 			index = 0;
 		}
@@ -259,7 +263,9 @@ void AssignmentStatement::execute() const {
 		int index = *((int*) array_variable->GetIndexExpression()->Evaluate());
 		ArraySymbol* array_symbol = (ArraySymbol*) symbol;
 		if (index >= array_symbol->GetSize() || index < 0) {
-			Error::error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+			Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+					m_variable->GetLocation().first_line,
+					m_variable->GetLocation().first_column,
 					array_symbol->GetName(), *AsString(index));
 			index = 0;
 		}

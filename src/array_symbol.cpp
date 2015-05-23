@@ -59,15 +59,14 @@ ArraySymbol::ArraySymbol(const string* name, const string* value[], int size) :
 }
 
 const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
-		const Expression* size_expression) {
+		const Expression* size_expression, YYLTYPE type_position,
+		YYLTYPE name_position, YYLTYPE size_expression_position) {
 	ArraySymbol* result = (ArraySymbol*) DefaultArraySymbol;
 
-	const Symbol* existing_symbol = SymbolTable::instance()->GetSymbol(name);
-
-	if (existing_symbol != Symbol::DefaultSymbol) {
-		Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *name);
-	} else if (size_expression->GetType() != INT) {
-		Error::error(Error::INVALID_ARRAY_SIZE, *name,
+	if (size_expression->GetType() != INT) {
+		Error::semantic_error(Error::INVALID_ARRAY_SIZE,
+				size_expression_position.first_line,
+				size_expression_position.first_column, *name,
 				*(size_expression->ToString()));
 	} else {
 		const void* evaluation = size_expression->Evaluate();
@@ -77,7 +76,10 @@ const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 			if (array_size <= 0) {
 				ostringstream convert;
 				convert << array_size;
-				Error::error(Error::INVALID_ARRAY_SIZE, *name, convert.str());
+				Error::semantic_error(Error::INVALID_ARRAY_SIZE,
+						size_expression_position.first_line,
+						size_expression_position.first_column, *name,
+						convert.str());
 			} else {
 				switch (type) {
 				case INT: {

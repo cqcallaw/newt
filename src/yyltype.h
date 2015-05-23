@@ -17,22 +17,15 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef YYLTYPE_H_
+#define YYLTYPE_H_
 
-#include <string>
-#include <symbol.h>
-#include <symbol_table.h>
-#include <expression.h>
-#include <variable.h>
-#include <parameter.h>
-#include <parameterlist.h>
-#include <statement.h>
-#include <assignment_statement.h>
-#include <statement_list.h>
-#include <statement_block.h>
+#define YYLTYPE YYLTYPE
+typedef struct YYLTYPE {
+	int first_line;
+	int first_column;
+	int last_line;
+	int last_column;
+}YYLTYPE;
 
-#include <y.tab.h>
-#include <type.h>
-
-#endif
+#endif /* YYLTYPE_H_ */

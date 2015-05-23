@@ -1,2 +1,2 @@
-// this should be an error only ints allowed with %
+// this should be an error: only ints are allowed with %
 int i = 42 % 3.3

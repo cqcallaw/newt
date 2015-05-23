@@ -1,4 +1,4 @@
 Parsing file ../tests/t1100.nwt...
-Semantic error on line 3: A double expression is not a legal array index.  The array is 'array'.
+Semantic error on line 3, column 15: A double expression is not a legal array index.  The array is 'array'.
 Parsed file ../tests/t1100.nwt.
 1 error found; giving up.

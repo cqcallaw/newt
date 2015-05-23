@@ -1,4 +1,4 @@
 Parsing file ../tests/t1104.nwt...
-Semantic error on line 1: The array 'array' was declared with illegal size '3.4'.  Arrays sizes must be integers of 1 or larger.
+Semantic error on line 1, column 11: The array 'array' was declared with illegal size '3.4'.  Arrays sizes must be integers of 1 or larger.
 Parsed file ../tests/t1104.nwt.
 1 error found; giving up.

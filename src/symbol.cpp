@@ -135,7 +135,8 @@ string Symbol::ToString() const {
 }
 
 const Symbol* Symbol::GetSymbol(const Type type, const string* name,
-		const Expression* expression) {
+		const Expression* expression, YYLTYPE type_position,
+		YYLTYPE name_position, YYLTYPE initializer_position) {
 	Symbol* result = (Symbol*) DefaultSymbol;
 	switch (type) {
 	case BOOLEAN: {
@@ -151,7 +152,9 @@ const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 					break;
 				}
 			} else {
-				Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *name);
+				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+						initializer_position.first_line,
+						initializer_position.first_column, *name);
 			}
 		} else {
 			value = new bool(false);
@@ -178,7 +181,9 @@ const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 					break;
 				}
 			} else {
-				Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *name);
+				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+						initializer_position.first_line,
+						initializer_position.first_column, *name);
 			}
 		} else {
 			value = new int(0);
@@ -211,7 +216,9 @@ const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 					break;
 				}
 			} else {
-				Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *name);
+				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+						initializer_position.first_line,
+						initializer_position.first_column, *name);
 			}
 		} else {
 			value = new double(0.0);
@@ -249,7 +256,9 @@ const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 				break;
 			}
 			default:
-				Error::error(Error::INVALID_TYPE_FOR_INITIAL_VALUE, *name);
+				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+						initializer_position.first_line,
+						initializer_position.first_column, *name);
 				value = new string("");
 			}
 		} else {

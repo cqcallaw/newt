@@ -30,7 +30,10 @@
 #include <variable.h>
 #include "type.h"
 
-const Variable* DefaultVariable = new Variable(&(Symbol::DefaultSymbolName));
+const YYLTYPE DefaultLocation = YYLTYPE { -1, -1, -1, -1 };
+
+const Variable* DefaultVariable = new Variable(&(Symbol::DefaultSymbolName),
+		DefaultLocation);
 
 const Expression* DefaultExpression = new Expression(NONE);
 

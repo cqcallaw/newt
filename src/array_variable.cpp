@@ -21,13 +21,15 @@
 #include <expression.h>
 #include <sstream>
 
+#include "yyltype.h"
 #include "assert.h"
 
-ArrayVariable::ArrayVariable(const string* name,
-		const Expression* index_expression) :
-		Variable(name), m_index_expression(index_expression) {
-	assert(index_expression != NULL && index_expression != nullptr);
-	assert(index_expression->GetType() == INT);
+ArrayVariable::ArrayVariable(const string* name, YYLTYPE location,
+		const Expression* index_expression, YYLTYPE expression_location) :
+		Variable(name, location), m_index_expression(index_expression), m_expression_location(
+				expression_location) {
+	assert(index_expression != NULL && index_expression != nullptr);assert(
+			index_expression->GetType() == INT);
 }
 
 const Type ArrayVariable::GetType() const {
