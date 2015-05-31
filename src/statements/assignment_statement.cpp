@@ -17,14 +17,13 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <assignment_statement.h>
 #include <sstream>
-#include "assignment_statement.h"
-
-#include "expression.h"
-#include "variable.h"
-#include "array_variable.h"
-#include "error.h"
-#include "defaults.h"
+#include <expression.h>
+#include <variable.h>
+#include <array_variable.h>
+#include <error.h>
+#include <defaults.h>
 
 AssignmentStatement::AssignmentStatement(const Variable* variable,
 		const AssignmentType op_type, const Expression* expression) :

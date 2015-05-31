@@ -21,7 +21,7 @@
 #include <expression.h>
 #include <defaults.h>
 #include <assert.h>
-#include "assignment_statement.h"
+#include <assignment_statement.h>
 #include "statement_block.h"
 
 ForStatement::ForStatement(const AssignmentStatement* initial,

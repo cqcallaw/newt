@@ -17,10 +17,10 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <assignment_statement.h>
 #include <defaults.h>
 #include <symbol.h>
 #include <expression.h>
-#include <assignment_statement.h>
 #include <for_statement.h>
 #include <if_statement.h>
 #include <exit_statement.h>
