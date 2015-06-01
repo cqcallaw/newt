@@ -2,28 +2,26 @@
 PCOMP = g++
 PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/statements" -I"../src" -I"./"
 
-parser: lexer y.tab.o
+parser: parser.tab.o
 
 parser-clean: lexer-clean
-	rm -rf y.tab.c y.tab.h y.output y.tab.d y.tab.o
+	rm -rf parser.tab.* parser.output
 
-y.tab.c y.tab.h: ../src/grammar.y
-	bison -vyd ../src/grammar.y -o y.tab.c
+parser.tab.c parser.tab.h: ../src/parser.y
+	bison -vd ../src/parser.y
 
-y.tab.o: y.tab.c y.tab.h
-	$(PCOMP) $(PCOMPFLAGS) -w -c y.tab.c
+parser.tab.o: parser.tab.c parser.tab.h lexer.o
+	$(PCOMP) $(PCOMPFLAGS) -w -c parser.tab.c
 
-lexer: lex.yy.o
-
+lexer.o: lexer.c parser.tab.h
+	$(PCOMP) $(PCOMPFLAGS) -c lexer.c
+	
 lexer-clean:
-	rm -rf lex.yy.o lex.yy.c lex.yy.d
+	rm -rf lexer.*
 
-lex.yy.c: ../src/lexer.l
+lexer.c: ../src/lexer.l
 	flex ../src/lexer.l
 
-lex.yy.o: lex.yy.c y.tab.h 
-	$(PCOMP) $(PCOMPFLAGS) -c lex.yy.c
-	
 #Tests
 TEST_PATH = ../tests/
 #ref: http://stackoverflow.com/a/2706067/577298

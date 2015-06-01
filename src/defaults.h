@@ -21,6 +21,7 @@
 #define DEFAULTS_H_
 
 #include <string>
+#include "yyltype.h"
 
 class Symbol;
 class Variable;
@@ -32,6 +33,7 @@ class ExitStatement;
 class PrintStatement;
 class StatementBlock;
 
+extern const YYLTYPE DefaultLocation;
 extern const Variable* DefaultVariable;
 extern const Expression* DefaultExpression;
 extern const AssignmentStatement* DefaultAssignmentStatement;

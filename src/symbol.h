@@ -24,6 +24,7 @@
 #include <iostream>
 
 #include "type.h"
+#include "yyltype.h"
 
 using namespace std;
 
@@ -42,7 +43,8 @@ public:
 	Symbol(const string* name, const string* value);
 
 	const static Symbol* GetSymbol(const Type type, const string* name,
-			const Expression* initializer_expression);
+			const Expression* initializer_expression, YYLTYPE type_position,
+			YYLTYPE name_position, YYLTYPE initializer_position);
 
 	virtual ~Symbol() {
 	}

@@ -1,9 +1,10 @@
 *.o
 *.d
-lex.yy.c
+lexer.c
+lexer.h
+parser.output
+parser.tab.c
+parser.tab.h
 newt
-y.output
-y.tab.c
-y.tab.h
 tests/output
 .settings

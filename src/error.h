@@ -35,13 +35,14 @@
 
 #include <string>
 
+using namespace std;
+
 class Error {
 public:
 	enum Error_type {
 		ARRAY_INDEX_MUST_BE_AN_INTEGER,
 		ARRAY_INDEX_OUT_OF_BOUNDS,
 		ASSIGNMENT_TYPE_ERROR,
-		CANNOT_CHANGE_DERIVED_ATTRIBUTE,
 		EXIT_STATUS_MUST_BE_AN_INTEGER,
 		ILLEGAL_TOKEN,
 		INCORRECT_CONSTRUCTOR_PARAMETER_TYPE,
@@ -59,7 +60,6 @@ public:
 		LHS_OF_PERIOD_MUST_BE_OBJECT,
 		MINUS_ASSIGNMENT_TYPE_ERROR,
 		NO_BODY_PROVIDED_FOR_FORWARD,
-		PARSE_ERROR,
 		PLUS_ASSIGNMENT_TYPE_ERROR,
 		PREVIOUSLY_DECLARED_VARIABLE,
 		UNDECLARED_VARIABLE,
@@ -67,27 +67,28 @@ public:
 		VARIABLE_NOT_AN_ARRAY,
 		DIVIDE_BY_ZERO_AT_PARSE_TIME,
 		MOD_BY_ZERO_AT_PARSE_TIME,
-		UNDEFINED_ERROR
+		PARSE_ERROR
 	};
 
-	static void error(Error_type type, std::string s1 = "", std::string s2 = "",
-			std::string s3 = "");
+	static void lex_error(int line_number, string s1);
 
-	static void starting_execution() {
-		m_runtime = true;
-	}
+	static void parse_error(int line_number, string s1);
+
+	static void semantic_error(Error_type type, int line_number, int column_number,
+			string s1 = "", string s2 = "", string s3 = "");
+
+	static void runtime_error(Error_type type, string s1 = "", string s2 = "",
+			string s3 = "");
 
 	static int num_errors() {
 		return m_num_errors;
 	}
-	static bool runtime() {
-		return m_runtime;
-	}
 
 protected:
-	static bool m_runtime;
+	static void error_core(Error_type type, string s1 = "", string s2 = "",
+			string s3 = "");
+
 	static int m_num_errors;
-	static void error_header();
 };
 
 #endif // #ifndef ERROR_H

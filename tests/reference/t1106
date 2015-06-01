@@ -1,4 +1,4 @@
 Parsing file ../tests/t1106.nwt...
-Semantic error on line 1: Variable 'i' was not declared before it was used.
+Semantic error on line 1, column 9: Variable 'i' was not declared before it was used.
 Parsed file ../tests/t1106.nwt.
 1 error found; giving up.

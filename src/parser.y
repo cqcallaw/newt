@@ -17,12 +17,31 @@
     along with newt.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-%{
+%define api.pure full
+%locations
+%define parse.error verbose
 
-extern int yylex();               // this lexer function returns next token
-extern int yyerror(const char *); // used to print errors
-extern int line_count;            // current line in the input; from lexer
+%code requires {
+#include <string>
+#include <symbol.h>
+#include <symbol_table.h>
+#include <expression.h>
+#include <variable.h>
+#include <parameter.h>
+#include <parameterlist.h>
+#include <statement.h>
+#include <assignment_statement.h>
+#include <statement_list.h>
+#include <statement_block.h>
 
+#include <type.h>
+typedef void* yyscan_t;
+
+}
+
+%param {yyscan_t scanner}
+
+%code {
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -30,7 +49,6 @@ extern int line_count;            // current line in the input; from lexer
 #include <algorithm>
 
 #include <error.h>
-#include <parser.h>
 #include <utils.h>
 #include <array_variable.h>
 #include <constant_expression.h>
@@ -49,13 +67,19 @@ extern int line_count;            // current line in the input; from lexer
 #include <statement_block.h>
 #include <defaults.h>
 
-%}
+#include <lexer.h>
+
+void yyerror(YYLTYPE* locp, yyscan_t scanner, const char* str) {
+	Error::parse_error(locp->first_line, string(str));
+}
+
+}
 
 %union {
  bool           union_boolean;
  int            union_int;
  double         union_double;
- std::string    *union_string;
+ std::string*   union_string;
  Type           union_type;
  const Expression*          union_expression;
  const Variable*            union_variable;
@@ -69,15 +93,13 @@ extern int line_count;            // current line in the input; from lexer
  const AssignmentStatement* union_assignment_statement_type;
 }
 
-%error-verbose
-
 %token T_BOOLEAN               "bool"
 %token T_INT                   "int"
 %token T_DOUBLE                "double"
 %token T_STRING                "string"
 
-%token <union_boolean> T_TRUE  "boolean true" 
-%token <union_boolean> T_FALSE "boolean false" 
+%token <union_boolean> T_TRUE  "boolean true"
+%token <union_boolean> T_FALSE "boolean false"
 
 %token T_IF                    "if"
 %token T_FOR                   "for"
@@ -154,7 +176,6 @@ extern int line_count;            // current line in the input; from lexer
 %type <union_type> simple_type
 %type <union_expression> expression
 %type <union_expression> primary_expression
-%type <union_expression> optional_initializer
 %type <union_expression> variable_declaration
 %type <union_variable> variable_reference
 %type <union_operator_type> math_operator
@@ -181,41 +202,52 @@ program:
 //---------------------------------------------------------------------
 declaration_list:
 	declaration_list declaration
-	| newlines
+	| terminators
 	| empty
 	;
 
 //---------------------------------------------------------------------
 declaration:
-	variable_declaration newlines
+	variable_declaration terminators
 	;
 
-newlines:
-	newlines T_NEWLINE
+terminators:
+	terminators T_NEWLINE
 	| T_NEWLINE
 	;
 
 //---------------------------------------------------------------------
 variable_declaration:
-	simple_type T_ID optional_initializer
+	simple_type T_ID
 	{
-		const Symbol* symbol = Symbol::GetSymbol($1, $2, $3);
+		const Symbol* symbol = Symbol::GetSymbol($1, $2, DefaultExpression, @1, @2, DefaultLocation);
 
 		if (symbol != Symbol::DefaultSymbol) {
 			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
 			if (result == SYMBOL_EXISTS) {
-				Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
+				Error::semantic_error(Error::PREVIOUSLY_DECLARED_VARIABLE, @2.first_line, @2.first_column, *$2);
 			}
 		}
 	}
-	| simple_type  T_ID  T_LBRACKET expression T_RBRACKET
+	| simple_type T_ID T_ASSIGN expression
 	{
-		const ArraySymbol* symbol = ArraySymbol::GetSymbol($1, $2, $4);
+		const Symbol* symbol = Symbol::GetSymbol($1, $2, $4, @1, @2, @4);
+
+		if (symbol != Symbol::DefaultSymbol) {
+			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
+			if (result == SYMBOL_EXISTS) {
+				Error::semantic_error(Error::PREVIOUSLY_DECLARED_VARIABLE, @2.first_line, @2.first_column, *$2);
+			}
+		}
+	}
+	| simple_type T_ID T_LBRACKET expression T_RBRACKET
+	{
+		const ArraySymbol* symbol = ArraySymbol::GetSymbol($1, $2, $4, @1, @2, @4);
 
 		if (symbol != ArraySymbol::DefaultArraySymbol) {
 			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
 			if (result == SYMBOL_EXISTS) {
-				Error::error(Error::PREVIOUSLY_DECLARED_VARIABLE, *$2);
+				Error::semantic_error(Error::PREVIOUSLY_DECLARED_VARIABLE, @2.first_line, @2.first_column, *$2);
 			}
 		}
 	}
@@ -239,18 +271,6 @@ simple_type:
 	| T_STRING
 	{
 		$$ = STRING;
-	}
-	;
-
-//---------------------------------------------------------------------
-optional_initializer:
-	T_ASSIGN expression
-	{
-		$$ = $2;
-	}
-	| empty
-	{
-		$$ = NULL;
 	}
 	;
 
@@ -304,15 +324,15 @@ statement:
 	{
 		$$ = $1;
 	}
-	| assign_statement newlines
+	| assign_statement terminators
 	{
 		$$ = $1;
 	}
-	| print_statement newlines
+	| print_statement terminators
 	{
 		$$ = $1;
 	}
-	| exit_statement newlines
+	| exit_statement terminators
 	{
 		$$ = $1;
 	}
@@ -323,7 +343,7 @@ if_statement:
 	T_IF T_LPAREN expression T_RPAREN if_block %prec IF_NO_ELSE
 	{
 		if (!($3->GetType() & (BOOLEAN | INT))) {
-			Error::error(Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION);
+			Error::semantic_error(Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION, @3.first_line, @3.first_column);
 			$$ = DefaultIfStatement;
 		} else { 
 			$$ = new IfStatement($3, $5);
@@ -332,7 +352,7 @@ if_statement:
 	| T_IF T_LPAREN expression T_RPAREN if_block T_ELSE if_block
 	{
 		if (!($3->GetType() & (BOOLEAN | INT))) {
-			Error::error(Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION);
+			Error::semantic_error(Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION, @3.first_line, @3.first_column);
 			$$ = DefaultIfStatement;
 		} else { 
 			$$ = new IfStatement($3, $5, $7);
@@ -345,7 +365,7 @@ for_statement:
 	T_FOR T_LPAREN assign_statement T_SEMIC expression T_SEMIC assign_statement T_RPAREN statement_block
 	{
 		if (!($5->GetType() & (BOOLEAN | INT))) {
-			Error::error(Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION);
+			Error::semantic_error(Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION, @5.first_line, @5.first_column);
 			$$ = DefaultForStatement;
 		} else { 
 			$$ = new ForStatement($3, $5, $7, $9);
@@ -359,7 +379,7 @@ print_statement:
 	{
 		Type expression_type = $3->GetType();
 		if (expression_type > STRING) {
-			Error::error(Error::INVALID_TYPE_FOR_PRINT_STMT_EXPRESSION, type_to_string(expression_type));
+			Error::semantic_error(Error::INVALID_TYPE_FOR_PRINT_STMT_EXPRESSION, @3.first_line, @3.first_column, type_to_string(expression_type));
 			$$ = DefaultPrintStatement;
 		} else {
 			$$ = new PrintStatement($1, $3);
@@ -373,7 +393,7 @@ exit_statement:
 	{
 		Type expression_type = $3->GetType();
 		if (expression_type != INT) {
-			Error::error(Error::EXIT_STATUS_MUST_BE_AN_INTEGER, type_to_string(expression_type));
+			Error::semantic_error(Error::EXIT_STATUS_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, type_to_string(expression_type));
 			$$ = DefaultExitStatement;
 		} else {
 			$$ = new ExitStatement($1, $3);
@@ -390,10 +410,10 @@ assign_statement:
 		if (variable_type == NONE || expression_type == NONE) {
 			$$ = DefaultAssignmentStatement;
 		} else if (!(variable_type & (BOOLEAN | INT | DOUBLE | STRING))) {
-			Error::error(Error::INVALID_LHS_OF_ASSIGNMENT, *($1->GetName()), type_to_string(variable_type));
+			Error::semantic_error(Error::INVALID_LHS_OF_ASSIGNMENT, @1.first_line, @1.first_column, *($1->GetName()), type_to_string(variable_type));
 			$$ = DefaultAssignmentStatement;
 		} else if (variable_type <= STRING && expression_type > variable_type) {
-			Error::error(Error::ASSIGNMENT_TYPE_ERROR, type_to_string(variable_type), type_to_string(expression_type));
+			Error::semantic_error(Error::ASSIGNMENT_TYPE_ERROR, @3.first_line, @3.first_column, type_to_string(variable_type), type_to_string(expression_type));
 			$$ = DefaultAssignmentStatement;
 		} else {
 			$$ = new AssignmentStatement($1, AssignmentStatement::AssignmentType::ASSIGN, $3);
@@ -407,10 +427,10 @@ assign_statement:
 		if (variable_type == NONE || expression_type == NONE) {
 			$$ = DefaultAssignmentStatement;
 		} else if (variable_type <= STRING && expression_type > variable_type) {
-			Error::error(Error::PLUS_ASSIGNMENT_TYPE_ERROR, type_to_string(variable_type), type_to_string(expression_type));
+			Error::semantic_error(Error::PLUS_ASSIGNMENT_TYPE_ERROR, @1.first_line, @1.first_column, type_to_string(variable_type), type_to_string(expression_type));
 			$$ = DefaultAssignmentStatement;
 		} else if (!(variable_type & (INT | DOUBLE | STRING))) {
-			Error::error(Error::INVALID_LHS_OF_PLUS_ASSIGNMENT, variable_name, type_to_string(variable_type));
+			Error::semantic_error(Error::INVALID_LHS_OF_PLUS_ASSIGNMENT, @1.first_line, @1.first_column, variable_name, type_to_string(variable_type));
 			$$ = DefaultAssignmentStatement;
 		} else {
 			$$ = new AssignmentStatement($1, AssignmentStatement::AssignmentType::PLUS_ASSIGN, $3);
@@ -424,10 +444,10 @@ assign_statement:
 		if (variable_type == NONE || expression_type == NONE) {
 			$$ = DefaultAssignmentStatement;
 		} else if (variable_type <= STRING && expression_type > variable_type) {
-			Error::error(Error::MINUS_ASSIGNMENT_TYPE_ERROR, type_to_string(variable_type), type_to_string(expression_type));
+			Error::semantic_error(Error::MINUS_ASSIGNMENT_TYPE_ERROR, @1.first_line, @1.first_column, type_to_string(variable_type), type_to_string(expression_type));
 			$$ = DefaultAssignmentStatement;
 		} else if (!(variable_type & (INT | DOUBLE))) {
-			Error::error(Error::INVALID_LHS_OF_MINUS_ASSIGNMENT, variable_name, type_to_string(variable_type));
+			Error::semantic_error(Error::INVALID_LHS_OF_MINUS_ASSIGNMENT, @1.first_line, @1.first_column, variable_name, type_to_string(variable_type));
 			$$ = DefaultAssignmentStatement;
 		} else {
 			$$ = new AssignmentStatement($1, AssignmentStatement::AssignmentType::MINUS_ASSIGN, $3);
@@ -443,26 +463,26 @@ variable_reference:
 
 		if(symbol == NULL || symbol == Symbol::DefaultSymbol)
 		{
-			Error::error(Error::UNDECLARED_VARIABLE, *$1);
+			Error::semantic_error(Error::UNDECLARED_VARIABLE, @1.first_line, @1.first_column, *$1);
 			$$ = DefaultVariable;
 		}
 		else
 		{
 			if (symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))
 			{
-				Error::error(Error::UNDECLARED_VARIABLE, *$1);
+				Error::semantic_error(Error::UNDECLARED_VARIABLE, @1.first_line, @1.first_column, *$1);
 			}
 
-			$$ = new Variable($1);
+			$$ = new Variable($1, @1);
 		}
 	}
 	| T_ID T_LBRACKET expression T_RBRACKET
 	{
 		const Symbol* symbol = SymbolTable::instance()->GetSymbol($1);
 
-		if(symbol == Symbol::DefaultSymbol)
+		if(symbol == nullptr || symbol == Symbol::DefaultSymbol)
 		{
-			Error::error(Error::UNDECLARED_VARIABLE, *$1);
+			Error::semantic_error(Error::UNDECLARED_VARIABLE, @1.first_line, @1.first_column, *$1);
 			$$ = DefaultVariable;
 		}
 		else
@@ -472,24 +492,24 @@ variable_reference:
 				switch($3->GetType())
 				{
 					case BOOLEAN:
-						Error::error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, *$1, "A boolean expression");
+						Error::semantic_error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, *$1, "A boolean expression");
 						break;
 					case DOUBLE:
-						Error::error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, *$1, "A double expression");
+						Error::semantic_error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, *$1, "A double expression");
 						break;
 					case STRING:
-						Error::error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, *$1, "A string expression");
+						Error::semantic_error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, *$1, "A string expression");
 						break;
 				}
 				$$ = DefaultVariable;
 			}
 			else if (symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))
 			{
-				$$ = new ArrayVariable($1, $3);
+				$$ = new ArrayVariable($1, @1, $3, @3);
 			}
 			else
 			{
-				Error::error(Error::VARIABLE_NOT_AN_ARRAY, *$1);
+				Error::semantic_error(Error::VARIABLE_NOT_AN_ARRAY, @1.first_line, @1.first_column, *$1);
 				$$ = DefaultVariable;
 			}
 		}
@@ -512,12 +532,12 @@ expression:
 	{
 		if ($1->GetType() != NONE && !($1->GetType() & (BOOLEAN | INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_LEFT_OPERAND_TYPE, operator_to_string(OR));
+			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(OR));
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() != NONE && !($3->GetType() & (BOOLEAN | INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_RIGHT_OPERAND_TYPE, operator_to_string(OR));
+			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @3.first_line, @3.first_column, operator_to_string(OR));
 			$$ = DefaultExpression;
 		}
 		else
@@ -529,12 +549,12 @@ expression:
 	{
 		if ($1->GetType() != NONE && !($1->GetType() & (BOOLEAN | INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_LEFT_OPERAND_TYPE, operator_to_string(AND));
+			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(AND));
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() != NONE && !($3->GetType() & (BOOLEAN | INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_RIGHT_OPERAND_TYPE, operator_to_string(AND));
+			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @3.first_line, @3.first_column, operator_to_string(AND));
 			$$ = DefaultExpression;
 		}
 		else
@@ -581,12 +601,12 @@ expression:
 	{
 		if ($1->GetType() != NONE && !($1->GetType() & (INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_LEFT_OPERAND_TYPE, operator_to_string(MINUS));
+			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(MINUS));
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() != NONE && !($3->GetType() & (INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_RIGHT_OPERAND_TYPE, operator_to_string(MINUS));
+			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @3.first_line, @3.first_column, operator_to_string(MINUS));
 			$$ = DefaultExpression;
 		}
 		else
@@ -598,12 +618,12 @@ expression:
 	{
 		if ($1->GetType() != NONE && !($1->GetType() & (INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_LEFT_OPERAND_TYPE, operator_to_string(MULTIPLY));
+			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(MULTIPLY));
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() != NONE && !($3->GetType() & (INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_RIGHT_OPERAND_TYPE, operator_to_string(MULTIPLY));
+			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @3.first_line, @3.first_column, operator_to_string(MULTIPLY));
 			$$ = DefaultExpression;
 		}
 		else
@@ -615,12 +635,12 @@ expression:
 	{
 		if ($1->GetType() != NONE && !($1->GetType() & (INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_LEFT_OPERAND_TYPE, operator_to_string(DIVIDE));
+			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(DIVIDE));
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() != NONE && !($3->GetType() & (INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_RIGHT_OPERAND_TYPE, operator_to_string(DIVIDE));
+			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(DIVIDE));
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() & (BOOLEAN | INT | DOUBLE) && EndsWith(typeid(*$3).name(), "ConstantExpression"))
@@ -629,17 +649,17 @@ expression:
 			//ref: http://stackoverflow.com/a/11310937/577298
 			if ($3->GetType() == BOOLEAN && *((bool*)$3->Evaluate()) == false)
 			{
-				Error::error(Error::DIVIDE_BY_ZERO_AT_PARSE_TIME);
+				Error::semantic_error(Error::DIVIDE_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
 				$$ = new ConstantExpression(0);
 			}
 			else if ($3->GetType() == INT && *((int*)$3->Evaluate()) == 0)
 			{
-				Error::error(Error::DIVIDE_BY_ZERO_AT_PARSE_TIME);
+				Error::semantic_error(Error::DIVIDE_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
 				$$ = new ConstantExpression(0);
 			}
 			else if ($3->GetType() == DOUBLE && *((double*)$3->Evaluate()) == 0.0)
 			{
-				Error::error(Error::DIVIDE_BY_ZERO_AT_PARSE_TIME);
+				Error::semantic_error(Error::DIVIDE_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
 				$$ = new ConstantExpression(0);
 			}
 			else
@@ -656,12 +676,12 @@ expression:
 	{
 		if ($1->GetType() != NONE && !($1->GetType() & INT))
 		{
-			Error::error(Error::INVALID_LEFT_OPERAND_TYPE, operator_to_string(MOD));
+			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(MOD));
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() != NONE && !($3->GetType() & INT))
 		{
-			Error::error(Error::INVALID_RIGHT_OPERAND_TYPE, operator_to_string(MOD));
+			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @3.first_line, @3.first_column, operator_to_string(MOD));
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() & (BOOLEAN | INT | DOUBLE) && EndsWith(typeid(*$3).name(), "ConstantExpression"))
@@ -670,17 +690,17 @@ expression:
 			//ref: http://stackoverflow.com/a/11310937/577298
 			if ($3->GetType() == BOOLEAN && *((bool*)$3->Evaluate()) == false)
 			{
-				Error::error(Error::MOD_BY_ZERO_AT_PARSE_TIME);
+				Error::semantic_error(Error::MOD_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
 				$$ = new ConstantExpression(0);
 			}
 			else if ($3->GetType() == INT && *((int*)$3->Evaluate()) == 0)
 			{
-				Error::error(Error::MOD_BY_ZERO_AT_PARSE_TIME);
+				Error::semantic_error(Error::MOD_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
 				$$ = new ConstantExpression(0);
 			}
 			else if ($3->GetType() == DOUBLE && *((double*)$3->Evaluate()) == 0.0)
 			{
-				Error::error(Error::MOD_BY_ZERO_AT_PARSE_TIME);
+				Error::semantic_error(Error::MOD_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
 				$$ = new ConstantExpression(0);
 			}
 			else
@@ -701,7 +721,7 @@ expression:
 		}
 		else
 		{
-			Error::error(Error::UNDEFINED_ERROR);
+			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @2.first_line, @2.first_column, operator_to_string(UNARY_MINUS));
 			$$ = DefaultExpression;
 		}
 	}
@@ -709,7 +729,7 @@ expression:
 	{
 		if ($2->GetType() != NONE && !($2->GetType() & (BOOLEAN | INT | DOUBLE)))
 		{
-			Error::error(Error::INVALID_RIGHT_OPERAND_TYPE, operator_to_string(NOT));
+			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @2.first_line, @2.first_column, operator_to_string(NOT));
 			$$ = DefaultExpression;
 		}
 		else
@@ -725,7 +745,7 @@ expression:
 		}
 		else
 		{
-			Error::error(Error::INVALID_RIGHT_OPERAND_TYPE, operator_to_string($1));
+			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @3.first_line, @3.first_column, operator_to_string($1));
 			$$ = DefaultExpression;
 		}
 	}

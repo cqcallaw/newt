@@ -24,8 +24,8 @@
 #include "assert.h"
 #include "expression.h"
 
-Variable::Variable(const string* name) :
-		m_name(name) {
+Variable::Variable(const string* name, YYLTYPE location) :
+		m_name(name), m_location(location) {
 	assert(name != NULL && name != nullptr);
 }
 

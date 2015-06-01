@@ -2,7 +2,7 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
-USER_OBJS := lex.yy.o y.tab.o
+USER_OBJS := parser.tab.o lexer.o
 
 LIBS :=
 

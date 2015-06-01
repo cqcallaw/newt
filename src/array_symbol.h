@@ -21,6 +21,7 @@
 #define ARRAY_SYMBOL_H_
 
 #include "symbol.h"
+#include "yyltype.h"
 
 class ArraySymbol: public Symbol {
 public:
@@ -33,7 +34,8 @@ public:
 	ArraySymbol(const string* name, const string* value[], int size);
 
 	const static ArraySymbol* GetSymbol(const Type type, const string* name,
-			const Expression* size_expression);
+			const Expression* size_expression, YYLTYPE type_position,
+			YYLTYPE name_position, YYLTYPE size_expression_position);
 
 	virtual string ToString() const override;
 
