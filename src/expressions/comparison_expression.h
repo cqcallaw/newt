@@ -26,7 +26,7 @@ using namespace std;
 
 class ComparisonExpression: public BinaryExpression {
 public:
-	ComparisonExpression(const OperatorType op, const Expression* left,
+	ComparisonExpression(const YYLTYPE position, const OperatorType op, const Expression* left,
 			const Expression* right);
 
 protected:

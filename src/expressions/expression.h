@@ -27,21 +27,29 @@
 #include <assert.h>
 #include <type.h>
 
+class ExecutionContext;
+
 class Expression {
 public:
-	Expression(const Type type);
+	Expression(const Type type, const YYLTYPE position);
 	virtual ~Expression();
 
 	const Type GetType() const {
 		return m_type;
 	}
 
-	virtual const void* Evaluate() const;
+	virtual const void* Evaluate(
+			const ExecutionContext* execution_context) const;
 
-	const string* ToString() const;
+	const string* ToString(const ExecutionContext* execution_context) const;
+
+	const YYLTYPE GetPosition() const {
+		return m_position;
+	}
 
 private:
 	const Type m_type;
+	const YYLTYPE m_position;
 };
 
 #endif /* EXPRESSION_H_ */

@@ -114,10 +114,9 @@ void Error::error_core(Error_type type, string s1, string s2, string s3) {
 				<< "  Expressions in print statements must be"
 				<< " of type INT, DOUBLE, or STRING." << endl;
 		break;
-	case INVALID_TYPE_FOR_RESERVED_VARIABLE:
-		cerr << "Incorrect type for reserved variable '" << s1
-				<< "'  It was declared with type '" << s2
-				<< "'.  It must be of type '" << s3 << "'." << endl;
+	case INVALID_ARRAY_TYPE:
+		cerr << "Invalid array type '" << s1 << "' for variable '" << s2 << "'."
+				<< endl;
 		break;
 	case LHS_OF_PERIOD_MUST_BE_OBJECT:
 		cerr << "Variable '" << s1 << "' is not an object."
@@ -145,11 +144,11 @@ void Error::error_core(Error_type type, string s1, string s2, string s3) {
 	case VARIABLE_NOT_AN_ARRAY:
 		cerr << "Variable '" << s1 << "' is not an array." << endl;
 		break;
-	case DIVIDE_BY_ZERO_AT_PARSE_TIME:
+	case DIVIDE_BY_ZERO:
 		cerr << "Arithmetic divide by zero at parse time.  "
 				<< "Using zero as the result so parse can continue." << endl;
 		break;
-	case MOD_BY_ZERO_AT_PARSE_TIME:
+	case MOD_BY_ZERO:
 		cerr << "Arithmetic mod by zero at parse time.  "
 				<< "Using zero as the result so parse can continue." << endl;
 		break;

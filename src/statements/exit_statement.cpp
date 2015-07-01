@@ -32,12 +32,12 @@ ExitStatement::ExitStatement(const int line_number,
 ExitStatement::~ExitStatement() {
 }
 
-void ExitStatement::execute() const {
+void ExitStatement::execute(const ExecutionContext* execution_context) const {
 	if (m_exit_expression == nullptr) {
 		return;
 	}
 
-	int exit_code = *((int*) m_exit_expression->Evaluate());
+	int exit_code = *((int*) m_exit_expression->Evaluate(execution_context));
 	std::cout << "[" << m_line_number << "]: exit(" << exit_code << ")\n";
 	exit(exit_code);
 }

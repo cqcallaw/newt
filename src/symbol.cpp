@@ -135,8 +135,8 @@ string Symbol::ToString() const {
 }
 
 const Symbol* Symbol::GetSymbol(const Type type, const string* name,
-		const Expression* expression, YYLTYPE type_position,
-		YYLTYPE name_position, YYLTYPE initializer_position) {
+		const Expression* expression, const YYLTYPE type_position,
+		const YYLTYPE name_position, const YYLTYPE initializer_position) {
 	Symbol* result = (Symbol*) DefaultSymbol;
 	switch (type) {
 	case BOOLEAN: {

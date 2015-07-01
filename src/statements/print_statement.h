@@ -29,7 +29,7 @@ public:
 	PrintStatement(const int line_number, const Expression* expression);
 	virtual ~PrintStatement();
 
-	virtual void execute() const;
+	virtual void execute(const ExecutionContext* execution_context) const;
 
 	const Expression* GetExpression() const {
 		return m_expression;

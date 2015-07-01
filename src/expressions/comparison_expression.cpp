@@ -21,9 +21,9 @@
 
 using namespace std;
 
-ComparisonExpression::ComparisonExpression(const OperatorType op,
-		const Expression* left, const Expression* right) :
-		BinaryExpression(op, left, right) {
+ComparisonExpression::ComparisonExpression(const YYLTYPE position,
+		const OperatorType op, const Expression* left, const Expression* right) :
+		BinaryExpression(position, op, left, right) {
 	assert(
 			op
 					& (NOT_EQUAL | LESS_THAN | LESS_THAN_EQUAL | GREATER_THAN

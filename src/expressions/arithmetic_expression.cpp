@@ -18,10 +18,11 @@
  */
 
 #include "arithmetic_expression.h"
+#include <error.h>
 
-ArithmeticExpression::ArithmeticExpression(const OperatorType op,
-		const Expression* left, const Expression* right) :
-		BinaryExpression(op, left, right) {
+ArithmeticExpression::ArithmeticExpression(const YYLTYPE position,
+		const OperatorType op, const Expression* left, const Expression* right) :
+		BinaryExpression(position, op, left, right) {
 	assert(
 			op == PLUS || op == MINUS || op == MULTIPLY || op == DIVIDE
 					|| op == MOD);
@@ -58,6 +59,8 @@ const void* ArithmeticExpression::compute(int left, int right) const {
 		*result = left - right;
 		break;
 	case MOD:
+		Error::semantic_error(Error::DIVIDE_BY_ZERO, GetPosition().first_line,
+				GetPosition().first_column);
 		*result = left % right;
 		break;
 	default:

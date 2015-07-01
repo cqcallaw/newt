@@ -42,7 +42,7 @@ IfStatement::IfStatement(const Expression* expression,
 IfStatement::~IfStatement() {
 }
 
-void IfStatement::execute() const {
+void IfStatement::execute(const ExecutionContext* execution_context) const {
 	if (m_expression == nullptr || m_expression == DefaultExpression) {
 		assert(false);
 		return;
@@ -53,10 +53,10 @@ void IfStatement::execute() const {
 		return;
 	}
 
-	bool test = *((bool*) m_expression->Evaluate());
+	bool test = *((bool*) m_expression->Evaluate(execution_context));
 	if (test) {
-		m_block->execute();
+		m_block->execute(execution_context);
 	} else if (m_else_block != nullptr) {
-		m_else_block->execute();
+		m_else_block->execute(execution_context);
 	}
 }

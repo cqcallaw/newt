@@ -50,33 +50,43 @@ public:
 		return m_variable;
 	}
 
-	virtual void execute() const;
+	virtual void execute(const ExecutionContext* execution_context) const;
 
 private:
 	const void do_op(const bool old_value, const bool expression_value,
-			const AssignmentType op, bool& out) const;
+			const AssignmentType op, const ExecutionContext* execution_context,
+			bool& out) const;
 	const void do_op(const int old_value, const int expression_value,
-			const AssignmentType op, int& out) const;
+			const AssignmentType op, const ExecutionContext* execution_context,
+			int& out) const;
 	const void do_op(const double old_value, const double expression_value,
-			const AssignmentType op, double& out) const;
+			const AssignmentType op, const ExecutionContext* execution_context,
+			double& out) const;
 
 	const void do_op(const string* old_value, const bool expression_value,
-			const AssignmentType op, string* &out) const;
+			const AssignmentType op, const ExecutionContext* execution_context,
+			string* &out) const;
 	const void do_op(const string* old_value, const int expression_value,
-			const AssignmentType op, string* &out) const;
+			const AssignmentType op, const ExecutionContext* execution_context,
+			string* &out) const;
 	const void do_op(const string* old_value, const double expression_value,
-			const AssignmentType op, string* &out) const;
+			const AssignmentType op, const ExecutionContext* execution_context,
+			string* &out) const;
 	const void do_op(const string* old_value, const string* expression_value,
-			const AssignmentType op, string* &out) const;
+			const AssignmentType op, const ExecutionContext* execution_context,
+			string* &out) const;
 
 	const void* do_op(const int value, const Expression* expression,
-			const AssignmentType op) const;
+			const AssignmentType op,
+			const ExecutionContext* execution_context) const;
 
 	const void* do_op(const double value, const Expression* expression,
-			const AssignmentType op) const;
+			const AssignmentType op,
+			const ExecutionContext* execution_context) const;
 
 	const void* do_op(const string* value, const Expression* expression,
-			const AssignmentType op) const;
+			const AssignmentType op,
+			const ExecutionContext* execution_context) const;
 
 	const Variable* m_variable;
 	const AssignmentType m_op_type;

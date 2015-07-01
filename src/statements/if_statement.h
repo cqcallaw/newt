@@ -36,7 +36,7 @@ public:
 		return m_expression;
 	}
 
-	virtual void execute() const;
+	virtual void execute(const ExecutionContext* execution_context) const;
 private:
 	const Expression* m_expression;
 	const StatementBlock* m_block;

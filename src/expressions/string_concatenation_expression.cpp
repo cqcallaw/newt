@@ -21,8 +21,8 @@
 #include "string_concatenation_expression.h"
 
 StringConcatenationExpression::StringConcatenationExpression(
-		const Expression* left, const Expression* right) :
-		BinaryExpression(PLUS, left, right) {
+		const YYLTYPE position, const Expression* left, const Expression* right) :
+		BinaryExpression(position, PLUS, left, right) {
 	assert(left != NULL);
 	if (left->GetType() != NONE) {
 		assert(left->GetType() & (INT | DOUBLE | STRING));

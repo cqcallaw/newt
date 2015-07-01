@@ -23,31 +23,33 @@
 #include "variable.h"
 #include "utils.h"
 
-Expression::Expression(Type type) :
-		m_type(type) {
+Expression::Expression(const Type type, const YYLTYPE position) :
+		m_type(type), m_position(position) {
 }
 
 Expression::~Expression() {
 }
 
-const void* Expression::Evaluate() const {
+const void* Expression::Evaluate(
+		const ExecutionContext* execution_context) const {
 	return NULL;
 }
 
-const string* Expression::ToString() const {
+const string* Expression::ToString(
+		const ExecutionContext* execution_context) const {
 	ostringstream buffer;
 	switch (m_type) {
 	case BOOLEAN:
-		buffer << *((bool*) Evaluate());
+		buffer << *((bool*) Evaluate(execution_context));
 		break;
 	case INT:
-		buffer << *((int*) Evaluate());
+		buffer << *((int*) Evaluate(execution_context));
 		break;
 	case DOUBLE:
-		buffer << *((double*) Evaluate());
+		buffer << *((double*) Evaluate(execution_context));
 		break;
 	case STRING:
-		buffer << *((string*) Evaluate());
+		buffer << *((string*) Evaluate(execution_context));
 		break;
 	default:
 		assert(false);

@@ -34,7 +34,7 @@ public:
 			const StatementBlock* statement_block);
 	virtual ~ForStatement();
 
-	virtual void execute() const;
+	virtual void execute(const ExecutionContext* execution_context) const;
 
 private:
 	const AssignmentStatement* m_initial;

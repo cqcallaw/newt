@@ -24,7 +24,7 @@
 
 class StringConcatenationExpression: public BinaryExpression {
 public:
-	StringConcatenationExpression(const Expression* left,
+	StringConcatenationExpression(const YYLTYPE position, const Expression* left,
 			const Expression* right);
 
 protected:

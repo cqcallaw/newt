@@ -19,32 +19,35 @@
 
 #include "constant_expression.h"
 
-ConstantExpression::ConstantExpression(const bool value) :
-		Expression(BOOLEAN) {
+ConstantExpression::ConstantExpression(const YYLTYPE position, const bool value) :
+		Expression(BOOLEAN, position) {
 	bool* heap_value = new bool;
 	*heap_value = value;
 	m_value = (void*) heap_value;
 }
 
-ConstantExpression::ConstantExpression(const int value) :
-		Expression(INT) {
+ConstantExpression::ConstantExpression(const YYLTYPE position, const int value) :
+		Expression(INT, position) {
 	int* heap_value = new int;
 	*heap_value = value;
 	m_value = (void*) heap_value;
 }
 
-ConstantExpression::ConstantExpression(const double value) :
-		Expression(DOUBLE) {
+ConstantExpression::ConstantExpression(const YYLTYPE position,
+		const double value) :
+		Expression(DOUBLE, position) {
 	double* heap_value = new double;
 	*heap_value = value;
 	m_value = (void*) heap_value;
 }
 
-ConstantExpression::ConstantExpression(const std::string* value) :
-		Expression(STRING) {
+ConstantExpression::ConstantExpression(const YYLTYPE position,
+		const std::string* value) :
+		Expression(STRING, position) {
 	m_value = (void*) value;
 }
 
-const void* ConstantExpression::Evaluate() const {
+const void* ConstantExpression::Evaluate(
+		const ExecutionContext* execution_context) const {
 	return m_value;
 }

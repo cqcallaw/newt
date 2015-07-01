@@ -19,9 +19,9 @@
 
 #include "logic_expression.h"
 
-LogicExpression::LogicExpression(const OperatorType op, const Expression* left,
-		const Expression* right) :
-		BinaryExpression(op, left, right) {
+LogicExpression::LogicExpression(const YYLTYPE position, const OperatorType op,
+		const Expression* left, const Expression* right) :
+		BinaryExpression(position, op, left, right) {
 	assert(op == OR || op == AND);
 }
 

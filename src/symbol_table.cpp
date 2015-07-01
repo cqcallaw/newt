@@ -27,19 +27,11 @@
 
 using namespace std;
 
-SymbolTable * SymbolTable::m_instance = NULL;
-
 SymbolTable::SymbolTable() {
 	table = new map<const string, const Symbol*, comparator>();
 }
 
-SymbolTable* SymbolTable::instance() {
-	if (SymbolTable::m_instance == NULL)
-		SymbolTable::m_instance = new SymbolTable();
-	return SymbolTable::m_instance;
-}
-
-const Symbol* SymbolTable::GetSymbol(const string identifier) {
+const Symbol* SymbolTable::GetSymbol(const string identifier) const {
 	auto result = table->find(identifier);
 
 	if (result != table->end()) {
@@ -49,7 +41,7 @@ const Symbol* SymbolTable::GetSymbol(const string identifier) {
 	return Symbol::DefaultSymbol;
 }
 
-const Symbol* SymbolTable::GetSymbol(const string* identifier) {
+const Symbol* SymbolTable::GetSymbol(const string* identifier) const {
 	return GetSymbol(*identifier);
 }
 InsertResult SymbolTable::InsertSymbol(const Symbol* symbol) {
@@ -74,12 +66,10 @@ SetResult SymbolTable::SetSymbol(const string identifier, const bool* value) {
 SetResult SymbolTable::SetSymbol(const string identifier, const int* value) {
 	return SetSymbol(identifier, INT, (void*) value);
 }
-SetResult SymbolTable::SetSymbol(const string identifier,
-		const double* value) {
+SetResult SymbolTable::SetSymbol(const string identifier, const double* value) {
 	return SetSymbol(identifier, DOUBLE, (void*) value);
 }
-SetResult SymbolTable::SetSymbol(const string identifier,
-		const string* value) {
+SetResult SymbolTable::SetSymbol(const string identifier, const string* value) {
 	return SetSymbol(identifier, STRING, (void*) value);
 }
 

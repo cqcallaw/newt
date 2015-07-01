@@ -24,7 +24,7 @@
 
 class ArithmeticExpression: public BinaryExpression {
 public:
-	ArithmeticExpression(const OperatorType op, const Expression* left,
+	ArithmeticExpression(const YYLTYPE position, const OperatorType op, const Expression* left,
 			const Expression* right);
 
 protected:

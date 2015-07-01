@@ -23,6 +23,8 @@
 #include "symbol.h"
 #include "yyltype.h"
 
+class ExecutionContext;
+
 class ArraySymbol: public Symbol {
 public:
 	ArraySymbol(const string name, const int value[], int size);
@@ -35,7 +37,8 @@ public:
 
 	const static ArraySymbol* GetSymbol(const Type type, const string* name,
 			const Expression* size_expression, YYLTYPE type_position,
-			YYLTYPE name_position, YYLTYPE size_expression_position);
+			YYLTYPE name_position, YYLTYPE size_expression_position,
+			const ExecutionContext* execution_context);
 
 	virtual string ToString() const override;
 

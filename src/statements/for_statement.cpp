@@ -40,15 +40,15 @@ ForStatement::ForStatement(const AssignmentStatement* initial,
 ForStatement::~ForStatement() {
 }
 
-void ForStatement::execute() const {
+void ForStatement::execute(const ExecutionContext* execution_context) const {
 	if (m_initial != nullptr) {
-		m_initial->execute();
+		m_initial->execute(execution_context);
 	}
 
-	for (; *((bool*) m_loop_expression->Evaluate());
-			m_loop_assignment->execute()) {
+	for (; *((bool*) m_loop_expression->Evaluate(execution_context));
+			m_loop_assignment->execute(execution_context)) {
 		if (m_statement_block != nullptr) {
-			m_statement_block->execute();
+			m_statement_block->execute(execution_context);
 		}
 	}
 }

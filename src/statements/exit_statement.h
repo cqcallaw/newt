@@ -29,7 +29,7 @@ public:
 	ExitStatement(const int line_number, const Expression* exit_expression);
 	virtual ~ExitStatement();
 
-	virtual void execute() const;
+	virtual void execute(const ExecutionContext* execution_context) const;
 
 private:
 	const int m_line_number;

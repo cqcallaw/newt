@@ -23,9 +23,9 @@
 #include "unary_expression.h"
 #include "error.h"
 
-UnaryExpression::UnaryExpression(const OperatorType op,
+UnaryExpression::UnaryExpression(const YYLTYPE position, const OperatorType op,
 		const Expression* expression) :
-		Expression(compute_result_type(expression->GetType(), op)), m_expression(
+		Expression(compute_result_type(expression->GetType(), op), position), m_expression(
 				expression), m_operator(op) {
 	assert(expression != NULL);
 	switch (expression->GetType()) {
@@ -73,8 +73,8 @@ const Type UnaryExpression::compute_result_type(const Type input_type,
 	}
 }
 
-const void* UnaryExpression::compute(const Type input_type,
-		const void* input, double (*compute_function)(double),
+const void* UnaryExpression::compute(const Type input_type, const void* input,
+		double (*compute_function)(double),
 		double (*input_transform_function)(double),
 		double (*output_transform_function)(double)) {
 	switch (input_type) {
@@ -121,9 +121,10 @@ double UnaryExpression::radians_to_degrees(double radians) {
 	return radians * (180.0 / M_PI);
 }
 
-const void* UnaryExpression::Evaluate() const {
+const void* UnaryExpression::Evaluate(
+		const ExecutionContext* execution_context) const {
 	const Type expression_type = m_expression->GetType();
-	const void* evaluated = m_expression->Evaluate();
+	const void* evaluated = m_expression->Evaluate(execution_context);
 
 	switch (m_operator) {
 	case UNARY_MINUS: {

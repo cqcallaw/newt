@@ -46,6 +46,7 @@ public:
 		EXIT_STATUS_MUST_BE_AN_INTEGER,
 		ILLEGAL_TOKEN,
 		INCORRECT_CONSTRUCTOR_PARAMETER_TYPE,
+		INVALID_ARRAY_TYPE,
 		INVALID_ARRAY_SIZE,
 		INVALID_LHS_OF_ASSIGNMENT,
 		INVALID_LHS_OF_MINUS_ASSIGNMENT,
@@ -56,7 +57,6 @@ public:
 		INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
 		INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
 		INVALID_TYPE_FOR_PRINT_STMT_EXPRESSION,
-		INVALID_TYPE_FOR_RESERVED_VARIABLE,
 		LHS_OF_PERIOD_MUST_BE_OBJECT,
 		MINUS_ASSIGNMENT_TYPE_ERROR,
 		NO_BODY_PROVIDED_FOR_FORWARD,
@@ -65,8 +65,8 @@ public:
 		UNDECLARED_VARIABLE,
 		UNKNOWN_CONSTRUCTOR_PARAMETER,
 		VARIABLE_NOT_AN_ARRAY,
-		DIVIDE_BY_ZERO_AT_PARSE_TIME,
-		MOD_BY_ZERO_AT_PARSE_TIME,
+		DIVIDE_BY_ZERO,
+		MOD_BY_ZERO,
 		PARSE_ERROR
 	};
 
@@ -74,8 +74,8 @@ public:
 
 	static void parse_error(int line_number, string s1);
 
-	static void semantic_error(Error_type type, int line_number, int column_number,
-			string s1 = "", string s2 = "", string s3 = "");
+	static void semantic_error(Error_type type, int line_number,
+			int column_number, string s1 = "", string s2 = "", string s3 = "");
 
 	static void runtime_error(Error_type type, string s1 = "", string s2 = "",
 			string s3 = "");

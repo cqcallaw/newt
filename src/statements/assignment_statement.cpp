@@ -24,6 +24,8 @@
 #include <array_variable.h>
 #include <error.h>
 #include <defaults.h>
+#include <execution_context.h>
+#include <typeinfo>
 
 AssignmentStatement::AssignmentStatement(const Variable* variable,
 		const AssignmentType op_type, const Expression* expression) :
@@ -34,18 +36,24 @@ AssignmentStatement::~AssignmentStatement() {
 }
 
 const void AssignmentStatement::do_op(const bool old_value,
-		const bool expression_value, const AssignmentType op, bool &out) const {
+		const bool expression_value, const AssignmentType op,
+		const ExecutionContext* execution_context, bool &out) const {
 	switch (op) {
 	case ASSIGN:
 		out = expression_value;
 		break;
 	default:
-		assert(false);
+		Error::semantic_error(Error::INVALID_LHS_OF_ASSIGNMENT,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column,
+				*(m_variable->GetName()),
+				type_to_string(m_variable->GetType(execution_context)));
 	}
 }
 
 const void AssignmentStatement::do_op(const int old_value,
-		const int expression_value, const AssignmentType op, int& out) const {
+		const int expression_value, const AssignmentType op,
+		const ExecutionContext* execution_context, int& out) const {
 	switch (op) {
 	case PLUS_ASSIGN:
 		out = old_value + expression_value;
@@ -57,13 +65,17 @@ const void AssignmentStatement::do_op(const int old_value,
 		out = expression_value;
 		break;
 	default:
-		assert(false);
+		Error::semantic_error(Error::INVALID_LHS_OF_ASSIGNMENT,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column,
+				*(m_variable->GetName()),
+				type_to_string(m_variable->GetType(execution_context)));
 	}
 }
 
 const void AssignmentStatement::do_op(const double old_value,
 		const double expression_value, const AssignmentType op,
-		double &out) const {
+		const ExecutionContext* execution_context, double &out) const {
 	switch (op) {
 	case PLUS_ASSIGN:
 		out = old_value + expression_value;
@@ -75,31 +87,35 @@ const void AssignmentStatement::do_op(const double old_value,
 		out = expression_value;
 		break;
 	default:
-		assert(false);
+		Error::semantic_error(Error::INVALID_LHS_OF_ASSIGNMENT,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column,
+				*(m_variable->GetName()),
+				type_to_string(m_variable->GetType(execution_context)));
 	}
 }
 
 const void AssignmentStatement::do_op(const string* old_value,
 		const bool expression_value, const AssignmentType op,
-		string* &out) const {
-	do_op(old_value, AsString(expression_value), op, out);
+		const ExecutionContext* execution_context, string* &out) const {
+	do_op(old_value, AsString(expression_value), op, execution_context, out);
 }
 
 const void AssignmentStatement::do_op(const string* old_value,
 		const int expression_value, const AssignmentType op,
-		string* &out) const {
-	do_op(old_value, AsString(expression_value), op, out);
+		const ExecutionContext* execution_context, string* &out) const {
+	do_op(old_value, AsString(expression_value), op, execution_context, out);
 }
 
 const void AssignmentStatement::do_op(const string* old_value,
 		const double expression_value, const AssignmentType op,
-		string* &out) const {
-	do_op(old_value, AsString(expression_value), op, out);
+		const ExecutionContext* execution_context, string* &out) const {
+	do_op(old_value, AsString(expression_value), op, execution_context, out);
 }
 
 const void AssignmentStatement::do_op(const string* old_value,
 		const string* expression_value, const AssignmentType op,
-		string* &out) const {
+		const ExecutionContext* execution_context, string* &out) const {
 	ostringstream buffer;
 	switch (op) {
 	case PLUS_ASSIGN: {
@@ -113,77 +129,103 @@ const void AssignmentStatement::do_op(const string* old_value,
 		break;
 	case MINUS_ASSIGN:
 	default:
-		assert(false);
+		Error::semantic_error(Error::INVALID_LHS_OF_ASSIGNMENT,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column,
+				*(m_variable->GetName()),
+				type_to_string(m_variable->GetType(execution_context)));
 	}
 }
 
 const void* AssignmentStatement::do_op(const int value,
-		const Expression* expression, const AssignmentType op) const {
+		const Expression* expression, const AssignmentType op,
+		const ExecutionContext* execution_context) const {
 	int new_value = 0;
 	switch (expression->GetType()) {
 	case BOOLEAN:
-		do_op(value, *((bool*) expression->Evaluate()), op, new_value);
+		do_op(value, *((bool*) expression->Evaluate(execution_context)), op,
+				execution_context, new_value);
 		break;
 	case INT: {
-		do_op(value, *((int*) expression->Evaluate()), op, new_value);
+		do_op(value, *((int*) expression->Evaluate(execution_context)), op,
+				execution_context, new_value);
 		break;
 	}
 	default:
-		assert(false);
+		Error::semantic_error(Error::ASSIGNMENT_TYPE_ERROR,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column, type_to_string(INT),
+				type_to_string(expression->GetType()));
 	}
 
 	return new int(new_value);
 }
 
 const void* AssignmentStatement::do_op(const double value,
-		const Expression* expression, AssignmentType op) const {
+		const Expression* expression, AssignmentType op,
+		const ExecutionContext* execution_context) const {
 	double new_value = 0;
 	switch (expression->GetType()) {
 	case BOOLEAN:
-		do_op(value, *((bool*) expression->Evaluate()), op, new_value);
+		do_op(value, *((bool*) expression->Evaluate(execution_context)), op,
+				execution_context, new_value);
 		break;
 	case INT: {
-		do_op(value, *((int*) expression->Evaluate()), op, new_value);
+		do_op(value, *((int*) expression->Evaluate(execution_context)), op,
+				execution_context, new_value);
 		break;
 	}
 	case DOUBLE: {
-		do_op(value, *((double*) expression->Evaluate()), op, new_value);
+		do_op(value, *((double*) expression->Evaluate(execution_context)), op,
+				execution_context, new_value);
 		break;
 	}
 	default:
-		assert(false);
+		Error::semantic_error(Error::ASSIGNMENT_TYPE_ERROR,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column, type_to_string(DOUBLE),
+				type_to_string(expression->GetType()));
 	}
 
 	return new double(new_value);
 }
 
 const void* AssignmentStatement::do_op(const string* value,
-		const Expression* expression, AssignmentType op) const {
+		const Expression* expression, AssignmentType op,
+		const ExecutionContext* execution_context) const {
 	string* new_value;
 	switch (expression->GetType()) {
 	case BOOLEAN:
-		do_op(value, *((bool*) expression->Evaluate()), op, new_value);
+		do_op(value, *((bool*) expression->Evaluate(execution_context)), op,
+				execution_context, new_value);
 		break;
 	case INT: {
-		do_op(value, *((int*) expression->Evaluate()), op, new_value);
+		do_op(value, *((int*) expression->Evaluate(execution_context)), op,
+				execution_context, new_value);
 		break;
 	}
 	case DOUBLE: {
-		do_op(value, *((double*) expression->Evaluate()), op, new_value);
+		do_op(value, *((double*) expression->Evaluate(execution_context)), op,
+				execution_context, new_value);
 		break;
 	}
 	case STRING: {
-		do_op(value, (string*) expression->Evaluate(), m_op_type, new_value);
+		do_op(value, (string*) expression->Evaluate(execution_context),
+				m_op_type, execution_context, new_value);
 		break;
 	}
 	default:
-		assert(false);
+		Error::semantic_error(Error::ASSIGNMENT_TYPE_ERROR,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column, type_to_string(STRING),
+				type_to_string(expression->GetType()));
 	}
 
 	return new_value;
 }
 
-void AssignmentStatement::execute() const {
+void AssignmentStatement::execute(
+		const ExecutionContext* execution_context) const {
 	if (m_variable == nullptr || m_expression == nullptr) {
 		assert(false);
 		return;
@@ -193,88 +235,134 @@ void AssignmentStatement::execute() const {
 		return;
 	}
 
-	SymbolTable* symbol_table = SymbolTable::instance();
+	SymbolTable* symbol_table =
+			(SymbolTable*) execution_context->GetSymbolTable();
 	const Symbol* symbol = symbol_table->GetSymbol(m_variable->GetName());
-	const string symbol_name = symbol->GetName();
-	const Type symbol_type = symbol->GetType();
-	const void* symbol_value = symbol->GetValue();
 
-	switch (symbol_type) {
-	case BOOLEAN: {
-		const void* result = do_op(*((int*) symbol_value), m_expression,
-				m_op_type);
-		symbol_table->SetSymbol(symbol_name, (bool*) result);
-		break;
-	}
-	case INT: {
-		const void* result = do_op(*((int*) symbol_value), m_expression,
-				m_op_type);
-		symbol_table->SetSymbol(symbol_name, (int*) result);
-		break;
-	}
-	case DOUBLE: {
-		const void* result = do_op(*((double*) symbol_value), m_expression,
-				m_op_type);
-		symbol_table->SetSymbol(symbol_name, (double*) result);
-		break;
-	}
-	case STRING: {
-		const void* result = do_op((string*) symbol_value, m_expression,
-				m_op_type);
-		symbol_table->SetSymbol(symbol_name, (string*) result);
-		break;
-	}
-	case INT_ARRAY: {
-		ArrayVariable* array_variable = (ArrayVariable*) m_variable;
-		int index = *((int*) array_variable->GetIndexExpression()->Evaluate());
+	if (symbol == NULL || symbol == Symbol::DefaultSymbol) {
+		Error::semantic_error(Error::UNDECLARED_VARIABLE,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column,
+				*(m_variable->GetName()));
+	} else if (dynamic_cast<const ArrayVariable*>(m_variable) == NULL
+			&& (symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))) {
+		//we're trying to reference an array variable without an index
+		Error::semantic_error(Error::UNDECLARED_VARIABLE,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column,
+				*(m_variable->GetName()));
+	} else if (dynamic_cast<const ArrayVariable*>(m_variable) != NULL
+			&& !(symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))) {
+		//trying to reference a non-array variable as an array.
+		Error::semantic_error(Error::VARIABLE_NOT_AN_ARRAY,
+				m_variable->GetLocation().first_line,
+				m_variable->GetLocation().first_column,
+				*(m_variable->GetName()));
+		/*} else if (!(m_variable->GetType(execution_context)
+		 & (BOOLEAN | INT | DOUBLE | STRING))) {
+		 //cannot assign
+		 Error::semantic_error(Error::INVALID_LHS_OF_ASSIGNMENT,
+		 m_variable->GetLocation().first_line,
+		 m_variable->GetLocation().first_column,
+		 *(m_variable->GetName()),
+		 type_to_string(m_variable->GetType(execution_context)));*/
+	} else {
 
-		ArraySymbol* array_symbol = (ArraySymbol*) symbol;
-		if (index >= array_symbol->GetSize() || index < 0) {
-			Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-					m_variable->GetLocation().first_line,
-					m_variable->GetLocation().first_column,
-					array_symbol->GetName(), *AsString(index));
-			index = 0;
-		}
-		const void* result = do_op(*(((int*) symbol_value) + index),
-				m_expression, m_op_type);
-		symbol_table->SetSymbol(symbol_name, index, (int*) result);
-		break;
-	}
-	case DOUBLE_ARRAY: {
-		ArrayVariable* array_variable = (ArrayVariable*) m_variable;
-		int index = *((int*) array_variable->GetIndexExpression()->Evaluate());
-		ArraySymbol* array_symbol = (ArraySymbol*) symbol;
-		if (index >= array_symbol->GetSize() || index < 0) {
-			Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-					m_variable->GetLocation().first_line,
-					m_variable->GetLocation().first_column,
-					array_symbol->GetName(), *AsString(index));
-			index = 0;
-		}
-		const void* result = do_op(*(((double*) symbol_value) + index),
-				m_expression, m_op_type);
-		symbol_table->SetSymbol(symbol_name, index, (double*) result);
-		break;
-	}
-	case STRING_ARRAY: {
-		ArrayVariable* array_variable = (ArrayVariable*) m_variable;
-		int index = *((int*) array_variable->GetIndexExpression()->Evaluate());
-		ArraySymbol* array_symbol = (ArraySymbol*) symbol;
-		if (index >= array_symbol->GetSize() || index < 0) {
-			Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-					m_variable->GetLocation().first_line,
-					m_variable->GetLocation().first_column,
-					array_symbol->GetName(), *AsString(index));
-			index = 0;
-		}
+		/*Type variable_type = $1->GetType();
+		 Type expression_type = $3->GetType();
 
-		const void* result = do_op(*(((string**) symbol_value) + index),
-				m_expression, m_op_type);
-		symbol_table->SetSymbol(symbol_name, index, (string*) result);
-		break;
-	}
-	default:
-		assert(false);
+		 if (!(variable_type & (BOOLEAN | INT | DOUBLE | STRING))) {
+		 Error::semantic_error(Error::INVALID_LHS_OF_ASSIGNMENT, @1.first_line, @1.first_column, *($1->GetName()), type_to_string(variable_type));
+		 $$ = DefaultAssignmentStatement;
+		 } else if (variable_type <= STRING && expression_type > variable_type) {
+		 Error::semantic_error(Error::ASSIGNMENT_TYPE_ERROR, @3.first_line, @3.first_column, type_to_string(variable_type), type_to_string(expression_type));
+		 $$ = DefaultAssignmentStatement;
+		 } else {*/
+
+		const string symbol_name = symbol->GetName();
+		const Type symbol_type = symbol->GetType();
+		const void* symbol_value = symbol->GetValue();
+
+		switch (symbol_type) {
+		case BOOLEAN: {
+			const void* result = do_op(*((int*) symbol_value), m_expression,
+					m_op_type, execution_context);
+			symbol_table->SetSymbol(symbol_name, (bool*) result);
+			break;
+		}
+		case INT: {
+			const void* result = do_op(*((int*) symbol_value), m_expression,
+					m_op_type, execution_context);
+			symbol_table->SetSymbol(symbol_name, (int*) result);
+			break;
+		}
+		case DOUBLE: {
+			const void* result = do_op(*((double*) symbol_value), m_expression,
+					m_op_type, execution_context);
+			symbol_table->SetSymbol(symbol_name, (double*) result);
+			break;
+		}
+		case STRING: {
+			const void* result = do_op((string*) symbol_value, m_expression,
+					m_op_type, execution_context);
+			symbol_table->SetSymbol(symbol_name, (string*) result);
+			break;
+		}
+		case INT_ARRAY: {
+			ArrayVariable* array_variable = (ArrayVariable*) m_variable;
+			int index = *((int*) array_variable->GetIndexExpression()->Evaluate(
+					execution_context));
+
+			ArraySymbol* array_symbol = (ArraySymbol*) symbol;
+			if (index >= array_symbol->GetSize() || index < 0) {
+				Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+						m_variable->GetLocation().first_line,
+						m_variable->GetLocation().first_column,
+						array_symbol->GetName(), *AsString(index));
+				index = 0;
+			}
+			const void* result = do_op(*(((int*) symbol_value) + index),
+					m_expression, m_op_type, execution_context);
+			symbol_table->SetSymbol(symbol_name, index, (int*) result);
+			break;
+		}
+		case DOUBLE_ARRAY: {
+			ArrayVariable* array_variable = (ArrayVariable*) m_variable;
+			int index = *((int*) array_variable->GetIndexExpression()->Evaluate(
+					execution_context));
+			ArraySymbol* array_symbol = (ArraySymbol*) symbol;
+			if (index >= array_symbol->GetSize() || index < 0) {
+				Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+						m_variable->GetLocation().first_line,
+						m_variable->GetLocation().first_column,
+						array_symbol->GetName(), *AsString(index));
+				index = 0;
+			}
+			const void* result = do_op(*(((double*) symbol_value) + index),
+					m_expression, m_op_type, execution_context);
+			symbol_table->SetSymbol(symbol_name, index, (double*) result);
+			break;
+		}
+		case STRING_ARRAY: {
+			ArrayVariable* array_variable = (ArrayVariable*) m_variable;
+			int index = *((int*) array_variable->GetIndexExpression()->Evaluate(
+					execution_context));
+			ArraySymbol* array_symbol = (ArraySymbol*) symbol;
+			if (index >= array_symbol->GetSize() || index < 0) {
+				Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+						m_variable->GetLocation().first_line,
+						m_variable->GetLocation().first_column,
+						array_symbol->GetName(), *AsString(index));
+				index = 0;
+			}
+
+			const void* result = do_op(*(((string**) symbol_value) + index),
+					m_expression, m_op_type, execution_context);
+			symbol_table->SetSymbol(symbol_name, index, (string*) result);
+			break;
+		}
+		default:
+			assert(false);
+		}
 	}
 }

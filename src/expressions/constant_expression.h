@@ -26,12 +26,12 @@
 
 class ConstantExpression: public Expression {
 public:
-	ConstantExpression(const bool value);
-	ConstantExpression(const int value);
-	ConstantExpression(const double value);
-	ConstantExpression(const std::string* value);
+	ConstantExpression(const YYLTYPE position, const bool value);
+	ConstantExpression(const YYLTYPE position, const int value);
+	ConstantExpression(const YYLTYPE position, const double value);
+	ConstantExpression(const YYLTYPE position, const std::string* value);
 
-	virtual const void* Evaluate() const;
+	virtual const void* Evaluate(const ExecutionContext* execution_context) const;
 
 private:
 	const void* m_value;

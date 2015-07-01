@@ -24,16 +24,8 @@
 #include "yyltype.h"
 #include "assert.h"
 
-ArrayVariable::ArrayVariable(const string* name, YYLTYPE location,
-		const Expression* index_expression, YYLTYPE expression_location) :
-		Variable(name, location), m_index_expression(index_expression), m_expression_location(
-				expression_location) {
-	assert(index_expression != NULL && index_expression != nullptr);assert(
-			index_expression->GetType() == INT);
-}
-
-const Type ArrayVariable::GetType() const {
-	switch (Variable::GetType()) {
+const Type map_to_primitive(Type type) {
+	switch (type) {
 	case INT_ARRAY:
 		return INT;
 	case DOUBLE_ARRAY:
@@ -46,10 +38,23 @@ const Type ArrayVariable::GetType() const {
 	}
 }
 
-const string* ArrayVariable::ToString() const {
+ArrayVariable::ArrayVariable(const string* name,
+YYLTYPE location, const Expression* index_expression,
+YYLTYPE expression_location) :
+		Variable(name, location), m_index_expression(index_expression), m_expression_location(
+				expression_location) {
+	assert(index_expression != NULL && index_expression != nullptr);assert(
+			index_expression->GetType() == INT);
+}
+
+const Type ArrayVariable::GetType(const ExecutionContext* context) const {
+	return map_to_primitive(Variable::GetType(context));
+}
+
+const string* ArrayVariable::ToString(const ExecutionContext* context) const {
 	ostringstream buffer;
 	buffer << "<" << *GetName() << "["
-			<< *((int*) m_index_expression->Evaluate()) << "]>";
+			<< *((int*) m_index_expression->Evaluate(context)) << "]>";
 	return new string(buffer.str());
 }
 

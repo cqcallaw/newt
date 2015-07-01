@@ -9,6 +9,7 @@ CPP_SRCS += \
 ../src/assert.cpp \
 ../src/defaults.cpp \
 ../src/error.cpp \
+../src/execution_context.cpp \
 ../src/indent.cpp \
 ../src/newt.cpp \
 ../src/parameter.cpp \
@@ -25,6 +26,7 @@ OBJS += \
 ./src/assert.o \
 ./src/defaults.o \
 ./src/error.o \
+./src/execution_context.o \
 ./src/indent.o \
 ./src/newt.o \
 ./src/parameter.o \
@@ -41,6 +43,7 @@ CPP_DEPS += \
 ./src/assert.d \
 ./src/defaults.d \
 ./src/error.d \
+./src/execution_context.d \
 ./src/indent.d \
 ./src/newt.d \
 ./src/parameter.d \

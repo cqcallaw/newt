@@ -24,6 +24,7 @@
 #include "symbol_table.h"
 #include "error.h"
 #include "expression.h"
+#include <execution_context.h>
 
 const std::string ArraySymbol::DefaultArraySymbolName = std::string(
 		"[!!_DEFAULT_ARRAY_SYMBOL_!!]");
@@ -60,16 +61,17 @@ ArraySymbol::ArraySymbol(const string* name, const string* value[], int size) :
 
 const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 		const Expression* size_expression, YYLTYPE type_position,
-		YYLTYPE name_position, YYLTYPE size_expression_position) {
+		YYLTYPE name_position, YYLTYPE size_expression_position,
+		const ExecutionContext* execution_context) {
 	ArraySymbol* result = (ArraySymbol*) DefaultArraySymbol;
 
 	if (size_expression->GetType() != INT) {
 		Error::semantic_error(Error::INVALID_ARRAY_SIZE,
 				size_expression_position.first_line,
 				size_expression_position.first_column, *name,
-				*(size_expression->ToString()));
+				*(size_expression->ToString(execution_context)));
 	} else {
-		const void* evaluation = size_expression->Evaluate();
+		const void* evaluation = size_expression->Evaluate(execution_context);
 		if (evaluation != NULL) {
 			int array_size = *((int*) (evaluation));
 

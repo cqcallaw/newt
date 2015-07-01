@@ -19,6 +19,7 @@
 
 #include <sstream>
 #include <defaults.h>
+#include <execution_context.h>
 
 #include "variable.h"
 #include "assert.h"
@@ -29,8 +30,8 @@ Variable::Variable(const string* name, YYLTYPE location) :
 	assert(name != NULL && name != nullptr);
 }
 
-const Type Variable::GetType() const {
-	return SymbolTable::instance()->GetSymbol(m_name)->GetType();
+const Type Variable::GetType(const ExecutionContext* context) const {
+	return context->GetSymbolTable()->GetSymbol(m_name)->GetType();
 }
 
 const string* Variable::ToString() const {

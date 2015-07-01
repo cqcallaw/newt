@@ -24,10 +24,10 @@
 
 class BinaryExpression: public Expression {
 public:
-	BinaryExpression(const OperatorType op, const Expression* left,
+	BinaryExpression(const YYLTYPE position, const OperatorType op, const Expression* left,
 			const Expression* right);
 
-	const void* Evaluate() const;
+	const void* Evaluate(const ExecutionContext* execution_context) const;
 
 	const Expression* GetLeft() const {
 		return m_left;

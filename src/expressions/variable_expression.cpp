@@ -22,13 +22,16 @@
 #include <array_variable.h>
 #include <error.h>
 #include <sstream>
+#include <execution_context.h>
 
-VariableExpression::VariableExpression(const Variable* variable) :
-		Expression(variable->GetType()), m_variable(variable) {
+VariableExpression::VariableExpression(const YYLTYPE position,
+		const Variable* variable) :
+		Expression(variable->GetType(), position), m_variable(variable) {
 }
 
-const void* VariableExpression::Evaluate() const {
-	const Symbol* symbol = SymbolTable::instance()->GetSymbol(
+const void* VariableExpression::Evaluate(
+		const ExecutionContext* execution_context) const {
+	const Symbol* symbol = execution_context->GetSymbolTable()->GetSymbol(
 			m_variable->GetName());
 	switch (symbol->GetType()) {
 	case NONE:
@@ -42,7 +45,8 @@ const void* VariableExpression::Evaluate() const {
 		const Expression* array_index_expression =
 				as_array_variable->GetIndexExpression();
 
-		int index = *((int *) array_index_expression->Evaluate());
+		int index = *((int *) array_index_expression->Evaluate(
+				execution_context));
 
 		if (index > as_array_symbol->GetSize()) {
 			ostringstream buffer;

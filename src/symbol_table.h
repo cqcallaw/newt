@@ -43,11 +43,10 @@ struct comparator {
 
 class SymbolTable {
 public:
-	static SymbolTable* instance();
 	void print(ostream &os);
 
-	const Symbol* GetSymbol(const string identifier);
-	const Symbol* GetSymbol(const string* identifier);
+	const Symbol* GetSymbol(const string identifier) const;
+	const Symbol* GetSymbol(const string* identifier) const;
 
 	InsertResult InsertSymbol(const Symbol* symbol);
 
@@ -64,8 +63,6 @@ public:
 			const string* value);
 
 private:
-	static SymbolTable* m_instance;
-
 	std::map<const string, const Symbol*, comparator>* table;
 
 	SetResult SetSymbol(const string identifier, Type type, const void* value);

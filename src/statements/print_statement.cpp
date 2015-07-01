@@ -29,7 +29,7 @@ PrintStatement::PrintStatement(const int line_number,
 PrintStatement::~PrintStatement() {
 }
 
-void PrintStatement::execute() const {
-	std::cout << "[" << m_line_number << "]: " << *(m_expression->ToString())
-			<< "\n";
+void PrintStatement::execute(const ExecutionContext* execution_context) const {
+	std::cout << "[" << m_line_number << "]: "
+			<< *(m_expression->ToString(execution_context)) << "\n";
 }

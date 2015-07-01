@@ -24,6 +24,7 @@
 #include "variable.h"
 
 class Expression;
+class ExecutionContext;
 
 class ArrayVariable: public Variable {
 public:
@@ -35,9 +36,9 @@ public:
 		return m_index_expression;
 	}
 
-	virtual const Type GetType() const;
+	virtual const Type GetType(const ExecutionContext* context) const;
 
-	virtual const std::string* ToString() const;
+	virtual const std::string* ToString(const ExecutionContext* context) const;
 
 	const YYLTYPE GetExpressionLocation() const {
 		return m_expression_location;

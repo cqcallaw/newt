@@ -20,12 +20,14 @@
 #ifndef STATEMENT_H_
 #define STATEMENT_H_
 
+class ExecutionContext;
+
 class Statement {
 public:
 	Statement();
 	virtual ~Statement();
 
-	virtual void execute() const = 0;
+	virtual void execute(const ExecutionContext* execution_context) const = 0;
 };
 
 #endif /* STATEMENT_H_ */

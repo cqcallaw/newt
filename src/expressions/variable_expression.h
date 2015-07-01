@@ -21,13 +21,14 @@
 #define VARIABLE_EXPRESSION_H_
 
 #include "expression.h"
+
 class Variable;
 
 class VariableExpression: public Expression {
 public:
-	VariableExpression(const Variable* variable);
+	VariableExpression(const YYLTYPE position, const Variable* variable);
 
-	virtual const void* Evaluate() const;
+	virtual const void* Evaluate(const ExecutionContext* execution_context) const;
 
 private:
 	const Variable* m_variable;

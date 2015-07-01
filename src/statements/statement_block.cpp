@@ -33,12 +33,12 @@ bool StatementBlock::empty() {
 	return m_statements == StatementList::Terminator;
 }
 
-void StatementBlock::execute() const {
+void StatementBlock::execute(const ExecutionContext* execution_context) const {
 	LinkedList<const Statement*>* list =
 			(LinkedList<const Statement*>*) m_statements;
 	while (list != StatementList::Terminator) {
 		const Statement* statement = list->GetData();
-		statement->execute();
+		statement->execute(execution_context);
 		list = (LinkedList<const Statement*>*) list->GetNext();
 	}
 }

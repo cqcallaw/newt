@@ -25,6 +25,7 @@
 #include "yyltype.h"
 
 class Expression;
+class ExecutionContext;
 
 class Variable {
 public:
@@ -35,7 +36,7 @@ public:
 
 	const static Variable* DefaultVariable;
 
-	virtual const Type GetType() const;
+	virtual const Type GetType(const ExecutionContext* context) const;
 
 	const string* GetName() const {
 		return m_name;

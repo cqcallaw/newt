@@ -61,6 +61,7 @@ typedef void* yyscan_t;
 #include <variable_expression.h>
 #include <print_statement.h>
 #include <assignment_statement.h>
+#include <declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -176,7 +177,7 @@ void yyerror(YYLTYPE* locp, yyscan_t scanner, const char* str) {
 %type <union_type> simple_type
 %type <union_expression> expression
 %type <union_expression> primary_expression
-%type <union_expression> variable_declaration
+%type <union_statement_type> variable_declaration
 %type <union_variable> variable_reference
 %type <union_operator_type> math_operator
 %type <union_statement_type> statement
@@ -194,21 +195,9 @@ void yyerror(YYLTYPE* locp, yyscan_t scanner, const char* str) {
 
 //---------------------------------------------------------------------
 program:
-	declaration_list main_statement_list
+	main_statement_list
 	{
 	}
-	;
-
-//---------------------------------------------------------------------
-declaration_list:
-	declaration_list declaration
-	| terminators
-	| empty
-	;
-
-//---------------------------------------------------------------------
-declaration:
-	variable_declaration terminators
 	;
 
 terminators:
@@ -220,36 +209,48 @@ terminators:
 variable_declaration:
 	simple_type T_ID
 	{
-		const Symbol* symbol = Symbol::GetSymbol($1, $2, DefaultExpression, @1, @2, DefaultLocation);
-
-		if (symbol != Symbol::DefaultSymbol) {
-			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
-			if (result == SYMBOL_EXISTS) {
-				Error::semantic_error(Error::PREVIOUSLY_DECLARED_VARIABLE, @2.first_line, @2.first_column, *$2);
-			}
-		}
+		$$ = new DeclarationStatement($1, @1, $2, @2);
 	}
 	| simple_type T_ID T_ASSIGN expression
 	{
-		const Symbol* symbol = Symbol::GetSymbol($1, $2, $4, @1, @2, @4);
+		$$ = new DeclarationStatement($1, @1, $2, @2, $4, @4);
+
+		/*const Symbol* symbol = Symbol::GetSymbol($1, $2, $4, @1, @2, @4);
 
 		if (symbol != Symbol::DefaultSymbol) {
 			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
 			if (result == SYMBOL_EXISTS) {
 				Error::semantic_error(Error::PREVIOUSLY_DECLARED_VARIABLE, @2.first_line, @2.first_column, *$2);
 			}
-		}
+		}*/
 	}
 	| simple_type T_ID T_LBRACKET expression T_RBRACKET
 	{
-		const ArraySymbol* symbol = ArraySymbol::GetSymbol($1, $2, $4, @1, @2, @4);
+		Type type;
+		switch($1) {
+			case INT:
+				type = INT_ARRAY;
+				break;
+			case DOUBLE:
+				type = DOUBLE_ARRAY;
+				break;
+			case STRING:
+				type = STRING_ARRAY;
+				break;
+			default:
+				Error::semantic_error(Error::INVALID_ARRAY_TYPE, @1.first_line, @1.first_column, type_to_string($1), *$2);
+		}
+		
+		$$ = new DeclarationStatement(type, @1, $2, @2, $4, @4);
+
+		/*const ArraySymbol* symbol = ArraySymbol::GetSymbol($1, $2, $4, @1, @2, @4);
 
 		if (symbol != ArraySymbol::DefaultArraySymbol) {
 			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
 			if (result == SYMBOL_EXISTS) {
 				Error::semantic_error(Error::PREVIOUSLY_DECLARED_VARIABLE, @2.first_line, @2.first_column, *$2);
 			}
-		}
+		}*/
 	}
 	;
 
@@ -316,11 +317,15 @@ statement_list:
 
 //---------------------------------------------------------------------
 statement:
-	if_statement
+	variable_declaration terminators
 	{
 		$$ = $1;
 	}
-	| for_statement
+	| if_statement terminators
+	{
+		$$ = $1;
+	}
+	| for_statement terminators
 	{
 		$$ = $1;
 	}
@@ -405,23 +410,25 @@ exit_statement:
 assign_statement:
 	variable_reference T_ASSIGN expression
 	{
-		Type variable_type = $1->GetType();
+		/*Type variable_type = $1->GetType();
 		Type expression_type = $3->GetType();
 		if (variable_type == NONE || expression_type == NONE) {
 			$$ = DefaultAssignmentStatement;
 		} else if (!(variable_type & (BOOLEAN | INT | DOUBLE | STRING))) {
+			//assignment is compatible with all types
 			Error::semantic_error(Error::INVALID_LHS_OF_ASSIGNMENT, @1.first_line, @1.first_column, *($1->GetName()), type_to_string(variable_type));
 			$$ = DefaultAssignmentStatement;
 		} else if (variable_type <= STRING && expression_type > variable_type) {
+			//check for invalid widening conversion
 			Error::semantic_error(Error::ASSIGNMENT_TYPE_ERROR, @3.first_line, @3.first_column, type_to_string(variable_type), type_to_string(expression_type));
 			$$ = DefaultAssignmentStatement;
-		} else {
+		} else {*/
 			$$ = new AssignmentStatement($1, AssignmentStatement::AssignmentType::ASSIGN, $3);
-		} 
+		//}
 	}
 	| variable_reference T_PLUS_ASSIGN expression
 	{
-		string variable_name = *($1->GetName());
+		/*string variable_name = *($1->GetName());
 		Type variable_type = $1->GetType();
 		Type expression_type = $3->GetType();
 		if (variable_type == NONE || expression_type == NONE) {
@@ -432,13 +439,13 @@ assign_statement:
 		} else if (!(variable_type & (INT | DOUBLE | STRING))) {
 			Error::semantic_error(Error::INVALID_LHS_OF_PLUS_ASSIGNMENT, @1.first_line, @1.first_column, variable_name, type_to_string(variable_type));
 			$$ = DefaultAssignmentStatement;
-		} else {
+		} else {*/
 			$$ = new AssignmentStatement($1, AssignmentStatement::AssignmentType::PLUS_ASSIGN, $3);
-		} 
+		//}
 	}
 	| variable_reference T_MINUS_ASSIGN expression
 	{
-		string variable_name = *($1->GetName());
+		/*string variable_name = *($1->GetName());
 		Type variable_type = $1->GetType();
 		Type expression_type = $3->GetType();
 		if (variable_type == NONE || expression_type == NONE) {
@@ -449,9 +456,9 @@ assign_statement:
 		} else if (!(variable_type & (INT | DOUBLE))) {
 			Error::semantic_error(Error::INVALID_LHS_OF_MINUS_ASSIGNMENT, @1.first_line, @1.first_column, variable_name, type_to_string(variable_type));
 			$$ = DefaultAssignmentStatement;
-		} else {
+		} else {*/
 			$$ = new AssignmentStatement($1, AssignmentStatement::AssignmentType::MINUS_ASSIGN, $3);
-		} 
+		//}
 	}
 	;
 
@@ -459,59 +466,29 @@ assign_statement:
 variable_reference:
 	T_ID
 	{
-		const Symbol* symbol = SymbolTable::instance()->GetSymbol($1);
-
-		if(symbol == NULL || symbol == Symbol::DefaultSymbol)
-		{
-			Error::semantic_error(Error::UNDECLARED_VARIABLE, @1.first_line, @1.first_column, *$1);
-			$$ = DefaultVariable;
-		}
-		else
-		{
-			if (symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))
-			{
-				Error::semantic_error(Error::UNDECLARED_VARIABLE, @1.first_line, @1.first_column, *$1);
-			}
-
-			$$ = new Variable($1, @1);
-		}
+		$$ = new Variable($1, @1);
 	}
 	| T_ID T_LBRACKET expression T_RBRACKET
 	{
-		const Symbol* symbol = SymbolTable::instance()->GetSymbol($1);
-
-		if(symbol == nullptr || symbol == Symbol::DefaultSymbol)
+		if ($3->GetType() != INT)
 		{
-			Error::semantic_error(Error::UNDECLARED_VARIABLE, @1.first_line, @1.first_column, *$1);
+			switch($3->GetType())
+			{
+				case BOOLEAN:
+					Error::semantic_error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, *$1, "A boolean expression");
+					break;
+				case DOUBLE:
+					Error::semantic_error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, *$1, "A double expression");
+					break;
+				case STRING:
+					Error::semantic_error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, *$1, "A string expression");
+					break;
+			}
 			$$ = DefaultVariable;
 		}
 		else
 		{
-			if ($3->GetType() != INT)
-			{
-				switch($3->GetType())
-				{
-					case BOOLEAN:
-						Error::semantic_error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, *$1, "A boolean expression");
-						break;
-					case DOUBLE:
-						Error::semantic_error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, *$1, "A double expression");
-						break;
-					case STRING:
-						Error::semantic_error(Error::ARRAY_INDEX_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, *$1, "A string expression");
-						break;
-				}
-				$$ = DefaultVariable;
-			}
-			else if (symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))
-			{
-				$$ = new ArrayVariable($1, @1, $3, @3);
-			}
-			else
-			{
-				Error::semantic_error(Error::VARIABLE_NOT_AN_ARRAY, @1.first_line, @1.first_column, *$1);
-				$$ = DefaultVariable;
-			}
+			$$ = new ArrayVariable($1, @1, $3, @3);
 		}
 	}
 	| T_ID T_PERIOD T_ID
@@ -542,7 +519,7 @@ expression:
 		}
 		else
 		{
-			$$ = new LogicExpression(OR, $1, $3);
+			$$ = new LogicExpression(@$, OR, $1, $3);
 		}
 	}
 	| expression T_AND expression
@@ -559,42 +536,42 @@ expression:
 		}
 		else
 		{
-			$$ = new LogicExpression(AND, $1, $3);
+			$$ = new LogicExpression(@$, AND, $1, $3);
 		}
 	}
 	| expression T_LESS_EQUAL expression
 	{
-		$$ = new ComparisonExpression(LESS_THAN_EQUAL, $1, $3);
+		$$ = new ComparisonExpression(@$, LESS_THAN_EQUAL, $1, $3);
 	}
 	| expression T_GREATER_EQUAL  expression
 	{
-		$$ = new ComparisonExpression(GREATER_THAN_EQUAL, $1, $3);
+		$$ = new ComparisonExpression(@$, GREATER_THAN_EQUAL, $1, $3);
 	}
 	| expression T_LESS expression 
 	{
-		$$ = new ComparisonExpression(LESS_THAN, $1, $3);
+		$$ = new ComparisonExpression(@$, LESS_THAN, $1, $3);
 	}
 	| expression T_GREATER  expression
 	{
-		$$ = new ComparisonExpression(GREATER_THAN, $1, $3);
+		$$ = new ComparisonExpression(@$, GREATER_THAN, $1, $3);
 	}
 	| expression T_EQUAL expression
 	{
-		$$ = new ComparisonExpression(EQUAL, $1, $3);
+		$$ = new ComparisonExpression(@$, EQUAL, $1, $3);
 	}
 	| expression T_NOT_EQUAL expression
 	{
-		$$ = new ComparisonExpression(NOT_EQUAL, $1, $3);
+		$$ = new ComparisonExpression(@$, NOT_EQUAL, $1, $3);
 	}
 	| expression T_PLUS expression 
 	{
 		if ($1->GetType() == STRING || $3->GetType() == STRING)
 		{
-			$$ = new StringConcatenationExpression($1, $3);
+			$$ = new StringConcatenationExpression(@$, $1, $3);
 		}
 		else
 		{
-			$$ = new ArithmeticExpression(PLUS, $1, $3);
+			$$ = new ArithmeticExpression(@$, PLUS, $1, $3);
 		}
 	}
 	| expression T_MINUS expression
@@ -611,7 +588,7 @@ expression:
 		}
 		else
 		{
-			$$ = new ArithmeticExpression(MINUS, $1, $3);
+			$$ = new ArithmeticExpression(@$, MINUS, $1, $3);
 		}
 	}
 	| expression T_ASTERISK expression
@@ -628,7 +605,7 @@ expression:
 		}
 		else
 		{
-			$$ = new ArithmeticExpression(MULTIPLY, $1, $3);
+			$$ = new ArithmeticExpression(@$, MULTIPLY, $1, $3);
 		}
 	}
 	| expression T_DIVIDE expression
@@ -645,31 +622,7 @@ expression:
 		}
 		else if ($3->GetType() & (BOOLEAN | INT | DOUBLE) && EndsWith(typeid(*$3).name(), "ConstantExpression"))
 		{
-			//handle divide by zero
-			//ref: http://stackoverflow.com/a/11310937/577298
-			if ($3->GetType() == BOOLEAN && *((bool*)$3->Evaluate()) == false)
-			{
-				Error::semantic_error(Error::DIVIDE_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
-				$$ = new ConstantExpression(0);
-			}
-			else if ($3->GetType() == INT && *((int*)$3->Evaluate()) == 0)
-			{
-				Error::semantic_error(Error::DIVIDE_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
-				$$ = new ConstantExpression(0);
-			}
-			else if ($3->GetType() == DOUBLE && *((double*)$3->Evaluate()) == 0.0)
-			{
-				Error::semantic_error(Error::DIVIDE_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
-				$$ = new ConstantExpression(0);
-			}
-			else
-			{
-				$$ = new ArithmeticExpression(DIVIDE, $1, $3);
-			}
-		}
-		else
-		{
-			$$ = new ArithmeticExpression(DIVIDE, $1, $3);
+			$$ = new ArithmeticExpression(@$, DIVIDE, $1, $3);
 		}
 	}
 	| expression T_MOD expression
@@ -686,38 +639,14 @@ expression:
 		}
 		else if ($3->GetType() & (BOOLEAN | INT | DOUBLE) && EndsWith(typeid(*$3).name(), "ConstantExpression"))
 		{
-			//handle divide by zero
-			//ref: http://stackoverflow.com/a/11310937/577298
-			if ($3->GetType() == BOOLEAN && *((bool*)$3->Evaluate()) == false)
-			{
-				Error::semantic_error(Error::MOD_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
-				$$ = new ConstantExpression(0);
-			}
-			else if ($3->GetType() == INT && *((int*)$3->Evaluate()) == 0)
-			{
-				Error::semantic_error(Error::MOD_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
-				$$ = new ConstantExpression(0);
-			}
-			else if ($3->GetType() == DOUBLE && *((double*)$3->Evaluate()) == 0.0)
-			{
-				Error::semantic_error(Error::MOD_BY_ZERO_AT_PARSE_TIME, @3.first_line, @3.first_column);
-				$$ = new ConstantExpression(0);
-			}
-			else
-			{
-				$$ = new ArithmeticExpression(MOD, $1, $3);
-			}
-		}
-		else
-		{
-			$$ = new ArithmeticExpression(MOD, $1, $3);
+			$$ = new ArithmeticExpression(@$, MOD, $1, $3);
 		}
 	}
 	| T_MINUS expression %prec UNARY_OPS
 	{
 		if($2->GetType() & (INT | DOUBLE))
 		{
-			$$ = new UnaryExpression(UNARY_MINUS, $2);
+			$$ = new UnaryExpression(@$, UNARY_MINUS, $2);
 		}
 		else
 		{
@@ -734,14 +663,14 @@ expression:
 		}
 		else
 		{
-			$$ = new UnaryExpression(NOT, $2);
+			$$ = new UnaryExpression(@$, NOT, $2);
 		}
 	}
 	| math_operator T_LPAREN expression T_RPAREN
 	{
 		if($3->GetType() & (INT | DOUBLE))
 		{
-			$$ = new UnaryExpression($1, $3);
+			$$ = new UnaryExpression(@$, $1, $3);
 		}
 		else
 		{
@@ -759,27 +688,27 @@ primary_expression:
 	}
 	| variable_reference
 	{
-		$$ = new VariableExpression($1);
+		$$ = new VariableExpression(@1, $1);
 	}
 	| T_INT_CONSTANT
 	{
-		$$ = new ConstantExpression($1);
+		$$ = new ConstantExpression(@1, $1);
 	}
 	| T_TRUE
 	{
-		$$ = new ConstantExpression(true);
+		$$ = new ConstantExpression(@1, true);
 	}
 	| T_FALSE
 	{
-		$$ = new ConstantExpression(false);
+		$$ = new ConstantExpression(@1, false);
 	}
 	| T_DOUBLE_CONSTANT
 	{
-		$$ = new ConstantExpression($1);
+		$$ = new ConstantExpression(@1, $1);
 	}
 	| T_STRING_CONSTANT
 	{
-		$$ = new ConstantExpression($1);
+		$$ = new ConstantExpression(@1, $1);
 	}
 	;
 

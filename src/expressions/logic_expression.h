@@ -24,7 +24,7 @@
 
 class LogicExpression: public BinaryExpression {
 public:
-	LogicExpression(const OperatorType op, const Expression* left,
+	LogicExpression(const YYLTYPE position, const OperatorType op, const Expression* left,
 			const Expression* right);
 
 protected:

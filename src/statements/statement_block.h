@@ -31,7 +31,7 @@ public:
 
 	bool empty();
 
-	void execute() const;
+	void execute(const ExecutionContext* execution_context) const;
 
 private:
 	const LinkedList<const Statement*>* m_statements;

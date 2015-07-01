@@ -19,10 +19,10 @@
 
 #include "binary_expression.h"
 
-BinaryExpression::BinaryExpression(const OperatorType op,
-		const Expression* left, const Expression* right) :
-		Expression(ComputeResultType(left, right, op)), m_operator(op), m_left(
-				left), m_right(right) {
+BinaryExpression::BinaryExpression(const YYLTYPE position,
+		const OperatorType op, const Expression* left, const Expression* right) :
+		Expression(ComputeResultType(left, right, op), position), m_operator(
+				op), m_left(left), m_right(right) {
 	assert(left != NULL);
 	if (left->GetType() != NONE) {
 		assert(left->GetType() & (BOOLEAN | INT | DOUBLE | STRING));
@@ -60,12 +60,13 @@ const Type BinaryExpression::ComputeResultType(const Expression* left,
 	return NONE;
 }
 
-const void* BinaryExpression::Evaluate() const {
+const void* BinaryExpression::Evaluate(
+		const ExecutionContext* execution_context) const {
 	Type left_type = GetLeft()->GetType();
 	Type right_type = GetRight()->GetType();
 
-	const void* left_void_value = GetLeft()->Evaluate();
-	const void* right_void_value = GetRight()->Evaluate();
+	const void* left_void_value = GetLeft()->Evaluate(execution_context);
+	const void* right_void_value = GetRight()->Evaluate(execution_context);
 
 	switch (left_type) {
 	case BOOLEAN: {
