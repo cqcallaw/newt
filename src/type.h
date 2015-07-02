@@ -30,7 +30,7 @@ enum Type {
 	STRING = 8,
 	DOUBLE_ARRAY = 16,
 	INT_ARRAY = 32,
-	STRING_ARRAY = 64,
+	STRING_ARRAY = 64
 };
 
 std::string type_to_string(Type type);

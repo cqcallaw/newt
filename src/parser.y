@@ -33,13 +33,17 @@
 #include <assignment_statement.h>
 #include <statement_list.h>
 #include <statement_block.h>
+#include <execution_context.h>
+#include <stack>
 
 #include <type.h>
 typedef void* yyscan_t;
 
+
 }
 
 %param {yyscan_t scanner}
+%parse-param {ExecutionContext* root_context}
 
 %code {
 #include <iostream>
@@ -70,7 +74,7 @@ typedef void* yyscan_t;
 
 #include <lexer.h>
 
-void yyerror(YYLTYPE* locp, yyscan_t scanner, const char* str) {
+void yyerror(YYLTYPE* locp, yyscan_t scanner, ExecutionContext* root_context, const char* str) {
 	Error::parse_error(locp->first_line, string(str));
 }
 
@@ -688,6 +692,7 @@ primary_expression:
 	}
 	| variable_reference
 	{
+		//Type type = root_context->GetSymbolTable()->GetSymbol($1->GetName())->GetType();
 		$$ = new VariableExpression(@1, $1);
 	}
 	| T_INT_CONSTANT

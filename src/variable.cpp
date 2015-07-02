@@ -30,10 +30,6 @@ Variable::Variable(const string* name, YYLTYPE location) :
 	assert(name != NULL && name != nullptr);
 }
 
-const Type Variable::GetType(const ExecutionContext* context) const {
-	return context->GetSymbolTable()->GetSymbol(m_name)->GetType();
-}
-
 const string* Variable::ToString() const {
 	ostringstream buffer;
 	buffer << "<" << *m_name << ">";
@@ -46,4 +42,8 @@ std::ostream &operator<<(std::ostream &os, const Variable &variable) {
 }
 
 Variable::~Variable() {
+}
+
+const Type Variable::GetType(const ExecutionContext* context) const {
+	return context->GetSymbolTable()->GetSymbol(m_name)->GetType();
 }

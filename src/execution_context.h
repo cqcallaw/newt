@@ -12,6 +12,7 @@ class SymbolTable;
 
 class ExecutionContext {
 public:
+	ExecutionContext();
 	ExecutionContext(const SymbolTable* symbol_table);
 	virtual ~ExecutionContext();
 

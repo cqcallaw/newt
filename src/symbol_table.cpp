@@ -180,7 +180,7 @@ SetResult SymbolTable::SetArraySymbol(const string identifier, Type type,
 	return SET_SUCCESS;
 }
 
-void SymbolTable::print(ostream &os) {
+const void SymbolTable::print(ostream &os) const {
 	std::map<const string, const Symbol*>::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {
 		Symbol* symbol = (Symbol *) iter->second;

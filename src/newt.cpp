@@ -56,9 +56,10 @@ int main(int argc, char *argv[]) {
 		cout << "Parsing file " << filename << "..." << endl;
 	}
 
-	yylex_init (&scanner);
+	ExecutionContext* root_context = new ExecutionContext();
+	yylex_init(&scanner);
 	yyset_in(input_file, scanner);
-	int parse_result = yyparse(scanner);
+	int parse_result = yyparse(scanner, root_context);
 	yylex_destroy(scanner);
 
 	if (debug) {
@@ -81,6 +82,6 @@ int main(int argc, char *argv[]) {
 
 	if (parse_result == 0 && Error::num_errors() == 0 && debug) {
 		cout << "Root Symbol Table:" << endl;
-		SymbolTable::instance()->print(cout);
+		root_context->GetSymbolTable()->print(cout);
 	}
 }

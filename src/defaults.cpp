@@ -35,7 +35,7 @@ const YYLTYPE DefaultLocation = YYLTYPE { -1, -1, -1, -1 };
 const Variable* DefaultVariable = new Variable(&(Symbol::DefaultSymbolName),
 		DefaultLocation);
 
-const Expression* DefaultExpression = new Expression(NONE);
+const Expression* DefaultExpression = new Expression(NONE, DefaultLocation);
 
 const AssignmentStatement* DefaultAssignmentStatement = new AssignmentStatement(
 		DefaultVariable, AssignmentStatement::ASSIGN, DefaultExpression);

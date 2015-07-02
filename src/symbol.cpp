@@ -140,129 +140,58 @@ const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 	Symbol* result = (Symbol*) DefaultSymbol;
 	switch (type) {
 	case BOOLEAN: {
-		bool *value;
+		bool *value = new bool(false);
 
 		if (expression != NULL && expression != nullptr
 				&& expression->GetType() != NONE) {
-			const void* evaluation = expression->Evaluate();
-			if (expression->GetType() == BOOLEAN) {
-				if (evaluation != NULL) {
-					value = (bool*) evaluation;
-				} else {
-					break;
-				}
-			} else {
+			if (!(expression->GetType() & (BOOLEAN))) {
 				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 						initializer_position.first_line,
 						initializer_position.first_column, *name);
 			}
-		} else {
-			value = new bool(false);
 		}
 
 		result = new Symbol(name, value);
 		break;
 	}
 	case INT: {
-		int *value;
+		int *value = new int(0);
 
 		if (expression != NULL && expression->GetType() != NONE) {
-			const void* evaluation = expression->Evaluate();
-			if (expression->GetType() == BOOLEAN) {
-				if (evaluation != NULL) {
-					value = new int(*((bool*) evaluation));
-				} else {
-					break;
-				}
-			} else if (expression->GetType() == INT) {
-				if (evaluation != NULL) {
-					value = (int*) (evaluation);
-				} else {
-					break;
-				}
-			} else {
+			if (!(expression->GetType() & (BOOLEAN | INT))) {
 				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 						initializer_position.first_line,
 						initializer_position.first_column, *name);
 			}
-		} else {
-			value = new int(0);
 		}
 
 		result = new Symbol(name, value);
 		break;
 	}
 	case DOUBLE: {
-		double* value;
+		double* value = new double(0.0);
 
 		if (expression != NULL && expression->GetType() != NONE) {
-			const void* evaluation = expression->Evaluate();
-			if (expression->GetType() == BOOLEAN) {
-				if (evaluation != NULL) {
-					value = new double(*((bool*) (evaluation)));
-				} else {
-					break;
-				}
-			} else if (expression->GetType() == INT) {
-				if (evaluation != NULL) {
-					value = new double(*((int*) (evaluation)));
-				} else {
-					break;
-				}
-			} else if (expression->GetType() == DOUBLE) {
-				if (evaluation != NULL) {
-					value = (double*) (evaluation);
-				} else {
-					break;
-				}
-			} else {
+			if (!(expression->GetType() & (BOOLEAN | INT | DOUBLE))) {
 				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 						initializer_position.first_line,
 						initializer_position.first_column, *name);
 			}
-		} else {
-			value = new double(0.0);
 		}
 
 		result = new Symbol(name, value);
 		break;
 	}
 	case STRING: {
-		string* value;
+		string* value = new string("");
 
 		if (expression != NULL && expression->GetType() != NONE) {
-			Type initializer_type = expression->GetType();
-			const void* evaluation = expression->Evaluate();
-			if (evaluation == NULL) {
-				break;
-			}
-
-			ostringstream buffer;
-			switch (initializer_type) {
-			case STRING: {
-				value = (string*) (evaluation);
-				break;
-			}
-			case BOOLEAN: {
-				value = AsString((bool*) (evaluation));
-				break;
-			}
-			case INT: {
-				value = AsString((int*) (evaluation));
-				break;
-			}
-			case DOUBLE: {
-				value = AsString((double*) (evaluation));
-				break;
-			}
-			default:
+			if (!(expression->GetType() & (BOOLEAN | INT | DOUBLE | STRING))) {
 				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 						initializer_position.first_line,
 						initializer_position.first_column, *name);
 				value = new string("");
 			}
-		} else {
-			value = new string("");
 		}
 
 		result = new Symbol(name, value);

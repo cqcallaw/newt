@@ -47,10 +47,6 @@ YYLTYPE expression_location) :
 			index_expression->GetType() == INT);
 }
 
-const Type ArrayVariable::GetType(const ExecutionContext* context) const {
-	return map_to_primitive(Variable::GetType(context));
-}
-
 const string* ArrayVariable::ToString(const ExecutionContext* context) const {
 	ostringstream buffer;
 	buffer << "<" << *GetName() << "["
@@ -60,8 +56,9 @@ const string* ArrayVariable::ToString(const ExecutionContext* context) const {
 
 std::ostream &operator<<(std::ostream &os,
 		const ArrayVariable &array_variable) {
-	os << *(array_variable.ToString());
-	return os;
+	/*os << *(array_variable.ToString());
+	 return os;*/
+	assert(false);
 }
 
 ArrayVariable::~ArrayVariable() {

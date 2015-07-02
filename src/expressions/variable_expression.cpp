@@ -25,8 +25,8 @@
 #include <execution_context.h>
 
 VariableExpression::VariableExpression(const YYLTYPE position,
-		const Variable* variable) :
-		Expression(variable->GetType(), position), m_variable(variable) {
+		const Variable* variable, const Type type) :
+		Expression(type, position), m_variable(variable) {
 }
 
 const void* VariableExpression::Evaluate(

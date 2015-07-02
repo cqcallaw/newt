@@ -43,7 +43,9 @@ struct comparator {
 
 class SymbolTable {
 public:
-	void print(ostream &os);
+	SymbolTable();
+
+	const void print(ostream &os) const;
 
 	const Symbol* GetSymbol(const string identifier) const;
 	const Symbol* GetSymbol(const string* identifier) const;
@@ -69,8 +71,6 @@ private:
 
 	SetResult SetArraySymbol(const string identifier, Type type, int index,
 			const void* value);
-
-	SymbolTable();
 
 	// disable default copy constructor and default assignment
 	// done as a precaution, they should never be called
