@@ -19,6 +19,7 @@
 
 #include "arithmetic_expression.h"
 #include <error.h>
+#include <sstream>
 
 ArithmeticExpression::ArithmeticExpression(const YYLTYPE position,
 		const OperatorType op, const Expression* left, const Expression* right) :
@@ -26,14 +27,14 @@ ArithmeticExpression::ArithmeticExpression(const YYLTYPE position,
 	assert(
 			op == PLUS || op == MINUS || op == MULTIPLY || op == DIVIDE
 					|| op == MOD);
-	Type left_type = left->GetType();
-	Type right_type = right->GetType();
-	if (left_type != NONE) {
-		assert(left_type & (BOOLEAN | INT | DOUBLE));
-	}
-	if (right_type != NONE) {
-		assert(right_type & (BOOLEAN | INT | DOUBLE));
-	}
+	/*Type left_type = left->GetType();
+	 Type right_type = right->GetType();
+	 if (left_type != NONE) {
+	 assert(left_type & (BOOLEAN | INT | DOUBLE));
+	 }
+	 if (right_type != NONE) {
+	 assert(right_type & (BOOLEAN | INT | DOUBLE));
+	 }*/
 }
 
 const void* ArithmeticExpression::compute(bool left, bool right) const {
@@ -46,11 +47,9 @@ const void* ArithmeticExpression::compute(int left, int right) const {
 	switch (GetOperator()) {
 	case PLUS:
 		*result = left + right;
-		//cout << "Integer summation result: " << *result << "\n";
 		break;
 	case MULTIPLY:
 		*result = left * right;
-		//cout << "Integer multiplication result: " << *result << "\n";
 		break;
 	case DIVIDE:
 		*result = left / right;
@@ -93,6 +92,9 @@ const void* ArithmeticExpression::compute(double left, double right) const {
 }
 
 const void* ArithmeticExpression::compute(string* left, string* right) const {
-	assert(false);
-	return NULL;
-}
+	//string concatenation isn't strictly an arithmetic operation, so this is a hack
+	std::ostringstream buffer;
+	buffer << *left;
+	buffer << *right;
+	string* result = new string(buffer.str());
+	return (void *) result;}

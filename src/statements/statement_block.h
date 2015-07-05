@@ -21,6 +21,7 @@
 #define STATEMENT_BLOCK_H
 
 #include "linked_list.h"
+
 #include "statement.h"
 
 class Statement;
@@ -31,6 +32,7 @@ public:
 
 	bool empty();
 
+	LinkedList<Error*> preprocess(const ExecutionContext* execution_context);
 	void execute(const ExecutionContext* execution_context) const;
 
 private:

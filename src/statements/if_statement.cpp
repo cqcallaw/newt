@@ -33,17 +33,17 @@ IfStatement::IfStatement(const Expression* expression,
 IfStatement::IfStatement(const Expression* expression,
 		const StatementBlock* block, const StatementBlock* else_block) :
 		m_expression(expression), m_block(block), m_else_block(else_block) {
-	if (expression != DefaultExpression) {
+	/*if (expression != DefaultExpression) {
 		//not our default statement
 		assert(expression->GetType() == BOOLEAN);
-	}
+	}*/
 }
 
 IfStatement::~IfStatement() {
 }
 
 void IfStatement::execute(const ExecutionContext* execution_context) const {
-	if (m_expression == nullptr || m_expression == DefaultExpression) {
+	/*if (m_expression == nullptr || m_expression == DefaultExpression) {
 		assert(false);
 		return;
 	}
@@ -51,7 +51,7 @@ void IfStatement::execute(const ExecutionContext* execution_context) const {
 	if (m_block == nullptr || m_block == DefaultStatementBlock) {
 		assert(false);
 		return;
-	}
+	}*/
 
 	bool test = *((bool*) m_expression->Evaluate(execution_context));
 	if (test) {

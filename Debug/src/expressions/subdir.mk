@@ -10,7 +10,6 @@ CPP_SRCS += \
 ../src/expressions/constant_expression.cpp \
 ../src/expressions/expression.cpp \
 ../src/expressions/logic_expression.cpp \
-../src/expressions/string_concatenation_expression.cpp \
 ../src/expressions/unary_expression.cpp \
 ../src/expressions/variable_expression.cpp 
 
@@ -21,7 +20,6 @@ OBJS += \
 ./src/expressions/constant_expression.o \
 ./src/expressions/expression.o \
 ./src/expressions/logic_expression.o \
-./src/expressions/string_concatenation_expression.o \
 ./src/expressions/unary_expression.o \
 ./src/expressions/variable_expression.o 
 
@@ -32,7 +30,6 @@ CPP_DEPS += \
 ./src/expressions/constant_expression.d \
 ./src/expressions/expression.d \
 ./src/expressions/logic_expression.d \
-./src/expressions/string_concatenation_expression.d \
 ./src/expressions/unary_expression.d \
 ./src/expressions/variable_expression.d 
 

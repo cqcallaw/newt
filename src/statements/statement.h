@@ -19,13 +19,21 @@
 
 #ifndef STATEMENT_H_
 #define STATEMENT_H_
+#include "linked_list.h"
 
 class ExecutionContext;
+class Error;
 
 class Statement {
 public:
 	Statement();
 	virtual ~Statement();
+
+	/**
+	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
+	 */
+	virtual LinkedList<Error*> preprocess(
+			const ExecutionContext* execution_context) = 0;
 
 	virtual void execute(const ExecutionContext* execution_context) const = 0;
 };

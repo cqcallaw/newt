@@ -31,12 +31,11 @@ class ExecutionContext;
 
 class Expression {
 public:
-	Expression(const Type type, const YYLTYPE position);
+	Expression(const YYLTYPE position);
 	virtual ~Expression();
 
-	const Type GetType() const {
-		return m_type;
-	}
+	virtual const Type GetType(
+			const ExecutionContext* execution_context) const = 0;
 
 	virtual const void* Evaluate(
 			const ExecutionContext* execution_context) const;
@@ -48,7 +47,6 @@ public:
 	}
 
 private:
-	const Type m_type;
 	const YYLTYPE m_position;
 };
 

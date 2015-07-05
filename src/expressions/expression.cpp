@@ -23,8 +23,8 @@
 #include "variable.h"
 #include "utils.h"
 
-Expression::Expression(const Type type, const YYLTYPE position) :
-		m_type(type), m_position(position) {
+Expression::Expression(const YYLTYPE position) :
+		m_position(position) {
 }
 
 Expression::~Expression() {
@@ -38,7 +38,7 @@ const void* Expression::Evaluate(
 const string* Expression::ToString(
 		const ExecutionContext* execution_context) const {
 	ostringstream buffer;
-	switch (m_type) {
+	switch (GetType(execution_context)) {
 	case BOOLEAN:
 		buffer << *((bool*) Evaluate(execution_context));
 		break;

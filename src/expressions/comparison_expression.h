@@ -29,6 +29,9 @@ public:
 	ComparisonExpression(const YYLTYPE position, const OperatorType op, const Expression* left,
 			const Expression* right);
 
+	virtual const Type GetType(
+			const ExecutionContext* execution_context) const;
+
 protected:
 	virtual const void* compute(bool left, bool right) const;
 	virtual const void* compute(int left, int right) const;

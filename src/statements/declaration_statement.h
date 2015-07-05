@@ -17,9 +17,12 @@ class DeclarationStatement: public Statement {
 public:
 	DeclarationStatement(const Type type, const YYLTYPE type_position,
 			const std::string* name, const YYLTYPE name_position,
-			const Expression* initializer_expression = DefaultExpression,
+			const Expression* initializer_expression = nullptr,
 			const YYLTYPE initializer_position = DefaultLocation);
 	virtual ~DeclarationStatement();
+
+	virtual LinkedList<Error*> preprocess(
+			const ExecutionContext* execution_context);
 
 	virtual void execute(const ExecutionContext* execution_context) const;
 private:

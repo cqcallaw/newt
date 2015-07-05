@@ -25,8 +25,13 @@
 #include <execution_context.h>
 
 VariableExpression::VariableExpression(const YYLTYPE position,
-		const Variable* variable, const Type type) :
-		Expression(type, position), m_variable(variable) {
+		const Variable* variable) :
+		Expression(position), m_variable(variable) {
+}
+
+const Type VariableExpression::GetType(
+		const ExecutionContext* execution_context) const {
+	return execution_context->GetSymbolTable()->GetSymbol(m_variable->GetName())->GetType();
 }
 
 const void* VariableExpression::Evaluate(

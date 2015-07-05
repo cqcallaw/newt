@@ -23,12 +23,12 @@ DeclarationStatement::DeclarationStatement(const Type type,
 DeclarationStatement::~DeclarationStatement() {
 }
 
-void DeclarationStatement::execute(
-		const ExecutionContext* execution_context) const {
-
+LinkedList<Error*> DeclarationStatement::preprocess(
+		const ExecutionContext* execution_context) {
+	LinkedList<Error*> result = LinkedList<Error*>::Terminator;
 	const Symbol* symbol = Symbol::GetSymbol(m_type, m_name,
 			m_initializer_expression, m_type_position, m_name_position,
-			m_initializer_position);
+			m_initializer_position, execution_context);
 
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolTable();
@@ -36,9 +36,16 @@ void DeclarationStatement::execute(
 	if (symbol != Symbol::DefaultSymbol) {
 		InsertResult result = symbol_table->InsertSymbol(symbol);
 		if (result == SYMBOL_EXISTS) {
-			Error::semantic_error(Error::PREVIOUSLY_DECLARED_VARIABLE,
+			const Error* error = new Error(Error::PREVIOUSLY_DECLARED_VARIABLE,
 					m_name_position.first_line, m_name_position.first_column,
 					*m_name);
+			result = new LinkedList<Error*>(error, result);
 		}
 	}
+
+	return result;
+}
+
+void DeclarationStatement::execute(
+		const ExecutionContext* execution_context) const {
 }

@@ -25,26 +25,24 @@
 
 UnaryExpression::UnaryExpression(const YYLTYPE position, const OperatorType op,
 		const Expression* expression) :
-		Expression(compute_result_type(expression->GetType(), op), position), m_expression(
-				expression), m_operator(op) {
+		Expression(position), m_expression(expression), m_operator(op) {
 	assert(expression != NULL);
-	switch (expression->GetType()) {
-	case INT:
-	case DOUBLE:
-		assert(
-				op == NOT || op == UNARY_MINUS || op == SIN || op == COS
-						|| op == TAN || op == ASIN || op == ACOS || op == ATAN
-						|| op == SQRT || op == FLOOR || op == ABS
-						|| op == RANDOM);
-		break;
-	case BOOLEAN: {
-		assert(op == NOT);
-		break;
-	}
-	default:
-		assert(false);
-	}
-
+	/*switch (expression->GetType()) {
+	 case INT:
+	 case DOUBLE:
+	 assert(
+	 op == NOT || op == UNARY_MINUS || op == SIN || op == COS
+	 || op == TAN || op == ASIN || op == ACOS || op == ATAN
+	 || op == SQRT || op == FLOOR || op == ABS
+	 || op == RANDOM);
+	 break;
+	 case BOOLEAN: {
+	 assert(op == NOT);
+	 break;
+	 }
+	 default:
+	 assert(false);
+	 }*/
 }
 
 const Type UnaryExpression::compute_result_type(const Type input_type,
@@ -117,13 +115,19 @@ double UnaryExpression::degrees_to_radians(double angle) {
 	return angle * (M_PI / 180.0);
 }
 
+const Type UnaryExpression::GetType(
+		const ExecutionContext* execution_context) const {
+	return compute_result_type(m_expression->GetType(execution_context),
+			m_operator);
+}
+
 double UnaryExpression::radians_to_degrees(double radians) {
 	return radians * (180.0 / M_PI);
 }
 
 const void* UnaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
-	const Type expression_type = m_expression->GetType();
+	const Type expression_type = m_expression->GetType(execution_context);
 	const void* evaluated = m_expression->Evaluate(execution_context);
 
 	switch (m_operator) {
@@ -250,7 +254,7 @@ const void* UnaryExpression::Evaluate(
 	}
 	default:
 		assert(false);
-		return DefaultExpression;
+		return nullptr;
 	}
 }
 

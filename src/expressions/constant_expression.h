@@ -31,9 +31,15 @@ public:
 	ConstantExpression(const YYLTYPE position, const double value);
 	ConstantExpression(const YYLTYPE position, const std::string* value);
 
-	virtual const void* Evaluate(const ExecutionContext* execution_context) const;
+	virtual const Type GetType(const ExecutionContext* execution_context) const;
+
+	virtual const void* Evaluate(
+			const ExecutionContext* execution_context) const;
 
 private:
+	ConstantExpression(const YYLTYPE position, const Type type,
+			const void* value);
+	const Type m_type;
 	const void* m_value;
 };
 

@@ -31,9 +31,9 @@ ForStatement::ForStatement(const AssignmentStatement* initial,
 		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
 				loop_assignment), m_statement_block(statement_block) {
 	assert(loop_expression != nullptr);
-	if (loop_expression != DefaultExpression) {
+	/*if (loop_expression != DefaultExpression) {
 		assert(loop_expression->GetType() & (BOOLEAN | INT));
-	}
+	}*/
 	assert(loop_assignment != nullptr);
 }
 

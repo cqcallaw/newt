@@ -21,22 +21,22 @@
 
 BinaryExpression::BinaryExpression(const YYLTYPE position,
 		const OperatorType op, const Expression* left, const Expression* right) :
-		Expression(ComputeResultType(left, right, op), position), m_operator(
-				op), m_left(left), m_right(right) {
+		Expression(position), m_operator(op), m_left(left), m_right(right) {
 	assert(left != NULL);
-	if (left->GetType() != NONE) {
-		assert(left->GetType() & (BOOLEAN | INT | DOUBLE | STRING));
-	}
+	/*if (left->GetType() != NONE) {
+	 assert(left->GetType() & (BOOLEAN | INT | DOUBLE | STRING));
+	 }*/
 	assert(right != NULL);
-	if (right->GetType() != NONE) {
-		assert(right->GetType() & (BOOLEAN | INT | DOUBLE | STRING));
-	}
+	/*if (right->GetType() != NONE) {
+	 assert(right->GetType() & (BOOLEAN | INT | DOUBLE | STRING));
+	 }*/
 }
 
 const Type BinaryExpression::ComputeResultType(const Expression* left,
-		const Expression* right, const OperatorType op) {
-	Type left_type = left->GetType();
-	Type right_type = right->GetType();
+		const Expression* right, const OperatorType op,
+		const ExecutionContext* execution_context) {
+	Type left_type = left->GetType(execution_context);
+	Type right_type = right->GetType(execution_context);
 
 	if (left_type == NONE || right_type == NONE) {
 		return NONE;
@@ -62,8 +62,8 @@ const Type BinaryExpression::ComputeResultType(const Expression* left,
 
 const void* BinaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
-	Type left_type = GetLeft()->GetType();
-	Type right_type = GetRight()->GetType();
+	Type left_type = GetLeft()->GetType(execution_context);
+	Type right_type = GetRight()->GetType(execution_context);
 
 	const void* left_void_value = GetLeft()->Evaluate(execution_context);
 	const void* right_void_value = GetRight()->Evaluate(execution_context);
@@ -218,6 +218,12 @@ const void* BinaryExpression::compute(string* left, bool right) const {
 const void* BinaryExpression::compute(string* left, int right) const {
 	return compute(left, AsString(right));
 }
+
+const Type BinaryExpression::GetType(
+		const ExecutionContext* execution_context) const {
+	return ComputeResultType(m_left, m_right, m_operator, execution_context);
+}
+
 const void* BinaryExpression::compute(string* left, double right) const {
 	return compute(left, AsString(right));
 }

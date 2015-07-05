@@ -112,6 +112,11 @@ const void* ComparisonExpression::compute(double left, double right) const {
 	return NULL;
 }
 
+const Type ComparisonExpression::GetType(
+		const ExecutionContext* execution_context) const {
+	return BOOLEAN;
+}
+
 const void* ComparisonExpression::compute(string* left, string* right) const {
 	switch (GetOperator()) {
 	case EQUAL:

@@ -61,6 +61,11 @@ const void* LogicExpression::compute(double left, double right) const {
 	}
 }
 
+const Type LogicExpression::GetType(
+		const ExecutionContext* execution_context) const {
+	return BOOLEAN;
+}
+
 const void* LogicExpression::compute(string* left, string* right) const {
 	assert(false);
 	return NULL;

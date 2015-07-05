@@ -141,7 +141,7 @@ const void* AssignmentStatement::do_op(const int value,
 		const Expression* expression, const AssignmentType op,
 		const ExecutionContext* execution_context) const {
 	int new_value = 0;
-	switch (expression->GetType()) {
+	switch (expression->GetType(execution_context)) {
 	case BOOLEAN:
 		do_op(value, *((bool*) expression->Evaluate(execution_context)), op,
 				execution_context, new_value);
@@ -155,7 +155,7 @@ const void* AssignmentStatement::do_op(const int value,
 		Error::semantic_error(Error::ASSIGNMENT_TYPE_ERROR,
 				m_variable->GetLocation().first_line,
 				m_variable->GetLocation().first_column, type_to_string(INT),
-				type_to_string(expression->GetType()));
+				type_to_string(expression->GetType(execution_context)));
 	}
 
 	return new int(new_value);
@@ -165,7 +165,7 @@ const void* AssignmentStatement::do_op(const double value,
 		const Expression* expression, AssignmentType op,
 		const ExecutionContext* execution_context) const {
 	double new_value = 0;
-	switch (expression->GetType()) {
+	switch (expression->GetType(execution_context)) {
 	case BOOLEAN:
 		do_op(value, *((bool*) expression->Evaluate(execution_context)), op,
 				execution_context, new_value);
@@ -184,7 +184,7 @@ const void* AssignmentStatement::do_op(const double value,
 		Error::semantic_error(Error::ASSIGNMENT_TYPE_ERROR,
 				m_variable->GetLocation().first_line,
 				m_variable->GetLocation().first_column, type_to_string(DOUBLE),
-				type_to_string(expression->GetType()));
+				type_to_string(expression->GetType(execution_context)));
 	}
 
 	return new double(new_value);
@@ -194,7 +194,7 @@ const void* AssignmentStatement::do_op(const string* value,
 		const Expression* expression, AssignmentType op,
 		const ExecutionContext* execution_context) const {
 	string* new_value;
-	switch (expression->GetType()) {
+	switch (expression->GetType(execution_context)) {
 	case BOOLEAN:
 		do_op(value, *((bool*) expression->Evaluate(execution_context)), op,
 				execution_context, new_value);
@@ -218,7 +218,7 @@ const void* AssignmentStatement::do_op(const string* value,
 		Error::semantic_error(Error::ASSIGNMENT_TYPE_ERROR,
 				m_variable->GetLocation().first_line,
 				m_variable->GetLocation().first_column, type_to_string(STRING),
-				type_to_string(expression->GetType()));
+				type_to_string(expression->GetType(execution_context)));
 	}
 
 	return new_value;
@@ -231,9 +231,9 @@ void AssignmentStatement::execute(
 		return;
 	}
 
-	if (m_variable == DefaultVariable || m_expression == DefaultExpression) {
+	/*if (m_variable == DefaultVariable || m_expression == DefaultExpression) {
 		return;
-	}
+	}*/
 
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolTable();

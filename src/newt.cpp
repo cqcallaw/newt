@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 	ExecutionContext* root_context = new ExecutionContext();
 	yylex_init(&scanner);
 	yyset_in(input_file, scanner);
-	int parse_result = yyparse(scanner, root_context);
+	int parse_result = yyparse(scanner);
 	yylex_destroy(scanner);
 
 	if (debug) {

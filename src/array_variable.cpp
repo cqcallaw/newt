@@ -43,8 +43,8 @@ YYLTYPE location, const Expression* index_expression,
 YYLTYPE expression_location) :
 		Variable(name, location), m_index_expression(index_expression), m_expression_location(
 				expression_location) {
-	assert(index_expression != NULL && index_expression != nullptr);assert(
-			index_expression->GetType() == INT);
+	/*assert(index_expression != NULL && index_expression != nullptr);assert(
+	 index_expression->GetType() == INT);*/
 }
 
 const string* ArrayVariable::ToString(const ExecutionContext* context) const {

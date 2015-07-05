@@ -26,6 +26,7 @@
 #include "type.h"
 #include "error.h"
 #include "expression.h"
+#include <execution_context.h>
 
 const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
 const Symbol* Symbol::DefaultSymbol = new Symbol(NONE, DefaultSymbolName, NULL);
@@ -136,15 +137,16 @@ string Symbol::ToString() const {
 
 const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 		const Expression* expression, const YYLTYPE type_position,
-		const YYLTYPE name_position, const YYLTYPE initializer_position) {
+		const YYLTYPE name_position, const YYLTYPE initializer_position,
+		const ExecutionContext* execution_context) {
 	Symbol* result = (Symbol*) DefaultSymbol;
 	switch (type) {
 	case BOOLEAN: {
 		bool *value = new bool(false);
 
 		if (expression != NULL && expression != nullptr
-				&& expression->GetType() != NONE) {
-			if (!(expression->GetType() & (BOOLEAN))) {
+				&& expression->GetType(execution_context) != NONE) {
+			if (!(expression->GetType(execution_context) & (BOOLEAN))) {
 				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 						initializer_position.first_line,
 						initializer_position.first_column, *name);
@@ -157,8 +159,9 @@ const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 	case INT: {
 		int *value = new int(0);
 
-		if (expression != NULL && expression->GetType() != NONE) {
-			if (!(expression->GetType() & (BOOLEAN | INT))) {
+		if (expression != NULL
+				&& expression->GetType(execution_context) != NONE) {
+			if (!(expression->GetType(execution_context) & (BOOLEAN | INT))) {
 				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 						initializer_position.first_line,
 						initializer_position.first_column, *name);
@@ -171,8 +174,10 @@ const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 	case DOUBLE: {
 		double* value = new double(0.0);
 
-		if (expression != NULL && expression->GetType() != NONE) {
-			if (!(expression->GetType() & (BOOLEAN | INT | DOUBLE))) {
+		if (expression != NULL
+				&& expression->GetType(execution_context) != NONE) {
+			if (!(expression->GetType(execution_context)
+					& (BOOLEAN | INT | DOUBLE))) {
 				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 						initializer_position.first_line,
 						initializer_position.first_column, *name);
@@ -185,8 +190,10 @@ const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 	case STRING: {
 		string* value = new string("");
 
-		if (expression != NULL && expression->GetType() != NONE) {
-			if (!(expression->GetType() & (BOOLEAN | INT | DOUBLE | STRING))) {
+		if (expression != NULL
+				&& expression->GetType(execution_context) != NONE) {
+			if (!(expression->GetType(execution_context)
+					& (BOOLEAN | INT | DOUBLE | STRING))) {
 				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 						initializer_position.first_line,
 						initializer_position.first_column, *name);

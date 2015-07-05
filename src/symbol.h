@@ -29,6 +29,7 @@
 using namespace std;
 
 class Expression;
+class ExecutionContext;
 
 class Symbol {
 public:
@@ -44,7 +45,8 @@ public:
 
 	const static Symbol* GetSymbol(const Type type, const string* name,
 			const Expression* initializer_expression, YYLTYPE type_position,
-			YYLTYPE name_position, YYLTYPE initializer_position);
+			YYLTYPE name_position, YYLTYPE initializer_position,
+			const ExecutionContext* execution_context);
 
 	virtual ~Symbol() {
 	}

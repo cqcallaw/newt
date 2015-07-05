@@ -50,6 +50,9 @@ public:
 		return m_variable;
 	}
 
+	virtual LinkedList<Error*> preprocess(
+			const ExecutionContext* execution_context);
+
 	virtual void execute(const ExecutionContext* execution_context) const;
 
 private:

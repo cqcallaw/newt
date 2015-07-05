@@ -24,9 +24,9 @@
 ExitStatement::ExitStatement(const int line_number,
 		const Expression* exit_expression) :
 		m_line_number(line_number), m_exit_expression(exit_expression) {
-	if (exit_expression != nullptr) {
+	/*if (exit_expression != nullptr) {
 		assert(exit_expression->GetType() <= INT);
-	}
+	}*/
 }
 
 ExitStatement::~ExitStatement() {

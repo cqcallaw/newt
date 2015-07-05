@@ -24,7 +24,10 @@
 
 class UnaryExpression: public Expression {
 public:
-	UnaryExpression(const YYLTYPE position, const OperatorType op, const Expression* expression);
+	UnaryExpression(const YYLTYPE position, const OperatorType op,
+			const Expression* expression);
+
+	virtual const Type GetType(const ExecutionContext* execution_context) const;
 
 	virtual const void* Evaluate(
 			const ExecutionContext* execution_context) const;

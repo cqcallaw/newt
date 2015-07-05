@@ -34,13 +34,13 @@ class PrintStatement;
 class StatementBlock;
 
 extern const YYLTYPE DefaultLocation;
-extern const Variable* DefaultVariable;
+/*extern const Variable* DefaultVariable;
 extern const Expression* DefaultExpression;
 extern const AssignmentStatement* DefaultAssignmentStatement;
 extern const ForStatement* DefaultForStatement;
 extern const ExitStatement* DefaultExitStatement;
 extern const IfStatement* DefaultIfStatement;
 extern const PrintStatement* DefaultPrintStatement;
-extern const StatementBlock* DefaultStatementBlock;
+extern const StatementBlock* DefaultStatementBlock;*/
 
 #endif /* DEFAULTS_H_ */

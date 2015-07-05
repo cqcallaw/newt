@@ -65,7 +65,7 @@ const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 		const ExecutionContext* execution_context) {
 	ArraySymbol* result = (ArraySymbol*) DefaultArraySymbol;
 
-	if (size_expression->GetType() != INT) {
+	if (size_expression->GetType(execution_context) != INT) {
 		Error::semantic_error(Error::INVALID_ARRAY_SIZE,
 				size_expression_position.first_line,
 				size_expression_position.first_column, *name,

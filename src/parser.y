@@ -43,7 +43,6 @@ typedef void* yyscan_t;
 }
 
 %param {yyscan_t scanner}
-%parse-param {ExecutionContext* root_context}
 
 %code {
 #include <iostream>
@@ -61,7 +60,7 @@ typedef void* yyscan_t;
 #include <logic_expression.h>
 #include <unary_expression.h>
 #include <binary_expression.h>
-#include <string_concatenation_expression.h>
+//#include <string_concatenation_expression.h>
 #include <variable_expression.h>
 #include <print_statement.h>
 #include <assignment_statement.h>
@@ -74,7 +73,7 @@ typedef void* yyscan_t;
 
 #include <lexer.h>
 
-void yyerror(YYLTYPE* locp, yyscan_t scanner, ExecutionContext* root_context, const char* str) {
+void yyerror(YYLTYPE* locp, yyscan_t scanner, const char* str) {
 	Error::parse_error(locp->first_line, string(str));
 }
 
@@ -351,21 +350,21 @@ statement:
 if_statement:
 	T_IF T_LPAREN expression T_RPAREN if_block %prec IF_NO_ELSE
 	{
-		if (!($3->GetType() & (BOOLEAN | INT))) {
+		/*if (!($3->GetType() & (BOOLEAN | INT))) {
 			Error::semantic_error(Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION, @3.first_line, @3.first_column);
 			$$ = DefaultIfStatement;
-		} else { 
+		} else {*/ 
 			$$ = new IfStatement($3, $5);
-		}
+		//}
 	}
 	| T_IF T_LPAREN expression T_RPAREN if_block T_ELSE if_block
 	{
-		if (!($3->GetType() & (BOOLEAN | INT))) {
+		/*if (!($3->GetType() & (BOOLEAN | INT))) {
 			Error::semantic_error(Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION, @3.first_line, @3.first_column);
 			$$ = DefaultIfStatement;
-		} else { 
+		} else {*/ 
 			$$ = new IfStatement($3, $5, $7);
-		}
+		//}
 	}
 	;
 
@@ -373,12 +372,12 @@ if_statement:
 for_statement:
 	T_FOR T_LPAREN assign_statement T_SEMIC expression T_SEMIC assign_statement T_RPAREN statement_block
 	{
-		if (!($5->GetType() & (BOOLEAN | INT))) {
+		/*if (!($5->GetType() & (BOOLEAN | INT))) {
 			Error::semantic_error(Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION, @5.first_line, @5.first_column);
 			$$ = DefaultForStatement;
-		} else { 
+		} else {*/ 
 			$$ = new ForStatement($3, $5, $7, $9);
-		}
+		//}
 	}
 	;
 
@@ -386,13 +385,13 @@ for_statement:
 print_statement:
 	T_PRINT T_LPAREN expression T_RPAREN
 	{
-		Type expression_type = $3->GetType();
+		/*Type expression_type = $3->GetType();
 		if (expression_type > STRING) {
 			Error::semantic_error(Error::INVALID_TYPE_FOR_PRINT_STMT_EXPRESSION, @3.first_line, @3.first_column, type_to_string(expression_type));
 			$$ = DefaultPrintStatement;
-		} else {
+		} else {*/
 			$$ = new PrintStatement($1, $3);
-		}
+		//}
 	}
 	;
 
@@ -400,13 +399,13 @@ print_statement:
 exit_statement:
 	T_EXIT T_LPAREN expression T_RPAREN
 	{
-		Type expression_type = $3->GetType();
+		/*Type expression_type = $3->GetType();
 		if (expression_type != INT) {
 			Error::semantic_error(Error::EXIT_STATUS_MUST_BE_AN_INTEGER, @3.first_line, @3.first_column, type_to_string(expression_type));
 			$$ = DefaultExitStatement;
-		} else {
+		} else {*/
 			$$ = new ExitStatement($1, $3);
-		}
+		//}
 	}
 	;
 
@@ -474,7 +473,7 @@ variable_reference:
 	}
 	| T_ID T_LBRACKET expression T_RBRACKET
 	{
-		if ($3->GetType() != INT)
+		/*if ($3->GetType() != INT)
 		{
 			switch($3->GetType())
 			{
@@ -491,9 +490,9 @@ variable_reference:
 			$$ = DefaultVariable;
 		}
 		else
-		{
+		{*/
 			$$ = new ArrayVariable($1, @1, $3, @3);
-		}
+		//}
 	}
 	| T_ID T_PERIOD T_ID
 	{
@@ -511,7 +510,7 @@ expression:
 	}
 	| expression T_OR expression
 	{
-		if ($1->GetType() != NONE && !($1->GetType() & (BOOLEAN | INT | DOUBLE)))
+		/*if ($1->GetType() != NONE && !($1->GetType() & (BOOLEAN | INT | DOUBLE)))
 		{
 			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(OR));
 			$$ = DefaultExpression;
@@ -522,13 +521,13 @@ expression:
 			$$ = DefaultExpression;
 		}
 		else
-		{
+		{*/
 			$$ = new LogicExpression(@$, OR, $1, $3);
-		}
+		//}
 	}
 	| expression T_AND expression
 	{
-		if ($1->GetType() != NONE && !($1->GetType() & (BOOLEAN | INT | DOUBLE)))
+		/*if ($1->GetType() != NONE && !($1->GetType() & (BOOLEAN | INT | DOUBLE)))
 		{
 			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(AND));
 			$$ = DefaultExpression;
@@ -539,9 +538,9 @@ expression:
 			$$ = DefaultExpression;
 		}
 		else
-		{
+		{*/
 			$$ = new LogicExpression(@$, AND, $1, $3);
-		}
+		//}
 	}
 	| expression T_LESS_EQUAL expression
 	{
@@ -569,18 +568,19 @@ expression:
 	}
 	| expression T_PLUS expression 
 	{
-		if ($1->GetType() == STRING || $3->GetType() == STRING)
+		/*if ($1->GetType() == STRING || $3->GetType() == STRING)
 		{
 			$$ = new StringConcatenationExpression(@$, $1, $3);
 		}
 		else
-		{
+		{*/
+			//string concatenation isn't strictly an arithmetic operation, so this is something of a hack
 			$$ = new ArithmeticExpression(@$, PLUS, $1, $3);
-		}
+		//}
 	}
 	| expression T_MINUS expression
 	{
-		if ($1->GetType() != NONE && !($1->GetType() & (INT | DOUBLE)))
+		/*if ($1->GetType() != NONE && !($1->GetType() & (INT | DOUBLE)))
 		{
 			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(MINUS));
 			$$ = DefaultExpression;
@@ -591,13 +591,13 @@ expression:
 			$$ = DefaultExpression;
 		}
 		else
-		{
+		{*/
 			$$ = new ArithmeticExpression(@$, MINUS, $1, $3);
-		}
+		//}
 	}
 	| expression T_ASTERISK expression
 	{
-		if ($1->GetType() != NONE && !($1->GetType() & (INT | DOUBLE)))
+		/*if ($1->GetType() != NONE && !($1->GetType() & (INT | DOUBLE)))
 		{
 			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(MULTIPLY));
 			$$ = DefaultExpression;
@@ -608,13 +608,13 @@ expression:
 			$$ = DefaultExpression;
 		}
 		else
-		{
+		{*/
 			$$ = new ArithmeticExpression(@$, MULTIPLY, $1, $3);
-		}
+		//}
 	}
 	| expression T_DIVIDE expression
 	{
-		if ($1->GetType() != NONE && !($1->GetType() & (INT | DOUBLE)))
+		/*if ($1->GetType() != NONE && !($1->GetType() & (INT | DOUBLE)))
 		{
 			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(DIVIDE));
 			$$ = DefaultExpression;
@@ -625,13 +625,13 @@ expression:
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() & (BOOLEAN | INT | DOUBLE) && EndsWith(typeid(*$3).name(), "ConstantExpression"))
-		{
+		{*/
 			$$ = new ArithmeticExpression(@$, DIVIDE, $1, $3);
-		}
+		//}
 	}
 	| expression T_MOD expression
 	{
-		if ($1->GetType() != NONE && !($1->GetType() & INT))
+		/*if ($1->GetType() != NONE && !($1->GetType() & INT))
 		{
 			Error::semantic_error(Error::INVALID_LEFT_OPERAND_TYPE, @1.first_line, @1.first_column, operator_to_string(MOD));
 			$$ = DefaultExpression;
@@ -642,45 +642,45 @@ expression:
 			$$ = DefaultExpression;
 		}
 		else if ($3->GetType() & (BOOLEAN | INT | DOUBLE) && EndsWith(typeid(*$3).name(), "ConstantExpression"))
-		{
+		{*/
 			$$ = new ArithmeticExpression(@$, MOD, $1, $3);
-		}
+		//}
 	}
 	| T_MINUS expression %prec UNARY_OPS
 	{
-		if($2->GetType() & (INT | DOUBLE))
-		{
+		//if($2->GetType() & (INT | DOUBLE))
+		//{
 			$$ = new UnaryExpression(@$, UNARY_MINUS, $2);
-		}
+		/*}
 		else
 		{
 			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @2.first_line, @2.first_column, operator_to_string(UNARY_MINUS));
 			$$ = DefaultExpression;
-		}
+		}*/
 	}
 	| T_NOT expression %prec UNARY_OPS
 	{
-		if ($2->GetType() != NONE && !($2->GetType() & (BOOLEAN | INT | DOUBLE)))
+		/*if ($2->GetType() != NONE && !($2->GetType() & (BOOLEAN | INT | DOUBLE)))
 		{
 			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @2.first_line, @2.first_column, operator_to_string(NOT));
 			$$ = DefaultExpression;
 		}
 		else
-		{
+		{*/
 			$$ = new UnaryExpression(@$, NOT, $2);
-		}
+		//}
 	}
 	| math_operator T_LPAREN expression T_RPAREN
 	{
-		if($3->GetType() & (INT | DOUBLE))
-		{
+		//if($3->GetType() & (INT | DOUBLE))
+		//{
 			$$ = new UnaryExpression(@$, $1, $3);
-		}
+		/*}
 		else
 		{
 			Error::semantic_error(Error::INVALID_RIGHT_OPERAND_TYPE, @3.first_line, @3.first_column, operator_to_string($1));
 			$$ = DefaultExpression;
-		}
+		}*/
 	}
 	;
 
@@ -692,7 +692,6 @@ primary_expression:
 	}
 	| variable_reference
 	{
-		//Type type = root_context->GetSymbolTable()->GetSymbol($1->GetName())->GetType();
 		$$ = new VariableExpression(@1, $1);
 	}
 	| T_INT_CONSTANT

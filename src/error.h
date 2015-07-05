@@ -39,7 +39,7 @@ using namespace std;
 
 class Error {
 public:
-	enum Error_type {
+	enum ErrorType {
 		ARRAY_INDEX_MUST_BE_AN_INTEGER,
 		ARRAY_INDEX_OUT_OF_BOUNDS,
 		ASSIGNMENT_TYPE_ERROR,
@@ -70,14 +70,17 @@ public:
 		PARSE_ERROR
 	};
 
+	Error(ErrorType type, int line_number, int column_number, string s1 = "",
+			string s2 = "", string s3 = "");
+
 	static void lex_error(int line_number, string s1);
 
 	static void parse_error(int line_number, string s1);
 
-	static void semantic_error(Error_type type, int line_number,
+	static void semantic_error(ErrorType type, int line_number,
 			int column_number, string s1 = "", string s2 = "", string s3 = "");
 
-	static void runtime_error(Error_type type, string s1 = "", string s2 = "",
+	static void runtime_error(ErrorType type, string s1 = "", string s2 = "",
 			string s3 = "");
 
 	static int num_errors() {
@@ -85,10 +88,11 @@ public:
 	}
 
 protected:
-	static void error_core(Error_type type, string s1 = "", string s2 = "",
+	static void error_core(ErrorType type, string s1 = "", string s2 = "",
 			string s3 = "");
 
 	static int m_num_errors;
+
 };
 
 #endif // #ifndef ERROR_H

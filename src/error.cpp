@@ -34,14 +34,17 @@ void Error::parse_error(int line_number, string s1) {
 	m_num_errors++;
 }
 
-void Error::semantic_error(Error_type type, int line_number, int column_number,
+void Error::semantic_error(ErrorType type, int line_number, int column_number,
 		string s1, string s2, string s3) {
 	cerr << "Semantic error on line " << line_number << ", column "
 			<< column_number << ": ";
 	error_core(type, s1, s2, s3);
 }
 
-void Error::error_core(Error_type type, string s1, string s2, string s3) {
+void Error::runtime_error(ErrorType type, string s1, string s2, string s3) {
+}
+
+void Error::error_core(ErrorType type, string s1, string s2, string s3) {
 	switch (type) {
 	case ARRAY_INDEX_MUST_BE_AN_INTEGER:
 		// s2 is expected to be one of the following strings

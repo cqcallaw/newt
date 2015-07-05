@@ -24,8 +24,10 @@
 
 class BinaryExpression: public Expression {
 public:
-	BinaryExpression(const YYLTYPE position, const OperatorType op, const Expression* left,
-			const Expression* right);
+	BinaryExpression(const YYLTYPE position, const OperatorType op,
+			const Expression* left, const Expression* right);
+
+	virtual const Type GetType(const ExecutionContext* execution_context) const;
 
 	const void* Evaluate(const ExecutionContext* execution_context) const;
 
@@ -40,7 +42,8 @@ public:
 	}
 
 	const static Type ComputeResultType(const Expression* left,
-			const Expression* right, const OperatorType op);
+			const Expression* right, const OperatorType op,
+			const ExecutionContext* execution_context);
 
 protected:
 	virtual const void* compute(bool left, bool right) const = 0;
