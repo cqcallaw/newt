@@ -45,6 +45,8 @@ LinkedList<const Error*>* StatementBlock::preprocess(
 				execution_context);
 		errors = (LinkedList<const Error*>*) errors->Concatenate(
 				statement_errors, true);
+
+		subject = (LinkedList<const Statement*>*) subject->GetNext();
 	}
 
 	return errors;

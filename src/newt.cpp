@@ -28,6 +28,14 @@
 
 using namespace std;
 
+void do_exit(bool debug, int exit_code) {
+	if (debug) {
+		//return "success" so the test infrastructure doesn't barf
+		exit(EXIT_SUCCESS);
+	} else {
+		exit(exit_code);
+	}
+}
 int main(int argc, char *argv[]) {
 	FILE* input_file;
 	yyscan_t scanner;
@@ -56,10 +64,11 @@ int main(int argc, char *argv[]) {
 		cout << "Parsing file " << filename << "..." << endl;
 	}
 
+	StatementBlock* main_statement_block;
 	ExecutionContext* root_context = new ExecutionContext();
 	yylex_init(&scanner);
 	yyset_in(input_file, scanner);
-	int parse_result = yyparse(scanner);
+	int parse_result = yyparse(&main_statement_block, scanner);
 	yylex_destroy(scanner);
 
 	if (debug) {
@@ -72,16 +81,25 @@ int main(int argc, char *argv[]) {
 			cout << "s";
 		cout << " found; giving up." << endl;
 
-		if (debug) {
-			//return "success" so the test infrastructure doesn't barf
-			exit(EXIT_SUCCESS);
-		} else {
-			exit(EXIT_FAILURE);
-		}
+		do_exit(debug, EXIT_FAILURE);
 	}
 
-	if (parse_result == 0 && Error::num_errors() == 0 && debug) {
-		cout << "Root Symbol Table:" << endl;
-		root_context->GetSymbolTable()->print(cout);
+	if (parse_result == 0) {
+		LinkedList<const Error*>* semantic_errors =
+				main_statement_block->preprocess(root_context);
+
+		if (semantic_errors == LinkedList<const Error*>::Terminator) {
+			main_statement_block->execute(root_context);
+
+			//TODO: handle runtime errors
+			if (debug) {
+				cout << "Root Symbol Table:" << endl;
+				root_context->GetSymbolTable()->print(cout);
+			}
+			do_exit(debug, EXIT_SUCCESS);
+		} else {
+			//TODO: echo echo semantic errors
+			do_exit(debug, EXIT_FAILURE);
+		}
 	}
 }

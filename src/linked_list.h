@@ -53,6 +53,9 @@ public:
 
 	const LinkedList<T>* Concatenate(const LinkedList<T>* other,
 			bool delete_original) const {
+		if (this == (LinkedList<T>*) Terminator) {
+			return other;
+		}
 		if (other == (LinkedList<T>*) Terminator) {
 			return this;
 		}

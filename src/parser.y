@@ -43,7 +43,9 @@ typedef void* yyscan_t;
 
 }
 
-%param {yyscan_t scanner}
+%lex-param   { yyscan_t scanner }
+%parse-param { StatementBlock** main_statement_block }
+%parse-param { yyscan_t scanner }
 
 %code {
 #include <iostream>
@@ -74,7 +76,7 @@ typedef void* yyscan_t;
 
 #include <lexer.h>
 
-void yyerror(YYLTYPE* locp, yyscan_t scanner, const char* str) {
+void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scanner, const char* str) {
 	Error::parse_error(locp->first_line, string(str));
 }
 
@@ -201,10 +203,12 @@ void yyerror(YYLTYPE* locp, yyscan_t scanner, const char* str) {
 program:
 	main_statement_list
 	{
+		*main_statement_block = new StatementBlock($1);
 	}
 	|
 	terminators	main_statement_list
 	{
+		*main_statement_block = new StatementBlock($2);
 	}
 	;
 
@@ -307,7 +311,13 @@ statement_block:
 main_statement_list:
 	statement_list
 	{
-		$$ = new StatementList($1->Reverse(true)); //statement list comes in reverse order
+		if ($1 != LinkedList<const Statement*>::Terminator) {
+			//statement list comes in reverse order
+			//wrap in StatementList because Reverse is a LinkedList<T> function
+			$$ = new StatementList($1->Reverse(true));
+		} else {
+			$$ = StatementList::Terminator;
+		}
 	}
 	;
 
