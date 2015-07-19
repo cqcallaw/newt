@@ -34,8 +34,10 @@ public:
 			const StatementBlock* statement_block);
 	virtual ~ForStatement();
 
-	virtual LinkedList<Error*> preprocess(
-			const ExecutionContext* execution_context);
+	virtual LinkedList<const Error*>* preprocess(
+			const ExecutionContext* execution_context) const {
+		return LinkedList<const Error*>::Terminator;
+	}
 
 	virtual void execute(const ExecutionContext* execution_context) const;
 

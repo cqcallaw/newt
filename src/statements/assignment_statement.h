@@ -50,8 +50,10 @@ public:
 		return m_variable;
 	}
 
-	virtual LinkedList<Error*> preprocess(
-			const ExecutionContext* execution_context);
+	virtual LinkedList<const Error*>* preprocess(
+			const ExecutionContext* execution_context) const {
+		return LinkedList<const Error*>::Terminator;
+	}
 
 	virtual void execute(const ExecutionContext* execution_context) const;
 

@@ -47,6 +47,28 @@ public:
 		return m_next;
 	}
 
+	const LinkedList<T>* With(const T data) const {
+		return new LinkedList<T>(data, this);
+	}
+
+	const LinkedList<T>* Concatenate(const LinkedList<T>* other,
+			bool delete_original) const {
+		if (other == (LinkedList<T>*) Terminator) {
+			return this;
+		}
+
+		LinkedList<T>* result = (LinkedList<T>*) Terminator;
+		LinkedList<T>* subject = (LinkedList<T>*) this->Reverse(
+				delete_original);
+
+		while (subject->GetNext() != Terminator) {
+			result = (LinkedList<T>*) new LinkedList<T>(subject->GetData(),
+					result);
+		}
+
+		return result;
+	}
+
 	const LinkedList<T>* Reverse(bool delete_original) const {
 		//ref: http://stackoverflow.com/a/1801703/577298
 		LinkedList<T>* subject = (LinkedList<T>*) this;

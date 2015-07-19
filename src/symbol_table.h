@@ -64,13 +64,13 @@ public:
 	SetResult SetSymbol(const string identifier, int index,
 			const string* value);
 
-private:
-	std::map<const string, const Symbol*, comparator>* table;
-
 	SetResult SetSymbol(const string identifier, Type type, const void* value);
 
 	SetResult SetArraySymbol(const string identifier, Type type, int index,
 			const void* value);
+
+private:
+	std::map<const string, const Symbol*, comparator>* table;
 
 	// disable default copy constructor and default assignment
 	// done as a precaution, they should never be called

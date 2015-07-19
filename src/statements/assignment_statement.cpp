@@ -232,8 +232,8 @@ void AssignmentStatement::execute(
 	}
 
 	/*if (m_variable == DefaultVariable || m_expression == DefaultExpression) {
-		return;
-	}*/
+	 return;
+	 }*/
 
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolTable();

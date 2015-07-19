@@ -197,7 +197,6 @@ const Symbol* Symbol::GetSymbol(const Type type, const string* name,
 				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 						initializer_position.first_line,
 						initializer_position.first_column, *name);
-				value = new string("");
 			}
 		}
 

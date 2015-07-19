@@ -162,3 +162,10 @@ void Error::error_core(ErrorType type, string s1, string s2, string s3) {
 
 	m_num_errors++;
 }
+
+Error::Error() {
+}
+
+Error::Error(ErrorType type, int line_number, int column_number, string s1,
+		string s2, string s3) {
+}

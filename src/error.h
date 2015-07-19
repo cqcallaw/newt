@@ -70,6 +70,7 @@ public:
 		PARSE_ERROR
 	};
 
+	Error();
 	Error(ErrorType type, int line_number, int column_number, string s1 = "",
 			string s2 = "", string s3 = "");
 

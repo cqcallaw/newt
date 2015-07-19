@@ -21,8 +21,8 @@ public:
 			const YYLTYPE initializer_position = DefaultLocation);
 	virtual ~DeclarationStatement();
 
-	virtual LinkedList<Error*> preprocess(
-			const ExecutionContext* execution_context);
+	virtual LinkedList<const Error*>* preprocess(
+			const ExecutionContext* execution_context) const;
 
 	virtual void execute(const ExecutionContext* execution_context) const;
 private:

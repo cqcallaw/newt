@@ -29,8 +29,10 @@ public:
 	PrintStatement(const int line_number, const Expression* expression);
 	virtual ~PrintStatement();
 
-	virtual LinkedList<Error*> preprocess(
-			const ExecutionContext* execution_context);
+	virtual LinkedList<const Error*>* preprocess(
+			const ExecutionContext* execution_context) const {
+		return LinkedList<const Error*>::Terminator;
+	}
 
 	virtual void execute(const ExecutionContext* execution_context) const;
 

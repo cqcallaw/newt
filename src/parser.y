@@ -21,6 +21,8 @@
 %locations
 %define parse.error verbose
 
+%define parse.trace
+
 %code requires {
 #include <string>
 #include <symbol.h>
@@ -38,7 +40,6 @@
 
 #include <type.h>
 typedef void* yyscan_t;
-
 
 }
 
@@ -201,6 +202,10 @@ program:
 	main_statement_list
 	{
 	}
+	|
+	terminators	main_statement_list
+	{
+	}
 	;
 
 terminators:
@@ -308,7 +313,7 @@ main_statement_list:
 
 //---------------------------------------------------------------------
 statement_list:
-	statement_list statement
+	statement_list statement terminators
 	{
 		$$ = new StatementList($2, $1);
 	}
@@ -320,27 +325,27 @@ statement_list:
 
 //---------------------------------------------------------------------
 statement:
-	variable_declaration terminators
+	variable_declaration
 	{
 		$$ = $1;
 	}
-	| if_statement terminators
+	| if_statement
 	{
 		$$ = $1;
 	}
-	| for_statement terminators
+	| for_statement
 	{
 		$$ = $1;
 	}
-	| assign_statement terminators
+	| assign_statement
 	{
 		$$ = $1;
 	}
-	| print_statement terminators
+	| print_statement
 	{
 		$$ = $1;
 	}
-	| exit_statement terminators
+	| exit_statement
 	{
 		$$ = $1;
 	}
