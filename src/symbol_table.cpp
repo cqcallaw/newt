@@ -73,20 +73,22 @@ SetResult SymbolTable::SetSymbol(const string identifier, const string* value) {
 	return SetSymbol(identifier, STRING, (void*) value);
 }
 
-SetResult SymbolTable::SetSymbol(const string identifier, Type type,
+SetResult SymbolTable::SetSymbol(const string identifier, const Type type,
 		const void* value) {
 	const Symbol* symbol = GetSymbol(identifier);
 
 	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
 	} else if ((symbol->GetType() < STRING && symbol->GetType() > type)
-			|| (symbol->GetType() != type)) {
+			|| (symbol->GetType() != type)
+			|| !(type & (BOOLEAN | INT | DOUBLE | STRING))) {
 		return INCOMPATIBLE_TYPE;
 	}
 
+	const Symbol* new_symbol = symbol->WithValue(type, value);
+
 	//TODO: error checking
 	//TODO: free memory from old symbols
-	const Symbol* new_symbol = symbol->WithValue(type, value);
 	table->erase(identifier);
 	table->insert(
 			std::pair<const string, const Symbol*>(identifier, new_symbol));
@@ -96,22 +98,57 @@ SetResult SymbolTable::SetSymbol(const string identifier, Type type,
 
 SetResult SymbolTable::SetSymbol(const string identifier, int index,
 		const bool* value) {
-	return SetArraySymbol(identifier, BOOLEAN, index, (void*) value);
+	return SetArraySymbolIndex(identifier, BOOLEAN, index, (void*) value);
 }
 SetResult SymbolTable::SetSymbol(const string identifier, int index,
 		const int* value) {
-	return SetArraySymbol(identifier, INT, index, (void*) value);
+	return SetArraySymbolIndex(identifier, INT, index, (void*) value);
 }
 SetResult SymbolTable::SetSymbol(const string identifier, int index,
 		const double* value) {
-	return SetArraySymbol(identifier, DOUBLE, index, (void*) value);
+	return SetArraySymbolIndex(identifier, DOUBLE, index, (void*) value);
 }
 SetResult SymbolTable::SetSymbol(const string identifier, int index,
 		const string* value) {
-	return SetArraySymbol(identifier, STRING, index, (void*) value);
+	return SetArraySymbolIndex(identifier, STRING, index, (void*) value);
 }
 
-SetResult SymbolTable::SetArraySymbol(const string identifier, Type type,
+SetResult SymbolTable::SetArraySymbol(const string identifier,
+		const int value[], const int size) {
+	return SetArraySymbol(identifier, new ArraySymbol(identifier, value, size));
+}
+
+SetResult SymbolTable::SetArraySymbol(const string identifier,
+		const double value[], const int size) {
+	return SetArraySymbol(identifier, new ArraySymbol(identifier, value, size));
+}
+
+SetResult SymbolTable::SetArraySymbol(const string identifier,
+		const string* value[], const int size) {
+	return SetArraySymbol(identifier, new ArraySymbol(identifier, value, size));
+}
+
+SetResult SymbolTable::SetArraySymbol(const string identifier,
+		const ArraySymbol* new_symbol) {
+	const Symbol* symbol = GetSymbol(identifier);
+
+	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
+		return UNDEFINED_SYMBOL;
+	} else if (symbol->GetType() != new_symbol->GetType()
+			|| !(symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))) {
+		return INCOMPATIBLE_TYPE;
+	}
+
+	//TODO: error checking
+	//TODO: free memory from old symbols
+	table->erase(identifier);
+	table->insert(
+			std::pair<const string, const Symbol*>(identifier, new_symbol));
+
+	return SET_SUCCESS;
+}
+
+SetResult SymbolTable::SetArraySymbolIndex(const string identifier, Type type,
 		int index, const void* value) {
 	const Symbol* symbol = GetSymbol(identifier);
 

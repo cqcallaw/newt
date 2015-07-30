@@ -57,6 +57,13 @@ public:
 	SetResult SetSymbol(const string identifier, const double* value);
 	SetResult SetSymbol(const string identifier, const string* value);
 
+	SetResult SetArraySymbol(const string identifier, const int value[],
+			const int size);
+	SetResult SetArraySymbol(const string identifier, const double value[],
+			const int size);
+	SetResult SetArraySymbol(const string identifier, const string* value[],
+			const int size);
+
 	SetResult SetSymbol(const string identifier, int index, const bool* value);
 	SetResult SetSymbol(const string identifier, int index, const int* value);
 	SetResult SetSymbol(const string identifier, int index,
@@ -64,12 +71,16 @@ public:
 	SetResult SetSymbol(const string identifier, int index,
 			const string* value);
 
-	SetResult SetSymbol(const string identifier, Type type, const void* value);
+private:
+	SetResult SetSymbol(const string identifier, const Type type,
+			const void* value);
+			
+	SetResult SetArraySymbol(const string identifier,
+			const ArraySymbol* new_symbol);
 
-	SetResult SetArraySymbol(const string identifier, Type type, int index,
+	SetResult SetArraySymbolIndex(const string identifier, Type type, int index,
 			const void* value);
 
-private:
 	std::map<const string, const Symbol*, comparator>* table;
 
 	// disable default copy constructor and default assignment

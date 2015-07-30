@@ -68,6 +68,7 @@ typedef void* yyscan_t;
 #include <print_statement.h>
 #include <assignment_statement.h>
 #include <declaration_statement.h>
+#include <array_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -226,43 +227,10 @@ variable_declaration:
 	| simple_type T_ID T_ASSIGN expression
 	{
 		$$ = new DeclarationStatement($1, @1, $2, @2, $4, @4);
-
-		/*const Symbol* symbol = Symbol::GetSymbol($1, $2, $4, @1, @2, @4);
-
-		if (symbol != Symbol::DefaultSymbol) {
-			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
-			if (result == SYMBOL_EXISTS) {
-				Error::semantic_error(Error::PREVIOUSLY_DECLARED_VARIABLE, @2.first_line, @2.first_column, *$2);
-			}
-		}*/
 	}
 	| simple_type T_ID T_LBRACKET expression T_RBRACKET
 	{
-		Type type;
-		switch($1) {
-			case INT:
-				type = INT_ARRAY;
-				break;
-			case DOUBLE:
-				type = DOUBLE_ARRAY;
-				break;
-			case STRING:
-				type = STRING_ARRAY;
-				break;
-			default:
-				Error::semantic_error(Error::INVALID_ARRAY_TYPE, @1.first_line, @1.first_column, type_to_string($1), *$2);
-		}
-		
-		$$ = new DeclarationStatement(type, @1, $2, @2, $4, @4);
-
-		/*const ArraySymbol* symbol = ArraySymbol::GetSymbol($1, $2, $4, @1, @2, @4);
-
-		if (symbol != ArraySymbol::DefaultArraySymbol) {
-			InsertResult result = SymbolTable::instance()->InsertSymbol(symbol);
-			if (result == SYMBOL_EXISTS) {
-				Error::semantic_error(Error::PREVIOUSLY_DECLARED_VARIABLE, @2.first_line, @2.first_column, *$2);
-			}
-		}*/
+		$$ = new ArrayDeclarationStatement($1, @1, $2, @2, $4, @4);
 	}
 	;
 
