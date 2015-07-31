@@ -117,7 +117,8 @@ int main(int argc, char *argv[]) {
 			if (semantic_error_count == 1) {
 				cout << "1 error found; giving up." << endl;
 			} else {
-				cout << semantic_error_count << " error found; giving up.";
+				cout << semantic_error_count << " errors found; giving up."
+						<< endl;
 			}
 
 			do_exit(debug, EXIT_FAILURE);
