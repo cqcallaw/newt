@@ -20,6 +20,8 @@
 #include "error.h"
 
 #include <iostream>
+#include <sstream>
+#include <assert.h>
 
 int Error::m_num_errors = 0;
 
@@ -34,129 +36,130 @@ void Error::parse_error(int line_number, string s1) {
 	m_num_errors++;
 }
 
-void Error::semantic_error(ErrorType type, int line_number, int column_number,
+void Error::semantic_error(ErrorCode type, int line_number, int column_number,
 		string s1, string s2, string s3) {
 	cerr << "Semantic error on line " << line_number << ", column "
 			<< column_number << ": ";
-	error_core(type, s1, s2, s3);
+	error_core(cerr, type, s1, s2, s3);
+	cerr << endl;
 }
 
-void Error::runtime_error(ErrorType type, string s1, string s2, string s3) {
+void Error::runtime_error(ErrorCode type, string s1, string s2, string s3) {
 }
 
-void Error::error_core(ErrorType type, string s1, string s2, string s3) {
-	switch (type) {
+void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
+		string s3) {
+	switch (code) {
 	case ARRAY_INDEX_MUST_BE_AN_INTEGER:
 		// s2 is expected to be one of the following strings
 		//     "A double expression"
 		//     "A string expression"
 		//     "A animation_block expression"
-		cerr << s2 << " is not a legal array index.  The array is '" << s1
-				<< "'." << endl;
+		os << s2 << " is not a legal array index.  The array is '" << s1
+				<< "'.";
 		break;
 	case ARRAY_INDEX_OUT_OF_BOUNDS:
-		cerr << "Index value '" << s2 << "' is out of bounds for array '" << s1
-				<< "'." << endl;
+		os << "Index value '" << s2 << "' is out of bounds for array '" << s1
+				<< "'.";
 		break;
 	case ASSIGNMENT_TYPE_ERROR:
-		cerr << "Cannot assign an expression of type '" << s2
-				<< "' to a variable of type '" << s1 << "'." << endl;
+		os << "Cannot assign an expression of type '" << s2
+				<< "' to a variable of type '" << s1 << "'.";
 		break;
 	case EXIT_STATUS_MUST_BE_AN_INTEGER:
-		cerr << "Value passed to exit() must be an integer.  "
-				<< "Value passed was of type '" << s1 << "'." << endl;
+		os << "Value passed to exit() must be an integer.  "
+				<< "Value passed was of type '" << s1 << "'.";
 		break;
 	case INCORRECT_CONSTRUCTOR_PARAMETER_TYPE:
-		cerr << "Incorrect type for parameter '" << s2 << "' of object " << s1
-				<< "." << endl;
+		os << "Incorrect type for parameter '" << s2 << "' of object " << s1
+				<< ".";
 		break;
 	case INVALID_ARRAY_SIZE:
-		cerr << "The array '" << s1 << "' was declared with illegal size '"
-				<< s2 << "'.  Arrays sizes must be integers of 1 or larger."
-				<< endl;
+		os << "The array '" << s1 << "' was declared with illegal size '" << s2
+				<< "'.  Arrays sizes must be integers of 1 or larger.";
 		break;
 		// everything but a game object is a legal LHS of assignment
 	case INVALID_LHS_OF_ASSIGNMENT:
-		cerr << "LHS of assignment must be "
+		os << "LHS of assignment must be "
 				<< "(INT || DOUBLE || STRING || ANIMATION_BLOCK)."
 				<< "  Variable '" << s1 << "' is of type '" << s2 << "'."
 				<< endl;
 		break;
 	case INVALID_LHS_OF_MINUS_ASSIGNMENT:
-		cerr << "LHS of minus-assignment must be (INT || DOUBLE)."
+		os << "LHS of minus-assignment must be (INT || DOUBLE)."
 				<< "  Variable '" << s1 << "' is of type '" << s2 << "'."
 				<< endl;
 		break;
 	case INVALID_LHS_OF_PLUS_ASSIGNMENT:
-		cerr << "LHS of plus-assignment must be (INT || DOUBLE || STRING)."
+		os << "LHS of plus-assignment must be (INT || DOUBLE || STRING)."
 				<< "  Variable '" << s1 << "' is of type '" << s2 << "'."
 				<< endl;
 		break;
 	case INVALID_LEFT_OPERAND_TYPE:
-		cerr << "Invalid left operand for operator '" << s1 << "'." << endl;
+		os << "Invalid left operand for operator '" << s1 << "'.";
 		break;
 	case INVALID_RIGHT_OPERAND_TYPE:
-		cerr << "Invalid right operand for operator '" << s1 << "'." << endl;
+		os << "Invalid right operand for operator '" << s1 << "'.";
 		break;
 	case INVALID_TYPE_FOR_INITIAL_VALUE:
-		cerr << "Incorrect type for initial value of variable '" << s1 << "'."
+		os << "Incorrect type for initial value of variable '" << s1 << "'."
 				<< endl;
 		break;
 	case INVALID_TYPE_FOR_FOR_STMT_EXPRESSION:
-		cerr << "Incorrect type for expression in for statement."
+		os << "Incorrect type for expression in for statement."
 				<< "  Expressions in for statements must be of type INT."
 				<< endl;
 		break;
 	case INVALID_TYPE_FOR_IF_STMT_EXPRESSION:
-		cerr << "Incorrect type for expression in an if statement."
+		os << "Incorrect type for expression in an if statement."
 				<< "  Expressions in if statements must be of type INT."
 				<< endl;
 		break;
 	case INVALID_TYPE_FOR_PRINT_STMT_EXPRESSION:
-		cerr << "Incorrect type for expression in a print statement."
+		os << "Incorrect type for expression in a print statement."
 				<< "  Expressions in print statements must be"
-				<< " of type INT, DOUBLE, or STRING." << endl;
+				<< " of type INT, DOUBLE, or STRING.";
 		break;
 	case INVALID_ARRAY_TYPE:
-		cerr << "Invalid array type '" << s1 << "' for variable '" << s2 << "'."
+		os << "Invalid array type '" << s1 << "' for variable '" << s2 << "'."
 				<< endl;
 		break;
 	case LHS_OF_PERIOD_MUST_BE_OBJECT:
-		cerr << "Variable '" << s1 << "' is not an object."
-				<< "  Only objects may be on the left of a period." << endl;
+		os << "Variable '" << s1 << "' is not an object."
+				<< "  Only objects may be on the left of a period.";
 		break;
 	case MINUS_ASSIGNMENT_TYPE_ERROR:
-		cerr << "Cannot -= an expression of type '" << s2
-				<< "' from a variable of type '" << s1 << "'." << endl;
+		os << "Cannot -= an expression of type '" << s2
+				<< "' from a variable of type '" << s1 << "'.";
 		break;
 	case PLUS_ASSIGNMENT_TYPE_ERROR:
-		cerr << "Cannot += an expression of type '" << s2
-				<< "' to a variable of type '" << s1 << "'." << endl;
+		os << "Cannot += an expression of type '" << s2
+				<< "' to a variable of type '" << s1 << "'.";
 		break;
 	case PREVIOUSLY_DECLARED_VARIABLE:
-		cerr << "Variable '" << s1 << "'" << " previously declared." << endl;
+		os << "Variable '" << s1 << "'" << " previously declared.";
 		break;
 	case UNDECLARED_VARIABLE:
-		cerr << "Variable '" << s1 << "'"
-				<< " was not declared before it was used." << endl;
+		os << "Variable '" << s1 << "'"
+				<< " was not declared before it was used.";
 		break;
 	case UNKNOWN_CONSTRUCTOR_PARAMETER:
-		cerr << "Class '" << s1 << "' does not have a parameter called '" << s2
-				<< "'." << endl;
+		os << "Class '" << s1 << "' does not have a parameter called '" << s2
+				<< "'.";
 		break;
 	case VARIABLE_NOT_AN_ARRAY:
-		cerr << "Variable '" << s1 << "' is not an array." << endl;
+		os << "Variable '" << s1 << "' is not an array.";
 		break;
 	case DIVIDE_BY_ZERO:
-		cerr << "Arithmetic divide by zero at parse time.  "
-				<< "Using zero as the result so parse can continue." << endl;
+		os << "Arithmetic divide by zero at parse time.  "
+				<< "Using zero as the result so parse can continue.";
 		break;
 	case MOD_BY_ZERO:
-		cerr << "Arithmetic mod by zero at parse time.  "
-				<< "Using zero as the result so parse can continue." << endl;
+		os << "Arithmetic mod by zero at parse time.  "
+				<< "Using zero as the result so parse can continue.";
 		break;
 	default:
-		cerr << "Unknown error passed to Error::error_core." << endl;
+		os << "Unknown error passed to Error::error_core.";
 		break;
 	}
 
@@ -166,6 +169,35 @@ void Error::error_core(ErrorType type, string s1, string s2, string s3) {
 Error::Error() {
 }
 
-Error::Error(ErrorType type, int line_number, int column_number, string s1,
-		string s2, string s3) {
+Error::Error(ErrorClass error_class, ErrorCode code, int line_number,
+		int column_number, string s1, string s2, string s3) :
+		m_error_class(error_class), m_code(code), m_line_number(line_number), m_column_number(
+				column_number), m_s1(s1), m_s2(s2), m_s3(s3) {
 }
+
+const string Error::ToString() const {
+	ostringstream os;
+
+	switch (m_error_class) {
+	case SEMANTIC: {
+		os << "Semantic error on line " << m_line_number << ", column "
+				<< m_column_number << ": " << get_error_message();
+		break;
+	}
+	default:
+		assert(false);
+	}
+
+	return os.str();
+}
+const string Error::get_error_message() const {
+	ostringstream os;
+	error_core(os, m_code, m_s1, m_s2, m_s3);
+	return os.str();
+}
+
+ostream &operator<<(ostream &os, const Error &error) {
+	os << error.ToString();
+	return os;
+}
+

@@ -39,7 +39,10 @@ using namespace std;
 
 class Error {
 public:
-	enum ErrorType {
+	enum ErrorClass {
+		PARSE, SEMANTIC, RUNTIME
+	};
+	enum ErrorCode {
 		ARRAY_INDEX_MUST_BE_AN_INTEGER,
 		ARRAY_INDEX_OUT_OF_BOUNDS,
 		ASSIGNMENT_TYPE_ERROR,
@@ -71,29 +74,43 @@ public:
 	};
 
 	Error();
-	Error(ErrorType type, int line_number, int column_number, string s1 = "",
-			string s2 = "", string s3 = "");
+	Error(ErrorClass error_class, ErrorCode code, int line_number,
+			int column_number, string s1 = "", string s2 = "", string s3 = "");
 
 	static void lex_error(int line_number, string s1);
 
 	static void parse_error(int line_number, string s1);
 
-	static void semantic_error(ErrorType type, int line_number,
+	static void semantic_error(ErrorCode code, int line_number,
 			int column_number, string s1 = "", string s2 = "", string s3 = "");
 
-	static void runtime_error(ErrorType type, string s1 = "", string s2 = "",
+	static void runtime_error(ErrorCode code, string s1 = "", string s2 = "",
 			string s3 = "");
 
 	static int num_errors() {
 		return m_num_errors;
 	}
 
+	const string ToString() const;
+
 protected:
-	static void error_core(ErrorType type, string s1 = "", string s2 = "",
+	static void error_core(ostream &os, ErrorCode code, string s1 = "", string s2 = "",
 			string s3 = "");
 
 	static int m_num_errors;
 
+	const string get_error_message() const;
+
+private:
+	ErrorClass m_error_class;
+	ErrorCode m_code;
+	int m_line_number;
+	int m_column_number;
+	string m_s1;
+	string m_s2;
+	string m_s3;
 };
+
+std::ostream &operator<<(std::ostream &os, const Error &error);
 
 #endif // #ifndef ERROR_H

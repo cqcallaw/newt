@@ -71,11 +71,11 @@ int main(int argc, char *argv[]) {
 	int parse_result = yyparse(&main_statement_block, scanner);
 	yylex_destroy(scanner);
 
-	if (debug) {
-		cout << "Parsed file " << filename << "." << endl;
-	}
-
 	if (parse_result != 0 || Error::num_errors() != 0) {
+		if (debug) {
+			cout << "Parsed file " << filename << "." << endl;
+		}
+
 		cerr << Error::num_errors() << " error";
 		if (Error::num_errors() > 1)
 			cout << "s";
@@ -89,6 +89,10 @@ int main(int argc, char *argv[]) {
 				main_statement_block->preprocess(root_context);
 
 		if (semantic_errors == LinkedList<const Error*>::Terminator) {
+			if (debug) {
+				cout << "Parsed file " << filename << "." << endl;
+			}
+
 			main_statement_block->execute(root_context);
 
 			//TODO: handle runtime errors
@@ -98,7 +102,24 @@ int main(int argc, char *argv[]) {
 			}
 			do_exit(debug, EXIT_SUCCESS);
 		} else {
-			//TODO: echo echo semantic errors
+			int semantic_error_count = 0;
+			LinkedList<const Error*>* error = semantic_errors;
+			while (error != LinkedList<const Error*>::Terminator) {
+				semantic_error_count++;
+				cerr << *(error->GetData()) << endl;
+				error = (LinkedList<const Error*>*) error->GetNext();
+			}
+
+			if (debug) {
+				cout << "Parsed file " << filename << "." << endl;
+			}
+
+			if (semantic_error_count == 1) {
+				cout << "1 error found; giving up." << endl;
+			} else {
+				cout << semantic_error_count << " error found; giving up.";
+			}
+
 			do_exit(debug, EXIT_FAILURE);
 		}
 	}

@@ -42,7 +42,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		break;
 	default:
 		result = (LinkedList<const Error*>*) result->With(
-				new Error(Error::INVALID_ARRAY_TYPE, m_type_position.first_line,
+				new Error(Error::SEMANTIC, Error::INVALID_ARRAY_TYPE, m_type_position.first_line,
 						m_type_position.first_column, *name));
 	}
 
@@ -53,7 +53,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		InsertResult insert_result = symbol_table->InsertSymbol(symbol);
 		if (insert_result == SYMBOL_EXISTS) {
 			result = (LinkedList<const Error*>*) result->With(
-					new Error(Error::PREVIOUSLY_DECLARED_VARIABLE,
+					new Error(Error::SEMANTIC, Error::PREVIOUSLY_DECLARED_VARIABLE,
 							m_name_position.first_line,
 							m_name_position.first_column, *m_name));
 		}
@@ -138,10 +138,6 @@ void ArrayDeclarationStatement::execute(
 
 		if (result != SET_SUCCESS) {
 			assert(false);
-			/*result = (LinkedList<const Error*>*) result->With(
-			 new Error(Error::PREVIOUSLY_DECLARED_VARIABLE,
-			 m_name_position.first_line,
-			 m_name_position.first_column, *m_name));*/
 		}
 	}
 }

@@ -39,7 +39,8 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 				&& expression->GetType(execution_context) != NONE) {
 			if (!(expression->GetType(execution_context) & (BOOLEAN))) {
 				result = (LinkedList<const Error*>*) result->With(
-						new Error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+						new Error(Error::SEMANTIC,
+								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 								m_initializer_position.first_line,
 								m_initializer_position.first_column, *name));
 			}
@@ -53,7 +54,8 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 				&& expression->GetType(execution_context) != NONE) {
 			if (!(expression->GetType(execution_context) & (BOOLEAN | INT))) {
 				result = (LinkedList<const Error*>*) result->With(
-						new Error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+						new Error(Error::SEMANTIC,
+								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 								m_initializer_position.first_line,
 								m_initializer_position.first_column, *name));
 			}
@@ -68,7 +70,8 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 			if (!(expression->GetType(execution_context)
 					& (BOOLEAN | INT | DOUBLE))) {
 				result = (LinkedList<const Error*>*) result->With(
-						new Error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+						new Error(Error::SEMANTIC,
+								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 								m_initializer_position.first_line,
 								m_initializer_position.first_column, *name));
 			}
@@ -83,7 +86,8 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 			if (!(expression->GetType(execution_context)
 					& (BOOLEAN | INT | DOUBLE | STRING))) {
 				result = (LinkedList<const Error*>*) result->With(
-						new Error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+						new Error(Error::SEMANTIC,
+								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 								m_initializer_position.first_line,
 								m_initializer_position.first_column, *name));
 			}
@@ -104,7 +108,8 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 		InsertResult insert_result = symbol_table->InsertSymbol(symbol);
 		if (insert_result == SYMBOL_EXISTS) {
 			result = (LinkedList<const Error*>*) result->With(
-					new Error(Error::PREVIOUSLY_DECLARED_VARIABLE,
+					new Error(Error::SEMANTIC,
+							Error::PREVIOUSLY_DECLARED_VARIABLE,
 							m_name_position.first_line,
 							m_name_position.first_column, *m_name));
 		}
