@@ -88,6 +88,10 @@ int main(int argc, char *argv[]) {
 		LinkedList<const Error*>* semantic_errors =
 				main_statement_block->preprocess(root_context);
 
+		//reverse linked list of errors, which comes to us in reverse order
+		semantic_errors = (LinkedList<const Error*>*) semantic_errors->Reverse(
+				true);
+
 		if (semantic_errors == LinkedList<const Error*>::Terminator) {
 			if (debug) {
 				cout << "Parsed file " << filename << "." << endl;

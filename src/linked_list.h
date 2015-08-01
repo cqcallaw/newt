@@ -60,13 +60,14 @@ public:
 			return this;
 		}
 
-		LinkedList<T>* result = (LinkedList<T>*) Terminator;
-		LinkedList<T>* subject = (LinkedList<T>*) this->Reverse(
+		LinkedList<T>* result = this;
+		LinkedList<T>* subject = (LinkedList<T>*) other->Reverse(
 				delete_original);
 
-		while (subject->GetNext() != Terminator) {
+		while (subject != Terminator) {
 			result = (LinkedList<T>*) new LinkedList<T>(subject->GetData(),
 					result);
+			subject = (LinkedList<T>*) subject->GetNext();
 		}
 
 		return result;
