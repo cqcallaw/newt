@@ -51,3 +51,8 @@ ConstantExpression::ConstantExpression(const YYLTYPE position, const Type type,
 		const void* value) :
 		Expression(position), m_type(type), m_value(value) {
 }
+
+const LinkedList<const Error*>* ConstantExpression::Validate(
+		const ExecutionContext* execution_context) const {
+	return LinkedList<const Error*>::Terminator;
+}

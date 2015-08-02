@@ -22,6 +22,8 @@
 
 #include "expression.h"
 
+class Error;
+
 class BinaryExpression: public Expression {
 public:
 	BinaryExpression(const YYLTYPE position, const OperatorType op,
@@ -48,6 +50,10 @@ public:
 	virtual const bool IsConstant() const {
 		return m_left->IsConstant() && m_right->IsConstant();
 	}
+
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* execution_context, int valid_left,
+			int valid_right) const;
 
 protected:
 	virtual const void* compute(bool left, bool right) const = 0;

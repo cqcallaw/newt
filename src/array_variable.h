@@ -36,6 +36,8 @@ public:
 		return m_index_expression;
 	}
 
+	virtual const Type GetType(const ExecutionContext* context) const;
+
 	virtual const std::string* ToString(const ExecutionContext* context) const;
 
 	const YYLTYPE GetExpressionLocation() const {

@@ -33,6 +33,11 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 	const Expression* expression = m_initializer_expression;
 	const string* name = m_name;
 
+	if (expression) {
+		result = (LinkedList<const Error*>*) expression->Validate(
+				execution_context);
+	}
+
 	switch (m_type) {
 	case BOOLEAN: {
 		if (expression != NULL && expression != nullptr
@@ -101,17 +106,20 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 		break;
 	}
 
-	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolTable();
+	if (result == LinkedList<const Error*>::Terminator) {
+		//no semantic or preprocessing errors; we're good to update the symbol table
+		SymbolTable* symbol_table =
+				(SymbolTable*) execution_context->GetSymbolTable();
 
-	if (symbol != Symbol::DefaultSymbol) {
-		InsertResult insert_result = symbol_table->InsertSymbol(symbol);
-		if (insert_result == SYMBOL_EXISTS) {
-			result = (LinkedList<const Error*>*) result->With(
-					new Error(Error::SEMANTIC,
-							Error::PREVIOUSLY_DECLARED_VARIABLE,
-							m_name_position.first_line,
-							m_name_position.first_column, *m_name));
+		if (symbol != Symbol::DefaultSymbol) {
+			InsertResult insert_result = symbol_table->InsertSymbol(symbol);
+			if (insert_result == SYMBOL_EXISTS) {
+				result = (LinkedList<const Error*>*) result->With(
+						new Error(Error::SEMANTIC,
+								Error::PREVIOUSLY_DECLARED_VARIABLE,
+								m_name_position.first_line,
+								m_name_position.first_column, *m_name));
+			}
 		}
 	}
 

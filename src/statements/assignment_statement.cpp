@@ -347,10 +347,6 @@ void AssignmentStatement::execute(
 		return;
 	}
 
-	/*if (m_variable == DefaultVariable || m_expression == DefaultExpression) {
-	 return;
-	 }*/
-
 	const string* variable_name = m_variable->GetName();
 	int variable_line = m_variable->GetLocation().first_line;
 	int variable_column = m_variable->GetLocation().first_column;
@@ -365,6 +361,7 @@ void AssignmentStatement::execute(
 	} else if (dynamic_cast<const ArrayVariable*>(m_variable) == NULL
 			&& (symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))) {
 		//we're trying to reference an array variable without an index
+		//(this probably isn't legitimate and may need to be revised for the statement "var arr1 = arr2")
 		Error::semantic_error(Error::UNDECLARED_VARIABLE, variable_line,
 				variable_column, *(variable_name));
 	} else if (dynamic_cast<const ArrayVariable*>(m_variable) != NULL

@@ -26,8 +26,10 @@
 #include <utils.h>
 #include <assert.h>
 #include <type.h>
+#include <linked_list.h>
 
 class ExecutionContext;
+class Error;
 
 class Expression {
 public:
@@ -47,6 +49,9 @@ public:
 	}
 
 	virtual const bool IsConstant() const = 0;
+
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* execution_context) const = 0;
 
 private:
 	const YYLTYPE m_position;

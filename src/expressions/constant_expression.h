@@ -40,6 +40,9 @@ public:
 		return true;
 	}
 
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* execution_context) const;
+
 private:
 	ConstantExpression(const YYLTYPE position, const Type type,
 			const void* value);

@@ -54,7 +54,6 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		// s2 is expected to be one of the following strings
 		//     "A double expression"
 		//     "A string expression"
-		//     "A animation_block expression"
 		os << s2 << " is not a legal array index.  The array is '" << s1
 				<< "'.";
 		break;

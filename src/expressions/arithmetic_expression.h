@@ -24,8 +24,11 @@
 
 class ArithmeticExpression: public BinaryExpression {
 public:
-	ArithmeticExpression(const YYLTYPE position, const OperatorType op, const Expression* left,
-			const Expression* right);
+	ArithmeticExpression(const YYLTYPE position, const OperatorType op,
+			const Expression* left, const Expression* right);
+
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* execution_context) const;
 
 protected:
 	virtual const void* compute(bool left, bool right) const;

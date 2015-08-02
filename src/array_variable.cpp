@@ -47,6 +47,11 @@ YYLTYPE expression_location) :
 	 index_expression->GetType() == INT);*/
 }
 
+const Type ArrayVariable::GetType(const ExecutionContext* context) const {
+	Type type = Variable::GetType(context);
+	return map_to_primitive(type);
+}
+
 const string* ArrayVariable::ToString(const ExecutionContext* context) const {
 	ostringstream buffer;
 	buffer << "<" << *GetName() << "["

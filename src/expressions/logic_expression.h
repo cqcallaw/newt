@@ -24,10 +24,12 @@
 
 class LogicExpression: public BinaryExpression {
 public:
-	LogicExpression(const YYLTYPE position, const OperatorType op, const Expression* left,
-			const Expression* right);
+	LogicExpression(const YYLTYPE position, const OperatorType op,
+			const Expression* left, const Expression* right);
 
-	virtual const Type GetType(
+	virtual const Type GetType(const ExecutionContext* execution_context) const;
+
+	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context) const;
 
 protected:

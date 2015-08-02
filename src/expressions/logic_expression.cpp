@@ -18,11 +18,24 @@
  */
 
 #include "logic_expression.h"
+#include "error.h"
 
 LogicExpression::LogicExpression(const YYLTYPE position, const OperatorType op,
 		const Expression* left, const Expression* right) :
 		BinaryExpression(position, op, left, right) {
 	assert(op == OR || op == AND);
+}
+
+const Type LogicExpression::GetType(
+		const ExecutionContext* execution_context) const {
+	return BOOLEAN;
+}
+
+const LinkedList<const Error*>* LogicExpression::Validate(
+		const ExecutionContext* execution_context) const {
+	return BinaryExpression::Validate(execution_context,
+			(BOOLEAN | INT | DOUBLE),
+			(BOOLEAN | INT | DOUBLE));
 }
 
 const void* LogicExpression::compute(bool left, bool right) const {
@@ -59,11 +72,6 @@ const void* LogicExpression::compute(double left, double right) const {
 		assert(false);
 		return NULL;
 	}
-}
-
-const Type LogicExpression::GetType(
-		const ExecutionContext* execution_context) const {
-	return BOOLEAN;
 }
 
 const void* LogicExpression::compute(string* left, string* right) const {

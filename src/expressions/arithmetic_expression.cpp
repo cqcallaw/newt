@@ -20,6 +20,7 @@
 #include "arithmetic_expression.h"
 #include <error.h>
 #include <sstream>
+#include <type.h>
 
 ArithmeticExpression::ArithmeticExpression(const YYLTYPE position,
 		const OperatorType op, const Expression* left, const Expression* right) :
@@ -27,14 +28,6 @@ ArithmeticExpression::ArithmeticExpression(const YYLTYPE position,
 	assert(
 			op == PLUS || op == MINUS || op == MULTIPLY || op == DIVIDE
 					|| op == MOD);
-	/*Type left_type = left->GetType();
-	 Type right_type = right->GetType();
-	 if (left_type != NONE) {
-	 assert(left_type & (BOOLEAN | INT | DOUBLE));
-	 }
-	 if (right_type != NONE) {
-	 assert(right_type & (BOOLEAN | INT | DOUBLE));
-	 }*/
 }
 
 const void* ArithmeticExpression::compute(bool left, bool right) const {
@@ -58,6 +51,7 @@ const void* ArithmeticExpression::compute(int left, int right) const {
 		*result = left - right;
 		break;
 	case MOD:
+		//TODO: investigate why this semantic error is here
 		Error::semantic_error(Error::DIVIDE_BY_ZERO, GetPosition().first_line,
 				GetPosition().first_column);
 		*result = left % right;
@@ -91,10 +85,18 @@ const void* ArithmeticExpression::compute(double left, double right) const {
 	return (void *) result;
 }
 
+const LinkedList<const Error*>* ArithmeticExpression::Validate(
+		const ExecutionContext* execution_context) const {
+	return BinaryExpression::Validate(execution_context,
+			(BOOLEAN | INT | DOUBLE | STRING),
+			(BOOLEAN | INT | DOUBLE | STRING));
+}
+
 const void* ArithmeticExpression::compute(string* left, string* right) const {
 	//string concatenation isn't strictly an arithmetic operation, so this is a hack
 	std::ostringstream buffer;
 	buffer << *left;
 	buffer << *right;
 	string* result = new string(buffer.str());
-	return (void *) result;}
+	return (void *) result;
+}

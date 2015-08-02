@@ -26,10 +26,12 @@ using namespace std;
 
 class ComparisonExpression: public BinaryExpression {
 public:
-	ComparisonExpression(const YYLTYPE position, const OperatorType op, const Expression* left,
-			const Expression* right);
+	ComparisonExpression(const YYLTYPE position, const OperatorType op,
+			const Expression* left, const Expression* right);
 
-	virtual const Type GetType(
+	virtual const Type GetType(const ExecutionContext* execution_context) const;
+
+	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context) const;
 
 protected:

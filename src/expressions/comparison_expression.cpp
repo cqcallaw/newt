@@ -18,6 +18,7 @@
  */
 
 #include "comparison_expression.h"
+#include "error.h"
 
 using namespace std;
 
@@ -28,6 +29,18 @@ ComparisonExpression::ComparisonExpression(const YYLTYPE position,
 			op
 					& (NOT_EQUAL | LESS_THAN | LESS_THAN_EQUAL | GREATER_THAN
 							| GREATER_THAN_EQUAL | TOUCHES | NEAR));
+}
+
+const Type ComparisonExpression::GetType(
+		const ExecutionContext* execution_context) const {
+	return BOOLEAN;
+}
+
+const LinkedList<const Error*>* ComparisonExpression::Validate(
+		const ExecutionContext* execution_context) const {
+	return BinaryExpression::Validate(execution_context,
+			(BOOLEAN | INT | DOUBLE | STRING),
+			(BOOLEAN | INT | DOUBLE | STRING));
 }
 
 const void* ComparisonExpression::compute(bool left, bool right) const {
@@ -110,11 +123,6 @@ const void* ComparisonExpression::compute(double left, double right) const {
 	}
 	assert(false);
 	return NULL;
-}
-
-const Type ComparisonExpression::GetType(
-		const ExecutionContext* execution_context) const {
-	return BOOLEAN;
 }
 
 const void* ComparisonExpression::compute(string* left, string* right) const {

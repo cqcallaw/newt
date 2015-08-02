@@ -36,6 +36,9 @@ public:
 		return m_operator == UNARY_MINUS && m_expression->IsConstant();
 	}
 
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* execution_context) const;
+
 private:
 	const static Type compute_result_type(const Type input_type,
 			const OperatorType op);

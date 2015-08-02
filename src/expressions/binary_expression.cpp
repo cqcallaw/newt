@@ -18,18 +18,13 @@
  */
 
 #include "binary_expression.h"
+#include "error.h"
 
 BinaryExpression::BinaryExpression(const YYLTYPE position,
 		const OperatorType op, const Expression* left, const Expression* right) :
 		Expression(position), m_operator(op), m_left(left), m_right(right) {
 	assert(left != NULL);
-	/*if (left->GetType() != NONE) {
-	 assert(left->GetType() & (BOOLEAN | INT | DOUBLE | STRING));
-	 }*/
 	assert(right != NULL);
-	/*if (right->GetType() != NONE) {
-	 assert(right->GetType() & (BOOLEAN | INT | DOUBLE | STRING));
-	 }*/
 }
 
 const Type BinaryExpression::ComputeResultType(const Expression* left,
@@ -182,6 +177,59 @@ const void* BinaryExpression::Evaluate(
 	return NULL;
 }
 
+const Type BinaryExpression::GetType(
+		const ExecutionContext* execution_context) const {
+	return ComputeResultType(m_left, m_right, m_operator, execution_context);
+}
+
+const LinkedList<const Error*>* BinaryExpression::Validate(
+		const ExecutionContext* execution_context, int valid_left,
+		int valid_right) const {
+	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+
+	const OperatorType op = GetOperator();
+	const Expression* left = GetLeft();
+
+	const LinkedList<const Error*>* left_errors = left->Validate(
+			execution_context);
+	if (left_errors != LinkedList<const Error*>::Terminator) {
+		result = (LinkedList<const Error*>*) result->Concatenate(left_errors,
+				true);
+		return result;
+	}
+
+	Type left_type = left->GetType(execution_context);
+	if (!(left_type & (valid_left))) {
+		result = (LinkedList<const Error*>*) result->With(
+				new Error(Error::SEMANTIC, Error::INVALID_LEFT_OPERAND_TYPE,
+						left->GetPosition().first_line,
+						left->GetPosition().first_column,
+						operator_to_string(op)));
+	}
+	const Expression* right = GetRight();
+	Type right_type = GetRight()->GetType(execution_context);
+
+	const LinkedList<const Error*>* right_errors = right->Validate(
+			execution_context);
+	if (right_errors != LinkedList<const Error*>::Terminator) {
+		result = (LinkedList<const Error*>*) result->Concatenate(right_errors,
+				true);
+		return result;
+	}
+
+	result = (LinkedList<const Error*>*) result->Concatenate(
+			right->Validate(execution_context), true);
+	if (!(right_type & (valid_right))) {
+		result = (LinkedList<const Error*>*) result->With(
+				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
+						right->GetPosition().first_line,
+						right->GetPosition().first_column,
+						operator_to_string(op)));
+	}
+
+	return result;
+}
+
 const void* BinaryExpression::compute(bool left, int right) const {
 	return compute((int) left, right);
 }
@@ -217,11 +265,6 @@ const void* BinaryExpression::compute(string* left, bool right) const {
 }
 const void* BinaryExpression::compute(string* left, int right) const {
 	return compute(left, AsString(right));
-}
-
-const Type BinaryExpression::GetType(
-		const ExecutionContext* execution_context) const {
-	return ComputeResultType(m_left, m_right, m_operator, execution_context);
 }
 
 const void* BinaryExpression::compute(string* left, double right) const {

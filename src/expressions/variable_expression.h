@@ -37,6 +37,8 @@ public:
 		return false;
 	}
 
+	virtual const LinkedList<const Error*>* Validate(const ExecutionContext* execution_context) const;
+
 private:
 	const Variable* m_variable;
 };

@@ -27,22 +27,6 @@ UnaryExpression::UnaryExpression(const YYLTYPE position, const OperatorType op,
 		const Expression* expression) :
 		Expression(position), m_expression(expression), m_operator(op) {
 	assert(expression != NULL);
-	/*switch (expression->GetType()) {
-	 case INT:
-	 case DOUBLE:
-	 assert(
-	 op == NOT || op == UNARY_MINUS || op == SIN || op == COS
-	 || op == TAN || op == ASIN || op == ACOS || op == ATAN
-	 || op == SQRT || op == FLOOR || op == ABS
-	 || op == RANDOM);
-	 break;
-	 case BOOLEAN: {
-	 assert(op == NOT);
-	 break;
-	 }
-	 default:
-	 assert(false);
-	 }*/
 }
 
 const Type UnaryExpression::compute_result_type(const Type input_type,
@@ -119,6 +103,28 @@ const Type UnaryExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return compute_result_type(m_expression->GetType(execution_context),
 			m_operator);
+}
+
+const LinkedList<const Error*>* UnaryExpression::Validate(
+		const ExecutionContext* execution_context) const {
+	/*switch (expression->GetType()) {
+	 case INT:
+	 case DOUBLE:
+	 assert(
+	 op == NOT || op == UNARY_MINUS || op == SIN || op == COS
+	 || op == TAN || op == ASIN || op == ACOS || op == ATAN
+	 || op == SQRT || op == FLOOR || op == ABS
+	 || op == RANDOM);
+	 break;
+	 case BOOLEAN: {
+	 assert(op == NOT);
+	 break;
+	 }
+	 default:
+	 assert(false);
+	 }*/
+	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+	return result;
 }
 
 double UnaryExpression::radians_to_degrees(double radians) {
