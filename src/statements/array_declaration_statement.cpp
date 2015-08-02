@@ -14,6 +14,7 @@
 #include <variable.h>
 #include <array_symbol.h>
 #include <sstream>
+#include <constant_expression.h>
 
 ArrayDeclarationStatement::ArrayDeclarationStatement(const Type type,
 		const YYLTYPE type_position, const std::string* name,
@@ -45,6 +46,40 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 				new Error(Error::SEMANTIC, Error::INVALID_ARRAY_TYPE,
 						m_type_position.first_line,
 						m_type_position.first_column, *name));
+	}
+
+	//if our array size is a constant, validate it as part of the preprocessing pass.
+	//array sizes that are variable are processed at runtime.
+	const ConstantExpression* as_constant_expression =
+			dynamic_cast<const ConstantExpression*>(m_size_expression);
+	if (as_constant_expression != NULL) {
+		if (m_size_expression->GetType(execution_context) != INT) {
+			result = (LinkedList<const Error*>*) result->With(
+					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE,
+							m_size_expression_position.first_line,
+							m_size_expression_position.first_column, *m_name,
+							*(m_size_expression->ToString(execution_context))));
+			return result;
+		} else {
+			const void* evaluation = m_size_expression->Evaluate(
+					execution_context);
+			if (evaluation != NULL) {
+				int array_size = *((int*) (evaluation));
+
+				if (array_size <= 0) {
+					ostringstream convert;
+					convert << array_size;
+					result = (LinkedList<const Error*>*) result->With(
+							new Error(Error::SEMANTIC,
+									Error::INVALID_ARRAY_SIZE,
+									m_size_expression_position.first_line,
+									m_size_expression_position.first_column,
+									*m_name, convert.str()));
+
+					return result;
+				}
+			}
+		}
 	}
 
 	SymbolTable* symbol_table =
