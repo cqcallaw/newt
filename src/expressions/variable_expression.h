@@ -33,6 +33,10 @@ public:
 	virtual const void* Evaluate(
 			const ExecutionContext* execution_context) const;
 
+	virtual const bool IsConstant() const {
+		return false;
+	}
+
 private:
 	const Variable* m_variable;
 };

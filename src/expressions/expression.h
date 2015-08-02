@@ -46,6 +46,8 @@ public:
 		return m_position;
 	}
 
+	virtual const bool IsConstant() const = 0;
+
 private:
 	const YYLTYPE m_position;
 };

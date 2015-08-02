@@ -36,6 +36,10 @@ public:
 	virtual const void* Evaluate(
 			const ExecutionContext* execution_context) const;
 
+	virtual const bool IsConstant() const {
+		return true;
+	}
+
 private:
 	ConstantExpression(const YYLTYPE position, const Type type,
 			const void* value);

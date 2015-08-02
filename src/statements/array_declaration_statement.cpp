@@ -50,9 +50,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 
 	//if our array size is a constant, validate it as part of the preprocessing pass.
 	//array sizes that are variable are processed at runtime.
-	const ConstantExpression* as_constant_expression =
-			dynamic_cast<const ConstantExpression*>(m_size_expression);
-	if (as_constant_expression != NULL) {
+	if (m_size_expression != NULL && m_size_expression->IsConstant()) {
 		if (m_size_expression->GetType(execution_context) != INT) {
 			result = (LinkedList<const Error*>*) result->With(
 					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE,

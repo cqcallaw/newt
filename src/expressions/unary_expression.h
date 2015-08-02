@@ -32,6 +32,10 @@ public:
 	virtual const void* Evaluate(
 			const ExecutionContext* execution_context) const;
 
+	virtual const bool IsConstant() const {
+		return m_operator == UNARY_MINUS && m_expression->IsConstant();
+	}
+
 private:
 	const static Type compute_result_type(const Type input_type,
 			const OperatorType op);

@@ -45,6 +45,10 @@ public:
 			const Expression* right, const OperatorType op,
 			const ExecutionContext* execution_context);
 
+	virtual const bool IsConstant() const {
+		return m_left->IsConstant() && m_right->IsConstant();
+	}
+
 protected:
 	virtual const void* compute(bool left, bool right) const = 0;
 	const void* compute(bool left, int right) const;
@@ -70,6 +74,7 @@ private:
 	const OperatorType m_operator;
 	const Expression* m_left;
 	const Expression* m_right;
-};
+}
+;
 
 #endif /* BINARY_EXPRESSION_H_ */
