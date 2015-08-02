@@ -60,7 +60,7 @@ public:
 			return this;
 		}
 
-		LinkedList<T>* result = this;
+		LinkedList<T>* result = (LinkedList<T>*) this;
 		LinkedList<T>* subject = (LinkedList<T>*) other->Reverse(
 				delete_original);
 
