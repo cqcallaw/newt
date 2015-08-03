@@ -124,6 +124,27 @@ const LinkedList<const Error*>* UnaryExpression::Validate(
 	 assert(false);
 	 }*/
 	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+
+	const OperatorType op = m_operator;
+	const Expression* expression = m_expression;
+
+	const LinkedList<const Error*>* expression_errors = expression->Validate(
+			execution_context);
+	if (expression_errors != LinkedList<const Error*>::Terminator) {
+		result = (LinkedList<const Error*>*) result->Concatenate(
+				expression_errors, true);
+		return result;
+	}
+
+	Type expression_type = expression->GetType(execution_context);
+	if (!(expression_type & (BOOLEAN | INT | DOUBLE))) {
+		result = (LinkedList<const Error*>*) result->With(
+				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
+						expression->GetPosition().first_line,
+						expression->GetPosition().first_column,
+						operator_to_string(op)));
+	}
+
 	return result;
 }
 

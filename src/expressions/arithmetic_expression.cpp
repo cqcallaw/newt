@@ -87,9 +87,15 @@ const void* ArithmeticExpression::compute(double left, double right) const {
 
 const LinkedList<const Error*>* ArithmeticExpression::Validate(
 		const ExecutionContext* execution_context) const {
-	return BinaryExpression::Validate(execution_context,
-			(BOOLEAN | INT | DOUBLE | STRING),
-			(BOOLEAN | INT | DOUBLE | STRING));
+	if (GetOperator() == PLUS) {
+		//PLUS doubles as a concatenation operator
+		return BinaryExpression::Validate(execution_context,
+				(BOOLEAN | INT | DOUBLE | STRING),
+				(BOOLEAN | INT | DOUBLE | STRING));
+	} else {
+		return BinaryExpression::Validate(execution_context,
+				(BOOLEAN | INT | DOUBLE), (BOOLEAN | INT | DOUBLE));
+	}
 }
 
 const void* ArithmeticExpression::compute(string* left, string* right) const {
