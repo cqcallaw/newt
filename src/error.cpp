@@ -81,18 +81,15 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case INVALID_LHS_OF_ASSIGNMENT:
 		os << "LHS of assignment must be "
 				<< "(INT || DOUBLE || STRING || ANIMATION_BLOCK)."
-				<< "  Variable '" << s1 << "' is of type '" << s2 << "'."
-				<< endl;
+				<< "  Variable '" << s1 << "' is of type '" << s2 << "'.";
 		break;
 	case INVALID_LHS_OF_MINUS_ASSIGNMENT:
 		os << "LHS of minus-assignment must be (INT || DOUBLE)."
-				<< "  Variable '" << s1 << "' is of type '" << s2 << "'."
-				<< endl;
+				<< "  Variable '" << s1 << "' is of type '" << s2 << "'.";
 		break;
 	case INVALID_LHS_OF_PLUS_ASSIGNMENT:
 		os << "LHS of plus-assignment must be (INT || DOUBLE || STRING)."
-				<< "  Variable '" << s1 << "' is of type '" << s2 << "'."
-				<< endl;
+				<< "  Variable '" << s1 << "' is of type '" << s2 << "'.";
 		break;
 	case INVALID_LEFT_OPERAND_TYPE:
 		os << "Invalid left operand for operator '" << s1 << "'.";
@@ -101,18 +98,15 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Invalid right operand for operator '" << s1 << "'.";
 		break;
 	case INVALID_TYPE_FOR_INITIAL_VALUE:
-		os << "Incorrect type for initial value of variable '" << s1 << "'."
-				<< endl;
+		os << "Incorrect type for initial value of variable '" << s1 << "'.";
 		break;
 	case INVALID_TYPE_FOR_FOR_STMT_EXPRESSION:
 		os << "Incorrect type for expression in for statement."
-				<< "  Expressions in for statements must be of type INT."
-				<< endl;
+				<< "  Expressions in for statements must be of type INT.";
 		break;
 	case INVALID_TYPE_FOR_IF_STMT_EXPRESSION:
 		os << "Incorrect type for expression in an if statement."
-				<< "  Expressions in if statements must be of type INT."
-				<< endl;
+				<< "  Expressions in if statements must be of type INT.";
 		break;
 	case INVALID_TYPE_FOR_PRINT_STMT_EXPRESSION:
 		os << "Incorrect type for expression in a print statement."
@@ -120,8 +114,11 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 				<< " of type INT, DOUBLE, or STRING.";
 		break;
 	case INVALID_ARRAY_TYPE:
-		os << "Invalid array type '" << s1 << "' for variable '" << s2 << "'."
-				<< endl;
+		os << "Invalid array type '" << s1 << "' for variable '" << s2 << "'.";
+		break;
+	case INVALID_ARRAY_SIZE_TYPE:
+		os << "Invalid array size type (" << s1 << ") for variable '" << s2
+				<< "'. Arrays sizes must be integers of 1 or larger.";
 		break;
 	case LHS_OF_PERIOD_MUST_BE_OBJECT:
 		os << "Variable '" << s1 << "' is not an object."

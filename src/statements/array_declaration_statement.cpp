@@ -50,15 +50,17 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 
 	//if our array size is a constant, validate it as part of the preprocessing pass.
 	//array sizes that are variable are processed at runtime.
-	if (m_size_expression != NULL && m_size_expression->IsConstant()) {
-		if (m_size_expression->GetType(execution_context) != INT) {
+	if (m_size_expression != NULL) {
+		const Type size_expression_type = m_size_expression->GetType(
+				execution_context);
+		if (size_expression_type != INT) {
 			result = (LinkedList<const Error*>*) result->With(
-					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE,
+					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE_TYPE,
 							m_size_expression_position.first_line,
-							m_size_expression_position.first_column, *m_name,
-							*(m_size_expression->ToString(execution_context))));
+							m_size_expression_position.first_column,
+							type_to_string(size_expression_type), *m_name));
 			return result;
-		} else {
+		} else if (m_size_expression->IsConstant()) {
 			const void* evaluation = m_size_expression->Evaluate(
 					execution_context);
 			if (evaluation != NULL) {
