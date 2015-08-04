@@ -51,9 +51,6 @@ const void* ArithmeticExpression::compute(int left, int right) const {
 		*result = left - right;
 		break;
 	case MOD:
-		//TODO: investigate why this semantic error is here
-		Error::semantic_error(Error::DIVIDE_BY_ZERO, GetPosition().first_line,
-				GetPosition().first_column);
 		*result = left % right;
 		break;
 	default:
@@ -88,10 +85,13 @@ const void* ArithmeticExpression::compute(double left, double right) const {
 const LinkedList<const Error*>* ArithmeticExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	if (GetOperator() == PLUS) {
-		//PLUS doubles as a concatenation operator
+		//Allow STRING types because PLUS doubles as a concatenation operator
 		return BinaryExpression::Validate(execution_context,
 				(BOOLEAN | INT | DOUBLE | STRING),
 				(BOOLEAN | INT | DOUBLE | STRING));
+	} else if (GetOperator() == MOD) {
+		return BinaryExpression::Validate(execution_context, (BOOLEAN | INT),
+				(BOOLEAN | INT));
 	} else {
 		return BinaryExpression::Validate(execution_context,
 				(BOOLEAN | INT | DOUBLE), (BOOLEAN | INT | DOUBLE));

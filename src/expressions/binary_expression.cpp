@@ -44,6 +44,10 @@ const Type BinaryExpression::ComputeResultType(const Expression* left,
 		return BOOLEAN;
 	}
 
+	if (op == MOD) {
+		return INT;
+	}
+
 	if (right_type >= left_type)
 		return right_type;
 	else
