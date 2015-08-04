@@ -31,22 +31,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 	Symbol* symbol = (Symbol*) Symbol::DefaultSymbol;
 	const string* name = m_name;
 
-	switch (m_type) {
-	case INT:
-		symbol = new ArraySymbol(name, new int[0](), 0);
-		break;
-	case DOUBLE:
-		symbol = new ArraySymbol(name, new double[0](), 0);
-		break;
-	case STRING:
-		symbol = new ArraySymbol(name, (const string**) new string*[0](), 0);
-		break;
-	default:
-		result = (LinkedList<const Error*>*) result->With(
-				new Error(Error::SEMANTIC, Error::INVALID_ARRAY_TYPE,
-						m_type_position.first_line,
-						m_type_position.first_column, *name));
-	}
+	int size = 0;
 
 	//if our array size is a constant, validate it as part of the preprocessing pass.
 	//array sizes that are variable are processed at runtime.
@@ -77,9 +62,29 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 									*m_name, convert.str()));
 
 					return result;
+				} else {
+					//our array size is a constant, so we can allocate memory now instead of in the execution pass
+					size = array_size;
 				}
 			}
 		}
+	}
+
+	switch (m_type) {
+	case INT:
+		symbol = new ArraySymbol(name, new int[0](), size);
+		break;
+	case DOUBLE:
+		symbol = new ArraySymbol(name, new double[0](), size);
+		break;
+	case STRING:
+		symbol = new ArraySymbol(name, (const string**) new string*[0](), size);
+		break;
+	default:
+		result = (LinkedList<const Error*>*) result->With(
+				new Error(Error::SEMANTIC, Error::INVALID_ARRAY_TYPE,
+						m_type_position.first_line,
+						m_type_position.first_column, *name));
 	}
 
 	SymbolTable* symbol_table =
