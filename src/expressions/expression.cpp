@@ -30,26 +30,21 @@ Expression::Expression(const YYLTYPE position) :
 Expression::~Expression() {
 }
 
-const void* Expression::Evaluate(
-		const ExecutionContext* execution_context) const {
-	return NULL;
-}
-
 const string* Expression::ToString(
 		const ExecutionContext* execution_context) const {
 	ostringstream buffer;
 	switch (GetType(execution_context)) {
 	case BOOLEAN:
-		buffer << *((bool*) Evaluate(execution_context));
+		buffer << *((bool*) Evaluate(execution_context)->GetData());
 		break;
 	case INT:
-		buffer << *((int*) Evaluate(execution_context));
+		buffer << *((int*) Evaluate(execution_context)->GetData());
 		break;
 	case DOUBLE:
-		buffer << *((double*) Evaluate(execution_context));
+		buffer << *((double*) Evaluate(execution_context)->GetData());
 		break;
 	case STRING:
-		buffer << *((string*) Evaluate(execution_context));
+		buffer << *((string*) Evaluate(execution_context)->GetData());
 		break;
 	default:
 		assert(false);

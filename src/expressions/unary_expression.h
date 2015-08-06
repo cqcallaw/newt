@@ -29,7 +29,7 @@ public:
 
 	virtual const Type GetType(const ExecutionContext* execution_context) const;
 
-	virtual const void* Evaluate(
+	virtual const EvaluationResult* Evaluate(
 			const ExecutionContext* execution_context) const;
 
 	virtual const bool IsConstant() const {

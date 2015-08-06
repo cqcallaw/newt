@@ -180,6 +180,11 @@ const string Error::ToString() const {
 				<< m_column_number << ": " << get_error_message();
 		break;
 	}
+	case RUNTIME: {
+		os << "Runtime error on line " << m_line_number << ", column "
+				<< m_column_number << ": " << get_error_message();
+		break;
+	}
 	default:
 		assert(false);
 	}

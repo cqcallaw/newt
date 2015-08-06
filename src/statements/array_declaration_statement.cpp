@@ -46,25 +46,32 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 							type_to_string(size_expression_type), *m_name));
 			return result;
 		} else if (m_size_expression->IsConstant()) {
-			const void* evaluation = m_size_expression->Evaluate(
+			const EvaluationResult* evaluation = m_size_expression->Evaluate(
 					execution_context);
-			if (evaluation != NULL) {
-				int array_size = *((int*) (evaluation));
+			const LinkedList<const Error*>* evaluation_errors =
+					evaluation->GetErrors();
 
-				if (array_size <= 0) {
-					ostringstream convert;
-					convert << array_size;
-					result = (LinkedList<const Error*>*) result->With(
-							new Error(Error::SEMANTIC,
-									Error::INVALID_ARRAY_SIZE,
-									m_size_expression_position.first_line,
-									m_size_expression_position.first_column,
-									*m_name, convert.str()));
+			if (evaluation_errors != LinkedList<const Error*>::Terminator) {
+				return (LinkedList<const Error*>*) evaluation_errors;
+			} else {
+				if (evaluation != NULL) {
+					int array_size = *((int*) (evaluation)->GetData());
 
-					return result;
-				} else {
-					//our array size is a constant, so we can allocate memory now instead of in the execution pass
-					size = array_size;
+					if (array_size <= 0) {
+						ostringstream convert;
+						convert << array_size;
+						result = (LinkedList<const Error*>*) result->With(
+								new Error(Error::SEMANTIC,
+										Error::INVALID_ARRAY_SIZE,
+										m_size_expression_position.first_line,
+										m_size_expression_position.first_column,
+										*m_name, convert.str()));
+
+						return result;
+					} else {
+						//our array size is a constant, so we can allocate memory now instead of in the execution pass
+						size = array_size;
+					}
 				}
 			}
 		}
@@ -120,7 +127,8 @@ void ArrayDeclarationStatement::execute(
 	} else {
 		SetResult result;
 
-		const void* evaluation = m_size_expression->Evaluate(execution_context);
+		const void* evaluation =
+				m_size_expression->Evaluate(execution_context)->GetData();
 		if (evaluation != NULL) {
 			int array_size = *((int*) (evaluation));
 

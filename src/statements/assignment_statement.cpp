@@ -147,16 +147,15 @@ const void* AssignmentStatement::do_op(const string* variable_name,
 		const int value, const Expression* expression, const AssignmentType op,
 		const ExecutionContext* execution_context) {
 	int new_value = 0;
+	const void* void_value = expression->Evaluate(execution_context)->GetData();
 	switch (expression->GetType(execution_context)) {
 	case BOOLEAN:
 		do_op(variable_name, variable_type, variable_line, variable_column,
-				value, *((bool*) expression->Evaluate(execution_context)), op,
-				execution_context, new_value);
+				value, *((bool*) void_value), op, execution_context, new_value);
 		break;
 	case INT: {
 		do_op(variable_name, variable_type, variable_line, variable_column,
-				value, *((int*) expression->Evaluate(execution_context)), op,
-				execution_context, new_value);
+				value, *((int*) void_value), op, execution_context, new_value);
 		break;
 	}
 	default:
@@ -173,22 +172,21 @@ const void* AssignmentStatement::do_op(const string* variable_name,
 		const double value, const Expression* expression, AssignmentType op,
 		const ExecutionContext* execution_context) {
 	double new_value = 0;
+	const void* void_value = expression->Evaluate(execution_context)->GetData();
 	switch (expression->GetType(execution_context)) {
 	case BOOLEAN:
 		do_op(variable_name, variable_type, variable_line, variable_column,
-				value, *((bool*) expression->Evaluate(execution_context)), op,
-				execution_context, new_value);
+				value, *((bool*) void_value), op, execution_context, new_value);
 		break;
 	case INT: {
 		do_op(variable_name, variable_type, variable_line, variable_column,
-				value, *((int*) expression->Evaluate(execution_context)), op,
-				execution_context, new_value);
+				value, *((int*) void_value), op, execution_context, new_value);
 		break;
 	}
 	case DOUBLE: {
 		do_op(variable_name, variable_type, variable_line, variable_column,
-				value, *((double*) expression->Evaluate(execution_context)), op,
-				execution_context, new_value);
+				value, *((double*) void_value), op, execution_context,
+				new_value);
 		break;
 	}
 	default:
@@ -205,28 +203,26 @@ const void* AssignmentStatement::do_op(const string* variable_name,
 		const string* value, const Expression* expression, AssignmentType op,
 		const ExecutionContext* execution_context) {
 	string* new_value;
+	const void* void_value = expression->Evaluate(execution_context)->GetData();
 	switch (expression->GetType(execution_context)) {
 	case BOOLEAN:
 		do_op(variable_name, variable_type, variable_line, variable_column,
-				value, *((bool*) expression->Evaluate(execution_context)), op,
-				execution_context, new_value);
+				value, *((bool*) void_value), op, execution_context, new_value);
 		break;
 	case INT: {
 		do_op(variable_name, variable_type, variable_line, variable_column,
-				value, *((int*) expression->Evaluate(execution_context)), op,
-				execution_context, new_value);
+				value, *((int*) void_value), op, execution_context, new_value);
 		break;
 	}
 	case DOUBLE: {
 		do_op(variable_name, variable_type, variable_line, variable_column,
-				value, *((double*) expression->Evaluate(execution_context)), op,
-				execution_context, new_value);
+				value, *((double*) void_value), op, execution_context,
+				new_value);
 		break;
 	}
 	case STRING: {
 		do_op(variable_name, variable_type, variable_line, variable_column,
-				value, (string*) expression->Evaluate(execution_context), op,
-				execution_context, new_value);
+				value, (string*) void_value, op, execution_context, new_value);
 		break;
 	}
 	default:
@@ -285,7 +281,7 @@ const void AssignmentStatement::do_op(const Variable* variable,
 	case INT_ARRAY: {
 		ArrayVariable* array_variable = (ArrayVariable*) variable;
 		int index = *((int*) array_variable->GetIndexExpression()->Evaluate(
-				execution_context));
+				execution_context)->GetData());
 
 		ArraySymbol* array_symbol = (ArraySymbol*) symbol;
 		if (index >= array_symbol->GetSize() || index < 0) {
@@ -303,7 +299,7 @@ const void AssignmentStatement::do_op(const Variable* variable,
 	case DOUBLE_ARRAY: {
 		ArrayVariable* array_variable = (ArrayVariable*) variable;
 		int index = *((int*) array_variable->GetIndexExpression()->Evaluate(
-				execution_context));
+				execution_context)->GetData());
 		ArraySymbol* array_symbol = (ArraySymbol*) symbol;
 		if (index >= array_symbol->GetSize() || index < 0) {
 			Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,
@@ -320,7 +316,7 @@ const void AssignmentStatement::do_op(const Variable* variable,
 	case STRING_ARRAY: {
 		ArrayVariable* array_variable = (ArrayVariable*) variable;
 		int index = *((int*) array_variable->GetIndexExpression()->Evaluate(
-				execution_context));
+				execution_context)->GetData());
 		ArraySymbol* array_symbol = (ArraySymbol*) symbol;
 		if (index >= array_symbol->GetSize() || index < 0) {
 			Error::semantic_error(Error::ARRAY_INDEX_OUT_OF_BOUNDS,

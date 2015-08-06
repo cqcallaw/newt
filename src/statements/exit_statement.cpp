@@ -37,7 +37,7 @@ void ExitStatement::execute(const ExecutionContext* execution_context) const {
 		return;
 	}
 
-	int exit_code = *((int*) m_exit_expression->Evaluate(execution_context));
+	int exit_code = *((int*) m_exit_expression->Evaluate(execution_context)->GetData());
 	std::cout << "[" << m_line_number << "]: exit(" << exit_code << ")\n";
 	exit(exit_code);
 }

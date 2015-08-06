@@ -31,7 +31,7 @@ public:
 
 	virtual const Type GetType(const ExecutionContext* execution_context) const;
 
-	const void* Evaluate(const ExecutionContext* execution_context) const;
+	const EvaluationResult* Evaluate(const ExecutionContext* execution_context) const;
 
 	const Expression* GetLeft() const {
 		return m_left;

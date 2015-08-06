@@ -59,86 +59,110 @@ const Type BinaryExpression::ComputeResultType(const Expression* left,
 	return NONE;
 }
 
-const void* BinaryExpression::Evaluate(
+const EvaluationResult* BinaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
+	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+	void* result = nullptr;
+
 	Type left_type = GetLeft()->GetType(execution_context);
 	Type right_type = GetRight()->GetType(execution_context);
 
-	const void* left_void_value = GetLeft()->Evaluate(execution_context);
-	const void* right_void_value = GetRight()->Evaluate(execution_context);
+	const EvaluationResult* left_result = GetLeft()->Evaluate(
+			execution_context);
+
+	if (left_result->GetErrors() != LinkedList<const Error*>::Terminator) {
+		return left_result;
+	}
+
+	const EvaluationResult* right_result = GetRight()->Evaluate(
+			execution_context);
+
+	if (right_result->GetErrors() != LinkedList<const Error*>::Terminator) {
+		return right_result;
+	}
 
 	switch (left_type) {
 	case BOOLEAN: {
-		bool left_value = *((bool*) left_void_value);
+		bool left_value = *((bool*) left_result->GetData());
 
 		switch (right_type) {
 		case BOOLEAN: {
-			bool right_value = *((bool*) right_void_value);
-			return compute(left_value, right_value);
+			bool right_value = *((bool*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case INT: {
-			int right_value = *((int*) right_void_value);
-			return compute(left_value, right_value);
+			int right_value = *((int*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case DOUBLE: {
-			double right_value = *((double*) right_void_value);
-			return compute(left_value, right_value);
+			double right_value = *((double*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case STRING: {
-			string* right_value = (string*) right_void_value;
-			return compute(left_value, right_value);
+			string* right_value = (string*) right_result->GetData();
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		default:
 			assert(false);
-			return NULL;
 		}
 		break;
 	}
 	case INT: {
-		int left_value = *((int*) left_void_value);
+		int left_value = *((int*) left_result->GetData());
 
 		switch (right_type) {
 		case BOOLEAN: {
-			bool right_value = *((bool*) right_void_value);
-			return compute(left_value, right_value);
+			bool right_value = *((bool*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case INT: {
-			int right_value = *((int*) right_void_value);
-			return compute(left_value, right_value);
+			int right_value = *((int*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case DOUBLE: {
-			double right_value = *((double*) right_void_value);
-			return compute(left_value, right_value);
+			double right_value = *((double*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case STRING: {
-			string* right_value = (string*) right_void_value;
-			return compute(left_value, right_value);
+			string* right_value = (string*) right_result->GetData();
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		default:
 			assert(false);
-			return NULL;
 		}
 		break;
 	}
 	case DOUBLE: {
-		double left_value = *((double*) left_void_value);
+		double left_value = *((double*) left_result->GetData());
 
 		switch (right_type) {
 		case BOOLEAN: {
-			bool right_value = *((bool*) right_void_value);
-			return compute(left_value, right_value);
+			bool right_value = *((bool*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case INT: {
-			int right_value = *((int*) right_void_value);
-			return compute(left_value, right_value);
+			int right_value = *((int*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case DOUBLE: {
-			double right_value = *((double*) right_void_value);
-			return compute(left_value, right_value);
+			double right_value = *((double*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case STRING: {
-			string* right_value = (string*) right_void_value;
-			return compute(left_value, right_value);
+			string* right_value = (string*) right_result->GetData();
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		default:
 			assert(false);
@@ -147,38 +171,39 @@ const void* BinaryExpression::Evaluate(
 		break;
 	}
 	case STRING: {
-		string* left_value = (string*) left_void_value;
+		string* left_value = (string*) left_result->GetData();
 
 		switch (right_type) {
 		case BOOLEAN: {
-			bool right_value = *((bool*) right_void_value);
-			return compute(left_value, right_value);
+			bool right_value = *((bool*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case INT: {
-			int right_value = *((int*) right_void_value);
-			return compute(left_value, right_value);
+			int right_value = *((int*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case DOUBLE: {
-			double right_value = *((double*) right_void_value);
-			return compute(left_value, right_value);
+			double right_value = *((double*) right_result->GetData());
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		case STRING: {
-			string* right_value = (string*) right_void_value;
-			return compute(left_value, right_value);
+			string* right_value = (string*) right_result->GetData();
+			result = (void*) compute(left_value, right_value);
+			break;
 		}
 		default:
 			assert(false);
-			return NULL;
 		}
 		break;
 	}
 	default:
 		assert(false);
-		return NULL;
 	}
 
-	assert(false);
-	return NULL;
+	return new EvaluationResult(result, errors);
 }
 
 const Type BinaryExpression::GetType(

@@ -71,7 +71,8 @@ const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 				size_expression_position.first_column, *name,
 				*(size_expression->ToString(execution_context)));
 	} else {
-		const void* evaluation = size_expression->Evaluate(execution_context);
+		const EvaluationResult* evaluation = size_expression->Evaluate(
+				execution_context);
 		if (evaluation != NULL) {
 			int array_size = *((int*) (evaluation));
 

@@ -152,136 +152,151 @@ double UnaryExpression::radians_to_degrees(double radians) {
 	return radians * (180.0 / M_PI);
 }
 
-const void* UnaryExpression::Evaluate(
+const EvaluationResult* UnaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
+	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+	void* result = nullptr;
+
 	const Type expression_type = m_expression->GetType(execution_context);
-	const void* evaluated = m_expression->Evaluate(execution_context);
+	const EvaluationResult* evaluation = m_expression->Evaluate(
+			execution_context);
+	const LinkedList<const Error*>* evaluation_errors = evaluation->GetErrors();
 
-	switch (m_operator) {
-	case UNARY_MINUS: {
-		switch (expression_type) {
-		case INT: {
-			int* value = new int;
-			*value = -(*((int*) evaluated));
-			//cout << "Integer negation result: " << *value << "\n";
-			return (void *) value;
+	if (evaluation_errors != LinkedList<const Error*>::Terminator) {
+		errors = (LinkedList<const Error*>*) evaluation_errors;
+	} else {
+		const void* data = evaluation->GetData();
+		switch (m_operator) {
+		case UNARY_MINUS: {
+			switch (expression_type) {
+			case INT: {
+				int* value = new int;
+				*value = -(*((int*) data));
+				result = (void *) value;
+				break;
+			}
+			case DOUBLE: {
+				double* value = new double;
+				*value = -(*((double*) data));
+				result = (void *) value;
+				break;
+			}
+			default:
+				assert(false);
+			}
+			break;
 		}
-		case DOUBLE: {
-			double* value = new double;
-			*value = -(*((double*) evaluated));
-			//cout << "Floating point negation result: " << *value << "\n";
-			return (void *) value;
-		}
-		default:
-			assert(false);
-			return NULL;
-		}
-		break;
-	}
-	case SIN:
-		return compute(expression_type, evaluated, sin, degrees_to_radians);
-		break;
-	case COS:
-		return compute(expression_type, evaluated, cos, degrees_to_radians);
-		break;
-	case TAN:
-		return compute(expression_type, evaluated, tan, degrees_to_radians);
-		break;
-	case ASIN:
-		return compute(expression_type, evaluated, asin, NULL,
-				radians_to_degrees);
-		break;
-	case ACOS:
-		return compute(expression_type, evaluated, acos, NULL,
-				radians_to_degrees);
-		break;
-	case ATAN:
-		return compute(expression_type, evaluated, atan, NULL,
-				radians_to_degrees);
-		break;
-	case SQRT:
-		return compute(expression_type, evaluated, sqrt);
-		break;
-	case FLOOR:
-		switch (expression_type) {
-		case INT: {
-			int* value = new int(floor(*((int*) evaluated)));
-			return (void *) value;
-		}
-		case DOUBLE: {
-			int* value = new int(floor(*((double*) evaluated)));
-			return (void *) value;
-		}
-		default:
-			assert(false);
-			return NULL;
-		}
-		break;
-	case ABS:
-		switch (expression_type) {
-		case INT: {
-			int* value = new int;
-			*value = abs(*((int*) evaluated));
-			return (void *) value;
-		}
-		case DOUBLE: {
-			double old_value = *((double*) evaluated);
-			double* value = new double;
-			*value = old_value < 0 ? -old_value : old_value;
-			return (void *) value;
-		}
-		default:
-			assert(false);
-			return NULL;
-		}
-		break;
-	case RANDOM:
-		switch (expression_type) {
-		case INT: {
-			int* value = new int;
-			*value = rand() % (*((int*) evaluated));
-			return (void *) value;
-		}
-		case DOUBLE: {
-			double* value = new double;
-			*value = rand() % int(floor(*((double*) evaluated)));
-			return (void *) value;
-		}
-		default:
-			assert(false);
-			return NULL;
-		}
-		break;
-	case NOT: {
-		switch (expression_type) {
-		case BOOLEAN: {
-			bool old_value = *((bool*) evaluated);
-			bool* value = new bool(!old_value);
-			//cout << "Boolean NOT result: " << *value << "\n";
-			return (void *) value;
-		}
-		case INT: {
-			int old_value = *((int*) evaluated);
-			bool* value = new bool(!(old_value != 0));
-			//cout << "Integer NOT result: " << *value << "\n";
-			return (void *) value;
-		}
-		case DOUBLE: {
-			double old_value = *((double*) evaluated);
-			bool* value = new bool(!(old_value != 0));
-			//cout << "Floating point NOT result: " << *value << "\n";
-			return (void *) value;
-		}
-		default:
-			assert(false);
-			return NULL;
-		}
-		break;
+		case SIN:
+			result = (void*) compute(expression_type, data, sin,
+					degrees_to_radians);
+			break;
+		case COS:
+			result = (void*) compute(expression_type, data, cos,
+					degrees_to_radians);
+			break;
+		case TAN:
+			result = (void*) compute(expression_type, data, tan,
+					degrees_to_radians);
+			break;
+		case ASIN:
+			result = (void*) compute(expression_type, data, asin, NULL,
+					radians_to_degrees);
+			break;
+		case ACOS:
+			result = (void*) compute(expression_type, data, acos, NULL,
+					radians_to_degrees);
+			break;
+		case ATAN:
+			result = (void*) compute(expression_type, data, atan, NULL,
+					radians_to_degrees);
+			break;
+		case SQRT:
+			result = (void*) compute(expression_type, data, sqrt);
+			break;
+		case FLOOR:
+			switch (expression_type) {
+			case INT: {
+				int* value = new int(floor(*((int*) data)));
+				result = (void *) value;
+				break;
+			}
+			case DOUBLE: {
+				int* value = new int(floor(*((double*) data)));
+				result = (void *) value;
+				break;
+			}
+			default:
+				assert(false);
+			}
+			break;
+		case ABS:
+			switch (expression_type) {
+			case INT: {
+				int* value = new int;
+				*value = abs(*((int*) data));
+				result = (void *) value;
+				break;
+			}
+			case DOUBLE: {
+				double old_value = *((double*) data);
+				double* value = new double;
+				*value = old_value < 0 ? -old_value : old_value;
+				result = (void *) value;
+				break;
+			}
+			default:
+				assert(false);
+			}
+			break;
+		case RANDOM:
+			switch (expression_type) {
+			case INT: {
+				int* value = new int;
+				*value = rand() % (*((int*) data));
+				result = (void *) value;
+				break;
+			}
+			case DOUBLE: {
+				double* value = new double;
+				*value = rand() % int(floor(*((double*) data)));
+				result = (void *) value;
+				break;
+			}
+			default:
+				assert(false);
+			}
+			break;
+		case NOT: {
+			switch (expression_type) {
+			case BOOLEAN: {
+				bool old_value = *((bool*) data);
+				bool* value = new bool(!old_value);
+				result = (void *) value;
+				break;
+			}
+			case INT: {
+				int old_value = *((int*) data);
+				bool* value = new bool(!(old_value != 0));
+				result = (void *) value;
+				break;
+			}
+			case DOUBLE: {
+				double old_value = *((double*) data);
+				bool* value = new bool(!(old_value != 0));
+				result = (void *) value;
+				break;
+			}
+			default:
+				assert(false);
+			}
+			break;
 
+		}
+		default:
+			assert(false);
+		}
 	}
-	default:
-		assert(false);
-		return nullptr;
-	}
+
+	return new EvaluationResult(result, errors);
 }
 

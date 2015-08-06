@@ -45,7 +45,7 @@ void ForStatement::execute(const ExecutionContext* execution_context) const {
 		m_initial->execute(execution_context);
 	}
 
-	for (; *((bool*) m_loop_expression->Evaluate(execution_context));
+	for (; *((bool*) m_loop_expression->Evaluate(execution_context)->GetData());
 			m_loop_assignment->execute(execution_context)) {
 		if (m_statement_block != nullptr) {
 			m_statement_block->execute(execution_context);

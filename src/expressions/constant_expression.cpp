@@ -42,9 +42,9 @@ const Type ConstantExpression::GetType(
 	return m_type;
 }
 
-const void* ConstantExpression::Evaluate(
+const EvaluationResult* ConstantExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
-	return m_value;
+	return new EvaluationResult(m_value, LinkedList<const Error*>::Terminator);
 }
 
 ConstantExpression::ConstantExpression(const YYLTYPE position, const Type type,

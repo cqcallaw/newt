@@ -53,7 +53,7 @@ void IfStatement::execute(const ExecutionContext* execution_context) const {
 		return;
 	}*/
 
-	bool test = *((bool*) m_expression->Evaluate(execution_context));
+	bool test = *((bool*) m_expression->Evaluate(execution_context)->GetData());
 	if (test) {
 		m_block->execute(execution_context);
 	} else if (m_else_block != nullptr) {

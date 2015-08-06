@@ -31,6 +31,25 @@
 class ExecutionContext;
 class Error;
 
+class EvaluationResult {
+public:
+	EvaluationResult(const void* data, const LinkedList<const Error*>* errors) :
+			m_data(data), m_errors(errors) {
+	}
+
+	const void* GetData() const {
+		return m_data;
+	}
+
+	const LinkedList<const Error*>* GetErrors() const {
+		return m_errors;
+	}
+
+private:
+	const void* m_data;
+	const LinkedList<const Error*>* m_errors;
+};
+
 class Expression {
 public:
 	Expression(const YYLTYPE position);
@@ -39,8 +58,8 @@ public:
 	virtual const Type GetType(
 			const ExecutionContext* execution_context) const = 0;
 
-	virtual const void* Evaluate(
-			const ExecutionContext* execution_context) const;
+	virtual const EvaluationResult* Evaluate(
+			const ExecutionContext* execution_context) const = 0;
 
 	const string* ToString(const ExecutionContext* execution_context) const;
 
