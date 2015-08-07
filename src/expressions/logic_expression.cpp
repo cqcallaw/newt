@@ -34,47 +34,57 @@ const Type LogicExpression::GetType(
 const LinkedList<const Error*>* LogicExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	return BinaryExpression::Validate(execution_context,
-			(BOOLEAN | INT | DOUBLE),
-			(BOOLEAN | INT | DOUBLE));
+			(BOOLEAN | INT | DOUBLE), (BOOLEAN | INT | DOUBLE));
 }
 
-const void* LogicExpression::compute(bool left, bool right) const {
+const EvaluationResult* LogicExpression::compute(bool left, bool right,
+YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case OR:
-		return (void *) new bool(left || right);
+		return new EvaluationResult((void *) new bool(left || right),
+				LinkedList<const Error*>::Terminator);
 	case AND:
-		return (void *) new bool(left && right);
+		return new EvaluationResult((void *) new bool(left && right),
+				LinkedList<const Error*>::Terminator);
 	default:
 		assert(false);
 		return NULL;
 	}
 }
 
-const void* LogicExpression::compute(int left, int right) const {
+const EvaluationResult* LogicExpression::compute(int left, int right,
+YYLTYPE left_position,
+YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case OR:
-		return (void *) new bool(left || right);
+		return new EvaluationResult((void *) new bool(left || right),
+				LinkedList<const Error*>::Terminator);
 	case AND:
-		return (void *) new bool(left && right);
+		return new EvaluationResult((void *) new bool(left && right),
+				LinkedList<const Error*>::Terminator);
 	default:
 		assert(false);
 		return NULL;
 	}
 }
 
-const void* LogicExpression::compute(double left, double right) const {
+const EvaluationResult* LogicExpression::compute(double left, double right,
+YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case OR:
-		return (void *) new bool(left || right);
+		return new EvaluationResult((void *) new bool(left || right),
+				LinkedList<const Error*>::Terminator);
 	case AND:
-		return (void *) new bool(left && right);
+		return new EvaluationResult((void *) new bool(left && right),
+				LinkedList<const Error*>::Terminator);
 	default:
 		assert(false);
 		return NULL;
 	}
 }
 
-const void* LogicExpression::compute(string* left, string* right) const {
+const EvaluationResult* LogicExpression::compute(string* left, string* right,
+YYLTYPE left_position, YYLTYPE right_position) const {
 	assert(false);
 	return NULL;
 }

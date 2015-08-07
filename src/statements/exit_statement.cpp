@@ -25,8 +25,8 @@ ExitStatement::ExitStatement(const int line_number,
 		const Expression* exit_expression) :
 		m_line_number(line_number), m_exit_expression(exit_expression) {
 	/*if (exit_expression != nullptr) {
-		assert(exit_expression->GetType() <= INT);
-	}*/
+	 assert(exit_expression->GetType() <= INT);
+	 }*/
 }
 
 ExitStatement::~ExitStatement() {
@@ -37,7 +37,10 @@ void ExitStatement::execute(const ExecutionContext* execution_context) const {
 		return;
 	}
 
-	int exit_code = *((int*) m_exit_expression->Evaluate(execution_context)->GetData());
+	const EvaluationResult* evaluation = m_exit_expression->Evaluate(
+			execution_context);
+	int exit_code = *((int*) evaluation->GetData());
+	delete (evaluation);
 	std::cout << "[" << m_line_number << "]: exit(" << exit_code << ")\n";
 	exit(exit_code);
 }

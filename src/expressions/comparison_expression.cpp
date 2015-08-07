@@ -43,13 +43,16 @@ const LinkedList<const Error*>* ComparisonExpression::Validate(
 			(BOOLEAN | INT | DOUBLE | STRING));
 }
 
-const void* ComparisonExpression::compute(bool left, bool right) const {
+const EvaluationResult* ComparisonExpression::compute(bool left, bool right,
+YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case EQUAL:
-		return (void*) new bool(left == right);
+		return new EvaluationResult((void*) new bool(left == right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case NOT_EQUAL:
-		return (void*) new bool(left != right);
+		return new EvaluationResult((void*) new bool(left != right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case LESS_THAN:
 	case LESS_THAN_EQUAL:
@@ -66,28 +69,35 @@ const void* ComparisonExpression::compute(bool left, bool right) const {
 	return NULL;
 }
 
-const void* ComparisonExpression::compute(int left, int right) const {
+const EvaluationResult* ComparisonExpression::compute(int left, int right,
+YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case EQUAL: {
 		bool* result = new bool(left == right);
 		//cout << "Integer comparison result: " << *result << "\n";
-		return (void *) result;
+		return new EvaluationResult((void *) result,
+				LinkedList<const Error*>::Terminator);
 		break;
 	}
 	case NOT_EQUAL:
-		return (void*) new bool(left != right);
+		return new EvaluationResult((void*) new bool(left != right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case LESS_THAN:
-		return (void*) new bool(left < right);
+		return new EvaluationResult((void*) new bool(left < right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case LESS_THAN_EQUAL:
-		return (void*) new bool(left <= right);
+		return new EvaluationResult((void*) new bool(left <= right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case GREATER_THAN:
-		return (void*) new bool(left > right);
+		return new EvaluationResult((void*) new bool(left > right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case GREATER_THAN_EQUAL:
-		return (void*) new bool(left >= right);
+		return new EvaluationResult((void*) new bool(left >= right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	default:
 		assert(false);
@@ -97,25 +107,32 @@ const void* ComparisonExpression::compute(int left, int right) const {
 	return NULL;
 }
 
-const void* ComparisonExpression::compute(double left, double right) const {
+const EvaluationResult* ComparisonExpression::compute(double left, double right,
+YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case EQUAL:
-		return (void*) new bool(left == right);
+		return new EvaluationResult((void*) new bool(left == right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case NOT_EQUAL:
-		return (void*) new bool(left != right);
+		return new EvaluationResult((void*) new bool(left != right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case LESS_THAN:
-		return (void*) new bool(left < right);
+		return new EvaluationResult((void*) new bool(left < right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case LESS_THAN_EQUAL:
-		return (void*) new bool(left <= right);
+		return new EvaluationResult((void*) new bool(left <= right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case GREATER_THAN:
-		return (void*) new bool(left > right);
+		return new EvaluationResult((void*) new bool(left > right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case GREATER_THAN_EQUAL:
-		return (void*) new bool(left >= right);
+		return new EvaluationResult((void*) new bool(left >= right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	default:
 		assert(false);
@@ -125,25 +142,33 @@ const void* ComparisonExpression::compute(double left, double right) const {
 	return NULL;
 }
 
-const void* ComparisonExpression::compute(string* left, string* right) const {
+const EvaluationResult* ComparisonExpression::compute(string* left,
+		string* right,
+		YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case EQUAL:
-		return (void*) new bool(*left == *right);
+		return new EvaluationResult((void*) new bool(*left == *right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case NOT_EQUAL:
-		return (void*) new bool(*left != *right);
+		return new EvaluationResult((void*) new bool(*left != *right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case LESS_THAN:
-		return (void*) new bool(*left < *right);
+		return new EvaluationResult((void*) new bool(*left < *right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case LESS_THAN_EQUAL:
-		return (void*) new bool(*left <= *right);
+		return new EvaluationResult((void*) new bool(*left <= *right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case GREATER_THAN:
-		return (void*) new bool(*left > *right);
+		return new EvaluationResult((void*) new bool(*left > *right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	case GREATER_THAN_EQUAL:
-		return (void*) new bool(*left >= *right);
+		return new EvaluationResult((void*) new bool(*left >= *right),
+				LinkedList<const Error*>::Terminator);
 		break;
 	default:
 		assert(false);

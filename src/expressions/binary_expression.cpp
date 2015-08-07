@@ -64,18 +64,22 @@ const EvaluationResult* BinaryExpression::Evaluate(
 	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
 	void* result = nullptr;
 
-	Type left_type = GetLeft()->GetType(execution_context);
-	Type right_type = GetRight()->GetType(execution_context);
+	const Expression* left = GetLeft();
+	const Expression* right = GetRight();
 
-	const EvaluationResult* left_result = GetLeft()->Evaluate(
-			execution_context);
+	Type left_type = left->GetType(execution_context);
+	Type right_type = right->GetType(execution_context);
+
+	YYLTYPE left_position = left->GetPosition();
+	YYLTYPE right_position = right->GetPosition();
+
+	const EvaluationResult* left_result = left->Evaluate(execution_context);
 
 	if (left_result->GetErrors() != LinkedList<const Error*>::Terminator) {
 		return left_result;
 	}
 
-	const EvaluationResult* right_result = GetRight()->Evaluate(
-			execution_context);
+	const EvaluationResult* right_result = right->Evaluate(execution_context);
 
 	if (right_result->GetErrors() != LinkedList<const Error*>::Terminator) {
 		return right_result;
@@ -88,22 +92,26 @@ const EvaluationResult* BinaryExpression::Evaluate(
 		switch (right_type) {
 		case BOOLEAN: {
 			bool right_value = *((bool*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case INT: {
 			int right_value = *((int*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case DOUBLE: {
 			double right_value = *((double*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case STRING: {
 			string* right_value = (string*) right_result->GetData();
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		default:
@@ -117,22 +125,26 @@ const EvaluationResult* BinaryExpression::Evaluate(
 		switch (right_type) {
 		case BOOLEAN: {
 			bool right_value = *((bool*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case INT: {
 			int right_value = *((int*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case DOUBLE: {
 			double right_value = *((double*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case STRING: {
 			string* right_value = (string*) right_result->GetData();
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		default:
@@ -146,22 +158,26 @@ const EvaluationResult* BinaryExpression::Evaluate(
 		switch (right_type) {
 		case BOOLEAN: {
 			bool right_value = *((bool*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case INT: {
 			int right_value = *((int*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case DOUBLE: {
 			double right_value = *((double*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case STRING: {
 			string* right_value = (string*) right_result->GetData();
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		default:
@@ -176,22 +192,26 @@ const EvaluationResult* BinaryExpression::Evaluate(
 		switch (right_type) {
 		case BOOLEAN: {
 			bool right_value = *((bool*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case INT: {
 			int right_value = *((int*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case DOUBLE: {
 			double right_value = *((double*) right_result->GetData());
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		case STRING: {
 			string* right_value = (string*) right_result->GetData();
-			result = (void*) compute(left_value, right_value);
+			return compute(left_value, right_value, left_position,
+					right_position);
 			break;
 		}
 		default:
@@ -202,6 +222,9 @@ const EvaluationResult* BinaryExpression::Evaluate(
 	default:
 		assert(false);
 	}
+
+	delete (left_result);
+	delete (right_result);
 
 	return new EvaluationResult(result, errors);
 }
@@ -259,43 +282,55 @@ const LinkedList<const Error*>* BinaryExpression::Validate(
 	return result;
 }
 
-const void* BinaryExpression::compute(bool left, int right) const {
-	return compute((int) left, right);
+const EvaluationResult* BinaryExpression::compute(bool left, int right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute((int) left, right, left_position, right_position);
 }
-const void* BinaryExpression::compute(bool left, double right) const {
-	return compute((double) left, right);
+const EvaluationResult* BinaryExpression::compute(bool left, double right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute((double) left, right, left_position, right_position);
 }
-const void* BinaryExpression::compute(bool left, string* right) const {
-	return compute(AsString(left), right);
-}
-
-const void* BinaryExpression::compute(int left, bool right) const {
-	return compute(left, (int) right);
-}
-const void* BinaryExpression::compute(int left, double right) const {
-	return compute((double) left, right);
-}
-const void* BinaryExpression::compute(int left, string* right) const {
-	return compute(AsString(left), right);
+const EvaluationResult* BinaryExpression::compute(bool left, string* right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute(AsString(left), right, left_position, right_position);
 }
 
-const void* BinaryExpression::compute(double left, bool right) const {
-	return compute(left, (double) right);
+const EvaluationResult* BinaryExpression::compute(int left, bool right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute(left, (int) right, left_position, right_position);
 }
-const void* BinaryExpression::compute(double left, int right) const {
-	return compute(left, (double) right);
+const EvaluationResult* BinaryExpression::compute(int left, double right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute((double) left, right, left_position, right_position);
 }
-const void* BinaryExpression::compute(double left, string* right) const {
-	return compute(AsString(left), right);
-}
-
-const void* BinaryExpression::compute(string* left, bool right) const {
-	return compute(left, AsString(right));
-}
-const void* BinaryExpression::compute(string* left, int right) const {
-	return compute(left, AsString(right));
+const EvaluationResult* BinaryExpression::compute(int left, string* right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute(AsString(left), right, left_position, right_position);
 }
 
-const void* BinaryExpression::compute(string* left, double right) const {
-	return compute(left, AsString(right));
+const EvaluationResult* BinaryExpression::compute(double left, bool right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute(left, (double) right, left_position, right_position);
+}
+const EvaluationResult* BinaryExpression::compute(double left, int right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute(left, (double) right, left_position, right_position);
+}
+const EvaluationResult* BinaryExpression::compute(double left, string* right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute(AsString(left), right, left_position, right_position);
+}
+
+const EvaluationResult* BinaryExpression::compute(string* left, bool right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute(left, AsString(right), left_position, right_position);
+}
+const EvaluationResult* BinaryExpression::compute(string* left, int right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute(left, AsString(right), left_position, right_position);
+}
+
+const EvaluationResult* BinaryExpression::compute(string* left, double right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	return compute(left, AsString(right), left_position, right_position);
 }

@@ -31,10 +31,14 @@ public:
 			const ExecutionContext* execution_context) const;
 
 protected:
-	virtual const void* compute(bool left, bool right) const;
-	virtual const void* compute(int left, int right) const;
-	virtual const void* compute(double left, double right) const;
-	virtual const void* compute(string* left, string* right) const;
+	virtual const EvaluationResult* compute(bool left, bool right,
+			YYLTYPE left_position, YYLTYPE right_position) const;
+	virtual const EvaluationResult* compute(int left, int right,
+			YYLTYPE left_position, YYLTYPE right_position) const;
+	virtual const EvaluationResult* compute(double left, double right,
+			YYLTYPE left_position, YYLTYPE right_position) const;
+	virtual const EvaluationResult* compute(string* left, string* right,
+			YYLTYPE left_position, YYLTYPE right_position) const;
 };
 
 #endif /* ARITHMETIC_EXPRESSION_H_ */

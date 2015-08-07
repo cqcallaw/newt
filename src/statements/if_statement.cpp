@@ -34,9 +34,9 @@ IfStatement::IfStatement(const Expression* expression,
 		const StatementBlock* block, const StatementBlock* else_block) :
 		m_expression(expression), m_block(block), m_else_block(else_block) {
 	/*if (expression != DefaultExpression) {
-		//not our default statement
-		assert(expression->GetType() == BOOLEAN);
-	}*/
+	 //not our default statement
+	 assert(expression->GetType() == BOOLEAN);
+	 }*/
 }
 
 IfStatement::~IfStatement() {
@@ -44,19 +44,22 @@ IfStatement::~IfStatement() {
 
 void IfStatement::execute(const ExecutionContext* execution_context) const {
 	/*if (m_expression == nullptr || m_expression == DefaultExpression) {
-		assert(false);
-		return;
-	}
+	 assert(false);
+	 return;
+	 }
 
-	if (m_block == nullptr || m_block == DefaultStatementBlock) {
-		assert(false);
-		return;
-	}*/
+	 if (m_block == nullptr || m_block == DefaultStatementBlock) {
+	 assert(false);
+	 return;
+	 }*/
 
-	bool test = *((bool*) m_expression->Evaluate(execution_context)->GetData());
+	const EvaluationResult* evaluation = m_expression->Evaluate(
+			execution_context);
+	bool test = *((bool*) evaluation->GetData());
 	if (test) {
 		m_block->execute(execution_context);
 	} else if (m_else_block != nullptr) {
 		m_else_block->execute(execution_context);
 	}
+	delete (evaluation);
 }

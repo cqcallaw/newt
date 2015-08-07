@@ -33,23 +33,26 @@ Expression::~Expression() {
 const string* Expression::ToString(
 		const ExecutionContext* execution_context) const {
 	ostringstream buffer;
+	const EvaluationResult* evaluation = Evaluate(execution_context);
 	switch (GetType(execution_context)) {
 	case BOOLEAN:
-		buffer << *((bool*) Evaluate(execution_context)->GetData());
+		buffer << *((bool*) evaluation->GetData());
 		break;
 	case INT:
-		buffer << *((int*) Evaluate(execution_context)->GetData());
+		buffer << *((int*) evaluation->GetData());
 		break;
 	case DOUBLE:
-		buffer << *((double*) Evaluate(execution_context)->GetData());
+		buffer << *((double*) evaluation->GetData());
 		break;
 	case STRING:
-		buffer << *((string*) Evaluate(execution_context)->GetData());
+		buffer << *((string*) evaluation->GetData());
 		break;
 	default:
 		assert(false);
 		return NULL;
 	}
+
+	delete (evaluation);
 
 	return new string(buffer.str());
 }

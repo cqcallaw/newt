@@ -52,28 +52,31 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 					evaluation->GetErrors();
 
 			if (evaluation_errors != LinkedList<const Error*>::Terminator) {
-				return (LinkedList<const Error*>*) evaluation_errors;
-			} else {
-				if (evaluation != NULL) {
-					int array_size = *((int*) (evaluation)->GetData());
+				result = (LinkedList<const Error*>*) result->Concatenate(
+						evaluation_errors, true);
+			}
 
-					if (array_size <= 0) {
-						ostringstream convert;
-						convert << array_size;
-						result = (LinkedList<const Error*>*) result->With(
-								new Error(Error::SEMANTIC,
-										Error::INVALID_ARRAY_SIZE,
-										m_size_expression_position.first_line,
-										m_size_expression_position.first_column,
-										*m_name, convert.str()));
+			if (evaluation != NULL) {
+				int array_size = *((int*) (evaluation)->GetData());
 
-						return result;
-					} else {
-						//our array size is a constant, so we can allocate memory now instead of in the execution pass
-						size = array_size;
-					}
+				if (array_size <= 0) {
+					ostringstream convert;
+					convert << array_size;
+					result = (LinkedList<const Error*>*) result->With(
+							new Error(Error::SEMANTIC,
+									Error::INVALID_ARRAY_SIZE,
+									m_size_expression_position.first_line,
+									m_size_expression_position.first_column,
+									*m_name, convert.str()));
+
+					return result;
+				} else {
+					//our array size is a constant, so we can allocate memory now instead of in the execution pass
+					size = array_size;
 				}
 			}
+
+			delete (evaluation);
 		}
 	}
 
@@ -127,10 +130,11 @@ void ArrayDeclarationStatement::execute(
 	} else {
 		SetResult result;
 
-		const void* evaluation =
-				m_size_expression->Evaluate(execution_context)->GetData();
-		if (evaluation != NULL) {
-			int array_size = *((int*) (evaluation));
+		const EvaluationResult* evaluation = m_size_expression->Evaluate(
+				execution_context);
+		const void* value = evaluation->GetData();
+		if (value != NULL) {
+			int array_size = *((int*) (value));
 
 			if (array_size <= 0) {
 				ostringstream convert;
@@ -185,6 +189,8 @@ void ArrayDeclarationStatement::execute(
 		} else {
 			assert(false);
 		}
+
+		delete (evaluation);
 
 		if (result != SET_SUCCESS) {
 			assert(false);

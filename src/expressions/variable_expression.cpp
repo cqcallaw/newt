@@ -85,6 +85,8 @@ const EvaluationResult* VariableExpression::Evaluate(
 					result = (void *) as_array_symbol->GetValue(index);
 				}
 			}
+
+			delete (evaluation);
 			break;
 		}
 
@@ -169,6 +171,8 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 									*variable_name, buffer.str()));
 				}
 			}
+
+			delete (evaluation);
 		}
 		break;
 	}

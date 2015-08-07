@@ -31,7 +31,8 @@ public:
 
 	virtual const Type GetType(const ExecutionContext* execution_context) const;
 
-	const EvaluationResult* Evaluate(const ExecutionContext* execution_context) const;
+	const EvaluationResult* Evaluate(
+			const ExecutionContext* execution_context) const;
 
 	const Expression* GetLeft() const {
 		return m_left;
@@ -56,25 +57,41 @@ public:
 			int valid_right) const;
 
 protected:
-	virtual const void* compute(bool left, bool right) const = 0;
-	const void* compute(bool left, int right) const;
-	const void* compute(bool left, double right) const;
-	const void* compute(bool left, string* right) const;
+	virtual const EvaluationResult* compute(bool left, bool right,
+	YYLTYPE left_position, YYLTYPE right_position) const = 0;
+	const EvaluationResult* compute(bool left, int right, YYLTYPE left_position,
+	YYLTYPE right_position) const;
+	const EvaluationResult* compute(bool left, double right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
+	const EvaluationResult* compute(bool left, string* right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
 
-	const void* compute(int left, bool right) const;
-	virtual const void* compute(int left, int right) const = 0;
-	const void* compute(int left, double right) const;
-	const void* compute(int left, string* right) const;
+	const EvaluationResult* compute(int left, bool right, YYLTYPE left_position,
+	YYLTYPE right_position) const;
+	virtual const EvaluationResult* compute(int left, int right,
+	YYLTYPE left_position, YYLTYPE right_position) const = 0;
+	const EvaluationResult* compute(int left, double right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
+	const EvaluationResult* compute(int left, string* right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
 
-	const void* compute(double left, bool right) const;
-	const void* compute(double left, int right) const;
-	virtual const void* compute(double left, double right) const = 0;
-	const void* compute(double left, string* right) const;
+	const EvaluationResult* compute(double left, bool right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
+	const EvaluationResult* compute(double left, int right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
+	virtual const EvaluationResult* compute(double left, double right,
+	YYLTYPE left_position, YYLTYPE right_position) const = 0;
+	const EvaluationResult* compute(double left, string* right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
 
-	const void* compute(string* left, bool right) const;
-	const void* compute(string* left, int right) const;
-	const void* compute(string* left, double right) const;
-	virtual const void* compute(string* left, string* right) const = 0;
+	const EvaluationResult* compute(string* left, bool right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
+	const EvaluationResult* compute(string* left, int right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
+	const EvaluationResult* compute(string* left, double right,
+	YYLTYPE left_position, YYLTYPE right_position) const;
+	virtual const EvaluationResult* compute(string* left, string* right,
+	YYLTYPE left_position, YYLTYPE right_position) const = 0;
 
 private:
 	const OperatorType m_operator;

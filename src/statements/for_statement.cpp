@@ -32,8 +32,8 @@ ForStatement::ForStatement(const AssignmentStatement* initial,
 				loop_assignment), m_statement_block(statement_block) {
 	assert(loop_expression != nullptr);
 	/*if (loop_expression != DefaultExpression) {
-		assert(loop_expression->GetType() & (BOOLEAN | INT));
-	}*/
+	 assert(loop_expression->GetType() & (BOOLEAN | INT));
+	 }*/
 	assert(loop_assignment != nullptr);
 }
 
@@ -45,10 +45,13 @@ void ForStatement::execute(const ExecutionContext* execution_context) const {
 		m_initial->execute(execution_context);
 	}
 
-	for (; *((bool*) m_loop_expression->Evaluate(execution_context)->GetData());
+	const EvaluationResult* evaluation = m_loop_expression->Evaluate(
+			execution_context);
+	for (; *((bool*) evaluation->GetData());
 			m_loop_assignment->execute(execution_context)) {
 		if (m_statement_block != nullptr) {
 			m_statement_block->execute(execution_context);
 		}
 	}
+	delete (evaluation);
 }

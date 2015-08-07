@@ -297,6 +297,8 @@ const EvaluationResult* UnaryExpression::Evaluate(
 		}
 	}
 
+	delete (evaluation);
+
 	return new EvaluationResult(result, errors);
 }
 

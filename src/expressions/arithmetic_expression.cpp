@@ -30,12 +30,16 @@ ArithmeticExpression::ArithmeticExpression(const YYLTYPE position,
 					|| op == MOD);
 }
 
-const void* ArithmeticExpression::compute(bool left, bool right) const {
+const EvaluationResult* ArithmeticExpression::compute(bool left, bool right,
+YYLTYPE left_position, YYLTYPE right_position) const {
 	assert(false);
 	return NULL;
 }
 
-const void* ArithmeticExpression::compute(int left, int right) const {
+const EvaluationResult* ArithmeticExpression::compute(int left, int right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+
 	int* result = new int;
 	switch (GetOperator()) {
 	case PLUS:
@@ -45,22 +49,41 @@ const void* ArithmeticExpression::compute(int left, int right) const {
 		*result = left * right;
 		break;
 	case DIVIDE:
-		*result = left / right;
+		if (right == 0) {
+			errors = (LinkedList<const Error*>*) errors->With(
+					new Error(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
+							right_position.first_line,
+							right_position.first_column));
+			*result = 0;
+		} else {
+			*result = left / right;
+		}
 		break;
 	case MINUS:
 		*result = left - right;
 		break;
 	case MOD:
-		*result = left % right;
+		if (right == 0) {
+			errors = (LinkedList<const Error*>*) errors->With(
+					new Error(Error::SEMANTIC, Error::MOD_BY_ZERO,
+							right_position.first_line,
+							right_position.first_column));
+			*result = 0;
+		} else {
+			*result = left % right;
+		}
 		break;
 	default:
 		break;
 	}
 
-	return (void *) result;
+	return new EvaluationResult((void *) result, errors);
 }
 
-const void* ArithmeticExpression::compute(double left, double right) const {
+const EvaluationResult* ArithmeticExpression::compute(double left, double right,
+YYLTYPE left_position, YYLTYPE right_position) const {
+	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+
 	double* result = new double;
 	switch (GetOperator()) {
 	case PLUS:
@@ -70,7 +93,15 @@ const void* ArithmeticExpression::compute(double left, double right) const {
 		*result = left * right;
 		break;
 	case DIVIDE:
-		*result = left / right;
+		if (right == 0.0) {
+			errors = (LinkedList<const Error*>*) errors->With(
+					new Error(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
+							right_position.first_line,
+							right_position.first_column));
+			*result = 0;
+		} else {
+			*result = left / right;
+		}
 		break;
 	case MINUS:
 		*result = left - right;
@@ -79,7 +110,18 @@ const void* ArithmeticExpression::compute(double left, double right) const {
 		break;
 	}
 
-	return (void *) result;
+	return new EvaluationResult((void *) result, errors);
+}
+
+const EvaluationResult* ArithmeticExpression::compute(string* left,
+		string* right, YYLTYPE left_position, YYLTYPE right_position) const {
+	//string concatenation isn't strictly an arithmetic operation, so this is a hack
+	std::ostringstream buffer;
+	buffer << *left;
+	buffer << *right;
+	string* result = new string(buffer.str());
+	return new EvaluationResult((void *) result,
+			LinkedList<const Error*>::Terminator);
 }
 
 const LinkedList<const Error*>* ArithmeticExpression::Validate(
@@ -96,13 +138,4 @@ const LinkedList<const Error*>* ArithmeticExpression::Validate(
 		return BinaryExpression::Validate(execution_context,
 				(BOOLEAN | INT | DOUBLE), (BOOLEAN | INT | DOUBLE));
 	}
-}
-
-const void* ArithmeticExpression::compute(string* left, string* right) const {
-	//string concatenation isn't strictly an arithmetic operation, so this is a hack
-	std::ostringstream buffer;
-	buffer << *left;
-	buffer << *right;
-	string* result = new string(buffer.str());
-	return (void *) result;
 }

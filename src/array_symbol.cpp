@@ -120,6 +120,8 @@ const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 					break;
 				}
 			}
+
+			delete (evaluation);
 		}
 	}
 
