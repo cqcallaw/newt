@@ -30,6 +30,5 @@ PrintStatement::~PrintStatement() {
 }
 
 void PrintStatement::execute(const ExecutionContext* execution_context) const {
-	std::cout << "[" << m_line_number << "]: "
-			<< *(m_expression->ToString(execution_context)) << "\n";
+	std::cout << *(m_expression->ToString(execution_context)) << "\n";
 }
