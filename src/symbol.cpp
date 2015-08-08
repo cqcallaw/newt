@@ -119,95 +119,11 @@ string Symbol::ToString() const {
 	case STRING:
 		os << " \"" << *((string*) value) << "\"\n";
 		break;
-		/*case GAME_OBJECT:
-		 os << "\n";
-		 indent++;
-		 os << *((Game_object*) value) << "\n";
-		 indent--;
-		 break;
-		 case ANIMATION_BLOCK:
-		 os << "\n";
-		 break;*/
 	default:
 		assert(false);
 	}
 
 	return os.str();
-}
-
-const Symbol* Symbol::GetSymbol(const Type type, const string* name,
-		const Expression* expression, const YYLTYPE type_position,
-		const YYLTYPE name_position, const YYLTYPE initializer_position,
-		const ExecutionContext* execution_context) {
-	Symbol* result = (Symbol*) DefaultSymbol;
-	switch (type) {
-	case BOOLEAN: {
-		bool *value = new bool(false);
-
-		if (expression != NULL && expression != nullptr
-				&& expression->GetType(execution_context) != NONE) {
-			if (!(expression->GetType(execution_context) & (BOOLEAN))) {
-				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-						initializer_position.first_line,
-						initializer_position.first_column, *name);
-			}
-		}
-
-		result = new Symbol(name, value);
-		break;
-	}
-	case INT: {
-		int *value = new int(0);
-
-		if (expression != NULL
-				&& expression->GetType(execution_context) != NONE) {
-			if (!(expression->GetType(execution_context) & (BOOLEAN | INT))) {
-				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-						initializer_position.first_line,
-						initializer_position.first_column, *name);
-			}
-		}
-
-		result = new Symbol(name, value);
-		break;
-	}
-	case DOUBLE: {
-		double* value = new double(0.0);
-
-		if (expression != NULL
-				&& expression->GetType(execution_context) != NONE) {
-			if (!(expression->GetType(execution_context)
-					& (BOOLEAN | INT | DOUBLE))) {
-				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-						initializer_position.first_line,
-						initializer_position.first_column, *name);
-			}
-		}
-
-		result = new Symbol(name, value);
-		break;
-	}
-	case STRING: {
-		string* value = new string("");
-
-		if (expression != NULL
-				&& expression->GetType(execution_context) != NONE) {
-			if (!(expression->GetType(execution_context)
-					& (BOOLEAN | INT | DOUBLE | STRING))) {
-				Error::semantic_error(Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-						initializer_position.first_line,
-						initializer_position.first_column, *name);
-			}
-		}
-
-		result = new Symbol(name, value);
-		break;
-	}
-	default:
-		break;
-	}
-
-	return result;
 }
 
 ostream &operator<<(ostream &os, const Symbol &symbol) {

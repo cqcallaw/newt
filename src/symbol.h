@@ -43,11 +43,6 @@ public:
 	Symbol(const string* name, const double* value);
 	Symbol(const string* name, const string* value);
 
-	const static Symbol* GetSymbol(const Type type, const string* name,
-			const Expression* initializer_expression, YYLTYPE type_position,
-			YYLTYPE name_position, YYLTYPE initializer_position,
-			const ExecutionContext* execution_context);
-
 	virtual ~Symbol() {
 	}
 

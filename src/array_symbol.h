@@ -41,11 +41,6 @@ public:
 	ArraySymbol(const string* name, const string* value[], const int size,
 			const bool initialized);
 
-	const static ArraySymbol* GetSymbol(const Type type, const string* name,
-			const Expression* size_expression, YYLTYPE type_position,
-			YYLTYPE name_position, YYLTYPE size_expression_position,
-			const ExecutionContext* execution_context);
-
 	virtual string ToString() const override;
 
 	const void* GetValue(const int index) const;
