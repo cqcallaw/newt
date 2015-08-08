@@ -46,7 +46,7 @@ r%: $(TEST_PATH)%.nwt
 #update the reference output for the given test
 w%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	-@echo ' '
-	./newt --debug $< >$(TEST_PATH)reference/$@ 2>&1
+	./newt --debug $< >$(TEST_PATH)reference/$* 2>&1
 
 test-clean:
 	rm -rf $(TEST_PATH)output/*
