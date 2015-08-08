@@ -38,5 +38,15 @@ $(TEST_PATH)output:
 	./newt --debug $< >$(TEST_PATH)output/$@ 2>&1
 	diff $(TEST_PATH)reference/$@ $(TEST_PATH)output/$@
 
+#run a test in debug mode
+r%: $(TEST_PATH)%.nwt
+	-@echo ' '
+	./newt --debug $<
+
+#update the reference output for the given test
+w%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
+	-@echo ' '
+	./newt --debug $< >$(TEST_PATH)reference/$@ 2>&1
+
 test-clean:
 	rm -rf $(TEST_PATH)output/*
