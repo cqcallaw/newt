@@ -1,0 +1,5 @@
+Parsing file ../tests/t2002.nwt...
+Parsed file ../tests/t2002.nwt.
+i = 42
+Root Symbol Table:
+int i 42

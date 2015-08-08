@@ -1,0 +1,23 @@
+int ints[3]
+double doubles[3]
+string strings[3]
+
+ints[0] = 0
+ints[1] = 1
+ints[2] = 2
+doubles[0] = 0
+doubles[1] = 1
+doubles[2] = 2
+strings[0] = "zero"
+strings[1] = "one"
+strings[2] = "two"
+
+print("ints[0] = " + ints[0])
+print("ints[1] = " + ints[1])
+print("ints[2] = " + ints[2])
+print("doubles[0] = " + doubles[0])
+print("doubles[1] = " + doubles[1])
+print("doubles[2] = " + doubles[2])
+print("strings[0] = " + strings[0])
+print("strings[1] = " + strings[1])
+print("strings[2] = " + strings[2])

@@ -1,0 +1,7 @@
+int i = 42
+double x = 3.14159
+string str = "hello world"
+
+print("i = " + i)
+print("x = " + x)
+print("str = " + str)

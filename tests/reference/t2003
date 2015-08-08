@@ -1,0 +1,9 @@
+Parsing file ../tests/t2003.nwt...
+Parsed file ../tests/t2003.nwt.
+i = 42
+x = 3.14159
+str = hello world
+Root Symbol Table:
+int i 42
+string str "hello world"
+double x 3.14159
