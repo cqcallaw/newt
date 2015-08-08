@@ -114,18 +114,21 @@ SetResult SymbolTable::SetSymbol(const string identifier, int index,
 }
 
 SetResult SymbolTable::SetArraySymbol(const string identifier,
-		const int value[], const int size) {
-	return SetArraySymbol(identifier, new ArraySymbol(identifier, value, size));
+		const int value[], const int size, const bool initialized) {
+	return SetArraySymbol(identifier,
+			new ArraySymbol(identifier, value, size, initialized));
 }
 
 SetResult SymbolTable::SetArraySymbol(const string identifier,
-		const double value[], const int size) {
-	return SetArraySymbol(identifier, new ArraySymbol(identifier, value, size));
+		const double value[], const int size, const bool initialized) {
+	return SetArraySymbol(identifier,
+			new ArraySymbol(identifier, value, size, initialized));
 }
 
 SetResult SymbolTable::SetArraySymbol(const string identifier,
-		const string* value[], const int size) {
-	return SetArraySymbol(identifier, new ArraySymbol(identifier, value, size));
+		const string* value[], const int size, const bool initialized) {
+	return SetArraySymbol(identifier,
+			new ArraySymbol(identifier, value, size, initialized));
 }
 
 SetResult SymbolTable::SetArraySymbol(const string identifier,

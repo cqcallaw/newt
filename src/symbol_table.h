@@ -58,11 +58,11 @@ public:
 	SetResult SetSymbol(const string identifier, const string* value);
 
 	SetResult SetArraySymbol(const string identifier, const int value[],
-			const int size);
+			const int size, const bool initialized);
 	SetResult SetArraySymbol(const string identifier, const double value[],
-			const int size);
+			const int size, const bool initialized);
 	SetResult SetArraySymbol(const string identifier, const string* value[],
-			const int size);
+			const int size, const bool initialized);
 
 	SetResult SetSymbol(const string identifier, int index, const bool* value);
 	SetResult SetSymbol(const string identifier, int index, const int* value);
@@ -74,7 +74,7 @@ public:
 private:
 	SetResult SetSymbol(const string identifier, const Type type,
 			const void* value);
-			
+
 	SetResult SetArraySymbol(const string identifier,
 			const ArraySymbol* new_symbol);
 

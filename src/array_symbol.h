@@ -27,13 +27,19 @@ class ExecutionContext;
 
 class ArraySymbol: public Symbol {
 public:
-	ArraySymbol(const string name, const int value[], int size);
-	ArraySymbol(const string name, const double value[], int size);
-	ArraySymbol(const string name, const string* value[], int size);
+	ArraySymbol(const string name, const int value[], const int size,
+			const bool initialized);
+	ArraySymbol(const string name, const double value[], const int size,
+			const bool initialized);
+	ArraySymbol(const string name, const string* value[], const int size,
+			const bool initialized);
 
-	ArraySymbol(const string* name, const int value[], int size);
-	ArraySymbol(const string* name, const double value[], int size);
-	ArraySymbol(const string* name, const string* value[], int size);
+	ArraySymbol(const string* name, const int value[], const int size,
+			const bool initialized);
+	ArraySymbol(const string* name, const double value[], const int size,
+			const bool initialized);
+	ArraySymbol(const string* name, const string* value[], const int size,
+			const bool initialized);
 
 	const static ArraySymbol* GetSymbol(const Type type, const string* name,
 			const Expression* size_expression, YYLTYPE type_position,
@@ -48,13 +54,20 @@ public:
 	const ArraySymbol* WithValue(const int index, double* value) const;
 	const ArraySymbol* WithValue(const int index, string* value) const;
 
-	const int GetSize() const;
+	const bool IsInitialized() const {
+		return m_initialized;
+	}
+
+	const int GetSize() const {
+		return m_size;
+	}
 
 	const static std::string DefaultArraySymbolName;
 	const static ArraySymbol* DefaultArraySymbol;
 
 private:
-	int size;
+	const int m_size;
+	const bool m_initialized;
 };
 
 std::ostream &operator<<(std::ostream &os, const ArraySymbol &symbol);

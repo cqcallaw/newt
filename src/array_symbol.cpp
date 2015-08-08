@@ -30,37 +30,44 @@ const std::string ArraySymbol::DefaultArraySymbolName = std::string(
 		"[!!_DEFAULT_ARRAY_SYMBOL_!!]");
 
 const ArraySymbol* ArraySymbol::DefaultArraySymbol = new ArraySymbol(
-		DefaultArraySymbolName, new int[0](), 0);
+		DefaultArraySymbolName, new int[0](), 0, false);
 
-ArraySymbol::ArraySymbol(const string name, const int value[], int size) :
-		Symbol(INT_ARRAY, name, (const void*) value) {
-	this->size = size;
+ArraySymbol::ArraySymbol(const string name, const int value[], const int size,
+		const bool initialized) :
+		Symbol(INT_ARRAY, name, (const void*) value), m_size(size), m_initialized(
+				initialized) {
 }
 
-ArraySymbol::ArraySymbol(const string name, const double value[], int size) :
-		Symbol(DOUBLE_ARRAY, name, (const void*) value) {
-	this->size = size;
+ArraySymbol::ArraySymbol(const string name, const double value[],
+		const int size, const bool initialized) :
+		Symbol(DOUBLE_ARRAY, name, (const void*) value), m_size(size), m_initialized(
+				initialized) {
 }
 
-ArraySymbol::ArraySymbol(const string name, const string* value[], int size) :
-		Symbol(STRING_ARRAY, name, (const void*) value) {
-	this->size = size;
+ArraySymbol::ArraySymbol(const string name, const string* value[],
+		const int size, const bool initialized) :
+		Symbol(STRING_ARRAY, name, (const void*) value), m_size(size), m_initialized(
+				initialized) {
 }
 
-ArraySymbol::ArraySymbol(const string* name, const int value[], int size) :
-		ArraySymbol(*name, value, size) {
+ArraySymbol::ArraySymbol(const string* name, const int value[], const int size,
+		const bool initialized) :
+		ArraySymbol(*name, value, size, initialized) {
 }
 
-ArraySymbol::ArraySymbol(const string* name, const double value[], int size) :
-		ArraySymbol(*name, value, size) {
+ArraySymbol::ArraySymbol(const string* name, const double value[],
+		const int size, const bool initialized) :
+		ArraySymbol(*name, value, size, initialized) {
 }
 
-ArraySymbol::ArraySymbol(const string* name, const string* value[], int size) :
-		ArraySymbol(*name, value, size) {
+ArraySymbol::ArraySymbol(const string* name, const string* value[],
+		const int size, const bool initialized) :
+		ArraySymbol(*name, value, size, initialized) {
 }
 
 const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
-		const Expression* size_expression, YYLTYPE type_position,
+		const Expression* size_expression,
+		YYLTYPE type_position,
 		YYLTYPE name_position, YYLTYPE size_expression_position,
 		const ExecutionContext* execution_context) {
 	ArraySymbol* result = (ArraySymbol*) DefaultArraySymbol;
@@ -92,7 +99,7 @@ const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 						array[i] = 0;
 					}
 
-					result = new ArraySymbol(name, array, array_size);
+					result = new ArraySymbol(name, array, array_size, true);
 					break;
 				}
 				case DOUBLE: {
@@ -102,7 +109,7 @@ const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 						array[i] = 0.0;
 					}
 
-					result = new ArraySymbol(name, array, array_size);
+					result = new ArraySymbol(name, array, array_size, true);
 					break;
 				}
 				case STRING: {
@@ -113,7 +120,7 @@ const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 						array[i] = new string("");
 					}
 
-					result = new ArraySymbol(name, array, array_size);
+					result = new ArraySymbol(name, array, array_size, true);
 					break;
 				}
 				default:
@@ -126,10 +133,6 @@ const ArraySymbol* ArraySymbol::GetSymbol(const Type type, const string* name,
 	}
 
 	return result;
-}
-
-const int ArraySymbol::GetSize() const {
-	return size;
 }
 
 const void* ArraySymbol::GetValue(const int index) const {
@@ -161,17 +164,17 @@ string ArraySymbol::ToString() const {
 	os << type << " " << name << ":" << endl;
 	switch (type) {
 	case INT_ARRAY:
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < m_size; i++) {
 			os << "  [" << i << "] " << *((int *) GetValue(i)) << endl;
 		}
 		break;
 	case DOUBLE_ARRAY:
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < m_size; i++) {
 			os << "  [" << i << "] " << *((double *) GetValue(i)) << endl;
 		}
 		break;
 	case STRING_ARRAY:
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < m_size; i++) {
 			os << "  [" << i << "] \"" << *((string *) GetValue(i)) << "\""
 					<< endl;
 		}
@@ -185,6 +188,10 @@ string ArraySymbol::ToString() const {
 }
 
 const ArraySymbol* ArraySymbol::WithValue(const int index, int* value) const {
+	if (!m_initialized) {
+		assert(false);
+	}
+
 	if (GetType() != INT_ARRAY) {
 		assert(false);
 		return this;
@@ -193,11 +200,15 @@ const ArraySymbol* ArraySymbol::WithValue(const int index, int* value) const {
 	Symbol* as_symbol = (Symbol*) this;
 	int* existing = (int*) as_symbol->GetValue();
 	*(existing + index) = *value;
-	return new ArraySymbol(GetName(), existing, GetSize());
+	return new ArraySymbol(GetName(), existing, GetSize(), m_initialized);
 }
 
 const ArraySymbol* ArraySymbol::WithValue(const int index,
 		double* value) const {
+	if (!m_initialized) {
+		assert(false);
+	}
+
 	if (GetType() != DOUBLE_ARRAY) {
 		assert(false);
 		return this;
@@ -206,11 +217,15 @@ const ArraySymbol* ArraySymbol::WithValue(const int index,
 	Symbol* as_symbol = (Symbol*) this;
 	double* existing = (double*) as_symbol->GetValue();
 	*(existing + index) = *value;
-	return new ArraySymbol(GetName(), existing, GetSize());
+	return new ArraySymbol(GetName(), existing, GetSize(), m_initialized);
 }
 
 const ArraySymbol* ArraySymbol::WithValue(const int index,
 		string* value) const {
+	if (!m_initialized) {
+		assert(false);
+	}
+
 	if (GetType() != STRING_ARRAY) {
 		assert(false);
 		return this;
@@ -219,5 +234,5 @@ const ArraySymbol* ArraySymbol::WithValue(const int index,
 	Symbol* as_symbol = (Symbol*) this;
 	const string** existing = (const string**) as_symbol->GetValue();
 	existing[index] = value;
-	return new ArraySymbol(GetName(), existing, GetSize());
+	return new ArraySymbol(GetName(), existing, GetSize(), m_initialized);
 }

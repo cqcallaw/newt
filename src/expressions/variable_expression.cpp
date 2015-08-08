@@ -148,31 +148,33 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 							variable_name);
 			ArraySymbol* as_array_symbol = (ArraySymbol*) symbol;
 
-			const EvaluationResult* evaluation =
-					array_index_expression->Evaluate(execution_context);
+			if (as_array_symbol->IsInitialized()) {
+				const EvaluationResult* evaluation =
+						array_index_expression->Evaluate(execution_context);
 
-			const LinkedList<const Error*>* evaluation_errors =
-					evaluation->GetErrors();
+				const LinkedList<const Error*>* evaluation_errors =
+						evaluation->GetErrors();
 
-			if (evaluation_errors != LinkedList<const Error*>::Terminator) {
-				result = (LinkedList<const Error*>*) result->Concatenate(
-						evaluation_errors, true);
-			} else {
-				int index = *((int *) evaluation->GetData());
+				if (evaluation_errors != LinkedList<const Error*>::Terminator) {
+					result = (LinkedList<const Error*>*) result->Concatenate(
+							evaluation_errors, true);
+				} else {
+					int index = *((int *) evaluation->GetData());
 
-				if (index > as_array_symbol->GetSize()) {
-					ostringstream buffer;
-					buffer << index;
-					result = (LinkedList<const Error*>*) result->With(
-							new Error(Error::SEMANTIC,
-									Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-									m_variable->GetLocation().first_line,
-									m_variable->GetLocation().first_column,
-									*variable_name, buffer.str()));
+					if (index > as_array_symbol->GetSize()) {
+						ostringstream buffer;
+						buffer << index;
+						result = (LinkedList<const Error*>*) result->With(
+								new Error(Error::SEMANTIC,
+										Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+										m_variable->GetLocation().first_line,
+										m_variable->GetLocation().first_column,
+										*variable_name, buffer.str()));
+					}
 				}
-			}
 
-			delete (evaluation);
+				delete (evaluation);
+			}
 		}
 		break;
 	}

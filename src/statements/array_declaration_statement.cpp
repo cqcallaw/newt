@@ -32,6 +32,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 	const string* name = m_name;
 
 	int size = 0;
+	bool initialized = false;
 
 	//if our array size is a constant, validate it as part of the preprocessing pass.
 	//array sizes that are variable are processed at runtime.
@@ -73,6 +74,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 				} else {
 					//our array size is a constant, so we can allocate memory now instead of in the execution pass
 					size = array_size;
+					initialized = true;
 				}
 			}
 
@@ -82,13 +84,14 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 
 	switch (m_type) {
 	case INT:
-		symbol = new ArraySymbol(name, new int[0](), size);
+		symbol = new ArraySymbol(name, new int[0](), size, initialized);
 		break;
 	case DOUBLE:
-		symbol = new ArraySymbol(name, new double[0](), size);
+		symbol = new ArraySymbol(name, new double[0](), size, initialized);
 		break;
 	case STRING:
-		symbol = new ArraySymbol(name, (const string**) new string*[0](), size);
+		symbol = new ArraySymbol(name, (const string**) new string*[0](), size,
+				initialized);
 		break;
 	default:
 		result = (LinkedList<const Error*>*) result->With(
@@ -156,7 +159,7 @@ void ArrayDeclarationStatement::execute(
 
 					//symbol = new ArraySymbol(m_name, array, array_size);
 					result = symbol_table->SetArraySymbol(*m_name, array,
-							array_size);
+							array_size, true);
 					break;
 				}
 				case DOUBLE: {
@@ -167,7 +170,7 @@ void ArrayDeclarationStatement::execute(
 					}
 
 					result = symbol_table->SetArraySymbol(*m_name, array,
-							array_size);
+							array_size, true);
 					break;
 				}
 				case STRING: {
@@ -179,7 +182,7 @@ void ArrayDeclarationStatement::execute(
 					}
 
 					result = symbol_table->SetArraySymbol(*m_name, array,
-							array_size);
+							array_size, true);
 					break;
 				}
 				default:
