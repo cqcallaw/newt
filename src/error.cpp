@@ -162,7 +162,9 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	m_num_errors++;
 }
 
-Error::Error() {
+Error::Error() :
+		m_error_class(DEFAULT_ERROR_CLASS), m_code(DEFAULT_ERROR_CODE), m_line_number(
+				-1), m_column_number(-1) {
 }
 
 Error::Error(ErrorClass error_class, ErrorCode code, int line_number,

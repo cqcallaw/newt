@@ -49,6 +49,4 @@ private:
 	const YYLTYPE m_expression_location;
 };
 
-std::ostream &operator<<(std::ostream &os, const ArrayVariable &array_variable);
-
 #endif /* ARRAY_VARIABLE_H_ */

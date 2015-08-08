@@ -61,12 +61,5 @@ const string* ArrayVariable::ToString(const ExecutionContext* context) const {
 	return new string(buffer.str());
 }
 
-std::ostream &operator<<(std::ostream &os,
-		const ArrayVariable &array_variable) {
-	/*os << *(array_variable.ToString());
-	 return os;*/
-	assert(false);
-}
-
 ArrayVariable::~ArrayVariable() {
 }
