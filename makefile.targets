@@ -48,5 +48,9 @@ w%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	-@echo ' '
 	./newt --debug $< >$(TEST_PATH)reference/$* 2>&1
 
+#compare test w/ reference output (requires kdiff)
+d%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
+	kdiff3 $(TEST_PATH)reference/$* $(TEST_PATH)output/$* 
+
 test-clean:
 	rm -rf $(TEST_PATH)output/*
