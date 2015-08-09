@@ -258,9 +258,9 @@ simple_type:
 
 //---------------------------------------------------------------------
 if_block:
-	statement
+	optional_newlines statement
 	{
-		$$ = new StatementBlock(new StatementList($1, StatementList::Terminator));
+		$$ = new StatementBlock(new StatementList($2, StatementList::Terminator));
 	}
 	| statement_block
 	{
