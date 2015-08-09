@@ -188,7 +188,6 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_variable> variable_reference
 %type <union_operator_type> math_operator
 %type <union_statement_type> statement
-%type <union_statement_list_type> main_statement_list
 %type <union_statement_list_type> statement_list
 %type <union_statement_block_type> if_block
 %type <union_statement_block_type> statement_block
@@ -202,21 +201,23 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 
 //---------------------------------------------------------------------
 program:
-	main_statement_list
+	statement_list optional_newlines
 	{
-		*main_statement_block = new StatementBlock($1);
-	}
-	|
-	terminators	main_statement_list
-	{
-		*main_statement_block = new StatementBlock($2);
+		if ($1 != LinkedList<const Statement*>::Terminator) {
+			//statement list comes in reverse order
+			//wrap in StatementList because Reverse is a LinkedList<T> function
+			*main_statement_block = new StatementBlock($1->Reverse(true));
+		} else {
+			*main_statement_block = new StatementBlock(StatementList::Terminator);
+		}
 	}
 	;
 
-terminators:
-	terminators T_NEWLINE
-	| T_NEWLINE
+optional_newlines:
+	optional_newlines T_NEWLINE
+	| empty
 	;
+
 
 //---------------------------------------------------------------------
 variable_declaration:
@@ -269,31 +270,17 @@ if_block:
 	
 //---------------------------------------------------------------------
 statement_block:
-	T_LBRACE statement_list T_RBRACE
+	optional_newlines T_LBRACE statement_list optional_newlines T_RBRACE
 	{
-		$$ = new StatementBlock($2->Reverse(true)); //statement list comes in reverse order
-	}
-	;
-
-//---------------------------------------------------------------------
-main_statement_list:
-	statement_list
-	{
-		if ($1 != LinkedList<const Statement*>::Terminator) {
-			//statement list comes in reverse order
-			//wrap in StatementList because Reverse is a LinkedList<T> function
-			$$ = new StatementList($1->Reverse(true));
-		} else {
-			$$ = StatementList::Terminator;
-		}
+		$$ = new StatementBlock($3->Reverse(true)); //statement list comes in reverse order
 	}
 	;
 
 //---------------------------------------------------------------------
 statement_list:
-	statement_list statement terminators
+	statement_list optional_newlines statement
 	{
-		$$ = new StatementList($2, $1);
+		$$ = new StatementList($3, $1);
 	}
 	| empty
 	{
