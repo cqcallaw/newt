@@ -1,0 +1,5 @@
+int nums[4]
+
+   nums[0] = 42
+    print("nums[0] = " + nums[0])
+

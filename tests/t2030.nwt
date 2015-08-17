@@ -1,0 +1,9 @@
+int a = 20
+int b = 22
+int c = -99999
+
+    c = a + b
+    print("a = " + a)
+    print("b = " + b)
+    print("c = " + c)
+

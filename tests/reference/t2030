@@ -1,0 +1,9 @@
+Parsing file ../tests/t2030.nwt...
+Parsed file ../tests/t2030.nwt.
+a = 20
+b = 22
+c = 42
+Root Symbol Table:
+int a 20
+int b 22
+int c 42

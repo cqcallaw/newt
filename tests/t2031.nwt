@@ -1,0 +1,10 @@
+double a = 20.1251
+double b = 21.875
+double c = -9.9999
+
+    c = a + b
+
+    print("a = " + a)
+    print("b = " + b)
+    print("c = " + c)
+

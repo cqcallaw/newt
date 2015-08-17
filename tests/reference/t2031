@@ -1,0 +1,9 @@
+Parsing file ../tests/t2031.nwt...
+Parsed file ../tests/t2031.nwt.
+a = 20.1251
+b = 21.875
+c = 42.0001
+Root Symbol Table:
+double a 20.1251
+double b 21.875
+double c 42.0001

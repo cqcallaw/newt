@@ -1,0 +1,10 @@
+string s
+int i = 4
+int j = 2
+int nums[4]
+
+    nums[i-j] = 42
+
+    s = "nums[i-j] = nums[" + (i - j) + "] = " + nums[i-j]
+    print(s)
+
