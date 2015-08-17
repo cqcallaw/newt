@@ -22,25 +22,30 @@
 #include <error.h>
 #include "parser.tab.h"
 
-#define YY_USER_INIT \
-	yylloc->first_line = 1; \
-	yylloc->first_column = 1; \
-	yylloc->last_line = 1; \
-	yylloc->last_column = 1;
+void user_init(YYLTYPE* location) {
+	location->first_line = 1;
+	location->first_column = 1;
+	location->last_line = 1;
+	location->last_column = 1;
+}
 
-//ref: http://stackoverflow.com/a/22125500/577298
-#define YY_USER_ACTION \
-	yylloc->first_line = yylloc->last_line; \
-	yylloc->first_column = yylloc->last_column; \
-	for(int i = 0; yytext[i] != '\0'; i++) { \
-		if(yytext[i] == '\n') { \
-			yylloc->last_line++; \
-			yylloc->last_column = 1; \
-		} \
-		else { \
-			yylloc->last_column++; \
-		} \
+void user_action(YYLTYPE* location, char* text) {
+	//ref: http://stackoverflow.com/a/22125500/577298
+	location->first_line = location->last_line;
+	location->first_column = location->last_column;
+	for(int i = 0; text[i] != '\0'; i++) {
+		if(text[i] == '\n') {
+			location->last_line++;
+			location->last_column = 1;
+		}
+		else {
+			location->last_column++;
+		}
 	}
+}
+
+#define YY_USER_INIT user_init(yylloc);
+#define YY_USER_ACTION user_action(yylloc, yytext);
 
 using namespace std;
 
