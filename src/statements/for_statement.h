@@ -35,9 +35,7 @@ public:
 	virtual ~ForStatement();
 
 	virtual LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const {
-		return LinkedList<const Error*>::Terminator;
-	}
+			const ExecutionContext* execution_context) const;
 
 	virtual void execute(const ExecutionContext* execution_context) const;
 

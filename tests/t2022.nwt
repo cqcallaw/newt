@@ -1,0 +1,18 @@
+int index[7]
+int count = 0
+
+ for (index[0] = 0; index[0] < 3; index[0] = index[0] + 1) {
+  for (index[1] = 0; index[1] < 3; index[1] = index[1] + 1)  {
+   for (index[2] = 0; index[2] < 3; index[2] = index[2] + 1)   {
+    for (index[3] = 0; index[3] < 3; index[3] = index[3] + 1)    {
+     for (index[4] = 0; index[4] < 3; index[4] = index[4] + 1)     {
+      for (index[5] = 0; index[5] < 3; index[5] = index[5] + 1)      {
+       for (index[6] = 0; index[6] < 3; index[6] = index[6] + 1)       {
+           count = count + 1
+       }
+      }
+     }
+    }
+   }
+  }
+ }

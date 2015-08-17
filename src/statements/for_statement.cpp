@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <assignment_statement.h>
 #include "statement_block.h"
+#include <error.h>
 
 ForStatement::ForStatement(const AssignmentStatement* initial,
 		const Expression* loop_expression,
@@ -31,27 +32,47 @@ ForStatement::ForStatement(const AssignmentStatement* initial,
 		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
 				loop_assignment), m_statement_block(statement_block) {
 	assert(loop_expression != nullptr);
-	/*if (loop_expression != DefaultExpression) {
-	 assert(loop_expression->GetType() & (BOOLEAN | INT));
-	 }*/
 	assert(loop_assignment != nullptr);
 }
 
 ForStatement::~ForStatement() {
 }
 
+LinkedList<const Error*>* ForStatement::preprocess(
+		const ExecutionContext* execution_context) const {
+	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+
+	if (m_loop_expression != nullptr) {
+		if (!(m_loop_expression->GetType(execution_context) & (BOOLEAN | INT))) {
+			YYLTYPE position = m_loop_expression->GetPosition();
+			result = (LinkedList<const Error*>*) result->With(
+					new Error(Error::SEMANTIC,
+							Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
+							position.first_line, position.first_column));
+		}
+	}
+
+	return result;
+}
+
 void ForStatement::execute(const ExecutionContext* execution_context) const {
 	if (m_initial != nullptr) {
 		m_initial->execute(execution_context);
 	}
+	EvaluationResult* evaluation =
+			(EvaluationResult*) m_loop_expression->Evaluate(execution_context);
 
-	const EvaluationResult* evaluation = m_loop_expression->Evaluate(
-			execution_context);
-	for (; *((bool*) evaluation->GetData());
-			m_loop_assignment->execute(execution_context)) {
+	//TODO: handle evaluation errors
+	while (*((bool*) evaluation->GetData())) {
 		if (m_statement_block != nullptr) {
 			m_statement_block->execute(execution_context);
 		}
+
+		m_loop_assignment->execute(execution_context);
+
+		delete (evaluation);
+		evaluation = (EvaluationResult*) m_loop_expression->Evaluate(
+				execution_context);
 	}
 	delete (evaluation);
 }
