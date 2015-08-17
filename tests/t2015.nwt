@@ -1,0 +1,21 @@
+int a = 1
+int b = 2
+int c = 3
+int d = 4
+int e = 5
+
+    if (a > b) {
+        if (a > c) if (a > d) if (a > e) print("a is the largest value.  a = " + a) else print("a is NOT largest value.  a = " + a)
+    }
+
+    if (b > a && b > c && b > d && b > e) {
+        print("b is the largest value.  b = " + b)
+    } else {
+        print("b is NOT largest value.  b = " + b)
+    }
+
+    if (!(c < a) && !(c < b) && !(c < d) && !(c < e)) print("c is the largest value.  c = " + c) else print("c is NOT largest value.  c = " + c)
+
+    if ((d > a || d == a) && (d > b || d == b) && (d > c || d == c) && (d > e || d == e)) print("d is the largest value.  d = " + d) else print("d is NOT largest value.  d = " + d)
+
+    if ((e > a && e > b && e > c && e > d) && (e != a && e != b && e !=c && e != d)) print("e is the largest value.  e = " + e) else print("e is NOT largest value.  e = " + e)

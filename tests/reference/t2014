@@ -1,0 +1,11 @@
+Parsing file ../tests/t2014.nwt...
+Parsed file ../tests/t2014.nwt.
+x > y is true
+Root Symbol Table:
+int a 1
+int b 2
+int c 3
+int d 4
+int e 5
+int x 120
+int y 15

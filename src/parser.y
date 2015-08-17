@@ -189,6 +189,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_operator_type> math_operator
 %type <union_statement_type> statement
 %type <union_statement_list_type> statement_list
+%type <union_statement_list_type> padded_statement_list
 %type <union_statement_block_type> if_block
 %type <union_statement_block_type> statement_block
 %type <union_statement_type> if_statement
@@ -201,7 +202,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 
 //---------------------------------------------------------------------
 program:
-	statement_list optional_newlines
+	padded_statement_list
 	{
 		if ($1 != LinkedList<const Statement*>::Terminator) {
 			//statement list comes in reverse order
@@ -213,11 +214,18 @@ program:
 	}
 	;
 
-optional_newlines:
-	optional_newlines T_NEWLINE
-	| empty
+padded_statement_list:
+	statement_list optional_newlines
+	{
+		$$ = $1;
+	}
 	;
 
+//---------------------------------------------------------------------
+optional_newlines:
+	T_NEWLINE optional_newlines
+	| empty
+	;
 
 //---------------------------------------------------------------------
 variable_declaration:
@@ -258,9 +266,9 @@ simple_type:
 
 //---------------------------------------------------------------------
 if_block:
-	optional_newlines statement
+	statement
 	{
-		$$ = new StatementBlock(new StatementList($2, StatementList::Terminator));
+		$$ = new StatementBlock(new StatementList($1, StatementList::Terminator));
 	}
 	| statement_block
 	{
@@ -270,9 +278,9 @@ if_block:
 	
 //---------------------------------------------------------------------
 statement_block:
-	optional_newlines T_LBRACE statement_list optional_newlines T_RBRACE
+	T_LBRACE padded_statement_list T_RBRACE
 	{
-		$$ = new StatementBlock($3->Reverse(true)); //statement list comes in reverse order
+		$$ = new StatementBlock($2->Reverse(true)); //statement list comes in reverse order
 	}
 	;
 

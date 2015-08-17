@@ -1,0 +1,12 @@
+Parsing file ../tests/t2015.nwt...
+Parsed file ../tests/t2015.nwt.
+b is NOT largest value.  b = 2
+c is NOT largest value.  c = 3
+d is NOT largest value.  d = 4
+e is the largest value.  e = 5
+Root Symbol Table:
+int a 1
+int b 2
+int c 3
+int d 4
+int e 5

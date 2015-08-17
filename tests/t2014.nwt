@@ -1,0 +1,12 @@
+int a = 1
+int b = 2
+int c = 3
+int d = 4
+int e = 5
+int x
+int y
+
+    x = a * b * c * d * e
+    y = a + b + c + d + e
+
+    if (x > y) print("x > y is true") else print("x > y is false")
