@@ -1,0 +1,8 @@
+
+int i = 42
+
+    print ("about to call exit with 42")
+    exit(42)
+    print("this should not print... we should have exited the program")
+
+    print("b key pressed (should not print)")

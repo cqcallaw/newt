@@ -23,21 +23,20 @@
 #include "statement.h"
 
 class Expression;
+class Error;
 
 class ExitStatement: public Statement {
 public:
-	ExitStatement(const int line_number, const Expression* exit_expression);
+	ExitStatement();
+	ExitStatement(const Expression* exit_expression);
 	virtual ~ExitStatement();
 
 	virtual LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const {
-		return LinkedList<const Error*>::Terminator;
-	}
+			const ExecutionContext* execution_context) const;
 
 	virtual void execute(const ExecutionContext* execution_context) const;
 
 private:
-	const int m_line_number;
 	const Expression* m_exit_expression;
 };
 

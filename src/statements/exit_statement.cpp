@@ -20,27 +20,45 @@
 #include "exit_statement.h"
 #include <expression.h>
 #include <assert.h>
+#include <error.h>
 
-ExitStatement::ExitStatement(const int line_number,
-		const Expression* exit_expression) :
-		m_line_number(line_number), m_exit_expression(exit_expression) {
-	/*if (exit_expression != nullptr) {
-	 assert(exit_expression->GetType() <= INT);
-	 }*/
+ExitStatement::ExitStatement() :
+		m_exit_expression(nullptr) {
+}
+
+ExitStatement::ExitStatement(const Expression* exit_expression) :
+		m_exit_expression(exit_expression) {
 }
 
 ExitStatement::~ExitStatement() {
 }
 
-void ExitStatement::execute(const ExecutionContext* execution_context) const {
-	if (m_exit_expression == nullptr) {
-		return;
+LinkedList<const Error*>* ExitStatement::preprocess(
+		const ExecutionContext* execution_context) const {
+	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+
+	YYLTYPE position = m_exit_expression->GetPosition();
+	if (m_exit_expression != nullptr
+			&& m_exit_expression->GetType(execution_context) > INT) {
+		result = (LinkedList<const Error*>*) result->With(
+				new Error(Error::SEMANTIC,
+						Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
+						position.first_line, position.first_column));
 	}
 
-	const EvaluationResult* evaluation = m_exit_expression->Evaluate(
-			execution_context);
-	int exit_code = *((int*) evaluation->GetData());
-	delete (evaluation);
-	std::cout << "[" << m_line_number << "]: exit(" << exit_code << ")\n";
+	return result;
+}
+
+void ExitStatement::execute(const ExecutionContext* execution_context) const {
+	int exit_code = 0;
+
+	if (m_exit_expression == nullptr) {
+		const EvaluationResult* evaluation = m_exit_expression->Evaluate(
+				execution_context);
+		//TODO: handle evaluation errors
+		exit_code = *((int*) evaluation->GetData());
+		delete (evaluation);
+	}
+
 	exit(exit_code);
 }

@@ -356,7 +356,11 @@ print_statement:
 exit_statement:
 	T_EXIT T_LPAREN expression T_RPAREN
 	{
-		$$ = new ExitStatement($1, $3);
+		$$ = new ExitStatement($3);
+	}
+	| T_PRINT T_LPAREN T_RPAREN
+	{
+		$$ = new ExitStatement();
 	}
 	;
 
