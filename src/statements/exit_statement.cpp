@@ -37,13 +37,15 @@ LinkedList<const Error*>* ExitStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
 
-	YYLTYPE position = m_exit_expression->GetPosition();
-	if (m_exit_expression != nullptr
-			&& m_exit_expression->GetType(execution_context) > INT) {
-		result = (LinkedList<const Error*>*) result->With(
-				new Error(Error::SEMANTIC,
-						Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-						position.first_line, position.first_column));
+	if (m_exit_expression != nullptr) {
+		if (m_exit_expression->GetType(execution_context) > INT) {
+			YYLTYPE position = m_exit_expression->GetPosition();
+			result = (LinkedList<const Error*>*) result->With(
+					new Error(Error::SEMANTIC,
+							Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
+							position.first_line, position.first_column));
+		}
+
 	}
 
 	return result;
