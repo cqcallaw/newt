@@ -1,0 +1,20 @@
+string s1 = "one"
+string s2 = "two"
+string s3 = "three"
+string s4 = "four"
+string s5 = "five"
+int i = 1
+double x = 1.1
+
+    s1 = s2
+    s2 = i
+    s3 = x
+    s4 = s1 + s2
+    s5 = i + x
+
+    print("s1 = " + s1)
+    print("s2 = " + s2)
+    print("s3 = " + s3)
+    print("s4 = " + s4)
+    print("s5 = " + s5)
+

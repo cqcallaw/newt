@@ -1,0 +1,16 @@
+int i
+int k = 7000
+int nums[5]
+
+   for (i = 0; i < 5; i += 1) {
+       nums[i] = i
+   }
+
+    k = 3
+    // this should NOT be an error because at run time k == 3
+    // if you think this is an error you are probably looking at the value
+    // of k when you parse this expression.  At parse time k is out of 
+    // range.  Since k is changed at run time it does not matter that 
+    // k was out of range at parse time
+    nums[k] = 42
+    print("nums[k] = " + nums[k])

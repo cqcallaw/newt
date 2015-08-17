@@ -1,0 +1,7 @@
+string str = "hello"
+int i = 42
+
+    str += i
+
+    print("str = " + str)
+

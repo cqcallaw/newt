@@ -1,0 +1,9 @@
+
+double x = 3.14159
+double y = 3.14159
+
+    x -= .005
+    y -= 1
+
+    print("x = " + x)
+    print("y = " + y)

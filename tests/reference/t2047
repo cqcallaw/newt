@@ -1,0 +1,7 @@
+Parsing file ../tests/t2047.nwt...
+Parsed file ../tests/t2047.nwt.
+x = 3.13659
+y = 2.14159
+Root Symbol Table:
+double x 3.13659
+double y 2.14159

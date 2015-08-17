@@ -1,0 +1,6 @@
+Parsing file ../tests/t2044.nwt...
+Parsed file ../tests/t2044.nwt.
+str = hello42
+Root Symbol Table:
+int i 42
+string str "hello42"

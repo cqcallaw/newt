@@ -1,0 +1,5 @@
+Parsing file ../tests/t2040.nwt...
+Parsed file ../tests/t2040.nwt.
+i = 43
+Root Symbol Table:
+int i 43

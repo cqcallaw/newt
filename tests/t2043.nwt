@@ -1,0 +1,3 @@
+string str = "hello"
+str += " world"
+print("str = " + str)

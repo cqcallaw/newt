@@ -1,0 +1,5 @@
+Parsing file ../tests/t2043.nwt...
+Parsed file ../tests/t2043.nwt.
+str = hello world
+Root Symbol Table:
+string str "hello world"
