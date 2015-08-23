@@ -1,0 +1,4 @@
+double x
+string s
+
+    x = s

@@ -1,0 +1,4 @@
+int i
+string s
+
+   i = s

@@ -1,0 +1,6 @@
+Parsing file ../tests/t2061.nwt...
+Parsed file ../tests/t2061.nwt.
+Semantic error on line 4, column 4: Cannot assign an expression of type 'string' to a variable of type 'int'.
+Root Symbol Table:
+int i 0
+string s ""

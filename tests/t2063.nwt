@@ -1,0 +1,4 @@
+int i = 42
+double x = 3.14159
+
+  i += x

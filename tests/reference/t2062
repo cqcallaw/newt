@@ -1,0 +1,6 @@
+Parsing file ../tests/t2062.nwt...
+Parsed file ../tests/t2062.nwt.
+Semantic error on line 4, column 5: Cannot assign an expression of type 'string' to a variable of type 'double'.
+Root Symbol Table:
+string s ""
+double x 0

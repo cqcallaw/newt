@@ -1,0 +1,4 @@
+int i
+double x
+
+    i = x

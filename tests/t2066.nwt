@@ -1,0 +1,4 @@
+double x = 3.14159
+string str = "hello"
+
+    x -= str
