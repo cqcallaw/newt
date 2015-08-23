@@ -24,6 +24,7 @@
 
 class Expression;
 class StatementBlock;
+class Error;
 
 class IfStatement: public Statement {
 public:
@@ -37,9 +38,7 @@ public:
 	}
 
 	virtual LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const {
-		return LinkedList<const Error*>::Terminator;
-	}
+			const ExecutionContext* execution_context) const;
 
 	virtual void execute(const ExecutionContext* execution_context) const;
 private:

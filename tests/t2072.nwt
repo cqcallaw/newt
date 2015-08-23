@@ -1,0 +1,3 @@
+double x = 3.14159
+
+    if (x + 3.14159)   print("yes")   else print("no")

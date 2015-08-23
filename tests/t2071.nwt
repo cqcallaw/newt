@@ -1,0 +1,6 @@
+int i
+string s
+
+    for (i = 0; s + s; i += 1) {
+        print("hello")
+    }

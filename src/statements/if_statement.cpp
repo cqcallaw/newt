@@ -24,6 +24,7 @@
 #include <defaults.h>
 #include <assert.h>
 #include <type.h>
+#include <error.h>
 
 IfStatement::IfStatement(const Expression* expression,
 		const StatementBlock* block) :
@@ -33,26 +34,31 @@ IfStatement::IfStatement(const Expression* expression,
 IfStatement::IfStatement(const Expression* expression,
 		const StatementBlock* block, const StatementBlock* else_block) :
 		m_expression(expression), m_block(block), m_else_block(else_block) {
-	/*if (expression != DefaultExpression) {
-	 //not our default statement
-	 assert(expression->GetType() == BOOLEAN);
-	 }*/
 }
 
 IfStatement::~IfStatement() {
 }
 
+LinkedList<const Error*>* IfStatement::preprocess(
+		const ExecutionContext* execution_context) const {
+	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+
+	if (m_expression != nullptr) {
+		if (!(m_expression->GetType(execution_context) & (BOOLEAN | INT))) {
+			YYLTYPE position = m_expression->GetPosition();
+			result = (LinkedList<const Error*>*) result->With(
+					new Error(Error::SEMANTIC,
+							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
+							position.first_line, position.first_column));
+		}
+	} else {
+		assert(false);
+	}
+
+	return result;
+}
+
 void IfStatement::execute(const ExecutionContext* execution_context) const {
-	/*if (m_expression == nullptr || m_expression == DefaultExpression) {
-	 assert(false);
-	 return;
-	 }
-
-	 if (m_block == nullptr || m_block == DefaultStatementBlock) {
-	 assert(false);
-	 return;
-	 }*/
-
 	const EvaluationResult* evaluation = m_expression->Evaluate(
 			execution_context);
 	bool test = *((bool*) evaluation->GetData());
