@@ -79,8 +79,8 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		break;
 		// everything but a game object is a legal LHS of assignment
 	case INVALID_LHS_OF_ASSIGNMENT:
-		os << "LHS of assignment must be "
-				<< "(INT || DOUBLE || STRING || ANIMATION_BLOCK)."
+		os
+				<< "Left-hand side of assignment must be of type INT, DOUBLE, or STRING."
 				<< "  Variable '" << s1 << "' is of type '" << s2 << "'.";
 		break;
 	case INVALID_LHS_OF_MINUS_ASSIGNMENT:
