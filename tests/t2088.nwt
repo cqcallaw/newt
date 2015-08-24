@@ -1,0 +1,3 @@
+int numbers
+
+    numbers[42] = 11

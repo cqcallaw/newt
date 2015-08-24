@@ -1,0 +1,4 @@
+Parsing file ../tests/t2085.nwt...
+Semantic error on line 3, column 10: Value passed to exit() must be an integer.  Value passed was of type 'string'.
+Parsed file ../tests/t2085.nwt.
+1 error found; giving up.

@@ -37,27 +37,29 @@ LinkedList<const Error*>* ExitStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
 
-	if (m_exit_expression != nullptr) {
-		if (m_exit_expression->GetType(execution_context) > INT) {
-			YYLTYPE position = m_exit_expression->GetPosition();
-			result = (LinkedList<const Error*>*) result->With(
-					new Error(Error::SEMANTIC,
-							Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-							position.first_line, position.first_column));
-		}
-
+	if ((m_exit_expression != nullptr)
+			&& m_exit_expression->GetType(execution_context) > INT) {
+		YYLTYPE position = m_exit_expression->GetPosition();
+		result = (LinkedList<const Error*>*) result->With(
+				new Error(Error::SEMANTIC,
+						Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
+						position.first_line, position.first_column,
+						type_to_string(
+								m_exit_expression->GetType(
+										execution_context))));
 	}
 
 	return result;
 }
 
-const LinkedList<const Error*>* ExitStatement::execute(const ExecutionContext* execution_context) const {
+const LinkedList<const Error*>* ExitStatement::execute(
+		const ExecutionContext* execution_context) const {
 	int exit_code = 0;
 
 	if (m_exit_expression == nullptr) {
 		const Result* evaluation = m_exit_expression->Evaluate(
 				execution_context);
-		//TODO: handle evaluation errors
+//TODO: handle evaluation errors
 		exit_code = *((int*) evaluation->GetData());
 		delete (evaluation);
 	}
