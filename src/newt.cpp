@@ -100,7 +100,9 @@ int main(int argc, char *argv[]) {
 			LinkedList<const Error*>* execution_errors = (LinkedList<
 					const Error*>*) main_statement_block->execute(root_context);
 
+			bool has_execution_errors = false;
 			while (execution_errors != LinkedList<const Error*>::Terminator) {
+				has_execution_errors = true;
 				cerr << execution_errors->GetData()->ToString() << endl;
 				execution_errors =
 						(LinkedList<const Error*>*) execution_errors->GetNext();
@@ -110,7 +112,7 @@ int main(int argc, char *argv[]) {
 				cout << "Root Symbol Table:" << endl;
 				root_context->GetSymbolTable()->print(cout);
 			}
-			do_exit(debug, EXIT_SUCCESS);
+			do_exit(debug, has_execution_errors ? EXIT_FAILURE : EXIT_SUCCESS);
 		} else {
 			int semantic_error_count = 0;
 			LinkedList<const Error*>* error = semantic_errors;
