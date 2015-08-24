@@ -123,12 +123,17 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 	return result;
 }
 
-void DeclarationStatement::execute(
+const LinkedList<const Error*>* DeclarationStatement::execute(
 		const ExecutionContext* execution_context) const {
 	if (m_initializer_expression != nullptr) {
 		Variable* temp_variable = new Variable(m_name, m_name_position);
-		AssignmentStatement::do_op(temp_variable, m_initializer_expression,
-				AssignmentStatement::ASSIGN, execution_context);
+		auto errors = AssignmentStatement::do_op(temp_variable,
+				m_initializer_expression, AssignmentStatement::ASSIGN,
+				execution_context);
 		delete (temp_variable);
+
+		return errors;
+	} else {
+		return LinkedList<const Error*>::Terminator;
 	}
 }

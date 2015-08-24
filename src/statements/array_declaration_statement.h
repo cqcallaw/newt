@@ -13,6 +13,8 @@
 #include <type.h>
 #include <defaults.h>
 
+class Result;
+
 class ArrayDeclarationStatement: public Statement {
 public:
 	ArrayDeclarationStatement(const Type type, const YYLTYPE type_position,
@@ -24,7 +26,8 @@ public:
 	virtual LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
-	virtual void execute(const ExecutionContext* execution_context) const;
+	virtual const LinkedList<const Error*>* execute(
+			const ExecutionContext* execution_context) const;
 private:
 	const Type m_type;
 	const YYLTYPE m_type_position;

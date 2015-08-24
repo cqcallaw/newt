@@ -58,14 +58,17 @@ LinkedList<const Error*>* IfStatement::preprocess(
 	return result;
 }
 
-void IfStatement::execute(const ExecutionContext* execution_context) const {
-	const Result* evaluation = m_expression->Evaluate(
-			execution_context);
+const LinkedList<const Error*>* IfStatement::execute(
+		const ExecutionContext* execution_context) const {
+	const Result* evaluation = m_expression->Evaluate(execution_context);
+	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *((bool*) evaluation->GetData());
-	if (test) {
-		m_block->execute(execution_context);
-	} else if (m_else_block != nullptr) {
-		m_else_block->execute(execution_context);
-	}
 	delete (evaluation);
+	if (test) {
+		return m_block->execute(execution_context);
+	} else if (m_else_block != nullptr) {
+		return m_else_block->execute(execution_context);
+	} else {
+		return LinkedList<const Error*>::Terminator;
+	}
 }

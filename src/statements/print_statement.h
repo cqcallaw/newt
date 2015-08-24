@@ -34,7 +34,7 @@ public:
 		return LinkedList<const Error*>::Terminator;
 	}
 
-	virtual void execute(const ExecutionContext* execution_context) const;
+	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;
 
 	const Expression* GetExpression() const {
 		return m_expression;

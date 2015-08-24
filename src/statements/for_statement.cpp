@@ -40,39 +40,63 @@ ForStatement::~ForStatement() {
 
 LinkedList<const Error*>* ForStatement::preprocess(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* errors;
 
-	if (m_loop_expression != nullptr) {
-		if (!(m_loop_expression->GetType(execution_context) & (BOOLEAN | INT))) {
-			YYLTYPE position = m_loop_expression->GetPosition();
-			result = (LinkedList<const Error*>*) result->With(
-					new Error(Error::SEMANTIC,
-							Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
-							position.first_line, position.first_column));
-		}
+	if (m_loop_expression != nullptr
+			&& !(m_loop_expression->GetType(execution_context) & (BOOLEAN | INT))) {
+		YYLTYPE position = m_loop_expression->GetPosition();
+		errors = new LinkedList<const Error*>(
+				new Error(Error::SEMANTIC,
+						Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
+						position.first_line, position.first_column));
+	} else {
+		errors = LinkedList<const Error*>::Terminator;
 	}
 
-	return result;
+	return (LinkedList<const Error*>*) errors;
 }
 
-void ForStatement::execute(const ExecutionContext* execution_context) const {
-	if (m_initial != nullptr) {
-		m_initial->execute(execution_context);
-	}
-	Result* evaluation =
-			(Result*) m_loop_expression->Evaluate(execution_context);
+const LinkedList<const Error*>* ForStatement::execute(
+		const ExecutionContext* execution_context) const {
+	const LinkedList<const Error*>* initialization_errors;
 
-	//TODO: handle evaluation errors
+	if (m_initial != nullptr) {
+		initialization_errors = m_initial->execute(execution_context);
+		if (initialization_errors != LinkedList<const Error*>::Terminator) {
+			return initialization_errors;
+		}
+	}
+	Result* evaluation = (Result*) m_loop_expression->Evaluate(
+			execution_context);
+
+	if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
+		delete (evaluation);
+		return evaluation->GetErrors();
+	}
+
 	while (*((bool*) evaluation->GetData())) {
+		const LinkedList<const Error*>* iteration_errors;
 		if (m_statement_block != nullptr) {
-			m_statement_block->execute(execution_context);
+			iteration_errors = m_statement_block->execute(execution_context);
+		}
+		if (iteration_errors != LinkedList<const Error*>::Terminator) {
+			return iteration_errors;
 		}
 
-		m_loop_assignment->execute(execution_context);
+		const LinkedList<const Error*>* assignment_errors;
+		assignment_errors = m_loop_assignment->execute(execution_context);
+		if (assignment_errors != LinkedList<const Error*>::Terminator) {
+			return assignment_errors;
+		}
 
 		delete (evaluation);
-		evaluation = (Result*) m_loop_expression->Evaluate(
-				execution_context);
+		evaluation = (Result*) m_loop_expression->Evaluate(execution_context);
+
+		if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
+			return evaluation->GetErrors();
+		}
 	}
 	delete (evaluation);
+
+	return LinkedList<const Error*>::Terminator;
 }

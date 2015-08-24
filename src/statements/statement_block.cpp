@@ -52,12 +52,18 @@ LinkedList<const Error*>* StatementBlock::preprocess(
 	return errors;
 }
 
-void StatementBlock::execute(const ExecutionContext* execution_context) const {
+const LinkedList<const Error*>* StatementBlock::execute(
+		const ExecutionContext* execution_context) const {
 	LinkedList<const Statement*>* list =
 			(LinkedList<const Statement*>*) m_statements;
 	while (list != StatementList::Terminator) {
 		const Statement* statement = list->GetData();
-		statement->execute(execution_context);
+		auto errors = statement->execute(execution_context);
+		if (errors != LinkedList<const Error*>::Terminator) {
+			return errors;
+		}
 		list = (LinkedList<const Statement*>*) list->GetNext();
 	}
+
+	return LinkedList<const Error*>::Terminator;
 }

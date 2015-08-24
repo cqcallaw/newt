@@ -83,12 +83,6 @@ public:
 
 	static void parse_error(int line_number, string s1);
 
-	static void semantic_error(ErrorCode code, int line_number,
-			int column_number, string s1 = "", string s2 = "", string s3 = "");
-
-	static void runtime_error(ErrorCode code, string s1 = "", string s2 = "",
-			string s3 = "");
-
 	static int num_errors() {
 		return m_num_errors;
 	}

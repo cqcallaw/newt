@@ -97,9 +97,15 @@ int main(int argc, char *argv[]) {
 				cout << "Parsed file " << filename << "." << endl;
 			}
 
-			main_statement_block->execute(root_context);
+			LinkedList<const Error*>* execution_errors = (LinkedList<
+					const Error*>*) main_statement_block->execute(root_context);
 
-			//TODO: handle runtime errors
+			while (execution_errors != LinkedList<const Error*>::Terminator) {
+				cerr << execution_errors->GetData()->ToString() << endl;
+				execution_errors =
+						(LinkedList<const Error*>*) execution_errors->GetNext();
+			}
+
 			if (debug) {
 				cout << "Root Symbol Table:" << endl;
 				root_context->GetSymbolTable()->print(cout);

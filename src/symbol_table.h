@@ -28,11 +28,14 @@
 using namespace std;
 
 enum InsertResult {
-	INSERT_SUCCESS = 0, SYMBOL_EXISTS = 1
+	NO_INSERT_RESULT = 0, INSERT_SUCCESS = 1, SYMBOL_EXISTS = 2
 };
 
 enum SetResult {
-	SET_SUCCESS = 0, UNDEFINED_SYMBOL = 1, INCOMPATIBLE_TYPE = 2
+	NO_SET_RESULT = 0,
+	SET_SUCCESS = 1,
+	UNDEFINED_SYMBOL = 2,
+	INCOMPATIBLE_TYPE = 3
 };
 
 struct comparator {

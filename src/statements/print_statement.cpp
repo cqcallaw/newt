@@ -29,6 +29,8 @@ PrintStatement::PrintStatement(const int line_number,
 PrintStatement::~PrintStatement() {
 }
 
-void PrintStatement::execute(const ExecutionContext* execution_context) const {
+const LinkedList<const Error*>* PrintStatement::execute(
+		const ExecutionContext* execution_context) const {
 	std::cout << *(m_expression->ToString(execution_context)) << "\n";
+	return LinkedList<const Error*>::Terminator;
 }

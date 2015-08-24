@@ -23,6 +23,7 @@
 
 class ExecutionContext;
 class Error;
+class Result;
 
 class Statement {
 public:
@@ -35,7 +36,7 @@ public:
 	virtual LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const = 0;
 
-	virtual void execute(const ExecutionContext* execution_context) const = 0;
+	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const = 0;
 };
 
 #endif /* STATEMENT_H_ */

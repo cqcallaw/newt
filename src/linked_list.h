@@ -22,6 +22,10 @@
 
 template<class T> class LinkedList {
 public:
+	LinkedList(const T data) :
+			m_data(data), m_next(Terminator) {
+	}
+
 	LinkedList(const T data, const LinkedList<T>* next) :
 			m_data(data), m_next(next) {
 	}

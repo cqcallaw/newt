@@ -34,7 +34,7 @@ public:
 
 	LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
-	void execute(const ExecutionContext* execution_context) const;
+	const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;
 
 private:
 	const LinkedList<const Statement*>* m_statements;

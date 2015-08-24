@@ -120,77 +120,85 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 }
 
-void ArrayDeclarationStatement::execute(
+const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 		const ExecutionContext* execution_context) const {
+	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+	const void* value = nullptr;
+
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolTable();
 
 	if (m_size_expression->GetType(execution_context) != INT) {
-		Error::semantic_error(Error::INVALID_ARRAY_SIZE,
-				m_size_expression_position.first_line,
-				m_size_expression_position.first_column, *m_name,
-				*(m_size_expression->ToString(execution_context)));
+		errors = (LinkedList<const Error*>*) errors->With(
+				new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE_TYPE,
+						m_size_expression_position.first_line,
+						m_size_expression_position.first_column, *m_name));
 	} else {
 		SetResult result;
 
 		const Result* evaluation = m_size_expression->Evaluate(
 				execution_context);
-		const void* value = evaluation->GetData();
-		if (value != NULL) {
-			int array_size = *((int*) (value));
-
-			if (array_size <= 0) {
-				ostringstream convert;
-				convert << array_size;
-				Error::semantic_error(Error::INVALID_ARRAY_SIZE,
-						m_size_expression_position.first_line,
-						m_size_expression_position.first_column, *m_name,
-						convert.str());
-
-				return;
-			} else {
-				switch (m_type) {
-				case INT: {
-					int* array = new int[array_size]();
-
-					for (int i = 0; i < array_size; i++) {
-						array[i] = 0;
-					}
-
-					//symbol = new ArraySymbol(m_name, array, array_size);
-					result = symbol_table->SetArraySymbol(*m_name, array,
-							array_size, true);
-					break;
-				}
-				case DOUBLE: {
-					double* array = new double[array_size]();
-
-					for (int i = 0; i < array_size; i++) {
-						array[i] = 0.0;
-					}
-
-					result = symbol_table->SetArraySymbol(*m_name, array,
-							array_size, true);
-					break;
-				}
-				case STRING: {
-					const string** array =
-							(const string**) new string*[array_size]();
-
-					for (int i = 0; i < array_size; i++) {
-						array[i] = new string("");
-					}
-
-					result = symbol_table->SetArraySymbol(*m_name, array,
-							array_size, true);
-					break;
-				}
-				default:
-					break;
-				}
-			}
+		auto evaluation_errors = evaluation->GetErrors();
+		if (evaluation_errors != LinkedList<const Error*>::Terminator) {
+			errors = (LinkedList<const Error*>*) evaluation_errors;
 		} else {
-			assert(false);
+			value = evaluation->GetData();
+			if (value != NULL) {
+				int array_size = *((int*) (value));
+
+				if (array_size <= 0) {
+					ostringstream convert;
+					convert << array_size;
+					errors = (LinkedList<const Error*>*) errors->With(
+							new Error(Error::SEMANTIC,
+									Error::INVALID_ARRAY_SIZE,
+									m_size_expression_position.first_line,
+									m_size_expression_position.first_column,
+									*m_name, convert.str()));
+				} else {
+					switch (m_type) {
+					case INT: {
+						int* array = new int[array_size]();
+
+						for (int i = 0; i < array_size; i++) {
+							array[i] = 0;
+						}
+
+						//symbol = new ArraySymbol(m_name, array, array_size);
+						result = symbol_table->SetArraySymbol(*m_name, array,
+								array_size, true);
+						break;
+					}
+					case DOUBLE: {
+						double* array = new double[array_size]();
+
+						for (int i = 0; i < array_size; i++) {
+							array[i] = 0.0;
+						}
+
+						result = symbol_table->SetArraySymbol(*m_name, array,
+								array_size, true);
+						break;
+					}
+					case STRING: {
+						const string** array =
+								(const string**) new string*[array_size]();
+
+						for (int i = 0; i < array_size; i++) {
+							array[i] = new string("");
+						}
+
+						result = symbol_table->SetArraySymbol(*m_name, array,
+								array_size, true);
+						break;
+					}
+					default:
+						break;
+					}
+				}
+			} else {
+				assert(false);
+			}
 		}
 
 		delete (evaluation);
@@ -199,4 +207,6 @@ void ArrayDeclarationStatement::execute(
 			assert(false);
 		}
 	}
+
+	return errors;
 }

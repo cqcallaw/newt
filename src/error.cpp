@@ -36,17 +36,6 @@ void Error::parse_error(int line_number, string s1) {
 	m_num_errors++;
 }
 
-void Error::semantic_error(ErrorCode type, int line_number, int column_number,
-		string s1, string s2, string s3) {
-	cerr << "Semantic error on line " << line_number << ", column "
-			<< column_number << ": ";
-	error_core(cerr, type, s1, s2, s3);
-	cerr << endl;
-}
-
-void Error::runtime_error(ErrorCode type, string s1, string s2, string s3) {
-}
-
 void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		string s3) {
 	switch (code) {
