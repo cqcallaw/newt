@@ -1,0 +1,4 @@
+Parsing file ../tests/t2078.nwt...
+Semantic error on line 4, column 10: A string expression is not a legal array index.  The array is 'nums'.
+Parsed file ../tests/t2078.nwt.
+1 error found; giving up.

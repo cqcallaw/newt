@@ -1,0 +1,4 @@
+string str = "index"
+int nums[4]
+
+    nums[str] = 42

@@ -52,9 +52,7 @@ public:
 	}
 
 	virtual LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const {
-		return LinkedList<const Error*>::Terminator;
-	}
+			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;

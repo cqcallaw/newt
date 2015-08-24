@@ -1,0 +1,4 @@
+int i = 1
+int nums[4]
+
+    nums[i * .25] = 42

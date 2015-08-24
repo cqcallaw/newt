@@ -1,0 +1,4 @@
+double x = 3.14159
+int nums[4]
+
+    nums[x] = 42

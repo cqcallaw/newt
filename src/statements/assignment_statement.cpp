@@ -35,6 +35,56 @@ AssignmentStatement::AssignmentStatement(const Variable* variable,
 AssignmentStatement::~AssignmentStatement() {
 }
 
+LinkedList<const Error*>* AssignmentStatement::preprocess(
+		const ExecutionContext* execution_context) const {
+	LinkedList<const Error*>* errors;
+
+	SymbolTable* symbol_table =
+			(SymbolTable*) execution_context->GetSymbolTable();
+	const Symbol* symbol = symbol_table->GetSymbol(m_variable->GetName());
+	const Type symbol_type = symbol->GetType();
+
+	switch (symbol_type) {
+	case INT_ARRAY:
+	case DOUBLE_ARRAY:
+	case STRING_ARRAY: {
+		const ArrayVariable* array_variable = (ArrayVariable*) m_variable;
+		const string* variable_name = m_variable->GetName();
+		const Expression* array_index_expression =
+				array_variable->GetIndexExpression();
+		const YYLTYPE array_index_expression_position =
+				array_index_expression->GetPosition();
+		const Type index_type = array_index_expression->GetType(
+				execution_context);
+
+		if (!(index_type & INT)) {
+			ostringstream os;
+			os << "A " << index_type << " expression";
+
+			errors = new LinkedList<const Error*>(
+					new Error(Error::SEMANTIC,
+							Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
+							array_index_expression_position.first_line,
+							array_index_expression_position.first_column,
+							*variable_name, os.str()));
+		} else {
+			errors = LinkedList<const Error*>::Terminator;
+		}
+		break;
+	}
+	case BOOLEAN:
+	case INT:
+	case DOUBLE:
+	case STRING:
+	default: {
+		errors = LinkedList<const Error*>::Terminator;
+		break;
+	}
+	}
+
+	return errors;
+}
+
 const LinkedList<const Error*>* AssignmentStatement::do_op(
 		const string* variable_name, const Type variable_type,
 		int variable_line, int variable_column, const bool old_value,
@@ -507,14 +557,14 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 						variable_line, variable_column, *(variable_name)));
 	} else if (dynamic_cast<const ArrayVariable*>(m_variable) == NULL
 			&& (symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))) {
-		//we're trying to reference an array variable without an index
-		//(this probably isn't legitimate and may need to be revised for the statement "var arr1 = arr2")
+//we're trying to reference an array variable without an index
+//(this probably isn't legitimate and may need to be revised for the statement "var arr1 = arr2")
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						variable_line, variable_column, *(variable_name)));
 	} else if (dynamic_cast<const ArrayVariable*>(m_variable) != NULL
 			&& !(symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))) {
-		//trying to reference a non-array variable as an array.
+//trying to reference a non-array variable as an array.
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
 						variable_line, variable_column, *(variable_name)));
