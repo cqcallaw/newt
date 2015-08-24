@@ -147,7 +147,7 @@ const void* AssignmentStatement::do_op(const string* variable_name,
 		const int value, const Expression* expression, const AssignmentType op,
 		const ExecutionContext* execution_context) {
 	int new_value = 0;
-	const EvaluationResult* evaluation = expression->Evaluate(
+	const Result* evaluation = expression->Evaluate(
 			execution_context);
 	const void* void_value = evaluation->GetData();
 	switch (expression->GetType(execution_context)) {
@@ -175,7 +175,7 @@ const void* AssignmentStatement::do_op(const string* variable_name,
 		const double value, const Expression* expression, AssignmentType op,
 		const ExecutionContext* execution_context) {
 	double new_value = 0;
-	const EvaluationResult* evaluation = expression->Evaluate(
+	const Result* evaluation = expression->Evaluate(
 			execution_context);
 	const void* void_value = evaluation->GetData();
 	switch (expression->GetType(execution_context)) {
@@ -209,7 +209,7 @@ const void* AssignmentStatement::do_op(const string* variable_name,
 		const string* value, const Expression* expression, AssignmentType op,
 		const ExecutionContext* execution_context) {
 	string* new_value;
-	const EvaluationResult* evaluation = expression->Evaluate(
+	const Result* evaluation = expression->Evaluate(
 			execution_context);
 	const void* void_value = evaluation->GetData();
 	switch (expression->GetType(execution_context)) {
@@ -289,7 +289,7 @@ const void AssignmentStatement::do_op(const Variable* variable,
 	}
 	case INT_ARRAY: {
 		ArrayVariable* array_variable = (ArrayVariable*) variable;
-		const EvaluationResult* evaluation =
+		const Result* evaluation =
 				array_variable->GetIndexExpression()->Evaluate(
 						execution_context);
 		int index = *((int*) evaluation->GetData());
@@ -310,7 +310,7 @@ const void AssignmentStatement::do_op(const Variable* variable,
 	}
 	case DOUBLE_ARRAY: {
 		ArrayVariable* array_variable = (ArrayVariable*) variable;
-		const EvaluationResult* evaluation =
+		const Result* evaluation =
 				array_variable->GetIndexExpression()->Evaluate(
 						execution_context);
 		int index = *((int*) evaluation->GetData());
@@ -331,7 +331,7 @@ const void AssignmentStatement::do_op(const Variable* variable,
 	}
 	case STRING_ARRAY: {
 		ArrayVariable* array_variable = (ArrayVariable*) variable;
-		const EvaluationResult* evaluation =
+		const Result* evaluation =
 				array_variable->GetIndexExpression()->Evaluate(
 						execution_context);
 		int index = *((int*) evaluation->GetData());

@@ -33,15 +33,15 @@ public:
 			const ExecutionContext* execution_context) const;
 
 protected:
-	virtual const EvaluationResult* compute(bool left, bool right,
+	virtual const Result* compute(bool left, bool right,
 			YYLTYPE left_position,
 			YYLTYPE right_position) const;
-	virtual const EvaluationResult* compute(int left, int right,
+	virtual const Result* compute(int left, int right,
 			YYLTYPE left_position,
 			YYLTYPE right_position) const;
-	virtual const EvaluationResult* compute(double left, double right,
+	virtual const Result* compute(double left, double right,
 	YYLTYPE left_position, YYLTYPE right_position) const;
-	virtual const EvaluationResult* compute(string* left, string* right,
+	virtual const Result* compute(string* left, string* right,
 	YYLTYPE left_position, YYLTYPE right_position) const;
 };
 #endif /* LOGIC_EXPRESSION_H_ */

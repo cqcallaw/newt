@@ -152,13 +152,13 @@ double UnaryExpression::radians_to_degrees(double radians) {
 	return radians * (180.0 / M_PI);
 }
 
-const EvaluationResult* UnaryExpression::Evaluate(
+const Result* UnaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
 	void* result = nullptr;
 
 	const Type expression_type = m_expression->GetType(execution_context);
-	const EvaluationResult* evaluation = m_expression->Evaluate(
+	const Result* evaluation = m_expression->Evaluate(
 			execution_context);
 	const LinkedList<const Error*>* evaluation_errors = evaluation->GetErrors();
 
@@ -299,6 +299,6 @@ const EvaluationResult* UnaryExpression::Evaluate(
 
 	delete (evaluation);
 
-	return new EvaluationResult(result, errors);
+	return new Result(result, errors);
 }
 

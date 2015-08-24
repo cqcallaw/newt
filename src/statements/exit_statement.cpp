@@ -55,7 +55,7 @@ void ExitStatement::execute(const ExecutionContext* execution_context) const {
 	int exit_code = 0;
 
 	if (m_exit_expression == nullptr) {
-		const EvaluationResult* evaluation = m_exit_expression->Evaluate(
+		const Result* evaluation = m_exit_expression->Evaluate(
 				execution_context);
 		//TODO: handle evaluation errors
 		exit_code = *((int*) evaluation->GetData());

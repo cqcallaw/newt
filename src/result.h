@@ -17,30 +17,28 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VARIABLE_EXPRESSION_H_
-#define VARIABLE_EXPRESSION_H_
+#ifndef RESULT_H_
+#define RESULT_H_
 
-#include "expression.h"
+class Error;
 
-class Variable;
-
-class VariableExpression: public Expression {
+class Result {
 public:
-	VariableExpression(const YYLTYPE position, const Variable* variable);
-
-	virtual const Type GetType(const ExecutionContext* execution_context) const;
-
-	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const;
-
-	virtual const bool IsConstant() const {
-		return false;
+	Result(const void* data, const LinkedList<const Error*>* errors) :
+			m_data(data), m_errors(errors) {
 	}
 
-	virtual const LinkedList<const Error*>* Validate(const ExecutionContext* execution_context) const;
+	const void* GetData() const {
+		return m_data;
+	}
+
+	const LinkedList<const Error*>* GetErrors() const {
+		return m_errors;
+	}
 
 private:
-	const Variable* m_variable;
+	const void* m_data;
+	const LinkedList<const Error*>* m_errors;
 };
 
-#endif /* VARIABLE_EXPRESSION_H_ */
+#endif /* RESULT_H_ */

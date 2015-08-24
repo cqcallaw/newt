@@ -47,7 +47,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 							type_to_string(size_expression_type), *m_name));
 			return result;
 		} else if (m_size_expression->IsConstant()) {
-			const EvaluationResult* evaluation = m_size_expression->Evaluate(
+			const Result* evaluation = m_size_expression->Evaluate(
 					execution_context);
 			const LinkedList<const Error*>* evaluation_errors =
 					evaluation->GetErrors();
@@ -133,7 +133,7 @@ void ArrayDeclarationStatement::execute(
 	} else {
 		SetResult result;
 
-		const EvaluationResult* evaluation = m_size_expression->Evaluate(
+		const Result* evaluation = m_size_expression->Evaluate(
 				execution_context);
 		const void* value = evaluation->GetData();
 		if (value != NULL) {

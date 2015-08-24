@@ -54,7 +54,7 @@ const Type ArrayVariable::GetType(const ExecutionContext* context) const {
 
 const string* ArrayVariable::ToString(const ExecutionContext* context) const {
 	ostringstream buffer;
-	const EvaluationResult* evaluation = m_index_expression->Evaluate(context);
+	const Result* evaluation = m_index_expression->Evaluate(context);
 	buffer << "<" << *GetName() << "[" << *((int*) evaluation->GetData())
 			<< "]>";
 	delete (evaluation);

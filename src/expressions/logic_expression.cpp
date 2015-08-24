@@ -37,14 +37,14 @@ const LinkedList<const Error*>* LogicExpression::Validate(
 			(BOOLEAN | INT | DOUBLE), (BOOLEAN | INT | DOUBLE));
 }
 
-const EvaluationResult* LogicExpression::compute(bool left, bool right,
+const Result* LogicExpression::compute(bool left, bool right,
 YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case OR:
-		return new EvaluationResult((void *) new bool(left || right),
+		return new Result((void *) new bool(left || right),
 				LinkedList<const Error*>::Terminator);
 	case AND:
-		return new EvaluationResult((void *) new bool(left && right),
+		return new Result((void *) new bool(left && right),
 				LinkedList<const Error*>::Terminator);
 	default:
 		assert(false);
@@ -52,15 +52,15 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	}
 }
 
-const EvaluationResult* LogicExpression::compute(int left, int right,
+const Result* LogicExpression::compute(int left, int right,
 YYLTYPE left_position,
 YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case OR:
-		return new EvaluationResult((void *) new bool(left || right),
+		return new Result((void *) new bool(left || right),
 				LinkedList<const Error*>::Terminator);
 	case AND:
-		return new EvaluationResult((void *) new bool(left && right),
+		return new Result((void *) new bool(left && right),
 				LinkedList<const Error*>::Terminator);
 	default:
 		assert(false);
@@ -68,14 +68,14 @@ YYLTYPE right_position) const {
 	}
 }
 
-const EvaluationResult* LogicExpression::compute(double left, double right,
+const Result* LogicExpression::compute(double left, double right,
 YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case OR:
-		return new EvaluationResult((void *) new bool(left || right),
+		return new Result((void *) new bool(left || right),
 				LinkedList<const Error*>::Terminator);
 	case AND:
-		return new EvaluationResult((void *) new bool(left && right),
+		return new Result((void *) new bool(left && right),
 				LinkedList<const Error*>::Terminator);
 	default:
 		assert(false);
@@ -83,7 +83,7 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	}
 }
 
-const EvaluationResult* LogicExpression::compute(string* left, string* right,
+const Result* LogicExpression::compute(string* left, string* right,
 YYLTYPE left_position, YYLTYPE right_position) const {
 	assert(false);
 	return NULL;

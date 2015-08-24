@@ -59,7 +59,7 @@ LinkedList<const Error*>* IfStatement::preprocess(
 }
 
 void IfStatement::execute(const ExecutionContext* execution_context) const {
-	const EvaluationResult* evaluation = m_expression->Evaluate(
+	const Result* evaluation = m_expression->Evaluate(
 			execution_context);
 	bool test = *((bool*) evaluation->GetData());
 	if (test) {

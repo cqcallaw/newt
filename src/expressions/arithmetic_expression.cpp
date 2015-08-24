@@ -30,13 +30,13 @@ ArithmeticExpression::ArithmeticExpression(const YYLTYPE position,
 					|| op == MOD);
 }
 
-const EvaluationResult* ArithmeticExpression::compute(bool left, bool right,
+const Result* ArithmeticExpression::compute(bool left, bool right,
 YYLTYPE left_position, YYLTYPE right_position) const {
 	assert(false);
 	return NULL;
 }
 
-const EvaluationResult* ArithmeticExpression::compute(int left, int right,
+const Result* ArithmeticExpression::compute(int left, int right,
 YYLTYPE left_position, YYLTYPE right_position) const {
 	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
 
@@ -77,10 +77,10 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		break;
 	}
 
-	return new EvaluationResult((void *) result, errors);
+	return new Result((void *) result, errors);
 }
 
-const EvaluationResult* ArithmeticExpression::compute(double left, double right,
+const Result* ArithmeticExpression::compute(double left, double right,
 YYLTYPE left_position, YYLTYPE right_position) const {
 	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
 
@@ -110,17 +110,17 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		break;
 	}
 
-	return new EvaluationResult((void *) result, errors);
+	return new Result((void *) result, errors);
 }
 
-const EvaluationResult* ArithmeticExpression::compute(string* left,
+const Result* ArithmeticExpression::compute(string* left,
 		string* right, YYLTYPE left_position, YYLTYPE right_position) const {
 	//string concatenation isn't strictly an arithmetic operation, so this is a hack
 	std::ostringstream buffer;
 	buffer << *left;
 	buffer << *right;
 	string* result = new string(buffer.str());
-	return new EvaluationResult((void *) result,
+	return new Result((void *) result,
 			LinkedList<const Error*>::Terminator);
 }
 

@@ -59,8 +59,8 @@ void ForStatement::execute(const ExecutionContext* execution_context) const {
 	if (m_initial != nullptr) {
 		m_initial->execute(execution_context);
 	}
-	EvaluationResult* evaluation =
-			(EvaluationResult*) m_loop_expression->Evaluate(execution_context);
+	Result* evaluation =
+			(Result*) m_loop_expression->Evaluate(execution_context);
 
 	//TODO: handle evaluation errors
 	while (*((bool*) evaluation->GetData())) {
@@ -71,7 +71,7 @@ void ForStatement::execute(const ExecutionContext* execution_context) const {
 		m_loop_assignment->execute(execution_context);
 
 		delete (evaluation);
-		evaluation = (EvaluationResult*) m_loop_expression->Evaluate(
+		evaluation = (Result*) m_loop_expression->Evaluate(
 				execution_context);
 	}
 	delete (evaluation);

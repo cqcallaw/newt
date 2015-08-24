@@ -35,7 +35,7 @@ const Type VariableExpression::GetType(
 	return m_variable->GetType(execution_context);
 }
 
-const EvaluationResult* VariableExpression::Evaluate(
+const Result* VariableExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
 	void* result = nullptr;
@@ -62,7 +62,7 @@ const EvaluationResult* VariableExpression::Evaluate(
 			const Expression* array_index_expression =
 					as_array_variable->GetIndexExpression();
 
-			const EvaluationResult* evaluation =
+			const Result* evaluation =
 					array_index_expression->Evaluate(execution_context);
 			const LinkedList<const Error*>* evaluation_errors =
 					evaluation->GetErrors();
@@ -100,7 +100,7 @@ const EvaluationResult* VariableExpression::Evaluate(
 		}
 	}
 
-	return new EvaluationResult(result, errors);
+	return new Result(result, errors);
 }
 
 const LinkedList<const Error*>* VariableExpression::Validate(
@@ -149,7 +149,7 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 			ArraySymbol* as_array_symbol = (ArraySymbol*) symbol;
 
 			if (as_array_symbol->IsInitialized()) {
-				const EvaluationResult* evaluation =
+				const Result* evaluation =
 						array_index_expression->Evaluate(execution_context);
 
 				const LinkedList<const Error*>* evaluation_errors =
