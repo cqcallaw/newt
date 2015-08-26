@@ -3,4 +3,3 @@
 int i = 42
 string s = "hello"
 double x = 3.14159
-double z = floor(s)

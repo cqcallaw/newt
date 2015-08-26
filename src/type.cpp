@@ -100,30 +100,6 @@ string operator_to_string(OperatorType op) {
 		return ">";
 	case GREATER_THAN_EQUAL:
 		return ">=";
-	case NEAR:
-		return "near";
-	case TOUCHES:
-		return "touches";
-	case SIN:
-		return "sin";
-	case COS:
-		return "cos";
-	case TAN:
-		return "tan";
-	case ASIN:
-		return "asin";
-	case ACOS:
-		return "acos";
-	case ATAN:
-		return "atan";
-	case SQRT:
-		return "sqrt";
-	case ABS:
-		return "abs";
-	case FLOOR:
-		return "floor";
-	case RANDOM:
-		return "random";
 	default:
 		assert(false);
 	}

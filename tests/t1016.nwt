@@ -1,4 +1,0 @@
-//test random output
-int a = random(10)
-int b = random(100)
-int c = random(1000)

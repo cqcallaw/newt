@@ -2,4 +2,3 @@
 
 string a = -0
 string b = !0
-string c = sin(42)

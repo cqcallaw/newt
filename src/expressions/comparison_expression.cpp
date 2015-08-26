@@ -28,7 +28,7 @@ ComparisonExpression::ComparisonExpression(const YYLTYPE position,
 	assert(
 			op
 					& (NOT_EQUAL | LESS_THAN | LESS_THAN_EQUAL | GREATER_THAN
-							| GREATER_THAN_EQUAL | TOUCHES | NEAR));
+							| GREATER_THAN_EQUAL));
 }
 
 const Type ComparisonExpression::GetType(

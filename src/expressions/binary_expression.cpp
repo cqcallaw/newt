@@ -39,8 +39,7 @@ const Type BinaryExpression::ComputeResultType(const Expression* left,
 
 	if (op == EQUAL || op == NOT_EQUAL || op == LESS_THAN
 			|| op == LESS_THAN_EQUAL || op == GREATER_THAN
-			|| op == GREATER_THAN_EQUAL || op == AND || op == OR
-			|| op == TOUCHES || op == NEAR) {
+			|| op == GREATER_THAN_EQUAL || op == AND || op == OR) {
 		return BOOLEAN;
 	}
 

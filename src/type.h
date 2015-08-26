@@ -58,19 +58,7 @@ enum OperatorType {
 	LESS_THAN,
 	LESS_THAN_EQUAL,
 	GREATER_THAN,
-	GREATER_THAN_EQUAL,
-	NEAR,
-	TOUCHES,
-	SIN,
-	COS,
-	TAN,
-	ASIN,
-	ACOS,
-	ATAN,
-	SQRT,
-	FLOOR,
-	ABS,
-	RANDOM
+	GREATER_THAN_EQUAL
 };
 
 std::string operator_to_string(OperatorType op);

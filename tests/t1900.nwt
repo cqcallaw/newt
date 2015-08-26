@@ -13,21 +13,6 @@ double d16 = 1.0/2 * 3
 double d17 = 1/2.0 * 3
 double d18 = 1.0/2.0 * 3
 
-double d4 = sin(42.0)
-double d5 = sin(d4)
-double d6 = cos(42)
-double d7 = cos(d6)
-double d8 = tan(42)
-double d9 = tan(d8)
-double d10 = asin(d4)
-double d11 = acos(d6)
-double d12 = atan(d8)
-double d13 = sqrt(100)
-double d14 = floor(d12 + 14.7)
-double d15 = d12 + 14.7
-
-int abs1 = abs(-42) + abs(42)
-
 double pi = 3 + .14 + .0015
 int i = 1 != 1
 int i1 = 1 != 0

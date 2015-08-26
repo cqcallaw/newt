@@ -1,4 +1,6 @@
 Parsing file ../tests/t1420.nwt...
-Semantic error on line 6, column 17: Invalid right operand for operator 'sqrt'.
 Parsed file ../tests/t1420.nwt.
-1 error found; giving up.
+Root Symbol Table:
+int i 42
+string s "hello"
+double x 3.14159

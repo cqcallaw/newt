@@ -191,7 +191,6 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_expression> primary_expression
 %type <union_statement_type> variable_declaration
 %type <union_variable> variable_reference
-%type <union_operator_type> math_operator
 %type <union_statement_type> statement
 %type <union_statement_list_type> statement_list
 %type <union_statement_list_type> padded_statement_list
@@ -470,10 +469,6 @@ expression:
 	{
 		$$ = new UnaryExpression(@$, NOT, $2);
 	}
-	| math_operator T_LPAREN expression T_RPAREN
-	{
-		$$ = new UnaryExpression(@$, $1, $3);
-	}
 	;
 
 //---------------------------------------------------------------------
@@ -505,50 +500,6 @@ primary_expression:
 	| T_STRING_CONSTANT
 	{
 		$$ = new ConstantExpression(@1, $1);
-	}
-	;
-
-//---------------------------------------------------------------------
-math_operator:
-	T_SIN
-	{
-		$$ = SIN;
-	}
-	| T_COS
-	{
-		$$ = COS;
-	}
-	| T_TAN
-	{
-		$$ = TAN;
-	}
-	| T_ASIN
-	{
-		$$ = ASIN;
-	}
-	| T_ACOS
-	{
-		$$ = ACOS;
-	}
-	| T_ATAN
-	{
-		$$ = ATAN;
-	}
-	| T_SQRT
-	{
-		$$ = SQRT;
-	}
-	| T_ABS
-	{
-		$$ = ABS;
-	}
-	| T_FLOOR
-	{
-		$$ = FLOOR;
-	}
-	| T_RANDOM
-	{
-		$$ = RANDOM;
 	}
 	;
 
