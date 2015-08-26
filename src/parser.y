@@ -139,16 +139,6 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_MOD                 "%"
 %token T_PLUS                "+"
 %token T_MINUS               "-"
-%token T_SIN                 "sin"
-%token T_COS                 "cos"
-%token T_TAN                 "tan"
-%token T_ASIN                "asin"
-%token T_ACOS                "acos"
-%token T_ATAN                "atan"
-%token T_SQRT                "sqrt"
-%token T_FLOOR               "floor"
-%token T_ABS                 "abs"
-%token T_RANDOM              "random"
 
 %token T_LESS                "<"
 %token T_GREATER             ">"
@@ -502,6 +492,7 @@ primary_expression:
 		$$ = new ConstantExpression(@1, $1);
 	}
 	;
+
 
 //---------------------------------------------------------------------
 empty:

@@ -82,18 +82,6 @@ Error error_handler; // error reporting object
 "true"          return T_TRUE;
 "false"         return T_FALSE;
 
-"sin"           return T_SIN;
-"cos"           return T_COS;
-"tan"           return T_TAN;
-"asin"          return T_ASIN;
-"acos"          return T_ACOS;
-"atan"          return T_ATAN;
-"sqrt"          return T_SQRT;
-
-"abs"           return T_ABS;
-"floor"         return T_FLOOR;
-"random"        return T_RANDOM;
-
 "="             return T_ASSIGN;
 "{"             return T_LBRACE;
 "}"             return T_RBRACE;
