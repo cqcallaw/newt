@@ -26,12 +26,6 @@
 #include "expression.h"
 #include <execution_context.h>
 
-const std::string ArraySymbol::DefaultArraySymbolName = std::string(
-		"[!!_DEFAULT_ARRAY_SYMBOL_!!]");
-
-const ArraySymbol* ArraySymbol::DefaultArraySymbol = new ArraySymbol(
-		DefaultArraySymbolName, new int[0](), 0, false);
-
 ArraySymbol::ArraySymbol(const string name, const int value[], const int size,
 		const bool initialized) :
 		Symbol(INT_ARRAY, name, (const void*) value), m_size(size), m_initialized(

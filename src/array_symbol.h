@@ -57,9 +57,6 @@ public:
 		return m_size;
 	}
 
-	const static std::string DefaultArraySymbolName;
-	const static ArraySymbol* DefaultArraySymbol;
-
 private:
 	const int m_size;
 	const bool m_initialized;
