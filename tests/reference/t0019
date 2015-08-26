@@ -1,0 +1,4 @@
+Parsing file ../tests/t0019.nwt...
+Parse error on line 2 reported by parser: syntax error, unexpected $end, expecting = or += or -=.
+Parsed file ../tests/t0019.nwt.
+1 error found; giving up.
