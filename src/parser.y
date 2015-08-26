@@ -151,6 +151,10 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_OR                  "||"
 %token T_NOT                 "!"
 
+%token T_STRUCT              "struct"
+
+%token T_READONLY            "readonly"
+
 %token <union_string> T_ID               "identifier"
 %token <union_int> T_INT_CONSTANT        "int constant"
 %token <union_double > T_DOUBLE_CONSTANT "double constant"
@@ -475,6 +479,47 @@ primary_expression:
 	| T_STRING_CONSTANT
 	{
 		$$ = new ConstantExpression(@1, $1);
+	}
+	;
+
+//---------------------------------------------------------------------
+struct_declaration:
+	T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	{
+	}
+	|
+	T_READONLY T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	{
+	}
+	;
+
+member_declaration_list:
+	member_declaration_list member_declaration
+	{
+	}
+	;
+
+member_declaration:
+	simple_type T_ID
+	{
+	}
+	;
+
+struct_instantiation:
+	T_ID T_ID T_EQUAL T_LBRACE struct_instantiation_block T_RBRACE
+	{
+	}
+	;
+
+struct_instantiation_block:
+	struct_instantiation_block T_COMMA struct_member_initialization
+	{
+	}
+	;
+
+struct_member_initialization:
+	T_ID T_EQUAL expression
+	{
 	}
 	;
 
