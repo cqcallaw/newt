@@ -77,6 +77,11 @@ typedef void* yyscan_t;
 
 #include <lexer.h>
 
+//for some reason Bison isn't dynamically resizing the stack when needed,
+//so we set the initial and max sizes to the same value here.
+#define YYINITDEPTH 10000
+#define YYMAXDEPTH 10000
+
 void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scanner, const char* str) {
 	Error::parse_error(locp->first_line, string(str));
 }
