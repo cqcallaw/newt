@@ -151,8 +151,6 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_OR                  "||"
 %token T_NOT                 "!"
 
-%token T_NEWLINE             "newline"
-
 %token <union_string> T_ID               "identifier"
 %token <union_int> T_INT_CONSTANT        "int constant"
 %token <union_double > T_DOUBLE_CONSTANT "double constant"
@@ -183,7 +181,6 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_variable> variable_reference
 %type <union_statement_type> statement
 %type <union_statement_list_type> statement_list
-%type <union_statement_list_type> padded_statement_list
 %type <union_statement_block_type> if_block
 %type <union_statement_block_type> statement_block
 %type <union_statement_type> if_statement
@@ -196,7 +193,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 
 //---------------------------------------------------------------------
 program:
-	padded_statement_list
+	statement_list
 	{
 		if ($1 != LinkedList<const Statement*>::Terminator) {
 			//statement list comes in reverse order
@@ -206,19 +203,6 @@ program:
 			*main_statement_block = new StatementBlock(StatementList::Terminator);
 		}
 	}
-	;
-
-padded_statement_list:
-	statement_list optional_newlines
-	{
-		$$ = $1;
-	}
-	;
-
-//---------------------------------------------------------------------
-optional_newlines:
-	T_NEWLINE optional_newlines
-	| empty
 	;
 
 //---------------------------------------------------------------------
@@ -257,6 +241,7 @@ simple_type:
 		$$ = STRING;
 	}
 	;
+	
 
 //---------------------------------------------------------------------
 if_block:
@@ -272,7 +257,7 @@ if_block:
 	
 //---------------------------------------------------------------------
 statement_block:
-	T_LBRACE padded_statement_list T_RBRACE
+	T_LBRACE statement_list T_RBRACE
 	{
 		$$ = new StatementBlock($2->Reverse(true)); //statement list comes in reverse order
 	}
@@ -280,9 +265,9 @@ statement_block:
 
 //---------------------------------------------------------------------
 statement_list:
-	statement_list optional_newlines statement
+	statement_list statement
 	{
-		$$ = new StatementList($3, $1);
+		$$ = new StatementList($2, $1);
 	}
 	| empty
 	{
@@ -492,7 +477,6 @@ primary_expression:
 		$$ = new ConstantExpression(@1, $1);
 	}
 	;
-
 
 //---------------------------------------------------------------------
 empty:

@@ -63,9 +63,7 @@ Error error_handler; // error reporting object
 
 %%
 
-[\n]            return T_NEWLINE; 
-
-[ \t\r]         // ignore spaces, tabs and the carriage return
+[ \t\r\n]       // ignore spaces, tabs, newlines, and the carriage return
 \/\/.*$         // ignore comments
 
 "bool"          return T_BOOLEAN;

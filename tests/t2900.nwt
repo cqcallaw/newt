@@ -1029,21 +1029,22 @@ int counter
 
 for (counter = 0; counter <= 1000; counter += 1) { 
 
-    if (counter == 1) {
+    if (counter == 1)
+    {
         print("var1 = " + var1)
-    } else if (counter == 2) {
+    }
+    else if (counter == 2) 
+    {
         print("var2 = " + var2)
-    } else if (counter == 3) {
-        print("var3 = " + var3)
-    } else if (counter == 4) {
+    } else if (counter == 3) { print("var3 = " + var3) } else if (counter == 4) {
         print("var4 = " + var4)
     } else if (counter == 5) {
         print("var5 = " + var5)
     } else if (counter == 6) {
         print("var6 = " + var6)
-    } else if (counter == 7) {
+    } else if (counter == 7)
         print("var7 = " + var7)
-    } else if (counter == 8) {
+    else if (counter == 8) {
         print("var8 = " + var8)
     } else if (counter == 9) {
         print("var9 = " + var9)
