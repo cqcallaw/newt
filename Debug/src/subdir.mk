@@ -5,7 +5,6 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/array_symbol.cpp \
-../src/array_variable.cpp \
 ../src/assert.cpp \
 ../src/defaults.cpp \
 ../src/error.cpp \
@@ -19,12 +18,10 @@ CPP_SRCS += \
 ../src/symbol_table.cpp \
 ../src/type.cpp \
 ../src/type_table.cpp \
-../src/utils.cpp \
-../src/variable.cpp 
+../src/utils.cpp 
 
 OBJS += \
 ./src/array_symbol.o \
-./src/array_variable.o \
 ./src/assert.o \
 ./src/defaults.o \
 ./src/error.o \
@@ -38,12 +35,10 @@ OBJS += \
 ./src/symbol_table.o \
 ./src/type.o \
 ./src/type_table.o \
-./src/utils.o \
-./src/variable.o 
+./src/utils.o 
 
 CPP_DEPS += \
 ./src/array_symbol.d \
-./src/array_variable.d \
 ./src/assert.d \
 ./src/defaults.d \
 ./src/error.d \
@@ -57,15 +52,14 @@ CPP_DEPS += \
 ./src/symbol_table.d \
 ./src/type.d \
 ./src/type_table.d \
-./src/utils.d \
-./src/variable.d 
+./src/utils.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
 src/%.o: ../src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -std=c++0x -I./ -I../src -I../src/expressions -I../src/statements -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -std=c++0x -I./ -I../src -I../src/expressions -I../src/statements -I../src/variables -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

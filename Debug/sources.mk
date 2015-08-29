@@ -26,4 +26,5 @@ SUBDIRS := \
 src \
 src/expressions \
 src/statements \
+src/variables \
 
