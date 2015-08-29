@@ -553,7 +553,7 @@ member_declaration:
 	}
 	;
 
-/*struct_instantiation:
+struct_instantiation:
 	T_ID T_ID T_EQUAL T_LBRACE struct_instantiation_block T_RBRACE
 	{
 	}
@@ -569,7 +569,7 @@ struct_member_initialization:
 	T_ID T_EQUAL expression
 	{
 	}
-	;*/
+	;
 
 //---------------------------------------------------------------------
 empty:
