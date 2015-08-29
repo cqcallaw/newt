@@ -110,8 +110,10 @@ int main(int argc, char *argv[]) {
 
 			if (debug) {
 				cout << "Root Symbol Table:" << endl;
+				cout << "----------------" << endl;
 				root_context->GetSymbolTable()->print(cout);
 				cout << "Root Type Table:" << endl;
+				cout << "----------------" << endl;
 				root_context->GetTypeTable()->print(cout);
 			}
 			do_exit(debug, has_execution_errors ? EXIT_FAILURE : EXIT_SUCCESS);

@@ -45,8 +45,10 @@ const void TypeTable::print(ostream& os) const {
 	map<const string, const CompoundType*>::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {
 		os << iter->first << ": " << endl;
-		CompoundType* type = (CompoundType *) iter->second;
-		os << *type;
-		os << endl;
+		const CompoundType* type = iter->second;
+		CompoundType::const_iterator type_iter;
+		for (type_iter = type->begin(); type_iter != type->end(); ++type_iter) {
+			os << "  " << type_iter->second << " " << type_iter->first << endl;
+		}
 	}
 }
