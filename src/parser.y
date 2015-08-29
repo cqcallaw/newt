@@ -37,6 +37,11 @@
 #include <statement_block.h>
 #include <execution_context.h>
 #include <stack>
+#include <modifier.h>
+#include <modifier_list.h>
+#include <member_declaration.h>
+#include <member_declaration_list.h>
+#include <struct_declaration_statement.h>
 
 #include <type.h>
 typedef void* yyscan_t;
@@ -63,7 +68,6 @@ typedef void* yyscan_t;
 #include <logic_expression.h>
 #include <unary_expression.h>
 #include <binary_expression.h>
-//#include <string_concatenation_expression.h>
 #include <variable_expression.h>
 #include <print_statement.h>
 #include <assignment_statement.h>
@@ -104,6 +108,11 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  const StatementList*       union_statement_list_type;
  const StatementBlock*      union_statement_block_type;
  const AssignmentStatement* union_assignment_statement_type;
+ const Modifier*            union_modifier_type;
+ const ModifierList*        union_modifier_list_type;
+ const MemberDeclaration*   union_member_declaration_type;
+ const MemberDeclarationList*   union_member_declaration_list_type;
+ const StructDeclarationStatement*   union_struct_declaration_statement_type;
 }
 
 %token T_BOOLEAN               "bool"
@@ -192,6 +201,11 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_statement_type> print_statement
 %type <union_statement_type> for_statement
 %type <union_statement_type> exit_statement
+%type <union_modifier_type> modifier
+%type <union_modifier_list_type> modifier_list
+%type <union_member_declaration_type> member_declaration
+%type <union_member_declaration_list_type> member_declaration_list
+%type <union_struct_declaration_statement_type> struct_declaration_statement
 
 %% // begin rules
 
@@ -302,6 +316,11 @@ statement:
 		$$ = $1;
 	}
 	| exit_statement
+	{
+		$$ = $1;
+	}
+	|
+	struct_declaration_statement
 	{
 		$$ = $1;
 	}
@@ -483,29 +502,56 @@ primary_expression:
 	;
 
 //---------------------------------------------------------------------
-struct_declaration:
-	T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+modifier_list:
+	modifier_list modifier
 	{
+		$$ = new ModifierList($2, $1);
 	}
 	|
-	T_READONLY T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	empty
 	{
+		$$ = ModifierList::Terminator;
+	}
+
+modifier:
+	T_READONLY
+	{
+		$$ = new Modifier(Modifier::READONLY, @1);
+	}
+
+//---------------------------------------------------------------------
+struct_declaration_statement:
+	modifier_list T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	{
+		$$ = new StructDeclarationStatement($3, @3, new MemberDeclarationList($5->Reverse(true)), @5, new ModifierList($1->Reverse(true)), @1);
 	}
 	;
 
 member_declaration_list:
 	member_declaration_list member_declaration
 	{
+		$$ = new MemberDeclarationList($2, $1);
+	}
+	|
+	empty
+	{
+		$$ = MemberDeclarationList::Terminator;
 	}
 	;
 
 member_declaration:
 	simple_type T_ID
 	{
+		$$ = new MemberDeclaration($1, @1, $2, @2);
+	}
+	|
+	simple_type T_ID T_EQUAL expression
+	{
+		$$ = new MemberDeclaration($1, @1, $2, @2, $4, @4);
 	}
 	;
 
-struct_instantiation:
+/*struct_instantiation:
 	T_ID T_ID T_EQUAL T_LBRACE struct_instantiation_block T_RBRACE
 	{
 	}
@@ -521,7 +567,7 @@ struct_member_initialization:
 	T_ID T_EQUAL expression
 	{
 	}
-	;
+	;*/
 
 //---------------------------------------------------------------------
 empty:

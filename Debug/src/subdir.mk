@@ -11,6 +11,7 @@ CPP_SRCS += \
 ../src/error.cpp \
 ../src/execution_context.cpp \
 ../src/indent.cpp \
+../src/member_declaration.cpp \
 ../src/newt.cpp \
 ../src/parameter.cpp \
 ../src/parameterlist.cpp \
@@ -28,6 +29,7 @@ OBJS += \
 ./src/error.o \
 ./src/execution_context.o \
 ./src/indent.o \
+./src/member_declaration.o \
 ./src/newt.o \
 ./src/parameter.o \
 ./src/parameterlist.o \
@@ -45,6 +47,7 @@ CPP_DEPS += \
 ./src/error.d \
 ./src/execution_context.d \
 ./src/indent.d \
+./src/member_declaration.d \
 ./src/newt.d \
 ./src/parameter.d \
 ./src/parameterlist.d \

@@ -143,6 +143,9 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Arithmetic mod by zero at parse time.  "
 				<< "Using zero as the result so parse can continue.";
 		break;
+	case MEMBER_DEFAULTS_MUST_BE_CONSTANT:
+		os << "Default member values must be constant.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;
