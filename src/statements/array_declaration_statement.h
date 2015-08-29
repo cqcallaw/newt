@@ -17,7 +17,7 @@ class Result;
 
 class ArrayDeclarationStatement: public Statement {
 public:
-	ArrayDeclarationStatement(const Type type, const YYLTYPE type_position,
+	ArrayDeclarationStatement(const PrimitiveType type, const YYLTYPE type_position,
 			const std::string* name, const YYLTYPE name_position,
 			const Expression* size_expression = nullptr,
 			const YYLTYPE size_expression_position = DefaultLocation);
@@ -29,7 +29,7 @@ public:
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;
 private:
-	const Type m_type;
+	const PrimitiveType m_type;
 	const YYLTYPE m_type_position;
 	const std::string* m_name;
 	const YYLTYPE m_name_position;

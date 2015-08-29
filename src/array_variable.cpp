@@ -24,7 +24,7 @@
 #include "yyltype.h"
 #include "assert.h"
 
-const Type map_to_primitive(Type type) {
+const PrimitiveType map_to_primitive(PrimitiveType type) {
 	switch (type) {
 	case INT_ARRAY:
 		return INT;
@@ -47,8 +47,8 @@ YYLTYPE expression_location) :
 	 index_expression->GetType() == INT);*/
 }
 
-const Type ArrayVariable::GetType(const ExecutionContext* context) const {
-	Type type = Variable::GetType(context);
+const PrimitiveType ArrayVariable::GetType(const ExecutionContext* context) const {
+	PrimitiveType type = Variable::GetType(context);
 	return map_to_primitive(type);
 }
 

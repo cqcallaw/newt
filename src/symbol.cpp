@@ -47,7 +47,7 @@ Symbol::Symbol(const string name, const string *value) :
 		Symbol(STRING, name, (void *) value) {
 }
 
-Symbol::Symbol(Type type, string name, const void* value) {
+Symbol::Symbol(PrimitiveType type, string name, const void* value) {
 	this->type = type;
 	this->name = name;
 	this->value = value;
@@ -69,7 +69,7 @@ Symbol::Symbol(const string* name, const string *value) :
 		Symbol(*name, value) {
 }
 
-const Type Symbol::GetType() const {
+const PrimitiveType Symbol::GetType() const {
 	return type;
 }
 
@@ -94,7 +94,7 @@ const Symbol* Symbol::WithValue(const string* value) const {
 	return WithValue(STRING, (void*) value);
 }
 
-const Symbol* Symbol::WithValue(const Type type, const void* value) const {
+const Symbol* Symbol::WithValue(const PrimitiveType type, const void* value) const {
 	if (type > this->type) {
 		return DefaultSymbol;
 	}

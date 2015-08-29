@@ -46,7 +46,7 @@ public:
 	virtual ~Symbol() {
 	}
 
-	const Type GetType() const;
+	const PrimitiveType GetType() const;
 	const string GetName() const;
 	const void* GetValue() const;
 
@@ -54,7 +54,7 @@ public:
 	const Symbol* WithValue(const int* value) const;
 	const Symbol* WithValue(const double* value) const;
 	const Symbol* WithValue(const string* value) const;
-	const Symbol* WithValue(const Type type, const void* value) const;
+	const Symbol* WithValue(const PrimitiveType type, const void* value) const;
 
 	virtual string ToString() const;
 
@@ -62,10 +62,10 @@ public:
 	const static Symbol* DefaultSymbol;
 
 protected:
-	Symbol(Type type, const string name, const void* value);
+	Symbol(PrimitiveType type, const string name, const void* value);
 
 private:
-	Type type;
+	PrimitiveType type;
 	string name;
 	const void* value;
 };

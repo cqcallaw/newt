@@ -42,7 +42,7 @@ LinkedList<const Error*>* AssignmentStatement::preprocess(
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolTable();
 	const Symbol* symbol = symbol_table->GetSymbol(m_variable->GetName());
-	const Type symbol_type = symbol->GetType();
+	const PrimitiveType symbol_type = symbol->GetType();
 
 	switch (symbol_type) {
 	case INT_ARRAY:
@@ -54,7 +54,7 @@ LinkedList<const Error*>* AssignmentStatement::preprocess(
 				array_variable->GetIndexExpression();
 		const YYLTYPE array_index_expression_position =
 				array_index_expression->GetPosition();
-		const Type index_type = array_index_expression->GetType(
+		const PrimitiveType index_type = array_index_expression->GetType(
 				execution_context);
 
 		if (!(index_type & INT)) {
@@ -86,7 +86,7 @@ LinkedList<const Error*>* AssignmentStatement::preprocess(
 }
 
 const LinkedList<const Error*>* AssignmentStatement::do_op(
-		const string* variable_name, const Type variable_type,
+		const string* variable_name, const PrimitiveType variable_type,
 		int variable_line, int variable_column, const bool old_value,
 		const bool expression_value, const AssignmentType op,
 		const ExecutionContext* execution_context, bool &out) {
@@ -108,7 +108,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 }
 
 const LinkedList<const Error*>* AssignmentStatement::do_op(
-		const string* variable_name, const Type variable_type,
+		const string* variable_name, const PrimitiveType variable_type,
 		int variable_line, int variable_column, const int old_value,
 		const int expression_value, const AssignmentType op,
 		const ExecutionContext* execution_context, int& out) {
@@ -139,7 +139,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 }
 
 const LinkedList<const Error*>* AssignmentStatement::do_op(
-		const string* variable_name, const Type variable_type,
+		const string* variable_name, const PrimitiveType variable_type,
 		int variable_line, int variable_column, const double old_value,
 		const double expression_value, const AssignmentType op,
 		const ExecutionContext* execution_context, double &out) {
@@ -170,7 +170,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 }
 
 const LinkedList<const Error*>* AssignmentStatement::do_op(
-		const string* variable_name, const Type variable_type,
+		const string* variable_name, const PrimitiveType variable_type,
 		int variable_line, int variable_column, const string* old_value,
 		const bool expression_value, const AssignmentType op,
 		const ExecutionContext* execution_context, string* &out) {
@@ -179,7 +179,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 }
 
 const LinkedList<const Error*>* AssignmentStatement::do_op(
-		const string* variable_name, const Type variable_type,
+		const string* variable_name, const PrimitiveType variable_type,
 		int variable_line, int variable_column, const string* old_value,
 		const int expression_value, const AssignmentType op,
 		const ExecutionContext* execution_context, string* &out) {
@@ -188,7 +188,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 }
 
 const LinkedList<const Error*>* AssignmentStatement::do_op(
-		const string* variable_name, const Type variable_type,
+		const string* variable_name, const PrimitiveType variable_type,
 		int variable_line, int variable_column, const string* old_value,
 		const double expression_value, const AssignmentType op,
 		const ExecutionContext* execution_context, string* &out) {
@@ -197,7 +197,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 }
 
 const LinkedList<const Error*>* AssignmentStatement::do_op(
-		const string* variable_name, const Type variable_type,
+		const string* variable_name, const PrimitiveType variable_type,
 		int variable_line, int variable_column, const string* old_value,
 		const string* expression_value, const AssignmentType op,
 		const ExecutionContext* execution_context, string* &out) {
@@ -227,7 +227,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 	return errors;
 }
 const Result* AssignmentStatement::do_op(const string* variable_name,
-		const Type variable_type, int variable_line, int variable_column,
+		const PrimitiveType variable_type, int variable_line, int variable_column,
 		const int value, const Expression* expression, const AssignmentType op,
 		const ExecutionContext* execution_context) {
 	const LinkedList<const Error*>* errors;
@@ -266,7 +266,7 @@ const Result* AssignmentStatement::do_op(const string* variable_name,
 }
 
 const Result* AssignmentStatement::do_op(const string* variable_name,
-		const Type variable_type, int variable_line, int variable_column,
+		const PrimitiveType variable_type, int variable_line, int variable_column,
 		const double value, const Expression* expression, AssignmentType op,
 		const ExecutionContext* execution_context) {
 	const LinkedList<const Error*>* errors;
@@ -312,7 +312,7 @@ const Result* AssignmentStatement::do_op(const string* variable_name,
 }
 
 const Result* AssignmentStatement::do_op(const string* variable_name,
-		const Type variable_type, int variable_line, int variable_column,
+		const PrimitiveType variable_type, int variable_line, int variable_column,
 		const string* value, const Expression* expression, AssignmentType op,
 		const ExecutionContext* execution_context) {
 	const LinkedList<const Error*>* errors;
@@ -367,14 +367,14 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 	SetResult set_result = NO_SET_RESULT;
 
 	const string* variable_name = variable->GetName();
-	const Type variable_type = variable->GetType(execution_context);
+	const PrimitiveType variable_type = variable->GetType(execution_context);
 	const int variable_line = variable->GetLocation().first_line;
 	const int variable_column = variable->GetLocation().first_column;
 
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolTable();
 	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
-	const Type symbol_type = symbol->GetType();
+	const PrimitiveType symbol_type = symbol->GetType();
 	const void* symbol_value = symbol->GetValue();
 
 	switch (symbol_type) {

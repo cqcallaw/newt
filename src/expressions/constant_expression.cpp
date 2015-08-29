@@ -37,7 +37,7 @@ ConstantExpression::ConstantExpression(const YYLTYPE position,
 		ConstantExpression(position, STRING, (void*) value) {
 }
 
-const Type ConstantExpression::GetType(
+const PrimitiveType ConstantExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return m_type;
 }
@@ -47,7 +47,7 @@ const Result* ConstantExpression::Evaluate(
 	return new Result(m_value, LinkedList<const Error*>::Terminator);
 }
 
-ConstantExpression::ConstantExpression(const YYLTYPE position, const Type type,
+ConstantExpression::ConstantExpression(const YYLTYPE position, const PrimitiveType type,
 		const void* value) :
 		Expression(position), m_type(type), m_value(value) {
 }

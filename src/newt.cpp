@@ -22,6 +22,7 @@
 
 #include "error.h"
 #include "symbol_table.h"
+#include "type_table.h"
 
 #include "parser.tab.h"
 #include "lexer.h"
@@ -97,29 +98,30 @@ int main(int argc, char *argv[]) {
 				cout << "Parsed file " << filename << "." << endl;
 			}
 
-			LinkedList<const Error*>* execution_errors = (LinkedList<
-					const Error*>*) main_statement_block->execute(root_context);
+			const LinkedList<const Error*>* execution_errors =
+					main_statement_block->execute(root_context);
 
 			bool has_execution_errors = false;
 			while (execution_errors != LinkedList<const Error*>::Terminator) {
 				has_execution_errors = true;
 				cerr << execution_errors->GetData()->ToString() << endl;
-				execution_errors =
-						(LinkedList<const Error*>*) execution_errors->GetNext();
+				execution_errors = execution_errors->GetNext();
 			}
 
 			if (debug) {
 				cout << "Root Symbol Table:" << endl;
 				root_context->GetSymbolTable()->print(cout);
+				cout << "Root Type Table:" << endl;
+				root_context->GetTypeTable()->print(cout);
 			}
 			do_exit(debug, has_execution_errors ? EXIT_FAILURE : EXIT_SUCCESS);
 		} else {
 			int semantic_error_count = 0;
-			LinkedList<const Error*>* error = semantic_errors;
+			const LinkedList<const Error*>* error = semantic_errors;
 			while (error != LinkedList<const Error*>::Terminator) {
 				semantic_error_count++;
 				cerr << *(error->GetData()) << endl;
-				error = (LinkedList<const Error*>*) error->GetNext();
+				error = error->GetNext();
 			}
 
 			if (debug) {

@@ -30,7 +30,7 @@ VariableExpression::VariableExpression(const YYLTYPE position,
 		Expression(position), m_variable(variable) {
 }
 
-const Type VariableExpression::GetType(
+const PrimitiveType VariableExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return m_variable->GetType(execution_context);
 }
@@ -130,7 +130,7 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 		const YYLTYPE array_index_expression_position =
 				array_index_expression->GetPosition();
 
-		Type index_type = array_index_expression->GetType(execution_context);
+		PrimitiveType index_type = array_index_expression->GetType(execution_context);
 		if (index_type != INT) {
 			ostringstream os;
 			os << "A " << index_type << " expression";

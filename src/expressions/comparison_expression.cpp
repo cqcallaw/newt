@@ -31,7 +31,7 @@ ComparisonExpression::ComparisonExpression(const YYLTYPE position,
 							| GREATER_THAN_EQUAL));
 }
 
-const Type ComparisonExpression::GetType(
+const PrimitiveType ComparisonExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return BOOLEAN;
 }

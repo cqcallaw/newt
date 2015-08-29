@@ -21,8 +21,12 @@
 #define TYPE_H
 
 #include <iostream>
+#include <map>
+#include <string>
 
-enum Type {
+using namespace std;
+
+enum PrimitiveType {
 	NONE = 0,
 	BOOLEAN = 1,
 	INT = 2,
@@ -33,9 +37,9 @@ enum Type {
 	STRING_ARRAY = 64
 };
 
-std::string type_to_string(Type type);
+const string type_to_string(const PrimitiveType type);
 
-std::ostream &operator<<(std::ostream &os, const Type &type);
+ostream &operator<<(ostream &os, const PrimitiveType &type);
 
 enum OperatorType {
 	PLUS,
@@ -55,6 +59,14 @@ enum OperatorType {
 	GREATER_THAN_EQUAL
 };
 
-std::string operator_to_string(OperatorType op);
+string operator_to_string(OperatorType op);
+
+class CompoundType: public map<const string, const PrimitiveType> {
+public:
+	const static CompoundType* DefaultCompoundType;
+	const string ToString() const;
+};
+
+std::ostream &operator<<(std::ostream &os, const CompoundType &symbol);
 
 #endif // #ifndef TYPE_H

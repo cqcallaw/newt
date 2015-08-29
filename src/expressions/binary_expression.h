@@ -29,7 +29,7 @@ public:
 	BinaryExpression(const YYLTYPE position, const OperatorType op,
 			const Expression* left, const Expression* right);
 
-	virtual const Type GetType(const ExecutionContext* execution_context) const;
+	virtual const PrimitiveType GetType(const ExecutionContext* execution_context) const;
 
 	const Result* Evaluate(
 			const ExecutionContext* execution_context) const;
@@ -44,7 +44,7 @@ public:
 		return m_right;
 	}
 
-	const static Type ComputeResultType(const Expression* left,
+	const static PrimitiveType ComputeResultType(const Expression* left,
 			const Expression* right, const OperatorType op,
 			const ExecutionContext* execution_context);
 

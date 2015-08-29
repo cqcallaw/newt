@@ -20,9 +20,10 @@
 #include "type.h"
 
 #include "assert.h"
+#include <sstream>
 using namespace std;
 
-string type_to_string(Type type) {
+const string type_to_string(const PrimitiveType type) {
 	switch (type) {
 	case NONE:
 		return "NONE";
@@ -48,7 +49,7 @@ string type_to_string(Type type) {
 	return "error";  // this keeps compiler happy
 }
 
-ostream &operator<<(ostream &os, const Type &type) {
+ostream &operator<<(ostream &os, const PrimitiveType &type) {
 	os << type_to_string(type);
 	return os;
 }
@@ -90,4 +91,22 @@ string operator_to_string(OperatorType op) {
 	}
 	assert(false);
 	return ""; // to prevent a compilation warning
+}
+
+const CompoundType* CompoundType::DefaultCompoundType = new CompoundType();
+
+const string CompoundType::ToString() const {
+	ostringstream os;
+	CompoundType::const_iterator iter;
+	for (iter = this->begin(); iter != this->end(); ++iter) {
+		os << iter->first << ": ";
+		const PrimitiveType type = iter->second;
+		os << type_to_string(type) << endl;
+	}
+	return os.str();
+}
+
+std::ostream& operator <<(std::ostream& os, const CompoundType& type) {
+	os << type.ToString();
+	return os;
 }

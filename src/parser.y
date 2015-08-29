@@ -62,6 +62,7 @@ typedef void* yyscan_t;
 #include <error.h>
 #include <utils.h>
 #include <array_variable.h>
+#include <member_variable.h>
 #include <constant_expression.h>
 #include <comparison_expression.h>
 #include <arithmetic_expression.h>
@@ -97,7 +98,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  int            union_int;
  double         union_double;
  std::string*   union_string;
- Type           union_type;
+ PrimitiveType           union_type;
  const Expression*          union_expression;
  const Variable*            union_variable;
  OperatorType               union_operator_type;
@@ -394,6 +395,7 @@ variable_reference:
 	}
 	| T_ID T_PERIOD T_ID
 	{
+		$$ = new MemberVariable($1, @1, $3, @3);
 	}
 	| T_ID T_LBRACKET expression T_RBRACKET T_PERIOD T_ID
 	{

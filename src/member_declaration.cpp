@@ -7,7 +7,7 @@
 
 #include <member_declaration.h>
 
-MemberDeclaration::MemberDeclaration(const Type type,
+MemberDeclaration::MemberDeclaration(const PrimitiveType type,
 		const YYLTYPE type_position, const std::string* name,
 		const YYLTYPE name_position, const Expression* initializer_expression,
 		const YYLTYPE initializer_expression_position) :

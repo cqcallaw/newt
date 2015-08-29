@@ -9,6 +9,8 @@
 #include <error.h>
 #include <expression.h>
 #include <member_declaration.h>
+#include <type_table.h>
+#include <execution_context.h>
 
 StructDeclarationStatement::StructDeclarationStatement(const std::string* name,
 		const YYLTYPE name_position,
@@ -49,5 +51,22 @@ LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 
 const LinkedList<const Error*>* StructDeclarationStatement::execute(
 		const ExecutionContext* execution_context) const {
+	TypeTable* type_table = execution_context->GetTypeTable();
+
+	CompoundType* type = new CompoundType();
+
+	const LinkedList<const MemberDeclaration*>* subject =
+			m_member_declaration_list;
+	while (subject != LinkedList<const MemberDeclaration*>::Terminator) {
+		const MemberDeclaration* declaration = subject->GetData();
+		type->insert(
+				pair<string, PrimitiveType>(*declaration->GetName(),
+						declaration->GetType()));
+		subject = subject->GetNext();
+	}
+
+	type_table->AddType(*m_name, type);
+
+	//TODO: error handling
 	return LinkedList<const Error*>::Terminator;
 }

@@ -29,7 +29,7 @@ UnaryExpression::UnaryExpression(const YYLTYPE position, const OperatorType op,
 	assert(expression != NULL);
 }
 
-const Type UnaryExpression::compute_result_type(const Type input_type,
+const PrimitiveType UnaryExpression::compute_result_type(const PrimitiveType input_type,
 		const OperatorType op) {
 	switch (op) {
 	case UNARY_MINUS:
@@ -42,7 +42,7 @@ const Type UnaryExpression::compute_result_type(const Type input_type,
 	}
 }
 
-const void* UnaryExpression::compute(const Type input_type, const void* input,
+const void* UnaryExpression::compute(const PrimitiveType input_type, const void* input,
 		double (*compute_function)(double),
 		double (*input_transform_function)(double),
 		double (*output_transform_function)(double)) {
@@ -86,7 +86,7 @@ double UnaryExpression::degrees_to_radians(double angle) {
 	return angle * (M_PI / 180.0);
 }
 
-const Type UnaryExpression::GetType(
+const PrimitiveType UnaryExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return compute_result_type(m_expression->GetType(execution_context),
 			m_operator);
@@ -107,7 +107,7 @@ const LinkedList<const Error*>* UnaryExpression::Validate(
 		return result;
 	}
 
-	Type expression_type = expression->GetType(execution_context);
+	PrimitiveType expression_type = expression->GetType(execution_context);
 	if (!(expression_type & (BOOLEAN | INT | DOUBLE))) {
 		result = (LinkedList<const Error*>*) result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
@@ -128,7 +128,7 @@ const Result* UnaryExpression::Evaluate(
 	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
 	void* result = nullptr;
 
-	const Type expression_type = m_expression->GetType(execution_context);
+	const PrimitiveType expression_type = m_expression->GetType(execution_context);
 	const Result* evaluation = m_expression->Evaluate(
 			execution_context);
 	const LinkedList<const Error*>* evaluation_errors = evaluation->GetErrors();

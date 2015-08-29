@@ -75,13 +75,13 @@ public:
 			const string* value);
 
 private:
-	SetResult SetSymbol(const string identifier, const Type type,
+	SetResult SetSymbol(const string identifier, const PrimitiveType type,
 			const void* value);
 
 	SetResult SetArraySymbol(const string identifier,
 			const ArraySymbol* new_symbol);
 
-	SetResult SetArraySymbolIndex(const string identifier, Type type, int index,
+	SetResult SetArraySymbolIndex(const string identifier, PrimitiveType type, int index,
 			const void* value);
 
 	std::map<const string, const Symbol*, comparator>* table;
