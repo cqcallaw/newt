@@ -30,8 +30,7 @@ public:
 	TypeTable();
 	virtual ~TypeTable();
 
-	void AddType(const string name,
-			const map<const string, const PrimitiveType>* definition);
+	void AddType(const string name, const CompoundType* definition);
 
 	const CompoundType* GetType(const string name) const;
 

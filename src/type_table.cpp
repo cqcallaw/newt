@@ -27,8 +27,8 @@ TypeTable::~TypeTable() {
 	delete (table);
 }
 
-void TypeTable::AddType(const string name,
-		const map<const string, const PrimitiveType>* definition) {
+void TypeTable::AddType(const string name, const CompoundType* definition) {
+	table->insert(pair<const string, const CompoundType*>(name, definition));
 }
 
 const CompoundType* TypeTable::GetType(const string name) const {
