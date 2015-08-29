@@ -53,21 +53,6 @@ ostream &operator<<(ostream &os, const Type &type) {
 	return os;
 }
 
-string status_to_string(Status status) {
-	switch (status) {
-	case OK:
-		return "OK";
-	case MEMBER_NOT_OF_GIVEN_TYPE:
-		return "MEMBER_NOT_OF_GIVEN_TYPE";
-	case MEMBER_NOT_DECLARED:
-		return "MEMBER_NOT_DECLARED";
-	default:
-		assert(false);
-	}
-	assert(false);
-	return ""; // to prevent a compilation warning
-}
-
 string operator_to_string(OperatorType op) {
 	switch (op) {
 	case PLUS:

@@ -37,12 +37,6 @@ std::string type_to_string(Type type);
 
 std::ostream &operator<<(std::ostream &os, const Type &type);
 
-enum Status {
-	OK, MEMBER_NOT_OF_GIVEN_TYPE, MEMBER_NOT_DECLARED
-};
-
-std::string status_to_string(Status status);
-
 enum OperatorType {
 	PLUS,
 	MINUS,
