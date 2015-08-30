@@ -34,10 +34,15 @@ enum PrimitiveType {
 	STRING = 8,
 	DOUBLE_ARRAY = 16,
 	INT_ARRAY = 32,
-	STRING_ARRAY = 64
+	STRING_ARRAY = 64,
+	STRUCT = 128
 };
 
 const string type_to_string(const PrimitiveType type);
+
+string AsString(const PrimitiveType type, const void* value);
+
+const void* DefaultTypeValue(const PrimitiveType type);
 
 ostream &operator<<(ostream &os, const PrimitiveType &type);
 
@@ -61,7 +66,20 @@ enum OperatorType {
 
 string operator_to_string(OperatorType op);
 
-class CompoundType: public map<const string, const PrimitiveType> {
+class MemberDefinition: pair<const PrimitiveType, const void*> {
+public:
+	MemberDefinition(const PrimitiveType type, const void* value) :
+			pair<const PrimitiveType, const void*>(type, value) {
+	}
+	const PrimitiveType GetType() const {
+		return first;
+	}
+	const void* GetValue() const {
+		return second;
+	}
+};
+
+class CompoundType: public map<const string, const MemberDefinition*> {
 public:
 	const static CompoundType* DefaultCompoundType;
 	const string ToString() const;

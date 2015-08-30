@@ -17,18 +17,15 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <member_declaration.h>
+#ifndef STRUCT_H_
+#define STRUCT_H_
 
-MemberDeclaration::MemberDeclaration(const PrimitiveType type,
-		const YYLTYPE type_position, const std::string* name,
-		const YYLTYPE name_position, const Expression* initializer_expression,
-		const YYLTYPE initializer_expression_position) :
-		m_type(type), m_type_position(type_position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(
-				initializer_expression), m_initializer_expression_position(
-				initializer_expression_position) {
-}
+#include <map>
+#include <string>
 
-MemberDeclaration::~MemberDeclaration() {
-}
+using namespace std;
 
+class Struct: public map<const string, const MemberDefinition*> {
+};
+
+#endif /* STRUCT_H_ */

@@ -30,6 +30,11 @@
 #include <variable.h>
 #include "type.h"
 
+const bool* DefaultBooleanValue = new bool(false);
+const int* DefaultIntValue = new int(0);
+const double* DefaultDoubleValue = new double(0.0);
+const string* DefaultStringValue = new string("");
+
 const YYLTYPE DefaultLocation = YYLTYPE { -1, -1, -1, -1 };
 
 const Variable* DefaultVariable = new Variable(&(Symbol::DefaultSymbolName),

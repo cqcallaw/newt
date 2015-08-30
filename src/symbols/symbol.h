@@ -30,6 +30,7 @@ using namespace std;
 
 class Expression;
 class ExecutionContext;
+class Struct;
 
 class Symbol {
 public:
@@ -37,11 +38,13 @@ public:
 	Symbol(const string name, const int* value);
 	Symbol(const string name, const double* value);
 	Symbol(const string name, const string* value);
+	Symbol(const string name, const Struct* value);
 
 	Symbol(const string* name, const bool* value);
 	Symbol(const string* name, const int* value);
 	Symbol(const string* name, const double* value);
 	Symbol(const string* name, const string* value);
+	Symbol(const string* name, const Struct* value);
 
 	virtual ~Symbol() {
 	}
@@ -54,11 +57,12 @@ public:
 	const Symbol* WithValue(const int* value) const;
 	const Symbol* WithValue(const double* value) const;
 	const Symbol* WithValue(const string* value) const;
+	const Symbol* WithValue(const Struct* value) const;
 	const Symbol* WithValue(const PrimitiveType type, const void* value) const;
 
 	virtual string ToString() const;
 
-	const static std::string DefaultSymbolName;
+	const static string DefaultSymbolName;
 	const static Symbol* DefaultSymbol;
 
 protected:

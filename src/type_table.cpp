@@ -48,7 +48,14 @@ const void TypeTable::print(ostream& os) const {
 		const CompoundType* type = iter->second;
 		CompoundType::const_iterator type_iter;
 		for (type_iter = type->begin(); type_iter != type->end(); ++type_iter) {
-			os << "  " << type_iter->second << " " << type_iter->first << endl;
+			const string member_name = type_iter->first;
+			const MemberDefinition* member_definition = type_iter->second;
+			const PrimitiveType member_type = member_definition->GetType();
+			const void* member_default_value = member_definition->GetValue();
+
+			os << "  " << member_type << " " << member_name << " ("
+					<< AsString(member_type, member_default_value) << ")"
+					<< endl;
 		}
 	}
 }

@@ -13,7 +13,8 @@ CPP_SRCS += \
 ../src/statements/print_statement.cpp \
 ../src/statements/statement.cpp \
 ../src/statements/statement_block.cpp \
-../src/statements/struct_declaration_statement.cpp 
+../src/statements/struct_declaration_statement.cpp \
+../src/statements/struct_instantiation_statement.cpp 
 
 OBJS += \
 ./src/statements/array_declaration_statement.o \
@@ -25,7 +26,8 @@ OBJS += \
 ./src/statements/print_statement.o \
 ./src/statements/statement.o \
 ./src/statements/statement_block.o \
-./src/statements/struct_declaration_statement.o 
+./src/statements/struct_declaration_statement.o \
+./src/statements/struct_instantiation_statement.o 
 
 CPP_DEPS += \
 ./src/statements/array_declaration_statement.d \
@@ -37,7 +39,8 @@ CPP_DEPS += \
 ./src/statements/print_statement.d \
 ./src/statements/statement.d \
 ./src/statements/statement_block.d \
-./src/statements/struct_declaration_statement.d 
+./src/statements/struct_declaration_statement.d \
+./src/statements/struct_instantiation_statement.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

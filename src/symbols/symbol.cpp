@@ -27,6 +27,7 @@
 #include "error.h"
 #include "expression.h"
 #include <execution_context.h>
+#include <struct.h>
 
 const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
 const Symbol* Symbol::DefaultSymbol = new Symbol(NONE, DefaultSymbolName, NULL);
@@ -94,7 +95,8 @@ const Symbol* Symbol::WithValue(const string* value) const {
 	return WithValue(STRING, (void*) value);
 }
 
-const Symbol* Symbol::WithValue(const PrimitiveType type, const void* value) const {
+const Symbol* Symbol::WithValue(const PrimitiveType type,
+		const void* value) const {
 	if (type > this->type) {
 		return DefaultSymbol;
 	}
@@ -108,17 +110,31 @@ string Symbol::ToString() const {
 	os << type << " " << name;
 	switch (type) {
 	case BOOLEAN:
-		os << " " << *((bool*) value) << "\n";
+		os << " " << *((bool*) value) << endl;
 		break;
 	case INT:
-		os << " " << *((int*) value) << "\n";
+		os << " " << *((int*) value) << endl;
 		break;
 	case DOUBLE:
-		os << " " << *((double*) value) << "\n";
+		os << " " << *((double*) value) << endl;
 		break;
 	case STRING:
-		os << " \"" << *((string*) value) << "\"\n";
+		os << " \"" << *((string*) value) << "\"" << endl;
 		break;
+	case STRUCT: {
+		os << endl;
+		Struct* as_struct = (Struct*) value;
+		Struct::const_iterator iter;
+		for (iter = as_struct->begin(); iter != as_struct->end(); ++iter) {
+			const string member_name = iter->first;
+			const MemberDefinition* member_definition = iter->second;
+			const PrimitiveType member_type = member_definition->GetType();
+			const void* member_value = member_definition->GetValue();
+			os << " " << member_type << " " << member_name << ": "
+					<< AsString(member_type, member_value) << "\n";
+		}
+		break;
+	}
 	default:
 		assert(false);
 	}
@@ -129,4 +145,16 @@ string Symbol::ToString() const {
 ostream &operator<<(ostream &os, const Symbol &symbol) {
 	os << symbol.ToString();
 	return os;
+}
+
+Symbol::Symbol(const string name, const Struct* value) :
+		Symbol(STRUCT, name, (void *) value) {
+}
+
+Symbol::Symbol(const string* name, const Struct* value) :
+		Symbol(*name, value) {
+}
+
+const Symbol* Symbol::WithValue(const Struct* value) const {
+	return WithValue(STRUCT, (void*) value);
 }

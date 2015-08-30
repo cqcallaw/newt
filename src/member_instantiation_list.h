@@ -17,18 +17,26 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <member_declaration.h>
+#ifndef MEMBER_INSTANTIATION_LIST_H_
+#define MEMBER_INSTANTIATION_LIST_H_
 
-MemberDeclaration::MemberDeclaration(const PrimitiveType type,
-		const YYLTYPE type_position, const std::string* name,
-		const YYLTYPE name_position, const Expression* initializer_expression,
-		const YYLTYPE initializer_expression_position) :
-		m_type(type), m_type_position(type_position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(
-				initializer_expression), m_initializer_expression_position(
-				initializer_expression_position) {
-}
+#include "linked_list.h"
 
-MemberDeclaration::~MemberDeclaration() {
-}
+class MemberInstantiation;
 
+class MemberInstantiationList: public LinkedList<const MemberInstantiation*> {
+public:
+	MemberInstantiationList(const MemberInstantiation* data,
+			const MemberInstantiationList* next) :
+			LinkedList(data, next) {
+	}
+
+	MemberInstantiationList(const LinkedList<const MemberInstantiation*>* list) :
+			LinkedList(list) {
+	}
+
+	static constexpr MemberInstantiationList* Terminator =
+			(MemberInstantiationList*) LinkedList<const MemberInstantiation*>::Terminator;
+};
+
+#endif /* MEMBER_INSTANTIATION_LIST_H_ */

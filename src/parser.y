@@ -42,6 +42,9 @@
 #include <member_declaration.h>
 #include <member_declaration_list.h>
 #include <struct_declaration_statement.h>
+#include <member_instantiation.h>
+#include <member_instantiation_list.h>
+#include <struct_instantiation_statement.h>
 
 #include <type.h>
 typedef void* yyscan_t;
@@ -114,6 +117,9 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  const MemberDeclaration*   union_member_declaration_type;
  const MemberDeclarationList*   union_member_declaration_list_type;
  const StructDeclarationStatement*   union_struct_declaration_statement_type;
+ const MemberInstantiation*   union_member_instantiation_type;
+ const MemberInstantiationList*   union_member_instantiation_list_type;
+ const StructInstantiationStatement*   union_struct_instantiation_statement_type;
 }
 
 %token T_BOOLEAN               "bool"
@@ -207,6 +213,10 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_member_declaration_type> member_declaration
 %type <union_member_declaration_list_type> member_declaration_list
 %type <union_struct_declaration_statement_type> struct_declaration_statement
+%type <union_member_instantiation_type> member_instantiation
+%type <union_member_instantiation_list_type> member_instantiation_list
+%type <union_member_instantiation_list_type> member_instantiation_block
+%type <union_struct_instantiation_statement_type> struct_instantiation_statement
 
 %% // begin rules
 
@@ -322,6 +332,11 @@ statement:
 	}
 	|
 	struct_declaration_statement
+	{
+		$$ = $1;
+	}
+	|
+	struct_instantiation_statement
 	{
 		$$ = $1;
 	}
@@ -547,27 +562,46 @@ member_declaration:
 		$$ = new MemberDeclaration($1, @1, $2, @2);
 	}
 	|
-	simple_type T_ID T_EQUAL expression
+	simple_type T_ID T_ASSIGN expression
 	{
 		$$ = new MemberDeclaration($1, @1, $2, @2, $4, @4);
 	}
 	;
 
-struct_instantiation:
-	T_ID T_ID T_EQUAL T_LBRACE struct_instantiation_block T_RBRACE
+struct_instantiation_statement:
+	T_ID T_ID T_ASSIGN T_LBRACE member_instantiation_block T_RBRACE
 	{
+		$$ = new StructInstantiationStatement($1, @1, $2, @2, $5, @5);
 	}
 	;
 
-struct_instantiation_block:
-	struct_instantiation_block T_COMMA struct_member_initialization
+member_instantiation_block:
+	member_instantiation_list
 	{
+		$$ = $1;
+	}
+	|
+	empty
+	{
+		$$ = MemberInstantiationList::Terminator;
 	}
 	;
 
-struct_member_initialization:
-	T_ID T_EQUAL expression
+member_instantiation_list:
+	member_instantiation_list T_COMMA member_instantiation
 	{
+		$$ = new MemberInstantiationList($3, $1);
+	}
+	|
+	member_instantiation
+	{
+		$$ = new MemberInstantiationList($1, MemberInstantiationList::Terminator);
+	}
+
+member_instantiation:
+	T_ID T_ASSIGN expression
+	{
+		$$ = new MemberInstantiation($1, @1, $3, @3);
 	}
 	;
 

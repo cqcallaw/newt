@@ -1,0 +1,29 @@
+struct MyStruct {
+	int x
+	int y
+	int w
+	int h
+}
+
+MyStruct m_struct = { x = 1, h = 4 }
+MyStruct m_struct2 = { y = 2 }
+MyStruct m_struct3 = { }
+
+//    my_struct.x = 1
+//    my_struct.y = 2
+//    my_struct.w = 3
+//    my_struct.h = 4
+//
+//   print("my_struct.x = " + my_struct.x)
+//    print("my_struct.y = " + my_struct.y)
+//    print("my_struct.w = " + my_struct.w)
+//    print("my_struct.h = " + my_struct.h)
+
+struct MyStruct2 {
+	double x
+	string y
+	int w = 3
+}
+
+MyStruct2 m2_struct = { x = 1.0 }
+MyStruct2 m3_struct = { w = 10 }

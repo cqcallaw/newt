@@ -17,26 +17,24 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEMBER_DECLARATION_H_
-#define MEMBER_DECLARATION_H_
+#ifndef MEMBER_INSTANTIATION_H_
+#define MEMBER_INSTANTIATION_H_
 
 #include <defaults.h>
 #include <type.h>
 
-class MemberDeclaration {
+class MemberInstantiation {
 public:
-	MemberDeclaration(const PrimitiveType type, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
-			const Expression* initializer_expression = nullptr,
-			const YYLTYPE initializer_expression_position = DefaultLocation);
-	virtual ~MemberDeclaration();
+	MemberInstantiation(const std::string* name, const YYLTYPE name_position,
+			const Expression* expression, const YYLTYPE expression_position);
+	virtual ~MemberInstantiation();
 
-	const Expression* GetInitializerExpression() const {
-		return m_initializer_expression;
+	const Expression* GetExpression() const {
+		return m_expression;
 	}
 
-	const YYLTYPE GetInitializerExpressionPosition() const {
-		return m_initializer_expression_position;
+	const YYLTYPE GetExpressionPosition() const {
+		return m_expression_position;
 	}
 
 	const std::string* GetName() const {
@@ -47,21 +45,11 @@ public:
 		return m_name_position;
 	}
 
-	const PrimitiveType GetType() const {
-		return m_type;
-	}
-
-	const YYLTYPE GetTypePosition() const {
-		return m_type_position;
-	}
-
 private:
-	const PrimitiveType m_type;
-	const YYLTYPE m_type_position;
 	const std::string* m_name;
 	const YYLTYPE m_name_position;
-	const Expression* m_initializer_expression;
-	const YYLTYPE m_initializer_expression_position;
+	const Expression* m_expression;
+	const YYLTYPE m_expression_position;
 };
 
-#endif /* MEMBER_DECLARATION_H_ */
+#endif /* MEMBER_INSTANTIATION_H_ */

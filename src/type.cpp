@@ -21,6 +21,8 @@
 
 #include "assert.h"
 #include <sstream>
+#include <defaults.h>
+
 using namespace std;
 
 const string type_to_string(const PrimitiveType type) {
@@ -41,12 +43,41 @@ const string type_to_string(const PrimitiveType type) {
 		return "double array";
 	case STRING_ARRAY:
 		return "string array";
+	case STRUCT:
+		return "struct";
 	}
 
 	cout << "Unknown type: " << (int) type << "\n";
 	assert(false);
 
 	return "error";  // this keeps compiler happy
+}
+
+string AsString(const PrimitiveType type, const void* value) {
+	ostringstream buffer;
+	switch (type) {
+	case BOOLEAN:
+	case INT: {
+		const int* default_value = (int*) value;
+		buffer << *default_value;
+		break;
+	}
+	case DOUBLE: {
+		const double* default_value = (double*) value;
+		buffer << *default_value;
+		break;
+	}
+	case STRING: {
+		const string* default_value = (string*) value;
+		buffer << *default_value;
+		break;
+	}
+		//TODO: array types
+	default:
+		assert(false);
+	}
+
+	return buffer.str();
 }
 
 ostream &operator<<(ostream &os, const PrimitiveType &type) {
@@ -100,10 +131,30 @@ const string CompoundType::ToString() const {
 	CompoundType::const_iterator iter;
 	for (iter = this->begin(); iter != this->end(); ++iter) {
 		os << iter->first << ": ";
-		const PrimitiveType type = iter->second;
+		const MemberDefinition* type_information = iter->second;
+		const PrimitiveType type = type_information->GetType();
+		const void* value = type_information->GetValue();
 		os << type_to_string(type) << endl;
+		os << AsString(type, value) << endl;
 	}
 	return os.str();
+}
+
+const void* DefaultTypeValue(const PrimitiveType type) {
+	switch (type) {
+	case BOOLEAN:
+		return DefaultBooleanValue;
+	case INT:
+		return DefaultIntValue;
+	case DOUBLE:
+		return DefaultDoubleValue;
+	case STRING:
+		return DefaultStringValue;
+	default:
+		//TODO: other types
+		assert(false);
+		return nullptr;
+	}
 }
 
 std::ostream& operator <<(std::ostream& os, const CompoundType& type) {
