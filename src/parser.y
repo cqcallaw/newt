@@ -101,7 +101,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  int            union_int;
  double         union_double;
  std::string*   union_string;
- PrimitiveType           union_type;
+ BasicType           union_type;
  const Expression*          union_expression;
  const Variable*            union_variable;
  OperatorType               union_operator_type;

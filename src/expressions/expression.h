@@ -36,7 +36,7 @@ public:
 	Expression(const YYLTYPE position);
 	virtual ~Expression();
 
-	virtual const PrimitiveType GetType(
+	virtual const BasicType GetType(
 			const ExecutionContext* execution_context) const = 0;
 
 	virtual const Result* Evaluate(

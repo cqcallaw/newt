@@ -27,7 +27,7 @@ public:
 	UnaryExpression(const YYLTYPE position, const OperatorType op,
 			const Expression* expression);
 
-	virtual const PrimitiveType GetType(const ExecutionContext* execution_context) const;
+	virtual const BasicType GetType(const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const;
@@ -40,9 +40,9 @@ public:
 			const ExecutionContext* execution_context) const;
 
 private:
-	const static PrimitiveType compute_result_type(const PrimitiveType input_type,
+	const static BasicType compute_result_type(const BasicType input_type,
 			const OperatorType op);
-	const static void* compute(const PrimitiveType input_type, const void* input,
+	const static void* compute(const BasicType input_type, const void* input,
 			double (*compute_function)(double),
 			double (*input_transform_function)(double) = NULL,
 			double (*output_transform_function)(double) = NULL);

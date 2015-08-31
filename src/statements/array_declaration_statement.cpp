@@ -16,7 +16,7 @@
 #include <sstream>
 #include <constant_expression.h>
 
-ArrayDeclarationStatement::ArrayDeclarationStatement(const PrimitiveType type,
+ArrayDeclarationStatement::ArrayDeclarationStatement(const BasicType type,
 		const YYLTYPE type_position, const std::string* name,
 		const YYLTYPE name_position, const Expression* size_expression,
 		const YYLTYPE size_expression_position) :
@@ -37,7 +37,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 	//if our array size is a constant, validate it as part of the preprocessing pass.
 	//array sizes that are variable are processed at runtime.
 	if (m_size_expression != NULL) {
-		const PrimitiveType size_expression_type = m_size_expression->GetType(
+		const BasicType size_expression_type = m_size_expression->GetType(
 				execution_context);
 		if (size_expression_type != INT) {
 			result = (LinkedList<const Error*>*) result->With(

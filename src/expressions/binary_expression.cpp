@@ -27,11 +27,11 @@ BinaryExpression::BinaryExpression(const YYLTYPE position,
 	assert(right != NULL);
 }
 
-const PrimitiveType BinaryExpression::ComputeResultType(const Expression* left,
+const BasicType BinaryExpression::ComputeResultType(const Expression* left,
 		const Expression* right, const OperatorType op,
 		const ExecutionContext* execution_context) {
-	PrimitiveType left_type = left->GetType(execution_context);
-	PrimitiveType right_type = right->GetType(execution_context);
+	BasicType left_type = left->GetType(execution_context);
+	BasicType right_type = right->GetType(execution_context);
 
 	if (left_type == NONE || right_type == NONE) {
 		return NONE;
@@ -66,8 +66,8 @@ const Result* BinaryExpression::Evaluate(
 	const Expression* left = GetLeft();
 	const Expression* right = GetRight();
 
-	PrimitiveType left_type = left->GetType(execution_context);
-	PrimitiveType right_type = right->GetType(execution_context);
+	BasicType left_type = left->GetType(execution_context);
+	BasicType right_type = right->GetType(execution_context);
 
 	YYLTYPE left_position = left->GetPosition();
 	YYLTYPE right_position = right->GetPosition();
@@ -228,7 +228,7 @@ const Result* BinaryExpression::Evaluate(
 	return new Result(result, errors);
 }
 
-const PrimitiveType BinaryExpression::GetType(
+const BasicType BinaryExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return ComputeResultType(m_left, m_right, m_operator, execution_context);
 }
@@ -249,7 +249,7 @@ const LinkedList<const Error*>* BinaryExpression::Validate(
 		return result;
 	}
 
-	PrimitiveType left_type = left->GetType(execution_context);
+	BasicType left_type = left->GetType(execution_context);
 	if (!(left_type & (valid_left))) {
 		result = (LinkedList<const Error*>*) result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_LEFT_OPERAND_TYPE,
@@ -258,7 +258,7 @@ const LinkedList<const Error*>* BinaryExpression::Validate(
 						operator_to_string(op)));
 	}
 	const Expression* right = GetRight();
-	PrimitiveType right_type = GetRight()->GetType(execution_context);
+	BasicType right_type = GetRight()->GetType(execution_context);
 
 	const LinkedList<const Error*>* right_errors = right->Validate(
 			execution_context);

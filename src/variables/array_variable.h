@@ -36,7 +36,7 @@ public:
 		return m_index_expression;
 	}
 
-	virtual const PrimitiveType GetType(const ExecutionContext* context) const;
+	virtual const BasicType GetType(const ExecutionContext* context) const;
 
 	virtual const std::string* ToString(const ExecutionContext* context) const;
 

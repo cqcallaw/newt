@@ -82,7 +82,7 @@ const void* ArraySymbol::GetValue(const int index) const {
 string ArraySymbol::ToString() const {
 	ostringstream os;
 
-	PrimitiveType type = GetType();
+	BasicType type = GetType();
 	const string name = GetName();
 
 	os << type << " " << name << ":" << endl;

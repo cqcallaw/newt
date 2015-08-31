@@ -73,7 +73,7 @@ SetResult SymbolTable::SetSymbol(const string identifier, const string* value) {
 	return SetSymbol(identifier, STRING, (void*) value);
 }
 
-SetResult SymbolTable::SetSymbol(const string identifier, const PrimitiveType type,
+SetResult SymbolTable::SetSymbol(const string identifier, const BasicType type,
 		const void* value) {
 	const Symbol* symbol = GetSymbol(identifier);
 
@@ -151,7 +151,7 @@ SetResult SymbolTable::SetArraySymbol(const string identifier,
 	return SET_SUCCESS;
 }
 
-SetResult SymbolTable::SetArraySymbolIndex(const string identifier, PrimitiveType type,
+SetResult SymbolTable::SetArraySymbolIndex(const string identifier, BasicType type,
 		int index, const void* value) {
 	const Symbol* symbol = GetSymbol(identifier);
 

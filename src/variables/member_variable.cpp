@@ -20,9 +20,11 @@ MemberVariable::MemberVariable(const std::string* name, YYLTYPE location,
 MemberVariable::~MemberVariable() {
 }
 
-const PrimitiveType MemberVariable::GetType(
+const BasicType MemberVariable::GetType(
 		const ExecutionContext* context) const {
 	const Symbol* symbol = context->GetSymbolTable()->GetSymbol(*GetName());
+
+
 	return NONE;
 }
 

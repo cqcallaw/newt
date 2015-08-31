@@ -25,7 +25,7 @@
 
 class MemberDeclaration {
 public:
-	MemberDeclaration(const PrimitiveType type, const YYLTYPE type_position,
+	MemberDeclaration(const BasicType type, const YYLTYPE type_position,
 			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression = nullptr,
 			const YYLTYPE initializer_expression_position = DefaultLocation);
@@ -47,7 +47,7 @@ public:
 		return m_name_position;
 	}
 
-	const PrimitiveType GetType() const {
+	const BasicType GetType() const {
 		return m_type;
 	}
 
@@ -56,7 +56,7 @@ public:
 	}
 
 private:
-	const PrimitiveType m_type;
+	const BasicType m_type;
 	const YYLTYPE m_type_position;
 	const std::string* m_name;
 	const YYLTYPE m_name_position;

@@ -25,7 +25,7 @@
 
 using namespace std;
 
-const string type_to_string(const PrimitiveType type) {
+const string type_to_string(const BasicType type) {
 	switch (type) {
 	case NONE:
 		return "NONE";
@@ -53,7 +53,7 @@ const string type_to_string(const PrimitiveType type) {
 	return "error";  // this keeps compiler happy
 }
 
-string AsString(const PrimitiveType type, const void* value) {
+string AsString(const BasicType type, const void* value) {
 	ostringstream buffer;
 	switch (type) {
 	case BOOLEAN:
@@ -80,7 +80,7 @@ string AsString(const PrimitiveType type, const void* value) {
 	return buffer.str();
 }
 
-ostream &operator<<(ostream &os, const PrimitiveType &type) {
+ostream &operator<<(ostream &os, const BasicType &type) {
 	os << type_to_string(type);
 	return os;
 }
@@ -132,7 +132,7 @@ const string CompoundType::ToString() const {
 	for (iter = this->begin(); iter != this->end(); ++iter) {
 		os << iter->first << ": ";
 		const MemberDefinition* type_information = iter->second;
-		const PrimitiveType type = type_information->GetType();
+		const BasicType type = type_information->GetType();
 		const void* value = type_information->GetValue();
 		os << type_to_string(type) << endl;
 		os << AsString(type, value) << endl;
@@ -140,7 +140,7 @@ const string CompoundType::ToString() const {
 	return os.str();
 }
 
-const void* DefaultTypeValue(const PrimitiveType type) {
+const void* DefaultTypeValue(const BasicType type) {
 	switch (type) {
 	case BOOLEAN:
 		return DefaultBooleanValue;

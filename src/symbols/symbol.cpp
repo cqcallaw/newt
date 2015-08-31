@@ -48,7 +48,7 @@ Symbol::Symbol(const string name, const string *value) :
 		Symbol(STRING, name, (void *) value) {
 }
 
-Symbol::Symbol(PrimitiveType type, string name, const void* value) {
+Symbol::Symbol(BasicType type, string name, const void* value) {
 	this->type = type;
 	this->name = name;
 	this->value = value;
@@ -70,7 +70,7 @@ Symbol::Symbol(const string* name, const string *value) :
 		Symbol(*name, value) {
 }
 
-const PrimitiveType Symbol::GetType() const {
+const BasicType Symbol::GetType() const {
 	return type;
 }
 
@@ -95,7 +95,7 @@ const Symbol* Symbol::WithValue(const string* value) const {
 	return WithValue(STRING, (void*) value);
 }
 
-const Symbol* Symbol::WithValue(const PrimitiveType type,
+const Symbol* Symbol::WithValue(const BasicType type,
 		const void* value) const {
 	if (type > this->type) {
 		return DefaultSymbol;
@@ -128,7 +128,7 @@ string Symbol::ToString() const {
 		for (iter = as_struct->begin(); iter != as_struct->end(); ++iter) {
 			const string member_name = iter->first;
 			const MemberDefinition* member_definition = iter->second;
-			const PrimitiveType member_type = member_definition->GetType();
+			const BasicType member_type = member_definition->GetType();
 			const void* member_value = member_definition->GetValue();
 			os << " " << member_type << " " << member_name << ": "
 					<< AsString(member_type, member_value) << "\n";

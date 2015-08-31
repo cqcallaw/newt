@@ -13,7 +13,7 @@
 #include <assignment_statement.h>
 #include <variable.h>
 
-DeclarationStatement::DeclarationStatement(const PrimitiveType type,
+DeclarationStatement::DeclarationStatement(const BasicType type,
 		const YYLTYPE type_position, const std::string* name,
 		const YYLTYPE name_position, const Expression* initializer_expression,
 		const YYLTYPE initializer_position) :

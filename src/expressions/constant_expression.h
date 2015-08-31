@@ -31,7 +31,7 @@ public:
 	ConstantExpression(const YYLTYPE position, const double value);
 	ConstantExpression(const YYLTYPE position, const std::string* value);
 
-	virtual const PrimitiveType GetType(const ExecutionContext* execution_context) const;
+	virtual const BasicType GetType(const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const;
@@ -44,9 +44,9 @@ public:
 			const ExecutionContext* execution_context) const;
 
 private:
-	ConstantExpression(const YYLTYPE position, const PrimitiveType type,
+	ConstantExpression(const YYLTYPE position, const BasicType type,
 			const void* value);
-	const PrimitiveType m_type;
+	const BasicType m_type;
 	const void* m_value;
 };
 

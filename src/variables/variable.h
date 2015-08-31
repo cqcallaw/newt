@@ -36,7 +36,7 @@ public:
 
 	const static Variable* DefaultVariable;
 
-	virtual const PrimitiveType GetType(const ExecutionContext* context) const;
+	virtual const BasicType GetType(const ExecutionContext* context) const;
 
 	const string* GetName() const {
 		return m_name;

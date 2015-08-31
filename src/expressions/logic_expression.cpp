@@ -26,7 +26,7 @@ LogicExpression::LogicExpression(const YYLTYPE position, const OperatorType op,
 	assert(op == OR || op == AND);
 }
 
-const PrimitiveType LogicExpression::GetType(
+const BasicType LogicExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return BOOLEAN;
 }

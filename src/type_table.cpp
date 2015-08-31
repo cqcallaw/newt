@@ -50,7 +50,7 @@ const void TypeTable::print(ostream& os) const {
 		for (type_iter = type->begin(); type_iter != type->end(); ++type_iter) {
 			const string member_name = type_iter->first;
 			const MemberDefinition* member_definition = type_iter->second;
-			const PrimitiveType member_type = member_definition->GetType();
+			const BasicType member_type = member_definition->GetType();
 			const void* member_default_value = member_definition->GetValue();
 
 			os << "  " << member_type << " " << member_name << " ("

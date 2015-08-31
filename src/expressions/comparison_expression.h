@@ -29,7 +29,7 @@ public:
 	ComparisonExpression(const YYLTYPE position, const OperatorType op,
 			const Expression* left, const Expression* right);
 
-	virtual const PrimitiveType GetType(const ExecutionContext* execution_context) const;
+	virtual const BasicType GetType(const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context) const;

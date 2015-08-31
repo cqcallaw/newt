@@ -26,7 +26,7 @@
 
 using namespace std;
 
-enum PrimitiveType {
+enum BasicType {
 	NONE = 0,
 	BOOLEAN = 1,
 	INT = 2,
@@ -38,13 +38,13 @@ enum PrimitiveType {
 	STRUCT = 128
 };
 
-const string type_to_string(const PrimitiveType type);
+const string type_to_string(const BasicType type);
 
-string AsString(const PrimitiveType type, const void* value);
+string AsString(const BasicType type, const void* value);
 
-const void* DefaultTypeValue(const PrimitiveType type);
+const void* DefaultTypeValue(const BasicType type);
 
-ostream &operator<<(ostream &os, const PrimitiveType &type);
+ostream &operator<<(ostream &os, const BasicType &type);
 
 enum OperatorType {
 	PLUS,
@@ -66,12 +66,12 @@ enum OperatorType {
 
 string operator_to_string(OperatorType op);
 
-class MemberDefinition: pair<const PrimitiveType, const void*> {
+class MemberDefinition: pair<const BasicType, const void*> {
 public:
-	MemberDefinition(const PrimitiveType type, const void* value) :
-			pair<const PrimitiveType, const void*>(type, value) {
+	MemberDefinition(const BasicType type, const void* value) :
+			pair<const BasicType, const void*>(type, value) {
 	}
-	const PrimitiveType GetType() const {
+	const BasicType GetType() const {
 		return first;
 	}
 	const void* GetValue() const {

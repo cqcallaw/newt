@@ -71,7 +71,7 @@ const LinkedList<const Error*>* StructDeclarationStatement::execute(
 			m_member_declaration_list;
 	while (subject != LinkedList<const MemberDeclaration*>::Terminator) {
 		const MemberDeclaration* declaration = subject->GetData();
-		const PrimitiveType type = declaration->GetType();
+		const BasicType type = declaration->GetType();
 		const string* member_name = declaration->GetName();
 		compound_type->insert(
 				pair<const string, const MemberDefinition*>(*member_name,
