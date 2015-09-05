@@ -1,4 +1,8 @@
 Parsing file ../tests/t1033.nwt...
 Parsed file ../tests/t1033.nwt.
 Root Symbol Table:
-int result_should_be_1 1
+----------------
+int result_should_be_1: 1
+
+Root Type Table:
+----------------

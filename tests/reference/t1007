@@ -1,5 +1,9 @@
 Parsing file ../tests/t1007.nwt...
 Parsed file ../tests/t1007.nwt.
 Root Symbol Table:
-double x 42.4222
-double y 89.5533
+----------------
+double x: 42.4222
+double y: 89.5533
+
+Root Type Table:
+----------------

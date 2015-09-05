@@ -3,5 +3,9 @@ Parsed file ../tests/t2041.nwt.
 x = 3.14659
 y = 4.14159
 Root Symbol Table:
-double x 3.14659
-double y 4.14159
+----------------
+double x: 3.14659
+double y: 4.14159
+
+Root Type Table:
+----------------

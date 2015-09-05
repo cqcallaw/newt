@@ -2,3 +2,7 @@ Parsing file ../tests/t1124.nwt...
 Semantic error on line 4, column 9: Incorrect type for initial value of variable 'a'.
 Parsed file ../tests/t1124.nwt.
 1 error found; giving up.
+
+Root Type Table:
+----------------
+

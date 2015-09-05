@@ -1,15 +1,19 @@
 Parsing file ../tests/t1800.nwt...
 Parsed file ../tests/t1800.nwt.
 Root Symbol Table:
-int a 1
-int b 2
-int c 3
-int d 4
-int e 5
-int f 6
-int g 1
-int h 1
-int i 0
-int j 5
-int k 0
-int l 0
+----------------
+int a: 1
+int b: 2
+int c: 3
+int d: 4
+int e: 5
+int f: 6
+int g: 1
+int h: 1
+int i: 0
+int j: 5
+int k: 0
+int l: 0
+
+Root Type Table:
+----------------

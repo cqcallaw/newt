@@ -1,4 +1,8 @@
 Parsing file ../tests/t1040.nwt...
 Parsed file ../tests/t1040.nwt.
 Root Symbol Table:
-double x 1
+----------------
+double x: 1
+
+Root Type Table:
+----------------

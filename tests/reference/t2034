@@ -1,0 +1,58 @@
+Parsing file ../tests/t2034.nwt...
+Parsed file ../tests/t2034.nwt.
+m_struct.x = 1
+m_struct.y = 2
+m_struct.w = 3
+m_struct.h = 4
+------
+m_struct.x = 0
+m_struct.y = 2
+m_struct.w = 0
+m_struct.h = 0
+Root Symbol Table:
+----------------
+struct m2_struct: 
+	int w: 3
+	double x: 1
+	string y: ""
+
+struct m3_struct: 
+	int w: 10
+	double x: 0
+	string y: ""
+
+struct m4_struct: 
+	int w: 3
+	double x: 0
+	string y: ""
+
+struct m_struct: 
+	int h: 0
+	int w: 0
+	int x: 0
+	int y: 2
+
+struct m_struct2: 
+	int h: 0
+	int w: 0
+	int x: 0
+	int y: 2
+
+struct m_struct3: 
+	int h: 0
+	int w: 0
+	int x: 0
+	int y: 0
+
+
+Root Type Table:
+----------------
+MyStruct: 
+	int h (0)
+	int w (0)
+	int x (0)
+	int y (0)
+MyStruct2: 
+	int w (3)
+	double x (0)
+	string y ()

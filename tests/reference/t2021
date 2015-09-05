@@ -101,6 +101,10 @@ row = 9, col = 7
 row = 9, col = 8
 row = 9, col = 9
 Root Symbol Table:
-int col 10
-int row 10
-string str "row = 9, col = 9"
+----------------
+int col: 10
+int row: 10
+string str: "row = 9, col = 9"
+
+Root Type Table:
+----------------

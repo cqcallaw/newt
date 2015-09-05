@@ -6,10 +6,14 @@ s3 = 1.1
 s4 = two1
 s5 = 2.1
 Root Symbol Table:
-int i 1
-string s1 "two"
-string s2 "1"
-string s3 "1.1"
-string s4 "two1"
-string s5 "2.1"
-double x 1.1
+----------------
+int i: 1
+string s1: "two"
+string s2: "1"
+string s3: "1.1"
+string s4: "two1"
+string s5: "2.1"
+double x: 1.1
+
+Root Type Table:
+----------------

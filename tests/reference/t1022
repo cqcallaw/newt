@@ -1,8 +1,12 @@
 Parsing file ../tests/t1022.nwt...
 Parsed file ../tests/t1022.nwt.
 Root Symbol Table:
-int a 1
-int b 1
-int c 0
-int d 1
-int e 1
+----------------
+int a: 1
+int b: 1
+int c: 0
+int d: 1
+int e: 1
+
+Root Type Table:
+----------------

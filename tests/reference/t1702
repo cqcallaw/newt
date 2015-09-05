@@ -1,8 +1,12 @@
 Parsing file ../tests/t1702.nwt...
 Parsed file ../tests/t1702.nwt.
 Root Symbol Table:
-double a 1
-double b 4
-double c 9
-double d 16
-double should_be_1 1
+----------------
+double a: 1
+double b: 4
+double c: 9
+double d: 16
+double should_be_1: 1
+
+Root Type Table:
+----------------

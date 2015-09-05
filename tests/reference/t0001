@@ -1,6 +1,10 @@
 Parsing file ../tests/t0001.nwt...
 Parsed file ../tests/t0001.nwt.
 Root Symbol Table:
-int i 10000
-int j -1
-int k 0
+----------------
+int i: 10000
+int j: -1
+int k: 0
+
+Root Type Table:
+----------------

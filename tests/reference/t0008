@@ -1,4 +1,9 @@
 Parsing file ../tests/t0008.nwt...
 Parsed file ../tests/t0008.nwt.
 Root Symbol Table:
+----------------
 int i 10000
+
+Root Type Table:
+----------------
+

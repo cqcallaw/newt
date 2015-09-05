@@ -1,10 +1,14 @@
 Parsing file ../tests/t1700.nwt...
 Parsed file ../tests/t1700.nwt.
 Root Symbol Table:
-int i 2
+----------------
+int i: 2
 int array nums:
-  [0] 0
-  [1] 0
-  [2] 0
-  [3] 0
+	[0] 0
+	[1] 0
+	[2] 0
+	[3] 0
 end array nums
+
+Root Type Table:
+----------------

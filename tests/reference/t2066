@@ -1,6 +1,4 @@
 Parsing file ../tests/t2066.nwt...
-Parsed file ../tests/t2066.nwt.
 Semantic error on line 4, column 5: Cannot assign an expression of type 'string' to a variable of type 'double'.
-Root Symbol Table:
-string str "hello"
-double x 3.14159
+Parsed file ../tests/t2066.nwt.
+1 error found; giving up.

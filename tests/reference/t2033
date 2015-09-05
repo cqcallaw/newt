@@ -2,12 +2,16 @@ Parsing file ../tests/t2033.nwt...
 Parsed file ../tests/t2033.nwt.
 nums[i-j] = nums[2] = 42
 Root Symbol Table:
-int i 4
-int j 2
+----------------
+int i: 4
+int j: 2
 int array nums:
-  [0] 0
-  [1] 0
-  [2] 42
-  [3] 0
+	[0] 0
+	[1] 0
+	[2] 42
+	[3] 0
 end array nums
-string s "nums[i-j] = nums[2] = 42"
+string s: "nums[i-j] = nums[2] = 42"
+
+Root Type Table:
+----------------

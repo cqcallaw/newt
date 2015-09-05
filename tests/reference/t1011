@@ -1,6 +1,10 @@
 Parsing file ../tests/t1011.nwt...
 Parsed file ../tests/t1011.nwt.
 Root Symbol Table:
-int a 0
-double b 0
-string c ""
+----------------
+int a: 0
+double b: 0
+string c: ""
+
+Root Type Table:
+----------------

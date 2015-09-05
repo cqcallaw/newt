@@ -4,6 +4,10 @@ i = 42
 x = 3.14159
 str = hello world
 Root Symbol Table:
-int i 42
-string str "hello world"
-double x 3.14159
+----------------
+int i: 42
+string str: "hello world"
+double x: 3.14159
+
+Root Type Table:
+----------------

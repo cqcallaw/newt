@@ -1,5 +1,4 @@
 Parsing file ../tests/t0010.nwt...
-Parsed file ../tests/t0010.nwt.
 Semantic error on line 2, column 1: Variable 'z' was not declared before it was used.
-Root Symbol Table:
-int x 0
+Parsed file ../tests/t0010.nwt.
+1 error found; giving up.

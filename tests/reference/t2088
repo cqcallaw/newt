@@ -2,4 +2,8 @@ Parsing file ../tests/t2088.nwt...
 Parsed file ../tests/t2088.nwt.
 Semantic error on line 3, column 5: Variable 'numbers' is not an array.
 Root Symbol Table:
-int numbers 0
+----------------
+int numbers: 0
+
+Root Type Table:
+----------------

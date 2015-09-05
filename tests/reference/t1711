@@ -1,9 +1,13 @@
 Parsing file ../tests/t1711.nwt...
 Parsed file ../tests/t1711.nwt.
 Root Symbol Table:
-int should_be_0 0
-int should_be_1 1
-int should_be_23 23
-int should_be_30 30
-int should_be_7 7
-int should_be_8 8
+----------------
+int should_be_0: 0
+int should_be_1: 1
+int should_be_23: 23
+int should_be_30: 30
+int should_be_7: 7
+int should_be_8: 8
+
+Root Type Table:
+----------------

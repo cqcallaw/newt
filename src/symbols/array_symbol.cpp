@@ -89,24 +89,24 @@ string ArraySymbol::ToString() const {
 	switch (type) {
 	case INT_ARRAY:
 		for (int i = 0; i < m_size; i++) {
-			os << "  [" << i << "] " << *((int *) GetValue(i)) << endl;
+			os << "\t[" << i << "] " << *((int *) GetValue(i)) << endl;
 		}
 		break;
 	case DOUBLE_ARRAY:
 		for (int i = 0; i < m_size; i++) {
-			os << "  [" << i << "] " << *((double *) GetValue(i)) << endl;
+			os << "\t[" << i << "] " << *((double *) GetValue(i)) << endl;
 		}
 		break;
 	case STRING_ARRAY:
 		for (int i = 0; i < m_size; i++) {
-			os << "  [" << i << "] \"" << *((string *) GetValue(i)) << "\""
+			os << "\t[" << i << "] \"" << *((string *) GetValue(i)) << "\""
 					<< endl;
 		}
 		break;
 	default:
 		assert(false);
 	}
-	os << "end array " << name << endl;
+	os << "end array " << name;
 
 	return os.str();
 }

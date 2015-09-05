@@ -109,16 +109,16 @@ string Symbol::ToString() const {
 	os << type << " " << name << ": ";
 	switch (type) {
 	case BOOLEAN:
-		os << " " << *((bool*) value);
+		os << *((bool*) value);
 		break;
 	case INT:
-		os << " " << *((int*) value);
+		os << *((int*) value);
 		break;
 	case DOUBLE:
-		os << " " << *((double*) value);
+		os << *((double*) value);
 		break;
 	case STRING:
-		os << " \"" << *((string*) value) << "\"";
+		os << "\"" << *((string*) value) << "\"";
 		break;
 	case STRUCT: {
 		os << endl;

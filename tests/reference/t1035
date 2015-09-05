@@ -1,7 +1,11 @@
 Parsing file ../tests/t1035.nwt...
 Parsed file ../tests/t1035.nwt.
 Root Symbol Table:
-int f 0
-int should_be_0 0
-int should_be_1 1
-int t 1
+----------------
+int f: 0
+int should_be_0: 0
+int should_be_1: 1
+int t: 1
+
+Root Type Table:
+----------------

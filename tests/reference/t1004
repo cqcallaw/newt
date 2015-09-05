@@ -1,5 +1,9 @@
 Parsing file ../tests/t1004.nwt...
 Parsed file ../tests/t1004.nwt.
 Root Symbol Table:
-int i 86
-int j 172
+----------------
+int i: 86
+int j: 172
+
+Root Type Table:
+----------------
