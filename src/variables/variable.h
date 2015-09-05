@@ -46,6 +46,10 @@ public:
 		return m_location;
 	}
 
+	virtual const bool IsBasicReference() const {
+		return true;
+	}
+
 private:
 	const string* m_name;
 	const YYLTYPE m_location;

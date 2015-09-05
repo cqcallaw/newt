@@ -79,12 +79,12 @@ public:
 
 	const LinkedList<T>* Reverse(bool delete_original) const {
 		//ref: http://stackoverflow.com/a/1801703/577298
-		LinkedList<T>* subject = (LinkedList<T>*) this;
-		LinkedList<T>* new_next = (LinkedList<T>*) Terminator;
+		const LinkedList<T>* subject = this;
+		const LinkedList<T>* new_next = Terminator;
 		while (subject != Terminator) {
 			new_next = new LinkedList<T>(subject->GetData(), new_next);
-			LinkedList<T>* tmp = subject;
-			subject = (LinkedList<T>*) subject->GetNext();
+			const LinkedList<T>* tmp = subject;
+			subject = subject->GetNext();
 			if (delete_original) {
 				delete (tmp);
 			}

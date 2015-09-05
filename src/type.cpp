@@ -80,6 +80,16 @@ string AsString(const BasicType type, const void* value) {
 	return buffer.str();
 }
 
+const bool ValidateBasicTypeAssignment(const BasicType left_type,
+		const BasicType right_type) {
+	if ((left_type <= STRING && right_type > left_type)
+			|| left_type != right_type) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 ostream &operator<<(ostream &os, const BasicType &type) {
 	os << type_to_string(type);
 	return os;
@@ -124,20 +134,37 @@ string operator_to_string(OperatorType op) {
 	return ""; // to prevent a compilation warning
 }
 
-const CompoundType* CompoundType::DefaultCompoundType = new CompoundType();
+const CompoundType* CompoundType::DefaultCompoundType = new CompoundType(
+		new map<const string, const MemberDefinition*>());
+
+CompoundType::CompoundType(
+		const map<const string, const MemberDefinition*>* definition) :
+		m_definition(definition) {
+}
+
+const MemberDefinition* CompoundType::GetMember(const string name) const {
+	return m_definition->at(name);
+}
 
 const string CompoundType::ToString() const {
 	ostringstream os;
-	CompoundType::const_iterator iter;
-	for (iter = this->begin(); iter != this->end(); ++iter) {
-		os << iter->first << ": ";
-		const MemberDefinition* type_information = iter->second;
-		const BasicType type = type_information->GetType();
-		const void* value = type_information->GetValue();
-		os << type_to_string(type) << endl;
-		os << AsString(type, value) << endl;
+	map<const string, const MemberDefinition*>::const_iterator type_iter;
+	for (type_iter = m_definition->begin(); type_iter != m_definition->end();
+			++type_iter) {
+		const string member_name = type_iter->first;
+		const MemberDefinition* member_definition = type_iter->second;
+		const BasicType member_type = member_definition->GetType();
+		const void* member_default_value = member_definition->GetDefaultValue();
+
+		os << "\t" << member_type << " " << member_name << " ("
+				<< AsString(member_type, member_default_value) << ")" << endl;
 	}
 	return os.str();
+}
+
+std::ostream& operator <<(std::ostream& os, const CompoundType& type) {
+	os << type.ToString();
+	return os;
 }
 
 const void* DefaultTypeValue(const BasicType type) {
@@ -157,7 +184,3 @@ const void* DefaultTypeValue(const BasicType type) {
 	}
 }
 
-std::ostream& operator <<(std::ostream& os, const CompoundType& type) {
-	os << type.ToString();
-	return os;
-}

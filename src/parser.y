@@ -215,7 +215,8 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_struct_declaration_statement_type> struct_declaration_statement
 %type <union_member_instantiation_type> member_instantiation
 %type <union_member_instantiation_list_type> member_instantiation_list
-%type <union_member_instantiation_list_type> member_instantiation_block
+%type <union_member_instantiation_list_type> optional_member_instantiation_list
+%type <union_member_instantiation_list_type> optional_member_instantiation_block
 %type <union_struct_instantiation_statement_type> struct_instantiation_statement
 
 %% // begin rules
@@ -410,7 +411,7 @@ variable_reference:
 	}
 	| T_ID T_PERIOD T_ID
 	{
-		$$ = new MemberVariable($1, @1, $3, @3);
+		$$ = new MemberVariable($1, @1, new Variable($3, @3));
 	}
 	| T_ID T_LBRACKET expression T_RBRACKET T_PERIOD T_ID
 	{
@@ -569,13 +570,25 @@ member_declaration:
 	;
 
 struct_instantiation_statement:
-	T_ID T_ID T_ASSIGN T_LBRACE member_instantiation_block T_RBRACE
+	T_ID T_ID optional_member_instantiation_block
 	{
-		$$ = new StructInstantiationStatement($1, @1, $2, @2, $5, @5);
+		$$ = new StructInstantiationStatement($1, @1, $2, @2, $3, @3);
 	}
 	;
 
-member_instantiation_block:
+optional_member_instantiation_block:
+	T_ASSIGN T_LBRACE optional_member_instantiation_list T_RBRACE
+	{
+		$$ = $3;
+	}
+	|
+	empty
+	{
+		$$ = MemberInstantiationList::Terminator;
+	}
+	;
+
+optional_member_instantiation_list:
 	member_instantiation_list
 	{
 		$$ = $1;

@@ -45,5 +45,5 @@ Variable::~Variable() {
 }
 
 const BasicType Variable::GetType(const ExecutionContext* context) const {
-	return context->GetSymbolTable()->GetSymbol(m_name)->GetType();
+	return context->GetSymbolContext()->GetSymbol(m_name)->GetType();
 }

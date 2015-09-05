@@ -44,6 +44,10 @@ public:
 		return m_expression_location;
 	}
 
+	virtual const bool IsBasicReference() const {
+		return false;
+	}
+
 private:
 	const Expression* m_index_expression;
 	const YYLTYPE m_expression_location;

@@ -24,6 +24,9 @@
 #include <string>
 #include <yyltype.h>
 #include <member_instantiation_list.h>
+#include <type.h>
+
+class Symbol;
 
 using namespace std;
 
@@ -73,6 +76,9 @@ private:
 	const YYLTYPE m_name_position;
 	const MemberInstantiationList* m_member_instantiation_list;
 	const YYLTYPE m_member_instantiation_list_position;
+
+	const Symbol* GetSymbol(const BasicType member_type,
+			const string member_name, const void* void_value) const;
 };
 
 #endif /* STATEMENTS_STRUCT_INSTANTIATION_STATEMENT_H_ */

@@ -26,6 +26,10 @@
 #include <defaults.h>
 #include <execution_context.h>
 #include <typeinfo>
+#include <struct.h>
+#include <member_variable.h>
+#include <variable_expression.h>
+#include <yyltype.h>
 
 AssignmentStatement::AssignmentStatement(const Variable* variable,
 		const AssignmentType op_type, const Expression* expression) :
@@ -37,52 +41,161 @@ AssignmentStatement::~AssignmentStatement() {
 
 LinkedList<const Error*>* AssignmentStatement::preprocess(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* errors;
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
 
 	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolTable();
+			(SymbolTable*) execution_context->GetSymbolContext();
 	const Symbol* symbol = symbol_table->GetSymbol(m_variable->GetName());
 	const BasicType symbol_type = symbol->GetType();
 
-	switch (symbol_type) {
-	case INT_ARRAY:
-	case DOUBLE_ARRAY:
-	case STRING_ARRAY: {
-		const ArrayVariable* array_variable = (ArrayVariable*) m_variable;
-		const string* variable_name = m_variable->GetName();
-		const Expression* array_index_expression =
-				array_variable->GetIndexExpression();
-		const YYLTYPE array_index_expression_position =
-				array_index_expression->GetPosition();
-		const BasicType index_type = array_index_expression->GetType(
-				execution_context);
+	int variable_line = m_variable->GetLocation().first_line;
+	int variable_column = m_variable->GetLocation().first_column;
 
-		if (!(index_type & INT)) {
-			ostringstream os;
-			os << "A " << index_type << " expression";
+	if (symbol == Symbol::DefaultSymbol) {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						variable_line, variable_column,
+						*m_variable->GetName()));
+	} else {
+		switch (symbol_type) {
+		case INT_ARRAY:
+		case DOUBLE_ARRAY:
+		case STRING_ARRAY: {
+			const ArrayVariable* array_variable = (ArrayVariable*) m_variable;
+			const string* variable_name = m_variable->GetName();
+			const Expression* array_index_expression =
+					array_variable->GetIndexExpression();
+			const YYLTYPE array_index_expression_position =
+					array_index_expression->GetPosition();
+			const BasicType index_type = array_index_expression->GetType(
+					execution_context);
 
-			errors = new LinkedList<const Error*>(
-					new Error(Error::SEMANTIC,
-							Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-							array_index_expression_position.first_line,
-							array_index_expression_position.first_column,
-							*variable_name, os.str()));
-		} else {
-			errors = LinkedList<const Error*>::Terminator;
+			if (!(index_type & INT)) {
+				ostringstream os;
+				os << "A " << index_type << " expression";
+
+				errors = new LinkedList<const Error*>(
+						new Error(Error::SEMANTIC,
+								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
+								array_index_expression_position.first_line,
+								array_index_expression_position.first_column,
+								*variable_name, os.str()));
+			} else {
+				errors = LinkedList<const Error*>::Terminator;
+			}
+			break;
 		}
-		break;
-	}
-	case BOOLEAN:
-	case INT:
-	case DOUBLE:
-	case STRING:
-	default: {
-		errors = LinkedList<const Error*>::Terminator;
-		break;
-	}
+		case STRUCT: {
+			if (m_variable->IsBasicReference()) {
+				//reassigning struct reference
+				YYLTYPE expression_position = m_expression->GetPosition();
+				const Struct* as_struct = (const Struct*) symbol->GetValue();
+				const string struct_type_name = as_struct->GetTypeName();
+				const BasicType expression_type = m_expression->GetType(
+						execution_context);
+
+				if (m_expression->IsConstant()) {
+					errors = new LinkedList<const Error*>(
+							new Error(Error::SEMANTIC,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									expression_position.first_line,
+									expression_position.first_column,
+									struct_type_name,
+									type_to_string(expression_type)));
+				} else {
+					const VariableExpression* variable_expression =
+							(VariableExpression*) m_expression;
+					errors = variable_expression->Validate(execution_context);
+
+					if (errors == LinkedList<const Error*>::Terminator) {
+						if (expression_type != STRUCT) {
+							errors = new LinkedList<const Error*>(
+									new Error(Error::SEMANTIC,
+											Error::ASSIGNMENT_TYPE_ERROR,
+											expression_position.first_line,
+											expression_position.first_column,
+											struct_type_name,
+											type_to_string(expression_type)));
+						} else {
+							const Result* evaluation =
+									variable_expression->Evaluate(
+											execution_context);
+
+							errors = evaluation->GetErrors();
+							if (errors
+									== LinkedList<const Error*>::Terminator) {
+								const Struct* other_as_struct =
+										(const Struct*) evaluation->GetData();
+								const string other_struct_type_name =
+										other_as_struct->GetTypeName();
+								if (struct_type_name.compare(
+										other_struct_type_name) != 0) {
+									errors =
+											new LinkedList<const Error*>(
+													new Error(Error::SEMANTIC,
+															Error::ASSIGNMENT_TYPE_ERROR,
+															expression_position.first_line,
+															expression_position.first_column,
+															struct_type_name,
+															other_struct_type_name));
+								}
+							}
+						}
+					}
+				}
+			} else {
+				const MemberVariable* as_member_variable =
+						(const MemberVariable*) m_variable;
+				const YYLTYPE variable_location =
+						as_member_variable->GetLocation();
+
+				const BasicType member_variable_type =
+						as_member_variable->GetType(execution_context);
+				const BasicType expression_type = m_expression->GetType(
+						execution_context);
+				if (ValidateBasicTypeAssignment(member_variable_type,
+						expression_type)) {
+					errors = LinkedList<const Error*>::Terminator;
+				} else {
+					errors = new LinkedList<const Error*>(
+							new Error(Error::SEMANTIC,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									variable_location.first_line,
+									variable_location.first_column,
+									type_to_string(member_variable_type),
+									type_to_string(expression_type)));
+				}
+			}
+			break;
+		}
+		case BOOLEAN:
+		case INT:
+		case DOUBLE:
+		case STRING: {
+			const BasicType expression_type = m_expression->GetType(
+					execution_context);
+			if (ValidateBasicTypeAssignment(symbol_type, expression_type)) {
+				errors = LinkedList<const Error*>::Terminator;
+			} else {
+				const YYLTYPE variable_location = m_variable->GetLocation();
+				errors = new LinkedList<const Error*>(
+						new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
+								variable_location.first_line,
+								variable_location.first_column,
+								type_to_string(symbol_type),
+								type_to_string(expression_type)));
+			}
+			break;
+		}
+		default: {
+			errors = LinkedList<const Error*>::Terminator;
+			break;
+		}
+		}
 	}
 
-	return errors;
+	return (LinkedList<const Error*>*) errors;
 }
 
 const LinkedList<const Error*>* AssignmentStatement::do_op(
@@ -372,7 +485,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 	const int variable_column = variable->GetLocation().first_column;
 
 	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolTable();
+			(SymbolTable*) execution_context->GetSymbolContext();
 	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
 	const BasicType symbol_type = symbol->GetType();
 	const void* symbol_value = symbol->GetValue();
@@ -524,6 +637,56 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 		}
 		break;
 	}
+	case STRUCT: {
+		const Result* expression_evaluation = expression->Evaluate(
+				execution_context);
+		errors = expression_evaluation->GetErrors();
+
+		if (errors == LinkedList<const Error*>::Terminator) {
+			const string* variable_name = variable->GetName();
+
+			if (variable->IsBasicReference()) {
+				errors = expression_evaluation->GetErrors();
+				if (errors == LinkedList<const Error*>::Terminator) {
+					//we're assigning a struct reference
+					SetResult set_result = symbol_table->SetSymbol(
+							*variable_name,
+							(const Struct*) expression_evaluation->GetData());
+
+					switch (set_result) {
+					case SET_SUCCESS:
+						break;
+					case UNDEFINED_SYMBOL: {
+						errors = new LinkedList<const Error*>(
+								new Error(Error::SEMANTIC,
+										Error::UNDECLARED_VARIABLE,
+										variable_line, variable_column,
+										*variable_name));
+						break;
+					}
+					case NO_SET_RESULT:
+					case INCOMPATIBLE_TYPE:
+					default:
+						assert(false);
+					}
+				}
+			} else {
+				//we're assigning a struct member reference
+				const MemberVariable* member_variable =
+						(const MemberVariable*) variable;
+
+				const Struct* struct_value = (const Struct*) symbol_value;
+				const ExecutionContext* new_context =
+						execution_context->WithSymbolContext(
+								struct_value->GetDefinition());
+				const Variable* new_variable =
+						member_variable->GetMemberVariable();
+
+				errors = do_op(new_variable, expression, op, new_context);
+			}
+		}
+		break;
+	}
 	default:
 		assert(false);
 	}
@@ -548,7 +711,7 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 	int variable_column = m_variable->GetLocation().first_column;
 
 	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolTable();
+			(SymbolTable*) execution_context->GetSymbolContext();
 	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
 
 	if (symbol == NULL || symbol == Symbol::DefaultSymbol) {
@@ -574,3 +737,4 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 
 	return errors;
 }
+

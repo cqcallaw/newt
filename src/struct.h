@@ -20,12 +20,28 @@
 #ifndef STRUCT_H_
 #define STRUCT_H_
 
-#include <map>
 #include <string>
+#include <symbol_context.h>
 
 using namespace std;
 
-class Struct: public map<const string, const MemberDefinition*> {
+class Struct {
+public:
+	Struct(const string type_name, SymbolContext* definition) :
+			m_type_name(type_name), m_definition(definition) {
+	}
+
+	const string GetTypeName() const {
+		return m_type_name;
+	}
+
+	SymbolContext* GetDefinition() const {
+		return m_definition;
+	}
+
+private:
+	const string m_type_name;
+	SymbolContext* m_definition;
 };
 
 #endif /* STRUCT_H_ */

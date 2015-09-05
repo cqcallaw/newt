@@ -101,7 +101,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 	}
 
 	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolTable();
+			(SymbolTable*) execution_context->GetSymbolContext();
 
 	if (symbol != Symbol::DefaultSymbol) {
 		InsertResult insert_result = symbol_table->InsertSymbol(symbol);
@@ -126,7 +126,7 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 	const void* value = nullptr;
 
 	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolTable();
+			(SymbolTable*) execution_context->GetSymbolContext();
 
 	if (m_size_expression->GetType(execution_context) != INT) {
 		errors = (LinkedList<const Error*>*) errors->With(

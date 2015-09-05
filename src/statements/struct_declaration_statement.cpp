@@ -23,6 +23,7 @@
 #include <member_declaration.h>
 #include <type_table.h>
 #include <execution_context.h>
+#include <map>
 
 StructDeclarationStatement::StructDeclarationStatement(const std::string* name,
 		const YYLTYPE name_position,
@@ -42,6 +43,11 @@ LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
 
+	TypeTable* type_table = execution_context->GetTypeTable();
+
+	std::map<const string, const MemberDefinition*>* pairing = new std::map<
+			const string, const MemberDefinition*>();
+
 	const LinkedList<const MemberDeclaration*>* subject =
 			m_member_declaration_list;
 	while (subject != LinkedList<const MemberDeclaration*>::Terminator) {
@@ -54,38 +60,31 @@ LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 					new Error(Error::SEMANTIC,
 							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
 							position.first_line, position.first_column));
+		} else {
+			const MemberDeclaration* declaration = subject->GetData();
+			const BasicType type = declaration->GetType();
+			const string* member_name = declaration->GetName();
+			pairing->insert(
+					pair<const string, const MemberDefinition*>(*member_name,
+							new MemberDefinition(type,
+									declaration->GetInitializerExpression()
+											!= nullptr ?
+											declaration->GetInitializerExpression()->Evaluate(
+													execution_context)->GetData() :
+											DefaultTypeValue(type))));
+
 		}
 		subject = subject->GetNext();
 	}
+
+	type_table->AddType(*m_name, new CompoundType(pairing));
+
+	//TODO: verify member names are unique
 
 	return errors;
 }
 
 const LinkedList<const Error*>* StructDeclarationStatement::execute(
 		const ExecutionContext* execution_context) const {
-	TypeTable* type_table = execution_context->GetTypeTable();
-
-	CompoundType* compound_type = new CompoundType();
-
-	const LinkedList<const MemberDeclaration*>* subject =
-			m_member_declaration_list;
-	while (subject != LinkedList<const MemberDeclaration*>::Terminator) {
-		const MemberDeclaration* declaration = subject->GetData();
-		const BasicType type = declaration->GetType();
-		const string* member_name = declaration->GetName();
-		compound_type->insert(
-				pair<const string, const MemberDefinition*>(*member_name,
-						new MemberDefinition(type,
-								declaration->GetInitializerExpression()
-										!= nullptr ?
-										declaration->GetInitializerExpression()->Evaluate(
-												execution_context)->GetData() :
-										DefaultTypeValue(type))));
-		subject = subject->GetNext();
-	}
-
-	type_table->AddType(*m_name, compound_type);
-
-	//TODO: error handling
 	return LinkedList<const Error*>::Terminator;
 }

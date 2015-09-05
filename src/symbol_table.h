@@ -20,10 +20,7 @@
 #ifndef SYMBOL_TABLE_H_
 #define SYMBOL_TABLE_H_
 
-#include <iostream>
-#include "symbol.h"
-#include "array_symbol.h"
-#include <map>
+#include <symbol_context.h>
 
 using namespace std;
 
@@ -31,65 +28,13 @@ enum InsertResult {
 	NO_INSERT_RESULT = 0, INSERT_SUCCESS = 1, SYMBOL_EXISTS = 2
 };
 
-enum SetResult {
-	NO_SET_RESULT = 0,
-	SET_SUCCESS = 1,
-	UNDEFINED_SYMBOL = 2,
-	INCOMPATIBLE_TYPE = 3
-};
-
-struct comparator {
-	bool operator()(const string lhs, const string rhs) const {
-		return lhs < rhs;
-	}
-};
-
-class SymbolTable {
+class SymbolTable: public SymbolContext {
 public:
-	SymbolTable();
-
-	const void print(ostream &os) const;
-
-	const Symbol* GetSymbol(const string identifier) const;
-	const Symbol* GetSymbol(const string* identifier) const;
+	SymbolTable(
+			const LinkedList<const SymbolContext*>* parent = LinkedList<
+					const SymbolContext*>::Terminator);
 
 	InsertResult InsertSymbol(const Symbol* symbol);
-
-	SetResult SetSymbol(const string identifier, const bool* value);
-	SetResult SetSymbol(const string identifier, const int* value);
-	SetResult SetSymbol(const string identifier, const double* value);
-	SetResult SetSymbol(const string identifier, const string* value);
-
-	SetResult SetArraySymbol(const string identifier, const int value[],
-			const int size, const bool initialized);
-	SetResult SetArraySymbol(const string identifier, const double value[],
-			const int size, const bool initialized);
-	SetResult SetArraySymbol(const string identifier, const string* value[],
-			const int size, const bool initialized);
-
-	SetResult SetSymbol(const string identifier, int index, const bool* value);
-	SetResult SetSymbol(const string identifier, int index, const int* value);
-	SetResult SetSymbol(const string identifier, int index,
-			const double* value);
-	SetResult SetSymbol(const string identifier, int index,
-			const string* value);
-
-private:
-	SetResult SetSymbol(const string identifier, const BasicType type,
-			const void* value);
-
-	SetResult SetArraySymbol(const string identifier,
-			const ArraySymbol* new_symbol);
-
-	SetResult SetArraySymbolIndex(const string identifier, BasicType type, int index,
-			const void* value);
-
-	std::map<const string, const Symbol*, comparator>* table;
-
-	// disable default copy constructor and default assignment
-	// done as a precaution, they should never be called
-	SymbolTable(const SymbolTable &);
-	const SymbolTable &operator=(const SymbolTable &);
 };
 
 #endif /* SYMBOL_TABLE_H_ */

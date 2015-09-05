@@ -18,7 +18,6 @@
  */
 
 #include <struct_instantiation_statement.h>
-#include <type.h>
 #include <map>
 #include <execution_context.h>
 #include <type_table.h>
@@ -26,6 +25,7 @@
 #include <member_instantiation.h>
 #include <expression.h>
 #include <struct.h>
+#include <symbol.h>
 
 StructInstantiationStatement::StructInstantiationStatement(
 		const std::string* type_name, const YYLTYPE type_name_position,
@@ -47,62 +47,126 @@ LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 	//TODO: validate that all members are initialized for readonly structs
 	//TODO: verify referenced members are valid
 	//TODO: check for existing instance with same name
-	//TODO: check that member types the type of their initializers
+	//TODO: check the initializer type matches that of the initialized member
+
+	//generate default instance
+	SymbolTable* symbol_table =
+			(SymbolTable*) execution_context->GetSymbolContext();
+	const LinkedList<const SymbolContext*>* parent_context =
+			symbol_table->GetParent();
+	const LinkedList<const SymbolContext*>* new_parent_context =
+			parent_context->With(symbol_table);
+
+	const CompoundType* type = execution_context->GetTypeTable()->GetType(
+			*m_type_name);
+
+	map<const string, const Symbol*> symbol_mapping;
+
+	const map<const string, const MemberDefinition*>* type_definition =
+			type->GetDefinition();
+	map<const string, const MemberDefinition*>::const_iterator iter;
+
+	for (iter = type_definition->begin(); iter != type_definition->end();
+			++iter) {
+		const string member_name = iter->first;
+		const MemberDefinition* member_type_information = iter->second;
+
+		const Symbol* symbol = GetSymbol(member_type_information->GetType(),
+				member_name, member_type_information->GetDefaultValue());
+		symbol_mapping.insert(
+				std::pair<const string, const Symbol*>(member_name, symbol));
+	}
+
+	Struct* instance = new Struct(*m_type_name,
+			new SymbolContext(new_parent_context, &symbol_mapping));
+
+	const Symbol* symbol = new Symbol(*m_name, instance);
+	const InsertResult insert_result = symbol_table->InsertSymbol(symbol);
+
 	return LinkedList<const Error*>::Terminator;
+}
+
+const Symbol* StructInstantiationStatement::GetSymbol(
+		const BasicType member_type, const string member_name,
+		const void* void_value) const {
+	switch (member_type) {
+	case BOOLEAN:
+		return new Symbol(member_name, (bool*) void_value);
+		break;
+	case INT:
+		return new Symbol(member_name, (int*) void_value);
+		break;
+	case DOUBLE:
+		return new Symbol(member_name, (double*) void_value);
+		break;
+	case STRING:
+		return new Symbol(member_name, (string*) void_value);
+		break;
+	case STRUCT:
+		return new Symbol(member_name, (Struct*) void_value);
+		break;
+	default:
+		assert(false);
+		return nullptr;
+	}
 }
 
 const LinkedList<const Error*>* StructInstantiationStatement::execute(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
-	const CompoundType* type = execution_context->GetTypeTable()->GetType(
-			*m_type_name);
-
-	Struct* instance = new Struct();
+	const Symbol* base = execution_context->GetSymbolContext()->GetSymbol(
+			m_name);
+	const Struct* base_struct = (const Struct*) base->GetValue();
+	SymbolContext* struct_symbol_context = base_struct->GetDefinition();
 
 	const LinkedList<const MemberInstantiation*>* subject =
 			m_member_instantiation_list;
 	while (subject != LinkedList<const MemberInstantiation*>::Terminator) {
 		const MemberInstantiation* memberInstantiation = subject->GetData();
-		const string memberName = *memberInstantiation->GetName();
-		const MemberDefinition* member_type_information = type->at(memberName);
+		const string member_name = *memberInstantiation->GetName();
+		const Symbol* member_symbol = struct_symbol_context->GetSymbol(
+				member_name);
+		const BasicType member_type = member_symbol->GetType();
 		const Result* evaluation_result =
 				memberInstantiation->GetExpression()->Evaluate(
 						execution_context);
 
 		if (evaluation_result->GetErrors()
 				== LinkedList<const Error*>::Terminator) {
-			instance->insert(
-					pair<const string, const MemberDefinition*>(memberName,
-							new MemberDefinition(
-									member_type_information->GetType(),
-									evaluation_result->GetData())));
+			const void* void_value = evaluation_result->GetData();
 
+			switch (member_type) {
+			case BOOLEAN:
+				struct_symbol_context->SetSymbol(member_name,
+						(bool*) void_value);
+				break;
+			case INT:
+				struct_symbol_context->SetSymbol(member_name,
+						(int*) void_value);
+				break;
+			case DOUBLE:
+				struct_symbol_context->SetSymbol(member_name,
+						(double*) void_value);
+				break;
+			case STRING:
+				struct_symbol_context->SetSymbol(member_name,
+						(string*) void_value);
+				break;
+			case STRUCT:
+				struct_symbol_context->SetSymbol(member_name,
+						(Struct*) void_value);
+				break;
+			default:
+				assert(false);
+				return nullptr;
+			}
 		} else {
 			return evaluation_result->GetErrors();
 		}
 
 		subject = subject->GetNext();
 	}
-
-	CompoundType::const_iterator iter;
-	for (iter = type->begin(); iter != type->end(); ++iter) {
-		const string member_name = iter->first;
-		const MemberDefinition* member_type_information = iter->second;
-
-		map<const string, const void*> map_iter;
-		if (instance->find(member_name) == instance->end()) {
-			instance->insert(
-					pair<const string, const MemberDefinition*>(member_name,
-							member_type_information));
-		}
-	}
-
-	SymbolTable* symbol_table = execution_context->GetSymbolTable();
-
-	const Symbol* symbol = new Symbol(*m_name, instance);
-
-	const InsertResult insert_result = symbol_table->InsertSymbol(symbol);
 
 	return errors;
 }

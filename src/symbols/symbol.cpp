@@ -95,8 +95,7 @@ const Symbol* Symbol::WithValue(const string* value) const {
 	return WithValue(STRING, (void*) value);
 }
 
-const Symbol* Symbol::WithValue(const BasicType type,
-		const void* value) const {
+const Symbol* Symbol::WithValue(const BasicType type, const void* value) const {
 	if (type > this->type) {
 		return DefaultSymbol;
 	}
@@ -107,32 +106,26 @@ const Symbol* Symbol::WithValue(const BasicType type,
 string Symbol::ToString() const {
 	ostringstream os;
 
-	os << type << " " << name;
+	os << type << " " << name << ": ";
 	switch (type) {
 	case BOOLEAN:
-		os << " " << *((bool*) value) << endl;
+		os << " " << *((bool*) value);
 		break;
 	case INT:
-		os << " " << *((int*) value) << endl;
+		os << " " << *((int*) value);
 		break;
 	case DOUBLE:
-		os << " " << *((double*) value) << endl;
+		os << " " << *((double*) value);
 		break;
 	case STRING:
-		os << " \"" << *((string*) value) << "\"" << endl;
+		os << " \"" << *((string*) value) << "\"";
 		break;
 	case STRUCT: {
 		os << endl;
-		Struct* as_struct = (Struct*) value;
-		Struct::const_iterator iter;
-		for (iter = as_struct->begin(); iter != as_struct->end(); ++iter) {
-			const string member_name = iter->first;
-			const MemberDefinition* member_definition = iter->second;
-			const BasicType member_type = member_definition->GetType();
-			const void* member_value = member_definition->GetValue();
-			os << " " << member_type << " " << member_name << ": "
-					<< AsString(member_type, member_value) << "\n";
-		}
+		const Struct* as_struct = (const Struct*) value;
+		const SymbolContext* context = as_struct->GetDefinition();
+		string indent = "\t";
+		context->print(os, &indent);
 		break;
 	}
 	default:

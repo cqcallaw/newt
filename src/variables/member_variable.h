@@ -12,17 +12,25 @@
 
 class MemberVariable: public Variable {
 public:
-	MemberVariable(const std::string* name, YYLTYPE location,
-			const std::string* member_name, YYLTYPE member_name_location);
+	MemberVariable(const std::string* container_name,
+			const YYLTYPE container_name_location,
+			const Variable* member_variable);
 	virtual ~MemberVariable();
 
 	virtual const BasicType GetType(const ExecutionContext* context) const;
 
 	virtual const std::string* ToString(const ExecutionContext* context) const;
 
+	virtual const bool IsBasicReference() const {
+		return false;
+	}
+
+	const Variable* GetMemberVariable() const {
+		return m_member_variable;
+	}
+
 private:
-	const std::string* m_member_name;
-	const YYLTYPE m_member_name_location;
+	const Variable* m_member_variable;
 };
 
 #endif /* MEMBER_VARIABLE_H_ */

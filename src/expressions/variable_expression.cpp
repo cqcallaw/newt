@@ -20,10 +20,12 @@
 #include <variable_expression.h>
 #include <variable.h>
 #include <array_variable.h>
+#include <member_variable.h>
 #include <error.h>
 #include <sstream>
 #include <execution_context.h>
 #include <type.h>
+#include <struct.h>
 
 VariableExpression::VariableExpression(const YYLTYPE position,
 		const Variable* variable) :
@@ -37,14 +39,15 @@ const BasicType VariableExpression::GetType(
 
 const Result* VariableExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
-	void* result = nullptr;
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+	const void* result = nullptr;
 
-	const Symbol* symbol = execution_context->GetSymbolTable()->GetSymbol(
+	const Symbol* symbol = execution_context->GetSymbolContext()->GetSymbol(
 			m_variable->GetName());
 
 	if (symbol == nullptr || symbol == Symbol::DefaultSymbol) {
-		errors = (LinkedList<const Error*>*) errors->With(
+		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						m_variable->GetLocation().first_line,
 						m_variable->GetLocation().first_column,
@@ -62,39 +65,58 @@ const Result* VariableExpression::Evaluate(
 			const Expression* array_index_expression =
 					as_array_variable->GetIndexExpression();
 
-			const Result* evaluation =
-					array_index_expression->Evaluate(execution_context);
+			const Result* evaluation = array_index_expression->Evaluate(
+					execution_context);
 			const LinkedList<const Error*>* evaluation_errors =
 					evaluation->GetErrors();
 
 			if (evaluation_errors != LinkedList<const Error*>::Terminator) {
-				errors = (LinkedList<const Error*>*) evaluation_errors;
+				errors = evaluation_errors;
 			} else {
 				int index = *((int *) evaluation->GetData());
 
 				if (index > as_array_symbol->GetSize()) {
 					ostringstream buffer;
 					buffer << index;
-					errors = (LinkedList<const Error*>*) errors->With(
+					errors = errors->With(
 							new Error(Error::SEMANTIC,
 									Error::ARRAY_INDEX_OUT_OF_BOUNDS,
 									m_variable->GetLocation().first_line,
 									m_variable->GetLocation().first_column,
 									*(m_variable->GetName()), buffer.str()));
 				} else {
-					result = (void *) as_array_symbol->GetValue(index);
+					result = as_array_symbol->GetValue(index);
 				}
 			}
 
 			delete (evaluation);
 			break;
 		}
-
+		case STRUCT: {
+			if (m_variable->IsBasicReference()) {
+				result = symbol->GetValue();
+			} else {
+				const Struct* as_struct = (const Struct*) symbol->GetValue();
+				const MemberVariable* as_member_variable =
+						(MemberVariable*) m_variable;
+				const Variable* member =
+						as_member_variable->GetMemberVariable();
+				const VariableExpression* member_expression =
+						new VariableExpression(member->GetLocation(), member);
+				const ExecutionContext* tmp_context =
+						execution_context->WithSymbolContext(
+								as_struct->GetDefinition());
+				const Result* eval = member_expression->Evaluate(tmp_context);
+				delete tmp_context;
+				return eval;
+			}
+			break;
+		}
 		case INT:
 		case DOUBLE:
 		case STRING:
 		default: {
-			result = (void*) symbol->GetValue();
+			result = symbol->GetValue();
 			break;
 		}
 		}
@@ -106,7 +128,7 @@ const Result* VariableExpression::Evaluate(
 const LinkedList<const Error*>* VariableExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	const string* variable_name = m_variable->GetName();
-	const Symbol* symbol = execution_context->GetSymbolTable()->GetSymbol(
+	const Symbol* symbol = execution_context->GetSymbolContext()->GetSymbol(
 			variable_name);
 
 	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
@@ -130,7 +152,8 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 		const YYLTYPE array_index_expression_position =
 				array_index_expression->GetPosition();
 
-		BasicType index_type = array_index_expression->GetType(execution_context);
+		BasicType index_type = array_index_expression->GetType(
+				execution_context);
 		if (index_type != INT) {
 			ostringstream os;
 			os << "A " << index_type << " expression";
@@ -144,13 +167,13 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 		} else if (array_index_expression->IsConstant()) {
 			//index expression is a constant; validate it as appropriate
 			const Symbol* symbol =
-					execution_context->GetSymbolTable()->GetSymbol(
+					execution_context->GetSymbolContext()->GetSymbol(
 							variable_name);
 			ArraySymbol* as_array_symbol = (ArraySymbol*) symbol;
 
 			if (as_array_symbol->IsInitialized()) {
-				const Result* evaluation =
-						array_index_expression->Evaluate(execution_context);
+				const Result* evaluation = array_index_expression->Evaluate(
+						execution_context);
 
 				const LinkedList<const Error*>* evaluation_errors =
 						evaluation->GetErrors();

@@ -107,7 +107,7 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 	}
 
 	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolTable();
+			(SymbolTable*) execution_context->GetSymbolContext();
 
 	if (symbol != Symbol::DefaultSymbol) {
 		InsertResult insert_result = symbol_table->InsertSymbol(symbol);
