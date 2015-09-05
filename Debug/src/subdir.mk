@@ -5,6 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/assert.cpp \
+../src/compound_type.cpp \
 ../src/defaults.cpp \
 ../src/error.cpp \
 ../src/execution_context.cpp \
@@ -22,6 +23,7 @@ CPP_SRCS += \
 
 OBJS += \
 ./src/assert.o \
+./src/compound_type.o \
 ./src/defaults.o \
 ./src/error.o \
 ./src/execution_context.o \
@@ -39,6 +41,7 @@ OBJS += \
 
 CPP_DEPS += \
 ./src/assert.d \
+./src/compound_type.d \
 ./src/defaults.d \
 ./src/error.d \
 ./src/execution_context.d \

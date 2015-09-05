@@ -21,7 +21,6 @@
 #define TYPE_H
 
 #include <iostream>
-#include <map>
 #include <string>
 #include <linked_list.h>
 
@@ -70,7 +69,7 @@ enum OperatorType {
 
 string operator_to_string(OperatorType op);
 
-class MemberDefinition {
+/*class MemberDefinition {
 public:
 	MemberDefinition(const BasicType type, const void* value) :
 			m_type(type), m_value(value) {
@@ -84,9 +83,9 @@ public:
 private:
 	const BasicType m_type;
 	const void* m_value;
-};
+};*/
 
-class CompoundType {
+/*class CompoundType {
 public:
 	CompoundType(const map<const string, const MemberDefinition*>* definition);
 	const MemberDefinition* GetMember(const string name) const;
@@ -103,6 +102,6 @@ private:
 	const map<const string, const MemberDefinition*>* m_definition;
 };
 
-std::ostream &operator<<(std::ostream &os, const CompoundType &symbol);
+std::ostream &operator<<(std::ostream &os, const CompoundType &symbol);*/
 
 #endif // #ifndef TYPE_H

@@ -17,30 +17,28 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPE_TABLE_H_
-#define TYPE_TABLE_H_
+#ifndef MEMBER_DEFINITION_H_
+#define MEMBER_DEFINITION_H_
 
-#include <member_declaration.h>
 #include <type.h>
-#include <compound_type.h>
 
-using namespace std;
-
-class TypeTable {
+class MemberDefinition {
 public:
-	TypeTable();
-	virtual ~TypeTable();
+	MemberDefinition(const BasicType type, const void* value) :
+			m_type(type), m_value(value) {
+	}
+	virtual ~MemberDefinition() {
+	}
 
-	void AddType(const string name, const CompoundType* definition);
-
-	const CompoundType* GetType(const string name) const;
-
-	const void print(ostream &os) const;
-
-	const static string DefaultTypeName;
-
+	const BasicType GetType() const {
+		return m_type;
+	}
+	const void* GetDefaultValue() const {
+		return m_value;
+	}
 private:
-	map<const string, const CompoundType*>* table;
+	const BasicType m_type;
+	const void* m_value;
 };
 
-#endif /* TYPE_TABLE_H_ */
+#endif /* MEMBER_DEFINITION_H_ */

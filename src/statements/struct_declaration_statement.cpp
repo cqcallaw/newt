@@ -24,6 +24,7 @@
 #include <type_table.h>
 #include <execution_context.h>
 #include <map>
+#include <member_definition.h>
 
 StructDeclarationStatement::StructDeclarationStatement(const std::string* name,
 		const YYLTYPE name_position,
