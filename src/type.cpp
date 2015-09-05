@@ -82,11 +82,11 @@ string AsString(const BasicType type, const void* value) {
 
 const bool ValidateBasicTypeAssignment(const BasicType left_type,
 		const BasicType right_type) {
-	if ((left_type <= STRING && right_type > left_type)
-			|| left_type != right_type) {
-		return false;
-	} else {
+	if ((left_type <= STRING && right_type <= left_type)
+			|| left_type == right_type) {
 		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -133,7 +133,6 @@ string operator_to_string(OperatorType op) {
 	assert(false);
 	return ""; // to prevent a compilation warning
 }
-
 
 const void* DefaultTypeValue(const BasicType type) {
 	switch (type) {
