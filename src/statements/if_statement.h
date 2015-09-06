@@ -37,7 +37,7 @@ public:
 		return m_expression;
 	}
 
-	virtual LinkedList<const Error*>* preprocess(
+	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;

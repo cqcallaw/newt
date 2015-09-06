@@ -25,9 +25,10 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(const BasicType type,
 				size_expression_position) {
 }
 
-LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
+const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* result =
+			LinkedList<const Error*>::Terminator;
 	Symbol* symbol = (Symbol*) Symbol::DefaultSymbol;
 	const string* name = m_name;
 
@@ -40,7 +41,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		const BasicType size_expression_type = m_size_expression->GetType(
 				execution_context);
 		if (size_expression_type != INT) {
-			result = (LinkedList<const Error*>*) result->With(
+			result = result->With(
 					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE_TYPE,
 							m_size_expression_position.first_line,
 							m_size_expression_position.first_column,
@@ -53,8 +54,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 					evaluation->GetErrors();
 
 			if (evaluation_errors != LinkedList<const Error*>::Terminator) {
-				result = (LinkedList<const Error*>*) result->Concatenate(
-						evaluation_errors, true);
+				result = result->Concatenate(evaluation_errors, true);
 			}
 
 			if (evaluation != NULL) {
@@ -63,7 +63,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 				if (array_size <= 0) {
 					ostringstream convert;
 					convert << array_size;
-					result = (LinkedList<const Error*>*) result->With(
+					result = result->With(
 							new Error(Error::SEMANTIC,
 									Error::INVALID_ARRAY_SIZE,
 									m_size_expression_position.first_line,
@@ -94,7 +94,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 				initialized);
 		break;
 	default:
-		result = (LinkedList<const Error*>*) result->With(
+		result = result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_ARRAY_TYPE,
 						m_type_position.first_line,
 						m_type_position.first_column, *name));
@@ -106,7 +106,7 @@ LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 	if (symbol != Symbol::DefaultSymbol) {
 		InsertResult insert_result = symbol_table->InsertSymbol(symbol);
 		if (insert_result == SYMBOL_EXISTS) {
-			result = (LinkedList<const Error*>*) result->With(
+			result = result->With(
 					new Error(Error::SEMANTIC,
 							Error::PREVIOUSLY_DECLARED_VARIABLE,
 							m_name_position.first_line,

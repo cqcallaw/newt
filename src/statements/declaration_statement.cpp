@@ -26,16 +26,16 @@ DeclarationStatement::DeclarationStatement(const BasicType type,
 DeclarationStatement::~DeclarationStatement() {
 }
 
-LinkedList<const Error*>* DeclarationStatement::preprocess(
+const LinkedList<const Error*>* DeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* result =
+			LinkedList<const Error*>::Terminator;
 	Symbol* symbol = (Symbol*) Symbol::DefaultSymbol;
 	const Expression* expression = m_initializer_expression;
 	const string* name = m_name;
 
 	if (expression) {
-		result = (LinkedList<const Error*>*) expression->Validate(
-				execution_context);
+		result = expression->Validate(execution_context);
 	}
 
 	switch (m_type) {
@@ -43,7 +43,7 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 		if (expression != NULL && expression != nullptr
 				&& expression->GetType(execution_context) != NONE) {
 			if (!(expression->GetType(execution_context) & (BOOLEAN))) {
-				result = (LinkedList<const Error*>*) result->With(
+				result = result->With(
 						new Error(Error::SEMANTIC,
 								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 								m_initializer_position.first_line,
@@ -58,7 +58,7 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 		if (expression != NULL
 				&& expression->GetType(execution_context) != NONE) {
 			if (!(expression->GetType(execution_context) & (BOOLEAN | INT))) {
-				result = (LinkedList<const Error*>*) result->With(
+				result = result->With(
 						new Error(Error::SEMANTIC,
 								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 								m_initializer_position.first_line,
@@ -74,7 +74,7 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 				&& expression->GetType(execution_context) != NONE) {
 			if (!(expression->GetType(execution_context)
 					& (BOOLEAN | INT | DOUBLE))) {
-				result = (LinkedList<const Error*>*) result->With(
+				result = result->With(
 						new Error(Error::SEMANTIC,
 								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 								m_initializer_position.first_line,
@@ -90,7 +90,7 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 				&& expression->GetType(execution_context) != NONE) {
 			if (!(expression->GetType(execution_context)
 					& (BOOLEAN | INT | DOUBLE | STRING))) {
-				result = (LinkedList<const Error*>*) result->With(
+				result = result->With(
 						new Error(Error::SEMANTIC,
 								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
 								m_initializer_position.first_line,
@@ -112,7 +112,7 @@ LinkedList<const Error*>* DeclarationStatement::preprocess(
 	if (symbol != Symbol::DefaultSymbol) {
 		InsertResult insert_result = symbol_table->InsertSymbol(symbol);
 		if (insert_result == SYMBOL_EXISTS) {
-			result = (LinkedList<const Error*>*) result->With(
+			result = result->With(
 					new Error(Error::SEMANTIC,
 							Error::PREVIOUSLY_DECLARED_VARIABLE,
 							m_name_position.first_line,

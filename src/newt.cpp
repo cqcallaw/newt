@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (parse_result == 0) {
-		LinkedList<const Error*>* semantic_errors =
+		const LinkedList<const Error*>* semantic_errors =
 				main_statement_block->preprocess(root_context);
 
 		//reverse linked list of errors, which comes to us in reverse order

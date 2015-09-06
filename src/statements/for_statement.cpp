@@ -38,7 +38,7 @@ ForStatement::ForStatement(const AssignmentStatement* initial,
 ForStatement::~ForStatement() {
 }
 
-LinkedList<const Error*>* ForStatement::preprocess(
+const LinkedList<const Error*>* ForStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors;
 
@@ -53,7 +53,7 @@ LinkedList<const Error*>* ForStatement::preprocess(
 		errors = LinkedList<const Error*>::Terminator;
 	}
 
-	return (LinkedList<const Error*>*) errors;
+	return errors;
 }
 
 const LinkedList<const Error*>* ForStatement::execute(

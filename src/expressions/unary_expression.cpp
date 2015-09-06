@@ -42,8 +42,8 @@ const BasicType UnaryExpression::compute_result_type(const BasicType input_type,
 	}
 }
 
-const void* UnaryExpression::compute(const BasicType input_type, const void* input,
-		double (*compute_function)(double),
+const void* UnaryExpression::compute(const BasicType input_type,
+		const void* input, double (*compute_function)(double),
 		double (*input_transform_function)(double),
 		double (*output_transform_function)(double)) {
 	switch (input_type) {
@@ -94,7 +94,8 @@ const BasicType UnaryExpression::GetType(
 
 const LinkedList<const Error*>* UnaryExpression::Validate(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* result =
+			LinkedList<const Error*>::Terminator;
 
 	const OperatorType op = m_operator;
 	const Expression* expression = m_expression;
@@ -102,14 +103,13 @@ const LinkedList<const Error*>* UnaryExpression::Validate(
 	const LinkedList<const Error*>* expression_errors = expression->Validate(
 			execution_context);
 	if (expression_errors != LinkedList<const Error*>::Terminator) {
-		result = (LinkedList<const Error*>*) result->Concatenate(
-				expression_errors, true);
+		result = result->Concatenate(expression_errors, true);
 		return result;
 	}
 
 	BasicType expression_type = expression->GetType(execution_context);
 	if (!(expression_type & (BOOLEAN | INT | DOUBLE))) {
-		result = (LinkedList<const Error*>*) result->With(
+		result = result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
 						expression->GetPosition().first_line,
 						expression->GetPosition().first_column,
@@ -125,16 +125,16 @@ double UnaryExpression::radians_to_degrees(double radians) {
 
 const Result* UnaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
 	void* result = nullptr;
 
 	const BasicType expression_type = m_expression->GetType(execution_context);
-	const Result* evaluation = m_expression->Evaluate(
-			execution_context);
+	const Result* evaluation = m_expression->Evaluate(execution_context);
 	const LinkedList<const Error*>* evaluation_errors = evaluation->GetErrors();
 
 	if (evaluation_errors != LinkedList<const Error*>::Terminator) {
-		errors = (LinkedList<const Error*>*) evaluation_errors;
+		errors = evaluation_errors;
 	} else {
 		const void* data = evaluation->GetData();
 		switch (m_operator) {

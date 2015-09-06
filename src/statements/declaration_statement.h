@@ -21,10 +21,11 @@ public:
 			const YYLTYPE initializer_position = DefaultLocation);
 	virtual ~DeclarationStatement();
 
-	virtual LinkedList<const Error*>* preprocess(
+	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;
+	virtual const LinkedList<const Error*>* execute(
+			const ExecutionContext* execution_context) const;
 private:
 	const BasicType m_type;
 	const YYLTYPE m_type_position;

@@ -39,14 +39,14 @@ IfStatement::IfStatement(const Expression* expression,
 IfStatement::~IfStatement() {
 }
 
-LinkedList<const Error*>* IfStatement::preprocess(
+const LinkedList<const Error*>* IfStatement::preprocess(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
 
 	if (m_expression != nullptr) {
 		if (!(m_expression->GetType(execution_context) & (BOOLEAN | INT))) {
 			YYLTYPE position = m_expression->GetPosition();
-			result = (LinkedList<const Error*>*) result->With(
+			result = result->With(
 					new Error(Error::SEMANTIC,
 							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
 							position.first_line, position.first_column));

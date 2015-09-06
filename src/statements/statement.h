@@ -33,7 +33,7 @@ public:
 	/**
 	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
 	 */
-	virtual LinkedList<const Error*>* preprocess(
+	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const = 0;
 
 	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const = 0;

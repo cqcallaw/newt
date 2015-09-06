@@ -129,10 +129,11 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 	const Symbol* symbol = execution_context->GetSymbolContext()->GetSymbol(
 			variable_name);
 
-	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* result =
+			LinkedList<const Error*>::Terminator;
 
 	if (symbol == NULL || symbol == Symbol::DefaultSymbol) {
-		result = (LinkedList<const Error*>*) result->With(
+		result = result->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						m_variable->GetLocation().first_line,
 						m_variable->GetLocation().first_column,
@@ -154,7 +155,7 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 			ostringstream os;
 			os << "A " << index_type << " expression";
 
-			result = (LinkedList<const Error*>*) result->With(
+			result = result->With(
 					new Error(Error::SEMANTIC,
 							Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
 							array_index_expression_position.first_line,
@@ -175,15 +176,14 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 						evaluation->GetErrors();
 
 				if (evaluation_errors != LinkedList<const Error*>::Terminator) {
-					result = (LinkedList<const Error*>*) result->Concatenate(
-							evaluation_errors, true);
+					result = result->Concatenate(evaluation_errors, true);
 				} else {
 					int index = *((int *) evaluation->GetData());
 
 					if (index > as_array_symbol->GetSize()) {
 						ostringstream buffer;
 						buffer << index;
-						result = (LinkedList<const Error*>*) result->With(
+						result = result->With(
 								new Error(Error::SEMANTIC,
 										Error::ARRAY_INDEX_OUT_OF_BOUNDS,
 										m_variable->GetLocation().first_line,

@@ -236,7 +236,8 @@ const BasicType BinaryExpression::GetType(
 const LinkedList<const Error*>* BinaryExpression::Validate(
 		const ExecutionContext* execution_context, int valid_left,
 		int valid_right) const {
-	LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* result =
+			LinkedList<const Error*>::Terminator;
 
 	const OperatorType op = GetOperator();
 	const Expression* left = GetLeft();
@@ -244,14 +245,13 @@ const LinkedList<const Error*>* BinaryExpression::Validate(
 	const LinkedList<const Error*>* left_errors = left->Validate(
 			execution_context);
 	if (left_errors != LinkedList<const Error*>::Terminator) {
-		result = (LinkedList<const Error*>*) result->Concatenate(left_errors,
-				true);
+		result = result->Concatenate(left_errors, true);
 		return result;
 	}
 
 	BasicType left_type = left->GetType(execution_context);
 	if (!(left_type & (valid_left))) {
-		result = (LinkedList<const Error*>*) result->With(
+		result = result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_LEFT_OPERAND_TYPE,
 						left->GetPosition().first_line,
 						left->GetPosition().first_column,
@@ -263,15 +263,13 @@ const LinkedList<const Error*>* BinaryExpression::Validate(
 	const LinkedList<const Error*>* right_errors = right->Validate(
 			execution_context);
 	if (right_errors != LinkedList<const Error*>::Terminator) {
-		result = (LinkedList<const Error*>*) result->Concatenate(right_errors,
-				true);
+		result = result->Concatenate(right_errors, true);
 		return result;
 	}
 
-	result = (LinkedList<const Error*>*) result->Concatenate(
-			right->Validate(execution_context), true);
+	result = result->Concatenate(right->Validate(execution_context), true);
 	if (!(right_type & (valid_right))) {
-		result = (LinkedList<const Error*>*) result->With(
+		result = result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
 						right->GetPosition().first_line,
 						right->GetPosition().first_column,
