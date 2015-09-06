@@ -57,7 +57,12 @@ public:
 		return m_size;
 	}
 
+	const BasicType GetElementType() const {
+		return m_element_type;
+	}
+
 private:
+	const BasicType m_element_type;
 	const int m_size;
 	const bool m_initialized;
 };

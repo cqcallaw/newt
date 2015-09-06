@@ -32,10 +32,8 @@ enum BasicType {
 	INT = 2,
 	DOUBLE = 4,
 	STRING = 8,
-	DOUBLE_ARRAY = 16,
-	INT_ARRAY = 32,
-	STRING_ARRAY = 64,
-	STRUCT = 128
+	ARRAY = 16,
+	STRUCT = 32
 };
 
 const string type_to_string(const BasicType type);
@@ -68,40 +66,5 @@ enum OperatorType {
 };
 
 string operator_to_string(OperatorType op);
-
-/*class MemberDefinition {
-public:
-	MemberDefinition(const BasicType type, const void* value) :
-			m_type(type), m_value(value) {
-	}
-	const BasicType GetType() const {
-		return m_type;
-	}
-	const void* GetDefaultValue() const {
-		return m_value;
-	}
-private:
-	const BasicType m_type;
-	const void* m_value;
-};*/
-
-/*class CompoundType {
-public:
-	CompoundType(const map<const string, const MemberDefinition*>* definition);
-	const MemberDefinition* GetMember(const string name) const;
-
-	const string ToString() const;
-
-	const map<const string, const MemberDefinition*>* GetDefinition() const {
-		return m_definition;
-	}
-
-	const static CompoundType* DefaultCompoundType;
-
-private:
-	const map<const string, const MemberDefinition*>* m_definition;
-};
-
-std::ostream &operator<<(std::ostream &os, const CompoundType &symbol);*/
 
 #endif // #ifndef TYPE_H

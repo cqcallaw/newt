@@ -158,7 +158,7 @@ SetResult SymbolContext::SetArraySymbol(const string identifier,
 	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
 	} else if (symbol->GetType() != new_symbol->GetType()
-			|| !(symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))) {
+			|| !(symbol->GetType() & (ARRAY))) {
 		return INCOMPATIBLE_TYPE;
 	}
 
@@ -210,8 +210,8 @@ SetResult SymbolContext::SetArraySymbolIndex(const string identifier,
 
 	Symbol* new_symbol;
 	const ArraySymbol* as_array_symbol = (ArraySymbol*) symbol;
-	switch (symbol->GetType()) {
-	case INT_ARRAY: {
+	switch (as_array_symbol->GetElementType()) {
+	case INT: {
 		int* new_value = (int*) malloc(sizeof(int));
 		if (type == BOOLEAN) {
 			*new_value = *((bool*) value);
@@ -224,7 +224,7 @@ SetResult SymbolContext::SetArraySymbolIndex(const string identifier,
 		new_symbol = (Symbol*) as_array_symbol->WithValue(index, new_value);
 		break;
 	}
-	case DOUBLE_ARRAY: {
+	case DOUBLE: {
 		double* new_value = (double*) malloc(sizeof(double));
 		if (type == BOOLEAN) {
 			*new_value = *((bool*) value);
@@ -239,7 +239,7 @@ SetResult SymbolContext::SetArraySymbolIndex(const string identifier,
 		new_symbol = (Symbol*) as_array_symbol->WithValue(index, new_value);
 		break;
 	}
-	case STRING_ARRAY: {
+	case STRING: {
 		string* new_value;
 		if (type == BOOLEAN) {
 			new_value = AsString((bool*) value);

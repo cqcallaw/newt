@@ -37,12 +37,8 @@ const string type_to_string(const BasicType type) {
 		return "double";
 	case STRING:
 		return "string";
-	case INT_ARRAY:
-		return "int array";
-	case DOUBLE_ARRAY:
-		return "double array";
-	case STRING_ARRAY:
-		return "string array";
+	case ARRAY:
+		return "array";
 	case STRUCT:
 		return "struct";
 	}

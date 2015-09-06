@@ -28,20 +28,20 @@
 
 ArraySymbol::ArraySymbol(const string name, const int value[], const int size,
 		const bool initialized) :
-		Symbol(INT_ARRAY, name, (const void*) value), m_size(size), m_initialized(
-				initialized) {
+		Symbol(ARRAY, name, (const void*) value), m_element_type(INT), m_size(
+				size), m_initialized(initialized) {
 }
 
 ArraySymbol::ArraySymbol(const string name, const double value[],
 		const int size, const bool initialized) :
-		Symbol(DOUBLE_ARRAY, name, (const void*) value), m_size(size), m_initialized(
-				initialized) {
+		Symbol(ARRAY, name, (const void*) value), m_element_type(DOUBLE), m_size(
+				size), m_initialized(initialized) {
 }
 
 ArraySymbol::ArraySymbol(const string name, const string* value[],
 		const int size, const bool initialized) :
-		Symbol(STRING_ARRAY, name, (const void*) value), m_size(size), m_initialized(
-				initialized) {
+		Symbol(ARRAY, name, (const void*) value), m_element_type(STRING), m_size(
+				size), m_initialized(initialized) {
 }
 
 ArraySymbol::ArraySymbol(const string* name, const int value[], const int size,
@@ -60,14 +60,14 @@ ArraySymbol::ArraySymbol(const string* name, const string* value[],
 }
 
 const void* ArraySymbol::GetValue(const int index) const {
-	switch (Symbol::GetType()) {
-	case INT_ARRAY:
+	switch (m_element_type) {
+	case INT:
 		return (void *) &((int*) Symbol::GetValue())[index];
 		break;
-	case DOUBLE_ARRAY:
+	case DOUBLE:
 		return (void *) &((double*) Symbol::GetValue())[index];
 		break;
-	case STRING_ARRAY: {
+	case STRING: {
 		string** strings = (string**) Symbol::GetValue();
 		return (void *) strings[index];
 	}
@@ -82,22 +82,22 @@ const void* ArraySymbol::GetValue(const int index) const {
 string ArraySymbol::ToString() const {
 	ostringstream os;
 
-	BasicType type = GetType();
+	BasicType type = GetElementType();
 	const string name = GetName();
 
-	os << type << " " << name << ":" << endl;
-	switch (type) {
-	case INT_ARRAY:
+	os << type << " array " << name << ":" << endl;
+	switch (m_element_type) {
+	case INT:
 		for (int i = 0; i < m_size; i++) {
 			os << "\t[" << i << "] " << *((int *) GetValue(i)) << endl;
 		}
 		break;
-	case DOUBLE_ARRAY:
+	case DOUBLE:
 		for (int i = 0; i < m_size; i++) {
 			os << "\t[" << i << "] " << *((double *) GetValue(i)) << endl;
 		}
 		break;
-	case STRING_ARRAY:
+	case STRING:
 		for (int i = 0; i < m_size; i++) {
 			os << "\t[" << i << "] \"" << *((string *) GetValue(i)) << "\""
 					<< endl;
@@ -116,7 +116,7 @@ const ArraySymbol* ArraySymbol::WithValue(const int index, int* value) const {
 		assert(false);
 	}
 
-	if (GetType() != INT_ARRAY) {
+	if (m_element_type != INT) {
 		assert(false);
 		return this;
 	}
@@ -133,7 +133,7 @@ const ArraySymbol* ArraySymbol::WithValue(const int index,
 		assert(false);
 	}
 
-	if (GetType() != DOUBLE_ARRAY) {
+	if (m_element_type != DOUBLE) {
 		assert(false);
 		return this;
 	}
@@ -150,7 +150,7 @@ const ArraySymbol* ArraySymbol::WithValue(const int index,
 		assert(false);
 	}
 
-	if (GetType() != STRING_ARRAY) {
+	if (m_element_type != STRING) {
 		assert(false);
 		return this;
 	}

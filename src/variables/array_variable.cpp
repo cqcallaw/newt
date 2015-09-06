@@ -23,20 +23,7 @@
 
 #include "yyltype.h"
 #include "assert.h"
-
-const BasicType map_to_primitive(BasicType type) {
-	switch (type) {
-	case INT_ARRAY:
-		return INT;
-	case DOUBLE_ARRAY:
-		return DOUBLE;
-	case STRING_ARRAY:
-		return STRING;
-	default:
-		assert(false);
-		return NONE;
-	}
-}
+#include "execution_context.h"
 
 ArrayVariable::ArrayVariable(const string* name,
 YYLTYPE location, const Expression* index_expression,
@@ -48,8 +35,9 @@ YYLTYPE expression_location) :
 }
 
 const BasicType ArrayVariable::GetType(const ExecutionContext* context) const {
-	BasicType type = Variable::GetType(context);
-	return map_to_primitive(type);
+	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName());
+	const ArraySymbol* as_array_symbol = (const ArraySymbol*) symbol;
+	return as_array_symbol->GetElementType();
 }
 
 const string* ArrayVariable::ToString(const ExecutionContext* context) const {

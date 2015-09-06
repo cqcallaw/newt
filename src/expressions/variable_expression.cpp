@@ -56,9 +56,7 @@ const Result* VariableExpression::Evaluate(
 		switch (symbol->GetType()) {
 		case NONE:
 			break;
-		case INT_ARRAY:
-		case DOUBLE_ARRAY:
-		case STRING_ARRAY: {
+		case ARRAY: {
 			ArraySymbol* as_array_symbol = (ArraySymbol*) symbol;
 
 			ArrayVariable* as_array_variable = (ArrayVariable*) m_variable;
@@ -143,9 +141,7 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 	}
 
 	switch (symbol->GetType()) {
-	case INT_ARRAY:
-	case DOUBLE_ARRAY:
-	case STRING_ARRAY: {
+	case ARRAY: {
 		ArrayVariable* as_array_variable = (ArrayVariable*) m_variable;
 		const Expression* array_index_expression =
 				as_array_variable->GetIndexExpression();

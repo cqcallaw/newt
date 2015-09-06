@@ -59,9 +59,7 @@ LinkedList<const Error*>* AssignmentStatement::preprocess(
 						*m_variable->GetName()));
 	} else {
 		switch (symbol_type) {
-		case INT_ARRAY:
-		case DOUBLE_ARRAY:
-		case STRING_ARRAY: {
+		case ARRAY: {
 			const ArrayVariable* array_variable = (ArrayVariable*) m_variable;
 			const string* variable_name = m_variable->GetName();
 			const Expression* array_index_expression =
@@ -538,7 +536,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 		}
 		break;
 	}
-	case INT_ARRAY: {
+	case ARRAY: {
 		ArrayVariable* array_variable = (ArrayVariable*) variable;
 		const Result* evaluation =
 				array_variable->GetIndexExpression()->Evaluate(
@@ -557,85 +555,55 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 								variable_column, array_symbol->GetName(),
 								*AsString(index)));
 			} else {
-				const Result* result = do_op(variable_name, variable_type,
-						variable_line, variable_column,
-						*(((int*) symbol_value) + index), expression, op,
+				const BasicType element_type = array_variable->GetType(
 						execution_context);
+				switch (element_type) {
+				case INT: {
+					const Result* result = do_op(variable_name, variable_type,
+							variable_line, variable_column,
+							*(((int*) symbol_value) + index), expression, op,
+							execution_context);
 
-				errors = result->GetErrors();
-				if (errors == LinkedList<const Error*>::Terminator) {
-					set_result = symbol_table->SetSymbol(*variable_name, index,
-							(int*) result->GetData());
+					errors = result->GetErrors();
+					if (errors == LinkedList<const Error*>::Terminator) {
+						set_result = symbol_table->SetSymbol(*variable_name,
+								index, (int*) result->GetData());
+						break;
+					}
+					break;
+				}
+				case DOUBLE: {
+					const Result* result = do_op(variable_name, variable_type,
+							variable_line, variable_column,
+							*(((double*) symbol_value) + index), expression, op,
+							execution_context);
+
+					errors = result->GetErrors();
+					if (errors == LinkedList<const Error*>::Terminator) {
+						set_result = symbol_table->SetSymbol(*variable_name,
+								index, (double*) result->GetData());
+					}
+					break;
+				}
+				case STRING: {
+					const Result* result = do_op(variable_name, variable_type,
+							variable_line, variable_column,
+							*(((string**) symbol_value) + index), expression,
+							op, execution_context);
+
+					errors = result->GetErrors();
+					if (errors == LinkedList<const Error*>::Terminator) {
+						set_result = symbol_table->SetSymbol(*variable_name,
+								index, (string*) result->GetData());
+					}
+					break;
+				}
+				default:
+					assert(false);
 				}
 			}
+			break;
 		}
-		break;
-	}
-	case DOUBLE_ARRAY: {
-		ArrayVariable* array_variable = (ArrayVariable*) variable;
-		const Result* evaluation =
-				array_variable->GetIndexExpression()->Evaluate(
-						execution_context);
-
-		errors = evaluation->GetErrors();
-		if (errors == LinkedList<const Error*>::Terminator) {
-			int index = *((int*) evaluation->GetData());
-			delete (evaluation);
-
-			ArraySymbol* array_symbol = (ArraySymbol*) symbol;
-			if (index >= array_symbol->GetSize() || index < 0) {
-				errors = new LinkedList<const Error*>(
-						new Error(Error::SEMANTIC,
-								Error::ARRAY_INDEX_OUT_OF_BOUNDS, variable_line,
-								variable_column, array_symbol->GetName(),
-								*AsString(index)));
-			} else {
-				const Result* result = do_op(variable_name, variable_type,
-						variable_line, variable_column,
-						*(((double*) symbol_value) + index), expression, op,
-						execution_context);
-
-				errors = result->GetErrors();
-				if (errors == LinkedList<const Error*>::Terminator) {
-					set_result = symbol_table->SetSymbol(*variable_name, index,
-							(double*) result->GetData());
-				}
-			}
-		}
-		break;
-	}
-	case STRING_ARRAY: {
-		ArrayVariable* array_variable = (ArrayVariable*) variable;
-		const Result* evaluation =
-				array_variable->GetIndexExpression()->Evaluate(
-						execution_context);
-
-		errors = evaluation->GetErrors();
-		if (errors == LinkedList<const Error*>::Terminator) {
-			int index = *((int*) evaluation->GetData());
-			delete (evaluation);
-
-			ArraySymbol* array_symbol = (ArraySymbol*) symbol;
-			if (index >= array_symbol->GetSize() || index < 0) {
-				errors = new LinkedList<const Error*>(
-						new Error(Error::SEMANTIC,
-								Error::ARRAY_INDEX_OUT_OF_BOUNDS, variable_line,
-								variable_column, array_symbol->GetName(),
-								*AsString(index)));
-			} else {
-				const Result* result = do_op(variable_name, variable_type,
-						variable_line, variable_column,
-						*(((string**) symbol_value) + index), expression, op,
-						execution_context);
-
-				errors = result->GetErrors();
-				if (errors == LinkedList<const Error*>::Terminator) {
-					set_result = symbol_table->SetSymbol(*variable_name, index,
-							(string*) result->GetData());
-				}
-			}
-		}
-		break;
 	}
 	case STRUCT: {
 		const Result* expression_evaluation = expression->Evaluate(
@@ -719,14 +687,14 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						variable_line, variable_column, *(variable_name)));
 	} else if (dynamic_cast<const ArrayVariable*>(m_variable) == NULL
-			&& (symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))) {
+			&& (symbol->GetType() & (ARRAY))) {
 //we're trying to reference an array variable without an index
 //(this probably isn't legitimate and may need to be revised for the statement "var arr1 = arr2")
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						variable_line, variable_column, *(variable_name)));
 	} else if (dynamic_cast<const ArrayVariable*>(m_variable) != NULL
-			&& !(symbol->GetType() & (INT_ARRAY | DOUBLE_ARRAY | STRING_ARRAY))) {
+			&& !(symbol->GetType() & (ARRAY))) {
 //trying to reference a non-array variable as an array.
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
