@@ -167,9 +167,9 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_OR                  "||"
 %token T_NOT                 "!"
 
-%token T_STRUCT              "struct"
+%token T_STRUCT              "struct declaration"
 
-%token T_READONLY            "readonly"
+%token T_READONLY            "readonly modifier"
 
 %token <union_string> T_ID               "identifier"
 %token <union_int> T_INT_CONSTANT        "int constant"
@@ -225,13 +225,13 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 program:
 	statement_list
 	{
-		if ($1 != LinkedList<const Statement*>::Terminator) {
-			//statement list comes in reverse order
-			//wrap in StatementList because Reverse is a LinkedList<T> function
-			*main_statement_block = new StatementBlock($1->Reverse(true));
-		} else {
-			*main_statement_block = new StatementBlock(StatementList::Terminator);
-		}
+		//statement list comes in reverse order
+		//wrap in StatementList because Reverse is a LinkedList<T> function
+		*main_statement_block = new StatementBlock($1->Reverse(true));
+	}
+	| empty
+	{
+		*main_statement_block = new StatementBlock(StatementList::Terminator);
 	}
 	;
 
@@ -274,18 +274,6 @@ simple_type:
 	
 
 //---------------------------------------------------------------------
-if_block:
-	statement
-	{
-		$$ = new StatementBlock(new StatementList($1, StatementList::Terminator));
-	}
-	| statement_block
-	{
-		$$ = $1;
-	}
-	;
-	
-//---------------------------------------------------------------------
 statement_block:
 	T_LBRACE statement_list T_RBRACE
 	{
@@ -299,9 +287,10 @@ statement_list:
 	{
 		$$ = new StatementList($2, $1);
 	}
-	| empty
+	| statement
 	{
-		$$ = StatementList::Terminator;
+		//$$ = StatementList::Terminator;
+		$$ = new StatementList($1, StatementList::Terminator);
 	}
 	;
 
@@ -343,6 +332,18 @@ statement:
 	}
 	;
 
+//---------------------------------------------------------------------
+if_block:
+	statement
+	{
+		$$ = new StatementBlock(new StatementList($1, StatementList::Terminator));
+	}
+	| statement_block
+	{
+		$$ = $1;
+	}
+	;
+	
 //---------------------------------------------------------------------
 if_statement:
 	T_IF T_LPAREN expression T_RPAREN if_block %prec IF_NO_ELSE
@@ -526,9 +527,9 @@ modifier_list:
 		$$ = new ModifierList($2, $1);
 	}
 	|
-	empty
+	modifier
 	{
-		$$ = ModifierList::Terminator;
+		$$ = new ModifierList($1, ModifierList::Terminator);
 	}
 
 modifier:
@@ -542,6 +543,11 @@ struct_declaration_statement:
 	modifier_list T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
 	{
 		$$ = new StructDeclarationStatement($3, @3, new MemberDeclarationList($5->Reverse(true)), @5, new ModifierList($1->Reverse(true)), @1);
+	}
+	|
+	T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	{
+		$$ = new StructDeclarationStatement($2, @2, new MemberDeclarationList($4->Reverse(true)), @4, ModifierList::Terminator, DefaultLocation);
 	}
 	;
 
