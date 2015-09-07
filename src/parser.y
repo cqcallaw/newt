@@ -245,9 +245,13 @@ variable_declaration:
 	{
 		$$ = new DeclarationStatement($1, @1, $2, @2, $4, @4);
 	}
-	| simple_type T_ID T_LBRACKET expression T_RBRACKET
+	| simple_type T_LBRACKET T_RBRACKET T_ID
 	{
-		$$ = new ArrayDeclarationStatement($1, @1, $2, @2, $4, @4);
+		$$ = new ArrayDeclarationStatement($1, @1, $4, @4);
+	}
+	| simple_type T_LBRACKET expression T_RBRACKET T_ID
+	{
+		$$ = new ArrayDeclarationStatement($1, @1, $5, @5, $3, @3);
 	}
 	;
 

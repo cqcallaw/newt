@@ -3,12 +3,12 @@ int j = 2
 int k = 4
 int l = 8
 
-int num0[i*j*k - l + 1]
-int num1[l-k-j]
-int num2[k * 2 - i - k]
-int num3[j * i + i * j]
-int num4[k * j - (i + j)]
-int num5[k * l - l * k + j * (i + j)]
-int num6[i+j+k]
-int num7[i*j*k]
-int num8[l + i]
+int[i*j*k - l + 1] num0
+int[l-k-j] num1
+int[k * 2 - i - k] num2
+int[j * i + i * j] num3
+int[k * j - (i + j)] num4
+int[k * l - l * k + j * (i + j)] num5
+int[i+j+k] num6
+int[i*j*k] num7
+int[l + i] num8

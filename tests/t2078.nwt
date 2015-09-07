@@ -1,4 +1,4 @@
 string str = "index"
-int nums[4]
+int[4] nums
 
     nums[str] = 42

@@ -140,6 +140,10 @@ const void* DefaultTypeValue(const BasicType type) {
 		return DefaultDoubleValue;
 	case STRING:
 		return DefaultStringValue;
+	case ARRAY:
+		return nullptr;
+	case STRUCT:
+		return nullptr;
 	default:
 		//TODO: other types
 		assert(false);

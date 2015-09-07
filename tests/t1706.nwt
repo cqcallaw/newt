@@ -1,3 +1,3 @@
-// arrays should be initialzed to 0
-int nums[7]
+// arrays should be initialized to 0
+int[6] nums
 int should_be_zero = nums[2]

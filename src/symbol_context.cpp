@@ -134,24 +134,6 @@ SetResult SymbolContext::SetSymbol(const string identifier, const int index,
 }
 
 SetResult SymbolContext::SetArraySymbol(const string identifier,
-		const int value[], const int size, const bool initialized) {
-	return SetArraySymbol(identifier,
-			new ArraySymbol(identifier, value, size, initialized));
-}
-
-SetResult SymbolContext::SetArraySymbol(const string identifier,
-		const double value[], const int size, const bool initialized) {
-	return SetArraySymbol(identifier,
-			new ArraySymbol(identifier, value, size, initialized));
-}
-
-SetResult SymbolContext::SetArraySymbol(const string identifier,
-		const string* value[], const int size, const bool initialized) {
-	return SetArraySymbol(identifier,
-			new ArraySymbol(identifier, value, size, initialized));
-}
-
-SetResult SymbolContext::SetArraySymbol(const string identifier,
 		const ArraySymbol* new_symbol) {
 	const Symbol* symbol = GetSymbol(identifier);
 
@@ -253,7 +235,8 @@ SetResult SymbolContext::SetArraySymbolIndex(const string identifier,
 			return INCOMPATIBLE_TYPE;
 		}
 
-		new_symbol = (Symbol*) as_array_symbol->WithValue(index, new_value);
+		new_symbol = (Symbol*) as_array_symbol->WithValue<const string*>(index,
+				new_value);
 		break;
 	}
 	default:

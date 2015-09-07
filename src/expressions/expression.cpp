@@ -30,29 +30,34 @@ Expression::Expression(const YYLTYPE position) :
 Expression::~Expression() {
 }
 
-const string* Expression::ToString(
+const Result* Expression::ToString(
 		const ExecutionContext* execution_context) const {
 	ostringstream buffer;
 	const Result* evaluation = Evaluate(execution_context);
-	switch (GetType(execution_context)) {
-	case BOOLEAN:
-		buffer << *((bool*) evaluation->GetData());
-		break;
-	case INT:
-		buffer << *((int*) evaluation->GetData());
-		break;
-	case DOUBLE:
-		buffer << *((double*) evaluation->GetData());
-		break;
-	case STRING:
-		buffer << *((string*) evaluation->GetData());
-		break;
-	default:
-		assert(false);
-		return NULL;
+	if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
+		return evaluation;
+	} else {
+		switch (GetType(execution_context)) {
+		case BOOLEAN:
+			buffer << *((bool*) evaluation->GetData());
+			break;
+		case INT:
+			buffer << *((int*) evaluation->GetData());
+			break;
+		case DOUBLE:
+			buffer << *((double*) evaluation->GetData());
+			break;
+		case STRING:
+			buffer << *((string*) evaluation->GetData());
+			break;
+		default:
+			assert(false);
+			return NULL;
+		}
+
+		delete (evaluation);
 	}
 
-	delete (evaluation);
-
-	return new string(buffer.str());
+	return new Result(new string(buffer.str()),
+			LinkedList<const Error*>::Terminator);
 }

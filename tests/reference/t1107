@@ -1,4 +1,4 @@
 Parsing file ../tests/t1107.nwt...
-Semantic error on line 3, column 18: Invalid array size type (string) for variable 'my_values'. Arrays sizes must be integers of 1 or larger.
+Semantic error on line 3, column 8: Invalid array size type (string) for variable 'my_values'. Arrays sizes must be integers of 1 or larger.
 Parsed file ../tests/t1107.nwt.
 1 error found; giving up.

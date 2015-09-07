@@ -548,7 +548,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 			delete (evaluation);
 
 			ArraySymbol* array_symbol = (ArraySymbol*) symbol;
-			if (index >= array_symbol->GetSize() || index < 0) {
+			if ((array_symbol->IsFixedSize() && index >= array_symbol->GetSize()) || index < 0) {
 				errors = new LinkedList<const Error*>(
 						new Error(Error::SEMANTIC,
 								Error::ARRAY_INDEX_OUT_OF_BOUNDS, variable_line,

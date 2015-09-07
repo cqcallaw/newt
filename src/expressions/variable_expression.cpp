@@ -83,7 +83,23 @@ const Result* VariableExpression::Evaluate(
 									m_variable->GetLocation().first_column,
 									*(m_variable->GetName()), buffer.str()));
 				} else {
-					result = as_array_symbol->GetValue(index);
+					const BasicType element_type =
+							as_array_symbol->GetElementType();
+					switch (element_type) {
+					case INT:
+						result = as_array_symbol->GetValue<const int*>(index);
+						break;
+					case DOUBLE:
+						result = as_array_symbol->GetValue<const double*>(
+								index);
+						break;
+					case STRING:
+						result = as_array_symbol->GetValue<const string*>(
+								index);
+						break;
+					default:
+						assert(false);
+					}
 				}
 			}
 

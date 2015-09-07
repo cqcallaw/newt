@@ -1,4 +1,4 @@
-int nums[4]
+int[4] nums
 
    nums[0] = 42
     print("nums[0] = " + nums[0])

@@ -28,6 +28,10 @@ public:
 
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;
+
+	const bool IsFixedSize() const {
+		return m_size_expression != nullptr;
+	}
 private:
 	const BasicType m_type;
 	const YYLTYPE m_type_position;

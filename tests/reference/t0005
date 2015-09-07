@@ -11,6 +11,8 @@ int array nums:
 	[0] 0
 	[1] 0
 end array nums
+int array nums2:
+end array nums2
 string s1: ""
 string s2: ""
 string array strings:
@@ -19,11 +21,15 @@ string array strings:
 	[2] ""
 	[3] ""
 end array strings
+string array strings2:
+end array strings2
 double array values:
 	[0] 0
 	[1] 0
 	[2] 0
 end array values
+double array values2:
+end array values2
 double x: 0
 double y: 0
 

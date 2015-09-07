@@ -31,6 +31,15 @@ PrintStatement::~PrintStatement() {
 
 const LinkedList<const Error*>* PrintStatement::execute(
 		const ExecutionContext* execution_context) const {
-	std::cout << *(m_expression->ToString(execution_context)) << "\n";
-	return LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const Result* string_result = m_expression->ToString(execution_context);
+	errors = string_result->GetErrors();
+
+	if (errors == LinkedList<const Error*>::Terminator) {
+		std::cout << *((string*) string_result->GetData()) << "\n";
+	}
+
+	return errors;
 }

@@ -1,0 +1,11 @@
+Parsing file ../tests/t0109.nwt...
+Parsed file ../tests/t0109.nwt.
+3
+Root Symbol Table:
+----------------
+int array nums:
+	[0] 3
+end array nums
+
+Root Type Table:
+----------------

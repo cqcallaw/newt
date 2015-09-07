@@ -1,4 +1,4 @@
-int index[7]
+int[7] index
 int count = 0
 
  for (index[0] = 0; index[0] < 3; index[0] = index[0] + 1) {

@@ -1,4 +1,4 @@
 int i = 1
-int nums[4]
+int[4] nums
 
     nums[i * .25] = 42

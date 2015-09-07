@@ -42,7 +42,7 @@ public:
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const = 0;
 
-	const string* ToString(const ExecutionContext* execution_context) const;
+	const Result* ToString(const ExecutionContext* execution_context) const;
 
 	const YYLTYPE GetPosition() const {
 		return m_position;
