@@ -51,60 +51,64 @@
 
 #include <iostream>
 
+using namespace std;
+
 class Indent {
-	friend std::ostream &operator<<(std::ostream &os, const Indent &indent);
-
 public:
-	Indent();
+	Indent(const int level);
 
-	// overload pre-fix ++ and --
-	Indent &operator++() {
-		m_level += 2;
-		return *this;
+	const Indent operator+(int i) const {
+		return Indent(m_level + i);
 	}
 
-	Indent &operator--() {
-		m_level -= 2;
-		if (m_level < 0)
-			m_level = 0;
-		return *this;
+	const Indent operator-(int i) const {
+		int new_level = m_level - 1;
+		if (new_level < 0)
+			new_level = 0;
+		return Indent(new_level);
+	}
+
+	// overload pre-fix ++ and --
+	const Indent operator++() const {
+		return Indent(m_level + 1);
+	}
+
+	const Indent operator--() const {
+		int new_level = m_level - 1;
+		if (new_level < 0)
+			new_level = 0;
+		return Indent(new_level);
 	}
 
 	// overload post-fix ++ and --
 	// this is weird, but putting that int there makes it post-fix
-	Indent &operator++(int) {
-		m_level += 2;
-		return *this;
+	const Indent operator++(int) const {
+		return Indent(m_level + 1);
 	}
 
-	Indent &operator--(int) {
-		m_level -= 2;
-		if (m_level < 0)
-			m_level = 0;
-		return *this;
+	const Indent operator--(int) const {
+		int new_level = m_level - 1;
+		if (new_level < 0)
+			new_level = 0;
+		return Indent(new_level);
 	}
 
-	Indent &operator+=(int i) {
-		m_level += i;
-		return *this;
+	const Indent operator+=(int i) const {
+		int new_level = m_level - i;
+		return Indent(new_level);
 	}
 
-	Indent &operator-=(int i) {
-		m_level -= i;
-		if (m_level < 0)
-			m_level = 0;
-		return *this;
+	const Indent operator-=(int i) const {
+		int new_level = m_level - i;
+		if (new_level < 0)
+			new_level = 0;
+		return Indent(new_level);
 	}
+
+	const string ToString() const;
 
 private:
-	// disable default copy constructor and default assignment
-	// done as a precaution, they should never be called
-	Indent(const Indent&);
-	const Indent &operator=(const Indent&);
-
-	static int m_count;
-
-	int m_level;
+	const int m_level;
 };
 
 // overload the << operator for Indent

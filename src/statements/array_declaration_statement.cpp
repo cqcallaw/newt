@@ -16,13 +16,16 @@
 #include <sstream>
 #include <constant_expression.h>
 #include <vector>
+#include <type_specifier.h>
 
-ArrayDeclarationStatement::ArrayDeclarationStatement(const BasicType type,
+ArrayDeclarationStatement::ArrayDeclarationStatement(
+		const ArrayTypeSpecifier* element_type_specifier,
 		const YYLTYPE type_position, const std::string* name,
 		const YYLTYPE name_position, const Expression* size_expression,
 		const YYLTYPE size_expression_position) :
-		m_type(type), m_type_position(type_position), m_name(name), m_name_position(
-				name_position), m_size_expression(size_expression), m_size_expression_position(
+		m_type(element_type_specifier), m_type_position(type_position), m_name(
+				name), m_name_position(name_position), m_size_expression(
+				size_expression), m_size_expression_position(
 				size_expression_position) {
 }
 
@@ -37,14 +40,18 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 	//if our array size is a constant, validate it as part of the preprocessing pass.
 	//array sizes that are variable are processed at runtime.
 	if (IsFixedSize()) {
-		const BasicType size_expression_type = m_size_expression->GetType(
+		const TypeSpecifier* size_expression_type = m_size_expression->GetType(
 				execution_context);
-		if (size_expression_type != INT) {
+
+		const PrimitiveTypeSpecifier* size_type_as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(size_expression_type);
+		if (size_type_as_primitive == nullptr
+				|| size_type_as_primitive->GetBasicType() != INT) {
 			result = result->With(
 					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE_TYPE,
 							m_size_expression_position.first_line,
 							m_size_expression_position.first_column,
-							type_to_string(size_expression_type), *m_name));
+							size_expression_type->ToString(), *m_name));
 			return result;
 		} else if (m_size_expression->IsConstant()) {
 			const Result* evaluation = m_size_expression->Evaluate(
@@ -79,22 +86,25 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		}
 
 	}
-	switch (m_type) {
-	case INT:
-	case DOUBLE:
-	case STRING:
-		if (IsFixedSize()) {
-			symbol = new ArraySymbol(*name, m_type, size, m_size_expression->IsConstant());
-		} else {
-			symbol = new ArraySymbol(*name, m_type);
-		}
-		break;
-	default:
-		result = result->With(
-				new Error(Error::SEMANTIC, Error::INVALID_ARRAY_TYPE,
-						m_type_position.first_line,
-						m_type_position.first_column, *name));
+//	switch (m_type) {
+//	case INT:
+//	case DOUBLE:
+//	case STRING:
+	if (IsFixedSize()) {
+		symbol = new ArraySymbol(*name, m_type->GetElementTypeSpecifier(),
+				execution_context->GetTypeTable(), size,
+				m_size_expression->IsConstant());
+	} else {
+		symbol = new ArraySymbol(*name, m_type->GetElementTypeSpecifier(),
+				execution_context->GetTypeTable());
 	}
+//		break;
+//	default:
+//		result = result->With(
+//				new Error(Error::SEMANTIC, Error::INVALID_ARRAY_TYPE,
+//						m_type_position.first_line,
+//						m_type_position.first_column, *name));
+//	}
 
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolContext();
@@ -126,7 +136,13 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 		SymbolTable* symbol_table =
 				(SymbolTable*) execution_context->GetSymbolContext();
 
-		if (m_size_expression->GetType(execution_context) != INT) {
+		const TypeSpecifier* size_expression_type = m_size_expression->GetType(
+				execution_context);
+		const PrimitiveTypeSpecifier* size_type_as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(size_expression_type);
+
+		if (size_type_as_primitive == nullptr
+				|| size_type_as_primitive->GetBasicType() != INT) {
 			errors = (LinkedList<const Error*>*) errors->With(
 					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE_TYPE,
 							m_size_expression_position.first_line,
@@ -154,47 +170,10 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 										m_size_expression_position.first_column,
 										*m_name, convert.str()));
 					} else {
-						/*switch (m_type) {
-						 case INT: {
-						 int* array = new int[array_size]();
-
-						 for (int i = 0; i < array_size; i++) {
-						 array[i] = 0;
-						 }
-
-						 //symbol = new ArraySymbol(m_name, array, array_size);
-						 result = symbol_table->SetArraySymbol(*m_name,
-						 array, array_size, true);
-						 break;
-						 }
-						 case DOUBLE: {
-						 double* array = new double[array_size]();
-
-						 for (int i = 0; i < array_size; i++) {
-						 array[i] = 0.0;
-						 }
-
-						 result = symbol_table->SetArraySymbol(*m_name,
-						 array, array_size, true);
-						 break;
-						 }
-						 case STRING: {
-						 const string** array =
-						 (const string**) new string*[array_size]();
-
-						 for (int i = 0; i < array_size; i++) {
-						 array[i] = new string("");
-						 }
-
-						 result = symbol_table->SetArraySymbol(*m_name,
-						 array, array_size, true);
-						 break;
-						 }
-						 default:
-						 break;
-						 }*/
 						const ArraySymbol* symbol = new ArraySymbol(*m_name,
-								m_type, array_size, true);
+								m_type->GetElementTypeSpecifier(),
+								execution_context->GetTypeTable(), array_size,
+								true);
 						result = symbol_table->SetArraySymbol(*m_name, symbol);
 					}
 				} else {

@@ -38,16 +38,24 @@ const LinkedList<const Error*>* ExitStatement::preprocess(
 	const LinkedList<const Error*>* result =
 			LinkedList<const Error*>::Terminator;
 
-	if ((m_exit_expression != nullptr)
-			&& m_exit_expression->GetType(execution_context) > INT) {
-		YYLTYPE position = m_exit_expression->GetPosition();
-		result = result->With(
-				new Error(Error::SEMANTIC,
-						Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-						position.first_line, position.first_column,
-						type_to_string(
-								m_exit_expression->GetType(
-										execution_context))));
+	if (m_exit_expression != nullptr) {
+		const TypeSpecifier* expression_type_specifier =
+				m_exit_expression->GetType(execution_context);
+		const PrimitiveTypeSpecifier* expression_as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type_specifier);
+
+		if (expression_as_primitive == nullptr
+				|| !(expression_as_primitive->IsAssignableTo(
+						PrimitiveTypeSpecifier::INT))) {
+			YYLTYPE position = m_exit_expression->GetPosition();
+			result =
+					result->With(
+							new Error(Error::SEMANTIC,
+									Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
+									position.first_line, position.first_column,
+									m_exit_expression->GetType(
+											execution_context)->ToString()));
+		}
 	}
 
 	return result;

@@ -23,14 +23,15 @@
 #include <string>
 #include <iostream>
 
-#include "type.h"
-#include "yyltype.h"
+#include <type.h>
+#include <yyltype.h>
+#include <indent.h>
 
 using namespace std;
 
 class Expression;
 class ExecutionContext;
-class Struct;
+class CompoundTypeInstance;
 
 class Symbol {
 public:
@@ -38,18 +39,18 @@ public:
 	Symbol(const string name, const int* value);
 	Symbol(const string name, const double* value);
 	Symbol(const string name, const string* value);
-	Symbol(const string name, const Struct* value);
+	Symbol(const string name, const CompoundTypeInstance* value);
 
 	Symbol(const string* name, const bool* value);
 	Symbol(const string* name, const int* value);
 	Symbol(const string* name, const double* value);
 	Symbol(const string* name, const string* value);
-	Symbol(const string* name, const Struct* value);
+	Symbol(const string* name, const CompoundTypeInstance* value);
 
 	virtual ~Symbol() {
 	}
 
-	const BasicType GetType() const;
+	const TypeSpecifier* GetType() const;
 	const string GetName() const;
 	const void* GetValue() const;
 
@@ -57,23 +58,22 @@ public:
 	const Symbol* WithValue(const int* value) const;
 	const Symbol* WithValue(const double* value) const;
 	const Symbol* WithValue(const string* value) const;
-	const Symbol* WithValue(const Struct* value) const;
-	const Symbol* WithValue(const BasicType type, const void* value) const;
+	const Symbol* WithValue(const CompoundTypeInstance* value) const;
+	const Symbol* WithValue(const TypeSpecifier* type, const void* value) const;
 
-	virtual string ToString() const;
+	virtual const string ToString(const TypeTable* type_table,
+			const Indent indent) const;
 
 	const static string DefaultSymbolName;
 	const static Symbol* DefaultSymbol;
 
 protected:
-	Symbol(BasicType type, const string name, const void* value);
+	Symbol(const TypeSpecifier* type, const string name, const void* value);
 
 private:
-	BasicType type;
-	string name;
-	const void* value;
+	const TypeSpecifier* m_type;
+	const string m_name;
+	const void* m_value;
 };
-
-std::ostream &operator<<(std::ostream &os, const Symbol &symbol);
 
 #endif /* SYMBOL_H_ */

@@ -13,7 +13,7 @@
 #include <assignment_statement.h>
 #include <variable.h>
 
-DeclarationStatement::DeclarationStatement(const BasicType type,
+DeclarationStatement::DeclarationStatement(const TypeSpecifier* type,
 		const YYLTYPE type_position, const std::string* name,
 		const YYLTYPE name_position, const Expression* initializer_expression,
 		const YYLTYPE initializer_position) :
@@ -38,72 +38,97 @@ const LinkedList<const Error*>* DeclarationStatement::preprocess(
 		result = expression->Validate(execution_context);
 	}
 
-	switch (m_type) {
-	case BOOLEAN: {
+	const PrimitiveTypeSpecifier* as_primitive =
+			dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
+
+	if (as_primitive != nullptr) {
+		const TypeSpecifier* expression_type_specifier = expression->GetType(
+				execution_context);
+		const PrimitiveTypeSpecifier* expression_as_primitive = nullptr;
+
 		if (expression != NULL && expression != nullptr
-				&& expression->GetType(execution_context) != NONE) {
-			if (!(expression->GetType(execution_context) & (BOOLEAN))) {
-				result = result->With(
-						new Error(Error::SEMANTIC,
-								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-								m_initializer_position.first_line,
-								m_initializer_position.first_column, *name));
-			}
+				&& expression_type_specifier != PrimitiveTypeSpecifier::NONE) {
+			expression_as_primitive =
+					dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type_specifier);
 		}
 
-		symbol = new Symbol(name, new bool(false));
-		break;
-	}
-	case INT: {
-		if (expression != NULL
-				&& expression->GetType(execution_context) != NONE) {
-			if (!(expression->GetType(execution_context) & (BOOLEAN | INT))) {
-				result = result->With(
-						new Error(Error::SEMANTIC,
-								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-								m_initializer_position.first_line,
-								m_initializer_position.first_column, *name));
+		if (expression_as_primitive == nullptr) {
+			result = result->With(
+					new Error(Error::SEMANTIC,
+							Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+							m_initializer_position.first_line,
+							m_initializer_position.first_column, *name));
+		} else {
+			const BasicType basic_type = as_primitive->GetBasicType();
+			const TypeTable* type_table = execution_context->GetTypeTable();
+
+			switch (basic_type) {
+			case BOOLEAN: {
+				if (!(as_primitive->IsAssignableTo(
+						PrimitiveTypeSpecifier::BOOLEAN))) {
+					result = result->With(
+							new Error(Error::SEMANTIC,
+									Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+									m_initializer_position.first_line,
+									m_initializer_position.first_column,
+									*name));
+				}
+
+				symbol = new Symbol(name,
+						(bool*) as_primitive->DefaultValue(type_table));
+				break;
+			}
+			case INT: {
+				if (!(as_primitive->IsAssignableTo(PrimitiveTypeSpecifier::INT))) {
+					result = result->With(
+							new Error(Error::SEMANTIC,
+									Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+									m_initializer_position.first_line,
+									m_initializer_position.first_column,
+									*name));
+				}
+
+				symbol = new Symbol(name,
+						(int*) as_primitive->DefaultValue(type_table));
+				break;
+			}
+			case DOUBLE: {
+				if (!(as_primitive->IsAssignableTo(
+						PrimitiveTypeSpecifier::DOUBLE))) {
+					result = result->With(
+							new Error(Error::SEMANTIC,
+									Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+									m_initializer_position.first_line,
+									m_initializer_position.first_column,
+									*name));
+				}
+
+				symbol = new Symbol(name,
+						(double*) as_primitive->DefaultValue(type_table));
+				break;
+			}
+			case STRING: {
+				if (!(as_primitive->IsAssignableTo(
+						PrimitiveTypeSpecifier::STRING))) {
+					result = result->With(
+							new Error(Error::SEMANTIC,
+									Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+									m_initializer_position.first_line,
+									m_initializer_position.first_column,
+									*name));
+				}
+
+				symbol = new Symbol(name,
+						(string*) as_primitive->DefaultValue(type_table));
+				break;
+			}
+			default:
+				assert(false);
+				break;
 			}
 		}
-
-		symbol = new Symbol(name, new int(0));
-		break;
-	}
-	case DOUBLE: {
-		if (expression != NULL
-				&& expression->GetType(execution_context) != NONE) {
-			if (!(expression->GetType(execution_context)
-					& (BOOLEAN | INT | DOUBLE))) {
-				result = result->With(
-						new Error(Error::SEMANTIC,
-								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-								m_initializer_position.first_line,
-								m_initializer_position.first_column, *name));
-			}
-		}
-
-		symbol = new Symbol(name, new double(0.0));
-		break;
-	}
-	case STRING: {
-		if (expression != NULL
-				&& expression->GetType(execution_context) != NONE) {
-			if (!(expression->GetType(execution_context)
-					& (BOOLEAN | INT | DOUBLE | STRING))) {
-				result = result->With(
-						new Error(Error::SEMANTIC,
-								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-								m_initializer_position.first_line,
-								m_initializer_position.first_column, *name));
-			}
-		}
-
-		symbol = new Symbol(name, new string(""));
-		break;
-	}
-	default:
+	} else {
 		assert(false);
-		break;
 	}
 
 	SymbolTable* symbol_table =

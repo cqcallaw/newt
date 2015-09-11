@@ -21,23 +21,56 @@
 #define MEMBER_DEFINITION_H_
 
 #include <type.h>
+#include <type_specifier.h>
+#include <primitive_type_specifier.h>
+#include <compound_type_specifier.h>
+#include <compound_type.h>
 
 class MemberDefinition {
 public:
-	MemberDefinition(const BasicType type, const void* value) :
+	MemberDefinition(const TypeSpecifier* type, const void* value) :
 			m_type(type), m_value(value) {
 	}
 	virtual ~MemberDefinition() {
 	}
 
-	const BasicType GetType() const {
+	const TypeSpecifier* GetType() const {
 		return m_type;
 	}
+
 	const void* GetDefaultValue() const {
 		return m_value;
 	}
+
+	const string ToString(const TypeTable* type_table, const Indent indent) const {
+		ostringstream buffer;
+		buffer << indent;
+		const PrimitiveTypeSpecifier* as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
+		if (as_primitive != nullptr) {
+			buffer << as_primitive->ToString(m_value);
+		}
+
+		const ArrayTypeSpecifier* as_array =
+				dynamic_cast<const ArrayTypeSpecifier*>(m_type);
+		if (as_array != nullptr) {
+			buffer << as_array->ToString();
+		}
+
+		const CompoundTypeSpecifier* as_compound =
+				dynamic_cast<const CompoundTypeSpecifier*>(m_type);
+		if (as_compound != nullptr) {
+			const string* type_name = as_compound->GetTypeName();
+			buffer << type_name << ": ";
+			const CompoundType* compound_type = type_table->GetType(*type_name);
+			buffer << compound_type->ToString(type_table, indent + 1);
+		}
+
+		return buffer.str();
+	}
+
 private:
-	const BasicType m_type;
+	const TypeSpecifier* m_type;
 	const void* m_value;
 };
 

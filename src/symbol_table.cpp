@@ -17,6 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <compound_type_instance.h>
 #include <iostream>
 #include <sstream>
 #include <defaults.h>
@@ -24,7 +25,6 @@
 
 #include "type.h"
 #include "utils.h"
-#include "struct.h"
 
 using namespace std;
 

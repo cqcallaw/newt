@@ -22,17 +22,21 @@
 
 #include <map>
 #include <string>
+#include <linked_list.h>
+#include <symbol_context.h>
+#include <modifier.h>
 
 class MemberDefinition;
 
 using namespace std;
 class CompoundType {
 public:
-	CompoundType(const map<const string, const MemberDefinition*>* definition);
+	CompoundType(const map<const string, const MemberDefinition*>* definition,
+			const Modifier::Type modifiers);
 	virtual ~CompoundType();
 	const MemberDefinition* GetMember(const string name) const;
 
-	const string ToString() const;
+	const string ToString(const TypeTable* type_table, const Indent indent) const;
 
 	const map<const string, const MemberDefinition*>* GetDefinition() const {
 		return m_definition;
@@ -40,8 +44,16 @@ public:
 
 	const static CompoundType* DefaultCompoundType;
 
+	const Modifier::Type GetModifiers() const {
+		return m_modifiers;
+	}
+
 private:
 	const map<const string, const MemberDefinition*>* m_definition;
+	const Modifier::Type m_modifiers;
+
+	const Symbol* GetSymbol(const BasicType member_type,
+			const string member_name, const void* void_value) const;
 };
 
 std::ostream &operator<<(std::ostream &os, const CompoundType &symbol);

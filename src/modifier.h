@@ -11,7 +11,7 @@
 class Modifier {
 public:
 	enum Type {
-		NONE = 0, READONLY = 1,
+		NONE = 0, READONLY = 1
 	};
 
 	Modifier(const Type type, const YYLTYPE type_position) :

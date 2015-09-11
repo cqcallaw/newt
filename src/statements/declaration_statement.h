@@ -15,7 +15,7 @@
 
 class DeclarationStatement: public Statement {
 public:
-	DeclarationStatement(const BasicType type, const YYLTYPE type_position,
+	DeclarationStatement(const TypeSpecifier* type, const YYLTYPE type_position,
 			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression = nullptr,
 			const YYLTYPE initializer_position = DefaultLocation);
@@ -27,7 +27,7 @@ public:
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;
 private:
-	const BasicType m_type;
+	const TypeSpecifier* m_type;
 	const YYLTYPE m_type_position;
 	const std::string* m_name;
 	const YYLTYPE m_name_position;

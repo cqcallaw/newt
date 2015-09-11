@@ -17,6 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <compound_type_instance.h>
 #include <struct_instantiation_statement.h>
 #include <map>
 #include <execution_context.h>
@@ -24,9 +25,9 @@
 #include <result.h>
 #include <member_instantiation.h>
 #include <expression.h>
-#include <struct.h>
 #include <symbol.h>
 #include <member_definition.h>
+#include <compound_type.h>
 
 StructInstantiationStatement::StructInstantiationStatement(
 		const std::string* type_name, const YYLTYPE type_name_position,
@@ -61,55 +62,14 @@ LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 	const CompoundType* type = execution_context->GetTypeTable()->GetType(
 			*m_type_name);
 
-	map<const string, const Symbol*> symbol_mapping;
-
-	const map<const string, const MemberDefinition*>* type_definition =
-			type->GetDefinition();
-	map<const string, const MemberDefinition*>::const_iterator iter;
-
-	for (iter = type_definition->begin(); iter != type_definition->end();
-			++iter) {
-		const string member_name = iter->first;
-		const MemberDefinition* member_type_information = iter->second;
-
-		const Symbol* symbol = GetSymbol(member_type_information->GetType(),
-				member_name, member_type_information->GetDefaultValue());
-		symbol_mapping.insert(
-				std::pair<const string, const Symbol*>(member_name, symbol));
-	}
-
-	Struct* instance = new Struct(*m_type_name,
-			new SymbolContext(new_parent_context, &symbol_mapping));
+	const CompoundTypeInstance* instance =
+			CompoundTypeInstance::GetDefaultInstance(*m_type_name,
+					new_parent_context, type);
 
 	const Symbol* symbol = new Symbol(*m_name, instance);
 	const InsertResult insert_result = symbol_table->InsertSymbol(symbol);
 
 	return LinkedList<const Error*>::Terminator;
-}
-
-const Symbol* StructInstantiationStatement::GetSymbol(
-		const BasicType member_type, const string member_name,
-		const void* void_value) const {
-	switch (member_type) {
-	case BOOLEAN:
-		return new Symbol(member_name, (bool*) void_value);
-		break;
-	case INT:
-		return new Symbol(member_name, (int*) void_value);
-		break;
-	case DOUBLE:
-		return new Symbol(member_name, (double*) void_value);
-		break;
-	case STRING:
-		return new Symbol(member_name, (string*) void_value);
-		break;
-	case STRUCT:
-		return new Symbol(member_name, (Struct*) void_value);
-		break;
-	default:
-		assert(false);
-		return nullptr;
-	}
 }
 
 const LinkedList<const Error*>* StructInstantiationStatement::execute(
@@ -118,7 +78,8 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 			LinkedList<const Error*>::Terminator;
 	const Symbol* base = execution_context->GetSymbolContext()->GetSymbol(
 			m_name);
-	const Struct* base_struct = (const Struct*) base->GetValue();
+	const CompoundTypeInstance* base_struct =
+			(const CompoundTypeInstance*) base->GetValue();
 	SymbolContext* struct_symbol_context = base_struct->GetDefinition();
 
 	const LinkedList<const MemberInstantiation*>* subject =
@@ -128,7 +89,7 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 		const string member_name = *memberInstantiation->GetName();
 		const Symbol* member_symbol = struct_symbol_context->GetSymbol(
 				member_name);
-		const BasicType member_type = member_symbol->GetType();
+		const TypeSpecifier* member_type = member_symbol->GetType();
 		const Result* evaluation_result =
 				memberInstantiation->GetExpression()->Evaluate(
 						execution_context);
@@ -137,28 +98,27 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 				== LinkedList<const Error*>::Terminator) {
 			const void* void_value = evaluation_result->GetData();
 
-			switch (member_type) {
-			case BOOLEAN:
+			//switch (member_type) {
+			if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
 				struct_symbol_context->SetSymbol(member_name,
 						(bool*) void_value);
-				break;
-			case INT:
+			} else if (member_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::INT)) {
 				struct_symbol_context->SetSymbol(member_name,
 						(int*) void_value);
-				break;
-			case DOUBLE:
+			} else if (member_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::DOUBLE)) {
 				struct_symbol_context->SetSymbol(member_name,
 						(double*) void_value);
-				break;
-			case STRING:
+			} else if (member_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::STRING)) {
 				struct_symbol_context->SetSymbol(member_name,
 						(string*) void_value);
-				break;
-			case STRUCT:
+			} else if (member_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::COMPOUND)) {
 				struct_symbol_context->SetSymbol(member_name,
-						(Struct*) void_value);
-				break;
-			default:
+						(CompoundTypeInstance*) void_value);
+			} else {
 				assert(false);
 				return nullptr;
 			}

@@ -26,15 +26,15 @@ LogicExpression::LogicExpression(const YYLTYPE position, const OperatorType op,
 	assert(op == OR || op == AND);
 }
 
-const BasicType LogicExpression::GetType(
+const TypeSpecifier* LogicExpression::GetType(
 		const ExecutionContext* execution_context) const {
-	return BOOLEAN;
+	return PrimitiveTypeSpecifier::BOOLEAN;
 }
 
 const LinkedList<const Error*>* LogicExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	return BinaryExpression::Validate(execution_context,
-			(BOOLEAN | INT | DOUBLE), (BOOLEAN | INT | DOUBLE));
+			PrimitiveTypeSpecifier::DOUBLE, PrimitiveTypeSpecifier::DOUBLE);
 }
 
 const Result* LogicExpression::compute(bool left, bool right,

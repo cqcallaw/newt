@@ -17,7 +17,7 @@ public:
 			const Variable* member_variable);
 	virtual ~MemberVariable();
 
-	virtual const BasicType GetType(const ExecutionContext* context) const;
+	virtual const TypeSpecifier* GetType(const ExecutionContext* context) const;
 
 	virtual const std::string* ToString(const ExecutionContext* context) const;
 

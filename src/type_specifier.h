@@ -17,55 +17,21 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef TYPE_SPECIFIER_H_
+#define TYPE_SPECIFIER_H_
 
-#include <iostream>
 #include <string>
-#include <linked_list.h>
-
-class TypeSpecifier;
 class TypeTable;
 
 using namespace std;
+class TypeSpecifier {
+public:
+	virtual ~TypeSpecifier() {
+	}
 
-enum BasicType {
-	NONE = 0,
-	BOOLEAN = 1,
-	INT = 2,
-	DOUBLE = 4,
-	STRING = 8,
-	ARRAY = 16,
-	COMPOUND = 32
+	virtual const string ToString() const = 0;
+	virtual const bool IsAssignableTo(const TypeSpecifier* other) const = 0;
+	virtual const void* DefaultValue(const TypeTable* type_table) const = 0;
 };
 
-const string type_to_string(const BasicType type);
-
-string AsString(const BasicType type, const void* value);
-
-const void* DefaultTypeValue(const TypeSpecifier* type,
-		const TypeTable* type_table);
-
-ostream &operator<<(ostream &os, const BasicType &type);
-
-enum OperatorType {
-	PLUS,
-	MINUS,
-	MULTIPLY,
-	DIVIDE,
-	MOD,
-	UNARY_MINUS,
-	NOT,
-	AND,
-	OR,
-	EQUAL,
-	NOT_EQUAL,
-	LESS_THAN,
-	LESS_THAN_EQUAL,
-	GREATER_THAN,
-	GREATER_THAN_EQUAL
-};
-
-string operator_to_string(OperatorType op);
-
-#endif // #ifndef TYPE_H
+#endif /* TYPE_SPECIFIER_H_ */

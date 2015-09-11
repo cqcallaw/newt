@@ -14,13 +14,15 @@
 #include <defaults.h>
 
 class Result;
+class ArrayTypeSpecifier;
 
 class ArrayDeclarationStatement: public Statement {
 public:
-	ArrayDeclarationStatement(const BasicType type, const YYLTYPE type_position,
+	ArrayDeclarationStatement(const ArrayTypeSpecifier* type, const YYLTYPE type_position,
 			const std::string* name, const YYLTYPE name_position,
 			const Expression* size_expression = nullptr,
 			const YYLTYPE size_expression_position = DefaultLocation);
+
 	virtual ~ArrayDeclarationStatement();
 
 	virtual const LinkedList<const Error*>* preprocess(
@@ -33,7 +35,7 @@ public:
 		return m_size_expression != nullptr;
 	}
 private:
-	const BasicType m_type;
+	const ArrayTypeSpecifier* m_type;
 	const YYLTYPE m_type_position;
 	const std::string* m_name;
 	const YYLTYPE m_name_position;

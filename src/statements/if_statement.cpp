@@ -41,10 +41,12 @@ IfStatement::~IfStatement() {
 
 const LinkedList<const Error*>* IfStatement::preprocess(
 		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* result = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* result =
+			LinkedList<const Error*>::Terminator;
 
 	if (m_expression != nullptr) {
-		if (!(m_expression->GetType(execution_context) & (BOOLEAN | INT))) {
+		if (!(m_expression->GetType(execution_context)->IsAssignableTo(
+				PrimitiveTypeSpecifier::INT))) {
 			YYLTYPE position = m_expression->GetPosition();
 			result = result->With(
 					new Error(Error::SEMANTIC,

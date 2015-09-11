@@ -17,6 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <compound_type_instance.h>
 #include <sstream>
 #include <defaults.h>
 
@@ -27,31 +28,29 @@
 #include "error.h"
 #include "expression.h"
 #include <execution_context.h>
-#include <struct.h>
 
 const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
-const Symbol* Symbol::DefaultSymbol = new Symbol(NONE, DefaultSymbolName, NULL);
+const Symbol* Symbol::DefaultSymbol = new Symbol(PrimitiveTypeSpecifier::NONE,
+		DefaultSymbolName, NULL);
 
 Symbol::Symbol(const string name, const bool *value) :
-		Symbol(BOOLEAN, name, (void *) value) {
+		Symbol(PrimitiveTypeSpecifier::BOOLEAN, name, (void *) value) {
 }
 
 Symbol::Symbol(const string name, const int *value) :
-		Symbol(INT, name, (void *) value) {
+		Symbol(PrimitiveTypeSpecifier::INT, name, (void *) value) {
 }
 
 Symbol::Symbol(const string name, const double *value) :
-		Symbol(DOUBLE, name, (void *) value) {
+		Symbol(PrimitiveTypeSpecifier::DOUBLE, name, (void *) value) {
 }
 
 Symbol::Symbol(const string name, const string *value) :
-		Symbol(STRING, name, (void *) value) {
+		Symbol(PrimitiveTypeSpecifier::STRING, name, (void *) value) {
 }
 
-Symbol::Symbol(BasicType type, string name, const void* value) {
-	this->type = type;
-	this->name = name;
-	this->value = value;
+Symbol::Symbol(const TypeSpecifier* type, const string name, const void* value) :
+		m_type(type), m_name(name), m_value(value) {
 }
 
 Symbol::Symbol(const string* name, const bool *value) :
@@ -70,84 +69,110 @@ Symbol::Symbol(const string* name, const string *value) :
 		Symbol(*name, value) {
 }
 
-const BasicType Symbol::GetType() const {
-	return type;
+const TypeSpecifier* Symbol::GetType() const {
+	return m_type;
 }
 
 const std::string Symbol::GetName() const {
-	return name;
+	return m_name;
 }
 
 const void* Symbol::GetValue() const {
-	return value;
+	return m_value;
 }
 
 const Symbol* Symbol::WithValue(const bool* value) const {
-	return WithValue(BOOLEAN, (void*) value);
+	return WithValue(PrimitiveTypeSpecifier::BOOLEAN, (void*) value);
 }
 const Symbol* Symbol::WithValue(const int* value) const {
-	return WithValue(INT, (void*) value);
+	return WithValue(PrimitiveTypeSpecifier::INT, (void*) value);
 }
 const Symbol* Symbol::WithValue(const double* value) const {
-	return WithValue(DOUBLE, (void*) value);
+	return WithValue(PrimitiveTypeSpecifier::DOUBLE, (void*) value);
 }
 const Symbol* Symbol::WithValue(const string* value) const {
-	return WithValue(STRING, (void*) value);
+	return WithValue(PrimitiveTypeSpecifier::STRING, (void*) value);
 }
 
-const Symbol* Symbol::WithValue(const BasicType type, const void* value) const {
-	if (type > this->type) {
+const Symbol* Symbol::WithValue(const TypeSpecifier* type,
+		const void* value) const {
+	if (!type->IsAssignableTo(this->m_type)) {
 		return DefaultSymbol;
 	}
 
-	return new Symbol(type, name, value);
+	return new Symbol(type, m_name, value);
 }
 
-string Symbol::ToString() const {
-	ostringstream os;
+const string Symbol::ToString(const TypeTable* type_table,
+		const Indent indent) const {
+	/*ostringstream os;
 
-	os << type << " " << name << ": ";
-	switch (type) {
-	case BOOLEAN:
-		os << *((bool*) value);
-		break;
-	case INT:
-		os << *((int*) value);
-		break;
-	case DOUBLE:
-		os << *((double*) value);
-		break;
-	case STRING:
-		os << "\"" << *((string*) value) << "\"";
-		break;
-	case STRUCT: {
-		os << endl;
-		const Struct* as_struct = (const Struct*) value;
-		const SymbolContext* context = as_struct->GetDefinition();
-		string indent = "\t";
-		context->print(os, &indent);
-		break;
+	 os << m_type << " " << m_name << ": ";
+	 switch (m_type) {
+	 case BOOLEAN:
+	 os << *((bool*) m_value);
+	 break;
+	 case INT:
+	 os << *((int*) m_value);
+	 break;
+	 case DOUBLE:
+	 os << *((double*) m_value);
+	 break;
+	 case STRING:
+	 os << "\"" << *((string*) m_value) << "\"";
+	 break;
+	 case COMPOUND: {
+	 os << endl;
+	 const CompoundTypeInstance* as_struct =
+	 (const CompoundTypeInstance*) m_value;
+	 const SymbolContext* context = as_struct->GetDefinition();
+	 string indent = "\t";
+	 context->print(os, &indent);
+	 break;
+	 }
+	 default:
+	 assert(false);
+	 }
+
+	 return os.str();
+	 */
+
+	ostringstream buffer;
+	buffer << indent << m_type << m_name << ": ";
+	const PrimitiveTypeSpecifier* as_primitive =
+			dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
+	if (as_primitive != nullptr) {
+		buffer << as_primitive->ToString(m_value);
 	}
-	default:
-		assert(false);
+
+	const ArrayTypeSpecifier* as_array =
+			dynamic_cast<const ArrayTypeSpecifier*>(m_type);
+	if (as_array != nullptr) {
+		buffer << as_array->ToString();
 	}
 
-	return os.str();
+	const CompoundTypeSpecifier* as_compound =
+			dynamic_cast<const CompoundTypeSpecifier*>(m_type);
+	if (as_compound != nullptr) {
+		const string* type_name = as_compound->GetTypeName();
+		buffer << *type_name << " " << m_name << ": ";
+		const CompoundTypeInstance* compound_type_instance =
+				(const CompoundTypeInstance*) m_value;
+		buffer << compound_type_instance->ToString(indent + 1);
+	}
+
+	return buffer.str();
+
 }
 
-ostream &operator<<(ostream &os, const Symbol &symbol) {
-	os << symbol.ToString();
-	return os;
+Symbol::Symbol(const string name, const CompoundTypeInstance* value) :
+		Symbol(PrimitiveTypeSpecifier::COMPOUND, name, (void *) value) {
 }
 
-Symbol::Symbol(const string name, const Struct* value) :
-		Symbol(STRUCT, name, (void *) value) {
-}
-
-Symbol::Symbol(const string* name, const Struct* value) :
+Symbol::Symbol(const string* name, const CompoundTypeInstance* value) :
 		Symbol(*name, value) {
 }
 
-const Symbol* Symbol::WithValue(const Struct* value) const {
-	return WithValue(STRUCT, (void*) value);
+const Symbol* Symbol::WithValue(const CompoundTypeInstance* value) const {
+	return WithValue(PrimitiveTypeSpecifier::COMPOUND, (void*) value);
 }

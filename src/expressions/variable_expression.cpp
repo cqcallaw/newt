@@ -20,19 +20,19 @@
 #include <variable_expression.h>
 #include <variable.h>
 #include <array_variable.h>
+#include <compound_type_instance.h>
 #include <member_variable.h>
 #include <error.h>
 #include <sstream>
 #include <execution_context.h>
 #include <type.h>
-#include <struct.h>
 
 VariableExpression::VariableExpression(const YYLTYPE position,
 		const Variable* variable) :
 		Expression(position), m_variable(variable) {
 }
 
-const BasicType VariableExpression::GetType(
+const TypeSpecifier* VariableExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return m_variable->GetType(execution_context);
 }
@@ -53,64 +53,88 @@ const Result* VariableExpression::Evaluate(
 						m_variable->GetLocation().first_column,
 						*(m_variable->GetName())));
 	} else {
-		switch (symbol->GetType()) {
-		case NONE:
-			break;
-		case ARRAY: {
-			ArraySymbol* as_array_symbol = (ArraySymbol*) symbol;
+		const TypeSpecifier* symbol_type = symbol->GetType();
 
-			ArrayVariable* as_array_variable = (ArrayVariable*) m_variable;
-			const Expression* array_index_expression =
-					as_array_variable->GetIndexExpression();
-
-			const Result* evaluation = array_index_expression->Evaluate(
-					execution_context);
-			const LinkedList<const Error*>* evaluation_errors =
-					evaluation->GetErrors();
-
-			if (evaluation_errors != LinkedList<const Error*>::Terminator) {
-				errors = evaluation_errors;
-			} else {
-				int index = *((int *) evaluation->GetData());
-
-				if (index > as_array_symbol->GetSize()) {
-					ostringstream buffer;
-					buffer << index;
-					errors = errors->With(
-							new Error(Error::SEMANTIC,
-									Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-									m_variable->GetLocation().first_line,
-									m_variable->GetLocation().first_column,
-									*(m_variable->GetName()), buffer.str()));
-				} else {
-					const BasicType element_type =
-							as_array_symbol->GetElementType();
-					switch (element_type) {
-					case INT:
-						result = as_array_symbol->GetValue<const int*>(index);
-						break;
-					case DOUBLE:
-						result = as_array_symbol->GetValue<const double*>(
-								index);
-						break;
-					case STRING:
-						result = as_array_symbol->GetValue<const string*>(
-								index);
-						break;
-					default:
-						assert(false);
-					}
-				}
+		const PrimitiveTypeSpecifier* as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
+		if (as_primitive != nullptr) {
+			if (as_primitive != PrimitiveTypeSpecifier::NONE) {
+				result = symbol->GetValue();
 			}
-
-			delete (evaluation);
-			break;
 		}
-		case STRUCT: {
+
+		const ArrayTypeSpecifier* as_array =
+				dynamic_cast<const ArrayTypeSpecifier*>(symbol_type);
+		if (as_array != nullptr) {
 			if (m_variable->IsBasicReference()) {
 				result = symbol->GetValue();
 			} else {
-				const Struct* as_struct = (const Struct*) symbol->GetValue();
+				ArraySymbol* as_array_symbol = (ArraySymbol*) symbol;
+
+				ArrayVariable* as_array_variable = (ArrayVariable*) m_variable;
+				const Expression* array_index_expression =
+						as_array_variable->GetIndexExpression();
+
+				const Result* evaluation = array_index_expression->Evaluate(
+						execution_context);
+				const LinkedList<const Error*>* evaluation_errors =
+						evaluation->GetErrors();
+
+				if (evaluation_errors != LinkedList<const Error*>::Terminator) {
+					errors = evaluation_errors;
+				} else {
+					int index = *((int *) evaluation->GetData());
+
+					if (index > as_array_symbol->GetSize()) {
+						ostringstream buffer;
+						buffer << index;
+						errors = errors->With(
+								new Error(Error::SEMANTIC,
+										Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+										m_variable->GetLocation().first_line,
+										m_variable->GetLocation().first_column,
+										*(m_variable->GetName()),
+										buffer.str()));
+					} else {
+						const TypeSpecifier* element_type_specifier =
+								as_array_symbol->GetElementType();
+						const TypeTable* type_table =
+								execution_context->GetTypeTable();
+
+						if (element_type_specifier
+								== PrimitiveTypeSpecifier::INT) {
+							result = as_array_symbol->GetValue<const int*>(
+									index, type_table);
+						} else if (element_type_specifier
+								== PrimitiveTypeSpecifier::DOUBLE) {
+							result = as_array_symbol->GetValue<const double*>(
+									index, type_table);
+						} else if (element_type_specifier
+								== PrimitiveTypeSpecifier::STRING) {
+							result = as_array_symbol->GetValue<const string*>(
+									index, type_table);
+						} else if (element_type_specifier
+								== PrimitiveTypeSpecifier::COMPOUND) {
+							result = as_array_symbol->GetValue<
+									const CompoundType*>(index, type_table);
+						} else {
+							assert(false);
+						}
+					}
+				}
+
+				delete (evaluation);
+			}
+		}
+
+		const CompoundTypeSpecifier* as_compound =
+				dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
+		if (as_compound != nullptr) {
+			if (m_variable->IsBasicReference()) {
+				result = symbol->GetValue();
+			} else {
+				const CompoundTypeInstance* as_struct =
+						(const CompoundTypeInstance*) symbol->GetValue();
 				const MemberVariable* as_member_variable =
 						(MemberVariable*) m_variable;
 				const Variable* member =
@@ -124,15 +148,6 @@ const Result* VariableExpression::Evaluate(
 				delete tmp_context;
 				return eval;
 			}
-			break;
-		}
-		case INT:
-		case DOUBLE:
-		case STRING:
-		default: {
-			result = symbol->GetValue();
-			break;
-		}
 		}
 	}
 
@@ -157,19 +172,21 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 		return result;
 	}
 
-	switch (symbol->GetType()) {
-	case ARRAY: {
+	const TypeSpecifier* symbol_type = symbol->GetType();
+	const ArrayTypeSpecifier* as_array =
+			dynamic_cast<const ArrayTypeSpecifier*>(symbol_type);
+	if (as_array != nullptr) {
 		ArrayVariable* as_array_variable = (ArrayVariable*) m_variable;
 		const Expression* array_index_expression =
 				as_array_variable->GetIndexExpression();
 		const YYLTYPE array_index_expression_position =
 				array_index_expression->GetPosition();
 
-		BasicType index_type = array_index_expression->GetType(
+		const TypeSpecifier* index_type = array_index_expression->GetType(
 				execution_context);
-		if (index_type != INT) {
+		if (!index_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
 			ostringstream os;
-			os << "A " << index_type << " expression";
+			os << "A " << index_type->ToString() << " expression";
 
 			result = result->With(
 					new Error(Error::SEMANTIC,
@@ -211,15 +228,6 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 				delete (evaluation);
 			}
 		}
-		break;
-	}
-	case NONE:
-	case INT:
-	case DOUBLE:
-	case STRING:
-	default: {
-		break;
-	}
 	}
 
 	return result;

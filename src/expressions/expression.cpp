@@ -37,26 +37,25 @@ const Result* Expression::ToString(
 	if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
 		return evaluation;
 	} else {
-		switch (GetType(execution_context)) {
-		case BOOLEAN:
-			buffer << *((bool*) evaluation->GetData());
-			break;
-		case INT:
-			buffer << *((int*) evaluation->GetData());
-			break;
-		case DOUBLE:
-			buffer << *((double*) evaluation->GetData());
-			break;
-		case STRING:
-			buffer << *((string*) evaluation->GetData());
-			break;
-		default:
-			assert(false);
-			return NULL;
-		}
+		const TypeSpecifier* type_specifier = GetType(execution_context);
 
-		delete (evaluation);
+		if (type_specifier->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
+			buffer << *((bool*) evaluation->GetData());
+		} else if (type_specifier->IsAssignableTo(
+				PrimitiveTypeSpecifier::INT)) {
+			buffer << *((int*) evaluation->GetData());
+		} else if (type_specifier->IsAssignableTo(
+				PrimitiveTypeSpecifier::DOUBLE)) {
+			buffer << *((double*) evaluation->GetData());
+		} else if (type_specifier->IsAssignableTo(
+				PrimitiveTypeSpecifier::STRING)) {
+			buffer << *((string*) evaluation->GetData());
+		} else {
+			assert(false);
+		}
 	}
+
+	delete (evaluation);
 
 	return new Result(new string(buffer.str()),
 			LinkedList<const Error*>::Terminator);

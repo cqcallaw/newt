@@ -116,7 +116,7 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 }
 
 const Result* ArithmeticExpression::compute(string* left, string* right,
-		YYLTYPE left_position, YYLTYPE right_position) const {
+YYLTYPE left_position, YYLTYPE right_position) const {
 	//string concatenation isn't strictly an arithmetic operation, so this is a hack
 	std::ostringstream buffer;
 	buffer << *left;
@@ -130,13 +130,12 @@ const LinkedList<const Error*>* ArithmeticExpression::Validate(
 	if (GetOperator() == PLUS) {
 		//Allow STRING types because PLUS doubles as a concatenation operator
 		return BinaryExpression::Validate(execution_context,
-				(BOOLEAN | INT | DOUBLE | STRING),
-				(BOOLEAN | INT | DOUBLE | STRING));
+				PrimitiveTypeSpecifier::STRING, PrimitiveTypeSpecifier::STRING);
 	} else if (GetOperator() == MOD) {
-		return BinaryExpression::Validate(execution_context, (BOOLEAN | INT),
-				(BOOLEAN | INT));
+		return BinaryExpression::Validate(execution_context,
+				PrimitiveTypeSpecifier::INT, PrimitiveTypeSpecifier::INT);
 	} else {
 		return BinaryExpression::Validate(execution_context,
-				(BOOLEAN | INT | DOUBLE), (BOOLEAN | INT | DOUBLE));
+				PrimitiveTypeSpecifier::DOUBLE, PrimitiveTypeSpecifier::DOUBLE);
 	}
 }

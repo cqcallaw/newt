@@ -111,8 +111,7 @@ int main(int argc, char *argv[]) {
 			if (debug) {
 				cout << "Root Symbol Table:" << endl;
 				cout << "----------------" << endl;
-				string prefix = "";
-				root_context->GetSymbolContext()->print(cout, &prefix);
+				root_context->GetSymbolContext()->print(cout, Indent(0));
 				cout << endl;
 				cout << "Root Type Table:" << endl;
 				cout << "----------------" << endl;

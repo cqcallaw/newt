@@ -25,77 +25,88 @@
 #include <vector>
 #include <sstream>
 #include <type.h>
+#include <type_table.h>
 #include <error.h>
 #include <assert.h>
+#include <type_specifier.h>
+#include <primitive_type_specifier.h>
+#include <compound_type_specifier.h>
+#include <array_type_specifier.h>
 
 class ArraySymbol: public Symbol {
 public:
-	ArraySymbol(const string name, const BasicType element_type) :
-			ArraySymbol(name, element_type, GetStorage(element_type, 0), true,
-					false) {
+	ArraySymbol(const string name, const TypeSpecifier* element_specifier,
+			const TypeTable* type_table) :
+			ArraySymbol(name, element_specifier,
+					GetStorage(element_specifier, 0, type_table), true, false) {
 	}
 
-	ArraySymbol(const string name, const BasicType element_type, const int size,
-			const bool initialized) :
-			ArraySymbol(name, element_type, GetStorage(element_type, size),
+	ArraySymbol(const string name, const TypeSpecifier* element_specifier,
+			const TypeTable* type_table, const int size, const bool initialized) :
+			ArraySymbol(name, element_specifier,
+					GetStorage(element_specifier, size, type_table),
 					initialized, true) {
 	}
 
-	string ToString() const override {
+	const string ToString(const TypeTable* type_table,
+			const Indent indent) const override {
 		ostringstream os;
 
-		BasicType type = GetElementType();
-		const string name = GetName();
+		//TODO: recursive dump
+		/*BasicType type = GetElementType();
+		 const string name = GetName();
 
-		int size = GetSize();
-		os << type << " array " << name << ":" << endl;
-		switch (m_element_type) {
-		case INT: {
-			for (int i = 0; i < size; i++) {
-				os << "\t[" << i << "] " << *((int *) GetValue<const int*>(i))
-						<< endl;
-			}
-			break;
-		}
-		case DOUBLE: {
-			for (int i = 0; i < size; i++) {
-				os << "\t[" << i << "] "
-						<< *((double *) GetValue<const double*>(i)) << endl;
-			}
-			break;
-		}
-		case STRING: {
-			for (int i = 0; i < size; i++) {
-				os << "\t[" << i << "] \""
-						<< *((string *) GetValue<const string*>(i)) << "\""
-						<< endl;
-			}
-			break;
-		}
-		default:
-			break;
-		}
-		os << "end array " << name;
+		 int size = GetSize();
+		 os << type << " array " << name << ":" << endl;
+		 switch (m_element_specifier) {
+		 case INT: {
+		 for (int i = 0; i < size; i++) {
+		 os << "\t[" << i << "] " << *((int *) GetValue<const int*>(i))
+		 << endl;
+		 }
+		 break;
+		 }
+		 case DOUBLE: {
+		 for (int i = 0; i < size; i++) {
+		 os << "\t[" << i << "] "
+		 << *((double *) GetValue<const double*>(i)) << endl;
+		 }
+		 break;
+		 }
+		 case STRING: {
+		 for (int i = 0; i < size; i++) {
+		 os << "\t[" << i << "] \""
+		 << *((string *) GetValue<const string*>(i)) << "\""
+		 << endl;
+		 }
+		 break;
+		 }
+		 default:
+		 break;
+		 }
+		 os << "end array " << name;*/
 
 		return os.str();
 	}
 
-	template<class T> const T GetValue(const int index) const {
+	template<class T> const void* GetValue(const int index,
+			const TypeTable* type_table) const {
 		if (0 <= index && index < GetSize()) {
-			const T result = GetVector<T>()->at(index);
+			const void* result = GetVector<T>()->at(index);
 			return result;
 		} else {
-			return (T) DefaultTypeValue(m_element_type);
+			return DefaultTypeValue(m_element_specifier, type_table);
 		}
 	}
 
 	template<class T> const ArraySymbol* WithValue(const int index,
-			const T value) const {
+			const T value, const TypeTable* type_table) const {
 		vector<T>* new_vector = new vector<T>(*(GetVector<T>()));
 		if (index < GetSize()) {
 			new_vector->at(index) = value;
 		} else {
-			new_vector->resize(index, (T) DefaultTypeValue(m_element_type));
+			new_vector->resize(index,
+					(T) DefaultTypeValue(m_element_specifier, type_table));
 			new_vector->insert(new_vector->end(), value);
 		}
 		return new ArraySymbol(GetName(), GetElementType(), (void*) new_vector,
@@ -113,8 +124,8 @@ public:
 		return ((vector<const void*>*) Symbol::GetValue())->size();
 	}
 
-	const BasicType GetElementType() const {
-		return m_element_type;
+	const TypeSpecifier* GetElementType() const {
+		return m_element_specifier;
 	}
 
 	const bool IsFixedSize() const {
@@ -126,34 +137,59 @@ public:
 	}
 
 private:
-	ArraySymbol(const string name, const BasicType element_type,
+	ArraySymbol(const string name, const TypeSpecifier* element_specifier,
 			const void* value, const bool initialized, const bool fixed_size) :
-			Symbol(ARRAY, name, value), m_element_type(element_type), m_initialized(
-					initialized), m_fixed_size(fixed_size) {
+			Symbol(PrimitiveTypeSpecifier::ARRAY, name, value), m_element_specifier(
+					element_specifier), m_initialized(initialized), m_fixed_size(
+					fixed_size) {
 	}
 
-	const static void* GetStorage(const BasicType element_type,
-			const int initial_size) {
-		switch (element_type) {
-		case INT:
-			return new vector<const int*>(initial_size,
-					(int*) DefaultTypeValue(element_type));
-		case DOUBLE:
-			return new vector<const double*>(initial_size,
-					(double*) DefaultTypeValue(element_type));
-		case STRING:
-			return new vector<const string*>(initial_size,
-					(string*) DefaultTypeValue(element_type));
-		case STRUCT:
-			return new vector<const Struct*>(initial_size,
-					(Struct*) DefaultTypeValue(element_type));
-		default:
-			assert(false);
-			return nullptr;
+	const static void* GetStorage(const TypeSpecifier* element_specifier,
+			const int initial_size, const TypeTable* type_table) {
+		const PrimitiveTypeSpecifier* as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(element_specifier);
+
+		if (as_primitive != nullptr) {
+			const BasicType element_type = as_primitive->GetBasicType();
+			switch (element_type) {
+			case INT:
+				return new vector<const int*>(initial_size,
+						(int*) DefaultTypeValue(element_specifier, type_table));
+			case DOUBLE:
+				return new vector<const double*>(initial_size,
+						(double*) DefaultTypeValue(element_specifier,
+								type_table));
+			case STRING:
+				return new vector<const string*>(initial_size,
+						(string*) DefaultTypeValue(element_specifier,
+								type_table));
+			default:
+				assert(false);
+				return nullptr;
+			}
 		}
+
+		const CompoundTypeSpecifier* as_compound =
+				dynamic_cast<const CompoundTypeSpecifier*>(element_specifier);
+		if (as_compound != nullptr) {
+			//TODO: handle arrays of arrays
+			//const string* type_name = as_compound->GetTypeName();
+			//const CompoundType* type = type_table->GetType(*type_name);
+			vector<const CompoundTypeInstance*>* result = new vector<
+					const CompoundTypeInstance*>(initial_size);
+			for (int i = 0; i < initial_size; ++i) {
+				result->at(i) = (const CompoundTypeInstance*) DefaultTypeValue(
+						element_specifier, type_table);
+			}
+
+			return result;
+		}
+
+		assert(false);
+		return nullptr;
 	}
 
-	const BasicType m_element_type;
+	const TypeSpecifier* m_element_specifier;
 	const bool m_initialized;
 	const bool m_fixed_size;
 

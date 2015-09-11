@@ -19,7 +19,7 @@
 
 #include <member_declaration.h>
 
-MemberDeclaration::MemberDeclaration(const BasicType type,
+MemberDeclaration::MemberDeclaration(const TypeSpecifier* type,
 		const YYLTYPE type_position, const std::string* name,
 		const YYLTYPE name_position, const Expression* initializer_expression,
 		const YYLTYPE initializer_expression_position) :

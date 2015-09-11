@@ -23,9 +23,11 @@
 #include <defaults.h>
 #include <type.h>
 
+class TypeSpecifier;
+
 class MemberDeclaration {
 public:
-	MemberDeclaration(const BasicType type, const YYLTYPE type_position,
+	MemberDeclaration(const TypeSpecifier* type, const YYLTYPE type_position,
 			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression = nullptr,
 			const YYLTYPE initializer_expression_position = DefaultLocation);
@@ -47,7 +49,7 @@ public:
 		return m_name_position;
 	}
 
-	const BasicType GetType() const {
+	const TypeSpecifier* GetType() const {
 		return m_type;
 	}
 
@@ -56,7 +58,7 @@ public:
 	}
 
 private:
-	const BasicType m_type;
+	const TypeSpecifier* m_type;
 	const YYLTYPE m_type_position;
 	const std::string* m_name;
 	const YYLTYPE m_name_position;

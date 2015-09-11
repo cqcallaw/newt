@@ -43,7 +43,8 @@ const LinkedList<const Error*>* ForStatement::preprocess(
 	const LinkedList<const Error*>* errors;
 
 	if (m_loop_expression != nullptr
-			&& !(m_loop_expression->GetType(execution_context) & (BOOLEAN | INT))) {
+			&& !(m_loop_expression->GetType(execution_context)->IsAssignableTo(
+					PrimitiveTypeSpecifier::INT))) {
 		YYLTYPE position = m_loop_expression->GetPosition();
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC,

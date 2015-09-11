@@ -17,17 +17,23 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STRUCT_H_
-#define STRUCT_H_
+#ifndef COMPOUND_TYPE_INSTANCE_H_
+#define COMPOUND_TYPE_INSTANCE_H_
 
 #include <string>
-#include <symbol_context.h>
+#include <linked_list.h>
+#include <type.h>
+
+class CompoundType;
+class SymbolContext;
+class Symbol;
+class Indent;
 
 using namespace std;
 
-class Struct {
+class CompoundTypeInstance {
 public:
-	Struct(const string type_name, SymbolContext* definition) :
+	CompoundTypeInstance(const string type_name, SymbolContext* definition) :
 			m_type_name(type_name), m_definition(definition) {
 	}
 
@@ -39,9 +45,19 @@ public:
 		return m_definition;
 	}
 
+	const static CompoundTypeInstance* GetDefaultInstance(
+			const string type_name,
+			const LinkedList<const SymbolContext*>* parent_context,
+			const CompoundType* type);
+
+	const static Symbol* GetSymbol(const TypeSpecifier* member_type,
+			const string member_name, const void* void_value);
+
+	const string ToString(const Indent indent) const;
+
 private:
 	const string m_type_name;
 	SymbolContext* m_definition;
 };
 
-#endif /* STRUCT_H_ */
+#endif /* COMPOUND_TYPE_INSTANCE_H_ */

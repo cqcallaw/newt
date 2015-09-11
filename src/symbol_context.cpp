@@ -17,6 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <compound_type_instance.h>
 #include <iostream>
 #include <sstream>
 #include <defaults.h>
@@ -25,11 +26,10 @@
 
 #include "type.h"
 #include "utils.h"
-#include "struct.h"
 
-SymbolContext::SymbolContext(const bool is_mutable,
+SymbolContext::SymbolContext(const Modifier::Type modifiers,
 		const LinkedList<const SymbolContext*>* parent) :
-		m_mutable(is_mutable), m_parent(parent), table(
+		m_modifiers(modifiers), m_parent(parent), table(
 				new map<const string, const Symbol*, comparator>()) {
 }
 
@@ -50,10 +50,10 @@ const Symbol* SymbolContext::GetSymbol(const string* identifier) const {
 	return GetSymbol(*identifier);
 }
 
-SymbolContext::SymbolContext(
+SymbolContext::SymbolContext(const Modifier::Type modifiers,
 		const LinkedList<const SymbolContext*>* parent_context,
 		const map<const string, const Symbol*>* values) :
-		SymbolContext(false, parent_context) {
+		SymbolContext(modifiers, parent_context) {
 	map<const string, const Symbol*>::const_iterator values_iter;
 	for (values_iter = values->begin(); values_iter != values->end();
 			++values_iter) {
@@ -63,10 +63,10 @@ SymbolContext::SymbolContext(
 	}
 }
 
-const void SymbolContext::print(ostream &os, const string* line_prefix) const {
+const void SymbolContext::print(ostream &os, const Indent indent) const {
 	std::map<const string, const Symbol*>::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {
-		os << *line_prefix;
+		os << indent;
 		const Symbol* symbol = iter->second;
 		os << *symbol;
 		os << endl;
@@ -89,19 +89,23 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
-		const Struct* value) {
-	return SetSymbol(identifier, STRUCT, (void*) value);
+		const CompoundTypeInstance* value) {
+	return SetSymbol(identifier, COMPOUND, (void*) value);
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const BasicType type, const void* value) {
+	if (m_modifiers & Modifier::READONLY) {
+		return MUTATION_DISALLOWED;
+	}
+
 	const Symbol* symbol = GetSymbol(identifier);
 
 	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
 	} else if ((symbol->GetType() < STRING && symbol->GetType() > type)
 			|| (symbol->GetType() != type)
-			|| !(type & (BOOLEAN | INT | DOUBLE | STRING | STRUCT))) {
+			|| !(type & (BOOLEAN | INT | DOUBLE | STRING | COMPOUND))) {
 		return INCOMPATIBLE_TYPE;
 	}
 

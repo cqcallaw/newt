@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../src/assert.cpp \
 ../src/compound_type.cpp \
+../src/compound_type_instance.cpp \
 ../src/defaults.cpp \
 ../src/error.cpp \
 ../src/execution_context.cpp \
@@ -15,6 +16,7 @@ CPP_SRCS += \
 ../src/newt.cpp \
 ../src/parameter.cpp \
 ../src/parameterlist.cpp \
+../src/primitive_type_specifier.cpp \
 ../src/symbol_context.cpp \
 ../src/symbol_table.cpp \
 ../src/type.cpp \
@@ -24,6 +26,7 @@ CPP_SRCS += \
 OBJS += \
 ./src/assert.o \
 ./src/compound_type.o \
+./src/compound_type_instance.o \
 ./src/defaults.o \
 ./src/error.o \
 ./src/execution_context.o \
@@ -33,6 +36,7 @@ OBJS += \
 ./src/newt.o \
 ./src/parameter.o \
 ./src/parameterlist.o \
+./src/primitive_type_specifier.o \
 ./src/symbol_context.o \
 ./src/symbol_table.o \
 ./src/type.o \
@@ -42,6 +46,7 @@ OBJS += \
 CPP_DEPS += \
 ./src/assert.d \
 ./src/compound_type.d \
+./src/compound_type_instance.d \
 ./src/defaults.d \
 ./src/error.d \
 ./src/execution_context.d \
@@ -51,6 +56,7 @@ CPP_DEPS += \
 ./src/newt.d \
 ./src/parameter.d \
 ./src/parameterlist.d \
+./src/primitive_type_specifier.d \
 ./src/symbol_context.d \
 ./src/symbol_table.d \
 ./src/type.d \

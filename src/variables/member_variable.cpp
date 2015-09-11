@@ -5,11 +5,11 @@
  *      Author: caleb
  */
 
+#include <compound_type_instance.h>
 #include <member_variable.h>
 #include <execution_context.h>
 #include <symbol_table.h>
 #include <sstream>
-#include <struct.h>
 
 MemberVariable::MemberVariable(const std::string* container_name,
 		const YYLTYPE container_name_location, const Variable* member_variable) :
@@ -21,12 +21,14 @@ MemberVariable::MemberVariable(const std::string* container_name,
 MemberVariable::~MemberVariable() {
 }
 
-const BasicType MemberVariable::GetType(const ExecutionContext* context) const {
-	const Struct* container =
-			(const Struct*) context->GetSymbolContext()->GetSymbol(GetName())->GetValue();
+const TypeSpecifier* MemberVariable::GetType(
+		const ExecutionContext* context) const {
+	const CompoundTypeInstance* container =
+			(const CompoundTypeInstance*) context->GetSymbolContext()->GetSymbol(
+					GetName())->GetValue();
 	const ExecutionContext* temp_context = context->WithSymbolContext(
 			container->GetDefinition());
-	const BasicType result = m_member_variable->GetType(temp_context);
+	const TypeSpecifier* result = m_member_variable->GetType(temp_context);
 	delete (temp_context);
 	return result;
 }

@@ -29,16 +29,16 @@ UnaryExpression::UnaryExpression(const YYLTYPE position, const OperatorType op,
 	assert(expression != NULL);
 }
 
-const BasicType UnaryExpression::compute_result_type(const BasicType input_type,
-		const OperatorType op) {
+const TypeSpecifier* UnaryExpression::compute_result_type(
+		const TypeSpecifier* input_type, const OperatorType op) {
 	switch (op) {
 	case UNARY_MINUS:
 		return input_type;
 	case NOT:
-		return BOOLEAN;
+		return PrimitiveTypeSpecifier::BOOLEAN;
 	default:
 		assert(false);
-		return NONE;
+		return PrimitiveTypeSpecifier::NONE;
 	}
 }
 
@@ -86,7 +86,7 @@ double UnaryExpression::degrees_to_radians(double angle) {
 	return angle * (M_PI / 180.0);
 }
 
-const BasicType UnaryExpression::GetType(
+const TypeSpecifier* UnaryExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return compute_result_type(m_expression->GetType(execution_context),
 			m_operator);
@@ -107,8 +107,9 @@ const LinkedList<const Error*>* UnaryExpression::Validate(
 		return result;
 	}
 
-	BasicType expression_type = expression->GetType(execution_context);
-	if (!(expression_type & (BOOLEAN | INT | DOUBLE))) {
+	const TypeSpecifier* expression_type = expression->GetType(
+			execution_context);
+	if (!(expression_type->IsAssignableTo(PrimitiveTypeSpecifier::DOUBLE))) {
 		result = result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
 						expression->GetPosition().first_line,
@@ -129,7 +130,8 @@ const Result* UnaryExpression::Evaluate(
 			LinkedList<const Error*>::Terminator;
 	void* result = nullptr;
 
-	const BasicType expression_type = m_expression->GetType(execution_context);
+	const TypeSpecifier* expression_type = m_expression->GetType(
+			execution_context);
 	const Result* evaluation = m_expression->Evaluate(execution_context);
 	const LinkedList<const Error*>* evaluation_errors = evaluation->GetErrors();
 
@@ -139,45 +141,39 @@ const Result* UnaryExpression::Evaluate(
 		const void* data = evaluation->GetData();
 		switch (m_operator) {
 		case UNARY_MINUS: {
-			switch (expression_type) {
-			case INT: {
+			if (expression_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
 				int* value = new int;
 				*value = -(*((int*) data));
 				result = (void *) value;
-				break;
-			}
-			case DOUBLE: {
+			} else if (expression_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::DOUBLE)) {
 				double* value = new double;
 				*value = -(*((double*) data));
 				result = (void *) value;
-				break;
-			}
-			default:
+			} else {
 				assert(false);
 			}
 			break;
 		}
 		case NOT: {
-			switch (expression_type) {
-			case BOOLEAN: {
+			if (expression_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::BOOLEAN)) {
 				bool old_value = *((bool*) data);
 				bool* value = new bool(!old_value);
 				result = (void *) value;
-				break;
-			}
-			case INT: {
+			} else if (expression_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::INT)) {
 				int old_value = *((int*) data);
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
 				break;
-			}
-			case DOUBLE: {
+			} else if (expression_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::DOUBLE)) {
 				double old_value = *((double*) data);
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
 				break;
-			}
-			default:
+			} else {
 				assert(false);
 			}
 			break;

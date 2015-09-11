@@ -44,6 +44,6 @@ std::ostream &operator<<(std::ostream &os, const Variable &variable) {
 Variable::~Variable() {
 }
 
-const BasicType Variable::GetType(const ExecutionContext* context) const {
+const TypeSpecifier* Variable::GetType(const ExecutionContext* context) const {
 	return context->GetSymbolContext()->GetSymbol(m_name)->GetType();
 }

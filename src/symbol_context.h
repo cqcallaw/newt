@@ -22,10 +22,11 @@
 
 #include <iostream>
 #include "symbol.h"
-#include "array_symbol.h"
+#include <array_symbol.h>
 #include <map>
+#include <modifier.h>
 
-class Struct;
+class CompoundTypeInstance;
 
 using namespace std;
 
@@ -33,7 +34,8 @@ enum SetResult {
 	NO_SET_RESULT = 0,
 	SET_SUCCESS = 1,
 	UNDEFINED_SYMBOL = 2,
-	INCOMPATIBLE_TYPE = 3
+	INCOMPATIBLE_TYPE = 3,
+	MUTATION_DISALLOWED = 4
 };
 
 struct comparator {
@@ -44,10 +46,11 @@ struct comparator {
 
 class SymbolContext {
 public:
-	SymbolContext(const bool is_mutable,
+	SymbolContext(const Modifier::Type modifiers,
 			const LinkedList<const SymbolContext*>* parent = LinkedList<
 					const SymbolContext*>::Terminator);
-	SymbolContext(const LinkedList<const SymbolContext*>* parent_context,
+	SymbolContext(const Modifier::Type modifiers,
+			const LinkedList<const SymbolContext*>* parent_context,
 			const map<const string, const Symbol*>* values);
 	virtual ~SymbolContext();
 
@@ -55,20 +58,21 @@ public:
 		return m_parent;
 	}
 
-	const void print(ostream &os, const string* line_prefix) const;
+	const void print(ostream &os, const Indent indent) const;
 
 	const Symbol* GetSymbol(const string identifier) const;
 	const Symbol* GetSymbol(const string* identifier) const;
 
 	const bool IsMutable() const {
-		return m_mutable;
+		return m_modifiers & Modifier::READONLY;
 	}
 
 	SetResult SetSymbol(const string identifier, const bool* value);
 	SetResult SetSymbol(const string identifier, const int* value);
 	SetResult SetSymbol(const string identifier, const double* value);
 	SetResult SetSymbol(const string identifier, const string* value);
-	SetResult SetSymbol(const string identifier, const Struct* value);
+	SetResult SetSymbol(const string identifier,
+			const CompoundTypeInstance* value);
 
 	SetResult SetArraySymbol(const string identifier,
 			const ArraySymbol* new_symbol);
@@ -91,7 +95,7 @@ protected:
 	}
 
 private:
-	const bool m_mutable;
+	const Modifier::Type m_modifiers;
 	const LinkedList<const SymbolContext*>* m_parent;
 	map<const string, const Symbol*, comparator>* table;
 

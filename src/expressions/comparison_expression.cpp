@@ -31,16 +31,15 @@ ComparisonExpression::ComparisonExpression(const YYLTYPE position,
 							| GREATER_THAN_EQUAL));
 }
 
-const BasicType ComparisonExpression::GetType(
+const TypeSpecifier* ComparisonExpression::GetType(
 		const ExecutionContext* execution_context) const {
-	return BOOLEAN;
+	return PrimitiveTypeSpecifier::BOOLEAN;
 }
 
 const LinkedList<const Error*>* ComparisonExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	return BinaryExpression::Validate(execution_context,
-			(BOOLEAN | INT | DOUBLE | STRING),
-			(BOOLEAN | INT | DOUBLE | STRING));
+			PrimitiveTypeSpecifier::STRING, PrimitiveTypeSpecifier::STRING);
 }
 
 const Result* ComparisonExpression::compute(bool left, bool right,
@@ -75,8 +74,7 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	case EQUAL: {
 		bool* result = new bool(left == right);
 		//cout << "Integer comparison result: " << *result << "\n";
-		return new Result((void *) result,
-				LinkedList<const Error*>::Terminator);
+		return new Result((void *) result, LinkedList<const Error*>::Terminator);
 		break;
 	}
 	case NOT_EQUAL:
@@ -142,9 +140,8 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	return NULL;
 }
 
-const Result* ComparisonExpression::compute(string* left,
-		string* right,
-		YYLTYPE left_position, YYLTYPE right_position) const {
+const Result* ComparisonExpression::compute(string* left, string* right,
+YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case EQUAL:
 		return new Result((void*) new bool(*left == *right),

@@ -22,7 +22,9 @@
 
 #include <member_declaration.h>
 #include <type.h>
-#include <compound_type.h>
+#include <map>
+
+class CompoundType;
 
 using namespace std;
 

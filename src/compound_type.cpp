@@ -20,13 +20,16 @@
 #include <compound_type.h>
 #include <member_definition.h>
 #include <sstream>
+#include <assert.h>
+#include <type_specifier.h>
 
 const CompoundType* CompoundType::DefaultCompoundType = new CompoundType(
-		new map<const string, const MemberDefinition*>());
+		new map<const string, const MemberDefinition*>(), Modifier::NONE);
 
 CompoundType::CompoundType(
-		const map<const string, const MemberDefinition*>* definition) :
-		m_definition(definition) {
+		const map<const string, const MemberDefinition*>* definition,
+		const Modifier::Type modifiers) :
+		m_definition(definition), m_modifiers(modifiers) {
 }
 
 const MemberDefinition* CompoundType::GetMember(const string name) const {
@@ -36,23 +39,19 @@ const MemberDefinition* CompoundType::GetMember(const string name) const {
 CompoundType::~CompoundType() {
 }
 
-const string CompoundType::ToString() const {
+const string CompoundType::ToString(const TypeTable* type_table,
+		const Indent indent) const {
 	ostringstream os;
 	map<const string, const MemberDefinition*>::const_iterator type_iter;
 	for (type_iter = m_definition->begin(); type_iter != m_definition->end();
 			++type_iter) {
 		const string member_name = type_iter->first;
 		const MemberDefinition* member_definition = type_iter->second;
-		const BasicType member_type = member_definition->GetType();
-		const void* member_default_value = member_definition->GetDefaultValue();
+		const TypeSpecifier* member_type = member_definition->GetType();
 
 		os << "\t" << member_type << " " << member_name << " ("
-				<< AsString(member_type, member_default_value) << ")" << endl;
+				<< member_definition->ToString(type_table, indent + 1) << ")"
+				<< endl;
 	}
 	return os.str();
-}
-
-std::ostream& operator <<(std::ostream& os, const CompoundType& type) {
-	os << type.ToString();
-	return os;
 }

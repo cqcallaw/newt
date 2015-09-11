@@ -25,6 +25,7 @@
 #include <execution_context.h>
 #include <map>
 #include <member_definition.h>
+#include <compound_type.h>
 
 StructDeclarationStatement::StructDeclarationStatement(const std::string* name,
 		const YYLTYPE name_position,
@@ -46,7 +47,7 @@ LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 
 	TypeTable* type_table = execution_context->GetTypeTable();
 
-	std::map<const string, const MemberDefinition*>* pairing = new std::map<
+	std::map<const string, const MemberDefinition*>* mapping = new std::map<
 			const string, const MemberDefinition*>();
 
 	const LinkedList<const MemberDeclaration*>* subject =
@@ -63,24 +64,36 @@ LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 							position.first_line, position.first_column));
 		} else {
 			const MemberDeclaration* declaration = subject->GetData();
-			const BasicType type = declaration->GetType();
+			const TypeSpecifier* type = declaration->GetType();
 			const string* member_name = declaration->GetName();
-			pairing->insert(
+			mapping->insert(
 					pair<const string, const MemberDefinition*>(*member_name,
 							new MemberDefinition(type,
 									declaration->GetInitializerExpression()
 											!= nullptr ?
 											declaration->GetInitializerExpression()->Evaluate(
 													execution_context)->GetData() :
-											DefaultTypeValue(type))));
+											DefaultTypeValue(type,
+													execution_context->GetTypeTable()))));
 
 		}
 		subject = subject->GetNext();
 	}
 
-	type_table->AddType(*m_name, new CompoundType(pairing));
+	Modifier::Type modifiers = Modifier::NONE;
 
-	//TODO: verify member names are unique
+	const LinkedList<const Modifier*>* modifier_list = m_modifier_list;
+
+	while (modifier_list != LinkedList<const Modifier*>::Terminator) {
+		//TODO: check invalid modifiers
+		Modifier::Type new_modifier = modifier_list->GetData()->GetType();
+		modifiers = Modifier::Type(modifiers | new_modifier);
+		modifier_list = modifier_list->GetNext();
+	}
+
+	type_table->AddType(*m_name, new CompoundType(mapping, modifiers));
+
+//TODO: verify member names are unique
 
 	return errors;
 }

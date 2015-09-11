@@ -34,7 +34,7 @@ YYLTYPE expression_location) :
 	 index_expression->GetType() == INT);*/
 }
 
-const BasicType ArrayVariable::GetType(const ExecutionContext* context) const {
+const TypeSpecifier* ArrayVariable::GetType(const ExecutionContext* context) const {
 	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName());
 	const ArraySymbol* as_array_symbol = (const ArraySymbol*) symbol;
 	return as_array_symbol->GetElementType();

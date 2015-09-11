@@ -39,7 +39,7 @@ const string type_to_string(const BasicType type) {
 		return "string";
 	case ARRAY:
 		return "array";
-	case STRUCT:
+	case COMPOUND:
 		return "struct";
 	}
 
@@ -47,43 +47,6 @@ const string type_to_string(const BasicType type) {
 	assert(false);
 
 	return "error";  // this keeps compiler happy
-}
-
-string AsString(const BasicType type, const void* value) {
-	ostringstream buffer;
-	switch (type) {
-	case BOOLEAN:
-	case INT: {
-		const int* default_value = (int*) value;
-		buffer << *default_value;
-		break;
-	}
-	case DOUBLE: {
-		const double* default_value = (double*) value;
-		buffer << *default_value;
-		break;
-	}
-	case STRING: {
-		const string* default_value = (string*) value;
-		buffer << *default_value;
-		break;
-	}
-		//TODO: array types
-	default:
-		assert(false);
-	}
-
-	return buffer.str();
-}
-
-const bool ValidateBasicTypeAssignment(const BasicType left_type,
-		const BasicType right_type) {
-	if ((left_type <= STRING && right_type <= left_type)
-			|| left_type == right_type) {
-		return true;
-	} else {
-		return false;
-	}
 }
 
 ostream &operator<<(ostream &os, const BasicType &type) {
@@ -128,26 +91,5 @@ string operator_to_string(OperatorType op) {
 	}
 	assert(false);
 	return ""; // to prevent a compilation warning
-}
-
-const void* DefaultTypeValue(const BasicType type) {
-	switch (type) {
-	case BOOLEAN:
-		return DefaultBooleanValue;
-	case INT:
-		return DefaultIntValue;
-	case DOUBLE:
-		return DefaultDoubleValue;
-	case STRING:
-		return DefaultStringValue;
-	case ARRAY:
-		return nullptr;
-	case STRUCT:
-		return nullptr;
-	default:
-		//TODO: other types
-		assert(false);
-		return nullptr;
-	}
 }
 

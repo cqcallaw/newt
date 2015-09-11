@@ -47,6 +47,11 @@
 #include <struct_instantiation_statement.h>
 
 #include <type.h>
+#include <type_specifier.h>
+#include <array_type_specifier.h>
+#include <primitive_type_specifier.h>
+#include <compound_type_specifier.h>
+
 typedef void* yyscan_t;
 
 }
@@ -101,7 +106,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  int            union_int;
  double         union_double;
  std::string*   union_string;
- BasicType           union_type;
+ const PrimitiveTypeSpecifier*    union_primitive_type;
  const Expression*          union_expression;
  const Variable*            union_variable;
  OperatorType               union_operator_type;
@@ -194,7 +199,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %precedence IF_NO_ELSE
 %precedence T_ELSE
 
-%type <union_type> simple_type
+%type <union_primitive_type> simple_type
 %type <union_expression> expression
 %type <union_expression> primary_expression
 %type <union_statement_type> variable_declaration
@@ -247,11 +252,21 @@ variable_declaration:
 	}
 	| simple_type T_LBRACKET T_RBRACKET T_ID
 	{
-		$$ = new ArrayDeclarationStatement($1, @1, $4, @4);
+		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier($1), @1, $4, @4);
 	}
 	| simple_type T_LBRACKET expression T_RBRACKET T_ID
 	{
-		$$ = new ArrayDeclarationStatement($1, @1, $5, @5, $3, @3);
+		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier($1, true), @1, $5, @5, $3, @3);
+	}
+	|
+	T_ID T_LBRACKET T_RBRACKET T_ID
+	{
+		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier($1)), @1, $4, @4);
+	}
+	|
+	T_ID T_LBRACKET expression T_RBRACKET T_ID
+	{
+		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier($1), true), @1, $5, @5, $3, @3);
 	}
 	;
 
@@ -259,20 +274,20 @@ variable_declaration:
 simple_type:
 	T_BOOLEAN
 	{
-		$$ = BOOLEAN;
+		$$ = PrimitiveTypeSpecifier::BOOLEAN;
 	}
 	|
 	T_INT
 	{
-		$$ = INT;
+		$$ = PrimitiveTypeSpecifier::INT;
 	}
 	| T_DOUBLE
 	{
-		$$ = DOUBLE;
+		$$ = PrimitiveTypeSpecifier::DOUBLE;
 	}
 	| T_STRING
 	{
-		$$ = STRING;
+		$$ = PrimitiveTypeSpecifier::STRING;
 	}
 	;
 	
