@@ -36,7 +36,8 @@ public:
 	virtual ~CompoundType();
 	const MemberDefinition* GetMember(const string name) const;
 
-	const string ToString(const TypeTable* type_table, const Indent indent) const;
+	const string ToString(const TypeTable* type_table,
+			const Indent indent) const;
 
 	const map<const string, const MemberDefinition*>* GetDefinition() const {
 		return m_definition;
@@ -56,5 +57,4 @@ private:
 			const string member_name, const void* void_value) const;
 };
 
-std::ostream &operator<<(std::ostream &os, const CompoundType &symbol);
 #endif /* COMPOUND_TYPE_H_ */

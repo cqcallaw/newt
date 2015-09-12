@@ -28,6 +28,7 @@
 #include "error.h"
 #include "expression.h"
 #include <execution_context.h>
+#include <array_type_specifier.h>
 
 const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
 const Symbol* Symbol::DefaultSymbol = new Symbol(PrimitiveTypeSpecifier::NONE,
@@ -154,11 +155,11 @@ const string Symbol::ToString(const TypeTable* type_table,
 	const CompoundTypeSpecifier* as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(m_type);
 	if (as_compound != nullptr) {
-		const string* type_name = as_compound->GetTypeName();
-		buffer << *type_name << " " << m_name << ": ";
+		const string type_name = as_compound->GetTypeName();
+		buffer << type_name << " " << m_name << ": ";
 		const CompoundTypeInstance* compound_type_instance =
 				(const CompoundTypeInstance*) m_value;
-		buffer << compound_type_instance->ToString(indent + 1);
+		buffer << compound_type_instance->ToString(type_table, indent + 1);
 	}
 
 	return buffer.str();

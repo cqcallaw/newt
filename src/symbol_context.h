@@ -58,7 +58,8 @@ public:
 		return m_parent;
 	}
 
-	const void print(ostream &os, const Indent indent) const;
+	const void print(ostream &os, const TypeTable* type_table,
+			const Indent indent) const;
 
 	const Symbol* GetSymbol(const string identifier) const;
 	const Symbol* GetSymbol(const string* identifier) const;
@@ -78,13 +79,13 @@ public:
 			const ArraySymbol* new_symbol);
 
 	SetResult SetSymbol(const string identifier, const int index,
-			const bool* value);
+			const bool* value, const TypeTable* type_table);
 	SetResult SetSymbol(const string identifier, const int index,
-			const int* value);
+			const int* value, const TypeTable* type_table);
 	SetResult SetSymbol(const string identifier, const int index,
-			const double* value);
+			const double* value, const TypeTable* type_table);
 	SetResult SetSymbol(const string identifier, const int index,
-			const string* value);
+			const string* value, const TypeTable* type_table);
 
 //	SetResult SetMember(const string identifier, const string member_name,
 //			const BasicType member_type, const void* value);
@@ -99,11 +100,12 @@ private:
 	const LinkedList<const SymbolContext*>* m_parent;
 	map<const string, const Symbol*, comparator>* table;
 
-	SetResult SetSymbol(const string identifier, const BasicType type,
+	SetResult SetSymbol(const string identifier, const TypeSpecifier* type,
 			const void* value);
 
-	SetResult SetArraySymbolIndex(const string identifier, BasicType type,
-			int index, const void* value);
+	SetResult SetArraySymbolIndex(const string identifier,
+			const TypeSpecifier* type, const int index, const void* value,
+			const TypeTable* type_table);
 };
 
 #endif /* SYMBOL_CONTEXT_H_ */

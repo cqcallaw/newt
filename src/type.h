@@ -43,9 +43,6 @@ const string type_to_string(const BasicType type);
 
 string AsString(const BasicType type, const void* value);
 
-const void* DefaultTypeValue(const TypeSpecifier* type,
-		const TypeTable* type_table);
-
 ostream &operator<<(ostream &os, const BasicType &type);
 
 enum OperatorType {

@@ -66,8 +66,9 @@ const Symbol* CompoundTypeInstance::GetSymbol(const TypeSpecifier* member_type,
 	}
 }
 
-const string CompoundTypeInstance::ToString(const Indent indent) const {
+const string CompoundTypeInstance::ToString(const TypeTable* type_table,
+		const Indent indent) const {
 	ostringstream buffer;
-	m_definition->print(buffer, indent);
+	m_definition->print(buffer, type_table, indent);
 	return buffer.str();
 }

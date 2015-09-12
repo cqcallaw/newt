@@ -28,37 +28,37 @@ class SymbolContext;
 
 class CompoundTypeSpecifier: public TypeSpecifier {
 public:
-	CompoundTypeSpecifier(const string* type_name) :
+	CompoundTypeSpecifier(const string type_name) :
 			m_type_name(type_name) {
 	}
 	virtual ~CompoundTypeSpecifier() {
 	}
 
-	const string* GetTypeName() const {
+	const string GetTypeName() const {
 		return m_type_name;
 	}
 
 	virtual const string ToString() const {
-		return *m_type_name;
+		return m_type_name;
 	}
 
 	virtual const bool IsAssignableTo(const TypeSpecifier* other) const {
 		const CompoundTypeSpecifier* as_compound =
 				dynamic_cast<const CompoundTypeSpecifier*>(other);
 		return as_compound != nullptr
-				&& as_compound->GetTypeName()->compare(*m_type_name) == 0;
+				&& as_compound->GetTypeName().compare(m_type_name) == 0;
 	}
 
 	virtual const void* DefaultValue(const TypeTable* type_table) const {
-		const CompoundType* type = type_table->GetType(*m_type_name);
+		const CompoundType* type = type_table->GetType(m_type_name);
 		const CompoundTypeInstance* default_instance =
-				CompoundTypeInstance::GetDefaultInstance(*m_type_name,
+				CompoundTypeInstance::GetDefaultInstance(m_type_name,
 						LinkedList<const SymbolContext*>::Terminator, type);
 		return default_instance;
 	}
 
 private:
-	const string* m_type_name;
+	const string m_type_name;
 };
 
 #endif /* COMPOUND_TYPE_SPECIFIER_H_ */

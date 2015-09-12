@@ -73,7 +73,7 @@ LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 											!= nullptr ?
 											declaration->GetInitializerExpression()->Evaluate(
 													execution_context)->GetData() :
-											DefaultTypeValue(type,
+											type->DefaultValue(
 													execution_context->GetTypeTable()))));
 
 		}

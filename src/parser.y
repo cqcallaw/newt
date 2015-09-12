@@ -261,12 +261,12 @@ variable_declaration:
 	|
 	T_ID T_LBRACKET T_RBRACKET T_ID
 	{
-		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier($1)), @1, $4, @4);
+		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier(*$1)), @1, $4, @4);
 	}
 	|
 	T_ID T_LBRACKET expression T_RBRACKET T_ID
 	{
-		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier($1), true), @1, $5, @5, $3, @3);
+		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier(*$1), true), @1, $5, @5, $3, @3);
 	}
 	;
 

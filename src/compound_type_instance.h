@@ -53,7 +53,8 @@ public:
 	const static Symbol* GetSymbol(const TypeSpecifier* member_type,
 			const string member_name, const void* void_value);
 
-	const string ToString(const Indent indent) const;
+	const string ToString(const TypeTable* type_table,
+			const Indent indent) const;
 
 private:
 	const string m_type_name;

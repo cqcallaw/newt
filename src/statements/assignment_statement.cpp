@@ -634,7 +634,8 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 						errors = result->GetErrors();
 						if (errors == LinkedList<const Error*>::Terminator) {
 							set_result = symbol_table->SetSymbol(*variable_name,
-									index, (int*) result->GetData());
+									index, (int*) result->GetData(),
+									execution_context->GetTypeTable());
 							break;
 						}
 						break;
@@ -648,7 +649,8 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 						errors = result->GetErrors();
 						if (errors == LinkedList<const Error*>::Terminator) {
 							set_result = symbol_table->SetSymbol(*variable_name,
-									index, (double*) result->GetData());
+									index, (double*) result->GetData(),
+									execution_context->GetTypeTable());
 						}
 						break;
 					}
@@ -661,7 +663,8 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 						errors = result->GetErrors();
 						if (errors == LinkedList<const Error*>::Terminator) {
 							set_result = symbol_table->SetSymbol(*variable_name,
-									index, (string*) result->GetData());
+									index, (string*) result->GetData(),
+									execution_context->GetTypeTable());
 						}
 						break;
 					}

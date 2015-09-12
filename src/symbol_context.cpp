@@ -63,38 +63,40 @@ SymbolContext::SymbolContext(const Modifier::Type modifiers,
 	}
 }
 
-const void SymbolContext::print(ostream &os, const Indent indent) const {
+const void SymbolContext::print(ostream &os, const TypeTable* type_table,
+		const Indent indent) const {
 	std::map<const string, const Symbol*>::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {
 		os << indent;
 		const Symbol* symbol = iter->second;
-		os << *symbol;
+		os << symbol->ToString(type_table, indent);
 		os << endl;
 	}
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier, const bool* value) {
-	return SetSymbol(identifier, BOOLEAN, (void*) value);
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::BOOLEAN, (void*) value);
 }
 SetResult SymbolContext::SetSymbol(const string identifier, const int* value) {
-	return SetSymbol(identifier, INT, (void*) value);
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::INT, (void*) value);
 }
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const double* value) {
-	return SetSymbol(identifier, DOUBLE, (void*) value);
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::DOUBLE, (void*) value);
 }
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const string* value) {
-	return SetSymbol(identifier, STRING, (void*) value);
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::STRING, (void*) value);
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const CompoundTypeInstance* value) {
-	return SetSymbol(identifier, COMPOUND, (void*) value);
+	return SetSymbol(identifier, new CompoundTypeSpecifier(identifier),
+			(void*) value);
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
-		const BasicType type, const void* value) {
+		const TypeSpecifier* type, const void* value) {
 	if (m_modifiers & Modifier::READONLY) {
 		return MUTATION_DISALLOWED;
 	}
@@ -103,9 +105,7 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 
 	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
-	} else if ((symbol->GetType() < STRING && symbol->GetType() > type)
-			|| (symbol->GetType() != type)
-			|| !(type & (BOOLEAN | INT | DOUBLE | STRING | COMPOUND))) {
+	} else if (!(symbol->GetType()->IsAssignableTo(type))) {
 		return INCOMPATIBLE_TYPE;
 	}
 
@@ -121,20 +121,24 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier, const int index,
-		const bool* value) {
-	return SetArraySymbolIndex(identifier, BOOLEAN, index, (void*) value);
+		const bool* value, const TypeTable* type_table) {
+	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::BOOLEAN,
+			index, (void*) value, type_table);
 }
 SetResult SymbolContext::SetSymbol(const string identifier, const int index,
-		const int* value) {
-	return SetArraySymbolIndex(identifier, INT, index, (void*) value);
+		const int* value, const TypeTable* type_table) {
+	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::INT, index,
+			(void*) value, type_table);
 }
 SetResult SymbolContext::SetSymbol(const string identifier, const int index,
-		const double* value) {
-	return SetArraySymbolIndex(identifier, DOUBLE, index, (void*) value);
+		const double* value, const TypeTable* type_table) {
+	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::DOUBLE,
+			index, (void*) value, type_table);
 }
 SetResult SymbolContext::SetSymbol(const string identifier, const int index,
-		const string* value) {
-	return SetArraySymbolIndex(identifier, STRING, index, (void*) value);
+		const string* value, const TypeTable* type_table) {
+	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::STRING,
+			index, (void*) value, type_table);
 }
 
 SetResult SymbolContext::SetArraySymbol(const string identifier,
@@ -143,8 +147,7 @@ SetResult SymbolContext::SetArraySymbol(const string identifier,
 
 	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
-	} else if (symbol->GetType() != new_symbol->GetType()
-			|| !(symbol->GetType() & (ARRAY))) {
+	} else if (symbol->GetType() != PrimitiveTypeSpecifier::ARRAY) {
 		return INCOMPATIBLE_TYPE;
 	}
 
@@ -187,71 +190,95 @@ SetResult SymbolContext::SetArraySymbol(const string identifier,
  }*/
 
 SetResult SymbolContext::SetArraySymbolIndex(const string identifier,
-		BasicType type, int index, const void* value) {
+		const TypeSpecifier* type, const int index, const void* value,
+		const TypeTable* type_table) {
 	const Symbol* symbol = GetSymbol(identifier);
 
 	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
 	}
 
-	Symbol* new_symbol;
-	const ArraySymbol* as_array_symbol = (ArraySymbol*) symbol;
-	switch (as_array_symbol->GetElementType()) {
-	case INT: {
-		int* new_value = (int*) malloc(sizeof(int));
-		if (type == BOOLEAN) {
-			*new_value = *((bool*) value);
-		} else if (type == INT) {
-			*new_value = *((int*) value);
-		} else {
-			return INCOMPATIBLE_TYPE;
-		}
+	const Symbol* new_symbol;
+	const ArraySymbol* as_array_symbol = (const ArraySymbol*) symbol;
+	const TypeSpecifier* symbol_type = as_array_symbol->GetElementType();
 
-		new_symbol = (Symbol*) as_array_symbol->WithValue(index, new_value);
-		break;
-	}
-	case DOUBLE: {
-		double* new_value = (double*) malloc(sizeof(double));
-		if (type == BOOLEAN) {
-			*new_value = *((bool*) value);
-		} else if (type == INT) {
-			*new_value = *((int*) value);
-		} else if (type == DOUBLE) {
-			*new_value = *((double*) value);
-		} else {
-			return INCOMPATIBLE_TYPE;
-		}
-
-		new_symbol = (Symbol*) as_array_symbol->WithValue(index, new_value);
-		break;
-	}
-	case STRING: {
-		string* new_value;
-		if (type == BOOLEAN) {
-			new_value = AsString((bool*) value);
-		} else if (type == INT) {
-			new_value = AsString((int*) value);
-		} else if (type == DOUBLE) {
-			new_value = AsString((double*) value);
-		} else if (type == STRING) {
-			new_value = (string*) value;
-		} else {
-			return INCOMPATIBLE_TYPE;
-		}
-
-		new_symbol = (Symbol*) as_array_symbol->WithValue<const string*>(index,
-				new_value);
-		break;
-	}
-	default:
+	if (!symbol_type->IsAssignableTo(type)) {
 		return INCOMPATIBLE_TYPE;
 	}
 
-	//TODO: error checking
-	//TODO: free memory from old symbols
-	table->erase(identifier);
-	table->insert(
-			std::pair<const string, const Symbol*>(identifier, new_symbol));
+	const PrimitiveTypeSpecifier* as_primitive =
+			dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
 
-	return SET_SUCCESS;
+	if (as_primitive) {
+		const BasicType symbol_basic_type = as_primitive->GetBasicType();
+
+		const PrimitiveTypeSpecifier* new_as_primitive =
+				(const PrimitiveTypeSpecifier*) (type);
+
+		const BasicType new_basic_type = new_as_primitive->GetBasicType();
+
+		switch (symbol_basic_type) {
+		case INT: {
+			int* new_value = (int*) malloc(sizeof(int));
+			if (new_basic_type == BOOLEAN) {
+				*new_value = *((bool*) value);
+			} else if (new_basic_type == INT) {
+				*new_value = *((int*) value);
+			} else {
+				return INCOMPATIBLE_TYPE;
+			}
+
+			new_symbol = (Symbol*) as_array_symbol->WithValue<const int*>(index,
+					new_value, type_table);
+			break;
+		}
+		case DOUBLE: {
+			double* new_value = (double*) malloc(sizeof(double));
+			if (new_basic_type == BOOLEAN) {
+				*new_value = *((bool*) value);
+			} else if (new_basic_type == INT) {
+				*new_value = *((int*) value);
+			} else if (new_basic_type == DOUBLE) {
+				*new_value = *((double*) value);
+			} else {
+				return INCOMPATIBLE_TYPE;
+			}
+
+			new_symbol = (Symbol*) as_array_symbol->WithValue<const double*>(
+					index, new_value, type_table);
+			break;
+		}
+		case STRING: {
+			string* new_value;
+			if (new_basic_type == BOOLEAN) {
+				new_value = AsString((bool*) value);
+			} else if (new_basic_type == INT) {
+				new_value = AsString((int*) value);
+			} else if (new_basic_type == DOUBLE) {
+				new_value = AsString((double*) value);
+			} else if (new_basic_type == STRING) {
+				new_value = (string*) value;
+			} else {
+				return INCOMPATIBLE_TYPE;
+			}
+
+			new_symbol = (Symbol*) as_array_symbol->WithValue<const string*>(
+					index, new_value, type_table);
+			break;
+		}
+		default:
+			return INCOMPATIBLE_TYPE;
+		}
+
+		//TODO: error checking
+		//TODO: free memory from old symbols
+		table->erase(identifier);
+		table->insert(
+				std::pair<const string, const Symbol*>(identifier, new_symbol));
+
+		return SET_SUCCESS;
+	}
+
+	//TODO: handle nested arrays and compound types
+	return INCOMPATIBLE_TYPE;
 }

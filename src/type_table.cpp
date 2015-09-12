@@ -18,6 +18,7 @@
  */
 
 #include <type_table.h>
+#include <compound_type.h>
 
 TypeTable::TypeTable() {
 	table = new map<const string, const CompoundType*>();
@@ -46,6 +47,6 @@ const void TypeTable::print(ostream& os) const {
 	for (iter = table->begin(); iter != table->end(); ++iter) {
 		os << iter->first << ": " << endl;
 		const CompoundType* type = iter->second;
-		os << *type;
+		os << type->ToString(this, Indent(0));
 	}
 }

@@ -29,7 +29,7 @@
 using namespace std;
 
 SymbolTable::SymbolTable(const LinkedList<const SymbolContext*>* parent) :
-		SymbolContext(true, parent) {
+		SymbolContext(Modifier::NONE, parent) {
 }
 
 InsertResult SymbolTable::InsertSymbol(const Symbol* symbol) {

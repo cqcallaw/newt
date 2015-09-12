@@ -95,7 +95,7 @@ public:
 			const void* result = GetVector<T>()->at(index);
 			return result;
 		} else {
-			return DefaultTypeValue(m_element_specifier, type_table);
+			return m_element_specifier->DefaultValue(type_table);
 		}
 	}
 
@@ -106,7 +106,7 @@ public:
 			new_vector->at(index) = value;
 		} else {
 			new_vector->resize(index,
-					(T) DefaultTypeValue(m_element_specifier, type_table));
+					(T) m_element_specifier->DefaultValue(type_table));
 			new_vector->insert(new_vector->end(), value);
 		}
 		return new ArraySymbol(GetName(), GetElementType(), (void*) new_vector,
@@ -154,15 +154,13 @@ private:
 			switch (element_type) {
 			case INT:
 				return new vector<const int*>(initial_size,
-						(int*) DefaultTypeValue(element_specifier, type_table));
+						(int*) element_specifier->DefaultValue(type_table));
 			case DOUBLE:
 				return new vector<const double*>(initial_size,
-						(double*) DefaultTypeValue(element_specifier,
-								type_table));
+						(double*) element_specifier->DefaultValue(type_table));
 			case STRING:
 				return new vector<const string*>(initial_size,
-						(string*) DefaultTypeValue(element_specifier,
-								type_table));
+						(string*) element_specifier->DefaultValue(type_table));
 			default:
 				assert(false);
 				return nullptr;
@@ -178,8 +176,9 @@ private:
 			vector<const CompoundTypeInstance*>* result = new vector<
 					const CompoundTypeInstance*>(initial_size);
 			for (int i = 0; i < initial_size; ++i) {
-				result->at(i) = (const CompoundTypeInstance*) DefaultTypeValue(
-						element_specifier, type_table);
+				result->at(i) =
+						(const CompoundTypeInstance*) element_specifier->DefaultValue(
+								type_table);
 			}
 
 			return result;

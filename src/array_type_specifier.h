@@ -31,7 +31,8 @@ public:
 					fixed_size) {
 	}
 
-	virtual ~ArrayTypeSpecifier();
+	virtual ~ArrayTypeSpecifier() {
+	}
 
 	virtual const string ToString() const {
 		ostringstream buffer;
