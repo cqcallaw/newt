@@ -46,7 +46,8 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		const PrimitiveTypeSpecifier* size_type_as_primitive =
 				dynamic_cast<const PrimitiveTypeSpecifier*>(size_expression_type);
 		if (size_type_as_primitive == nullptr
-				|| size_type_as_primitive->GetBasicType() != INT) {
+				|| !size_type_as_primitive->IsAssignableTo(
+						PrimitiveTypeSpecifier::INT)) {
 			result = result->With(
 					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE_TYPE,
 							m_size_expression_position.first_line,
@@ -83,14 +84,8 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 			}
 
 			delete (evaluation);
-		}
 
-	}
-//	switch (m_type) {
-//	case INT:
-//	case DOUBLE:
-//	case STRING:
-	if (IsFixedSize()) {
+		}
 		symbol = new ArraySymbol(*name, m_type->GetElementTypeSpecifier(),
 				execution_context->GetTypeTable(), size,
 				m_size_expression->IsConstant());
@@ -98,13 +93,6 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		symbol = new ArraySymbol(*name, m_type->GetElementTypeSpecifier(),
 				execution_context->GetTypeTable());
 	}
-//		break;
-//	default:
-//		result = result->With(
-//				new Error(Error::SEMANTIC, Error::INVALID_ARRAY_TYPE,
-//						m_type_position.first_line,
-//						m_type_position.first_column, *name));
-//	}
 
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolContext();
@@ -146,7 +134,8 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 			errors = (LinkedList<const Error*>*) errors->With(
 					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE_TYPE,
 							m_size_expression_position.first_line,
-							m_size_expression_position.first_column, *m_name));
+							m_size_expression_position.first_column,
+							size_expression_type->ToString(), *m_name));
 		} else {
 			SetResult result;
 
@@ -190,4 +179,8 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 	}
 
 	return errors;
+}
+
+const bool ArrayDeclarationStatement::IsFixedSize() const {
+	return m_size_expression != nullptr;
 }

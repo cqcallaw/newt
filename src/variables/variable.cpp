@@ -45,5 +45,6 @@ Variable::~Variable() {
 }
 
 const TypeSpecifier* Variable::GetType(const ExecutionContext* context) const {
-	return context->GetSymbolContext()->GetSymbol(m_name)->GetType();
+	auto symbol = context->GetSymbolContext()->GetSymbol(m_name);
+	return symbol->GetType();
 }

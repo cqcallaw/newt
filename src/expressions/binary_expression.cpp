@@ -44,6 +44,9 @@ const TypeSpecifier* BinaryExpression::ComputeResultType(const Expression* left,
 		return PrimitiveTypeSpecifier::NONE;
 	}
 
+	const BasicType left_basic_type = left_as_primitive->GetBasicType();
+	const BasicType right_basic_type = right_as_primitive->GetBasicType();
+
 	if (op == EQUAL || op == NOT_EQUAL || op == LESS_THAN
 			|| op == LESS_THAN_EQUAL || op == GREATER_THAN
 			|| op == GREATER_THAN_EQUAL || op == AND || op == OR) {
@@ -54,7 +57,7 @@ const TypeSpecifier* BinaryExpression::ComputeResultType(const Expression* left,
 		return PrimitiveTypeSpecifier::INT;
 	}
 
-	if (right_type >= left_type)
+	if (right_basic_type >= left_basic_type)
 		return right_type;
 	else
 		return left_type;

@@ -47,7 +47,8 @@ const Symbol* SymbolContext::GetSymbol(const string identifier) const {
 }
 
 const Symbol* SymbolContext::GetSymbol(const string* identifier) const {
-	return GetSymbol(*identifier);
+	const Symbol* result = GetSymbol(*identifier);
+	return result;
 }
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
@@ -202,7 +203,7 @@ SetResult SymbolContext::SetArraySymbolIndex(const string identifier,
 	const ArraySymbol* as_array_symbol = (const ArraySymbol*) symbol;
 	const TypeSpecifier* symbol_type = as_array_symbol->GetElementType();
 
-	if (!symbol_type->IsAssignableTo(type)) {
+	if (!type->IsAssignableTo(symbol_type)) {
 		return INCOMPATIBLE_TYPE;
 	}
 

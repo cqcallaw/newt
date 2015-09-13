@@ -121,7 +121,8 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	std::ostringstream buffer;
 	buffer << *left;
 	buffer << *right;
-	string* result = new string(buffer.str());
+	const string buffer_string = buffer.str();
+	const string* result = new string(buffer_string);
 	return new Result((void *) result, LinkedList<const Error*>::Terminator);
 }
 

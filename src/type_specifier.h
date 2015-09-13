@@ -34,4 +34,6 @@ public:
 	virtual const void* DefaultValue(const TypeTable* type_table) const = 0;
 };
 
+ostream &operator<<(ostream &os, const TypeSpecifier &type_specifier);
+
 #endif /* TYPE_SPECIFIER_H_ */

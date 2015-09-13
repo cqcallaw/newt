@@ -38,7 +38,6 @@ public:
 	const string ToString(const void* value) const {
 		ostringstream buffer;
 		const BasicType type = GetBasicType();
-		buffer << ToString() << ": ";
 		switch (type) {
 		case BasicType::BOOLEAN:
 		case BasicType::INT: {
@@ -53,7 +52,7 @@ public:
 		}
 		case BasicType::STRING: {
 			const string* default_value = (string*) value;
-			buffer << *default_value;
+			buffer << "\"" << *default_value << "\"";
 			break;
 		}
 		default:
@@ -64,10 +63,11 @@ public:
 	}
 
 	virtual const bool IsAssignableTo(const TypeSpecifier* other) const {
-		const PrimitiveTypeSpecifier* as_primitive =
+		const PrimitiveTypeSpecifier* other_as_primitive =
 				dynamic_cast<const PrimitiveTypeSpecifier*>(other);
-		if (as_primitive != nullptr) {
-			return m_basic_type <= as_primitive->GetBasicType();
+		const BasicType other_type = other_as_primitive->GetBasicType();
+		if (other_as_primitive != nullptr) {
+			return other_type != BasicType::NONE && m_basic_type <= other_type;
 		}
 		return false;
 	}

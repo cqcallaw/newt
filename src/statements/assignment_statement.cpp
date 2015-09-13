@@ -59,61 +59,32 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 						variable_line, variable_column,
 						*m_variable->GetName()));
 	} else {
-		const PrimitiveTypeSpecifier* as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
-		if (as_primitive != nullptr) {
-			const TypeSpecifier* expression_type = m_expression->GetType(
-					execution_context);
-			if (symbol_type->IsAssignableTo(expression_type)) {
-				errors = LinkedList<const Error*>::Terminator;
-			} else {
-				const YYLTYPE variable_location = m_variable->GetLocation();
-				errors = new LinkedList<const Error*>(
-						new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-								variable_location.first_line,
-								variable_location.first_column,
-								symbol_type->ToString(),
-								expression_type->ToString()));
+		if (m_variable->IsBasicReference()) {
+			const PrimitiveTypeSpecifier* as_primitive =
+					dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
+			if (as_primitive != nullptr) {
+				const TypeSpecifier* expression_type = m_expression->GetType(
+						execution_context);
+				if (symbol_type->IsAssignableTo(expression_type)) {
+					errors = LinkedList<const Error*>::Terminator;
+				} else {
+					const YYLTYPE variable_location = m_variable->GetLocation();
+					errors = new LinkedList<const Error*>(
+							new Error(Error::SEMANTIC,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									variable_location.first_line,
+									variable_location.first_column,
+									symbol_type->ToString(),
+									expression_type->ToString()));
+				}
 			}
-		}
 
-		const ArrayTypeSpecifier* as_array =
-				dynamic_cast<const ArrayTypeSpecifier*>(symbol_type);
+			//TODO: array variable re-assignment
 
-		if (as_array != nullptr) {
-			const ArrayVariable* array_variable = (ArrayVariable*) m_variable;
-			const string* variable_name = m_variable->GetName();
-			const Expression* array_index_expression =
-					array_variable->GetIndexExpression();
-			const YYLTYPE array_index_expression_position =
-					array_index_expression->GetPosition();
-			const TypeSpecifier* index_type = array_index_expression->GetType(
-					execution_context);
+			const CompoundTypeSpecifier* as_compound =
+					dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
 
-			const PrimitiveTypeSpecifier* as_index_type_primitive =
-					dynamic_cast<const PrimitiveTypeSpecifier*>(index_type);
-
-			if (as_index_type_primitive == nullptr
-					|| as_index_type_primitive->GetBasicType()
-							!= BasicType::INT) {
-				ostringstream os;
-				os << "A " << index_type << " expression";
-
-				errors = new LinkedList<const Error*>(
-						new Error(Error::SEMANTIC,
-								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-								array_index_expression_position.first_line,
-								array_index_expression_position.first_column,
-								*variable_name, os.str()));
-			} else {
-				errors = LinkedList<const Error*>::Terminator;
-			}
-		}
-
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
-		if (as_compound != nullptr) {
-			if (m_variable->IsBasicReference()) {
+			if (as_compound != nullptr) {
 				//reassigning struct reference
 				YYLTYPE expression_position = m_expression->GetPosition();
 				const CompoundTypeInstance* as_struct =
@@ -174,7 +145,45 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 						}
 					}
 				}
-			} else {
+			}
+		} else {
+			const ArrayVariable* array_variable =
+					dynamic_cast<const ArrayVariable*>(m_variable);
+
+			if (array_variable != nullptr) {
+				const string* variable_name = m_variable->GetName();
+				const Expression* array_index_expression =
+						array_variable->GetIndexExpression();
+				const YYLTYPE array_index_expression_position =
+						array_index_expression->GetPosition();
+				const TypeSpecifier* index_type =
+						array_index_expression->GetType(execution_context);
+
+				const PrimitiveTypeSpecifier* as_index_type_primitive =
+						dynamic_cast<const PrimitiveTypeSpecifier*>(index_type);
+
+				if (as_index_type_primitive == nullptr
+						|| as_index_type_primitive->GetBasicType()
+								!= BasicType::INT) {
+					ostringstream os;
+					os << "A " << index_type << " expression";
+
+					errors =
+							new LinkedList<const Error*>(
+									new Error(Error::SEMANTIC,
+											Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
+											array_index_expression_position.first_line,
+											array_index_expression_position.first_column,
+											*variable_name, os.str()));
+				} else {
+					errors = LinkedList<const Error*>::Terminator;
+				}
+			}
+
+			const MemberVariable* member_variable =
+					dynamic_cast<const MemberVariable*>(m_variable);
+
+			if (member_variable != nullptr) {
 				const MemberVariable* as_member_variable =
 						(const MemberVariable*) m_variable;
 				const YYLTYPE variable_location =
@@ -537,181 +546,200 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 	const TypeSpecifier* symbol_type = symbol->GetType();
 	const void* symbol_value = symbol->GetValue();
 
-	const PrimitiveTypeSpecifier* as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
-	if (as_primitive != nullptr) {
-		const BasicType basic_type = as_primitive->GetBasicType();
-		switch (basic_type) {
-		case BOOLEAN: {
-			const Result* result = do_op(variable_name, basic_type,
-					variable_line, variable_column, *((int*) symbol_value),
-					expression, op, execution_context);
+	if (variable->IsBasicReference()) {
+		const PrimitiveTypeSpecifier* as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
+		if (as_primitive != nullptr) {
+			const BasicType basic_type = as_primitive->GetBasicType();
+			switch (basic_type) {
+			case BOOLEAN: {
+				const Result* result = do_op(variable_name, basic_type,
+						variable_line, variable_column, *((int*) symbol_value),
+						expression, op, execution_context);
 
-			errors = result->GetErrors();
-			if (errors == LinkedList<const Error*>::Terminator) {
-				set_result = symbol_table->SetSymbol(*variable_name,
-						(bool*) result->GetData());
+				errors = result->GetErrors();
+				if (errors == LinkedList<const Error*>::Terminator) {
+					set_result = symbol_table->SetSymbol(*variable_name,
+							(bool*) result->GetData());
+				}
+				break;
 			}
-			break;
-		}
-		case INT: {
-			const Result* result = do_op(variable_name, basic_type,
-					variable_line, variable_column, *((int*) symbol_value),
-					expression, op, execution_context);
+			case INT: {
+				const Result* result = do_op(variable_name, basic_type,
+						variable_line, variable_column, *((int*) symbol_value),
+						expression, op, execution_context);
 
-			errors = result->GetErrors();
-			if (errors == LinkedList<const Error*>::Terminator) {
-				set_result = symbol_table->SetSymbol(*variable_name,
-						(int*) result->GetData());
+				errors = result->GetErrors();
+				if (errors == LinkedList<const Error*>::Terminator) {
+					set_result = symbol_table->SetSymbol(*variable_name,
+							(int*) result->GetData());
+				}
+				break;
 			}
-			break;
-		}
-		case DOUBLE: {
-			const Result* result = do_op(variable_name, basic_type,
-					variable_line, variable_column, *((double*) symbol_value),
-					expression, op, execution_context);
-
-			errors = result->GetErrors();
-			if (errors == LinkedList<const Error*>::Terminator) {
-				set_result = symbol_table->SetSymbol(*variable_name,
-						(double*) result->GetData());
-			}
-			break;
-		}
-		case STRING: {
-			const Result* result = do_op(variable_name, basic_type,
-					variable_line, variable_column, (string*) symbol_value,
-					expression, op, execution_context);
-			errors = result->GetErrors();
-			if (errors == LinkedList<const Error*>::Terminator) {
-				set_result = symbol_table->SetSymbol(*variable_name,
-						(string*) result->GetData());
-			}
-			break;
-		}
-		default:
-			assert(false);
-		}
-	}
-
-	const ArrayTypeSpecifier* as_array =
-			dynamic_cast<const ArrayTypeSpecifier*>(symbol_type);
-	if (as_array != nullptr) {
-		ArrayVariable* array_variable = (ArrayVariable*) variable;
-		const Result* evaluation =
-				array_variable->GetIndexExpression()->Evaluate(
+			case DOUBLE: {
+				const Result* result = do_op(variable_name, basic_type,
+						variable_line, variable_column,
+						*((double*) symbol_value), expression, op,
 						execution_context);
 
-		errors = evaluation->GetErrors();
-		if (errors == LinkedList<const Error*>::Terminator) {
-			int index = *((int*) evaluation->GetData());
-			delete (evaluation);
+				errors = result->GetErrors();
+				if (errors == LinkedList<const Error*>::Terminator) {
+					set_result = symbol_table->SetSymbol(*variable_name,
+							(double*) result->GetData());
+				}
+				break;
+			}
+			case STRING: {
+				const Result* result = do_op(variable_name, basic_type,
+						variable_line, variable_column, (string*) symbol_value,
+						expression, op, execution_context);
+				errors = result->GetErrors();
+				if (errors == LinkedList<const Error*>::Terminator) {
+					set_result = symbol_table->SetSymbol(*variable_name,
+							(string*) result->GetData());
+				}
+				break;
+			}
+			default:
+				assert(false);
+			}
+		}
 
-			ArraySymbol* array_symbol = (ArraySymbol*) symbol;
-			if ((array_symbol->IsFixedSize() && index >= array_symbol->GetSize())
-					|| index < 0) {
-				errors = new LinkedList<const Error*>(
-						new Error(Error::SEMANTIC,
-								Error::ARRAY_INDEX_OUT_OF_BOUNDS, variable_line,
-								variable_column, array_symbol->GetName(),
-								*AsString(index)));
-			} else {
-				const TypeSpecifier* element_type_specifier =
-						array_variable->GetType(execution_context);
-				const PrimitiveTypeSpecifier* element_as_primitive =
-						dynamic_cast<const PrimitiveTypeSpecifier*>(element_type_specifier);
+		//TODO: basic array assignment
 
-				if (element_as_primitive) {
-					const BasicType element_type = as_primitive->GetBasicType();
+		const CompoundTypeSpecifier* as_compound =
+				dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
+		if (as_compound != nullptr) {
+			const Result* expression_evaluation = expression->Evaluate(
+					execution_context);
 
-					switch (element_type) {
-					case INT: {
-						const Result* result = do_op(variable_name,
-								element_type, variable_line, variable_column,
-								*(((int*) symbol_value) + index), expression,
-								op, execution_context);
+			errors = expression_evaluation->GetErrors();
+			if (errors == LinkedList<const Error*>::Terminator) {
+				//we're assigning a struct reference
+				SetResult set_result =
+						symbol_table->SetSymbol(*variable_name,
+								(const CompoundTypeInstance*) expression_evaluation->GetData());
 
-						errors = result->GetErrors();
-						if (errors == LinkedList<const Error*>::Terminator) {
-							set_result = symbol_table->SetSymbol(*variable_name,
-									index, (int*) result->GetData(),
-									execution_context->GetTypeTable());
-							break;
-						}
-						break;
-					}
-					case DOUBLE: {
-						const Result* result = do_op(variable_name,
-								element_type, variable_line, variable_column,
-								*(((double*) symbol_value) + index), expression,
-								op, execution_context);
-
-						errors = result->GetErrors();
-						if (errors == LinkedList<const Error*>::Terminator) {
-							set_result = symbol_table->SetSymbol(*variable_name,
-									index, (double*) result->GetData(),
-									execution_context->GetTypeTable());
-						}
-						break;
-					}
-					case STRING: {
-						const Result* result = do_op(variable_name,
-								element_type, variable_line, variable_column,
-								*(((string**) symbol_value) + index),
-								expression, op, execution_context);
-
-						errors = result->GetErrors();
-						if (errors == LinkedList<const Error*>::Terminator) {
-							set_result = symbol_table->SetSymbol(*variable_name,
-									index, (string*) result->GetData(),
-									execution_context->GetTypeTable());
-						}
-						break;
-					}
-					default:
-						assert(false);
-					}
+				switch (set_result) {
+				case SET_SUCCESS:
+					break;
+				case UNDEFINED_SYMBOL: {
+					errors = new LinkedList<const Error*>(
+							new Error(Error::SEMANTIC,
+									Error::UNDECLARED_VARIABLE, variable_line,
+									variable_column, *variable_name));
+					break;
+				}
+				case NO_SET_RESULT:
+				case INCOMPATIBLE_TYPE:
+				default:
+					assert(false);
 				}
 			}
 		}
-	}
+	} else {
+		const ArrayVariable* array_variable =
+				dynamic_cast<const ArrayVariable*>(variable);
+		if (array_variable != nullptr) {
+			const Result* evaluation =
+					array_variable->GetIndexExpression()->Evaluate(
+							execution_context);
 
-	const CompoundTypeSpecifier* as_compound =
-			dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
-	if (as_compound != nullptr) {
-		const Result* expression_evaluation = expression->Evaluate(
-				execution_context);
-		errors = expression_evaluation->GetErrors();
+			errors = evaluation->GetErrors();
+			if (errors == LinkedList<const Error*>::Terminator) {
+				int index = *((int*) evaluation->GetData());
+				delete (evaluation);
 
-		if (errors == LinkedList<const Error*>::Terminator) {
-			const string* variable_name = variable->GetName();
+				ArraySymbol* array_symbol = (ArraySymbol*) symbol;
+				if ((array_symbol->IsFixedSize()
+						&& index >= array_symbol->GetSize()) || index < 0) {
+					errors = new LinkedList<const Error*>(
+							new Error(Error::SEMANTIC,
+									Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+									variable_line, variable_column,
+									array_symbol->GetName(), *AsString(index)));
+				} else {
+					const TypeSpecifier* element_type_specifier =
+							array_variable->GetType(execution_context);
+					const PrimitiveTypeSpecifier* element_as_primitive =
+							dynamic_cast<const PrimitiveTypeSpecifier*>(element_type_specifier);
 
-			if (variable->IsBasicReference()) {
-				errors = expression_evaluation->GetErrors();
-				if (errors == LinkedList<const Error*>::Terminator) {
-					//we're assigning a struct reference
-					SetResult set_result =
-							symbol_table->SetSymbol(*variable_name,
-									(const CompoundTypeInstance*) expression_evaluation->GetData());
+					if (element_as_primitive != nullptr) {
+						const BasicType element_type =
+								element_as_primitive->GetBasicType();
 
-					switch (set_result) {
-					case SET_SUCCESS:
-						break;
-					case UNDEFINED_SYMBOL: {
-						errors = new LinkedList<const Error*>(
-								new Error(Error::SEMANTIC,
-										Error::UNDECLARED_VARIABLE,
-										variable_line, variable_column,
-										*variable_name));
-						break;
+						switch (element_type) {
+						case INT: {
+							const Result* result = do_op(variable_name,
+									element_type, variable_line,
+									variable_column,
+									*(((int*) symbol_value) + index),
+									expression, op, execution_context);
+
+							errors = result->GetErrors();
+							if (errors
+									== LinkedList<const Error*>::Terminator) {
+								set_result = symbol_table->SetSymbol(
+										*variable_name, index,
+										(int*) result->GetData(),
+										execution_context->GetTypeTable());
+								break;
+							}
+							break;
+						}
+						case DOUBLE: {
+							const Result* result = do_op(variable_name,
+									element_type, variable_line,
+									variable_column,
+									*(((double*) symbol_value) + index),
+									expression, op, execution_context);
+
+							errors = result->GetErrors();
+							if (errors
+									== LinkedList<const Error*>::Terminator) {
+								set_result = symbol_table->SetSymbol(
+										*variable_name, index,
+										(double*) result->GetData(),
+										execution_context->GetTypeTable());
+							}
+							break;
+						}
+						case STRING: {
+							const Result* result = do_op(variable_name,
+									element_type, variable_line,
+									variable_column,
+									*(((string**) symbol_value) + index),
+									expression, op, execution_context);
+
+							errors = result->GetErrors();
+							if (errors
+									== LinkedList<const Error*>::Terminator) {
+								set_result = symbol_table->SetSymbol(
+										*variable_name, index,
+										(string*) result->GetData(),
+										execution_context->GetTypeTable());
+							}
+							break;
+						}
+						default:
+							assert(false);
+						}
 					}
-					case NO_SET_RESULT:
-					case INCOMPATIBLE_TYPE:
-					default:
-						assert(false);
-					}
+					//TODO: other array element types
 				}
-			} else {
+			}
+		}
+
+		const MemberVariable* member_variable =
+				dynamic_cast<const MemberVariable*>(variable);
+		if (member_variable != nullptr) {
+			const Result* expression_evaluation = expression->Evaluate(
+					execution_context);
+			errors = expression_evaluation->GetErrors();
+
+			if (errors == LinkedList<const Error*>::Terminator) {
+				const string* variable_name = variable->GetName();
+
 				//we're assigning a struct member reference
 				const MemberVariable* member_variable =
 						(const MemberVariable*) variable;
@@ -766,7 +794,7 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 	} else if (dynamic_cast<const ArrayVariable*>(m_variable) != nullptr
 			&& !(dynamic_cast<const ArrayTypeSpecifier*>(symbol->GetType())
 					== nullptr)) {
-//trying to reference a non-array variable as an array.
+//trying to reference a non-array symbol as an array.
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
 						variable_line, variable_column, *(variable_name)));

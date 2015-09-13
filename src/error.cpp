@@ -135,6 +135,9 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case VARIABLE_NOT_AN_ARRAY:
 		os << "Variable '" << s1 << "' is not an array.";
 		break;
+	case VARIABLE_NOT_A_COMPOUND_TYPE:
+		os << "Variable '" << s1 << "' is not a compound type.";
+		break;
 	case DIVIDE_BY_ZERO:
 		os << "Arithmetic divide by zero at parse time.  "
 				<< "Using zero as the result so parse can continue.";

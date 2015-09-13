@@ -29,6 +29,7 @@
 #include "expression.h"
 #include <execution_context.h>
 #include <array_type_specifier.h>
+#include <primitive_type_specifier.h>
 
 const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
 const Symbol* Symbol::DefaultSymbol = new Symbol(PrimitiveTypeSpecifier::NONE,
@@ -106,40 +107,8 @@ const Symbol* Symbol::WithValue(const TypeSpecifier* type,
 
 const string Symbol::ToString(const TypeTable* type_table,
 		const Indent indent) const {
-	/*ostringstream os;
-
-	 os << m_type << " " << m_name << ": ";
-	 switch (m_type) {
-	 case BOOLEAN:
-	 os << *((bool*) m_value);
-	 break;
-	 case INT:
-	 os << *((int*) m_value);
-	 break;
-	 case DOUBLE:
-	 os << *((double*) m_value);
-	 break;
-	 case STRING:
-	 os << "\"" << *((string*) m_value) << "\"";
-	 break;
-	 case COMPOUND: {
-	 os << endl;
-	 const CompoundTypeInstance* as_struct =
-	 (const CompoundTypeInstance*) m_value;
-	 const SymbolContext* context = as_struct->GetDefinition();
-	 string indent = "\t";
-	 context->print(os, &indent);
-	 break;
-	 }
-	 default:
-	 assert(false);
-	 }
-
-	 return os.str();
-	 */
-
 	ostringstream buffer;
-	buffer << indent << m_type << m_name << ": ";
+	buffer << indent << m_type->ToString() << " " << m_name << ": ";
 	const PrimitiveTypeSpecifier* as_primitive =
 			dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
 	if (as_primitive != nullptr) {

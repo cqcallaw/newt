@@ -52,39 +52,47 @@ public:
 			const Indent indent) const override {
 		ostringstream os;
 
-		//TODO: recursive dump
-		/*BasicType type = GetElementType();
-		 const string name = GetName();
+		const TypeSpecifier* type = GetElementType();
 
-		 int size = GetSize();
-		 os << type << " array " << name << ":" << endl;
-		 switch (m_element_specifier) {
-		 case INT: {
-		 for (int i = 0; i < size; i++) {
-		 os << "\t[" << i << "] " << *((int *) GetValue<const int*>(i))
-		 << endl;
-		 }
-		 break;
-		 }
-		 case DOUBLE: {
-		 for (int i = 0; i < size; i++) {
-		 os << "\t[" << i << "] "
-		 << *((double *) GetValue<const double*>(i)) << endl;
-		 }
-		 break;
-		 }
-		 case STRING: {
-		 for (int i = 0; i < size; i++) {
-		 os << "\t[" << i << "] \""
-		 << *((string *) GetValue<const string*>(i)) << "\""
-		 << endl;
-		 }
-		 break;
-		 }
-		 default:
-		 break;
-		 }
-		 os << "end array " << name;*/
+		const PrimitiveTypeSpecifier* as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(type);
+		if (as_primitive != nullptr) {
+			const string name = GetName();
+			const BasicType basic_type = as_primitive->GetBasicType();
+			int size = GetSize();
+			os << *type << " array " << name << ":" << endl;
+			switch (basic_type) {
+			case INT: {
+				for (int i = 0; i < size; i++) {
+					os << "\t[" << i << "] "
+							<< *((int *) GetValue<const int*>(i, type_table))
+							<< endl;
+				}
+				break;
+			}
+			case DOUBLE: {
+				for (int i = 0; i < size; i++) {
+					os << "\t[" << i << "] "
+							<< *((double *) GetValue<const double*>(i,
+									type_table)) << endl;
+				}
+				break;
+			}
+			case STRING: {
+				for (int i = 0; i < size; i++) {
+					os << "\t[" << i << "] \""
+							<< *((string *) GetValue<const string*>(i,
+									type_table)) << "\"" << endl;
+				}
+				break;
+			}
+			default:
+				break;
+			}
+			os << "end array " << name;
+		}
+
+		//TODO: array and compound array element types
 
 		return os.str();
 	}

@@ -20,6 +20,7 @@ CPP_SRCS += \
 ../src/symbol_context.cpp \
 ../src/symbol_table.cpp \
 ../src/type.cpp \
+../src/type_specifier.cpp \
 ../src/type_table.cpp \
 ../src/utils.cpp 
 
@@ -40,6 +41,7 @@ OBJS += \
 ./src/symbol_context.o \
 ./src/symbol_table.o \
 ./src/type.o \
+./src/type_specifier.o \
 ./src/type_table.o \
 ./src/utils.o 
 
@@ -60,6 +62,7 @@ CPP_DEPS += \
 ./src/symbol_context.d \
 ./src/symbol_table.d \
 ./src/type.d \
+./src/type_specifier.d \
 ./src/type_table.d \
 ./src/utils.d 
 
