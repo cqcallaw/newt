@@ -40,64 +40,53 @@ const LinkedList<const Error*>* DeclarationStatement::preprocess(
 	}
 
 	const TypeTable* type_table = execution_context->GetTypeTable();
-	const void* value = m_type->DefaultValue(type_table);
 
-	if (errors == LinkedList<const Error*>::Terminator) {
-		const PrimitiveTypeSpecifier* as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
+	const PrimitiveTypeSpecifier* as_primitive =
+			dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
 
-		if (as_primitive != nullptr) {
-			if (expression != nullptr) {
-				const TypeSpecifier* expression_type_specifier =
-						expression->GetType(execution_context);
+	if (as_primitive != nullptr) {
+		if (expression != nullptr) {
+			const TypeSpecifier* expression_type_specifier =
+					expression->GetType(execution_context);
 
-				const PrimitiveTypeSpecifier* expression_as_primitive =
-						dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type_specifier);
+			const PrimitiveTypeSpecifier* expression_as_primitive =
+					dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type_specifier);
 
-				if (expression_as_primitive != nullptr
-						&& expression_as_primitive->IsAssignableTo(
-								as_primitive)) {
-					const Result* result = expression->Evaluate(
-							execution_context);
-					errors = result->GetErrors();
-					if (errors == LinkedList<const Error*>::Terminator) {
-						value = result->GetData();
-					}
-				} else if (errors == LinkedList<const Error*>::Terminator) {
-					errors = errors->With(
-							new Error(Error::SEMANTIC,
-									Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-									m_initializer_position.first_line,
-									m_initializer_position.first_column,
-									*name));
-				}
+			if (expression_as_primitive == nullptr
+					|| !expression_as_primitive->IsAssignableTo(as_primitive)) {
+				errors = errors->With(
+						new Error(Error::SEMANTIC,
+								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+								m_initializer_position.first_line,
+								m_initializer_position.first_column, *name));
 			}
-
-			const BasicType basic_type = as_primitive->GetBasicType();
-			switch (basic_type) {
-			case BOOLEAN: {
-				symbol = new Symbol(name, (bool*) value);
-				break;
-			}
-			case INT: {
-				symbol = new Symbol(name, (int*) value);
-				break;
-			}
-			case DOUBLE: {
-				symbol = new Symbol(name, (double*) value);
-				break;
-			}
-			case STRING: {
-				symbol = new Symbol(name, (string*) value);
-				break;
-			}
-			default:
-				assert(false);
-				break;
-			}
-		} else {
-			assert(false); //our basic declaration statements should always be primitives
 		}
+
+		const void* value = m_type->DefaultValue(type_table);
+		const BasicType basic_type = as_primitive->GetBasicType();
+		switch (basic_type) {
+		case BOOLEAN: {
+			symbol = new Symbol(name, (bool*) value);
+			break;
+		}
+		case INT: {
+			symbol = new Symbol(name, (int*) value);
+			break;
+		}
+		case DOUBLE: {
+			symbol = new Symbol(name, (double*) value);
+			break;
+		}
+		case STRING: {
+			symbol = new Symbol(name, (string*) value);
+			break;
+		}
+		default:
+			assert(false);
+			break;
+		}
+	} else {
+		assert(false); //our basic declaration statements should always be primitives
 	}
 
 	if (symbol != Symbol::DefaultSymbol) {

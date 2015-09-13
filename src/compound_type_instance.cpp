@@ -41,7 +41,11 @@ const CompoundTypeInstance* CompoundTypeInstance::GetDefaultInstance(
 				std::pair<const string, const Symbol*>(member_name, symbol));
 	}
 
-	const CompoundTypeInstance* instance = new CompoundTypeInstance(type_name,
+	const CompoundTypeSpecifier* type_specifier = new CompoundTypeSpecifier(
+			type_name);
+
+	const CompoundTypeInstance* instance = new CompoundTypeInstance(
+			type_specifier,
 			new SymbolContext(type->GetModifiers(), parent_context,
 					&symbol_mapping));
 
@@ -50,15 +54,18 @@ const CompoundTypeInstance* CompoundTypeInstance::GetDefaultInstance(
 
 const Symbol* CompoundTypeInstance::GetSymbol(const TypeSpecifier* member_type,
 		const string member_name, const void* void_value) {
-	if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
+	if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
 		return new Symbol(member_name, (bool*) void_value);
-	} else if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
+	} else if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt())) {
 		return new Symbol(member_name, (int*) void_value);
-	} else if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::DOUBLE)) {
+	} else if (member_type->IsAssignableTo(
+			PrimitiveTypeSpecifier::GetDouble())) {
 		return new Symbol(member_name, (double*) void_value);
-	} else if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::STRING)) {
+	} else if (member_type->IsAssignableTo(
+			PrimitiveTypeSpecifier::GetString())) {
 		return new Symbol(member_name, (string*) void_value);
-	} else if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::COMPOUND)) {
+	} else if (dynamic_cast<const CompoundTypeSpecifier*>(member_type)
+			!= nullptr) {
 		return new Symbol(member_name, (CompoundTypeInstance*) void_value);
 	} else {
 		assert(false);

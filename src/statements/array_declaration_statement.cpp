@@ -47,7 +47,7 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 				dynamic_cast<const PrimitiveTypeSpecifier*>(size_expression_type);
 		if (size_type_as_primitive == nullptr
 				|| !size_type_as_primitive->IsAssignableTo(
-						PrimitiveTypeSpecifier::INT)) {
+						PrimitiveTypeSpecifier::GetInt())) {
 			result = result->With(
 					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE_TYPE,
 							m_size_expression_position.first_line,

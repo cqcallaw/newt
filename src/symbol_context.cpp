@@ -68,7 +68,6 @@ const void SymbolContext::print(ostream &os, const TypeTable* type_table,
 		const Indent indent) const {
 	std::map<const string, const Symbol*>::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {
-		os << indent;
 		const Symbol* symbol = iter->second;
 		os << symbol->ToString(type_table, indent);
 		os << endl;
@@ -76,24 +75,27 @@ const void SymbolContext::print(ostream &os, const TypeTable* type_table,
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier, const bool* value) {
-	return SetSymbol(identifier, PrimitiveTypeSpecifier::BOOLEAN, (void*) value);
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetBoolean(),
+			(void*) value);
 }
 SetResult SymbolContext::SetSymbol(const string identifier, const int* value) {
-	return SetSymbol(identifier, PrimitiveTypeSpecifier::INT, (void*) value);
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetInt(),
+			(void*) value);
 }
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const double* value) {
-	return SetSymbol(identifier, PrimitiveTypeSpecifier::DOUBLE, (void*) value);
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetDouble(),
+			(void*) value);
 }
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const string* value) {
-	return SetSymbol(identifier, PrimitiveTypeSpecifier::STRING, (void*) value);
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetString(),
+			(void*) value);
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const CompoundTypeInstance* value) {
-	return SetSymbol(identifier, new CompoundTypeSpecifier(identifier),
-			(void*) value);
+	return SetSymbol(identifier, value->GetTypeSpecifier(), (void*) value);
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
@@ -123,22 +125,22 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 
 SetResult SymbolContext::SetSymbol(const string identifier, const int index,
 		const bool* value, const TypeTable* type_table) {
-	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::BOOLEAN,
+	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::GetBoolean(),
 			index, (void*) value, type_table);
 }
 SetResult SymbolContext::SetSymbol(const string identifier, const int index,
 		const int* value, const TypeTable* type_table) {
-	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::INT, index,
-			(void*) value, type_table);
+	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::GetInt(),
+			index, (void*) value, type_table);
 }
 SetResult SymbolContext::SetSymbol(const string identifier, const int index,
 		const double* value, const TypeTable* type_table) {
-	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::DOUBLE,
+	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::GetDouble(),
 			index, (void*) value, type_table);
 }
 SetResult SymbolContext::SetSymbol(const string identifier, const int index,
 		const string* value, const TypeTable* type_table) {
-	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::STRING,
+	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::GetString(),
 			index, (void*) value, type_table);
 }
 
@@ -148,7 +150,7 @@ SetResult SymbolContext::SetArraySymbol(const string identifier,
 
 	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
-	} else if (symbol->GetType() != PrimitiveTypeSpecifier::ARRAY) {
+	} else if (symbol->GetType() != PrimitiveTypeSpecifier::GetArray()) {
 		return INCOMPATIBLE_TYPE;
 	}
 

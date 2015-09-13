@@ -46,7 +46,7 @@ const LinkedList<const Error*>* IfStatement::preprocess(
 
 	if (m_expression != nullptr) {
 		if (!(m_expression->GetType(execution_context)->IsAssignableTo(
-				PrimitiveTypeSpecifier::INT))) {
+				PrimitiveTypeSpecifier::GetInt()))) {
 			YYLTYPE position = m_expression->GetPosition();
 			result = result->With(
 					new Error(Error::SEMANTIC,

@@ -25,6 +25,7 @@
 #include <type.h>
 
 class CompoundType;
+class CompoundTypeSpecifier;
 class SymbolContext;
 class Symbol;
 class Indent;
@@ -33,12 +34,13 @@ using namespace std;
 
 class CompoundTypeInstance {
 public:
-	CompoundTypeInstance(const string type_name, SymbolContext* definition) :
-			m_type_name(type_name), m_definition(definition) {
+	CompoundTypeInstance(const CompoundTypeSpecifier* type,
+			SymbolContext* definition) :
+			m_type(type), m_definition(definition) {
 	}
 
-	const string GetTypeName() const {
-		return m_type_name;
+	const CompoundTypeSpecifier* GetTypeSpecifier() const {
+		return m_type;
 	}
 
 	SymbolContext* GetDefinition() const {
@@ -57,7 +59,7 @@ public:
 			const Indent indent) const;
 
 private:
-	const string m_type_name;
+	const CompoundTypeSpecifier* m_type;
 	SymbolContext* m_definition;
 };
 

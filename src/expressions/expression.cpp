@@ -39,16 +39,16 @@ const Result* Expression::ToString(
 	} else {
 		const TypeSpecifier* type_specifier = GetType(execution_context);
 
-		if (type_specifier->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
+		if (type_specifier->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
 			buffer << *((bool*) evaluation->GetData());
 		} else if (type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::INT)) {
+				PrimitiveTypeSpecifier::GetInt())) {
 			buffer << *((int*) evaluation->GetData());
 		} else if (type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::DOUBLE)) {
+				PrimitiveTypeSpecifier::GetDouble())) {
 			buffer << *((double*) evaluation->GetData());
 		} else if (type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::STRING)) {
+				PrimitiveTypeSpecifier::GetString())) {
 			buffer << *((string*) evaluation->GetData());
 		} else {
 			assert(false);

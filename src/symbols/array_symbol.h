@@ -147,7 +147,7 @@ public:
 private:
 	ArraySymbol(const string name, const TypeSpecifier* element_specifier,
 			const void* value, const bool initialized, const bool fixed_size) :
-			Symbol(PrimitiveTypeSpecifier::ARRAY, name, value), m_element_specifier(
+			Symbol(PrimitiveTypeSpecifier::GetArray(), name, value), m_element_specifier(
 					element_specifier), m_initialized(initialized), m_fixed_size(
 					fixed_size) {
 	}

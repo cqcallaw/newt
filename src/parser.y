@@ -274,20 +274,20 @@ variable_declaration:
 simple_type:
 	T_BOOLEAN
 	{
-		$$ = PrimitiveTypeSpecifier::BOOLEAN;
+		$$ = PrimitiveTypeSpecifier::GetBoolean();
 	}
 	|
 	T_INT
 	{
-		$$ = PrimitiveTypeSpecifier::INT;
+		$$ = PrimitiveTypeSpecifier::GetInt();
 	}
 	| T_DOUBLE
 	{
-		$$ = PrimitiveTypeSpecifier::DOUBLE;
+		$$ = PrimitiveTypeSpecifier::GetDouble();
 	}
 	| T_STRING
 	{
-		$$ = PrimitiveTypeSpecifier::STRING;
+		$$ = PrimitiveTypeSpecifier::GetString();
 	}
 	;
 	

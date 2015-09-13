@@ -46,7 +46,7 @@ const LinkedList<const Error*>* ExitStatement::preprocess(
 
 		if (expression_as_primitive == nullptr
 				|| !(expression_as_primitive->IsAssignableTo(
-						PrimitiveTypeSpecifier::INT))) {
+						PrimitiveTypeSpecifier::GetInt()))) {
 			YYLTYPE position = m_exit_expression->GetPosition();
 			result =
 					result->With(

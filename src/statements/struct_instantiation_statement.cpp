@@ -98,24 +98,24 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 				== LinkedList<const Error*>::Terminator) {
 			const void* void_value = evaluation_result->GetData();
 
-			//switch (member_type) {
-			if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
+			if (member_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::GetBoolean())) {
 				struct_symbol_context->SetSymbol(member_name,
 						(bool*) void_value);
 			} else if (member_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::INT)) {
+					PrimitiveTypeSpecifier::GetInt())) {
 				struct_symbol_context->SetSymbol(member_name,
 						(int*) void_value);
 			} else if (member_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::DOUBLE)) {
+					PrimitiveTypeSpecifier::GetDouble())) {
 				struct_symbol_context->SetSymbol(member_name,
 						(double*) void_value);
 			} else if (member_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::STRING)) {
+					PrimitiveTypeSpecifier::GetString())) {
 				struct_symbol_context->SetSymbol(member_name,
 						(string*) void_value);
-			} else if (member_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::COMPOUND)) {
+			} else if (dynamic_cast<const CompoundTypeSpecifier*>(member_type)
+					!= nullptr) {
 				struct_symbol_context->SetSymbol(member_name,
 						(CompoundTypeInstance*) void_value);
 			} else {

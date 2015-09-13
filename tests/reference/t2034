@@ -11,34 +11,34 @@ m_struct.w = 0
 m_struct.h = 0
 Root Symbol Table:
 ----------------
-struct m2_struct: 
+MyStruct2 m2_struct:
 	int w: 3
 	double x: 1
 	string y: ""
 
-struct m3_struct: 
+MyStruct2 m3_struct:
 	int w: 10
 	double x: 0
 	string y: ""
 
-struct m4_struct: 
+MyStruct2 m4_struct:
 	int w: 3
 	double x: 0
 	string y: ""
 
-struct m_struct: 
+MyStruct m_struct:
 	int h: 0
 	int w: 0
 	int x: 0
 	int y: 2
 
-struct m_struct2: 
+MyStruct m_struct2:
 	int h: 0
 	int w: 0
 	int x: 0
 	int y: 2
 
-struct m_struct3: 
+MyStruct m_struct3:
 	int h: 0
 	int w: 0
 	int x: 0
@@ -55,4 +55,4 @@ MyStruct:
 MyStruct2: 
 	int w (3)
 	double x (0)
-	string y ()
+	string y ("")

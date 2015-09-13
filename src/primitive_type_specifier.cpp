@@ -19,17 +19,101 @@
 
 #include <primitive_type_specifier.h>
 
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::NONE =
-		new PrimitiveTypeSpecifier(BasicType::NONE);
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::BOOLEAN =
-		new PrimitiveTypeSpecifier(BasicType::BOOLEAN);
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::INT =
-		new PrimitiveTypeSpecifier(BasicType::INT);
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::DOUBLE =
-		new PrimitiveTypeSpecifier(BasicType::DOUBLE);
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::STRING =
-		new PrimitiveTypeSpecifier(BasicType::STRING);
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::ARRAY =
-		new PrimitiveTypeSpecifier(BasicType::ARRAY);
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::COMPOUND =
-		new PrimitiveTypeSpecifier(BasicType::COMPOUND);
+const string PrimitiveTypeSpecifier::ToString(const void* value) const {
+	ostringstream buffer;
+	const BasicType type = GetBasicType();
+	switch (type) {
+	case BasicType::BOOLEAN:
+	case BasicType::INT: {
+		const int* default_value = (int*) value;
+		buffer << *default_value;
+		break;
+	}
+	case BasicType::DOUBLE: {
+		const double* default_value = (double*) value;
+		buffer << *default_value;
+		break;
+	}
+	case BasicType::STRING: {
+		const string* default_value = (string*) value;
+		buffer << "\"" << *default_value << "\"";
+		break;
+	}
+	default:
+		assert(false);
+	}
+
+	return buffer.str();
+}
+
+const bool PrimitiveTypeSpecifier::IsAssignableTo(
+		const TypeSpecifier* other) const {
+	const PrimitiveTypeSpecifier* other_as_primitive =
+			dynamic_cast<const PrimitiveTypeSpecifier*>(other);
+	const BasicType other_type = other_as_primitive->GetBasicType();
+	if (other_as_primitive != nullptr) {
+		return other_type != BasicType::NONE && m_basic_type <= other_type;
+	}
+	return false;
+}
+
+const void* PrimitiveTypeSpecifier::DefaultValue(
+		const TypeTable* type_table) const {
+	const BasicType basic_type = GetBasicType();
+
+	switch (basic_type) {
+	case BasicType::BOOLEAN:
+		return DefaultBooleanValue;
+	case BasicType::INT:
+		return DefaultIntValue;
+	case BasicType::DOUBLE:
+		return DefaultDoubleValue;
+	case BasicType::STRING:
+		return DefaultStringValue;
+	default:
+		assert(false);
+		return nullptr;
+	}
+}
+
+const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetNone() {
+	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
+			BasicType::NONE);
+	return instance;
+}
+
+const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetBoolean() {
+	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
+			BasicType::BOOLEAN);
+	return instance;
+}
+
+const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetDouble() {
+	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
+			BasicType::DOUBLE);
+	return instance;
+}
+
+const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetInt() {
+	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
+			BasicType::INT);
+	return instance;
+}
+
+const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetString() {
+	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
+			BasicType::STRING);
+	return instance;
+}
+
+const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetArray() {
+	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
+			BasicType::ARRAY);
+	return instance;
+}
+
+/*const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetCompound() {
+	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
+			BasicType::COMPOUND);
+	return instance;
+}*/

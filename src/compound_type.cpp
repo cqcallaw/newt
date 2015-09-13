@@ -42,6 +42,7 @@ CompoundType::~CompoundType() {
 const string CompoundType::ToString(const TypeTable* type_table,
 		const Indent indent) const {
 	ostringstream os;
+	os << indent;
 	map<const string, const MemberDefinition*>::const_iterator type_iter;
 	for (type_iter = m_definition->begin(); type_iter != m_definition->end();
 			++type_iter) {
@@ -49,9 +50,9 @@ const string CompoundType::ToString(const TypeTable* type_table,
 		const MemberDefinition* member_definition = type_iter->second;
 		const TypeSpecifier* member_type = member_definition->GetType();
 
-		os << "\t" << member_type << " " << member_name << " ("
-				<< member_definition->ToString(type_table, indent + 1) << ")"
-				<< endl;
+		os << indent + 1 << member_type->ToString() << " " << member_name
+				<< " (" << member_definition->ToString(type_table, Indent(0))
+				<< ")" << endl;
 	}
 	return os.str();
 }

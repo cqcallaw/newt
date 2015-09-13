@@ -35,64 +35,29 @@ public:
 		return type_to_string(m_basic_type);
 	}
 
-	const string ToString(const void* value) const {
-		ostringstream buffer;
-		const BasicType type = GetBasicType();
-		switch (type) {
-		case BasicType::BOOLEAN:
-		case BasicType::INT: {
-			const int* default_value = (int*) value;
-			buffer << *default_value;
-			break;
-		}
-		case BasicType::DOUBLE: {
-			const double* default_value = (double*) value;
-			buffer << *default_value;
-			break;
-		}
-		case BasicType::STRING: {
-			const string* default_value = (string*) value;
-			buffer << "\"" << *default_value << "\"";
-			break;
-		}
-		default:
-			assert(false);
-		}
+	const string ToString(const void* value) const;
 
-		return buffer.str();
-	}
+	virtual const bool IsAssignableTo(const TypeSpecifier* other) const;
 
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const {
-		const PrimitiveTypeSpecifier* other_as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier*>(other);
-		const BasicType other_type = other_as_primitive->GetBasicType();
-		if (other_as_primitive != nullptr) {
-			return other_type != BasicType::NONE && m_basic_type <= other_type;
-		}
-		return false;
-	}
-
-	virtual const void* DefaultValue(const TypeTable* type_table) const {
-		const BasicType basic_type = GetBasicType();
-
-		switch (basic_type) {
-		case BasicType::BOOLEAN:
-			return DefaultBooleanValue;
-		case BasicType::INT:
-			return DefaultIntValue;
-		case BasicType::DOUBLE:
-			return DefaultDoubleValue;
-		case BasicType::STRING:
-			return DefaultStringValue;
-		default:
-			assert(false);
-			return nullptr;
-		}
-	}
+	virtual const void* DefaultValue(const TypeTable* type_table) const;
 
 	const BasicType GetBasicType() const {
 		return m_basic_type;
 	}
+
+	static const PrimitiveTypeSpecifier* GetNone();
+
+	static const PrimitiveTypeSpecifier* GetBoolean();
+
+	static const PrimitiveTypeSpecifier* GetInt();
+
+	static const PrimitiveTypeSpecifier* GetDouble();
+
+	static const PrimitiveTypeSpecifier* GetString();
+
+	static const PrimitiveTypeSpecifier* GetArray();
+
+//	static const PrimitiveTypeSpecifier* GetCompound();
 
 private:
 	PrimitiveTypeSpecifier(const BasicType basic_type) :
@@ -100,15 +65,6 @@ private:
 	}
 
 	const BasicType m_basic_type;
-
-public:
-	const static PrimitiveTypeSpecifier* NONE;
-	const static PrimitiveTypeSpecifier* BOOLEAN;
-	const static PrimitiveTypeSpecifier* INT;
-	const static PrimitiveTypeSpecifier* DOUBLE;
-	const static PrimitiveTypeSpecifier* STRING;
-	const static PrimitiveTypeSpecifier* ARRAY;
-	const static PrimitiveTypeSpecifier* COMPOUND;
 };
 
 #endif /* PRIMITIVE_TYPE_SPECIFIER_H_ */

@@ -1,5 +1,7 @@
 Parsing file ../tests/t0110.nwt...
 Parsed file ../tests/t0110.nwt.
+int array nums:
+end array nums
 Semantic error on line 3, column 8: Index value '1000' is out of bounds for array 'nums'.
 Root Symbol Table:
 ----------------

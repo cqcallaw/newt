@@ -33,13 +33,13 @@ ComparisonExpression::ComparisonExpression(const YYLTYPE position,
 
 const TypeSpecifier* ComparisonExpression::GetType(
 		const ExecutionContext* execution_context) const {
-	return PrimitiveTypeSpecifier::BOOLEAN;
+	return PrimitiveTypeSpecifier::GetBoolean();
 }
 
 const LinkedList<const Error*>* ComparisonExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	return BinaryExpression::Validate(execution_context,
-			PrimitiveTypeSpecifier::STRING, PrimitiveTypeSpecifier::STRING);
+			PrimitiveTypeSpecifier::GetString(), PrimitiveTypeSpecifier::GetString());
 }
 
 const Result* ComparisonExpression::compute(bool left, bool right,

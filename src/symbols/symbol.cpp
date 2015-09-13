@@ -32,27 +32,28 @@
 #include <primitive_type_specifier.h>
 
 const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
-const Symbol* Symbol::DefaultSymbol = new Symbol(PrimitiveTypeSpecifier::NONE,
-		DefaultSymbolName, NULL);
+const Symbol* Symbol::DefaultSymbol = new Symbol(
+		PrimitiveTypeSpecifier::GetNone(), DefaultSymbolName, NULL);
 
 Symbol::Symbol(const string name, const bool *value) :
-		Symbol(PrimitiveTypeSpecifier::BOOLEAN, name, (void *) value) {
+		Symbol(PrimitiveTypeSpecifier::GetBoolean(), name, (void *) value) {
 }
 
 Symbol::Symbol(const string name, const int *value) :
-		Symbol(PrimitiveTypeSpecifier::INT, name, (void *) value) {
+		Symbol(PrimitiveTypeSpecifier::GetInt(), name, (void *) value) {
 }
 
 Symbol::Symbol(const string name, const double *value) :
-		Symbol(PrimitiveTypeSpecifier::DOUBLE, name, (void *) value) {
+		Symbol(PrimitiveTypeSpecifier::GetDouble(), name, (void *) value) {
 }
 
 Symbol::Symbol(const string name, const string *value) :
-		Symbol(PrimitiveTypeSpecifier::STRING, name, (void *) value) {
+		Symbol(PrimitiveTypeSpecifier::GetString(), name, (void *) value) {
 }
 
 Symbol::Symbol(const TypeSpecifier* type, const string name, const void* value) :
 		m_type(type), m_name(name), m_value(value) {
+	assert(type != nullptr);
 }
 
 Symbol::Symbol(const string* name, const bool *value) :
@@ -84,16 +85,16 @@ const void* Symbol::GetValue() const {
 }
 
 const Symbol* Symbol::WithValue(const bool* value) const {
-	return WithValue(PrimitiveTypeSpecifier::BOOLEAN, (void*) value);
+	return WithValue(PrimitiveTypeSpecifier::GetBoolean(), (void*) value);
 }
 const Symbol* Symbol::WithValue(const int* value) const {
-	return WithValue(PrimitiveTypeSpecifier::INT, (void*) value);
+	return WithValue(PrimitiveTypeSpecifier::GetInt(), (void*) value);
 }
 const Symbol* Symbol::WithValue(const double* value) const {
-	return WithValue(PrimitiveTypeSpecifier::DOUBLE, (void*) value);
+	return WithValue(PrimitiveTypeSpecifier::GetDouble(), (void*) value);
 }
 const Symbol* Symbol::WithValue(const string* value) const {
-	return WithValue(PrimitiveTypeSpecifier::STRING, (void*) value);
+	return WithValue(PrimitiveTypeSpecifier::GetString(), (void*) value);
 }
 
 const Symbol* Symbol::WithValue(const TypeSpecifier* type,
@@ -108,10 +109,11 @@ const Symbol* Symbol::WithValue(const TypeSpecifier* type,
 const string Symbol::ToString(const TypeTable* type_table,
 		const Indent indent) const {
 	ostringstream buffer;
-	buffer << indent << m_type->ToString() << " " << m_name << ": ";
+	buffer << indent << m_type->ToString() << " " << m_name << ":";
 	const PrimitiveTypeSpecifier* as_primitive =
 			dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
 	if (as_primitive != nullptr) {
+		buffer << " ";
 		buffer << as_primitive->ToString(m_value);
 	}
 
@@ -124,8 +126,7 @@ const string Symbol::ToString(const TypeTable* type_table,
 	const CompoundTypeSpecifier* as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(m_type);
 	if (as_compound != nullptr) {
-		const string type_name = as_compound->GetTypeName();
-		buffer << type_name << " " << m_name << ": ";
+		buffer << endl;
 		const CompoundTypeInstance* compound_type_instance =
 				(const CompoundTypeInstance*) m_value;
 		buffer << compound_type_instance->ToString(type_table, indent + 1);
@@ -136,7 +137,7 @@ const string Symbol::ToString(const TypeTable* type_table,
 }
 
 Symbol::Symbol(const string name, const CompoundTypeInstance* value) :
-		Symbol(PrimitiveTypeSpecifier::COMPOUND, name, (void *) value) {
+		Symbol(value->GetTypeSpecifier(), name, (void *) value) {
 }
 
 Symbol::Symbol(const string* name, const CompoundTypeInstance* value) :
@@ -144,5 +145,5 @@ Symbol::Symbol(const string* name, const CompoundTypeInstance* value) :
 }
 
 const Symbol* Symbol::WithValue(const CompoundTypeInstance* value) const {
-	return WithValue(PrimitiveTypeSpecifier::COMPOUND, (void*) value);
+	return WithValue(value->GetTypeSpecifier(), (void*) value);
 }

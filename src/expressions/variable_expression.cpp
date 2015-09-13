@@ -54,17 +54,10 @@ const Result* VariableExpression::Evaluate(
 						m_variable->GetLocation().first_column,
 						*(m_variable->GetName())));
 	} else {
-		const TypeSpecifier* symbol_type = symbol->GetType();
-
 		if (m_variable->IsBasicReference()) {
-			const PrimitiveTypeSpecifier* as_primitive =
-					dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
-			if (as_primitive != nullptr) {
-				if (as_primitive != PrimitiveTypeSpecifier::NONE) {
-					result = symbol->GetValue();
-				}
-			}
+			result = symbol->GetValue();
 		} else {
+			const TypeSpecifier* symbol_type = symbol->GetType();
 			const ArrayVariable* as_array_variable =
 					dynamic_cast<const ArrayVariable*>(m_variable);
 			if (as_array_variable != nullptr) {
@@ -78,7 +71,7 @@ const Result* VariableExpression::Evaluate(
 							array_index_expression->GetType(execution_context);
 
 					if (array_index_expression_type->IsAssignableTo(
-							PrimitiveTypeSpecifier::INT)) {
+							PrimitiveTypeSpecifier::GetInt())) {
 						const Result* evaluation =
 								array_index_expression->Evaluate(
 										execution_context);
@@ -94,6 +87,9 @@ const Result* VariableExpression::Evaluate(
 							if (index > as_array_symbol->GetSize()) {
 								ostringstream buffer;
 								buffer << index;
+								execution_context->GetSymbolContext()->print(
+										cout, execution_context->GetTypeTable(),
+										Indent(0));
 								errors =
 										errors->With(
 												new Error(Error::SEMANTIC,
@@ -109,19 +105,19 @@ const Result* VariableExpression::Evaluate(
 										execution_context->GetTypeTable();
 
 								if (element_type_specifier
-										== PrimitiveTypeSpecifier::INT) {
+										== PrimitiveTypeSpecifier::GetInt()) {
 									result = as_array_symbol->GetValue<
 											const int*>(index, type_table);
 								} else if (element_type_specifier
-										== PrimitiveTypeSpecifier::DOUBLE) {
+										== PrimitiveTypeSpecifier::GetDouble()) {
 									result = as_array_symbol->GetValue<
 											const double*>(index, type_table);
 								} else if (element_type_specifier
-										== PrimitiveTypeSpecifier::STRING) {
+										== PrimitiveTypeSpecifier::GetString()) {
 									result = as_array_symbol->GetValue<
 											const string*>(index, type_table);
-								} else if (element_type_specifier
-										== PrimitiveTypeSpecifier::COMPOUND) {
+								} else if (dynamic_cast<const CompoundTypeSpecifier*>(element_type_specifier)
+										!= nullptr) {
 									result = as_array_symbol->GetValue<
 											const CompoundType*>(index,
 											type_table);
@@ -158,9 +154,8 @@ const Result* VariableExpression::Evaluate(
 			const MemberVariable* as_member_variable =
 					dynamic_cast<const MemberVariable*>(m_variable);
 			if (as_member_variable != nullptr) {
-				const CompoundTypeSpecifier* as_compound =
-						dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
-				if (as_compound != nullptr) {
+				if (dynamic_cast<const CompoundTypeSpecifier*>(symbol_type)
+						!= nullptr) {
 					const CompoundTypeInstance* as_struct =
 							(const CompoundTypeInstance*) symbol->GetValue();
 					const MemberVariable* as_member_variable =
@@ -209,11 +204,9 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 		return result;
 	}
 
-	const TypeSpecifier* symbol_type = symbol->GetType();
-	const ArrayTypeSpecifier* as_array =
-			dynamic_cast<const ArrayTypeSpecifier*>(symbol_type);
-	if (as_array != nullptr) {
-		ArrayVariable* as_array_variable = (ArrayVariable*) m_variable;
+	const ArrayVariable* as_array_variable =
+			dynamic_cast<const ArrayVariable*>(m_variable);
+	if (as_array_variable != nullptr) {
 		const Expression* array_index_expression =
 				as_array_variable->GetIndexExpression();
 		const YYLTYPE array_index_expression_position =
@@ -221,7 +214,7 @@ const LinkedList<const Error*>* VariableExpression::Validate(
 
 		const TypeSpecifier* index_type = array_index_expression->GetType(
 				execution_context);
-		if (!index_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
+		if (!index_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt())) {
 			ostringstream os;
 			os << "A " << index_type->ToString() << " expression";
 

@@ -20,21 +20,21 @@
 #include "constant_expression.h"
 
 ConstantExpression::ConstantExpression(const YYLTYPE position, const bool value) :
-		ConstantExpression(position, PrimitiveTypeSpecifier::BOOLEAN, (void*) new bool(value)) {
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetBoolean(), (void*) new bool(value)) {
 }
 
 ConstantExpression::ConstantExpression(const YYLTYPE position, const int value) :
-		ConstantExpression(position, PrimitiveTypeSpecifier::INT, (void*) new int(value)) {
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetInt(), (void*) new int(value)) {
 }
 
 ConstantExpression::ConstantExpression(const YYLTYPE position,
 		const double value) :
-		ConstantExpression(position, PrimitiveTypeSpecifier::DOUBLE, (void*) new double(value)) {
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetDouble(), (void*) new double(value)) {
 }
 
 ConstantExpression::ConstantExpression(const YYLTYPE position,
 		const std::string* value) :
-		ConstantExpression(position, PrimitiveTypeSpecifier::STRING, (void*) value) {
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetString(), (void*) value) {
 }
 
 const TypeSpecifier* ConstantExpression::GetType(

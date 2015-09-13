@@ -39,9 +39,9 @@ const TypeSpecifier* BinaryExpression::ComputeResultType(const Expression* left,
 			dynamic_cast<const PrimitiveTypeSpecifier*>(right_type);
 
 	if (left_as_primitive == nullptr || right_as_primitive == nullptr
-			|| left_as_primitive == PrimitiveTypeSpecifier::NONE
-			|| right_as_primitive == PrimitiveTypeSpecifier::NONE) {
-		return PrimitiveTypeSpecifier::NONE;
+			|| left_as_primitive == PrimitiveTypeSpecifier::GetNone()
+			|| right_as_primitive == PrimitiveTypeSpecifier::GetNone()) {
+		return PrimitiveTypeSpecifier::GetNone();
 	}
 
 	const BasicType left_basic_type = left_as_primitive->GetBasicType();
@@ -50,11 +50,11 @@ const TypeSpecifier* BinaryExpression::ComputeResultType(const Expression* left,
 	if (op == EQUAL || op == NOT_EQUAL || op == LESS_THAN
 			|| op == LESS_THAN_EQUAL || op == GREATER_THAN
 			|| op == GREATER_THAN_EQUAL || op == AND || op == OR) {
-		return PrimitiveTypeSpecifier::BOOLEAN;
+		return PrimitiveTypeSpecifier::GetBoolean();
 	}
 
 	if (op == MOD) {
-		return PrimitiveTypeSpecifier::INT;
+		return PrimitiveTypeSpecifier::GetInt();
 	}
 
 	if (right_basic_type >= left_basic_type)
@@ -65,7 +65,7 @@ const TypeSpecifier* BinaryExpression::ComputeResultType(const Expression* left,
 	cerr << "Invalid type combination <" << left_type << "> and <" << right_type
 			<< ">\n";
 	assert(false);
-	return PrimitiveTypeSpecifier::NONE;
+	return PrimitiveTypeSpecifier::GetNone();
 }
 
 const Result* BinaryExpression::Evaluate(
@@ -94,88 +94,100 @@ const Result* BinaryExpression::Evaluate(
 		return right_result;
 	}
 
-	if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
+	if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
 		bool left_value = *((bool*) left_result->GetData());
 
-		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
+		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
 			bool right_value = *((bool*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetInt())) {
 			int right_value = *((int*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::DOUBLE)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetDouble())) {
 			double right_value = *((double*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::STRING)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetString())) {
 			string* right_value = (string*) right_result->GetData();
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else {
 			assert(false);
 		}
-	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
+	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt())) {
 		int left_value = *((int*) left_result->GetData());
 
-		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
+		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
 			bool right_value = *((bool*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetInt())) {
 			int right_value = *((int*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::DOUBLE)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetDouble())) {
 			double right_value = *((double*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::STRING)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetString())) {
 			string* right_value = (string*) right_result->GetData();
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else {
 			assert(false);
 		}
-	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::DOUBLE)) {
+	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetDouble())) {
 		double left_value = *((double*) left_result->GetData());
 
-		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
+		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
 			bool right_value = *((bool*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetInt())) {
 			int right_value = *((int*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::DOUBLE)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetDouble())) {
 			double right_value = *((double*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::STRING)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetString())) {
 			string* right_value = (string*) right_result->GetData();
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else {
 			assert(false);
 		}
-	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::STRING)) {
+	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetString())) {
 		string* left_value = (string*) left_result->GetData();
 
-		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::BOOLEAN)) {
+		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
 			bool right_value = *((bool*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetInt())) {
 			int right_value = *((int*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::DOUBLE)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetDouble())) {
 			double right_value = *((double*) right_result->GetData());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::STRING)) {
+		} else if (right_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetString())) {
 			string* right_value = (string*) right_result->GetData();
 			return compute(left_value, right_value, left_position,
 					right_position);

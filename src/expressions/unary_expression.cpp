@@ -35,10 +35,10 @@ const TypeSpecifier* UnaryExpression::compute_result_type(
 	case UNARY_MINUS:
 		return input_type;
 	case NOT:
-		return PrimitiveTypeSpecifier::BOOLEAN;
+		return PrimitiveTypeSpecifier::GetBoolean();
 	default:
 		assert(false);
-		return PrimitiveTypeSpecifier::NONE;
+		return PrimitiveTypeSpecifier::GetNone();
 	}
 }
 
@@ -109,7 +109,7 @@ const LinkedList<const Error*>* UnaryExpression::Validate(
 
 	const TypeSpecifier* expression_type = expression->GetType(
 			execution_context);
-	if (!(expression_type->IsAssignableTo(PrimitiveTypeSpecifier::DOUBLE))) {
+	if (!(expression_type->IsAssignableTo(PrimitiveTypeSpecifier::GetDouble()))) {
 		result = result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
 						expression->GetPosition().first_line,
@@ -141,12 +141,13 @@ const Result* UnaryExpression::Evaluate(
 		const void* data = evaluation->GetData();
 		switch (m_operator) {
 		case UNARY_MINUS: {
-			if (expression_type->IsAssignableTo(PrimitiveTypeSpecifier::INT)) {
+			if (expression_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::GetInt())) {
 				int* value = new int;
 				*value = -(*((int*) data));
 				result = (void *) value;
 			} else if (expression_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::DOUBLE)) {
+					PrimitiveTypeSpecifier::GetDouble())) {
 				double* value = new double;
 				*value = -(*((double*) data));
 				result = (void *) value;
@@ -157,18 +158,18 @@ const Result* UnaryExpression::Evaluate(
 		}
 		case NOT: {
 			if (expression_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::BOOLEAN)) {
+					PrimitiveTypeSpecifier::GetBoolean())) {
 				bool old_value = *((bool*) data);
 				bool* value = new bool(!old_value);
 				result = (void *) value;
 			} else if (expression_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::INT)) {
+					PrimitiveTypeSpecifier::GetInt())) {
 				int old_value = *((int*) data);
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
 				break;
 			} else if (expression_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::DOUBLE)) {
+					PrimitiveTypeSpecifier::GetDouble())) {
 				double old_value = *((double*) data);
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;

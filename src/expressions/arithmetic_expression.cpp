@@ -131,12 +131,12 @@ const LinkedList<const Error*>* ArithmeticExpression::Validate(
 	if (GetOperator() == PLUS) {
 		//Allow STRING types because PLUS doubles as a concatenation operator
 		return BinaryExpression::Validate(execution_context,
-				PrimitiveTypeSpecifier::STRING, PrimitiveTypeSpecifier::STRING);
+				PrimitiveTypeSpecifier::GetString(), PrimitiveTypeSpecifier::GetString());
 	} else if (GetOperator() == MOD) {
 		return BinaryExpression::Validate(execution_context,
-				PrimitiveTypeSpecifier::INT, PrimitiveTypeSpecifier::INT);
+				PrimitiveTypeSpecifier::GetInt(), PrimitiveTypeSpecifier::GetInt());
 	} else {
 		return BinaryExpression::Validate(execution_context,
-				PrimitiveTypeSpecifier::DOUBLE, PrimitiveTypeSpecifier::DOUBLE);
+				PrimitiveTypeSpecifier::GetDouble(), PrimitiveTypeSpecifier::GetDouble());
 	}
 }
