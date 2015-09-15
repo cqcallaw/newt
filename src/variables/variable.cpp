@@ -57,13 +57,13 @@ const Result* Variable::Evaluate(const ExecutionContext* context) const {
 	const Symbol* symbol = symbol_context->GetSymbol(GetName());
 	const Symbol* result_symbol = Symbol::DefaultSymbol;
 
-	if (symbol == nullptr || symbol == Symbol::DefaultSymbol) {
+	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+		result_symbol = symbol;
+	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						GetLocation().first_line, GetLocation().first_column,
 						*(GetName())));
-	} else {
-		result_symbol = symbol;
 	}
 
 	const Result* result = new Result(result_symbol->GetValue(), errors);

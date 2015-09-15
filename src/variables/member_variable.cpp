@@ -24,14 +24,20 @@ MemberVariable::~MemberVariable() {
 
 const TypeSpecifier* MemberVariable::GetType(
 		const ExecutionContext* context) const {
-	const CompoundTypeInstance* container =
-			(const CompoundTypeInstance*) context->GetSymbolContext()->GetSymbol(
-					GetName())->GetValue();
-	const ExecutionContext* temp_context = context->WithSymbolContext(
-			container->GetDefinition());
-	const TypeSpecifier* result = m_member_variable->GetType(temp_context);
-	delete (temp_context);
-	return result;
+	const Result* container_result = m_container->Evaluate(context);
+
+	if (container_result->GetErrors() == LinkedList<const Error*>::Terminator) {
+		const CompoundTypeInstance* container =
+				(const CompoundTypeInstance*) container_result->GetData();
+		SymbolContext* new_context = container->GetDefinition();
+		const ExecutionContext* temp_context = context->WithSymbolContext(
+				new_context);
+		const TypeSpecifier* result = m_member_variable->GetType(temp_context);
+		delete (temp_context);
+		return result;
+	} else {
+		return PrimitiveTypeSpecifier::GetNone();
+	}
 }
 
 const std::string* MemberVariable::ToString(
@@ -57,8 +63,9 @@ const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 		if (errors == LinkedList<const Error*>::Terminator) {
 			const CompoundTypeInstance* instance =
 					(const CompoundTypeInstance*) container_result->GetData();
+			SymbolContext* new_symbol_context = instance->GetDefinition();
 			const ExecutionContext* new_context = context->WithSymbolContext(
-					instance->GetDefinition());
+					new_symbol_context);
 			const Result* member_result = m_member_variable->Evaluate(
 					new_context);
 			return member_result;

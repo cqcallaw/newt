@@ -163,35 +163,6 @@ SetResult SymbolContext::SetArraySymbol(const string identifier,
 	return SET_SUCCESS;
 }
 
-/*SetResult SymbolContext::SetMember(const string identifier,
- const string member_name, const BasicType member_type,
- const void* value) {
- const Symbol* symbol = GetSymbol(identifier);
-
- if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
- return UNDEFINED_SYMBOL;
- } else {
- if (symbol->GetType() != STRUCT) {
- return INCOMPATIBLE_TYPE;
- }
-
- Struct* current = (Struct*) symbol->GetValue();
- SymbolContext* context = current->GetDefinition();
- map<const string, const Symbol*, comparator>* table =
- context->GetTable();
- const map<const string, const Symbol*, comparator>::const_iterator find_result =
- table->find(member_name);
- if (find_result == table->end()) {
- return UNDEFINED_MEMBER;
- }
-
- const Symbol* member_symbol = find_result->second;
- const BasicType existing_member_type = member_symbol->GetType();
-
- return context->SetSymbol(member_name, member_type, value);
- }
- }*/
-
 SetResult SymbolContext::SetArraySymbolIndex(const string identifier,
 		const TypeSpecifier* type, const int index, const void* value,
 		const TypeTable* type_table) {

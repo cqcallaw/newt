@@ -181,12 +181,8 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 		const MemberVariable* member_variable =
 				dynamic_cast<const MemberVariable*>(m_variable);
 		if (member_variable != nullptr) {
-			const MemberVariable* as_member_variable =
-					(const MemberVariable*) m_variable;
-			const YYLTYPE variable_location = as_member_variable->GetLocation();
-
 			const TypeSpecifier* member_variable_type =
-					as_member_variable->GetType(execution_context);
+					member_variable->GetType(execution_context);
 			const TypeSpecifier* expression_type = m_expression->GetType(
 					execution_context);
 			if (member_variable_type->IsAssignableTo(expression_type)) {
@@ -194,8 +190,8 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 			} else {
 				errors = new LinkedList<const Error*>(
 						new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-								variable_location.first_line,
-								variable_location.first_column,
+								member_variable->GetLocation().first_line,
+								member_variable->GetLocation().first_column,
 								member_variable_type->ToString(),
 								expression_type->ToString()));
 			}
@@ -760,26 +756,17 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
-	const string* variable_name = variable->GetName();
-	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolContext();
-	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
-	const void* symbol_value = symbol->GetValue();
-
-	const Result* expression_evaluation = expression->Evaluate(
+	const Result* container_evaluation = variable->GetContainer()->Evaluate(
 			execution_context);
-	errors = expression_evaluation->GetErrors();
-
+	errors = container_evaluation->GetErrors();
 	if (errors == LinkedList<const Error*>::Terminator) {
 		//we're assigning a struct member reference
-		const MemberVariable* member_variable = (const MemberVariable*) variable;
-
 		const CompoundTypeInstance* struct_value =
-				(const CompoundTypeInstance*) symbol_value;
+				(const CompoundTypeInstance*) container_evaluation->GetData();
 		const ExecutionContext* new_context =
 				execution_context->WithSymbolContext(
 						struct_value->GetDefinition());
-		const Variable* new_variable = member_variable->GetMemberVariable();
+		const Variable* new_variable = variable->GetMemberVariable();
 
 		errors = do_op(new_variable, expression, op, new_context);
 	}
@@ -807,17 +794,9 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						variable_line, variable_column, *(variable_name)));
-		/*} else if (dynamic_cast<const ArrayVariable*>(m_variable) == NULL
-		 && (symbol->GetType() & (ARRAY))) {
-		 //we're trying to reference an array variable without an index
-		 //(this probably isn't legitimate and may need to be revised for the statement "var arr1 = arr2")
-		 errors = new LinkedList<const Error*>(
-		 new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-		 variable_line, variable_column, *(variable_name)));*/
 	} else if (dynamic_cast<const ArrayVariable*>(m_variable) != nullptr
 			&& dynamic_cast<const ArrayTypeSpecifier*>(symbol->GetType())
 					== nullptr) {
-//trying to reference a non-array symbol as an array.
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
 						variable_line, variable_column, *(variable_name)));

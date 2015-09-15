@@ -70,29 +70,27 @@ const TypeSpecifier* BinaryExpression::ComputeResultType(const Expression* left,
 
 const Result* BinaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
 	void* result = nullptr;
 
 	const Expression* left = GetLeft();
 	const Expression* right = GetRight();
+
+	const Result* left_result = left->Evaluate(execution_context);
+	if (left_result->GetErrors() != LinkedList<const Error*>::Terminator) {
+		return left_result;
+	}
+
+	const Result* right_result = right->Evaluate(execution_context);
+	if (right_result->GetErrors() != LinkedList<const Error*>::Terminator) {
+		return right_result;
+	}
 
 	const TypeSpecifier* left_type = left->GetType(execution_context);
 	const TypeSpecifier* right_type = right->GetType(execution_context);
 
 	YYLTYPE left_position = left->GetPosition();
 	YYLTYPE right_position = right->GetPosition();
-
-	const Result* left_result = left->Evaluate(execution_context);
-
-	if (left_result->GetErrors() != LinkedList<const Error*>::Terminator) {
-		return left_result;
-	}
-
-	const Result* right_result = right->Evaluate(execution_context);
-
-	if (right_result->GetErrors() != LinkedList<const Error*>::Terminator) {
-		return right_result;
-	}
 
 	if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
 		bool left_value = *((bool*) left_result->GetData());
