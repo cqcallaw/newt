@@ -12,8 +12,7 @@
 
 class MemberVariable: public Variable {
 public:
-	MemberVariable(const std::string* container_name,
-			const YYLTYPE container_name_location,
+	MemberVariable(const Variable* container_variable,
 			const Variable* member_variable);
 	virtual ~MemberVariable();
 
@@ -21,8 +20,26 @@ public:
 
 	virtual const std::string* ToString(const ExecutionContext* context) const;
 
-	virtual const bool IsBasicReference() const {
-		return false;
+	virtual const Result* Evaluate(const ExecutionContext* context) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const bool* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const int* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const double* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const string* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const CompoundTypeInstance* value) const;
+
+	const Variable* GetContainer() const {
+		return m_container;
 	}
 
 	const Variable* GetMemberVariable() const {
@@ -30,6 +47,7 @@ public:
 	}
 
 private:
+	const Variable* m_container;
 	const Variable* m_member_variable;
 };
 

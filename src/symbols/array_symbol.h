@@ -53,18 +53,20 @@ public:
 		ostringstream os;
 
 		const TypeSpecifier* type = GetElementType();
+		const string name = GetName();
+		int size = GetSize();
+		os << type->ToString() << " array " << name << ":" << endl;
+
+		Indent child_indent = indent + 1;
 
 		const PrimitiveTypeSpecifier* as_primitive =
 				dynamic_cast<const PrimitiveTypeSpecifier*>(type);
 		if (as_primitive != nullptr) {
-			const string name = GetName();
 			const BasicType basic_type = as_primitive->GetBasicType();
-			int size = GetSize();
-			os << *type << " array " << name << ":" << endl;
 			switch (basic_type) {
 			case INT: {
 				for (int i = 0; i < size; i++) {
-					os << "\t[" << i << "] "
+					os << child_indent << "[" << i << "] "
 							<< *((int *) GetValue<const int*>(i, type_table))
 							<< endl;
 				}
@@ -72,7 +74,7 @@ public:
 			}
 			case DOUBLE: {
 				for (int i = 0; i < size; i++) {
-					os << "\t[" << i << "] "
+					os << child_indent << "[" << i << "] "
 							<< *((double *) GetValue<const double*>(i,
 									type_table)) << endl;
 				}
@@ -80,7 +82,7 @@ public:
 			}
 			case STRING: {
 				for (int i = 0; i < size; i++) {
-					os << "\t[" << i << "] \""
+					os << child_indent << "[" << i << "] \""
 							<< *((string *) GetValue<const string*>(i,
 									type_table)) << "\"" << endl;
 				}
@@ -92,7 +94,19 @@ public:
 			os << "end array " << name;
 		}
 
-		//TODO: array and compound array element types
+		//TODO: array element types
+
+		const CompoundTypeSpecifier* as_compound =
+				dynamic_cast<const CompoundTypeSpecifier*>(type);
+		if (as_compound != nullptr) {
+			for (int i = 0; i < size; i++) {
+				const CompoundTypeInstance* instance =
+						(const CompoundTypeInstance*) GetValue<
+								const CompoundTypeInstance*>(i, type_table);
+				os << child_indent << "[" << i << "]: " << endl
+						<< instance->ToString(type_table, child_indent + 1);
+			}
+		}
 
 		return os.str();
 	}
@@ -129,7 +143,8 @@ public:
 	}
 
 	const int GetSize() const {
-		return ((vector<const void*>*) Symbol::GetValue())->size();
+		int size = ((vector<const void*>*) Symbol::GetValue())->size();
+		return size;
 	}
 
 	const TypeSpecifier* GetElementType() const {
@@ -147,9 +162,9 @@ public:
 private:
 	ArraySymbol(const string name, const TypeSpecifier* element_specifier,
 			const void* value, const bool initialized, const bool fixed_size) :
-			Symbol(PrimitiveTypeSpecifier::GetArray(), name, value), m_element_specifier(
-					element_specifier), m_initialized(initialized), m_fixed_size(
-					fixed_size) {
+			Symbol(new ArrayTypeSpecifier(element_specifier, fixed_size), name,
+					value), m_element_specifier(element_specifier), m_initialized(
+					initialized), m_fixed_size(fixed_size) {
 	}
 
 	const static void* GetStorage(const TypeSpecifier* element_specifier,
@@ -160,15 +175,21 @@ private:
 		if (as_primitive != nullptr) {
 			const BasicType element_type = as_primitive->GetBasicType();
 			switch (element_type) {
-			case INT:
-				return new vector<const int*>(initial_size,
+			case INT: {
+				auto result = new vector<const int*>(initial_size,
 						(int*) element_specifier->DefaultValue(type_table));
-			case DOUBLE:
-				return new vector<const double*>(initial_size,
+				return result;
+			}
+			case DOUBLE: {
+				auto result = new vector<const double*>(initial_size,
 						(double*) element_specifier->DefaultValue(type_table));
-			case STRING:
-				return new vector<const string*>(initial_size,
+				return result;
+			}
+			case STRING: {
+				auto result = new vector<const string*>(initial_size,
 						(string*) element_specifier->DefaultValue(type_table));
+				return result;
+			}
 			default:
 				assert(false);
 				return nullptr;
@@ -179,8 +200,6 @@ private:
 				dynamic_cast<const CompoundTypeSpecifier*>(element_specifier);
 		if (as_compound != nullptr) {
 			//TODO: handle arrays of arrays
-			//const string* type_name = as_compound->GetTypeName();
-			//const CompoundType* type = type_table->GetType(*type_name);
 			vector<const CompoundTypeInstance*>* result = new vector<
 					const CompoundTypeInstance*>(initial_size);
 			for (int i = 0; i < initial_size; ++i) {

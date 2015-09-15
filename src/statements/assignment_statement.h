@@ -27,6 +27,8 @@ using namespace std;
 
 class Expression;
 class Variable;
+class ArrayVariable;
+class MemberVariable;
 class Result;
 struct YYLTYPE;
 
@@ -115,6 +117,13 @@ public:
 			const Expression* expression, const AssignmentType op,
 			const ExecutionContext* execution_context);
 
+	const static LinkedList<const Error*>* do_op(const ArrayVariable* variable,
+			const Expression* expression, const AssignmentType op,
+			const ExecutionContext* execution_context);
+
+	const static LinkedList<const Error*>* do_op(const MemberVariable* variable,
+			const Expression* expression, const AssignmentType op,
+			const ExecutionContext* execution_context);
 private:
 	const Variable* m_variable;
 	const AssignmentType m_op_type;

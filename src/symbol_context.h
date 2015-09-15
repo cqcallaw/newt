@@ -87,9 +87,6 @@ public:
 	SetResult SetSymbol(const string identifier, const int index,
 			const string* value, const TypeTable* type_table);
 
-//	SetResult SetMember(const string identifier, const string member_name,
-//			const BasicType member_type, const void* value);
-
 protected:
 	map<const string, const Symbol*, comparator>* GetTable() const {
 		return table;

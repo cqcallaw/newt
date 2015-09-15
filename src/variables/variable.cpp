@@ -48,3 +48,92 @@ const TypeSpecifier* Variable::GetType(const ExecutionContext* context) const {
 	auto symbol = context->GetSymbolContext()->GetSymbol(m_name);
 	return symbol->GetType();
 }
+
+const Result* Variable::Evaluate(const ExecutionContext* context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const SymbolContext* symbol_context = context->GetSymbolContext();
+	const Symbol* symbol = symbol_context->GetSymbol(GetName());
+	const Symbol* result_symbol = Symbol::DefaultSymbol;
+
+	if (symbol == nullptr || symbol == Symbol::DefaultSymbol) {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						GetLocation().first_line, GetLocation().first_column,
+						*(GetName())));
+	} else {
+		result_symbol = symbol;
+	}
+
+	const Result* result = new Result(result_symbol->GetValue(), errors);
+	return result;
+}
+
+const LinkedList<const Error*>* Variable::SetSymbol(
+		const ExecutionContext* context, const bool* value) const {
+	return ToErrorList(
+			context->GetSymbolContext()->SetSymbol(*GetName(), value));
+}
+
+const LinkedList<const Error*>* Variable::SetSymbol(
+		const ExecutionContext* context, const int* value) const {
+	return ToErrorList(
+			context->GetSymbolContext()->SetSymbol(*GetName(), value));
+}
+
+const LinkedList<const Error*>* Variable::SetSymbol(
+		const ExecutionContext* context, const double* value) const {
+	return ToErrorList(
+			context->GetSymbolContext()->SetSymbol(*GetName(), value));
+}
+
+const LinkedList<const Error*>* Variable::SetSymbol(
+		const ExecutionContext* context, const string* value) const {
+	return ToErrorList(
+			context->GetSymbolContext()->SetSymbol(*GetName(), value));
+}
+
+const LinkedList<const Error*>* Variable::SetSymbol(
+		const ExecutionContext* context,
+		const CompoundTypeInstance* value) const {
+	return ToErrorList(
+			context->GetSymbolContext()->SetSymbol(*GetName(), value));
+}
+
+const LinkedList<const Error*>* Variable::ToErrorList(SetResult result) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	switch (result) {
+	case NO_SET_RESULT:
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::DEFAULT_ERROR_CODE,
+						GetLocation().first_line, GetLocation().first_column,
+						*(GetName())));
+		break;
+	case UNDEFINED_SYMBOL:
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						GetLocation().first_line, GetLocation().first_column,
+						*(GetName())));
+		break;
+	case INCOMPATIBLE_TYPE:
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
+						GetLocation().first_line, GetLocation().first_column,
+						*(GetName())));
+		break;
+	case MUTATION_DISALLOWED:
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::READONLY,
+						GetLocation().first_line, GetLocation().first_column,
+						*(GetName())));
+		break;
+	case SET_SUCCESS:
+	default:
+		break;
+	}
+
+	return errors;
+}

@@ -429,12 +429,9 @@ variable_reference:
 	{
 		$$ = new ArrayVariable($1, @1, $3, @3);
 	}
-	| T_ID T_PERIOD T_ID
+	| variable_reference T_PERIOD T_ID
 	{
-		$$ = new MemberVariable($1, @1, new Variable($3, @3));
-	}
-	| T_ID T_LBRACKET expression T_RBRACKET T_PERIOD T_ID
-	{
+		$$ = new MemberVariable($1, new Variable($3, @3));
 	}
 	;
 

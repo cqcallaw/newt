@@ -48,9 +48,58 @@ public:
 		return false;
 	}
 
+	virtual const Result* Evaluate(const ExecutionContext* context) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const bool* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const int* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const double* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const string* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const CompoundTypeInstance* value) const;
+
+protected:
+	class ValidationResult {
+	public:
+		ValidationResult(const ArraySymbol* symbol, const int index,
+				const LinkedList<const Error*>* errors) :
+				m_symbol(symbol), m_index(index), m_errors(errors) {
+		}
+
+		const int GetIndex() const {
+			return m_index;
+		}
+
+		const ArraySymbol* GetSymbol() const {
+			return m_symbol;
+		}
+
+		const LinkedList<const Error*>* GetErrors() const {
+			return m_errors;
+		}
+	private:
+		const ArraySymbol* m_symbol;
+		const int m_index;
+		const LinkedList<const Error*>* m_errors;
+	};
+
 private:
 	const Expression* m_index_expression;
 	const YYLTYPE m_expression_location;
+
+	const ValidationResult* Validate(const ExecutionContext* context) const;
+	const void* GetValueCore(const ExecutionContext* context,
+			const ArraySymbol* symbol_as_array, int index) const;
+	const LinkedList<const Error*>* SetSymbolCore(
+			const ExecutionContext* context, const void* value) const;
 };
 
 #endif /* ARRAY_VARIABLE_H_ */

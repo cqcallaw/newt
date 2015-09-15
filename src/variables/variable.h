@@ -23,9 +23,11 @@
 #include <string>
 #include "symbol.h"
 #include "yyltype.h"
+#include <symbol_context.h>
 
 class Expression;
 class ExecutionContext;
+class Result;
 
 class Variable {
 public:
@@ -46,9 +48,25 @@ public:
 		return m_location;
 	}
 
-	virtual const bool IsBasicReference() const {
-		return true;
-	}
+	virtual const Result* Evaluate(const ExecutionContext* context) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const bool* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const int* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const double* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const string* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const CompoundTypeInstance* value) const;
+
+	const LinkedList<const Error*>* ToErrorList(SetResult result) const;
 
 private:
 	const string* m_name;

@@ -150,7 +150,7 @@ SetResult SymbolContext::SetArraySymbol(const string identifier,
 
 	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
 		return UNDEFINED_SYMBOL;
-	} else if (symbol->GetType() != PrimitiveTypeSpecifier::GetArray()) {
+	} else if (!new_symbol->GetType()->IsAssignableTo(symbol->GetType())) {
 		return INCOMPATIBLE_TYPE;
 	}
 
