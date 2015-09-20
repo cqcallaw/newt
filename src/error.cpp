@@ -149,6 +149,9 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case MEMBER_DEFAULTS_MUST_BE_CONSTANT:
 		os << "Default member values must be constant.";
 		break;
+	case INVALID_TYPE:
+		os << "Invalid type \"" << s1 << "\"";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

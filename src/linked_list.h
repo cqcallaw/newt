@@ -93,6 +93,10 @@ public:
 		return new_next;
 	}
 
+	const bool IsTerminator() const {
+		return this == Terminator;
+	}
+
 	static constexpr LinkedList<T>* Terminator = nullptr;
 
 private:
