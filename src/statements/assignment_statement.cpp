@@ -48,10 +48,6 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolContext();
 	const string* variable_name = m_variable->GetName();
-//	execution_context->GetSymbolContext()->print(cerr,
-//			execution_context->GetTypeTable(), Indent(0));
-//	cerr << endl;
-//	cerr << *variable_name << endl;
 	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
 	const TypeSpecifier* symbol_type = symbol->GetType();
 
@@ -763,12 +759,26 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 		//we're assigning a struct member reference
 		const CompoundTypeInstance* struct_value =
 				(const CompoundTypeInstance*) container_evaluation->GetData();
+		const SymbolContext* definition = struct_value->GetDefinition();
+
+		const SymbolContext* symbol_context =
+				execution_context->GetSymbolContext();
+		const LinkedList<const SymbolContext*>* parent_context =
+				symbol_context->GetParent();
+		const LinkedList<const SymbolContext*>* new_parent_context =
+				parent_context->With(symbol_context);
+
+		SymbolContext* new_definition = new SymbolContext(
+				definition->GetModifiers(), new_parent_context,
+				definition->GetTable());
+
 		const ExecutionContext* new_context =
-				execution_context->WithSymbolContext(
-						struct_value->GetDefinition());
+				execution_context->WithSymbolContext(new_definition);
 		const Variable* new_variable = variable->GetMemberVariable();
 
 		errors = do_op(new_variable, expression, op, new_context);
+		delete (new_definition);
+		delete (new_context);
 	}
 
 	return errors;

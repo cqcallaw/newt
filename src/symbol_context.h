@@ -51,7 +51,7 @@ public:
 					const SymbolContext*>::Terminator);
 	SymbolContext(const Modifier::Type modifiers,
 			const LinkedList<const SymbolContext*>* parent_context,
-			const map<const string, const Symbol*>* values);
+			map<const string, const Symbol*, comparator>* values);
 	virtual ~SymbolContext();
 
 	const LinkedList<const SymbolContext*>* GetParent() const {
@@ -87,7 +87,10 @@ public:
 	SetResult SetSymbol(const string identifier, const int index,
 			const string* value, const TypeTable* type_table);
 
-protected:
+	const Modifier::Type GetModifiers() const {
+		return m_modifiers;
+	}
+
 	map<const string, const Symbol*, comparator>* GetTable() const {
 		return table;
 	}

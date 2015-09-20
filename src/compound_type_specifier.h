@@ -52,8 +52,7 @@ public:
 	virtual const void* DefaultValue(const TypeTable* type_table) const {
 		const CompoundType* type = type_table->GetType(m_type_name);
 		const CompoundTypeInstance* default_instance =
-				CompoundTypeInstance::GetDefaultInstance(m_type_name,
-						LinkedList<const SymbolContext*>::Terminator, type);
+				CompoundTypeInstance::GetDefaultInstance(m_type_name, type);
 		return default_instance;
 	}
 

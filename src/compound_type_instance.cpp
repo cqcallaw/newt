@@ -21,11 +21,9 @@
 #include <member_definition.h>
 
 const CompoundTypeInstance* CompoundTypeInstance::GetDefaultInstance(
-		const string type_name,
-		const LinkedList<const SymbolContext*>* parent_context,
-		const CompoundType* type) {
-	map<const string, const Symbol*>* symbol_mapping = new map<const string,
-			const Symbol*>();
+		const string type_name, const CompoundType* type) {
+	map<const string, const Symbol*, comparator>* symbol_mapping = new map<
+			const string, const Symbol*, comparator>();
 
 	const map<const string, const MemberDefinition*>* type_definition =
 			type->GetDefinition();
@@ -47,7 +45,8 @@ const CompoundTypeInstance* CompoundTypeInstance::GetDefaultInstance(
 
 	const CompoundTypeInstance* instance = new CompoundTypeInstance(
 			type_specifier,
-			new SymbolContext(type->GetModifiers(), parent_context,
+			new SymbolContext(type->GetModifiers(),
+					LinkedList<const SymbolContext*>::Terminator,
 					symbol_mapping));
 
 	return instance;

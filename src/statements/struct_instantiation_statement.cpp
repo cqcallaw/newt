@@ -52,19 +52,14 @@ LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 	//TODO: check the initializer type matches that of the initialized member
 
 	//generate default instance
-	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolContext();
-	const LinkedList<const SymbolContext*>* parent_context =
-			symbol_table->GetParent();
-	const LinkedList<const SymbolContext*>* new_parent_context =
-			parent_context->With(symbol_table);
-
 	const CompoundType* type = execution_context->GetTypeTable()->GetType(
 			*m_type_name);
 
 	const CompoundTypeInstance* instance =
-			CompoundTypeInstance::GetDefaultInstance(*m_type_name,
-					new_parent_context, type);
+			CompoundTypeInstance::GetDefaultInstance(*m_type_name, type);
+
+	SymbolTable* symbol_table =
+			(SymbolTable*) execution_context->GetSymbolContext();
 
 	const Symbol* symbol = new Symbol(*m_name, instance);
 	const InsertResult insert_result = symbol_table->InsertSymbol(symbol);

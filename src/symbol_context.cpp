@@ -29,7 +29,7 @@
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
 		const LinkedList<const SymbolContext*>* parent) :
-		m_modifiers(modifiers), m_parent(parent), table(
+		SymbolContext(modifiers, parent,
 				new map<const string, const Symbol*, comparator>()) {
 }
 
@@ -41,9 +41,11 @@ const Symbol* SymbolContext::GetSymbol(const string identifier) const {
 
 	if (result != table->end()) {
 		return result->second;
+	} else if (m_parent != nullptr) {
+		return m_parent->GetData()->GetSymbol(identifier);
+	} else {
+		return Symbol::DefaultSymbol;
 	}
-
-	return Symbol::DefaultSymbol;
 }
 
 const Symbol* SymbolContext::GetSymbol(const string* identifier) const {
@@ -52,16 +54,9 @@ const Symbol* SymbolContext::GetSymbol(const string* identifier) const {
 }
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const LinkedList<const SymbolContext*>* parent_context,
-		const map<const string, const Symbol*>* values) :
-		SymbolContext(modifiers, parent_context) {
-	map<const string, const Symbol*>::const_iterator values_iter;
-	for (values_iter = values->begin(); values_iter != values->end();
-			++values_iter) {
-		table->insert(
-				pair<const string, const Symbol*>(values_iter->first,
-						values_iter->second));
-	}
+		const LinkedList<const SymbolContext*>* parent,
+		map<const string, const Symbol*, comparator>* values) :
+		m_modifiers(modifiers), m_parent(parent), table(values) {
 }
 
 const void SymbolContext::print(ostream &os, const TypeTable* type_table,

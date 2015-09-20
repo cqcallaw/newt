@@ -48,9 +48,7 @@ public:
 	}
 
 	const static CompoundTypeInstance* GetDefaultInstance(
-			const string type_name,
-			const LinkedList<const SymbolContext*>* parent_context,
-			const CompoundType* type);
+			const string type_name, const CompoundType* type);
 
 	const static Symbol* GetSymbol(const TypeSpecifier* member_type,
 			const string member_name, const void* void_value);
