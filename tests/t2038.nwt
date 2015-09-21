@@ -1,0 +1,39 @@
+struct rectangle {
+	int x
+	int y
+	int w = 10
+	int h
+}
+
+struct triangle {
+	int x
+	int y
+	int w = 10
+}
+
+int index
+int i = 42
+double x = 3.14159
+string s = "hello"
+int[3] ints
+double[3] doubles
+string[3] strings
+rectangle[3] rects
+triangle my_triangle
+
+    for (index = 0; index < 3; index += 1)
+    {
+        ints[index] = index
+        doubles[index] = 3.14159 * index
+        strings[index] = "index = " + index
+        rects[index].x = 42
+    }
+
+    my_triangle.x = 42
+
+    i = index + ints[0] + my_triangle.x + rects[0].x
+    print("i = " + i)
+    x = x + ints[0] + doubles[0] + rects[0].x
+    print("x = " + x)
+    s = strings[0] + "  " + strings[1] + "  " + strings[2]
+    print("s = " + s)

@@ -1,0 +1,4 @@
+Parsing file ../tests/t2080.nwt...
+Semantic error on line 1, column 21: Variable 'my_circle' was not declared before it was used.
+Parsed file ../tests/t2080.nwt.
+1 error found; giving up.
