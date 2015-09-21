@@ -30,75 +30,7 @@ Variable::Variable(const string* name, YYLTYPE location) :
 	assert(name != NULL && name != nullptr);
 }
 
-const string* Variable::ToString() const {
-	ostringstream buffer;
-	buffer << "<" << *m_name << ">";
-	return new string(buffer.str());
-}
-
-std::ostream &operator<<(std::ostream &os, const Variable &variable) {
-	os << *(variable.ToString());
-	return os;
-}
-
 Variable::~Variable() {
-}
-
-const TypeSpecifier* Variable::GetType(const ExecutionContext* context) const {
-	auto symbol = context->GetSymbolContext()->GetSymbol(m_name);
-	return symbol->GetType();
-}
-
-const Result* Variable::Evaluate(const ExecutionContext* context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
-
-	const SymbolContext* symbol_context = context->GetSymbolContext();
-	const Symbol* symbol = symbol_context->GetSymbol(GetName());
-	const Symbol* result_symbol = Symbol::DefaultSymbol;
-
-	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
-		result_symbol = symbol;
-	} else {
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().first_line, GetLocation().first_column,
-						*(GetName())));
-	}
-
-	const Result* result = new Result(result_symbol->GetValue(), errors);
-	return result;
-}
-
-const LinkedList<const Error*>* Variable::SetSymbol(
-		const ExecutionContext* context, const bool* value) const {
-	return ToErrorList(
-			context->GetSymbolContext()->SetSymbol(*GetName(), value));
-}
-
-const LinkedList<const Error*>* Variable::SetSymbol(
-		const ExecutionContext* context, const int* value) const {
-	return ToErrorList(
-			context->GetSymbolContext()->SetSymbol(*GetName(), value));
-}
-
-const LinkedList<const Error*>* Variable::SetSymbol(
-		const ExecutionContext* context, const double* value) const {
-	return ToErrorList(
-			context->GetSymbolContext()->SetSymbol(*GetName(), value));
-}
-
-const LinkedList<const Error*>* Variable::SetSymbol(
-		const ExecutionContext* context, const string* value) const {
-	return ToErrorList(
-			context->GetSymbolContext()->SetSymbol(*GetName(), value));
-}
-
-const LinkedList<const Error*>* Variable::SetSymbol(
-		const ExecutionContext* context,
-		const CompoundTypeInstance* value) const {
-	return ToErrorList(
-			context->GetSymbolContext()->SetSymbol(*GetName(), value));
 }
 
 const LinkedList<const Error*>* Variable::ToErrorList(SetResult result) const {

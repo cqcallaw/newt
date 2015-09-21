@@ -1,0 +1,7 @@
+//test widening conversions of struct members
+struct my_struct {
+	double x
+}
+
+my_struct s
+s.x = 1.0

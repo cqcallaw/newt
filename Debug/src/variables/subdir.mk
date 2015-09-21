@@ -5,16 +5,19 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/variables/array_variable.cpp \
+../src/variables/basic_variable.cpp \
 ../src/variables/member_variable.cpp \
 ../src/variables/variable.cpp 
 
 OBJS += \
 ./src/variables/array_variable.o \
+./src/variables/basic_variable.o \
 ./src/variables/member_variable.o \
 ./src/variables/variable.o 
 
 CPP_DEPS += \
 ./src/variables/array_variable.d \
+./src/variables/basic_variable.d \
 ./src/variables/member_variable.d \
 ./src/variables/variable.d 
 

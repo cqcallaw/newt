@@ -31,14 +31,13 @@ class Result;
 
 class Variable {
 public:
-	Variable(const string* name, YYLTYPE location);
+	Variable(const string* name, const YYLTYPE location);
 	virtual ~Variable();
 
-	virtual const string* ToString() const;
+	virtual const string* ToString(const ExecutionContext* context) const = 0;
 
-	const static Variable* DefaultVariable;
-
-	virtual const TypeSpecifier* GetType(const ExecutionContext* context) const;
+	virtual const TypeSpecifier* GetType(
+			const ExecutionContext* context) const = 0;
 
 	const string* GetName() const {
 		return m_name;
@@ -48,31 +47,30 @@ public:
 		return m_location;
 	}
 
-	virtual const Result* Evaluate(const ExecutionContext* context) const;
+	virtual const Result* Evaluate(const ExecutionContext* context) const = 0;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const bool* value) const;
+			const ExecutionContext* context, const bool* value) const = 0;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const int* value) const;
+			const ExecutionContext* context, const int* value) const = 0;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const double* value) const;
+			const ExecutionContext* context, const double* value) const = 0;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const string* value) const;
+			const ExecutionContext* context, const string* value) const = 0;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context,
-			const CompoundTypeInstance* value) const;
+			const CompoundTypeInstance* value) const = 0;
 
+protected:
 	const LinkedList<const Error*>* ToErrorList(SetResult result) const;
 
 private:
 	const string* m_name;
 	const YYLTYPE m_location;
 };
-
-std::ostream &operator<<(std::ostream &os, const Variable &variable);
 
 #endif /* VARIABLE_H_ */

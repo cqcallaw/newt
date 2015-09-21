@@ -11,7 +11,7 @@
 #include <execution_context.h>
 #include <expression.h>
 #include <assignment_statement.h>
-#include <variable.h>
+#include <basic_variable.h>
 #include <variable_expression.h>
 
 DeclarationStatement::DeclarationStatement(const TypeSpecifier* type,
@@ -109,7 +109,7 @@ const LinkedList<const Error*>* DeclarationStatement::preprocess(
 const LinkedList<const Error*>* DeclarationStatement::execute(
 		const ExecutionContext* execution_context) const {
 	if (m_initializer_expression != nullptr) {
-		Variable* temp_variable = new Variable(m_name, m_name_position);
+		Variable* temp_variable = new BasicVariable(m_name, m_name_position);
 		auto errors = AssignmentStatement::do_op(temp_variable,
 				m_initializer_expression, AssignmentStatement::ASSIGN,
 				execution_context);

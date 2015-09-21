@@ -20,14 +20,14 @@
 #include <assignment_statement.h>
 #include <sstream>
 #include <expression.h>
-#include <variable.h>
+#include <basic_variable.h>
 #include <array_variable.h>
+#include <member_variable.h>
 #include <compound_type_instance.h>
 #include <error.h>
 #include <defaults.h>
 #include <execution_context.h>
 #include <typeinfo>
-#include <member_variable.h>
 #include <variable_expression.h>
 #include <yyltype.h>
 #include <type_specifier.h>
@@ -54,91 +54,50 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 	int variable_line = m_variable->GetLocation().first_line;
 	int variable_column = m_variable->GetLocation().first_column;
 
-	if (symbol == Symbol::DefaultSymbol) {
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						variable_line, variable_column,
-						*m_variable->GetName()));
-	} else {
-		const PrimitiveTypeSpecifier* as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
-		if (as_primitive != nullptr) {
+	if (symbol != Symbol::DefaultSymbol) {
+		const BasicVariable* basic_variable =
+				dynamic_cast<const BasicVariable*>(m_variable);
+
+		if (basic_variable != nullptr) {
+			const PrimitiveTypeSpecifier* as_primitive =
+					dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
 			const TypeSpecifier* expression_type = m_expression->GetType(
 					execution_context);
-			if (expression_type->IsAssignableTo(symbol_type)) {
-				errors = LinkedList<const Error*>::Terminator;
-			} else {
-				const YYLTYPE variable_location = m_variable->GetLocation();
-				errors = new LinkedList<const Error*>(
-						new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-								variable_location.first_line,
-								variable_location.first_column,
-								symbol_type->ToString(),
-								expression_type->ToString()));
+			if (as_primitive != nullptr) {
+				if (expression_type->IsAssignableTo(symbol_type)) {
+					errors = LinkedList<const Error*>::Terminator;
+				} else {
+					const YYLTYPE variable_location = m_variable->GetLocation();
+					errors = new LinkedList<const Error*>(
+							new Error(Error::SEMANTIC,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									variable_location.first_line,
+									variable_location.first_column,
+									symbol_type->ToString(),
+									expression_type->ToString()));
+				}
 			}
-		}
 
-		//TODO: array variable re-assignment
+			//TODO: array variable re-assignment
 
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
-		if (as_compound != nullptr) {
-			//reassigning struct reference
-			YYLTYPE expression_position = m_expression->GetPosition();
-			const CompoundTypeInstance* as_struct =
-					(const CompoundTypeInstance*) symbol->GetValue();
-			const string struct_type_name =
-					as_struct->GetTypeSpecifier()->GetTypeName();
-			const TypeSpecifier* expression_type = m_expression->GetType(
-					execution_context);
+			const CompoundTypeSpecifier* as_compound =
+					dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
+			if (as_compound != nullptr) {
+				//reassigning raw struct reference, not a member
+				if (!expression_type->IsAssignableTo(symbol_type)) {
+					YYLTYPE expression_position = m_expression->GetPosition();
+					const CompoundTypeInstance* as_compound_instance =
+							(const CompoundTypeInstance*) symbol->GetValue();
+					const string struct_type_name =
+							as_compound_instance->GetTypeSpecifier()->GetTypeName();
+					errors = new LinkedList<const Error*>(
+							new Error(Error::SEMANTIC,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									expression_position.first_line,
+									expression_position.first_column,
+									struct_type_name,
+									expression_type->ToString()));
 
-			if (m_expression->IsConstant()) {
-				errors = new LinkedList<const Error*>(
-						new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-								expression_position.first_line,
-								expression_position.first_column,
-								struct_type_name, expression_type->ToString()));
-			} else {
-				const VariableExpression* variable_expression =
-						(VariableExpression*) m_expression;
-				errors = variable_expression->Validate(execution_context);
-
-				if (errors == LinkedList<const Error*>::Terminator) {
-					const CompoundTypeSpecifier* expression_type_as_compound =
-							dynamic_cast<const CompoundTypeSpecifier*>(expression_type);
-
-					if (expression_type_as_compound != nullptr) {
-						const Result* evaluation =
-								variable_expression->Evaluate(
-										execution_context);
-
-						errors = evaluation->GetErrors();
-						if (errors == LinkedList<const Error*>::Terminator) {
-							const CompoundTypeInstance* other_as_struct =
-									(const CompoundTypeInstance*) evaluation->GetData();
-							const string other_struct_type_name =
-									other_as_struct->GetTypeSpecifier()->GetTypeName();
-							if (struct_type_name.compare(other_struct_type_name)
-									!= 0) {
-								errors =
-										new LinkedList<const Error*>(
-												new Error(Error::SEMANTIC,
-														Error::ASSIGNMENT_TYPE_ERROR,
-														expression_position.first_line,
-														expression_position.first_column,
-														struct_type_name,
-														other_struct_type_name));
-							}
-						}
-					} else {
-						errors = new LinkedList<const Error*>(
-								new Error(Error::SEMANTIC,
-										Error::ASSIGNMENT_TYPE_ERROR,
-										expression_position.first_line,
-										expression_position.first_column,
-										struct_type_name,
-										expression_type->ToString()));
-					}
 				}
 			}
 		}
@@ -183,7 +142,7 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 			if (member_variable_type != PrimitiveTypeSpecifier::GetNone()) {
 				const TypeSpecifier* expression_type = m_expression->GetType(
 						execution_context);
-				if (member_variable_type->IsAssignableTo(expression_type)) {
+				if (expression_type->IsAssignableTo(member_variable_type)) {
 					errors = LinkedList<const Error*>::Terminator;
 				} else {
 					errors = new LinkedList<const Error*>(
@@ -206,6 +165,11 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 												execution_context)->ToString()));
 			}
 		}
+	} else {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						variable_line, variable_column,
+						*m_variable->GetName()));
 	}
 
 	return errors;

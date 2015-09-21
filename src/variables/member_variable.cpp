@@ -46,7 +46,8 @@ const TypeSpecifier* MemberVariable::GetType(
 const std::string* MemberVariable::ToString(
 		const ExecutionContext* context) const {
 	ostringstream buffer;
-	buffer << "<" << *GetName() << "." << *m_member_variable << ">";
+	buffer << "<" << *GetName() << "." << *m_member_variable->ToString(context)
+			<< ">";
 	return new string(buffer.str());
 }
 

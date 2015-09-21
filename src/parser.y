@@ -69,6 +69,7 @@ typedef void* yyscan_t;
 
 #include <error.h>
 #include <utils.h>
+#include <basic_variable.h>
 #include <array_variable.h>
 #include <member_variable.h>
 #include <constant_expression.h>
@@ -423,7 +424,7 @@ assign_statement:
 variable_reference:
 	T_ID
 	{
-		$$ = new Variable($1, @1);
+		$$ = new BasicVariable($1, @1);
 	}
 	| T_ID T_LBRACKET expression T_RBRACKET
 	{
@@ -431,7 +432,7 @@ variable_reference:
 	}
 	| variable_reference T_PERIOD T_ID
 	{
-		$$ = new MemberVariable($1, new Variable($3, @3));
+		$$ = new MemberVariable($1, new BasicVariable($3, @3));
 	}
 	;
 

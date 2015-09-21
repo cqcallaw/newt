@@ -18,7 +18,7 @@ public:
 
 	virtual const TypeSpecifier* GetType(const ExecutionContext* context) const;
 
-	virtual const std::string* ToString(const ExecutionContext* context) const;
+	virtual const string* ToString(const ExecutionContext* context) const;
 
 	virtual const Result* Evaluate(const ExecutionContext* context) const;
 
