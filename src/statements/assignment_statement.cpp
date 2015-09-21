@@ -775,12 +775,9 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 				(const CompoundTypeInstance*) container_evaluation->GetData();
 		const SymbolContext* definition = struct_value->GetDefinition();
 
-		const SymbolContext* symbol_context =
-				execution_context->GetSymbolContext();
-		const LinkedList<const SymbolContext*>* parent_context =
-				symbol_context->GetParent();
-		const LinkedList<const SymbolContext*>* new_parent_context =
-				parent_context->With(symbol_context);
+		SymbolContext* symbol_context = execution_context->GetSymbolContext();
+		const auto parent_context = symbol_context->GetParent();
+		const auto new_parent_context = parent_context->With(symbol_context);
 
 		SymbolContext* new_definition = new SymbolContext(
 				definition->GetModifiers(), new_parent_context,

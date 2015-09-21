@@ -1,0 +1,4 @@
+Parsing file ../tests/t0115.nwt...
+Semantic error on line 13, column 11: Undeclared member "n" of type "rectangle"
+Parsed file ../tests/t0115.nwt.
+1 error found; giving up.

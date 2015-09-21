@@ -25,6 +25,8 @@
 #include <assert.h>
 #include <type.h>
 #include <error.h>
+#include <symbol_table.h>
+#include <execution_context.h>
 
 IfStatement::IfStatement(const Expression* expression,
 		const StatementBlock* block) :
@@ -33,7 +35,8 @@ IfStatement::IfStatement(const Expression* expression,
 
 IfStatement::IfStatement(const Expression* expression,
 		const StatementBlock* block, const StatementBlock* else_block) :
-		m_expression(expression), m_block(block), m_else_block(else_block) {
+		m_expression(expression), m_block(block), m_else_block(else_block), m_block_table(
+				new SymbolTable()), m_else_block_table(new SymbolTable()) {
 }
 
 IfStatement::~IfStatement() {
@@ -41,14 +44,46 @@ IfStatement::~IfStatement() {
 
 const LinkedList<const Error*>* IfStatement::preprocess(
 		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* result =
+	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
 	if (m_expression != nullptr) {
-		if (!(m_expression->GetType(execution_context)->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetInt()))) {
+		if (m_expression->GetType(execution_context)->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetInt())) {
+
+			SymbolContext* symbol_context =
+					execution_context->GetSymbolContext();
+			auto new_parent = symbol_context->GetParent()->With(symbol_context);
+			SymbolTable* tmp_table = new SymbolTable(
+					m_block_table->GetModifiers(), new_parent,
+					m_block_table->GetTable());
+			const ExecutionContext* new_execution_context =
+					execution_context->WithSymbolContext(tmp_table);
+
+			errors = m_block->preprocess(execution_context);
+
+			delete new_execution_context;
+			delete tmp_table;
+			delete new_parent;
+
+			if (m_else_block != nullptr) {
+				//pre-process else block
+				new_parent = symbol_context->GetParent()->With(symbol_context);
+				tmp_table = new SymbolTable(m_else_block_table->GetModifiers(),
+						new_parent, m_else_block_table->GetTable());
+				new_execution_context = execution_context->WithSymbolContext(
+						tmp_table);
+
+				errors = m_else_block->preprocess(execution_context);
+
+				delete new_execution_context;
+				delete tmp_table;
+				delete new_parent;
+			}
+
+		} else {
 			YYLTYPE position = m_expression->GetPosition();
-			result = result->With(
+			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
 							position.first_line, position.first_column));
@@ -57,20 +92,48 @@ const LinkedList<const Error*>* IfStatement::preprocess(
 		assert(false);
 	}
 
-	return result;
+	return errors;
 }
 
 const LinkedList<const Error*>* IfStatement::execute(
 		const ExecutionContext* execution_context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
 	const Result* evaluation = m_expression->Evaluate(execution_context);
 	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *((bool*) evaluation->GetData());
 	delete (evaluation);
 	if (test) {
-		return m_block->execute(execution_context);
+		SymbolContext* symbol_context = execution_context->GetSymbolContext();
+		const auto new_parent = symbol_context->GetParent()->With(
+				symbol_context);
+		SymbolTable* tmp_table = new SymbolTable(m_block_table->GetModifiers(),
+				new_parent, m_block_table->GetTable());
+		const ExecutionContext* new_execution_context =
+				execution_context->WithSymbolContext(tmp_table);
+
+		errors = m_block->execute(execution_context);
+
+		delete new_execution_context;
+		delete tmp_table;
+		delete new_parent;
 	} else if (m_else_block != nullptr) {
-		return m_else_block->execute(execution_context);
-	} else {
-		return LinkedList<const Error*>::Terminator;
+		SymbolContext* symbol_context = execution_context->GetSymbolContext();
+		const auto new_parent = symbol_context->GetParent()->With(
+				symbol_context);
+		SymbolTable* tmp_table = new SymbolTable(
+				m_else_block_table->GetModifiers(), new_parent,
+				m_else_block_table->GetTable());
+		const ExecutionContext* new_execution_context =
+				execution_context->WithSymbolContext(tmp_table);
+
+		errors = m_else_block->execute(execution_context);
+
+		delete new_execution_context;
+		delete tmp_table;
+		delete new_parent;
 	}
+
+	return errors;
 }

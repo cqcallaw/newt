@@ -28,7 +28,7 @@
 #include "utils.h"
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const LinkedList<const SymbolContext*>* parent) :
+		const LinkedList<SymbolContext*>* parent) :
 		SymbolContext(modifiers, parent,
 				new map<const string, const Symbol*, comparator>()) {
 }
@@ -37,9 +37,9 @@ SymbolContext::~SymbolContext() {
 }
 
 const Symbol* SymbolContext::GetSymbol(const string identifier) const {
-	auto result = table->find(identifier);
+	auto result = m_table->find(identifier);
 
-	if (result != table->end()) {
+	if (result != m_table->end()) {
 		return result->second;
 	} else if (m_parent != nullptr) {
 		return m_parent->GetData()->GetSymbol(identifier);
@@ -54,15 +54,15 @@ const Symbol* SymbolContext::GetSymbol(const string* identifier) const {
 }
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const LinkedList<const SymbolContext*>* parent,
+		const LinkedList<SymbolContext*>* parent,
 		map<const string, const Symbol*, comparator>* values) :
-		m_modifiers(modifiers), m_parent(parent), table(values) {
+		m_modifiers(modifiers), m_parent(parent), m_table(values) {
 }
 
 const void SymbolContext::print(ostream &os, const TypeTable* type_table,
 		const Indent indent) const {
 	std::map<const string, const Symbol*>::iterator iter;
-	for (iter = table->begin(); iter != table->end(); ++iter) {
+	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
 		const Symbol* symbol = iter->second;
 		os << symbol->ToString(type_table, indent);
 		os << endl;
@@ -95,159 +95,60 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const TypeSpecifier* type, const void* value) {
-	if (m_modifiers & Modifier::READONLY) {
-		return MUTATION_DISALLOWED;
-	}
+	auto result = m_table->find(identifier);
 
-	const Symbol* symbol = GetSymbol(identifier);
+	if (result != m_table->end()) {
+		const Symbol* symbol = result->second;
+		if ((symbol->GetType()->IsAssignableTo(type))) {
+			if (m_modifiers & Modifier::READONLY) {
+				return MUTATION_DISALLOWED;
+			} else {
+				const Symbol* new_symbol = symbol->WithValue(type, value);
 
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
+				//TODO: error checking
+				//TODO: free memory from old symbols
+				m_table->erase(identifier);
+				m_table->insert(
+						std::pair<const string, const Symbol*>(identifier,
+								new_symbol));
+
+				return SET_SUCCESS;
+			}
+		} else {
+			return INCOMPATIBLE_TYPE;
+		}
+	} else if (m_parent != nullptr) {
+		return m_parent->GetData()->SetSymbol(identifier, type, value);
+	} else {
 		return UNDEFINED_SYMBOL;
-	} else if (!(symbol->GetType()->IsAssignableTo(type))) {
-		return INCOMPATIBLE_TYPE;
 	}
-
-	const Symbol* new_symbol = symbol->WithValue(type, value);
-
-	//TODO: error checking
-	//TODO: free memory from old symbols
-	table->erase(identifier);
-	table->insert(
-			std::pair<const string, const Symbol*>(identifier, new_symbol));
-
-	return SET_SUCCESS;
-}
-
-SetResult SymbolContext::SetSymbol(const string identifier, const int index,
-		const bool* value, const TypeTable* type_table) {
-	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::GetBoolean(),
-			index, (void*) value, type_table);
-}
-SetResult SymbolContext::SetSymbol(const string identifier, const int index,
-		const int* value, const TypeTable* type_table) {
-	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::GetInt(),
-			index, (void*) value, type_table);
-}
-SetResult SymbolContext::SetSymbol(const string identifier, const int index,
-		const double* value, const TypeTable* type_table) {
-	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::GetDouble(),
-			index, (void*) value, type_table);
-}
-SetResult SymbolContext::SetSymbol(const string identifier, const int index,
-		const string* value, const TypeTable* type_table) {
-	return SetArraySymbolIndex(identifier, PrimitiveTypeSpecifier::GetString(),
-			index, (void*) value, type_table);
 }
 
 SetResult SymbolContext::SetArraySymbol(const string identifier,
 		const ArraySymbol* new_symbol) {
-	const Symbol* symbol = GetSymbol(identifier);
+	auto result = m_table->find(identifier);
 
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
-		return UNDEFINED_SYMBOL;
-	} else if (!new_symbol->GetType()->IsAssignableTo(symbol->GetType())) {
-		return INCOMPATIBLE_TYPE;
-	}
-
-	//TODO: error checking
-	//TODO: free memory from old symbols
-	table->erase(identifier);
-	table->insert(
-			std::pair<const string, const Symbol*>(identifier, new_symbol));
-
-	return SET_SUCCESS;
-}
-
-SetResult SymbolContext::SetArraySymbolIndex(const string identifier,
-		const TypeSpecifier* type, const int index, const void* value,
-		const TypeTable* type_table) {
-	const Symbol* symbol = GetSymbol(identifier);
-
-	if (symbol == Symbol::DefaultSymbol || symbol == NULL) {
-		return UNDEFINED_SYMBOL;
-	}
-
-	const Symbol* new_symbol;
-	const ArraySymbol* as_array_symbol = (const ArraySymbol*) symbol;
-	const TypeSpecifier* symbol_type = as_array_symbol->GetElementType();
-
-	if (!type->IsAssignableTo(symbol_type)) {
-		return INCOMPATIBLE_TYPE;
-	}
-
-	const PrimitiveTypeSpecifier* as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
-
-	if (as_primitive) {
-		const BasicType symbol_basic_type = as_primitive->GetBasicType();
-
-		const PrimitiveTypeSpecifier* new_as_primitive =
-				(const PrimitiveTypeSpecifier*) (type);
-
-		const BasicType new_basic_type = new_as_primitive->GetBasicType();
-
-		switch (symbol_basic_type) {
-		case INT: {
-			int* new_value = (int*) malloc(sizeof(int));
-			if (new_basic_type == BOOLEAN) {
-				*new_value = *((bool*) value);
-			} else if (new_basic_type == INT) {
-				*new_value = *((int*) value);
+	if (result != m_table->end()) {
+		const Symbol* symbol = result->second;
+		if ((symbol->GetType()->IsAssignableTo(new_symbol->GetType()))) {
+			if (m_modifiers & Modifier::READONLY) {
+				return MUTATION_DISALLOWED;
 			} else {
-				return INCOMPATIBLE_TYPE;
-			}
+				//TODO: error checking
+				//TODO: free memory from old symbols
+				m_table->erase(identifier);
+				m_table->insert(
+						std::pair<const string, const Symbol*>(identifier,
+								new_symbol));
 
-			new_symbol = (Symbol*) as_array_symbol->WithValue<const int*>(index,
-					new_value, type_table);
-			break;
-		}
-		case DOUBLE: {
-			double* new_value = (double*) malloc(sizeof(double));
-			if (new_basic_type == BOOLEAN) {
-				*new_value = *((bool*) value);
-			} else if (new_basic_type == INT) {
-				*new_value = *((int*) value);
-			} else if (new_basic_type == DOUBLE) {
-				*new_value = *((double*) value);
-			} else {
-				return INCOMPATIBLE_TYPE;
+				return SET_SUCCESS;
 			}
-
-			new_symbol = (Symbol*) as_array_symbol->WithValue<const double*>(
-					index, new_value, type_table);
-			break;
-		}
-		case STRING: {
-			string* new_value;
-			if (new_basic_type == BOOLEAN) {
-				new_value = AsString((bool*) value);
-			} else if (new_basic_type == INT) {
-				new_value = AsString((int*) value);
-			} else if (new_basic_type == DOUBLE) {
-				new_value = AsString((double*) value);
-			} else if (new_basic_type == STRING) {
-				new_value = (string*) value;
-			} else {
-				return INCOMPATIBLE_TYPE;
-			}
-
-			new_symbol = (Symbol*) as_array_symbol->WithValue<const string*>(
-					index, new_value, type_table);
-			break;
-		}
-		default:
+		} else {
 			return INCOMPATIBLE_TYPE;
 		}
-
-		//TODO: error checking
-		//TODO: free memory from old symbols
-		table->erase(identifier);
-		table->insert(
-				std::pair<const string, const Symbol*>(identifier, new_symbol));
-
-		return SET_SUCCESS;
+	} else if (m_parent != nullptr) {
+		return m_parent->GetData()->SetArraySymbol(identifier, new_symbol);
+	} else {
+		return UNDEFINED_SYMBOL;
 	}
-
-	//TODO: handle nested arrays and compound types
-	return INCOMPATIBLE_TYPE;
 }

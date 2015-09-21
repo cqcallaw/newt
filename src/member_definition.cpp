@@ -17,28 +17,9 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SYMBOL_TABLE_H_
-#define SYMBOL_TABLE_H_
+#include <member_definition.h>
+#include <primitive_type_specifier.h>
 
-#include <symbol_context.h>
+const MemberDefinition* MemberDefinition::DefaultMemberDefinition =
+		new MemberDefinition(PrimitiveTypeSpecifier::GetNone(), nullptr);
 
-using namespace std;
-
-enum InsertResult {
-	NO_INSERT_RESULT = 0, INSERT_SUCCESS = 1, SYMBOL_EXISTS = 2
-};
-
-class SymbolTable: public SymbolContext {
-public:
-	SymbolTable(
-			const LinkedList<SymbolContext*>* parent =
-					LinkedList<SymbolContext*>::Terminator);
-
-	SymbolTable(const Modifier::Type modifiers,
-			const LinkedList<SymbolContext*>* parent_context,
-			map<const string, const Symbol*, comparator>* values);
-
-	InsertResult InsertSymbol(const Symbol* symbol);
-};
-
-#endif /* SYMBOL_TABLE_H_ */

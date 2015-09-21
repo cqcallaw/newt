@@ -28,8 +28,14 @@
 
 using namespace std;
 
-SymbolTable::SymbolTable(const LinkedList<const SymbolContext*>* parent) :
+SymbolTable::SymbolTable(const LinkedList<SymbolContext*>* parent) :
 		SymbolContext(Modifier::NONE, parent) {
+}
+
+SymbolTable::SymbolTable(const Modifier::Type modifiers,
+		const LinkedList<SymbolContext*>* parent_context,
+		map<const string, const Symbol*, comparator>* values) :
+		SymbolContext(modifiers, parent_context, values) {
 }
 
 InsertResult SymbolTable::InsertSymbol(const Symbol* symbol) {

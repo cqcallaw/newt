@@ -47,15 +47,27 @@ struct comparator {
 class SymbolContext {
 public:
 	SymbolContext(const Modifier::Type modifiers,
-			const LinkedList<const SymbolContext*>* parent = LinkedList<
-					const SymbolContext*>::Terminator);
+			const LinkedList<SymbolContext*>* parent =
+					LinkedList<SymbolContext*>::Terminator);
 	SymbolContext(const Modifier::Type modifiers,
-			const LinkedList<const SymbolContext*>* parent_context,
+			const LinkedList<SymbolContext*>* parent_context,
 			map<const string, const Symbol*, comparator>* values);
 	virtual ~SymbolContext();
 
-	const LinkedList<const SymbolContext*>* GetParent() const {
+	const Modifier::Type GetModifiers() const {
+		return m_modifiers;
+	}
+
+	const LinkedList<SymbolContext*>* GetParent() const {
 		return m_parent;
+	}
+
+	map<const string, const Symbol*, comparator>* GetTable() const {
+		return m_table;
+	}
+
+	const bool IsMutable() const {
+		return m_modifiers & Modifier::READONLY;
 	}
 
 	const void print(ostream &os, const TypeTable* type_table,
@@ -63,10 +75,6 @@ public:
 
 	const Symbol* GetSymbol(const string identifier) const;
 	const Symbol* GetSymbol(const string* identifier) const;
-
-	const bool IsMutable() const {
-		return m_modifiers & Modifier::READONLY;
-	}
 
 	SetResult SetSymbol(const string identifier, const bool* value);
 	SetResult SetSymbol(const string identifier, const int* value);
@@ -78,34 +86,13 @@ public:
 	SetResult SetArraySymbol(const string identifier,
 			const ArraySymbol* new_symbol);
 
-	SetResult SetSymbol(const string identifier, const int index,
-			const bool* value, const TypeTable* type_table);
-	SetResult SetSymbol(const string identifier, const int index,
-			const int* value, const TypeTable* type_table);
-	SetResult SetSymbol(const string identifier, const int index,
-			const double* value, const TypeTable* type_table);
-	SetResult SetSymbol(const string identifier, const int index,
-			const string* value, const TypeTable* type_table);
-
-	const Modifier::Type GetModifiers() const {
-		return m_modifiers;
-	}
-
-	map<const string, const Symbol*, comparator>* GetTable() const {
-		return table;
-	}
-
 private:
 	const Modifier::Type m_modifiers;
-	const LinkedList<const SymbolContext*>* m_parent;
-	map<const string, const Symbol*, comparator>* table;
+	const LinkedList<SymbolContext*>* m_parent;
+	map<const string, const Symbol*, comparator>* m_table;
 
 	SetResult SetSymbol(const string identifier, const TypeSpecifier* type,
 			const void* value);
-
-	SetResult SetArraySymbolIndex(const string identifier,
-			const TypeSpecifier* type, const int index, const void* value,
-			const TypeTable* type_table);
 };
 
 #endif /* SYMBOL_CONTEXT_H_ */
