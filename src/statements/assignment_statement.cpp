@@ -179,17 +179,31 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 		if (member_variable != nullptr) {
 			const TypeSpecifier* member_variable_type =
 					member_variable->GetType(execution_context);
-			const TypeSpecifier* expression_type = m_expression->GetType(
-					execution_context);
-			if (member_variable_type->IsAssignableTo(expression_type)) {
-				errors = LinkedList<const Error*>::Terminator;
+
+			if (member_variable_type != PrimitiveTypeSpecifier::GetNone()) {
+				const TypeSpecifier* expression_type = m_expression->GetType(
+						execution_context);
+				if (member_variable_type->IsAssignableTo(expression_type)) {
+					errors = LinkedList<const Error*>::Terminator;
+				} else {
+					errors = new LinkedList<const Error*>(
+							new Error(Error::SEMANTIC,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									member_variable->GetLocation().first_line,
+									member_variable->GetLocation().first_column,
+									member_variable_type->ToString(),
+									expression_type->ToString()));
+				}
 			} else {
-				errors = new LinkedList<const Error*>(
-						new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-								member_variable->GetLocation().first_line,
-								member_variable->GetLocation().first_column,
-								member_variable_type->ToString(),
-								expression_type->ToString()));
+				errors =
+						new LinkedList<const Error*>(
+								new Error(Error::SEMANTIC,
+										Error::UNDECLARED_MEMBER,
+										member_variable->GetLocation().first_line,
+										member_variable->GetLocation().first_column,
+										*member_variable->GetMemberVariable()->GetName(),
+										member_variable->GetContainer()->GetType(
+												execution_context)->ToString()));
 			}
 		}
 	}

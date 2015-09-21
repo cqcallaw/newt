@@ -5,16 +5,17 @@
  *      Author: caleb
  */
 
-#include <compound_type_instance.h>
+#include <compound_type.h>
 #include <member_variable.h>
 #include <execution_context.h>
 #include <symbol_table.h>
 #include <sstream>
 #include <result.h>
+#include <member_definition.h>
 
 MemberVariable::MemberVariable(const Variable* container,
 		const Variable* member_variable) :
-		Variable(container->GetName(), container->GetLocation()), m_container(
+		Variable(container->GetName(), member_variable->GetLocation()), m_container(
 				container), m_member_variable(member_variable) {
 
 }
@@ -24,20 +25,22 @@ MemberVariable::~MemberVariable() {
 
 const TypeSpecifier* MemberVariable::GetType(
 		const ExecutionContext* context) const {
-	const Result* container_result = m_container->Evaluate(context);
-
-	if (container_result->GetErrors() == LinkedList<const Error*>::Terminator) {
-		const CompoundTypeInstance* container =
-				(const CompoundTypeInstance*) container_result->GetData();
-		SymbolContext* new_context = container->GetDefinition();
-		const ExecutionContext* temp_context = context->WithSymbolContext(
-				new_context);
-		const TypeSpecifier* result = m_member_variable->GetType(temp_context);
-		delete (temp_context);
-		return result;
-	} else {
-		return PrimitiveTypeSpecifier::GetNone();
+	const TypeSpecifier* container_type_specifier = m_container->GetType(
+			context);
+	const CompoundTypeSpecifier* as_compound_type =
+			dynamic_cast<const CompoundTypeSpecifier*>(container_type_specifier);
+	if (as_compound_type) {
+		const string type_name = as_compound_type->GetTypeName();
+		const CompoundType* type = context->GetTypeTable()->GetType(type_name);
+		const string* member_name = m_member_variable->GetName();
+		const MemberDefinition* member_definition = type->GetMember(
+				*member_name);
+		if (member_definition != MemberDefinition::DefaultMemberDefinition) {
+			return member_definition->GetType();
+		}
 	}
+
+	return PrimitiveTypeSpecifier::GetNone();
 }
 
 const std::string* MemberVariable::ToString(

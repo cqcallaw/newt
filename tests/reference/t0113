@@ -1,0 +1,22 @@
+Parsing file ../tests/t0113.nwt...
+Parsed file ../tests/t0113.nwt.
+Root Symbol Table:
+----------------
+rectangle array rects:
+	[0]: 
+		int w: 10
+		int x: 20
+		int y: 0
+	[1]: 
+		int w: 10
+		int x: 0
+		int y: 0
+
+int size: 2
+
+Root Type Table:
+----------------
+rectangle: 
+	int w (10)
+	int x (0)
+	int y (0)

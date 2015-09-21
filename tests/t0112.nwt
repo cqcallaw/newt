@@ -1,0 +1,10 @@
+// test invalid compound type member for array element
+struct rectangle {
+	int x
+	int y
+	int w = 10
+}
+
+rectangle[2] rects
+
+rects[0].n = 20

@@ -152,6 +152,9 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case INVALID_TYPE:
 		os << "Invalid type \"" << s1 << "\"";
 		break;
+	case UNDECLARED_MEMBER:
+		os << "Undeclared member \"" << s1 << "\" of type \"" << s2 << "\"";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

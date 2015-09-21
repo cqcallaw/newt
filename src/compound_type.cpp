@@ -33,7 +33,12 @@ CompoundType::CompoundType(
 }
 
 const MemberDefinition* CompoundType::GetMember(const string name) const {
-	return m_definition->at(name);
+	auto result = m_definition->find(name);
+	if (result != m_definition->end()) {
+		return result->second;
+	} else {
+		return MemberDefinition::DefaultMemberDefinition;
+	}
 }
 
 CompoundType::~CompoundType() {
