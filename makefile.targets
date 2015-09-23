@@ -49,7 +49,7 @@ w%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	./newt --debug $< >$(TEST_PATH)reference/$* 2>&1
 
 c%: $(TEST_PATH)%.nwt
-	@cat $<
+	@cat -n $<
 
 #compare test w/ reference output (requires kdiff)
 d%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
