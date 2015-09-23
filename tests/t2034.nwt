@@ -5,8 +5,8 @@ struct MyStruct {
 	int h
 }
 
-MyStruct m_struct = { x = 1, h = 4 }
-MyStruct m_struct2 = { y = 2 }
+MyStruct m_struct { x = 1, h = 4 }
+MyStruct m_struct2 { y = 2 }
 
 struct MyStruct2 {
 	double x
@@ -14,8 +14,8 @@ struct MyStruct2 {
 	int w = 3
 }
 
-MyStruct2 m2_struct = { x = 1.0 }
-MyStruct2 m3_struct = { w = 10 }
+MyStruct2 m2_struct { x = 1.0 }
+MyStruct2 m3_struct { w = 10 }
 MyStruct2 m4_struct
 
 m_struct.x = 1
@@ -35,4 +35,4 @@ print("m_struct.y = " + m_struct.y)
 print("m_struct.w = " + m_struct.w)
 print("m_struct.h = " + m_struct.h)
 
-MyStruct m_struct3 = { }
+MyStruct m_struct3 { }

@@ -600,9 +600,9 @@ struct_instantiation_statement:
 	;
 
 optional_member_instantiation_block:
-	T_ASSIGN T_LBRACE optional_member_instantiation_list T_RBRACE
+	T_LBRACE optional_member_instantiation_list T_RBRACE
 	{
-		$$ = $3;
+		$$ = $2;
 	}
 	|
 	empty
