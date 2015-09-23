@@ -1,0 +1,28 @@
+int i = 42
+double x = 3.14159
+string s = "hello world"
+double[100] values
+
+    print("i = " + i)
+    print("x = " + x)
+    print("s = " + s)
+
+    for (i = 0; i < 9; i += 1)
+    {
+        print("values[" + i + "] = " + values[i])
+    }
+
+    for (i = 0; i < 9; i += 1)
+    {
+        print("values[" + i + "] = " + values[i])
+    }
+
+    print(i * x / i + x - (2 * i))
+    print(i < (2 * i) < i)
+    print(i != x)
+    print(i == x)
+    print(i < x)
+    print(x < i)
+    print(x && i)
+    print(x || i)
+    print((0 || 1) && (1 || 0))
