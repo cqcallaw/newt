@@ -145,21 +145,22 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 				if (expression_type->IsAssignableTo(member_variable_type)) {
 					errors = LinkedList<const Error*>::Terminator;
 				} else {
-					errors = new LinkedList<const Error*>(
-							new Error(Error::SEMANTIC,
-									Error::ASSIGNMENT_TYPE_ERROR,
-									member_variable->GetLocation().first_line,
-									member_variable->GetLocation().first_column,
-									member_variable_type->ToString(),
-									expression_type->ToString()));
+					errors =
+							new LinkedList<const Error*>(
+									new Error(Error::SEMANTIC,
+											Error::ASSIGNMENT_TYPE_ERROR,
+											member_variable->GetContainer()->GetLocation().first_line,
+											member_variable->GetContainer()->GetLocation().first_column,
+											member_variable_type->ToString(),
+											expression_type->ToString()));
 				}
 			} else {
 				errors =
 						new LinkedList<const Error*>(
 								new Error(Error::SEMANTIC,
 										Error::UNDECLARED_MEMBER,
-										member_variable->GetLocation().first_line,
-										member_variable->GetLocation().first_column,
+										member_variable->GetMemberVariable()->GetLocation().first_line,
+										member_variable->GetMemberVariable()->GetLocation().first_column,
 										*member_variable->GetMemberVariable()->GetName(),
 										member_variable->GetContainer()->GetType(
 												execution_context)->ToString()));
@@ -578,7 +579,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 		}
 	}
 
-	//TODO: basic array assignment
+//TODO: basic array assignment
 
 	const CompoundTypeSpecifier* as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);

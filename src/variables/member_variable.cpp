@@ -15,8 +15,8 @@
 
 MemberVariable::MemberVariable(const Variable* container,
 		const Variable* member_variable) :
-		Variable(container->GetName(), member_variable->GetLocation()), m_container(
-				container), m_member_variable(member_variable) {
+		Variable(container->GetName(), DefaultLocation), m_container(container), m_member_variable(
+				member_variable) {
 
 }
 
@@ -80,14 +80,15 @@ const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
-							GetLocation().first_line,
-							GetLocation().first_column, *(GetName())));
+							m_container->GetLocation().first_line,
+							m_container->GetLocation().first_column,
+							*(GetName())));
 		}
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().first_line, GetLocation().first_column,
-						*(GetName())));
+						m_container->GetLocation().first_line,
+						m_container->GetLocation().first_column, *(GetName())));
 	}
 
 	const Result* result = new Result(result_value, errors);
@@ -269,8 +270,8 @@ const LinkedList<const Error*>* MemberVariable::Validate(
 			if (variable_type == PrimitiveTypeSpecifier::GetNone()) {
 				errors = errors->With(
 						new Error(Error::SEMANTIC, Error::UNDECLARED_MEMBER,
-								GetLocation().first_line,
-								GetLocation().first_column,
+								m_member_variable->GetLocation().first_line,
+								m_member_variable->GetLocation().first_column,
 								*m_member_variable->GetName(),
 								as_compound->GetTypeName()));
 			}
@@ -278,15 +279,15 @@ const LinkedList<const Error*>* MemberVariable::Validate(
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
-							GetLocation().first_line,
-							GetLocation().first_column,
+							m_container->GetLocation().first_line,
+							m_container->GetLocation().first_column,
 							*m_container->GetName()));
 		}
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().first_line, GetLocation().first_column,
-						*(GetName())));
+						m_container->GetLocation().first_line,
+						m_container->GetLocation().first_column, *(GetName())));
 	}
 
 	return errors;

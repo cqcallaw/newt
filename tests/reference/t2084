@@ -1,4 +1,4 @@
 Parsing file ../tests/t2084.nwt...
-Semantic error on line 1, column 20: Variable 't' was not declared before it was used.
+Semantic error on line 1, column 18: Variable 't' was not declared before it was used.
 Parsed file ../tests/t2084.nwt.
 1 error found; giving up.
