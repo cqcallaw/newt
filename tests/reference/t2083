@@ -1,0 +1,4 @@
+Parsing file ../tests/t2083.nwt...
+Semantic error on line 2, column 20: Variable 'array' does not reference a compound type.
+Parsed file ../tests/t2083.nwt.
+1 error found; giving up.

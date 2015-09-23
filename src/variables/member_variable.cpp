@@ -61,23 +61,31 @@ const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 	const CompoundTypeSpecifier* as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(container_type);
 
-	if (as_compound != nullptr) {
-		const Result* container_result = m_container->Evaluate(context);
+	if (container_type != PrimitiveTypeSpecifier::GetNone()) {
+		if (as_compound != nullptr) {
+			const Result* container_result = m_container->Evaluate(context);
 
-		errors = container_result->GetErrors();
-		if (errors == LinkedList<const Error*>::Terminator) {
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) container_result->GetData();
-			SymbolContext* new_symbol_context = instance->GetDefinition();
-			const ExecutionContext* new_context = context->WithSymbolContext(
-					new_symbol_context);
-			const Result* member_result = m_member_variable->Evaluate(
-					new_context);
-			return member_result;
+			errors = container_result->GetErrors();
+			if (errors == LinkedList<const Error*>::Terminator) {
+				const CompoundTypeInstance* instance =
+						(const CompoundTypeInstance*) container_result->GetData();
+				SymbolContext* new_symbol_context = instance->GetDefinition();
+				const ExecutionContext* new_context =
+						context->WithSymbolContext(new_symbol_context);
+				const Result* member_result = m_member_variable->Evaluate(
+						new_context);
+				return member_result;
+			}
+		} else {
+			errors = errors->With(
+					new Error(Error::SEMANTIC,
+							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
+							GetLocation().first_line,
+							GetLocation().first_column, *(GetName())));
 		}
 	} else {
 		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::VARIABLE_NOT_A_COMPOUND_TYPE,
+				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						GetLocation().first_line, GetLocation().first_column,
 						*(GetName())));
 	}
@@ -248,11 +256,12 @@ const LinkedList<const Error*>* MemberVariable::Validate(
 			LinkedList<const Error*>::Terminator;
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
-	const Symbol* symbol = symbol_context->GetSymbol(GetName());
+	const Symbol* symbol = symbol_context->GetSymbol(m_container->GetName());
 
 	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+		const TypeSpecifier* container_type = m_container->GetType(context);
 		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(symbol->GetType());
+				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
 
 		if (as_compound != nullptr) {
 			const TypeSpecifier* variable_type = GetType(context);
@@ -270,7 +279,8 @@ const LinkedList<const Error*>* MemberVariable::Validate(
 					new Error(Error::SEMANTIC,
 							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
 							GetLocation().first_line,
-							GetLocation().first_column, *GetName()));
+							GetLocation().first_column,
+							*m_container->GetName()));
 		}
 	} else {
 		errors = errors->With(

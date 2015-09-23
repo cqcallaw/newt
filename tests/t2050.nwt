@@ -1,0 +1,12 @@
+struct circle {
+	int x = 10
+	int y
+	int radius
+	int w = 20
+}
+
+circle my_circle
+int a = my_circle.w
+
+circle[2] my_circles
+int b = my_circles[1].x

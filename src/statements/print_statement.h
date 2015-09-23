@@ -31,10 +31,11 @@ public:
 
 	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const {
-		return LinkedList<const Error*>::Terminator;
+		return m_expression->Validate(execution_context);
 	}
 
-	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;
+	virtual const LinkedList<const Error*>* execute(
+			const ExecutionContext* execution_context) const;
 
 	const Expression* GetExpression() const {
 		return m_expression;

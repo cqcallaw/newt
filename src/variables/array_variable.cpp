@@ -68,6 +68,7 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 		if (array_symbol != nullptr) {
 			const TypeSpecifier* index_expression_type =
 					m_index_expression->GetType(context);
+			const YYLTYPE index_location = m_index_expression->GetPosition();
 			if (m_index_expression->GetType(context)->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt())) {
 				const Result* index_expression_evaluation =
@@ -76,12 +77,13 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 				if (errors == LinkedList<const Error*>::Terminator) {
 					index = *((int*) index_expression_evaluation->GetData());
 
-					if (index > array_symbol->GetSize() && index < 0) {
+					if (array_symbol->IsFixedSize()
+							&& (index > array_symbol->GetSize() || index < 0)) {
 						errors = errors->With(
 								new Error(Error::SEMANTIC,
 										Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-										GetLocation().first_line,
-										GetLocation().first_column,
+										index_location.first_line,
+										index_location.first_column,
 										symbol->GetName(), *AsString(index)));
 					}
 					delete (index_expression_evaluation);
@@ -93,9 +95,9 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 				errors = errors->With(
 						new Error(Error::SEMANTIC,
 								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-								m_index_expression->GetPosition().first_line,
-								m_index_expression->GetPosition().first_column,
-								*(GetName()), buffer.str()));
+								index_location.first_line,
+								index_location.first_column, *(GetName()),
+								buffer.str()));
 			}
 		} else {
 			errors = errors->With(
@@ -163,12 +165,13 @@ const Result* ArrayVariable::Evaluate(const ExecutionContext* context) const {
 				}
 			}
 		} else {
+			const YYLTYPE index_location = m_index_expression->GetPosition();
 			ostringstream buffer;
 			buffer << index;
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-							GetLocation().first_line,
-							GetLocation().first_column, *GetName(),
+							index_location.first_line,
+							index_location.first_column, *GetName(),
 							buffer.str()));
 		}
 	}
@@ -288,39 +291,35 @@ const LinkedList<const Error*>* ArrayVariable::Validate(
 					m_index_expression->GetType(context);
 			if (m_index_expression->GetType(context)->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt())) {
-				if (array_index_expression->IsConstant()) {
+				if (array_symbol->IsFixedSize() && array_symbol->IsInitialized()
+						&& array_index_expression->IsConstant()) {
 					//index expression is a constant; validate it as appropriate
-					if (array_symbol->IsInitialized()) {
+					const Result* evaluation = array_index_expression->Evaluate(
+							context);
 
-						const Result* evaluation =
-								array_index_expression->Evaluate(context);
+					const LinkedList<const Error*>* evaluation_errors =
+							evaluation->GetErrors();
 
-						const LinkedList<const Error*>* evaluation_errors =
-								evaluation->GetErrors();
+					if (evaluation_errors
+							!= LinkedList<const Error*>::Terminator) {
+						errors = errors->Concatenate(evaluation_errors, true);
+					} else {
+						int index = *((int *) evaluation->GetData());
 
-						if (evaluation_errors
-								!= LinkedList<const Error*>::Terminator) {
-							errors = errors->Concatenate(evaluation_errors,
-									true);
-						} else {
-							int index = *((int *) evaluation->GetData());
-
-							if (index > array_symbol->GetSize()) {
-								ostringstream buffer;
-								buffer << index;
-								errors =
-										errors->With(
-												new Error(Error::SEMANTIC,
-														Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-														array_index_expression_position.first_line,
-														array_index_expression_position.first_column,
-														*GetName(),
-														buffer.str()));
-							}
+						if (index > array_symbol->GetSize()) {
+							ostringstream buffer;
+							buffer << index;
+							errors =
+									errors->With(
+											new Error(Error::SEMANTIC,
+													Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+													array_index_expression_position.first_line,
+													array_index_expression_position.first_column,
+													*GetName(), buffer.str()));
 						}
-
-						delete (evaluation);
 					}
+
+					delete (evaluation);
 				}
 			} else {
 				ostringstream buffer;

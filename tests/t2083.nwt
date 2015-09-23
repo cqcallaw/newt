@@ -1,0 +1,2 @@
+int[10] array
+int num = array[3].x

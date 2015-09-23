@@ -50,8 +50,8 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 		const TypeSpecifier* other) const {
 	const PrimitiveTypeSpecifier* other_as_primitive =
 			dynamic_cast<const PrimitiveTypeSpecifier*>(other);
-	const BasicType other_type = other_as_primitive->GetBasicType();
 	if (other_as_primitive != nullptr) {
+		const BasicType other_type = other_as_primitive->GetBasicType();
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
 	}
 	return false;
