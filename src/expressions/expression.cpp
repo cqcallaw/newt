@@ -22,6 +22,7 @@
 #include "error.h"
 #include "variable.h"
 #include "utils.h"
+#include <execution_context.h>
 
 Expression::Expression(const YYLTYPE position) :
 		m_position(position) {
@@ -34,25 +35,48 @@ const Result* Expression::ToString(
 		const ExecutionContext* execution_context) const {
 	ostringstream buffer;
 	const Result* evaluation = Evaluate(execution_context);
-	if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
-		return evaluation;
-	} else {
+	if (evaluation->GetErrors()->IsTerminator()) {
 		const TypeSpecifier* type_specifier = GetType(execution_context);
+		const void* value = evaluation->GetData();
 
-		if (type_specifier->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
-			buffer << *((bool*) evaluation->GetData());
-		} else if (type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetInt())) {
-			buffer << *((int*) evaluation->GetData());
-		} else if (type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetDouble())) {
-			buffer << *((double*) evaluation->GetData());
-		} else if (type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetString())) {
-			buffer << *((string*) evaluation->GetData());
-		} else {
-			assert(false);
+		const PrimitiveTypeSpecifier* as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(type_specifier);
+		if (as_primitive) {
+			const BasicType basic_type = as_primitive->GetBasicType();
+			switch (basic_type) {
+			case BOOLEAN:
+				buffer << *((bool*) value);
+				break;
+			case INT:
+				buffer << *((int*) value);
+				break;
+			case DOUBLE:
+				buffer << *((double*) value);
+				break;
+			case STRING:
+				buffer << *((string*) value);
+				break;
+			default:
+				assert(false);
+			}
 		}
+
+		//TODO: array printing
+
+		const CompoundTypeSpecifier* as_compound =
+				dynamic_cast<const CompoundTypeSpecifier*>(type_specifier);
+		if (as_compound) {
+			const CompoundTypeInstance* instance =
+					(const CompoundTypeInstance*) value;
+
+			buffer << "{" << endl;
+			buffer
+					<< instance->ToString(execution_context->GetTypeTable(),
+							Indent(1));
+			buffer << "}" << endl;
+		}
+	} else {
+		return evaluation;
 	}
 
 	delete (evaluation);
