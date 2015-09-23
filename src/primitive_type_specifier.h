@@ -55,10 +55,6 @@ public:
 
 	static const PrimitiveTypeSpecifier* GetString();
 
-	static const PrimitiveTypeSpecifier* GetArray();
-
-//	static const PrimitiveTypeSpecifier* GetCompound();
-
 private:
 	PrimitiveTypeSpecifier(const BasicType basic_type) :
 			m_basic_type(basic_type) {

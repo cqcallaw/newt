@@ -37,10 +37,6 @@ const string type_to_string(const BasicType type) {
 		return "double";
 	case STRING:
 		return "string";
-	case ARRAY:
-		return "array";
-	case COMPOUND:
-		return "struct";
 	}
 
 	cout << "Unknown type: " << (int) type << "\n";

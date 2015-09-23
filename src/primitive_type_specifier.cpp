@@ -105,15 +105,3 @@ const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetString() {
 			BasicType::STRING);
 	return instance;
 }
-
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetArray() {
-	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
-			BasicType::ARRAY);
-	return instance;
-}
-
-/*const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetCompound() {
- const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
- BasicType::COMPOUND);
- return instance;
- }*/

@@ -34,9 +34,7 @@ enum BasicType {
 	BOOLEAN = 1,
 	INT = 2,
 	DOUBLE = 4,
-	STRING = 8,
-	ARRAY = 16,
-	COMPOUND = 32
+	STRING = 8
 };
 
 const string type_to_string(const BasicType type);
