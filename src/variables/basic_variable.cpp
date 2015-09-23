@@ -102,3 +102,21 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 	return ToErrorList(
 			context->GetSymbolContext()->SetSymbol(*GetName(), value));
 }
+
+const LinkedList<const Error*>* BasicVariable::Validate(
+		const ExecutionContext* context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const SymbolContext* symbol_context = context->GetSymbolContext();
+	const Symbol* symbol = symbol_context->GetSymbol(GetName());
+
+	if (symbol == nullptr || symbol == Symbol::DefaultSymbol) {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						GetLocation().first_line, GetLocation().first_column,
+						*(GetName())));
+	}
+
+	return errors;
+}

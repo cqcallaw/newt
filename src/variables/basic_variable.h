@@ -50,6 +50,10 @@ public:
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const;
+
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* context) const;
+
 };
 
 #endif /* VARIABLES_BASIC_VARIABLE_H_ */

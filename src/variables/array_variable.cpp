@@ -53,7 +53,7 @@ const string* ArrayVariable::ToString(const ExecutionContext* context) const {
 ArrayVariable::~ArrayVariable() {
 }
 
-const ArrayVariable::ValidationResult* ArrayVariable::Validate(
+const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 		const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
@@ -65,7 +65,7 @@ const ArrayVariable::ValidationResult* ArrayVariable::Validate(
 
 	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
 		array_symbol = dynamic_cast<const ArraySymbol*>(symbol);
-		if (symbol != nullptr) {
+		if (array_symbol != nullptr) {
 			const TypeSpecifier* index_expression_type =
 					m_index_expression->GetType(context);
 			if (m_index_expression->GetType(context)->IsAssignableTo(
@@ -84,25 +84,24 @@ const ArrayVariable::ValidationResult* ArrayVariable::Validate(
 										GetLocation().first_column,
 										symbol->GetName(), *AsString(index)));
 					}
-				} else {
-					ostringstream buffer;
-					buffer << "A " << index_expression_type->ToString()
-							<< " expression";
-					errors =
-							errors->With(
-									new Error(Error::SEMANTIC,
-											Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-											m_index_expression->GetPosition().first_line,
-											m_index_expression->GetPosition().first_column,
-											*(GetName()), buffer.str()));
+					delete (index_expression_evaluation);
 				}
-				delete (index_expression_evaluation);
 			} else {
+				ostringstream buffer;
+				buffer << "A " << index_expression_type->ToString()
+						<< " expression";
 				errors = errors->With(
-						new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
-								GetLocation().first_line,
-								GetLocation().first_column, *(GetName())));
+						new Error(Error::SEMANTIC,
+								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
+								m_index_expression->GetPosition().first_line,
+								m_index_expression->GetPosition().first_column,
+								*(GetName()), buffer.str()));
 			}
+		} else {
+			errors = errors->With(
+					new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
+							GetLocation().first_line,
+							GetLocation().first_column, *(GetName())));
 		}
 	} else {
 		errors = errors->With(
@@ -118,7 +117,7 @@ const Result* ArrayVariable::Evaluate(const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
-	const ValidationResult* validation_result = Validate(context);
+	const ValidationResult* validation_result = ValidateOperation(context);
 	const void* result_value = nullptr;
 	errors = validation_result->GetErrors();
 	if (errors == LinkedList<const Error*>::Terminator) {
@@ -184,7 +183,7 @@ const LinkedList<const Error*>* ArrayVariable::SetSymbolCore(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
-	const ValidationResult* validation_result = Validate(context);
+	const ValidationResult* validation_result = ValidateOperation(context);
 	errors = validation_result->GetErrors();
 	if (errors == LinkedList<const Error*>::Terminator) {
 		const ArraySymbol* array_symbol = validation_result->GetSymbol();
@@ -267,4 +266,85 @@ const LinkedList<const Error*>* ArrayVariable::SetSymbol(
 		const ExecutionContext* context,
 		const CompoundTypeInstance* value) const {
 	return SetSymbolCore(context, (const void*) value);
+}
+
+const LinkedList<const Error*>* ArrayVariable::Validate(
+		const ExecutionContext* context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const SymbolContext* symbol_context = context->GetSymbolContext();
+	const Symbol* symbol = symbol_context->GetSymbol(GetName());
+
+	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+		const ArraySymbol* array_symbol =
+				dynamic_cast<const ArraySymbol*>(symbol);
+		if (array_symbol != nullptr) {
+			const Expression* array_index_expression = GetIndexExpression();
+			const YYLTYPE array_index_expression_position =
+					array_index_expression->GetPosition();
+
+			const TypeSpecifier* index_expression_type =
+					m_index_expression->GetType(context);
+			if (m_index_expression->GetType(context)->IsAssignableTo(
+					PrimitiveTypeSpecifier::GetInt())) {
+				if (array_index_expression->IsConstant()) {
+					//index expression is a constant; validate it as appropriate
+					if (array_symbol->IsInitialized()) {
+
+						const Result* evaluation =
+								array_index_expression->Evaluate(context);
+
+						const LinkedList<const Error*>* evaluation_errors =
+								evaluation->GetErrors();
+
+						if (evaluation_errors
+								!= LinkedList<const Error*>::Terminator) {
+							errors = errors->Concatenate(evaluation_errors,
+									true);
+						} else {
+							int index = *((int *) evaluation->GetData());
+
+							if (index > array_symbol->GetSize()) {
+								ostringstream buffer;
+								buffer << index;
+								errors =
+										errors->With(
+												new Error(Error::SEMANTIC,
+														Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+														array_index_expression_position.first_line,
+														array_index_expression_position.first_column,
+														*GetName(),
+														buffer.str()));
+							}
+						}
+
+						delete (evaluation);
+					}
+				}
+			} else {
+				ostringstream buffer;
+				buffer << "A " << index_expression_type->ToString()
+						<< " expression";
+				errors = errors->With(
+						new Error(Error::SEMANTIC,
+								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
+								m_index_expression->GetPosition().first_line,
+								m_index_expression->GetPosition().first_column,
+								*(GetName()), buffer.str()));
+			}
+		} else {
+			errors = errors->With(
+					new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
+							GetLocation().first_line,
+							GetLocation().first_column, *(GetName())));
+		}
+	} else {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						GetLocation().first_line, GetLocation().first_column,
+						*(GetName())));
+	}
+
+	return errors;
 }

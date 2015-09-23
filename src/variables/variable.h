@@ -65,6 +65,9 @@ public:
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const = 0;
 
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* context) const = 0;
+
 protected:
 	const LinkedList<const Error*>* ToErrorList(SetResult result) const;
 

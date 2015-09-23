@@ -241,3 +241,43 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 
 	return ToErrorList(set_result);
 }
+
+const LinkedList<const Error*>* MemberVariable::Validate(
+		const ExecutionContext* context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const SymbolContext* symbol_context = context->GetSymbolContext();
+	const Symbol* symbol = symbol_context->GetSymbol(GetName());
+
+	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+		const CompoundTypeSpecifier* as_compound =
+				dynamic_cast<const CompoundTypeSpecifier*>(symbol->GetType());
+
+		if (as_compound != nullptr) {
+			const TypeSpecifier* variable_type = GetType(context);
+
+			if (variable_type == PrimitiveTypeSpecifier::GetNone()) {
+				errors = errors->With(
+						new Error(Error::SEMANTIC, Error::UNDECLARED_MEMBER,
+								GetLocation().first_line,
+								GetLocation().first_column,
+								*m_member_variable->GetName(),
+								as_compound->GetTypeName()));
+			}
+		} else {
+			errors = errors->With(
+					new Error(Error::SEMANTIC,
+							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
+							GetLocation().first_line,
+							GetLocation().first_column, *GetName()));
+		}
+	} else {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						GetLocation().first_line, GetLocation().first_column,
+						*(GetName())));
+	}
+
+	return errors;
+}

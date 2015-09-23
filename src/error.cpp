@@ -136,7 +136,7 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Variable '" << s1 << "' is not an array.";
 		break;
 	case VARIABLE_NOT_A_COMPOUND_TYPE:
-		os << "Variable '" << s1 << "' is not a compound type.";
+		os << "Variable '" << s1 << "' does not reference a compound type.";
 		break;
 	case DIVIDE_BY_ZERO:
 		os << "Arithmetic divide by zero at parse time.  "
@@ -150,10 +150,11 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Default member values must be constant.";
 		break;
 	case INVALID_TYPE:
-		os << "Invalid type \"" << s1 << "\"";
+		os << "Invalid type \"" << s1 << "\".";
 		break;
 	case UNDECLARED_MEMBER:
-		os << "Undeclared member \"" << s1 << "\" of type \"" << s2 << "\"";
+		os << "Type \"" << s2 << "\" does not contain a member named \"" << s1
+				<< "\".";
 		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";

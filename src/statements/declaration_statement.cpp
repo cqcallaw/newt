@@ -46,19 +46,30 @@ const LinkedList<const Error*>* DeclarationStatement::preprocess(
 
 	if (as_primitive != nullptr) {
 		if (expression != nullptr) {
-			const TypeSpecifier* expression_type_specifier =
-					expression->GetType(execution_context);
+			const VariableExpression* as_variable =
+					dynamic_cast<const VariableExpression*>(expression);
 
-			const PrimitiveTypeSpecifier* expression_as_primitive =
-					dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type_specifier);
+			if (as_variable) {
+				errors = as_variable->Validate(execution_context);
+			}
 
-			if (expression_as_primitive == nullptr
-					|| !expression_as_primitive->IsAssignableTo(as_primitive)) {
-				errors = errors->With(
-						new Error(Error::SEMANTIC,
-								Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-								m_initializer_position.first_line,
-								m_initializer_position.first_column, *name));
+			if (errors->IsTerminator()) {
+				const TypeSpecifier* expression_type_specifier =
+						expression->GetType(execution_context);
+
+				const PrimitiveTypeSpecifier* expression_as_primitive =
+						dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type_specifier);
+
+				if (expression_as_primitive == nullptr
+						|| !expression_as_primitive->IsAssignableTo(
+								as_primitive)) {
+					errors = errors->With(
+							new Error(Error::SEMANTIC,
+									Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+									m_initializer_position.first_line,
+									m_initializer_position.first_column,
+									*name));
+				}
 			}
 		}
 

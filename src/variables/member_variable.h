@@ -38,6 +38,9 @@ public:
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const;
 
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* context) const;
+
 	const Variable* GetContainer() const {
 		return m_container;
 	}
