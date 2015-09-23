@@ -39,7 +39,7 @@ const CompoundType* TypeTable::GetType(const string name) const {
 		return result->second;
 	}
 
-	return CompoundType::DefaultCompoundType;
+	return CompoundType::GetDefaultCompoundType();
 }
 
 const void TypeTable::print(ostream& os) const {

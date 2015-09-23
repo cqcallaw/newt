@@ -35,7 +35,8 @@ const TypeSpecifier* MemberVariable::GetType(
 		const string* member_name = m_member_variable->GetName();
 		const MemberDefinition* member_definition = type->GetMember(
 				*member_name);
-		if (member_definition != MemberDefinition::DefaultMemberDefinition) {
+		if (member_definition
+				!= MemberDefinition::GetDefaultMemberDefinition()) {
 			return member_definition->GetType();
 		}
 	}

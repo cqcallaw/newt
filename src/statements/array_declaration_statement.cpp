@@ -44,7 +44,7 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		const string type_name = element_type_as_compound->GetTypeName();
 		const CompoundType* type = type_table->GetType(type_name);
 
-		if (type == CompoundType::DefaultCompoundType) {
+		if (type == CompoundType::GetDefaultCompoundType()) {
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::INVALID_TYPE,
 							m_type_position.first_line,

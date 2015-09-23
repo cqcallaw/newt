@@ -70,7 +70,7 @@ public:
 		return buffer.str();
 	}
 
-	const static MemberDefinition* DefaultMemberDefinition;
+	const static MemberDefinition* GetDefaultMemberDefinition();
 
 private:
 	const TypeSpecifier* m_type;

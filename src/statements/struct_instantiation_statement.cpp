@@ -43,28 +43,91 @@ StructInstantiationStatement::StructInstantiationStatement(
 StructInstantiationStatement::~StructInstantiationStatement() {
 }
 
-LinkedList<const Error*>* StructInstantiationStatement::preprocess(
+const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
-	//TODO: verify type exists
-	//TODO: validate that all members are initialized for readonly structs
-	//TODO: verify referenced members are valid
-	//TODO: check for existing instance with same name
-	//TODO: check the initializer type matches that of the initialized member
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+	//TODO: validate that all members are initialized for readonly structs (?)
 
-	//generate default instance
 	const CompoundType* type = execution_context->GetTypeTable()->GetType(
 			*m_type_name);
 
-	const CompoundTypeInstance* instance =
-			CompoundTypeInstance::GetDefaultInstance(*m_type_name, type);
+	if (type != CompoundType::GetDefaultCompoundType()) {
+		SymbolTable* symbol_table =
+				(SymbolTable*) execution_context->GetSymbolContext();
 
-	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolContext();
+		const Symbol* existing = symbol_table->GetSymbol(m_name);
+		if (existing == Symbol::DefaultSymbol) {
+			const LinkedList<const MemberInstantiation*>* instatiation_list =
+					m_member_instantiation_list;
+			while (!instatiation_list->IsTerminator()) {
+				const MemberInstantiation* instantiation =
+						instatiation_list->GetData();
+				const string* member_name = instantiation->GetName();
+				//errors = instantiation->Validate(execution_context, type);
+				const MemberDefinition* member_definition = type->GetMember(
+						*member_name);
+				if (member_definition
+						!= MemberDefinition::GetDefaultMemberDefinition()) {
+					const TypeSpecifier* member_type =
+							member_definition->GetType();
+					const TypeSpecifier* expression_type =
+							instantiation->GetExpression()->GetType(
+									execution_context);
+					if (!expression_type->IsAssignableTo(member_type)) {
+						//undefined member
+						errors = errors->With(
+								new Error(Error::SEMANTIC,
+										Error::ASSIGNMENT_TYPE_ERROR,
+										m_name_position.first_line,
+										m_name_position.first_column,
+										member_type->ToString(),
+										expression_type->ToString()));
+					}
+				} else {
+					//undefined member
+					errors = errors->With(
+							new Error(Error::SEMANTIC, Error::UNDECLARED_MEMBER,
+									m_name_position.first_line,
+									m_name_position.first_column, *member_name,
+									member_definition->GetType()->ToString()));
 
-	const Symbol* symbol = new Symbol(*m_name, instance);
-	const InsertResult insert_result = symbol_table->InsertSymbol(symbol);
+				}
 
-	return LinkedList<const Error*>::Terminator;
+				instatiation_list = instatiation_list->GetNext();
+			}
+
+			if (errors->IsTerminator()) {
+				//generate default instance
+				const CompoundTypeInstance* instance =
+						CompoundTypeInstance::GetDefaultInstance(*m_type_name,
+								type);
+
+				const Symbol* symbol = new Symbol(*m_name, instance);
+				const InsertResult insert_result = symbol_table->InsertSymbol(
+						symbol);
+
+				if (insert_result != INSERT_SUCCESS) {
+					assert(false);
+				}
+			}
+		} else {
+			//symbol already exists
+			errors = errors->With(
+					new Error(Error::SEMANTIC,
+							Error::PREVIOUSLY_DECLARED_VARIABLE,
+							m_type_name_position.first_line,
+							m_type_name_position.first_column, *m_name));
+		}
+	} else {
+		//type does not exist
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::INVALID_TYPE,
+						m_type_name_position.first_line,
+						m_type_name_position.first_column, *m_type_name));
+	}
+
+	return errors;
 }
 
 const LinkedList<const Error*>* StructInstantiationStatement::execute(

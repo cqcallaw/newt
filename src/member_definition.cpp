@@ -20,6 +20,8 @@
 #include <member_definition.h>
 #include <primitive_type_specifier.h>
 
-const MemberDefinition* MemberDefinition::DefaultMemberDefinition =
-		new MemberDefinition(PrimitiveTypeSpecifier::GetNone(), nullptr);
-
+const MemberDefinition* MemberDefinition::GetDefaultMemberDefinition() {
+	const static MemberDefinition* instance = new MemberDefinition(
+			PrimitiveTypeSpecifier::GetNone(), nullptr);
+	return instance;
+}

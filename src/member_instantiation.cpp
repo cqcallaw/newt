@@ -28,4 +28,3 @@ MemberInstantiation::MemberInstantiation(const std::string* name,
 
 MemberInstantiation::~MemberInstantiation() {
 }
-

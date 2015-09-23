@@ -43,7 +43,7 @@ public:
 		return m_definition;
 	}
 
-	const static CompoundType* DefaultCompoundType;
+	const static CompoundType* GetDefaultCompoundType();
 
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;

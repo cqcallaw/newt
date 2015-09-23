@@ -113,7 +113,7 @@ const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetArray() {
 }
 
 /*const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetCompound() {
-	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
-			BasicType::COMPOUND);
-	return instance;
-}*/
+ const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
+ BasicType::COMPOUND);
+ return instance;
+ }*/

@@ -63,7 +63,7 @@ public:
 		return m_type_name_position;
 	}
 
-	virtual LinkedList<const Error*>* preprocess(
+	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(

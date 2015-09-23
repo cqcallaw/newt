@@ -23,9 +23,6 @@
 #include <assert.h>
 #include <type_specifier.h>
 
-const CompoundType* CompoundType::DefaultCompoundType = new CompoundType(
-		new map<const string, const MemberDefinition*>(), Modifier::NONE);
-
 CompoundType::CompoundType(
 		const map<const string, const MemberDefinition*>* definition,
 		const Modifier::Type modifiers) :
@@ -37,7 +34,7 @@ const MemberDefinition* CompoundType::GetMember(const string name) const {
 	if (result != m_definition->end()) {
 		return result->second;
 	} else {
-		return MemberDefinition::DefaultMemberDefinition;
+		return MemberDefinition::GetDefaultMemberDefinition();
 	}
 }
 
@@ -60,4 +57,10 @@ const string CompoundType::ToString(const TypeTable* type_table,
 				<< ")" << endl;
 	}
 	return os.str();
+}
+
+const CompoundType* CompoundType::GetDefaultCompoundType() {
+	const static CompoundType* instance = new CompoundType(
+			new map<const string, const MemberDefinition*>(), Modifier::NONE);
+	return instance;
 }
