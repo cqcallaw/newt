@@ -156,6 +156,9 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Type \"" << s2 << "\" does not contain a member named \"" << s1
 				<< "\".";
 		break;
+	case READONLY:
+		os << "\"" << s1 << "\" is read-only.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

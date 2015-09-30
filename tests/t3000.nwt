@@ -1,0 +1,9 @@
+//test declaration of readonly struct
+
+readonly struct ronly {
+	int x
+	double y
+	string z
+}
+
+ronly i{x = 10, z= "hello"}

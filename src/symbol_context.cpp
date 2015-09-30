@@ -27,6 +27,40 @@
 #include "type.h"
 #include "utils.h"
 
+const LinkedList<const Error*>* ToErrorList(const SetResult result,
+		const YYLTYPE location, const string* name) {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	switch (result) {
+	case NO_SET_RESULT:
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::DEFAULT_ERROR_CODE,
+						location.first_line, location.first_column, *name));
+		break;
+	case UNDEFINED_SYMBOL:
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						location.first_line, location.first_column, *name));
+		break;
+	case INCOMPATIBLE_TYPE:
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
+						location.first_line, location.first_column, *name));
+		break;
+	case MUTATION_DISALLOWED:
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::READONLY, location.first_line,
+						location.first_column, *name));
+		break;
+	case SET_SUCCESS:
+	default:
+		break;
+	}
+
+	return errors;
+}
+
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
 		const LinkedList<SymbolContext*>* parent) :
 		SymbolContext(modifiers, parent,

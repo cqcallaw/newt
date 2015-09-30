@@ -38,6 +38,9 @@ enum SetResult {
 	MUTATION_DISALLOWED = 4
 };
 
+const LinkedList<const Error*>* ToErrorList(const SetResult result,
+		const YYLTYPE location, const string* name);
+
 struct comparator {
 	bool operator()(const string lhs, const string rhs) const {
 		return lhs < rhs;

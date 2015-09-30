@@ -58,11 +58,11 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 
 		const Symbol* existing = symbol_table->GetSymbol(m_name);
 		if (existing == Symbol::DefaultSymbol) {
-			const LinkedList<const MemberInstantiation*>* instatiation_list =
+			const LinkedList<const MemberInstantiation*>* instantiation_list =
 					m_member_instantiation_list;
-			while (!instatiation_list->IsTerminator()) {
+			while (!instantiation_list->IsTerminator()) {
 				const MemberInstantiation* instantiation =
-						instatiation_list->GetData();
+						instantiation_list->GetData();
 				const string* member_name = instantiation->GetName();
 				//errors = instantiation->Validate(execution_context, type);
 				const MemberDefinition* member_definition = type->GetMember(
@@ -94,7 +94,7 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 
 				}
 
-				instatiation_list = instatiation_list->GetNext();
+				instantiation_list = instantiation_list->GetNext();
 			}
 
 			if (errors->IsTerminator()) {
@@ -138,13 +138,21 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 			m_name);
 	const CompoundTypeInstance* base_struct =
 			(const CompoundTypeInstance*) base->GetValue();
-	SymbolContext* struct_symbol_context = base_struct->GetDefinition();
+	const SymbolContext* base_symbol_context = base_struct->GetDefinition();
+
+	//create a mutable view of the symbol context table
+	//this is a nasty hack, but is an efficient use of memory
+	const Modifier::Type loosened_modifiers =
+			static_cast<Modifier::Type>(base_symbol_context->GetModifiers()
+					& ~Modifier::Type::READONLY);
+	SymbolContext* struct_symbol_context = new SymbolContext(loosened_modifiers,
+			base_symbol_context->GetParent(), base_symbol_context->GetTable());
 
 	const LinkedList<const MemberInstantiation*>* subject =
 			m_member_instantiation_list;
 	while (subject != LinkedList<const MemberInstantiation*>::Terminator) {
 		const MemberInstantiation* memberInstantiation = subject->GetData();
-		const string member_name = *memberInstantiation->GetName();
+		const string* member_name = memberInstantiation->GetName();
 		const Symbol* member_symbol = struct_symbol_context->GetSymbol(
 				member_name);
 		const TypeSpecifier* member_type = member_symbol->GetType();
@@ -156,36 +164,41 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 				== LinkedList<const Error*>::Terminator) {
 			const void* void_value = evaluation_result->GetData();
 
+			SetResult result = NO_SET_RESULT;
 			if (member_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetBoolean())) {
-				struct_symbol_context->SetSymbol(member_name,
+				result = struct_symbol_context->SetSymbol(*member_name,
 						(bool*) void_value);
 			} else if (member_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt())) {
-				struct_symbol_context->SetSymbol(member_name,
+				result = struct_symbol_context->SetSymbol(*member_name,
 						(int*) void_value);
 			} else if (member_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetDouble())) {
-				struct_symbol_context->SetSymbol(member_name,
+				result = struct_symbol_context->SetSymbol(*member_name,
 						(double*) void_value);
 			} else if (member_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetString())) {
-				struct_symbol_context->SetSymbol(member_name,
+				result = struct_symbol_context->SetSymbol(*member_name,
 						(string*) void_value);
 			} else if (dynamic_cast<const CompoundTypeSpecifier*>(member_type)
 					!= nullptr) {
-				struct_symbol_context->SetSymbol(member_name,
+				result = struct_symbol_context->SetSymbol(*member_name,
 						(CompoundTypeInstance*) void_value);
 			} else {
 				assert(false);
-				return nullptr;
 			}
+
+			errors = ToErrorList(result, memberInstantiation->GetNamePosition(),
+					m_name);
 		} else {
 			return evaluation_result->GetErrors();
 		}
 
 		subject = subject->GetNext();
 	}
+
+	delete struct_symbol_context;
 
 	return errors;
 }

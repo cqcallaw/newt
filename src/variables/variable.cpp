@@ -20,6 +20,7 @@
 #include <sstream>
 #include <defaults.h>
 #include <execution_context.h>
+#include <symbol_context.h>
 
 #include "variable.h"
 #include "assert.h"
@@ -34,38 +35,5 @@ Variable::~Variable() {
 }
 
 const LinkedList<const Error*>* Variable::ToErrorList(SetResult result) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
-
-	switch (result) {
-	case NO_SET_RESULT:
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::DEFAULT_ERROR_CODE,
-						GetLocation().first_line, GetLocation().first_column,
-						*(GetName())));
-		break;
-	case UNDEFINED_SYMBOL:
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().first_line, GetLocation().first_column,
-						*(GetName())));
-		break;
-	case INCOMPATIBLE_TYPE:
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-						GetLocation().first_line, GetLocation().first_column,
-						*(GetName())));
-		break;
-	case MUTATION_DISALLOWED:
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::READONLY,
-						GetLocation().first_line, GetLocation().first_column,
-						*(GetName())));
-		break;
-	case SET_SUCCESS:
-	default:
-		break;
-	}
-
-	return errors;
+	return ::ToErrorList(result, GetLocation(), GetName());
 }
