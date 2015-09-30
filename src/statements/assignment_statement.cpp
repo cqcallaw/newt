@@ -31,6 +31,7 @@
 #include <variable_expression.h>
 #include <yyltype.h>
 #include <type_specifier.h>
+#include <compound_type.h>
 
 AssignmentStatement::AssignmentStatement(const Variable* variable,
 		const AssignmentType op_type, const Expression* expression) :
@@ -57,7 +58,6 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 	if (symbol != Symbol::DefaultSymbol) {
 		const BasicVariable* basic_variable =
 				dynamic_cast<const BasicVariable*>(m_variable);
-
 		if (basic_variable != nullptr) {
 			const PrimitiveTypeSpecifier* as_primitive =
 					dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
@@ -136,41 +136,68 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 		const MemberVariable* member_variable =
 				dynamic_cast<const MemberVariable*>(m_variable);
 		if (member_variable != nullptr) {
-			const TypeSpecifier* member_variable_type =
-					member_variable->GetType(execution_context);
+			const CompoundTypeSpecifier* as_compound =
+					dynamic_cast<const CompoundTypeSpecifier*>(member_variable->GetContainer()->GetType(
+							execution_context));
 
-			if (member_variable_type != PrimitiveTypeSpecifier::GetNone()) {
-				const TypeSpecifier* expression_type = m_expression->GetType(
-						execution_context);
-				if (expression_type->IsAssignableTo(member_variable_type)) {
-					errors = LinkedList<const Error*>::Terminator;
+			if (as_compound) {
+				const CompoundType* type =
+						execution_context->GetTypeTable()->GetType(
+								as_compound->GetTypeName());
+
+				if (!(type->GetModifiers() & Modifier::Type::READONLY)) {
+					const TypeSpecifier* member_variable_type =
+							member_variable->GetType(execution_context);
+
+					if (member_variable_type
+							!= PrimitiveTypeSpecifier::GetNone()) {
+						const TypeSpecifier* expression_type =
+								m_expression->GetType(execution_context);
+
+						if (!expression_type->IsAssignableTo(
+								member_variable_type)) {
+							errors =
+									new LinkedList<const Error*>(
+											new Error(Error::SEMANTIC,
+													Error::ASSIGNMENT_TYPE_ERROR,
+													member_variable->GetContainer()->GetLocation().first_line,
+													member_variable->GetContainer()->GetLocation().first_column,
+													member_variable_type->ToString(),
+													expression_type->ToString()));
+						}
+					} else {
+						errors =
+								new LinkedList<const Error*>(
+										new Error(Error::SEMANTIC,
+												Error::UNDECLARED_MEMBER,
+												member_variable->GetMemberVariable()->GetLocation().first_line,
+												member_variable->GetMemberVariable()->GetLocation().first_column,
+												*member_variable->GetMemberVariable()->GetName(),
+												member_variable->GetContainer()->GetType(
+														execution_context)->ToString()));
+					}
 				} else {
 					errors =
-							new LinkedList<const Error*>(
-									new Error(Error::SEMANTIC,
-											Error::ASSIGNMENT_TYPE_ERROR,
+							errors->With(
+									new Error(Error::SEMANTIC, Error::READONLY,
 											member_variable->GetContainer()->GetLocation().first_line,
 											member_variable->GetContainer()->GetLocation().first_column,
-											member_variable_type->ToString(),
-											expression_type->ToString()));
+											*variable_name));
 				}
 			} else {
 				errors =
-						new LinkedList<const Error*>(
+						errors->With(
 								new Error(Error::SEMANTIC,
-										Error::UNDECLARED_MEMBER,
-										member_variable->GetMemberVariable()->GetLocation().first_line,
-										member_variable->GetMemberVariable()->GetLocation().first_column,
-										*member_variable->GetMemberVariable()->GetName(),
-										member_variable->GetContainer()->GetType(
-												execution_context)->ToString()));
+										Error::VARIABLE_NOT_A_COMPOUND_TYPE,
+										member_variable->GetContainer()->GetLocation().first_line,
+										member_variable->GetContainer()->GetLocation().first_column,
+										*variable_name));
 			}
 		}
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						variable_line, variable_column,
-						*m_variable->GetName()));
+						variable_line, variable_column, *variable_name));
 	}
 
 	return errors;
@@ -590,19 +617,10 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 		errors = expression_evaluation->GetErrors();
 		if (errors == LinkedList<const Error*>::Terminator) {
 			const CompoundTypeInstance* new_instance =
-					(const CompoundTypeInstance*) (expression_evaluation->GetData());
+					(const CompoundTypeInstance*) expression_evaluation->GetData();
 
-			if (new_instance != nullptr) {
-				//we're assigning a struct reference
-				errors = variable->SetSymbol(execution_context, new_instance);
-			} else {
-				errors = errors->With(
-						new Error(Error::SEMANTIC,
-								Error::VARIABLE_NOT_A_COMPOUND_TYPE,
-								variable->GetLocation().first_line,
-								variable->GetLocation().first_column,
-								*variable->GetName()));
-			}
+			//we're assigning a struct reference
+			errors = variable->SetSymbol(execution_context, new_instance);
 		}
 	}
 

@@ -1,0 +1,4 @@
+Parsing file ../tests/t3001.nwt...
+Semantic error on line 11, column 1: "i" is read-only.
+Parsed file ../tests/t3001.nwt.
+1 error found; giving up.
