@@ -60,26 +60,30 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 			if (m_initialization_expression) {
 				const TypeSpecifier* expression_type =
 						m_initialization_expression->GetType(execution_context);
-				const CompoundTypeSpecifier* as_compound_specifier =
-						dynamic_cast<const CompoundTypeSpecifier*>(expression_type);
-				if (as_compound_specifier) {
-					errors = m_initialization_expression->Validate(
-							execution_context);
+				errors = m_initialization_expression->Validate(
+						execution_context);
 
-					if (errors->IsTerminator()) {
+				if (errors->IsTerminator()) {
+					const CompoundTypeSpecifier* as_compound_specifier =
+							dynamic_cast<const CompoundTypeSpecifier*>(expression_type);
+
+					if (as_compound_specifier
+							&& m_type_name->compare(
+									as_compound_specifier->GetTypeName())
+									== 0) {
 						//generate default instance
 						instance = CompoundTypeInstance::GetDefaultInstance(
 								*m_type_name, type);
+					} else {
+						errors =
+								errors->With(
+										new Error(Error::SEMANTIC,
+												Error::ASSIGNMENT_TYPE_ERROR,
+												m_initialization_expression->GetPosition().first_line,
+												m_initialization_expression->GetPosition().first_column,
+												*m_type_name,
+												expression_type->ToString()));
 					}
-				} else {
-					errors =
-							errors->With(
-									new Error(Error::SEMANTIC,
-											Error::ASSIGNMENT_TYPE_ERROR,
-											m_initialization_expression->GetPosition().first_line,
-											m_initialization_expression->GetPosition().first_column,
-											*m_type_name,
-											expression_type->ToString()));
 				}
 			} else {
 				instance = CompoundTypeInstance::GetDefaultInstance(
