@@ -158,7 +158,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 
 %token T_ASTERISK            "*"
 %token T_DIVIDE              "/"
-%token T_MOD                 "%"
+%token T_PERCENT             "%"
 %token T_PLUS                "+"
 %token T_MINUS               "-"
 
@@ -189,7 +189,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %left T_EQUAL T_NOT_EQUAL
 %left T_LESS T_LESS_EQUAL T_GREATER T_GREATER_EQUAL
 %left T_PLUS T_MINUS
-%left T_ASTERISK T_DIVIDE T_MOD
+%left T_ASTERISK T_DIVIDE T_PERCENT
 
 %right T_ASSIGN
 %right T_PLUS_ASSIGN
@@ -202,7 +202,6 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 
 %type <union_primitive_type> simple_type
 %type <union_expression> expression
-%type <union_expression> primary_expression
 %type <union_statement_type> variable_declaration
 %type <union_variable> variable_reference
 %type <union_statement_type> statement
@@ -340,13 +339,11 @@ statement:
 	{
 		$$ = $1;
 	}
-	|
-	struct_declaration_statement
+	| struct_declaration_statement
 	{
 		$$ = $1;
 	}
-	|
-	struct_instantiation_statement
+	| struct_instantiation_statement
 	{
 		$$ = $1;
 	}
@@ -438,9 +435,33 @@ variable_reference:
 
 //---------------------------------------------------------------------
 expression:
-	primary_expression
+	T_LPAREN expression T_RPAREN
 	{
-		$$ = $1;
+		$$ = $2;
+	}
+	| variable_reference
+	{
+		$$ = new VariableExpression(@1, $1);
+	}
+	| T_INT_CONSTANT
+	{
+		$$ = new ConstantExpression(@1, $1);
+	}
+	| T_TRUE
+	{
+		$$ = new ConstantExpression(@1, true);
+	}
+	| T_FALSE
+	{
+		$$ = new ConstantExpression(@1, false);
+	}
+	| T_DOUBLE_CONSTANT
+	{
+		$$ = new ConstantExpression(@1, $1);
+	}
+	| T_STRING_CONSTANT
+	{
+		$$ = new ConstantExpression(@1, $1);
 	}
 	| expression T_OR expression
 	{
@@ -491,7 +512,7 @@ expression:
 	{
 		$$ = new ArithmeticExpression(@$, DIVIDE, $1, $3);
 	}
-	| expression T_MOD expression
+	| expression T_PERCENT expression
 	{
 		$$ = new ArithmeticExpression(@$, MOD, $1, $3);
 	}
@@ -502,38 +523,6 @@ expression:
 	| T_NOT expression %prec UNARY_OPS
 	{
 		$$ = new UnaryExpression(@$, NOT, $2);
-	}
-	;
-
-//---------------------------------------------------------------------
-primary_expression:
-	T_LPAREN expression T_RPAREN
-	{
-		$$ = $2;
-	}
-	| variable_reference
-	{
-		$$ = new VariableExpression(@1, $1);
-	}
-	| T_INT_CONSTANT
-	{
-		$$ = new ConstantExpression(@1, $1);
-	}
-	| T_TRUE
-	{
-		$$ = new ConstantExpression(@1, true);
-	}
-	| T_FALSE
-	{
-		$$ = new ConstantExpression(@1, false);
-	}
-	| T_DOUBLE_CONSTANT
-	{
-		$$ = new ConstantExpression(@1, $1);
-	}
-	| T_STRING_CONSTANT
-	{
-		$$ = new ConstantExpression(@1, $1);
 	}
 	;
 
@@ -561,8 +550,7 @@ struct_declaration_statement:
 	{
 		$$ = new StructDeclarationStatement($3, @3, new MemberDeclarationList($5->Reverse(true)), @5, new ModifierList($1->Reverse(true)), @1);
 	}
-	|
-	T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	| T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
 	{
 		$$ = new StructDeclarationStatement($2, @2, new MemberDeclarationList($4->Reverse(true)), @4, ModifierList::Terminator, DefaultLocation);
 	}
@@ -573,8 +561,7 @@ member_declaration_list:
 	{
 		$$ = new MemberDeclarationList($2, $1);
 	}
-	|
-	empty
+	| empty
 	{
 		$$ = MemberDeclarationList::Terminator;
 	}
@@ -585,8 +572,7 @@ member_declaration:
 	{
 		$$ = new MemberDeclaration($1, @1, $2, @2);
 	}
-	|
-	simple_type T_ID T_ASSIGN expression
+	| simple_type T_ID T_ASSIGN expression
 	{
 		$$ = new MemberDeclaration($1, @1, $2, @2, $4, @4);
 	}
@@ -616,8 +602,7 @@ optional_member_instantiation_list:
 	{
 		$$ = $1;
 	}
-	|
-	empty
+	| empty
 	{
 		$$ = MemberInstantiationList::Terminator;
 	}
@@ -628,8 +613,7 @@ member_instantiation_list:
 	{
 		$$ = new MemberInstantiationList($3, $1);
 	}
-	|
-	member_instantiation
+	| member_instantiation
 	{
 		$$ = new MemberInstantiationList($1, MemberInstantiationList::Terminator);
 	}

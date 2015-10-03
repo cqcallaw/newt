@@ -98,7 +98,7 @@ Error error_handler; // error reporting object
 "/"             return T_DIVIDE;
 "+"             return T_PLUS;
 "-"             return T_MINUS;
-"%"             return T_MOD;
+"%"             return T_PERCENT;
 "<"             return T_LESS;
 ">"             return T_GREATER;
 "<="            return T_LESS_EQUAL;
