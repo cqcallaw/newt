@@ -119,4 +119,6 @@ Error error_handler; // error reporting object
 
 [_A-Za-z][_A-Za-z0-9]*              { yylval->union_string = new string(yytext); return T_ID; }
 
+\/\/.*         // ignore comments that end a file without a trailing newline
+
 .                                   { error_handler.lex_error(yylineno, yytext); yylval->union_string = new string(yytext); return T_ERROR; }
