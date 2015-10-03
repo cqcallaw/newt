@@ -46,7 +46,7 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 
 		if (type == CompoundType::GetDefaultCompoundType()) {
 			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::INVALID_TYPE,
+					new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_type_position.first_line,
 							m_type_position.first_column, type_name));
 		}

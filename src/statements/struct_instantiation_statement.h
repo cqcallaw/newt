@@ -27,6 +27,7 @@
 #include <type.h>
 
 class Symbol;
+class Expression;
 
 using namespace std;
 
@@ -35,17 +36,8 @@ public:
 	StructInstantiationStatement(const string* type_name,
 			const YYLTYPE type_name_position, const string* name,
 			const YYLTYPE name_position,
-			const MemberInstantiationList* member_instantiation_list,
-			const YYLTYPE member_instantiation_list_position);
+			const Expression* initialization_expression = nullptr);
 	virtual ~StructInstantiationStatement();
-
-	const MemberInstantiationList* GetMemberInstantiationList() const {
-		return m_member_instantiation_list;
-	}
-
-	const YYLTYPE GetMemberInstantiationListPosition() const {
-		return m_member_instantiation_list_position;
-	}
 
 	const string* GetName() const {
 		return m_name;
@@ -69,13 +61,16 @@ public:
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;
 
+	const Expression* GetInitializationExpression() const {
+		return m_initialization_expression;
+	}
+
 private:
 	const string* m_type_name;
 	const YYLTYPE m_type_name_position;
 	const string* m_name;
 	const YYLTYPE m_name_position;
-	const MemberInstantiationList* m_member_instantiation_list;
-	const YYLTYPE m_member_instantiation_list_position;
+	const Expression* m_initialization_expression;
 
 	const Symbol* GetSymbol(const BasicType member_type,
 			const string member_name, const void* void_value) const;

@@ -1,0 +1,47 @@
+Parsing file ../tests/t3002.nwt...
+Parsed file ../tests/t3002.nwt.
+{
+	int x: 0
+	double y: 0
+	string z: ""
+}
+
+Root Symbol Table:
+----------------
+my_struct a:
+	int x: 12
+	double y: 0
+	string z: ""
+
+my_struct b:
+	int x: 12
+	double y: 0
+	string z: ""
+
+my_struct c:
+	int x: 12
+	double y: 0
+	string z: ""
+
+my_struct d:
+	int x: 50
+	double y: 20
+	string z: ""
+
+my_struct e:
+	int x: 0
+	double y: 0
+	string z: "something"
+
+my_struct f:
+	int x: 42
+	double y: 0
+	string z: ""
+
+
+Root Type Table:
+----------------
+my_struct: 
+	int x (0)
+	double y (0)
+	string z ("")

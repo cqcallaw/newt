@@ -37,6 +37,8 @@ public:
 
 	const CompoundType* GetType(const string name) const;
 
+	const void* GetDefaultValue(const string type_name) const;
+
 	const void print(ostream &os) const;
 
 	const static string DefaultTypeName;

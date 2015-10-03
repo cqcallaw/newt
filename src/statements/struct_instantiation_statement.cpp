@@ -32,12 +32,10 @@
 StructInstantiationStatement::StructInstantiationStatement(
 		const std::string* type_name, const YYLTYPE type_name_position,
 		const std::string* name, const YYLTYPE name_position,
-		const MemberInstantiationList* member_instantiation_list,
-		const YYLTYPE member_instantiation_list_position) :
+		const Expression* initialization_expression) :
 		m_type_name(type_name), m_type_name_position(type_name_position), m_name(
-				name), m_name_position(name_position), m_member_instantiation_list(
-				member_instantiation_list), m_member_instantiation_list_position(
-				member_instantiation_list_position) {
+				name), m_name_position(name_position), m_initialization_expression(
+				initialization_expression) {
 }
 
 StructInstantiationStatement::~StructInstantiationStatement() {
@@ -58,51 +56,38 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 
 		const Symbol* existing = symbol_table->GetSymbol(m_name);
 		if (existing == Symbol::DefaultSymbol) {
-			const LinkedList<const MemberInstantiation*>* instantiation_list =
-					m_member_instantiation_list;
-			while (!instantiation_list->IsTerminator()) {
-				const MemberInstantiation* instantiation =
-						instantiation_list->GetData();
-				const string* member_name = instantiation->GetName();
-				//errors = instantiation->Validate(execution_context, type);
-				const MemberDefinition* member_definition = type->GetMember(
-						*member_name);
-				if (member_definition
-						!= MemberDefinition::GetDefaultMemberDefinition()) {
-					const TypeSpecifier* member_type =
-							member_definition->GetType();
-					const TypeSpecifier* expression_type =
-							instantiation->GetExpression()->GetType(
-									execution_context);
-					if (!expression_type->IsAssignableTo(member_type)) {
-						//undefined member
-						errors = errors->With(
-								new Error(Error::SEMANTIC,
-										Error::ASSIGNMENT_TYPE_ERROR,
-										m_name_position.first_line,
-										m_name_position.first_column,
-										member_type->ToString(),
-										expression_type->ToString()));
+			const CompoundTypeInstance* instance = nullptr;
+			if (m_initialization_expression) {
+				const TypeSpecifier* expression_type =
+						m_initialization_expression->GetType(execution_context);
+				const CompoundTypeSpecifier* as_compound_specifier =
+						dynamic_cast<const CompoundTypeSpecifier*>(expression_type);
+				if (as_compound_specifier) {
+					errors = m_initialization_expression->Validate(
+							execution_context);
+
+					if (errors->IsTerminator()) {
+						//generate default instance
+						instance = CompoundTypeInstance::GetDefaultInstance(
+								*m_type_name, type);
 					}
 				} else {
-					//undefined member
-					errors = errors->With(
-							new Error(Error::SEMANTIC, Error::UNDECLARED_MEMBER,
-									m_name_position.first_line,
-									m_name_position.first_column, *member_name,
-									member_definition->GetType()->ToString()));
-
+					errors =
+							errors->With(
+									new Error(Error::SEMANTIC,
+											Error::ASSIGNMENT_TYPE_ERROR,
+											m_initialization_expression->GetPosition().first_line,
+											m_initialization_expression->GetPosition().first_column,
+											*m_type_name,
+											expression_type->ToString()));
 				}
-
-				instantiation_list = instantiation_list->GetNext();
+			} else {
+				instance = CompoundTypeInstance::GetDefaultInstance(
+						*m_type_name, type);
 			}
 
 			if (errors->IsTerminator()) {
-				//generate default instance
-				const CompoundTypeInstance* instance =
-						CompoundTypeInstance::GetDefaultInstance(*m_type_name,
-								type);
-
+				//we've been able to get a good initial value (that is, no errors have occurred)
 				const Symbol* symbol = new Symbol(*m_name, instance);
 				const InsertResult insert_result = symbol_table->InsertSymbol(
 						symbol);
@@ -122,7 +107,7 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 	} else {
 		//type does not exist
 		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::INVALID_TYPE,
+				new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 						m_type_name_position.first_line,
 						m_type_name_position.first_column, *m_type_name));
 	}
@@ -134,71 +119,20 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
-	const Symbol* base = execution_context->GetSymbolContext()->GetSymbol(
-			m_name);
-	const CompoundTypeInstance* base_struct =
-			(const CompoundTypeInstance*) base->GetValue();
-	const SymbolContext* base_symbol_context = base_struct->GetDefinition();
 
-	//create a mutable view of the symbol context table
-	//this is a nasty hack, but is an efficient use of memory
-	const Modifier::Type loosened_modifiers =
-			static_cast<Modifier::Type>(base_symbol_context->GetModifiers()
-					& ~Modifier::Type::READONLY);
-	SymbolContext* struct_symbol_context = new SymbolContext(loosened_modifiers,
-			base_symbol_context->GetParent(), base_symbol_context->GetTable());
+	if (m_initialization_expression) {
+		const Result* evaluation = m_initialization_expression->Evaluate(
+				execution_context);
 
-	const LinkedList<const MemberInstantiation*>* subject =
-			m_member_instantiation_list;
-	while (subject != LinkedList<const MemberInstantiation*>::Terminator) {
-		const MemberInstantiation* memberInstantiation = subject->GetData();
-		const string* member_name = memberInstantiation->GetName();
-		const Symbol* member_symbol = struct_symbol_context->GetSymbol(
-				member_name);
-		const TypeSpecifier* member_type = member_symbol->GetType();
-		const Result* evaluation_result =
-				memberInstantiation->GetExpression()->Evaluate(
-						execution_context);
+		errors = evaluation->GetErrors();
 
-		if (evaluation_result->GetErrors()
-				== LinkedList<const Error*>::Terminator) {
-			const void* void_value = evaluation_result->GetData();
-
-			SetResult result = NO_SET_RESULT;
-			if (member_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetBoolean())) {
-				result = struct_symbol_context->SetSymbol(*member_name,
-						(bool*) void_value);
-			} else if (member_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetInt())) {
-				result = struct_symbol_context->SetSymbol(*member_name,
-						(int*) void_value);
-			} else if (member_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetDouble())) {
-				result = struct_symbol_context->SetSymbol(*member_name,
-						(double*) void_value);
-			} else if (member_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetString())) {
-				result = struct_symbol_context->SetSymbol(*member_name,
-						(string*) void_value);
-			} else if (dynamic_cast<const CompoundTypeSpecifier*>(member_type)
-					!= nullptr) {
-				result = struct_symbol_context->SetSymbol(*member_name,
-						(CompoundTypeInstance*) void_value);
-			} else {
-				assert(false);
-			}
-
-			errors = ToErrorList(result, memberInstantiation->GetNamePosition(),
-					m_name);
-		} else {
-			return evaluation_result->GetErrors();
+		if (errors->IsTerminator()) {
+			const void* void_value = evaluation->GetData();
+			const CompoundTypeInstance* instance =
+					(const CompoundTypeInstance*) void_value;
+			execution_context->GetSymbolContext()->SetSymbol(*m_name, instance);
 		}
-
-		subject = subject->GetNext();
 	}
-
-	delete struct_symbol_context;
 
 	return errors;
 }

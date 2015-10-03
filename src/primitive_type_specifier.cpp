@@ -100,6 +100,22 @@ const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetInt() {
 	return instance;
 }
 
+const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::FromBasicType(
+		BasicType type) {
+	switch (type) {
+	case BOOLEAN:
+		return GetBoolean();
+	case INT:
+		return GetInt();
+	case DOUBLE:
+		return GetDouble();
+	case STRING:
+		return GetString();
+	default:
+		return GetNone();
+	}
+}
+
 const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetString() {
 	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
 			BasicType::STRING);

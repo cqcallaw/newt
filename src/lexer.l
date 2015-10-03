@@ -106,10 +106,12 @@ Error error_handler; // error reporting object
 "=="            return T_EQUAL;
 "!="            return T_NOT_EQUAL;
 "!"             return T_NOT;
+"#"             return T_HASH;
 "&&"            return T_AND;
 "||"            return T_OR;
 "struct"        return T_STRUCT;
 "readonly"      return T_READONLY;
+"with"          return T_WITH;
 
 [0-9]+                              { yylval->union_int = atoi(yytext); return T_INT_CONSTANT; }
 ([0-9]+\.[0-9]+|[0-9]+\.|\.[0-9]+)  { yylval->union_double = atof(yytext); return T_DOUBLE_CONSTANT; }

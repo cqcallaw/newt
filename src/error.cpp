@@ -58,10 +58,6 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Value passed to exit() must be an integer.  "
 				<< "Value passed was of type '" << s1 << "'.";
 		break;
-	case INCORRECT_CONSTRUCTOR_PARAMETER_TYPE:
-		os << "Incorrect type for parameter '" << s2 << "' of object " << s1
-				<< ".";
-		break;
 	case INVALID_ARRAY_SIZE:
 		os << "The array '" << s1 << "' was declared with illegal size '" << s2
 				<< "'.  Arrays sizes must be integers of 1 or larger.";
@@ -149,7 +145,7 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case MEMBER_DEFAULTS_MUST_BE_CONSTANT:
 		os << "Default member values must be constant.";
 		break;
-	case INVALID_TYPE:
+	case UNDECLARED_TYPE:
 		os << "Invalid type \"" << s1 << "\".";
 		break;
 	case UNDECLARED_MEMBER:

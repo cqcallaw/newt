@@ -79,6 +79,8 @@ typedef void* yyscan_t;
 #include <unary_expression.h>
 #include <binary_expression.h>
 #include <variable_expression.h>
+#include <with_expression.h>
+#include <default_value_expression.h>
 #include <print_statement.h>
 #include <assignment_statement.h>
 #include <declaration_statement.h>
@@ -148,6 +150,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_RBRACE              "}"
 %token T_LBRACKET            "["
 %token T_RBRACKET            "]"
+%token T_HASH                "#"
 %token T_SEMIC               ";"
 %token T_COMMA               ","
 %token T_PERIOD              "."
@@ -174,22 +177,21 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_NOT                 "!"
 
 %token T_STRUCT              "struct declaration"
-
 %token T_READONLY            "readonly modifier"
+%token T_WITH                "with"
+%token T_ERROR               "error"
 
 %token <union_string> T_ID               "identifier"
 %token <union_int> T_INT_CONSTANT        "int constant"
 %token <union_double > T_DOUBLE_CONSTANT "double constant"
 %token <union_string> T_STRING_CONSTANT  "string constant"
 
-%token T_ERROR               "error" // error token
-
 %left T_OR
 %left T_AND
 %left T_EQUAL T_NOT_EQUAL
 %left T_LESS T_LESS_EQUAL T_GREATER T_GREATER_EQUAL
 %left T_PLUS T_MINUS
-%left T_ASTERISK T_DIVIDE T_PERCENT
+%left T_ASTERISK T_DIVIDE T_PERCENT T_WITH
 
 %right T_ASSIGN
 %right T_PLUS_ASSIGN
@@ -221,7 +223,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_member_instantiation_type> member_instantiation
 %type <union_member_instantiation_list_type> member_instantiation_list
 %type <union_member_instantiation_list_type> optional_member_instantiation_list
-%type <union_member_instantiation_list_type> optional_member_instantiation_block
+%type <union_member_instantiation_list_type> member_instantiation_block
 %type <union_struct_instantiation_statement_type> struct_instantiation_statement
 
 %% // begin rules
@@ -524,6 +526,18 @@ expression:
 	{
 		$$ = new UnaryExpression(@$, NOT, $2);
 	}
+	| T_HASH simple_type
+	{
+		$$ = new DefaultValueExpression(@$, $2, @2);
+	}
+	| T_HASH T_ID
+	{
+		$$ = new DefaultValueExpression(@$, new CompoundTypeSpecifier(*$2), @2);
+	}
+	| expression T_WITH member_instantiation_block
+	{
+		$$ = new WithExpression(@$, $1, $3, @3);
+	}
 	;
 
 //---------------------------------------------------------------------
@@ -579,21 +593,20 @@ member_declaration:
 	;
 
 struct_instantiation_statement:
-	T_ID T_ID optional_member_instantiation_block
+	T_ID T_ID
 	{
-		$$ = new StructInstantiationStatement($1, @1, $2, @2, $3, @3);
+		$$ = new StructInstantiationStatement($1, @1, $2, @2);
+	}
+	| T_ID T_ID T_ASSIGN expression
+	{
+		$$ = new StructInstantiationStatement($1, @1, $2, @2, $4);
 	}
 	;
 
-optional_member_instantiation_block:
+member_instantiation_block:
 	T_LBRACE optional_member_instantiation_list T_RBRACE
 	{
 		$$ = $2;
-	}
-	|
-	empty
-	{
-		$$ = MemberInstantiationList::Terminator;
 	}
 	;
 

@@ -39,7 +39,7 @@ enum BasicType {
 
 const string type_to_string(const BasicType type);
 
-string AsString(const BasicType type, const void* value);
+const BasicType FromString(const string str);
 
 ostream &operator<<(ostream &os, const BasicType &type);
 

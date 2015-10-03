@@ -45,6 +45,8 @@ public:
 		return m_basic_type;
 	}
 
+	const static PrimitiveTypeSpecifier* FromBasicType(BasicType type);
+
 	static const PrimitiveTypeSpecifier* GetNone();
 
 	static const PrimitiveTypeSpecifier* GetBoolean();

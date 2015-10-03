@@ -42,6 +42,17 @@ const CompoundType* TypeTable::GetType(const string name) const {
 	return CompoundType::GetDefaultCompoundType();
 }
 
+const void* TypeTable::GetDefaultValue(const string type_name) const {
+	const CompoundType* type = GetType(type_name);
+	if (type != CompoundType::GetDefaultCompoundType()) {
+		const CompoundTypeInstance* default_instance =
+				CompoundTypeInstance::GetDefaultInstance(type_name, type);
+		return default_instance;
+	} else {
+		return nullptr;
+	}
+}
+
 const void TypeTable::print(ostream& os) const {
 	map<const string, const CompoundType*>::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {

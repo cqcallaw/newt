@@ -8,7 +8,7 @@ struct rectangle {
 	double green
 }
 
-rectangle my_rectangle { x = 100, y = 100 }
+rectangle my_rectangle = #rectangle with { x = 100, y = 100 }
 
     print("my_rectangle:")
     print(my_rectangle)
