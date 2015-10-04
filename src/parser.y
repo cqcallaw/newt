@@ -41,17 +41,11 @@
 #include <modifier_list.h>
 #include <member_declaration.h>
 #include <member_declaration_list.h>
-#include <struct_declaration_statement.h>
 #include <member_instantiation.h>
 #include <member_instantiation_list.h>
-#include <struct_instantiation_statement.h>
 
 #include <type.h>
 #include <type_specifier.h>
-#include <array_type_specifier.h>
-#include <primitive_type_specifier.h>
-#include <compound_type_specifier.h>
-
 typedef void* yyscan_t;
 
 }
@@ -69,9 +63,12 @@ typedef void* yyscan_t;
 
 #include <error.h>
 #include <utils.h>
+#include <defaults.h>
+
 #include <basic_variable.h>
 #include <array_variable.h>
 #include <member_variable.h>
+
 #include <constant_expression.h>
 #include <comparison_expression.h>
 #include <arithmetic_expression.h>
@@ -81,15 +78,22 @@ typedef void* yyscan_t;
 #include <variable_expression.h>
 #include <with_expression.h>
 #include <default_value_expression.h>
+
 #include <print_statement.h>
 #include <assignment_statement.h>
-#include <declaration_statement.h>
+#include <primitive_declaration_statement.h>
 #include <array_declaration_statement.h>
+#include <struct_declaration_statement.h>
+#include <struct_instantiation_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
 #include <statement_block.h>
-#include <defaults.h>
+
+#include <array_type_specifier.h>
+#include <primitive_type_specifier.h>
+#include <compound_type_specifier.h>
+
 
 #include <lexer.h>
 
@@ -124,10 +128,8 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  const ModifierList*        union_modifier_list_type;
  const MemberDeclaration*   union_member_declaration_type;
  const MemberDeclarationList*   union_member_declaration_list_type;
- const StructDeclarationStatement*   union_struct_declaration_statement_type;
  const MemberInstantiation*   union_member_instantiation_type;
  const MemberInstantiationList*   union_member_instantiation_list_type;
- const StructInstantiationStatement*   union_struct_instantiation_statement_type;
 }
 
 %token T_BOOLEAN               "bool"
@@ -219,12 +221,12 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_modifier_list_type> modifier_list
 %type <union_member_declaration_type> member_declaration
 %type <union_member_declaration_list_type> member_declaration_list
-%type <union_struct_declaration_statement_type> struct_declaration_statement
+%type <union_statement_type> struct_declaration_statement
 %type <union_member_instantiation_type> member_instantiation
 %type <union_member_instantiation_list_type> member_instantiation_list
 %type <union_member_instantiation_list_type> optional_member_instantiation_list
 %type <union_member_instantiation_list_type> member_instantiation_block
-%type <union_struct_instantiation_statement_type> struct_instantiation_statement
+%type <union_statement_type> struct_instantiation_statement
 
 %% // begin rules
 
@@ -246,11 +248,11 @@ program:
 variable_declaration:
 	simple_type T_ID
 	{
-		$$ = new DeclarationStatement($1, @1, $2, @2);
+		$$ = new PrimitiveDeclarationStatement($1, @1, $2, @2);
 	}
 	| simple_type T_ID T_ASSIGN expression
 	{
-		$$ = new DeclarationStatement($1, @1, $2, @2, $4, @4);
+		$$ = new PrimitiveDeclarationStatement($1, @1, $2, @2, $4, @4);
 	}
 	| simple_type T_LBRACKET T_RBRACKET T_ID
 	{

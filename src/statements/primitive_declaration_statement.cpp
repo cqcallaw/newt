@@ -5,16 +5,16 @@
  *      Author: caleb
  */
 
-#include <declaration_statement.h>
 #include <error.h>
 #include <symbol_table.h>
 #include <execution_context.h>
 #include <expression.h>
 #include <assignment_statement.h>
 #include <basic_variable.h>
+#include <primitive_declaration_statement.h>
 #include <variable_expression.h>
 
-DeclarationStatement::DeclarationStatement(const TypeSpecifier* type,
+PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(const TypeSpecifier* type,
 		const YYLTYPE type_position, const std::string* name,
 		const YYLTYPE name_position, const Expression* initializer_expression,
 		const YYLTYPE initializer_position) :
@@ -24,10 +24,10 @@ DeclarationStatement::DeclarationStatement(const TypeSpecifier* type,
 				initializer_position) {
 }
 
-DeclarationStatement::~DeclarationStatement() {
+PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
 }
 
-const LinkedList<const Error*>* DeclarationStatement::preprocess(
+const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
@@ -117,7 +117,7 @@ const LinkedList<const Error*>* DeclarationStatement::preprocess(
 	return errors;
 }
 
-const LinkedList<const Error*>* DeclarationStatement::execute(
+const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
 		const ExecutionContext* execution_context) const {
 	if (m_initializer_expression != nullptr) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_position);
