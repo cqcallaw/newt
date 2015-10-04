@@ -12,11 +12,12 @@
 #include <string>
 #include <type.h>
 #include <defaults.h>
+#include <declaration_statement.h>
 
 class Result;
 class ArrayTypeSpecifier;
 
-class ArrayDeclarationStatement: public Statement {
+class ArrayDeclarationStatement: public DeclarationStatement {
 public:
 	ArrayDeclarationStatement(const ArrayTypeSpecifier* type,
 			const YYLTYPE type_position, const std::string* name,

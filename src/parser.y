@@ -33,6 +33,7 @@
 #include <parameterlist.h>
 #include <statement.h>
 #include <assignment_statement.h>
+#include <declaration_statement.h>
 #include <statement_list.h>
 #include <statement_block.h>
 #include <execution_context.h>
@@ -124,6 +125,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  const StatementList*       union_statement_list_type;
  const StatementBlock*      union_statement_block_type;
  const AssignmentStatement* union_assignment_statement_type;
+ const DeclarationStatement* union_declaration_statement_type;
  const Modifier*            union_modifier_type;
  const ModifierList*        union_modifier_list_type;
  const MemberDeclaration*   union_member_declaration_type;
@@ -206,10 +208,11 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 
 %type <union_primitive_type> simple_type
 %type <union_expression> expression
-%type <union_statement_type> variable_declaration
 %type <union_variable> variable_reference
+
 %type <union_statement_type> statement
 %type <union_statement_list_type> statement_list
+%type <union_declaration_statement_type> variable_declaration
 %type <union_statement_block_type> if_block
 %type <union_statement_block_type> statement_block
 %type <union_statement_type> if_statement
@@ -217,16 +220,18 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_statement_type> print_statement
 %type <union_statement_type> for_statement
 %type <union_statement_type> exit_statement
+%type <union_statement_type> struct_declaration_statement
+%type <union_statement_type> struct_instantiation_statement
+
 %type <union_modifier_type> modifier
 %type <union_modifier_list_type> modifier_list
+
 %type <union_member_declaration_type> member_declaration
 %type <union_member_declaration_list_type> member_declaration_list
-%type <union_statement_type> struct_declaration_statement
 %type <union_member_instantiation_type> member_instantiation
 %type <union_member_instantiation_list_type> member_instantiation_list
 %type <union_member_instantiation_list_type> optional_member_instantiation_list
 %type <union_member_instantiation_list_type> member_instantiation_block
-%type <union_statement_type> struct_instantiation_statement
 
 %% // begin rules
 

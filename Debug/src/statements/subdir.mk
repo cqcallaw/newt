@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../src/statements/array_declaration_statement.cpp \
 ../src/statements/assignment_statement.cpp \
+../src/statements/declaration_statement.cpp \
 ../src/statements/exit_statement.cpp \
 ../src/statements/for_statement.cpp \
 ../src/statements/if_statement.cpp \
@@ -19,6 +20,7 @@ CPP_SRCS += \
 OBJS += \
 ./src/statements/array_declaration_statement.o \
 ./src/statements/assignment_statement.o \
+./src/statements/declaration_statement.o \
 ./src/statements/exit_statement.o \
 ./src/statements/for_statement.o \
 ./src/statements/if_statement.o \
@@ -32,6 +34,7 @@ OBJS += \
 CPP_DEPS += \
 ./src/statements/array_declaration_statement.d \
 ./src/statements/assignment_statement.d \
+./src/statements/declaration_statement.d \
 ./src/statements/exit_statement.d \
 ./src/statements/for_statement.d \
 ./src/statements/if_statement.d \

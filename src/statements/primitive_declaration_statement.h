@@ -12,8 +12,9 @@
 #include <string>
 #include <defaults.h>
 #include <type.h>
+#include <declaration_statement.h>
 
-class PrimitiveDeclarationStatement: public Statement {
+class PrimitiveDeclarationStatement: public DeclarationStatement {
 public:
 	PrimitiveDeclarationStatement(const TypeSpecifier* type, const YYLTYPE type_position,
 			const std::string* name, const YYLTYPE name_position,

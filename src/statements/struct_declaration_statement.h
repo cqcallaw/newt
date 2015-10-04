@@ -25,8 +25,9 @@
 #include <modifier_list.h>
 #include <yyltype.h>
 #include <string>
+#include <declaration_statement.h>
 
-class StructDeclarationStatement: public Statement {
+class StructDeclarationStatement: public DeclarationStatement {
 public:
 	StructDeclarationStatement(const std::string* name,
 			const YYLTYPE name_position,
