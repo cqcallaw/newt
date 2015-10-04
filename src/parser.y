@@ -310,7 +310,6 @@ statement_list:
 	}
 	| statement
 	{
-		//$$ = StatementList::Terminator;
 		$$ = new StatementList($1, StatementList::Terminator);
 	}
 	;
@@ -546,8 +545,7 @@ modifier_list:
 	{
 		$$ = new ModifierList($2, $1);
 	}
-	|
-	modifier
+	| modifier
 	{
 		$$ = new ModifierList($1, ModifierList::Terminator);
 	}
