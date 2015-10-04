@@ -51,7 +51,7 @@ public:
 	virtual const bool IsAssignableTo(const TypeSpecifier* other) const {
 		const ArrayTypeSpecifier* as_array =
 				dynamic_cast<const ArrayTypeSpecifier*>(other);
-		return as_array != nullptr
+		return as_array != nullptr && as_array->m_fixed_size == m_fixed_size
 				&& m_element_type_specifier->IsAssignableTo(
 						as_array->GetElementTypeSpecifier());
 	}

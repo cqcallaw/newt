@@ -78,7 +78,21 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 				}
 			}
 
-			//TODO: array variable re-assignment
+			const ArrayTypeSpecifier* as_array =
+					dynamic_cast<const ArrayTypeSpecifier*>(symbol_type);
+			if (as_array != nullptr) {
+				//reassigning raw array reference, not an array element
+				if (!expression_type->IsAssignableTo(symbol_type)) {
+					YYLTYPE expression_position = m_expression->GetPosition();
+					errors = new LinkedList<const Error*>(
+							new Error(Error::SEMANTIC,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									expression_position.first_line,
+									expression_position.first_column,
+									as_array->ToString(),
+									expression_type->ToString()));
+				}
+			}
 
 			const CompoundTypeSpecifier* as_compound =
 					dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
@@ -86,10 +100,7 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 				//reassigning raw struct reference, not a member
 				if (!expression_type->IsAssignableTo(symbol_type)) {
 					YYLTYPE expression_position = m_expression->GetPosition();
-					const CompoundTypeInstance* as_compound_instance =
-							(const CompoundTypeInstance*) symbol->GetValue();
-					const string struct_type_name =
-							as_compound_instance->GetTypeSpecifier()->GetTypeName();
+					const string struct_type_name = as_compound->GetTypeName();
 					errors = new LinkedList<const Error*>(
 							new Error(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
@@ -97,7 +108,6 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 									expression_position.first_column,
 									struct_type_name,
 									expression_type->ToString()));
-
 				}
 			}
 		}

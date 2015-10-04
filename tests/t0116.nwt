@@ -1,0 +1,5 @@
+//test array type compatibility
+int[3] arr
+int[] arr2
+
+arr2 = arr //should generate preprocess error
