@@ -1,0 +1,19 @@
+Parsing file ../tests/t0117.nwt...
+Parsed file ../tests/t0117.nwt.
+Semantic error on line 7, column 1: The size of array 'arr2' must match the size of the right-hand side of the assignment.
+Root Symbol Table:
+----------------
+int a: 2
+static int[] arr:
+	[0] 0
+	[1] 0
+end array
+static int[] arr2:
+	[0] 0
+	[1] 0
+	[2] 0
+end array
+int b: 3
+
+Root Type Table:
+----------------

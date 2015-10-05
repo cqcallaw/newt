@@ -627,9 +627,26 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 		if (errors == LinkedList<const Error*>::Terminator) {
 			const Array* result_as_array =
 					static_cast<const Array*>(expression_evaluation->GetData());
+
+			const Array* existing_array =
+					static_cast<const Array*>(symbol->GetValue());
+			const int existing_size = existing_array->GetSize();
+			const int result_size = result_as_array->GetSize();
+
 			if (result_as_array) {
-				errors = variable->SetSymbol(execution_context,
-						result_as_array);
+				if (!existing_array->IsFixedSize()
+						|| !result_as_array->IsFixedSize()
+						|| existing_size == result_size) {
+					errors = variable->SetSymbol(execution_context,
+							result_as_array);
+				} else {
+					errors = errors->With(
+							new Error(Error::SEMANTIC,
+									Error::ARRAY_SIZE_MISMATCH,
+									variable->GetLocation().first_line,
+									variable->GetLocation().first_column,
+									*variable->GetName()));
+				}
 			} else {
 				errors =
 						errors->With(

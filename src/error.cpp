@@ -62,7 +62,10 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "The array '" << s1 << "' was declared with illegal size '" << s2
 				<< "'.  Arrays sizes must be integers of 1 or larger.";
 		break;
-		// everything but a game object is a legal LHS of assignment
+	case ARRAY_SIZE_MISMATCH:
+		os << "The size of array '" << s1
+				<< "' must match the size of the right-hand side of the assignment.";
+		break;
 	case INVALID_LHS_OF_ASSIGNMENT:
 		os
 				<< "Left-hand side of assignment must be of type INT, DOUBLE, or STRING."

@@ -1,0 +1,7 @@
+//test array type compatibility
+int a = 2
+int b = 3
+int[a] arr
+int[b] arr2
+
+arr2 = arr //should generate a runtime error
