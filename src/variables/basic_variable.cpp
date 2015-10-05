@@ -103,6 +103,12 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 			context->GetSymbolContext()->SetSymbol(*GetName(), value));
 }
 
+const LinkedList<const Error*>* BasicVariable::SetSymbol(
+		const ExecutionContext* context, const Array* value) const {
+	return ToErrorList(
+			context->GetSymbolContext()->SetSymbol(*GetName(), value));
+}
+
 const LinkedList<const Error*>* BasicVariable::Validate(
 		const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =

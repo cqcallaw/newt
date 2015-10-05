@@ -34,7 +34,7 @@ Root Symbol Table:
 ----------------
 int i: 9
 string s: "hello world"
-double array values:
+static double[] values:
 	[0] 0
 	[1] 0
 	[2] 0
@@ -135,7 +135,7 @@ double array values:
 	[97] 0
 	[98] 0
 	[99] 0
-end array values
+end array
 double x: 3.14159
 
 Root Type Table:

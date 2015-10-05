@@ -4,7 +4,7 @@ Semantic error on line 5, column 5: Index value '-1' is out of bounds for array 
 Root Symbol Table:
 ----------------
 int i: -1
-int array nums:
+static int[] nums:
 	[0] 0
 	[1] 0
 	[2] 0
@@ -15,7 +15,7 @@ int array nums:
 	[7] 0
 	[8] 0
 	[9] 0
-end array nums
+end array
 
 Root Type Table:
 ----------------

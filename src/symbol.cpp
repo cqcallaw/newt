@@ -21,7 +21,6 @@
 #include <sstream>
 #include <defaults.h>
 
-#include "symbol.h"
 #include "assert.h"
 #include "indent.h"
 #include "type.h"
@@ -30,6 +29,7 @@
 #include <execution_context.h>
 #include <array_type_specifier.h>
 #include <primitive_type_specifier.h>
+#include <symbol.h>
 
 const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
 const Symbol* Symbol::DefaultSymbol = new Symbol(
@@ -51,6 +51,14 @@ Symbol::Symbol(const string name, const string *value) :
 		Symbol(PrimitiveTypeSpecifier::GetString(), name, (void *) value) {
 }
 
+Symbol::Symbol(const string name, const Array* value) :
+		Symbol(value->GetTypeSpecifier(), name, (void *) value) {
+}
+
+Symbol::Symbol(const string name, const CompoundTypeInstance* value) :
+		Symbol(value->GetTypeSpecifier(), name, (void *) value) {
+}
+
 Symbol::Symbol(const TypeSpecifier* type, const string name, const void* value) :
 		m_type(type), m_name(name), m_value(value) {
 	assert(type != nullptr);
@@ -69,6 +77,14 @@ Symbol::Symbol(const string* name, const double *value) :
 }
 
 Symbol::Symbol(const string* name, const string *value) :
+		Symbol(*name, value) {
+}
+
+Symbol::Symbol(const string* name, const Array* value) :
+		Symbol(value->GetTypeSpecifier(), *name, (void *) value) {
+}
+
+Symbol::Symbol(const string* name, const CompoundTypeInstance* value) :
 		Symbol(*name, value) {
 }
 
@@ -97,6 +113,14 @@ const Symbol* Symbol::WithValue(const string* value) const {
 	return WithValue(PrimitiveTypeSpecifier::GetString(), (void*) value);
 }
 
+const Symbol* Symbol::WithValue(const Array* value) const {
+	return WithValue(value->GetTypeSpecifier(), (void*) value);
+}
+
+const Symbol* Symbol::WithValue(const CompoundTypeInstance* value) const {
+	return WithValue(value->GetTypeSpecifier(), (void*) value);
+}
+
 const Symbol* Symbol::WithValue(const TypeSpecifier* type,
 		const void* value) const {
 	if (!type->IsAssignableTo(this->m_type)) {
@@ -120,7 +144,9 @@ const string Symbol::ToString(const TypeTable* type_table,
 	const ArrayTypeSpecifier* as_array =
 			dynamic_cast<const ArrayTypeSpecifier*>(m_type);
 	if (as_array != nullptr) {
-		buffer << as_array->ToString();
+		buffer << endl;
+		const Array* array = static_cast<const Array*>(m_value);
+		buffer << array->ToString(type_table, indent);
 	}
 
 	const CompoundTypeSpecifier* as_compound =
@@ -134,16 +160,4 @@ const string Symbol::ToString(const TypeTable* type_table,
 
 	return buffer.str();
 
-}
-
-Symbol::Symbol(const string name, const CompoundTypeInstance* value) :
-		Symbol(value->GetTypeSpecifier(), name, (void *) value) {
-}
-
-Symbol::Symbol(const string* name, const CompoundTypeInstance* value) :
-		Symbol(*name, value) {
-}
-
-const Symbol* Symbol::WithValue(const CompoundTypeInstance* value) const {
-	return WithValue(value->GetTypeSpecifier(), (void*) value);
 }

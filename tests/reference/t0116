@@ -1,4 +1,4 @@
 Parsing file ../tests/t0116.nwt...
-Semantic error on line 5, column 8: Cannot assign an expression of type 'static array [int]' to a variable of type 'dynamic array [int]'.
+Semantic error on line 5, column 8: Cannot assign an expression of type 'static int[]' to a variable of type 'dynamic int[]'.
 Parsed file ../tests/t0116.nwt.
 1 error found; giving up.

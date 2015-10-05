@@ -6,7 +6,7 @@ int i: 100
 int inc: 5
 int num_rects: 100
 int p: 110
-rectangle array rects:
+static rectangle[] rects:
 	[0]: 
 		double blue: 0.29
 		double green: 0.22

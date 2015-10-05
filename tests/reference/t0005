@@ -7,29 +7,29 @@ int a: 0
 int a_very_long_identifier: 0
 int an_identifier_with_digits_1234: 0
 int b: 0
-int array nums:
+static int[] nums:
 	[0] 0
 	[1] 0
-end array nums
-int array nums2:
-end array nums2
+end array
+dynamic int[] nums2:
+end array
 string s1: ""
 string s2: ""
-string array strings:
+static string[] strings:
 	[0] ""
 	[1] ""
 	[2] ""
 	[3] ""
-end array strings
-string array strings2:
-end array strings2
-double array values:
+end array
+dynamic string[] strings2:
+end array
+static double[] values:
 	[0] 0
 	[1] 0
 	[2] 0
-end array values
-double array values2:
-end array values2
+end array
+dynamic double[] values2:
+end array
 double x: 0
 double y: 0
 

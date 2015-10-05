@@ -251,6 +251,37 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 	return ToErrorList(set_result);
 }
 
+const LinkedList<const Error*>* MemberVariable::SetSymbol(
+		const ExecutionContext* context, const Array* value) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const Result* container_result = m_container->Evaluate(context);
+
+	SetResult set_result = NO_SET_RESULT;
+
+	errors = container_result->GetErrors();
+	if (errors == LinkedList<const Error*>::Terminator) {
+		const TypeSpecifier* container_type = m_container->GetType(context);
+		const CompoundTypeSpecifier* as_compound =
+				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
+
+		if (as_compound != nullptr) {
+			const CompoundTypeInstance* instance =
+					(const CompoundTypeInstance*) container_result->GetData();
+			const string member_name = *(m_member_variable->GetName());
+			set_result = instance->GetDefinition()->SetSymbol(member_name,
+					value);
+		} else {
+			set_result = INCOMPATIBLE_TYPE;
+		}
+	} else {
+		return errors;
+	}
+
+	return ToErrorList(set_result);
+}
+
 const LinkedList<const Error*>* MemberVariable::Validate(
 		const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =

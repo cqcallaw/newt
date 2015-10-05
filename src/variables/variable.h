@@ -20,8 +20,8 @@
 #ifndef VARIABLE_H_
 #define VARIABLE_H_
 
+#include <symbol.h>
 #include <string>
-#include "symbol.h"
 #include "yyltype.h"
 #include <symbol_context.h>
 
@@ -60,6 +60,9 @@ public:
 
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context, const string* value) const = 0;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const Array* value) const = 0;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context,

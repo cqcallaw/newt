@@ -11,21 +11,21 @@ strings[1] = one
 strings[2] = two
 Root Symbol Table:
 ----------------
-double array doubles:
+static double[] doubles:
 	[0] 0
 	[1] 1
 	[2] 2
-end array doubles
-int array ints:
+end array
+static int[] ints:
 	[0] 0
 	[1] 1
 	[2] 2
-end array ints
-string array strings:
+end array
+static string[] strings:
 	[0] "zero"
 	[1] "one"
 	[2] "two"
-end array strings
+end array
 
 Root Type Table:
 ----------------

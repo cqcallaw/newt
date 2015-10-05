@@ -5,6 +5,7 @@
  *      Author: caleb
  */
 
+#include <array.h>
 #include <array_declaration_statement.h>
 #include <error.h>
 #include <symbol_table.h>
@@ -12,7 +13,6 @@
 #include <expression.h>
 #include <assignment_statement.h>
 #include <variable.h>
-#include <array_symbol.h>
 #include <sstream>
 #include <constant_expression.h>
 #include <vector>
@@ -53,7 +53,7 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 	}
 
 	if (errors->IsTerminator()) {
-		const Symbol* symbol = (Symbol*) Symbol::DefaultSymbol;
+		const Array* array = nullptr;
 		const string* name = m_name;
 
 		//if our array size is a constant, validate it as part of the preprocessing pass.
@@ -104,18 +104,19 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 
 				delete (evaluation);
 			}
-			symbol = new ArraySymbol(*name, m_type->GetElementTypeSpecifier(),
+			array = new Array(m_type->GetElementTypeSpecifier(),
 					execution_context->GetTypeTable(), size,
 					m_size_expression->IsConstant());
 		} else {
-			symbol = new ArraySymbol(*name, m_type->GetElementTypeSpecifier(),
+			array = new Array(m_type->GetElementTypeSpecifier(),
 					execution_context->GetTypeTable());
 		}
 
 		SymbolTable* symbol_table =
 				(SymbolTable*) execution_context->GetSymbolContext();
 
-		if (symbol != Symbol::DefaultSymbol) {
+		if (array != nullptr) {
+			const Symbol* symbol = new Symbol(name, array);
 			InsertResult insert_result = symbol_table->InsertSymbol(symbol);
 			if (insert_result == SYMBOL_EXISTS) {
 				errors = errors->With(
@@ -178,11 +179,11 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 										m_size_expression_position.first_column,
 										*m_name, convert.str()));
 					} else {
-						const ArraySymbol* symbol = new ArraySymbol(*m_name,
+						const Array* array = new Array(
 								m_type->GetElementTypeSpecifier(),
 								execution_context->GetTypeTable(), array_size,
 								true);
-						result = symbol_table->SetArraySymbol(*m_name, symbol);
+						result = symbol_table->SetSymbol(*m_name, array);
 					}
 				} else {
 					assert(false);

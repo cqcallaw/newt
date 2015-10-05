@@ -4,7 +4,7 @@ Root Symbol Table:
 ----------------
 int i: 100
 int p: 467
-rectangle array rects:
+static rectangle[] rects:
 	[0]: 
 		double blue: 0
 		double green: 0

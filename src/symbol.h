@@ -31,6 +31,7 @@ using namespace std;
 
 class Expression;
 class ExecutionContext;
+class Array;
 class CompoundTypeInstance;
 
 class Symbol {
@@ -39,12 +40,14 @@ public:
 	Symbol(const string name, const int* value);
 	Symbol(const string name, const double* value);
 	Symbol(const string name, const string* value);
+	Symbol(const string name, const Array* value);
 	Symbol(const string name, const CompoundTypeInstance* value);
 
 	Symbol(const string* name, const bool* value);
 	Symbol(const string* name, const int* value);
 	Symbol(const string* name, const double* value);
 	Symbol(const string* name, const string* value);
+	Symbol(const string* name, const Array* value);
 	Symbol(const string* name, const CompoundTypeInstance* value);
 
 	virtual ~Symbol() {
@@ -58,6 +61,7 @@ public:
 	const Symbol* WithValue(const int* value) const;
 	const Symbol* WithValue(const double* value) const;
 	const Symbol* WithValue(const string* value) const;
+	const Symbol* WithValue(const Array* value) const;
 	const Symbol* WithValue(const CompoundTypeInstance* value) const;
 	const Symbol* WithValue(const TypeSpecifier* type, const void* value) const;
 

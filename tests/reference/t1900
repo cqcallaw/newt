@@ -56,7 +56,7 @@ int i71: 1
 int i8: 0
 int i9: 0
 int ii: 1
-int array iii:
+static int[] iii:
 	[0] 0
 	[1] 0
 	[2] 0
@@ -64,7 +64,7 @@ int array iii:
 	[4] 0
 	[5] 0
 	[6] 0
-end array iii
+end array
 int iiii: 2
 int myInt: 0
 double pi: 3.1415

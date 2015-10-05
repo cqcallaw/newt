@@ -20,11 +20,11 @@
 #ifndef SYMBOL_CONTEXT_H_
 #define SYMBOL_CONTEXT_H_
 
+#include <array.h>
 #include <iostream>
-#include "symbol.h"
-#include <array_symbol.h>
 #include <map>
 #include <modifier.h>
+#include <symbol.h>
 
 class CompoundTypeInstance;
 
@@ -83,11 +83,9 @@ public:
 	SetResult SetSymbol(const string identifier, const int* value);
 	SetResult SetSymbol(const string identifier, const double* value);
 	SetResult SetSymbol(const string identifier, const string* value);
+	SetResult SetSymbol(const string identifier, const Array* value);
 	SetResult SetSymbol(const string identifier,
 			const CompoundTypeInstance* value);
-
-	SetResult SetArraySymbol(const string identifier,
-			const ArraySymbol* new_symbol);
 
 private:
 	const Modifier::Type m_modifiers;

@@ -10,7 +10,7 @@ circle my_circle:
 	int x: 10
 	int y: 0
 
-circle array my_circles:
+static circle[] my_circles:
 	[0]: 
 		int radius: 0
 		int w: 20

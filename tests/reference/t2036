@@ -11,7 +11,7 @@ rects[3].y = 300
 Root Symbol Table:
 ----------------
 int i: 4
-rectangle array rects:
+static rectangle[] rects:
 	[0]: 
 		int h: 0
 		int w: 10

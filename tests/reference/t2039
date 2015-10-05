@@ -5,13 +5,13 @@ Root Symbol Table:
 ----------------
 int i: 5
 int k: 3
-int array nums:
+static int[] nums:
 	[0] 0
 	[1] 1
 	[2] 2
 	[3] 42
 	[4] 4
-end array nums
+end array
 
 Root Type Table:
 ----------------

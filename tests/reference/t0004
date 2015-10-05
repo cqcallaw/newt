@@ -2,7 +2,7 @@ Parsing file ../tests/t0004.nwt...
 Parsed file ../tests/t0004.nwt.
 Root Symbol Table:
 ----------------
-int array numbers:
+dynamic int[] numbers:
 	[0] 42
 	[1] 0
 	[2] 0
@@ -2004,8 +2004,8 @@ int array numbers:
 	[1998] 0
 	[1999] 0
 	[2000] 42
-end array numbers
-int array numbers2:
+end array
+static int[] numbers2:
 	[0] 0
 	[1] 0
 	[2] 0
@@ -2206,8 +2206,8 @@ int array numbers2:
 	[197] 0
 	[198] 0
 	[199] 0
-end array numbers2
-string array strings:
+end array
+dynamic string[] strings:
 	[0] ""
 	[1] ""
 	[2] ""
@@ -4209,8 +4209,8 @@ string array strings:
 	[1998] ""
 	[1999] ""
 	[2000] "42"
-end array strings
-string array strings2:
+end array
+static string[] strings2:
 	[0] ""
 	[1] ""
 	[2] ""
@@ -4411,8 +4411,8 @@ string array strings2:
 	[197] ""
 	[198] ""
 	[199] ""
-end array strings2
-double array values:
+end array
+dynamic double[] values:
 	[0] 0
 	[1] 0
 	[2] 0
@@ -6414,8 +6414,8 @@ double array values:
 	[1998] 0
 	[1999] 0
 	[2000] 42
-end array values
-double array values2:
+end array
+static double[] values2:
 	[0] 0
 	[1] 0
 	[2] 0
@@ -6616,7 +6616,7 @@ double array values2:
 	[197] 0
 	[198] 0
 	[199] 0
-end array values2
+end array
 
 Root Type Table:
 ----------------

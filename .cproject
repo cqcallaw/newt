@@ -34,7 +34,6 @@
 									<listOptionValue builtIn="false" value="../src"/>
 									<listOptionValue builtIn="false" value="../src/expressions"/>
 									<listOptionValue builtIn="false" value="../src/statements"/>
-									<listOptionValue builtIn="false" value="../src/symbols"/>
 									<listOptionValue builtIn="false" value="../src/variables"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1157401231" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>

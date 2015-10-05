@@ -63,6 +63,9 @@ public:
 			const ExecutionContext* context, const string* value) const;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const Array* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const;
 
@@ -72,24 +75,24 @@ public:
 protected:
 	class ValidationResult {
 	public:
-		ValidationResult(const ArraySymbol* symbol, const int index,
+		ValidationResult(const Array* array, const int index,
 				const LinkedList<const Error*>* errors) :
-				m_symbol(symbol), m_index(index), m_errors(errors) {
+				m_array(array), m_index(index), m_errors(errors) {
 		}
 
 		const int GetIndex() const {
 			return m_index;
 		}
 
-		const ArraySymbol* GetSymbol() const {
-			return m_symbol;
+		const Array* GetArray() const {
+			return m_array;
 		}
 
 		const LinkedList<const Error*>* GetErrors() const {
 			return m_errors;
 		}
 	private:
-		const ArraySymbol* m_symbol;
+		const Array* m_array;
 		const int m_index;
 		const LinkedList<const Error*>* m_errors;
 	};
@@ -98,7 +101,8 @@ private:
 	const Expression* m_index_expression;
 	const YYLTYPE m_expression_location;
 
-	const ValidationResult* ValidateOperation(const ExecutionContext* context) const;
+	const ValidationResult* ValidateOperation(
+			const ExecutionContext* context) const;
 
 	const LinkedList<const Error*>* SetSymbolCore(
 			const ExecutionContext* context, const void* value) const;

@@ -18,6 +18,7 @@ CPP_SRCS += \
 ../src/parameter.cpp \
 ../src/parameterlist.cpp \
 ../src/primitive_type_specifier.cpp \
+../src/symbol.cpp \
 ../src/symbol_context.cpp \
 ../src/symbol_table.cpp \
 ../src/type.cpp \
@@ -40,6 +41,7 @@ OBJS += \
 ./src/parameter.o \
 ./src/parameterlist.o \
 ./src/primitive_type_specifier.o \
+./src/symbol.o \
 ./src/symbol_context.o \
 ./src/symbol_table.o \
 ./src/type.o \
@@ -62,6 +64,7 @@ CPP_DEPS += \
 ./src/parameter.d \
 ./src/parameterlist.d \
 ./src/primitive_type_specifier.d \
+./src/symbol.d \
 ./src/symbol_context.d \
 ./src/symbol_table.d \
 ./src/type.d \
@@ -74,7 +77,7 @@ CPP_DEPS += \
 src/%.o: ../src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -std=c++0x -I./ -I../src -I../src/expressions -I../src/statements -I../src/symbols -I../src/variables -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -std=c++0x -I./ -I../src -I../src/expressions -I../src/statements -I../src/variables -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

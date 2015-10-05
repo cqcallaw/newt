@@ -20,7 +20,6 @@
 #ifndef ARRAY_SYMBOL_H_
 #define ARRAY_SYMBOL_H_
 
-#include "symbol.h"
 #include "yyltype.h"
 #include <vector>
 #include <sstream>
@@ -32,30 +31,28 @@
 #include <primitive_type_specifier.h>
 #include <compound_type_specifier.h>
 #include <array_type_specifier.h>
+#include <symbol.h>
 
-class ArraySymbol: public Symbol {
+class Array {
 public:
-	ArraySymbol(const string name, const TypeSpecifier* element_specifier,
-			const TypeTable* type_table) :
-			ArraySymbol(name, element_specifier,
+	Array(const TypeSpecifier* element_specifier, const TypeTable* type_table) :
+			Array(element_specifier,
 					GetStorage(element_specifier, 0, type_table), true, false) {
 	}
 
-	ArraySymbol(const string name, const TypeSpecifier* element_specifier,
-			const TypeTable* type_table, const int size, const bool initialized) :
-			ArraySymbol(name, element_specifier,
+	Array(const TypeSpecifier* element_specifier, const TypeTable* type_table,
+			const int size, const bool initialized) :
+			Array(element_specifier,
 					GetStorage(element_specifier, size, type_table),
 					initialized, true) {
 	}
 
 	const string ToString(const TypeTable* type_table,
-			const Indent indent) const override {
+			const Indent indent) const {
 		ostringstream os;
 
 		const TypeSpecifier* type = GetElementType();
-		const string name = GetName();
 		int size = GetSize();
-		os << type->ToString() << " array " << name << ":" << endl;
 
 		Indent child_indent = indent + 1;
 
@@ -91,7 +88,7 @@ public:
 			default:
 				break;
 			}
-			os << "end array " << name;
+			os << "end array";
 		}
 
 		//TODO: array element types
@@ -114,16 +111,16 @@ public:
 	template<class T> const void* GetValue(const int index,
 			const TypeTable* type_table) const {
 		if (0 <= index && index < GetSize()) {
-			const void* result = GetVector<T>()->at(index);
+			const void* result = GetValue<T>()->at(index);
 			return result;
 		} else {
 			return m_element_specifier->DefaultValue(type_table);
 		}
 	}
 
-	template<class T> const ArraySymbol* WithValue(const int index,
-			const T value, const TypeTable* type_table) const {
-		vector<T>* new_vector = new vector<T>(*(GetVector<T>()));
+	template<class T> const Array* WithValue(const int index, const T value,
+			const TypeTable* type_table) const {
+		vector<T>* new_vector = new vector<T>(*(GetValue<T>()));
 		if (index < GetSize()) {
 			new_vector->at(index) = value;
 		} else {
@@ -131,20 +128,23 @@ public:
 					(T) m_element_specifier->DefaultValue(type_table));
 			new_vector->insert(new_vector->end(), value);
 		}
-		return new ArraySymbol(GetName(), GetElementType(), (void*) new_vector,
-				m_initialized, m_fixed_size);
+		return new Array(GetElementType(), (void*) new_vector, m_initialized,
+				m_fixed_size);
 	}
 
-	template<class T> const ArraySymbol* WithAppendedValue(
-			const T value) const {
-		vector<T>* new_vector = new vector<T>(GetVector<T>());
+	template<class T> const Array* WithAppendedValue(const T value) const {
+		vector<T>* new_vector = new vector<T>(GetValue<T>());
 		new_vector->push_back(value);
-		return new ArraySymbol(GetName(), GetType(), new_vector);
+		return new Array(m_element_specifier, new_vector);
 	}
 
 	const int GetSize() const {
-		int size = ((vector<const void*>*) Symbol::GetValue())->size();
+		int size = ((vector<const void*>*) m_value)->size();
 		return size;
+	}
+
+	const TypeSpecifier* GetTypeSpecifier() const {
+		return m_type_specifier;
 	}
 
 	const TypeSpecifier* GetElementType() const {
@@ -160,10 +160,11 @@ public:
 	}
 
 private:
-	ArraySymbol(const string name, const TypeSpecifier* element_specifier,
-			const void* value, const bool initialized, const bool fixed_size) :
-			Symbol(new ArrayTypeSpecifier(element_specifier, fixed_size), name,
-					value), m_element_specifier(element_specifier), m_initialized(
+	Array(const TypeSpecifier* element_specifier, const void* value,
+			const bool initialized, const bool fixed_size) :
+			m_type_specifier(
+					new ArrayTypeSpecifier(element_specifier, fixed_size)), m_element_specifier(
+					element_specifier), m_value(value), m_initialized(
 					initialized), m_fixed_size(fixed_size) {
 	}
 
@@ -215,16 +216,18 @@ private:
 		return nullptr;
 	}
 
+	const TypeSpecifier* m_type_specifier;
 	const TypeSpecifier* m_element_specifier;
+	const void* m_value;
 	const bool m_initialized;
 	const bool m_fixed_size;
 
-	template<class T> const vector<T>* GetVector() const {
-		return ((const vector<T>*) Symbol::GetValue());
+	template<class T> const vector<T>* GetValue() const {
+		return ((const vector<T>*) m_value);
 	}
 };
 
 template<class T> std::ostream &operator<<(std::ostream &os,
-		const ArraySymbol &symbol);
+		const Array &symbol);
 
 #endif /* ARRAY_SYMBOL_H_ */

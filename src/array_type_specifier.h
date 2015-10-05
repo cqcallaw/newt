@@ -42,9 +42,8 @@ public:
 		} else {
 			buffer << "dynamic ";
 		}
-		buffer << "array [";
 		buffer << m_element_type_specifier->ToString();
-		buffer << "]";
+		buffer << "[]";
 		return buffer.str();
 	}
 

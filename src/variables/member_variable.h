@@ -35,6 +35,9 @@ public:
 			const ExecutionContext* context, const string* value) const;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const Array* value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const;
 

@@ -1,6 +1,6 @@
 #parser
 PCOMP = g++
-PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/statements" -I"../src/symbols" -I"../src/variables" -I"../src" -I"./"
+PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/statements" -I"../src/variables" -I"../src" -I"./"
 
 parser: parser.tab.o
 

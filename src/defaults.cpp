@@ -19,7 +19,6 @@
 
 #include <assignment_statement.h>
 #include <defaults.h>
-#include <symbol.h>
 #include <expression.h>
 #include <for_statement.h>
 #include <if_statement.h>
@@ -27,6 +26,7 @@
 #include <print_statement.h>
 #include <statement_block.h>
 #include <statement_list.h>
+#include <symbol.h>
 #include <variable.h>
 #include "type.h"
 

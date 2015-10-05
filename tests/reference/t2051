@@ -2,7 +2,7 @@ Parsing file ../tests/t2051.nwt...
 Parsed file ../tests/t2051.nwt.
 Root Symbol Table:
 ----------------
-circle array circles:
+static circle[] circles:
 	[0]: 
 		int radius: 10
 		int w: 20

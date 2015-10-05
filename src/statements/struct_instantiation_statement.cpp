@@ -25,9 +25,9 @@
 #include <result.h>
 #include <member_instantiation.h>
 #include <expression.h>
-#include <symbol.h>
 #include <member_definition.h>
 #include <compound_type.h>
+#include <symbol.h>
 
 StructInstantiationStatement::StructInstantiationStatement(
 		const std::string* type_name, const YYLTYPE type_name_position,

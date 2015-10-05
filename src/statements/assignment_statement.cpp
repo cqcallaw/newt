@@ -616,7 +616,32 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 		}
 	}
 
-//TODO: basic array assignment
+	const ArrayTypeSpecifier* as_array =
+			dynamic_cast<const ArrayTypeSpecifier*>(symbol_type);
+	if (as_array) {
+		//re-assigning an array reference
+		const Result* expression_evaluation = expression->Evaluate(
+				execution_context);
+
+		errors = expression_evaluation->GetErrors();
+		if (errors == LinkedList<const Error*>::Terminator) {
+			const Array* result_as_array =
+					static_cast<const Array*>(expression_evaluation->GetData());
+			if (result_as_array) {
+				errors = variable->SetSymbol(execution_context,
+						result_as_array);
+			} else {
+				errors =
+						errors->With(
+								new Error(Error::SEMANTIC,
+										Error::ASSIGNMENT_TYPE_ERROR,
+										variable->GetLocation().first_line,
+										variable->GetLocation().first_column,
+										as_array->ToString(),
+										expression->GetType(execution_context)->ToString()));
+			}
+		}
+	}
 
 	const CompoundTypeSpecifier* as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
@@ -652,9 +677,13 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
 	const void* symbol_value = symbol->GetValue();
 
-	const ArraySymbol* array_symbol = dynamic_cast<const ArraySymbol*>(symbol);
+	const TypeSpecifier* symbol_type_specifier = symbol->GetType();
+	const ArrayTypeSpecifier* as_array_specifier =
+			dynamic_cast<const ArrayTypeSpecifier*>(symbol_type_specifier);
 
-	if (array_symbol != nullptr) {
+	if (as_array_specifier) {
+		const Array* array = static_cast<const Array*>(symbol_value);
+
 		const Result* evaluation = variable->GetIndexExpression()->Evaluate(
 				execution_context);
 
@@ -663,8 +692,8 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 			int index = *((int*) evaluation->GetData());
 			delete (evaluation);
 
-			if (!array_symbol->IsFixedSize()
-					|| (index < array_symbol->GetSize() && index >= 0)) {
+			if (!array->IsFixedSize()
+					|| (index < array->GetSize() && index >= 0)) {
 				const TypeSpecifier* element_type_specifier = variable->GetType(
 						execution_context);
 				const PrimitiveTypeSpecifier* element_as_primitive =
@@ -738,7 +767,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 				errors = new LinkedList<const Error*>(
 						new Error(Error::SEMANTIC,
 								Error::ARRAY_INDEX_OUT_OF_BOUNDS, variable_line,
-								variable_column, array_symbol->GetName(),
+								variable_column, symbol->GetName(),
 								*AsString(index)));
 			}
 		}
@@ -807,12 +836,6 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 	if (symbol == NULL || symbol == Symbol::DefaultSymbol) {
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						variable_line, variable_column, *(variable_name)));
-	} else if (dynamic_cast<const ArrayVariable*>(m_variable) != nullptr
-			&& dynamic_cast<const ArrayTypeSpecifier*>(symbol->GetType())
-					== nullptr) {
-		errors = new LinkedList<const Error*>(
-				new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
 						variable_line, variable_column, *(variable_name)));
 	} else {
 		errors = do_op(m_variable, m_expression, m_op_type, execution_context);
