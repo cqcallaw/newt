@@ -21,10 +21,18 @@
 #define STATEMENTS_DECLARATION_STATEMENT_H_
 
 #include <statement.h>
+#include <string>
+
+class Expression;
+class TypeSpecifier;
 
 class DeclarationStatement: public Statement {
 public:
 	virtual ~DeclarationStatement();
+
+	virtual const Expression* GetInitializerExpression() const = 0;
+	virtual const TypeSpecifier* GetType() const = 0;
+	virtual const std::string* GetName() const = 0;
 };
 
 #endif /* STATEMENTS_DECLARATION_STATEMENT_H_ */

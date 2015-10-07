@@ -34,18 +34,7 @@ public:
 	virtual ~ArrayTypeSpecifier() {
 	}
 
-	virtual const string ToString() const {
-		ostringstream buffer;
-
-		if (m_fixed_size) {
-			buffer << "static ";
-		} else {
-			buffer << "dynamic ";
-		}
-		buffer << m_element_type_specifier->ToString();
-		buffer << "[]";
-		return buffer.str();
-	}
+	virtual const string ToString() const;
 
 	virtual const bool IsAssignableTo(const TypeSpecifier* other) const {
 		const ArrayTypeSpecifier* as_array =
@@ -55,10 +44,7 @@ public:
 						as_array->GetElementTypeSpecifier());
 	}
 
-	virtual const void* DefaultValue(const TypeTable* type_table) const {
-		assert(false);
-		return nullptr;
-	}
+	virtual const void* DefaultValue(const TypeTable* type_table) const;
 
 	const TypeSpecifier* GetElementTypeSpecifier() const {
 		return m_element_type_specifier;

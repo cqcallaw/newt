@@ -58,6 +58,6 @@ const void TypeTable::print(ostream& os) const {
 	for (iter = table->begin(); iter != table->end(); ++iter) {
 		os << iter->first << ": " << endl;
 		const CompoundType* type = iter->second;
-		os << type->ToString(this, Indent(0));
+		os << type->ToString(this, Indent(1));
 	}
 }

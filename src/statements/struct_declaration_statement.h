@@ -37,8 +37,26 @@ public:
 			const YYLTYPE modifiers_location);
 	virtual ~StructDeclarationStatement();
 
+	virtual LinkedList<const Error*>* preprocess(
+			const ExecutionContext* execution_context) const;
+
+	virtual const LinkedList<const Error*>* execute(
+			const ExecutionContext* execution_context) const;
+
 	const MemberDeclarationList* GetMemberDeclarationList() const {
 		return m_member_declaration_list;
+	}
+
+	virtual const TypeSpecifier* GetType() const {
+		return m_type_specifier;
+	}
+
+	virtual const std::string* GetName() const {
+		return m_name;
+	}
+
+	virtual const Expression* GetInitializerExpression() const {
+		return m_initializer_expression;
 	}
 
 	const YYLTYPE GetMemberDeclarationListPosition() const {
@@ -53,19 +71,9 @@ public:
 		return m_modifiers_location;
 	}
 
-	const std::string* GetName() const {
-		return m_name;
-	}
-
 	const YYLTYPE GetNamePosition() const {
 		return m_name_position;
 	}
-
-	virtual LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const;
-
-	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const;
 
 private:
 	const std::string* m_name;
@@ -74,6 +82,9 @@ private:
 	const YYLTYPE m_member_declaration_list_position;
 	const ModifierList* m_modifier_list;
 	const YYLTYPE m_modifiers_location;
+
+	const TypeSpecifier* m_type_specifier;
+	const Expression* m_initializer_expression;
 };
 
 #endif /* STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_ */

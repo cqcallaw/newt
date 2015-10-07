@@ -16,8 +16,9 @@
 
 class PrimitiveDeclarationStatement: public DeclarationStatement {
 public:
-	PrimitiveDeclarationStatement(const TypeSpecifier* type, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+	PrimitiveDeclarationStatement(const TypeSpecifier* type,
+			const YYLTYPE type_position, const std::string* name,
+			const YYLTYPE name_position,
 			const Expression* initializer_expression = nullptr,
 			const YYLTYPE initializer_position = DefaultLocation);
 	virtual ~PrimitiveDeclarationStatement();
@@ -27,6 +28,19 @@ public:
 
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;
+
+	virtual const Expression* GetInitializerExpression() const {
+		return m_initializer_expression;
+	}
+
+	virtual const TypeSpecifier* GetType() const {
+		return m_type;
+	}
+
+	virtual const std::string* GetName() const {
+		return m_name;
+	}
+
 private:
 	const TypeSpecifier* m_type;
 	const YYLTYPE m_type_position;

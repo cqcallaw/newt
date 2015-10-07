@@ -45,7 +45,6 @@ public:
 	const string ToString(const TypeTable* type_table,
 			const Indent indent) const {
 		ostringstream buffer;
-		buffer << indent;
 		const PrimitiveTypeSpecifier* as_primitive =
 				dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
 		if (as_primitive != nullptr) {
@@ -62,12 +61,12 @@ public:
 				dynamic_cast<const CompoundTypeSpecifier*>(m_type);
 		if (as_compound != nullptr) {
 			const string type_name = as_compound->GetTypeName();
-			buffer << type_name << ": ";
 			const CompoundType* compound_type = type_table->GetType(type_name);
-			buffer << compound_type->ToString(type_table, indent + 1);
+			buffer << compound_type->ToString(type_table, indent);
 		}
 
-		return buffer.str();
+		string result = buffer.str();
+		return result;
 	}
 
 	const static MemberDefinition* GetDefaultMemberDefinition();

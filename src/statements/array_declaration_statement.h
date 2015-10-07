@@ -33,6 +33,14 @@ public:
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;
 
+	virtual const Expression* GetInitializerExpression() const {
+		return nullptr;
+	}
+
+	virtual const TypeSpecifier* GetType() const;
+
+	virtual const std::string* GetName() const;
+
 	const bool IsFixedSize() const;
 
 private:

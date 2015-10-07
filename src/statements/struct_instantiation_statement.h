@@ -25,21 +25,23 @@
 #include <yyltype.h>
 #include <member_instantiation_list.h>
 #include <type.h>
+#include <declaration_statement.h>
 
 class Symbol;
 class Expression;
+class CompoundTypeSpecifier;
 
 using namespace std;
 
-class StructInstantiationStatement: public Statement {
+class StructInstantiationStatement: public DeclarationStatement {
 public:
-	StructInstantiationStatement(const string* type_name,
+	StructInstantiationStatement(const CompoundTypeSpecifier* type_specifier,
 			const YYLTYPE type_name_position, const string* name,
 			const YYLTYPE name_position,
-			const Expression* initialization_expression = nullptr);
+			const Expression* initializer_expression = nullptr);
 	virtual ~StructInstantiationStatement();
 
-	const string* GetName() const {
+	virtual const string* GetName() const {
 		return m_name;
 	}
 
@@ -47,9 +49,7 @@ public:
 		return m_name_position;
 	}
 
-	const string* GetTypeName() const {
-		return m_type_name;
-	}
+	const TypeSpecifier* GetType() const;
 
 	const YYLTYPE GetTypeNamePosition() const {
 		return m_type_name_position;
@@ -61,16 +61,16 @@ public:
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;
 
-	const Expression* GetInitializationExpression() const {
-		return m_initialization_expression;
+	virtual const Expression* GetInitializerExpression() const {
+		return m_initializer_expression;
 	}
 
 private:
-	const string* m_type_name;
+	const CompoundTypeSpecifier* m_type_specifier;
 	const YYLTYPE m_type_name_position;
 	const string* m_name;
 	const YYLTYPE m_name_position;
-	const Expression* m_initialization_expression;
+	const Expression* m_initializer_expression;
 
 	const Symbol* GetSymbol(const BasicType member_type,
 			const string member_name, const void* void_value) const;

@@ -46,8 +46,7 @@ const CompoundTypeInstance* CompoundTypeInstance::GetDefaultInstance(
 	const CompoundTypeInstance* instance = new CompoundTypeInstance(
 			type_specifier,
 			new SymbolContext(type->GetModifiers(),
-					LinkedList<SymbolContext*>::Terminator,
-					symbol_mapping));
+					LinkedList<SymbolContext*>::Terminator, symbol_mapping));
 
 	return instance;
 }
@@ -64,6 +63,9 @@ const Symbol* CompoundTypeInstance::GetSymbol(const TypeSpecifier* member_type,
 	} else if (member_type->IsAssignableTo(
 			PrimitiveTypeSpecifier::GetString())) {
 		return new Symbol(member_name, (string*) void_value);
+	} else if (dynamic_cast<const ArrayTypeSpecifier*>(member_type)
+			!= nullptr) {
+		return new Symbol(member_name, (Array*) void_value);
 	} else if (dynamic_cast<const CompoundTypeSpecifier*>(member_type)
 			!= nullptr) {
 		return new Symbol(member_name, (CompoundTypeInstance*) void_value);

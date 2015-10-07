@@ -221,12 +221,10 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_statement_type> for_statement
 %type <union_statement_type> exit_statement
 %type <union_statement_type> struct_declaration_statement
-%type <union_statement_type> struct_instantiation_statement
 
 %type <union_modifier_type> modifier
 %type <union_modifier_list_type> modifier_list
 
-%type <union_member_declaration_type> member_declaration
 %type <union_member_declaration_list_type> member_declaration_list
 %type <union_member_instantiation_type> member_instantiation
 %type <union_member_instantiation_list_type> member_instantiation_list
@@ -267,15 +265,21 @@ variable_declaration:
 	{
 		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier($1, true), @1, $5, @5, $3, @3);
 	}
-	|
-	T_ID T_LBRACKET T_RBRACKET T_ID
+	| T_ID T_LBRACKET T_RBRACKET T_ID
 	{
 		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier(*$1)), @1, $4, @4);
 	}
-	|
-	T_ID T_LBRACKET expression T_RBRACKET T_ID
+	| T_ID T_LBRACKET expression T_RBRACKET T_ID
 	{
 		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier(*$1), true), @1, $5, @5, $3, @3);
+	}
+	| T_ID T_ID
+	{
+		$$ = new StructInstantiationStatement(new CompoundTypeSpecifier(*$1), @1, $2, @2);
+	}
+	| T_ID T_ID T_ASSIGN expression
+	{
+		$$ = new StructInstantiationStatement(new CompoundTypeSpecifier(*$1), @1, $2, @2, $4);
 	}
 	;
 
@@ -285,8 +289,7 @@ simple_type:
 	{
 		$$ = PrimitiveTypeSpecifier::GetBoolean();
 	}
-	|
-	T_INT
+	| T_INT
 	{
 		$$ = PrimitiveTypeSpecifier::GetInt();
 	}
@@ -348,10 +351,6 @@ statement:
 		$$ = $1;
 	}
 	| struct_declaration_statement
-	{
-		$$ = $1;
-	}
-	| struct_instantiation_statement
 	{
 		$$ = $1;
 	}
@@ -575,8 +574,9 @@ struct_declaration_statement:
 	}
 	;
 
+//---------------------------------------------------------------------
 member_declaration_list:
-	member_declaration_list member_declaration
+	member_declaration_list variable_declaration
 	{
 		$$ = new MemberDeclarationList($2, $1);
 	}
@@ -586,28 +586,7 @@ member_declaration_list:
 	}
 	;
 
-member_declaration:
-	simple_type T_ID
-	{
-		$$ = new MemberDeclaration($1, @1, $2, @2);
-	}
-	| simple_type T_ID T_ASSIGN expression
-	{
-		$$ = new MemberDeclaration($1, @1, $2, @2, $4, @4);
-	}
-	;
-
-struct_instantiation_statement:
-	T_ID T_ID
-	{
-		$$ = new StructInstantiationStatement($1, @1, $2, @2);
-	}
-	| T_ID T_ID T_ASSIGN expression
-	{
-		$$ = new StructInstantiationStatement($1, @1, $2, @2, $4);
-	}
-	;
-
+//---------------------------------------------------------------------
 member_instantiation_block:
 	T_LBRACE optional_member_instantiation_list T_RBRACE
 	{
@@ -615,6 +594,7 @@ member_instantiation_block:
 	}
 	;
 
+//---------------------------------------------------------------------
 optional_member_instantiation_list:
 	member_instantiation_list
 	{
@@ -626,6 +606,7 @@ optional_member_instantiation_list:
 	}
 	;
 
+//---------------------------------------------------------------------
 member_instantiation_list:
 	member_instantiation_list T_COMMA member_instantiation
 	{
@@ -636,6 +617,7 @@ member_instantiation_list:
 		$$ = new MemberInstantiationList($1, MemberInstantiationList::Terminator);
 	}
 
+//---------------------------------------------------------------------
 member_instantiation:
 	T_ID T_ASSIGN expression
 	{

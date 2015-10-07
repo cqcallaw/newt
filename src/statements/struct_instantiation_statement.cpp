@@ -30,12 +30,12 @@
 #include <symbol.h>
 
 StructInstantiationStatement::StructInstantiationStatement(
-		const std::string* type_name, const YYLTYPE type_name_position,
-		const std::string* name, const YYLTYPE name_position,
-		const Expression* initialization_expression) :
-		m_type_name(type_name), m_type_name_position(type_name_position), m_name(
-				name), m_name_position(name_position), m_initialization_expression(
-				initialization_expression) {
+		const CompoundTypeSpecifier* type_specifier,
+		const YYLTYPE type_name_position, const std::string* name,
+		const YYLTYPE name_position, const Expression* initializer_expression) :
+		m_type_specifier(type_specifier), m_type_name_position(
+				type_name_position), m_name(name), m_name_position(
+				name_position), m_initializer_expression(initializer_expression) {
 }
 
 StructInstantiationStatement::~StructInstantiationStatement() {
@@ -48,7 +48,7 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 	//TODO: validate that all members are initialized for readonly structs (?)
 
 	const CompoundType* type = execution_context->GetTypeTable()->GetType(
-			*m_type_name);
+			m_type_specifier->GetTypeName());
 
 	if (type != CompoundType::GetDefaultCompoundType()) {
 		SymbolTable* symbol_table =
@@ -57,37 +57,36 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 		const Symbol* existing = symbol_table->GetSymbol(m_name);
 		if (existing == Symbol::DefaultSymbol) {
 			const CompoundTypeInstance* instance = nullptr;
-			if (m_initialization_expression) {
+			if (m_initializer_expression) {
 				const TypeSpecifier* expression_type =
-						m_initialization_expression->GetType(execution_context);
-				errors = m_initialization_expression->Validate(
-						execution_context);
+						m_initializer_expression->GetType(execution_context);
+				errors = m_initializer_expression->Validate(execution_context);
 
 				if (errors->IsTerminator()) {
 					const CompoundTypeSpecifier* as_compound_specifier =
 							dynamic_cast<const CompoundTypeSpecifier*>(expression_type);
 
 					if (as_compound_specifier
-							&& m_type_name->compare(
+							&& m_type_specifier->GetTypeName().compare(
 									as_compound_specifier->GetTypeName())
 									== 0) {
 						//generate default instance
 						instance = CompoundTypeInstance::GetDefaultInstance(
-								*m_type_name, type);
+								m_type_specifier->GetTypeName(), type);
 					} else {
 						errors =
 								errors->With(
 										new Error(Error::SEMANTIC,
 												Error::ASSIGNMENT_TYPE_ERROR,
-												m_initialization_expression->GetPosition().first_line,
-												m_initialization_expression->GetPosition().first_column,
-												*m_type_name,
+												m_initializer_expression->GetPosition().first_line,
+												m_initializer_expression->GetPosition().first_column,
+												m_type_specifier->GetTypeName(),
 												expression_type->ToString()));
 					}
 				}
 			} else {
 				instance = CompoundTypeInstance::GetDefaultInstance(
-						*m_type_name, type);
+						m_type_specifier->GetTypeName(), type);
 			}
 
 			if (errors->IsTerminator()) {
@@ -113,10 +112,15 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 						m_type_name_position.first_line,
-						m_type_name_position.first_column, *m_type_name));
+						m_type_name_position.first_column,
+						m_type_specifier->GetTypeName()));
 	}
 
 	return errors;
+}
+
+const TypeSpecifier* StructInstantiationStatement::GetType() const {
+	return m_type_specifier;
 }
 
 const LinkedList<const Error*>* StructInstantiationStatement::execute(
@@ -124,8 +128,8 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
-	if (m_initialization_expression) {
-		const Result* evaluation = m_initialization_expression->Evaluate(
+	if (m_initializer_expression) {
+		const Result* evaluation = m_initializer_expression->Evaluate(
 				execution_context);
 
 		errors = evaluation->GetErrors();

@@ -4,6 +4,8 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/array.cpp \
+../src/array_type_specifier.cpp \
 ../src/assert.cpp \
 ../src/compound_type.cpp \
 ../src/compound_type_instance.cpp \
@@ -27,6 +29,8 @@ CPP_SRCS += \
 ../src/utils.cpp 
 
 OBJS += \
+./src/array.o \
+./src/array_type_specifier.o \
 ./src/assert.o \
 ./src/compound_type.o \
 ./src/compound_type_instance.o \
@@ -50,6 +54,8 @@ OBJS += \
 ./src/utils.o 
 
 CPP_DEPS += \
+./src/array.d \
+./src/array_type_specifier.d \
 ./src/assert.d \
 ./src/compound_type.d \
 ./src/compound_type_instance.d \

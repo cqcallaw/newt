@@ -26,6 +26,7 @@
 #include <map>
 #include <member_definition.h>
 #include <compound_type.h>
+#include <default_value_expression.h>
 
 StructDeclarationStatement::StructDeclarationStatement(const std::string* name,
 		const YYLTYPE name_position,
@@ -36,6 +37,9 @@ StructDeclarationStatement::StructDeclarationStatement(const std::string* name,
 				member_declaration_list), m_member_declaration_list_position(
 				member_declaration_list_position), m_modifier_list(
 				modifier_list), m_modifiers_location(modifiers_location) {
+	m_type_specifier = new CompoundTypeSpecifier(*name);
+	m_initializer_expression = new DefaultValueExpression(DefaultLocation,
+			m_type_specifier, member_declaration_list_position);
 }
 
 StructDeclarationStatement::~StructDeclarationStatement() {
@@ -50,9 +54,9 @@ LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 	std::map<const string, const MemberDefinition*>* mapping = new std::map<
 			const string, const MemberDefinition*>();
 
-	const LinkedList<const MemberDeclaration*>* subject =
+	const LinkedList<const DeclarationStatement*>* subject =
 			m_member_declaration_list;
-	while (subject != LinkedList<const MemberDeclaration*>::Terminator) {
+	while (!subject->IsTerminator()) {
 		const Expression* initializer_expression =
 				subject->GetData()->GetInitializerExpression();
 		if (initializer_expression != nullptr
@@ -63,7 +67,7 @@ LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
 							position.first_line, position.first_column));
 		} else {
-			const MemberDeclaration* declaration = subject->GetData();
+			const DeclarationStatement* declaration = subject->GetData();
 			const TypeSpecifier* type = declaration->GetType();
 			const string* member_name = declaration->GetName();
 			mapping->insert(

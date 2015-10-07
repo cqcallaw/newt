@@ -18,6 +18,7 @@
 #include <vector>
 #include <type_specifier.h>
 #include <compound_type.h>
+#include <array_type_specifier.h>
 
 ArrayDeclarationStatement::ArrayDeclarationStatement(
 		const ArrayTypeSpecifier* element_type_specifier,
@@ -199,6 +200,14 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 	}
 
 	return errors;
+}
+
+const TypeSpecifier* ArrayDeclarationStatement::GetType() const {
+	return m_type;
+}
+
+const std::string* ArrayDeclarationStatement::GetName() const {
+	return m_name;
 }
 
 const bool ArrayDeclarationStatement::IsFixedSize() const {

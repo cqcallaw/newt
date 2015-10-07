@@ -88,15 +88,21 @@ const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetBoolean() {
 	return instance;
 }
 
+const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetInt() {
+	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
+			BasicType::INT);
+	return instance;
+}
+
 const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetDouble() {
 	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
 			BasicType::DOUBLE);
 	return instance;
 }
 
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetInt() {
+const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetString() {
 	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
-			BasicType::INT);
+			BasicType::STRING);
 	return instance;
 }
 
@@ -114,10 +120,4 @@ const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::FromBasicType(
 	default:
 		return GetNone();
 	}
-}
-
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetString() {
-	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
-			BasicType::STRING);
-	return instance;
 }

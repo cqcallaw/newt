@@ -22,21 +22,21 @@
 
 #include "linked_list.h"
 
-class MemberDeclaration;
+class DeclarationStatement;
 
-class MemberDeclarationList: public LinkedList<const MemberDeclaration*> {
+class MemberDeclarationList: public LinkedList<const DeclarationStatement*> {
 public:
-	MemberDeclarationList(const MemberDeclaration* data,
+	MemberDeclarationList(const DeclarationStatement* data,
 			const MemberDeclarationList* next) :
 			LinkedList(data, next) {
 	}
 
-	MemberDeclarationList(const LinkedList<const MemberDeclaration*>* list) :
+	MemberDeclarationList(const LinkedList<const DeclarationStatement*>* list) :
 			LinkedList(list) {
 	}
 
 	static constexpr MemberDeclarationList* Terminator =
-			(MemberDeclarationList*) LinkedList<const MemberDeclaration*>::Terminator;
+			(MemberDeclarationList*) LinkedList<const DeclarationStatement*>::Terminator;
 };
 
 #endif /* MEMBER_DECLARATION_LIST_H_ */

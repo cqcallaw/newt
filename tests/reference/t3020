@@ -1,0 +1,43 @@
+Parsing file ../tests/t3020.nwt...
+Parsed file ../tests/t3020.nwt.
+Root Symbol Table:
+----------------
+my_other_struct a:
+	my_struct i:
+		double y: 0
+
+	int x: 0
+
+my_nested_struct b:
+	my_struct i:
+		double y: 0
+
+	my_other_struct n:
+		my_struct i:
+			double y: 0
+
+		int x: 0
+
+	int z: 0
+
+
+Root Type Table:
+----------------
+my_nested_struct: 
+	my_struct i (
+		double y (0)
+	)
+	my_other_struct n (
+		my_struct i (
+			double y (0)
+		)
+		int x (0)
+	)
+	int z (0)
+my_other_struct: 
+	my_struct i (
+		double y (0)
+	)
+	int x (0)
+my_struct: 
+	double y (0)
