@@ -5,11 +5,10 @@ Root Symbol Table:
 ----------------
 int i: 4
 int j: 2
-static int[] nums:
+int[] nums:
 	[0] 0
 	[1] 0
 	[2] 42
-	[3] 0
 end array
 string s: "nums[i-j] = nums[2] = 42"
 

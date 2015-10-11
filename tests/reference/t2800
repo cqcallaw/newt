@@ -34,7 +34,7 @@ Root Symbol Table:
 ----------------
 int i: 9
 string s: "hello world"
-static double[] values:
+double[] values:
 	[0] 0
 	[1] 0
 	[2] 0

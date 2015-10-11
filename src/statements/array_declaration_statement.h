@@ -16,14 +16,14 @@
 
 class Result;
 class ArrayTypeSpecifier;
+class DimensionList;
 
 class ArrayDeclarationStatement: public DeclarationStatement {
 public:
 	ArrayDeclarationStatement(const ArrayTypeSpecifier* type,
 			const YYLTYPE type_position, const std::string* name,
-			const YYLTYPE name_position, const Expression* size_expression =
-					nullptr, const YYLTYPE size_expression_position =
-					DefaultLocation);
+			const YYLTYPE name_position,
+			const Expression* initializer_expression = nullptr);
 
 	virtual ~ArrayDeclarationStatement();
 
@@ -41,15 +41,12 @@ public:
 
 	virtual const std::string* GetName() const;
 
-	const bool IsFixedSize() const;
-
 private:
 	const ArrayTypeSpecifier* m_type;
 	const YYLTYPE m_type_position;
 	const std::string* m_name;
 	const YYLTYPE m_name_position;
-	const Expression* m_size_expression;
-	const YYLTYPE m_size_expression_position;
+	const Expression* m_initializer_expression;
 };
 
 #endif /* STATEMENTS_ARRAY_DECLARATION_STATEMENT_H_ */

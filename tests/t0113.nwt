@@ -1,4 +1,4 @@
-// test valid assignment of runtime-specified fixed size array
+// test valid assignment of array index
 struct rectangle {
 	int x
 	int y
@@ -6,5 +6,7 @@ struct rectangle {
 }
 
 int size = 2
-rectangle[size] rects
+rectangle[] rects
+rects[size - 1] = #rectangle
+
 rects[0].x = 20

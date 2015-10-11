@@ -2,7 +2,7 @@ Parsing file ../tests/t0113.nwt...
 Parsed file ../tests/t0113.nwt.
 Root Symbol Table:
 ----------------
-static rectangle[] rects:
+rectangle[] rects:
 	[0]: 
 		int w: 10
 		int x: 20

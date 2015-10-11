@@ -21,6 +21,7 @@
 #include <sstream>
 #include <defaults.h>
 #include <execution_context.h>
+#include <assignment_statement.h>
 
 #include "assert.h"
 #include "expression.h"
@@ -63,6 +64,115 @@ const Result* BasicVariable::Evaluate(const ExecutionContext* context) const {
 
 	const Result* result = new Result(result_symbol->GetValue(), errors);
 	return result;
+}
+
+const LinkedList<const Error*>* BasicVariable::AssignValue(
+		const ExecutionContext* context, const Expression* expression,
+		const AssignmentType op) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const string* variable_name = GetName();
+	const int variable_line = GetLocation().first_line;
+	const int variable_column = GetLocation().first_column;
+
+	SymbolTable* symbol_table = (SymbolTable*) context->GetSymbolContext();
+	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
+	const TypeSpecifier* symbol_type = symbol->GetType();
+	const void* symbol_value = symbol->GetValue();
+
+	const PrimitiveTypeSpecifier* as_primitive =
+			dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
+	if (as_primitive != nullptr) {
+		const BasicType basic_type = as_primitive->GetBasicType();
+		switch (basic_type) {
+		case BOOLEAN: {
+			const Result* result = AssignmentStatement::do_op(variable_name,
+					basic_type, variable_line, variable_column,
+					*((int*) symbol_value), expression, op, context);
+
+			errors = result->GetErrors();
+			if (errors == LinkedList<const Error*>::Terminator) {
+				errors = SetSymbol(context, (bool*) result->GetData());
+			}
+			break;
+		}
+		case INT: {
+			const Result* result = AssignmentStatement::do_op(variable_name,
+					basic_type, variable_line, variable_column,
+					*((int*) symbol_value), expression, op, context);
+
+			errors = result->GetErrors();
+			if (errors == LinkedList<const Error*>::Terminator) {
+				errors = SetSymbol(context, (int*) result->GetData());
+			}
+			break;
+		}
+		case DOUBLE: {
+			const Result* result = AssignmentStatement::do_op(variable_name,
+					basic_type, variable_line, variable_column,
+					*((double*) symbol_value), expression, op, context);
+
+			errors = result->GetErrors();
+			if (errors == LinkedList<const Error*>::Terminator) {
+				errors = SetSymbol(context, (double*) result->GetData());
+			}
+			break;
+		}
+		case STRING: {
+			const Result* result = AssignmentStatement::do_op(variable_name,
+					basic_type, variable_line, variable_column,
+					(string*) symbol_value, expression, op, context);
+			errors = result->GetErrors();
+			if (errors == LinkedList<const Error*>::Terminator) {
+				errors = SetSymbol(context, (string*) result->GetData());
+			}
+			break;
+		}
+		default:
+			assert(false);
+		}
+	}
+
+	const ArrayTypeSpecifier* as_array =
+			dynamic_cast<const ArrayTypeSpecifier*>(symbol_type);
+	if (as_array) {
+		//re-assigning an array reference
+		const Result* expression_evaluation = expression->Evaluate(context);
+
+		errors = expression_evaluation->GetErrors();
+		if (errors == LinkedList<const Error*>::Terminator) {
+			const Array* result_as_array =
+					static_cast<const Array*>(expression_evaluation->GetData());
+
+			if (result_as_array) {
+				errors = SetSymbol(context, result_as_array);
+			} else {
+				errors = errors->With(
+						new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
+								variable_line, variable_column,
+								as_array->ToString(),
+								expression->GetType(context)->ToString()));
+			}
+		}
+	}
+
+	const CompoundTypeSpecifier* as_compound =
+			dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
+	if (as_compound != nullptr) {
+		const Result* expression_evaluation = expression->Evaluate(context);
+
+		errors = expression_evaluation->GetErrors();
+		if (errors == LinkedList<const Error*>::Terminator) {
+			const CompoundTypeInstance* new_instance =
+					(const CompoundTypeInstance*) expression_evaluation->GetData();
+
+			//we're assigning a struct reference
+			errors = SetSymbol(context, new_instance);
+		}
+	}
+
+	return errors;
 }
 
 const LinkedList<const Error*>* BasicVariable::SetSymbol(

@@ -9,6 +9,7 @@
 #define MEMBER_VARIABLE_H_
 
 #include <variable.h>
+#include <assignment_type.h>
 
 class MemberVariable: public Variable {
 public:
@@ -20,8 +21,24 @@ public:
 
 	virtual const string* ToString(const ExecutionContext* context) const;
 
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* context) const;
+
 	virtual const Result* Evaluate(const ExecutionContext* context) const;
 
+	virtual const LinkedList<const Error*>* AssignValue(
+			const ExecutionContext* context, const Expression* expression,
+			const AssignmentType op) const;
+
+	const Variable* GetContainer() const {
+		return m_container;
+	}
+
+	const Variable* GetMemberVariable() const {
+		return m_member_variable;
+	}
+
+protected:
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context, const bool* value) const;
 
@@ -40,17 +57,6 @@ public:
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const;
-
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* context) const;
-
-	const Variable* GetContainer() const {
-		return m_container;
-	}
-
-	const Variable* GetMemberVariable() const {
-		return m_member_variable;
-	}
 
 private:
 	const Variable* m_container;

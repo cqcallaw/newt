@@ -1,7 +1,8 @@
 int i = 42
 double x = 3.14159
 string s = "hello world"
-double[100] values
+double[] values
+values[99] = #double
 
     print("i = " + i)
     print("x = " + x)

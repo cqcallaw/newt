@@ -37,7 +37,7 @@ public:
 			const YYLTYPE modifiers_location);
 	virtual ~StructDeclarationStatement();
 
-	virtual LinkedList<const Error*>* preprocess(
+	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(

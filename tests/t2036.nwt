@@ -8,7 +8,8 @@ struct rectangle {
 string str
 int i
 int size = 4
-rectangle[size] rects
+rectangle[] rects
+rects[size - 1] = #rectangle
 
     for (i = 0; i < size; i += 1)
     {

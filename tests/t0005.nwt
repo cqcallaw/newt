@@ -6,10 +6,6 @@ double y
 string s1
 string s2
 
-int[2] nums
-double[3] values
-string[4] strings
-
 int[] nums2
 double[] values2
 string[] strings2

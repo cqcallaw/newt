@@ -24,6 +24,7 @@
 #include <string>
 #include "yyltype.h"
 #include <symbol_context.h>
+#include <assignment_type.h>
 
 class Expression;
 class ExecutionContext;
@@ -47,8 +48,16 @@ public:
 		return m_location;
 	}
 
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* context) const = 0;
+
 	virtual const Result* Evaluate(const ExecutionContext* context) const = 0;
 
+	virtual const LinkedList<const Error*>* AssignValue(
+			const ExecutionContext* context, const Expression* expression,
+			const AssignmentType op) const = 0;
+
+protected:
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context, const bool* value) const = 0;
 
@@ -68,10 +77,6 @@ public:
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const = 0;
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* context) const = 0;
-
-protected:
 	const LinkedList<const Error*>* ToErrorList(SetResult result) const;
 
 private:

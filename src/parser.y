@@ -44,6 +44,10 @@
 #include <member_declaration_list.h>
 #include <member_instantiation.h>
 #include <member_instantiation_list.h>
+#include <index.h>
+#include <index_list.h>
+#include <dimension.h>
+#include <dimension_list.h>
 
 #include <type.h>
 #include <type_specifier.h>
@@ -95,6 +99,7 @@ typedef void* yyscan_t;
 #include <primitive_type_specifier.h>
 #include <compound_type_specifier.h>
 
+#include <assignment_type.h>
 
 #include <lexer.h>
 
@@ -132,6 +137,10 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  const MemberDeclarationList*   union_member_declaration_list_type;
  const MemberInstantiation*   union_member_instantiation_type;
  const MemberInstantiationList*   union_member_instantiation_list_type;
+ const Index*           union_index_type;
+ const IndexList*       union_index_list_type;
+ const Dimension*           union_dimension_type;
+ const DimensionList*       union_dimension_list_type;
 }
 
 %token T_BOOLEAN               "bool"
@@ -190,6 +199,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token <union_double > T_DOUBLE_CONSTANT "double constant"
 %token <union_string> T_STRING_CONSTANT  "string constant"
 
+%left T_PERIOD
 %left T_OR
 %left T_AND
 %left T_EQUAL T_NOT_EQUAL
@@ -208,6 +218,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 
 %type <union_primitive_type> simple_type
 %type <union_expression> expression
+%type <union_expression> optional_initializer
 %type <union_variable> variable_reference
 
 %type <union_statement_type> statement
@@ -231,6 +242,12 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_member_instantiation_list_type> optional_member_instantiation_list
 %type <union_member_instantiation_list_type> member_instantiation_block
 
+%type <union_index_type> index
+%type <union_index_list_type> indices
+
+%type <union_dimension_type> dimension
+%type <union_dimension_list_type> dimensions
+
 %% // begin rules
 
 //---------------------------------------------------------------------
@@ -249,37 +266,49 @@ program:
 
 //---------------------------------------------------------------------
 variable_declaration:
-	simple_type T_ID
+	simple_type T_ID optional_initializer
 	{
-		$$ = new PrimitiveDeclarationStatement($1, @1, $2, @2);
+		$$ = new PrimitiveDeclarationStatement($1, @1, $2, @2, $3);
 	}
-	| simple_type T_ID T_ASSIGN expression
+	| simple_type dimensions T_ID optional_initializer
 	{
-		$$ = new PrimitiveDeclarationStatement($1, @1, $2, @2, $4, @4);
+		const TypeSpecifier* type_specifier = new PrimitiveTypeSpecifier(*$1);
+		//add dimensions to type specifier
+		const LinkedList<const Dimension*>* dimension = $2;
+		while (!dimension->IsTerminator()) {
+			type_specifier = new ArrayTypeSpecifier(
+					type_specifier);
+			dimension = dimension->GetNext();
+		}
+
+		$$ = new ArrayDeclarationStatement(static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
 	}
-	| simple_type T_LBRACKET T_RBRACKET T_ID
+	| T_ID dimensions T_ID optional_initializer
 	{
-		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier($1), @1, $4, @4);
+		const TypeSpecifier* type_specifier = new CompoundTypeSpecifier(*$1, @1);
+		//add dimensions to type specifier
+		const LinkedList<const Dimension*>* dimension = $2;
+		while (!dimension->IsTerminator()) {
+			type_specifier = new ArrayTypeSpecifier(
+					type_specifier);
+			dimension = dimension->GetNext();
+		}
+
+		$$ = new ArrayDeclarationStatement(static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
 	}
-	| simple_type T_LBRACKET expression T_RBRACKET T_ID
+	| T_ID T_ID optional_initializer
 	{
-		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier($1, true), @1, $5, @5, $3, @3);
+		$$ = new StructInstantiationStatement(new CompoundTypeSpecifier(*$1, @1), @1, $2, @2, $3);
 	}
-	| T_ID T_LBRACKET T_RBRACKET T_ID
+	;
+
+optional_initializer:
+	T_ASSIGN expression
 	{
-		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier(*$1)), @1, $4, @4);
+		$$ = $2;
 	}
-	| T_ID T_LBRACKET expression T_RBRACKET T_ID
-	{
-		$$ = new ArrayDeclarationStatement(new ArrayTypeSpecifier(new CompoundTypeSpecifier(*$1), true), @1, $5, @5, $3, @3);
-	}
-	| T_ID T_ID
-	{
-		$$ = new StructInstantiationStatement(new CompoundTypeSpecifier(*$1), @1, $2, @2);
-	}
-	| T_ID T_ID T_ASSIGN expression
-	{
-		$$ = new StructInstantiationStatement(new CompoundTypeSpecifier(*$1), @1, $2, @2, $4);
+	| empty {
+		$$ = nullptr;
 	}
 	;
 
@@ -412,15 +441,15 @@ exit_statement:
 assign_statement:
 	variable_reference T_ASSIGN expression
 	{
-		$$ = new AssignmentStatement($1, AssignmentStatement::AssignmentType::ASSIGN, $3);
+		$$ = new AssignmentStatement($1, AssignmentType::ASSIGN, $3);
 	}
 	| variable_reference T_PLUS_ASSIGN expression
 	{
-		$$ = new AssignmentStatement($1, AssignmentStatement::AssignmentType::PLUS_ASSIGN, $3);
+		$$ = new AssignmentStatement($1, AssignmentType::PLUS_ASSIGN, $3);
 	}
 	| variable_reference T_MINUS_ASSIGN expression
 	{
-		$$ = new AssignmentStatement($1, AssignmentStatement::AssignmentType::MINUS_ASSIGN, $3);
+		$$ = new AssignmentStatement($1, AssignmentType::MINUS_ASSIGN, $3);
 	}
 	;
 
@@ -430,13 +459,14 @@ variable_reference:
 	{
 		$$ = new BasicVariable($1, @1);
 	}
-	| T_ID T_LBRACKET expression T_RBRACKET
+	| T_ID indices
 	{
-		$$ = new ArrayVariable($1, @1, $3, @3);
+		const IndexList* reverse = new IndexList($2->Reverse(true));
+		$$ = new ArrayVariable($1, @1, reverse, @2);
 	}
-	| variable_reference T_PERIOD T_ID
+	| variable_reference T_PERIOD variable_reference
 	{
-		$$ = new MemberVariable($1, new BasicVariable($3, @3));
+		$$ = new MemberVariable($1, $3);
 	}
 	;
 
@@ -537,7 +567,7 @@ expression:
 	}
 	| T_HASH T_ID
 	{
-		$$ = new DefaultValueExpression(@$, new CompoundTypeSpecifier(*$2), @2);
+		$$ = new DefaultValueExpression(@$, new CompoundTypeSpecifier(*$2, @2), @2);
 	}
 	| expression T_WITH member_instantiation_block
 	{
@@ -566,11 +596,13 @@ modifier:
 struct_declaration_statement:
 	modifier_list T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
 	{
-		$$ = new StructDeclarationStatement($3, @3, new MemberDeclarationList($5->Reverse(true)), @5, new ModifierList($1->Reverse(true)), @1);
+		const MemberDeclarationList* member_declaration_list = $5->IsTerminator() ? $5 : new MemberDeclarationList($5->Reverse(true));
+		$$ = new StructDeclarationStatement($3, @3, member_declaration_list, @5, new ModifierList($1->Reverse(true)), @1);
 	}
 	| T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
 	{
-		$$ = new StructDeclarationStatement($2, @2, new MemberDeclarationList($4->Reverse(true)), @4, ModifierList::Terminator, DefaultLocation);
+		const MemberDeclarationList* member_declaration_list = $4->IsTerminator() ? $4 : new MemberDeclarationList($4->Reverse(true));
+		$$ = new StructDeclarationStatement($2, @2, member_declaration_list, @4, ModifierList::Terminator, DefaultLocation);
 	}
 	;
 
@@ -622,6 +654,46 @@ member_instantiation:
 	T_ID T_ASSIGN expression
 	{
 		$$ = new MemberInstantiation($1, @1, $3, @3);
+	}
+	;
+
+//---------------------------------------------------------------------
+indices:
+	indices index
+	{
+		$$ = new IndexList($2, $1);
+	}
+	| index
+	{
+		$$ = new IndexList($1, IndexList::Terminator);
+	}
+	;
+
+//---------------------------------------------------------------------
+index:
+	T_LBRACKET expression T_RBRACKET
+	{
+		$$ = new Index(@$, $2);
+	}
+	;
+
+//---------------------------------------------------------------------
+dimensions:
+	dimensions dimension
+	{
+		$$ = new DimensionList($2, $1);
+	}
+	| dimension
+	{
+		$$ = new DimensionList($1, DimensionList::Terminator);
+	}
+	;
+
+//---------------------------------------------------------------------
+dimension:
+	T_LBRACKET T_RBRACKET
+	{
+		$$ = new Dimension(@$);
 	}
 	;
 

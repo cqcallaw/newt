@@ -5,7 +5,8 @@ struct rectangle {
 	int h
 }
 
-rectangle[3] rects
+rectangle[] rects
+rects[2] = #rectangle
 
 rects[0].x = 1
 rects[0].y = 2

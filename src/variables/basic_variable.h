@@ -21,6 +21,7 @@
 #define VARIABLES_BASIC_VARIABLE_H_
 
 #include <variable.h>
+#include <assignment_type.h>
 
 class BasicVariable: public Variable {
 public:
@@ -33,8 +34,16 @@ public:
 
 	virtual const TypeSpecifier* GetType(const ExecutionContext* context) const;
 
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* context) const;
+
 	virtual const Result* Evaluate(const ExecutionContext* context) const;
 
+	virtual const LinkedList<const Error*>* AssignValue(
+			const ExecutionContext* context, const Expression* expression,
+			const AssignmentType op) const;
+
+protected:
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context, const bool* value) const;
 
@@ -53,9 +62,6 @@ public:
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const;
-
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* context) const;
 
 };
 

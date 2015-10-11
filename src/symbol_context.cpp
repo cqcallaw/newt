@@ -130,31 +130,6 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const Array* value) {
 	return SetSymbol(identifier, value->GetTypeSpecifier(), (void*) value);
-	/*auto result = m_table->find(identifier);
-
-	 if (result != m_table->end()) {
-	 const Symbol* symbol = result->second;
-	 if ((symbol->GetType()->IsAssignableTo(new_symbol->GetType()))) {
-	 if (m_modifiers & Modifier::READONLY) {
-	 return MUTATION_DISALLOWED;
-	 } else {
-	 //TODO: error checking
-	 //TODO: free memory from old symbols
-	 m_table->erase(identifier);
-	 m_table->insert(
-	 std::pair<const string, const Symbol*>(identifier,
-	 new_symbol));
-
-	 return SET_SUCCESS;
-	 }
-	 } else {
-	 return INCOMPATIBLE_TYPE;
-	 }
-	 } else if (m_parent != nullptr) {
-	 return m_parent->GetData()->SetArraySymbol(identifier, new_symbol);
-	 } else {
-	 return UNDEFINED_SYMBOL;
-	 }*/
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,

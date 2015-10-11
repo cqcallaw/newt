@@ -1,5 +1,7 @@
 int ii = ("Charlie" < "Sally") && (42 + (67 || 12))
-int[ii * 3 + (8 - ii * 4)] iii
+int size = ii * 3 + (8 - ii * 4)
+int[] iii
+iii[size - 1] = 0
 int iiii = (4 / 2) % 7
 double d = (3.14 - 3) + 24 - -9 * 2 + (ii == iii[3 * ii])
 string s = "to you all."

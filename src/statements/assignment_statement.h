@@ -22,6 +22,7 @@
 
 #include <type.h>
 #include "statement.h"
+#include <assignment_type.h>
 
 using namespace std;
 
@@ -34,10 +35,6 @@ struct YYLTYPE;
 
 class AssignmentStatement: public Statement {
 public:
-	enum AssignmentType {
-		ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN
-	};
-
 	AssignmentStatement(const Variable* variable, const AssignmentType op_type,
 			const Expression* expression);
 	virtual ~AssignmentStatement();
@@ -113,17 +110,6 @@ public:
 			const Expression* expression, const AssignmentType op,
 			const ExecutionContext* execution_context);
 
-	const static LinkedList<const Error*>* do_op(const Variable* variable,
-			const Expression* expression, const AssignmentType op,
-			const ExecutionContext* execution_context);
-
-	const static LinkedList<const Error*>* do_op(const ArrayVariable* variable,
-			const Expression* expression, const AssignmentType op,
-			const ExecutionContext* execution_context);
-
-	const static LinkedList<const Error*>* do_op(const MemberVariable* variable,
-			const Expression* expression, const AssignmentType op,
-			const ExecutionContext* execution_context);
 private:
 	const Variable* m_variable;
 	const AssignmentType m_op_type;

@@ -21,6 +21,8 @@
 #define TYPE_SPECIFIER_H_
 
 #include <string>
+#include <yyltype.h>
+
 class TypeTable;
 
 using namespace std;

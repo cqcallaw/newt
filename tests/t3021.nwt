@@ -1,0 +1,18 @@
+struct my_struct {
+	double y
+}
+
+struct my_other_struct {
+	int x
+	my_struct i
+}
+
+struct my_array_struct {
+       int z
+       my_struct[] arr
+}
+
+my_other_struct a
+my_array_struct b
+
+b.arr[2] = #my_struct with { y = 42.1 }

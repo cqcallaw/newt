@@ -3,11 +3,8 @@ Parsed file ../tests/t2032.nwt.
 nums[0] = 42
 Root Symbol Table:
 ----------------
-static int[] nums:
+int[] nums:
 	[0] 42
-	[1] 0
-	[2] 0
-	[3] 0
 end array
 
 Root Type Table:

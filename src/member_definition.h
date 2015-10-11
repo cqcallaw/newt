@@ -54,15 +54,23 @@ public:
 		const ArrayTypeSpecifier* as_array =
 				dynamic_cast<const ArrayTypeSpecifier*>(m_type);
 		if (as_array != nullptr) {
-			buffer << as_array->ToString();
+			const Array* array = static_cast<const Array*>(m_value);
+			if (array->GetSize() > 0) {
+				buffer << endl;
+				buffer << array->ToString(type_table, indent);
+				buffer << endl;
+				buffer << indent;
+			}
 		}
 
 		const CompoundTypeSpecifier* as_compound =
 				dynamic_cast<const CompoundTypeSpecifier*>(m_type);
 		if (as_compound != nullptr) {
+			buffer << endl;
 			const string type_name = as_compound->GetTypeName();
 			const CompoundType* compound_type = type_table->GetType(type_name);
 			buffer << compound_type->ToString(type_table, indent);
+			buffer << indent;
 		}
 
 		string result = buffer.str();

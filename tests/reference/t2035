@@ -6,7 +6,7 @@ rects[0].w = 3
 rects[0].h = 4
 Root Symbol Table:
 ----------------
-static rectangle[] rects:
+rectangle[] rects:
 	[0]: 
 		int h: 4
 		int w: 3

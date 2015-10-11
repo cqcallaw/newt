@@ -5,6 +5,7 @@ struct rectangle {
 	int w = 10
 }
 
-rectangle[2] rects
+rectangle[] rects
+rects[2] = #rectangle
 
 rects[0].n = 20

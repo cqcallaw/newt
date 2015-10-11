@@ -28,8 +28,8 @@ class SymbolContext;
 
 class CompoundTypeSpecifier: public TypeSpecifier {
 public:
-	CompoundTypeSpecifier(const string type_name) :
-			m_type_name(type_name) {
+	CompoundTypeSpecifier(const string type_name, const YYLTYPE location) :
+			m_type_name(type_name), m_location(location) {
 	}
 	virtual ~CompoundTypeSpecifier() {
 	}
@@ -53,8 +53,13 @@ public:
 		return type_table->GetDefaultValue(m_type_name);
 	}
 
+	const YYLTYPE GetLocation() const {
+		return m_location;
+	}
+
 private:
 	const string m_type_name;
+	const YYLTYPE m_location;
 };
 
 #endif /* COMPOUND_TYPE_SPECIFIER_H_ */

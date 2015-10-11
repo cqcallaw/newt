@@ -41,7 +41,7 @@ const CompoundTypeInstance* CompoundTypeInstance::GetDefaultInstance(
 	}
 
 	const CompoundTypeSpecifier* type_specifier = new CompoundTypeSpecifier(
-			type_name);
+			type_name, DefaultLocation);
 
 	const CompoundTypeInstance* instance = new CompoundTypeInstance(
 			type_specifier,
@@ -79,5 +79,6 @@ const string CompoundTypeInstance::ToString(const TypeTable* type_table,
 		const Indent indent) const {
 	ostringstream buffer;
 	m_definition->print(buffer, type_table, indent);
-	return buffer.str();
+	string result = buffer.str();
+	return result;
 }

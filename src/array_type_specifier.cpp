@@ -23,11 +23,6 @@
 const string ArrayTypeSpecifier::ToString() const {
 	ostringstream buffer;
 
-	if (m_fixed_size) {
-		buffer << "static ";
-	} else {
-		buffer << "dynamic ";
-	}
 	buffer << m_element_type_specifier->ToString();
 	buffer << "[]";
 	return buffer.str();

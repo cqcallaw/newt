@@ -1,0 +1,24 @@
+//test array assignment as member of struct
+struct test {
+	int x = 10
+}
+
+struct nested_container {
+	test[][] test
+}
+
+test[] a
+a[1] = #test with { x = 12 }
+
+nested_container container
+container.test[2] = a
+
+//container[] containers
+//containers[0] = #container
+//containers[0].c = a
+//
+//test_assignment[n].test_assignment[n] = a
+//c.test_assignment[n].test_assignment[n] = a
+//test_assignment[n].c.test_assignment[n] = a
+//test_assignment[n].test_assignment[n].c = a
+//c.d[1] = b

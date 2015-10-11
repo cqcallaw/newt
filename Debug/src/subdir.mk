@@ -10,9 +10,11 @@ CPP_SRCS += \
 ../src/compound_type.cpp \
 ../src/compound_type_instance.cpp \
 ../src/defaults.cpp \
+../src/dimension.cpp \
 ../src/error.cpp \
 ../src/execution_context.cpp \
 ../src/indent.cpp \
+../src/index.cpp \
 ../src/member_declaration.cpp \
 ../src/member_definition.cpp \
 ../src/member_instantiation.cpp \
@@ -35,9 +37,11 @@ OBJS += \
 ./src/compound_type.o \
 ./src/compound_type_instance.o \
 ./src/defaults.o \
+./src/dimension.o \
 ./src/error.o \
 ./src/execution_context.o \
 ./src/indent.o \
+./src/index.o \
 ./src/member_declaration.o \
 ./src/member_definition.o \
 ./src/member_instantiation.o \
@@ -60,9 +64,11 @@ CPP_DEPS += \
 ./src/compound_type.d \
 ./src/compound_type_instance.d \
 ./src/defaults.d \
+./src/dimension.d \
 ./src/error.d \
 ./src/execution_context.d \
 ./src/indent.d \
+./src/index.d \
 ./src/member_declaration.d \
 ./src/member_definition.d \
 ./src/member_instantiation.d \

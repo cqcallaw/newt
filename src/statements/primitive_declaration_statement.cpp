@@ -14,14 +14,12 @@
 #include <primitive_declaration_statement.h>
 #include <variable_expression.h>
 
-PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(const TypeSpecifier* type,
-		const YYLTYPE type_position, const std::string* name,
-		const YYLTYPE name_position, const Expression* initializer_expression,
-		const YYLTYPE initializer_position) :
+PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
+		const TypeSpecifier* type, const YYLTYPE type_position,
+		const std::string* name, const YYLTYPE name_position,
+		const Expression* initializer_expression) :
 		m_type(type), m_type_position(type_position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(
-				initializer_expression), m_initializer_position(
-				initializer_position) {
+				name_position), m_initializer_expression(initializer_expression) {
 }
 
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
@@ -63,12 +61,13 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 				if (expression_as_primitive == nullptr
 						|| !expression_as_primitive->IsAssignableTo(
 								as_primitive)) {
-					errors = errors->With(
-							new Error(Error::SEMANTIC,
-									Error::INVALID_TYPE_FOR_INITIAL_VALUE,
-									m_initializer_position.first_line,
-									m_initializer_position.first_column,
-									*name));
+					errors =
+							errors->With(
+									new Error(Error::SEMANTIC,
+											Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+											m_initializer_expression->GetPosition().first_line,
+											m_initializer_expression->GetPosition().first_column,
+											*name));
 				}
 			}
 		}
@@ -121,9 +120,8 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
 		const ExecutionContext* execution_context) const {
 	if (m_initializer_expression != nullptr) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_position);
-		auto errors = AssignmentStatement::do_op(temp_variable,
-				m_initializer_expression, AssignmentStatement::ASSIGN,
-				execution_context);
+		auto errors = temp_variable->AssignValue(execution_context,
+				m_initializer_expression, AssignmentType::ASSIGN);
 		delete (temp_variable);
 
 		return errors;

@@ -24,4 +24,3 @@ std::ostream& operator <<(std::ostream& os,
 	os << type_specifier.ToString();
 	return os;
 }
-

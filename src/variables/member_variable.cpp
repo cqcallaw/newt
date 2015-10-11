@@ -15,9 +15,8 @@
 
 MemberVariable::MemberVariable(const Variable* container,
 		const Variable* member_variable) :
-		Variable(container->GetName(), DefaultLocation), m_container(container), m_member_variable(
-				member_variable) {
-
+		Variable(container->GetName(), container->GetLocation()), m_container(
+				container), m_member_variable(member_variable) {
 }
 
 MemberVariable::~MemberVariable() {
@@ -31,14 +30,17 @@ const TypeSpecifier* MemberVariable::GetType(
 			dynamic_cast<const CompoundTypeSpecifier*>(container_type_specifier);
 	if (as_compound_type) {
 		const string type_name = as_compound_type->GetTypeName();
-		const CompoundType* type = context->GetTypeTable()->GetType(type_name);
-		const string* member_name = m_member_variable->GetName();
-		const MemberDefinition* member_definition = type->GetMember(
-				*member_name);
-		if (member_definition
-				!= MemberDefinition::GetDefaultMemberDefinition()) {
-			return member_definition->GetType();
-		}
+
+		const CompoundTypeInstance* instance =
+				static_cast<const CompoundTypeInstance*>(as_compound_type->DefaultValue(
+						context->GetTypeTable()));
+		const ExecutionContext* new_context = context->WithSymbolContext(
+				instance->GetDefinition());
+		const TypeSpecifier* result = m_member_variable->GetType(
+				new_context);
+		delete instance;
+		delete new_context;
+		return result;
 	}
 
 	return PrimitiveTypeSpecifier::GetNone();
@@ -217,6 +219,40 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 	}
 
 	return ToErrorList(set_result);
+}
+
+const LinkedList<const Error*>* MemberVariable::AssignValue(
+		const ExecutionContext* context, const Expression* expression,
+		const AssignmentType op) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const Result* container_evaluation = GetContainer()->Evaluate(context);
+	errors = container_evaluation->GetErrors();
+	if (errors == LinkedList<const Error*>::Terminator) {
+		//we're assigning a struct member reference
+		const CompoundTypeInstance* struct_value =
+				(const CompoundTypeInstance*) container_evaluation->GetData();
+		const SymbolContext* definition = struct_value->GetDefinition();
+
+		SymbolContext* symbol_context = context->GetSymbolContext();
+		const auto parent_context = symbol_context->GetParent();
+		const auto new_parent_context = parent_context->With(symbol_context);
+
+		SymbolContext* new_definition = new SymbolContext(
+				definition->GetModifiers(), new_parent_context,
+				definition->GetTable());
+
+		const ExecutionContext* new_context = context->WithSymbolContext(
+				new_definition);
+		const Variable* new_variable = GetMemberVariable();
+
+		errors = new_variable->AssignValue(new_context, expression, op);
+		delete (new_definition);
+		delete (new_context);
+	}
+
+	return errors;
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(

@@ -1,3 +1,4 @@
 // arrays should be initialized to 0
-int[6] nums
+int[] nums
+nums[5] = 0
 int should_be_zero = nums[2]

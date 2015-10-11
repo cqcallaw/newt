@@ -25,10 +25,9 @@
 using namespace std;
 class ArrayTypeSpecifier: public TypeSpecifier {
 public:
-	ArrayTypeSpecifier(const TypeSpecifier* element_type_specifier,
-			const bool fixed_size = false) :
-			m_element_type_specifier(element_type_specifier), m_fixed_size(
-					fixed_size) {
+	ArrayTypeSpecifier(const TypeSpecifier* element_type_specifier) :
+			m_element_type_specifier(
+					element_type_specifier) {
 	}
 
 	virtual ~ArrayTypeSpecifier() {
@@ -39,7 +38,7 @@ public:
 	virtual const bool IsAssignableTo(const TypeSpecifier* other) const {
 		const ArrayTypeSpecifier* as_array =
 				dynamic_cast<const ArrayTypeSpecifier*>(other);
-		return as_array != nullptr && as_array->m_fixed_size == m_fixed_size
+		return as_array != nullptr
 				&& m_element_type_specifier->IsAssignableTo(
 						as_array->GetElementTypeSpecifier());
 	}
@@ -50,13 +49,8 @@ public:
 		return m_element_type_specifier;
 	}
 
-	const bool IsFixedSize() const {
-		return m_fixed_size;
-	}
-
 private:
 	const TypeSpecifier* m_element_type_specifier;
-	const bool m_fixed_size;
 };
 
 #endif /* ARRAY_TYPE_SPECIFIER_H_ */

@@ -1,14 +1,4 @@
 Parsing file ../tests/t1700.nwt...
+Parse error on line 3 reported by parser: syntax error, unexpected identifier, expecting ].
 Parsed file ../tests/t1700.nwt.
-Root Symbol Table:
-----------------
-int i: 2
-static int[] nums:
-	[0] 0
-	[1] 0
-	[2] 0
-	[3] 0
-end array
-
-Root Type Table:
-----------------
+1 error found; giving up.

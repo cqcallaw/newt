@@ -19,16 +19,14 @@
 #include <type_specifier.h>
 #include <compound_type.h>
 #include <array_type_specifier.h>
+#include <dimension_list.h>
 
 ArrayDeclarationStatement::ArrayDeclarationStatement(
-		const ArrayTypeSpecifier* element_type_specifier,
-		const YYLTYPE type_position, const std::string* name,
-		const YYLTYPE name_position, const Expression* size_expression,
-		const YYLTYPE size_expression_position) :
-		m_type(element_type_specifier), m_type_position(type_position), m_name(
-				name), m_name_position(name_position), m_size_expression(
-				size_expression), m_size_expression_position(
-				size_expression_position) {
+		const ArrayTypeSpecifier* type_specifier, const YYLTYPE type_position,
+		const std::string* name, const YYLTYPE name_position,
+		const Expression* initializer_expression) :
+		m_type(type_specifier), m_type_position(type_position), m_name(name), m_name_position(
+				name_position), m_initializer_expression(initializer_expression) {
 }
 
 const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
@@ -38,7 +36,6 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 
 	const CompoundTypeSpecifier* element_type_as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(m_type->GetElementTypeSpecifier());
-
 	if (element_type_as_compound != nullptr) {
 		//check that element type exists
 		const TypeTable* type_table = execution_context->GetTypeTable();
@@ -56,59 +53,25 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 	if (errors->IsTerminator()) {
 		const Array* array = nullptr;
 		const string* name = m_name;
-
-		//if our array size is a constant, validate it as part of the preprocessing pass.
-		//array sizes that are variable are processed at runtime.
-		if (IsFixedSize()) {
-			int size = 0;
-			const TypeSpecifier* size_expression_type =
-					m_size_expression->GetType(execution_context);
-
-			const PrimitiveTypeSpecifier* size_type_as_primitive =
-					dynamic_cast<const PrimitiveTypeSpecifier*>(size_expression_type);
-			if (size_type_as_primitive == nullptr
-					|| !size_type_as_primitive->IsAssignableTo(
-							PrimitiveTypeSpecifier::GetInt())) {
-				errors = errors->With(
-						new Error(Error::SEMANTIC,
-								Error::INVALID_ARRAY_SIZE_TYPE,
-								m_size_expression_position.first_line,
-								m_size_expression_position.first_column,
-								size_expression_type->ToString(), *m_name));
-				return errors;
-			} else if (m_size_expression->IsConstant()) {
-				const Result* evaluation = m_size_expression->Evaluate(
-						execution_context);
-				const LinkedList<const Error*>* evaluation_errors =
-						evaluation->GetErrors();
-
-				if (evaluation_errors != LinkedList<const Error*>::Terminator) {
-					errors = errors->Concatenate(evaluation_errors, true);
-				}
-
-				int array_size = *((int*) (evaluation)->GetData());
-
-				if (array_size <= 0) {
-					ostringstream convert;
-					convert << array_size;
-					errors = errors->With(
-							new Error(Error::SEMANTIC,
-									Error::INVALID_ARRAY_SIZE,
-									m_size_expression_position.first_line,
-									m_size_expression_position.first_column,
-									*m_name, convert.str()));
-
-					return errors;
-				} else {
-					size = array_size;
-				}
-
-				delete (evaluation);
+		if (m_initializer_expression) {
+			const TypeSpecifier* initializer_expression_type =
+					m_initializer_expression->GetType(execution_context);
+			const ArrayTypeSpecifier* as_array =
+					dynamic_cast<const ArrayTypeSpecifier*>(initializer_expression_type);
+			if (!as_array
+					|| !initializer_expression_type->IsAssignableTo(m_type)) {
+				errors =
+						errors->With(
+								new Error(Error::SEMANTIC,
+										Error::ASSIGNMENT_TYPE_ERROR,
+										m_initializer_expression->GetPosition().first_line,
+										m_initializer_expression->GetPosition().first_column,
+										m_type->ToString(),
+										initializer_expression_type->ToString()));
 			}
-			array = new Array(m_type->GetElementTypeSpecifier(),
-					execution_context->GetTypeTable(), size,
-					m_size_expression->IsConstant());
-		} else {
+		}
+
+		if (errors->IsTerminator()) {
 			array = new Array(m_type->GetElementTypeSpecifier(),
 					execution_context->GetTypeTable());
 		}
@@ -137,66 +100,23 @@ ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 
 const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
-	if (IsFixedSize() && !m_size_expression->IsConstant()) {
-		//handle non-constant but fixed array sizes
-		const void* value = nullptr;
-
-		SymbolTable* symbol_table =
-				(SymbolTable*) execution_context->GetSymbolContext();
-
-		const TypeSpecifier* size_expression_type = m_size_expression->GetType(
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+	if (m_initializer_expression) {
+		const Result* initializer_result = m_initializer_expression->Evaluate(
 				execution_context);
-		const PrimitiveTypeSpecifier* size_type_as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier*>(size_expression_type);
+		errors = initializer_result->GetErrors();
 
-		if (size_type_as_primitive == nullptr
-				|| size_type_as_primitive->GetBasicType() != INT) {
-			errors = (LinkedList<const Error*>*) errors->With(
-					new Error(Error::SEMANTIC, Error::INVALID_ARRAY_SIZE_TYPE,
-							m_size_expression_position.first_line,
-							m_size_expression_position.first_column,
-							size_expression_type->ToString(), *m_name));
-		} else {
-			SetResult result;
-
-			const Result* evaluation = m_size_expression->Evaluate(
-					execution_context);
-			auto evaluation_errors = evaluation->GetErrors();
-			if (evaluation_errors != LinkedList<const Error*>::Terminator) {
-				errors = (LinkedList<const Error*>*) evaluation_errors;
-			} else {
-				value = evaluation->GetData();
-				if (value != NULL) {
-					int array_size = *((int*) (value));
-
-					if (array_size <= 0) {
-						ostringstream convert;
-						convert << array_size;
-						errors = (LinkedList<const Error*>*) errors->With(
-								new Error(Error::RUNTIME,
-										Error::INVALID_ARRAY_SIZE,
-										m_size_expression_position.first_line,
-										m_size_expression_position.first_column,
-										*m_name, convert.str()));
-					} else {
-						const Array* array = new Array(
-								m_type->GetElementTypeSpecifier(),
-								execution_context->GetTypeTable(), array_size,
-								true);
-						result = symbol_table->SetSymbol(*m_name, array);
-					}
-				} else {
-					assert(false);
-				}
-			}
-
-			delete (evaluation);
-
-			if (result != SET_SUCCESS) {
-				assert(false);
-			}
+		if (errors->IsTerminator()) {
+			const Array* array =
+					static_cast<const Array*>(initializer_result->GetData());
+			SetResult result = execution_context->GetSymbolContext()->SetSymbol(
+					*m_name, array);
+			errors = ToErrorList(result,
+					m_initializer_expression->GetPosition(), m_name);
 		}
+
+		delete (initializer_result);
 	}
 
 	return errors;
@@ -208,8 +128,4 @@ const TypeSpecifier* ArrayDeclarationStatement::GetType() const {
 
 const std::string* ArrayDeclarationStatement::GetName() const {
 	return m_name;
-}
-
-const bool ArrayDeclarationStatement::IsFixedSize() const {
-	return m_size_expression != nullptr;
 }

@@ -5,7 +5,8 @@ struct circle {
 	int w = 20
 }
 
-circle[10] circles
+circle[] circles
+circles[9] = #circle
 int down = 0
 
 int p

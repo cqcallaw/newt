@@ -23,13 +23,13 @@ const string Array::ToString(const TypeTable* type_table,
 		const Indent indent) const {
 	ostringstream os;
 
-	const TypeSpecifier* type = GetElementType();
+	const TypeSpecifier* element_type = GetElementType();
 	int size = GetSize();
 
 	Indent child_indent = indent + 1;
 
 	const PrimitiveTypeSpecifier* as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(type);
+			dynamic_cast<const PrimitiveTypeSpecifier*>(element_type);
 	if (as_primitive != nullptr) {
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
@@ -63,10 +63,19 @@ const string Array::ToString(const TypeTable* type_table,
 		os << "end array";
 	}
 
-	//TODO: array element types
+	const ArrayTypeSpecifier* as_array =
+			dynamic_cast<const ArrayTypeSpecifier*>(element_type);
+	if (as_array) {
+		for (int i = 0; i < size; i++) {
+			const Array* sub_array = (const Array*) GetValue<const Array*>(i,
+					type_table);
+			os << child_indent << "[" << i << "]: " << endl
+					<< sub_array->ToString(type_table, child_indent);
+		}
+	}
 
 	const CompoundTypeSpecifier* as_compound =
-			dynamic_cast<const CompoundTypeSpecifier*>(type);
+			dynamic_cast<const CompoundTypeSpecifier*>(element_type);
 	if (as_compound != nullptr) {
 		for (int i = 0; i < size; i++) {
 			const CompoundTypeInstance* instance =
@@ -109,10 +118,21 @@ const void* Array::GetStorage(const TypeSpecifier* element_specifier,
 		}
 	}
 
+	const ArrayTypeSpecifier* as_array =
+			dynamic_cast<const ArrayTypeSpecifier*>(element_specifier);
+	if (as_array != nullptr) {
+		vector<const Array*>* result = new vector<const Array*>(initial_size);
+		for (int i = 0; i < initial_size; ++i) {
+			result->at(i) = (const Array*) element_specifier->DefaultValue(
+					type_table);
+		}
+
+		return result;
+	}
+
 	const CompoundTypeSpecifier* as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(element_specifier);
 	if (as_compound != nullptr) {
-		//TODO: handle arrays of arrays
 		vector<const CompoundTypeInstance*>* result = new vector<
 				const CompoundTypeInstance*>(initial_size);
 		for (int i = 0; i < initial_size; ++i) {

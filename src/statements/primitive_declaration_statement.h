@@ -19,8 +19,7 @@ public:
 	PrimitiveDeclarationStatement(const TypeSpecifier* type,
 			const YYLTYPE type_position, const std::string* name,
 			const YYLTYPE name_position,
-			const Expression* initializer_expression = nullptr,
-			const YYLTYPE initializer_position = DefaultLocation);
+			const Expression* initializer_expression = nullptr);
 	virtual ~PrimitiveDeclarationStatement();
 
 	virtual const LinkedList<const Error*>* preprocess(
@@ -47,7 +46,6 @@ private:
 	const std::string* m_name;
 	const YYLTYPE m_name_position;
 	const Expression* m_initializer_expression;
-	const YYLTYPE m_initializer_position;
 };
 
 #endif /* STATEMENTS_PRIMITIVE_DECLARATION_STATEMENT_H_ */

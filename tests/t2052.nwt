@@ -10,7 +10,8 @@ struct rectangle {
 
 int i
 int size = 100
-rectangle[size] rects
+rectangle[] rects
+rects[size - 1] = #rectangle
 
     for (i = 0; i < size; i += 1)
     {

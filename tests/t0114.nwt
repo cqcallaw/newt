@@ -6,7 +6,8 @@ struct rectangle {
 }
 
 int size = 2
-rectangle[size] rects
+rectangle[] rects
+rects[size -1] = #rectangle
 
 int i = 0
 for (i = 0; i < size; i += 1) {

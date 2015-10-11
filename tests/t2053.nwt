@@ -11,7 +11,8 @@ struct rectangle {
 int i
 int inc = 5
 int num_rects = 100
-rectangle[num_rects] rects
+rectangle[] rects
+rects[num_rects - 1] = #rectangle
 
     for (i = 0; i < num_rects; i += 1)
     {

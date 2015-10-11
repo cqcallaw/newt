@@ -8,5 +8,6 @@ struct circle {
 circle my_circle
 int a = my_circle.w
 
-circle[2] my_circles
+circle[] my_circles
+my_circles[1] = #circle
 int b = my_circles[1].x

@@ -1,4 +1,4 @@
 double x = 3.14159
-int[4] nums
+int[] nums
 
     nums[x] = 42

@@ -37,26 +37,19 @@ class Array {
 public:
 	Array(const TypeSpecifier* element_specifier, const TypeTable* type_table) :
 			Array(element_specifier,
-					GetStorage(element_specifier, 0, type_table), true, false) {
-	}
-
-	Array(const TypeSpecifier* element_specifier, const TypeTable* type_table,
-			const int size, const bool initialized) :
-			Array(element_specifier,
-					GetStorage(element_specifier, size, type_table),
-					initialized, true) {
+					GetStorage(element_specifier, 0, type_table)) {
 	}
 
 	const string ToString(const TypeTable* type_table,
 			const Indent indent) const;
 
-	template<class T> const void* GetValue(const int index,
+	template<class T> const T GetValue(const int index,
 			const TypeTable* type_table) const {
 		if (0 <= index && index < GetSize()) {
-			const void* result = GetValue<T>()->at(index);
+			const T result = GetValue<T>()->at(index);
 			return result;
 		} else {
-			return GetElementType()->DefaultValue(type_table);
+			return (T) GetElementType()->DefaultValue(type_table);
 		}
 	}
 
@@ -66,12 +59,18 @@ public:
 		if (index < GetSize()) {
 			new_vector->at(index) = value;
 		} else {
-			new_vector->resize(index,
-					(T) GetElementType()->DefaultValue(type_table));
+			int old_size = new_vector->size();
+			new_vector->resize(index);
+
+			//fill with default values
+			for (int i = old_size; i < new_vector->size(); i++) {
+				new_vector->at(i) = (T) GetElementType()->DefaultValue(
+						type_table);
+			}
+
 			new_vector->insert(new_vector->end(), value);
 		}
-		return new Array(GetElementType(), (void*) new_vector, m_initialized,
-				m_fixed_size);
+		return new Array(GetElementType(), (void*) new_vector);
 	}
 
 	template<class T> const Array* WithAppendedValue(const T value) const {
@@ -93,20 +92,10 @@ public:
 		return m_type_specifier->GetElementTypeSpecifier();
 	}
 
-	const bool IsFixedSize() const {
-		return m_fixed_size;
-	}
-
-	const bool IsInitialized() const {
-		return m_initialized;
-	}
-
 private:
-	Array(const TypeSpecifier* element_specifier, const void* value,
-			const bool initialized, const bool fixed_size) :
-			m_type_specifier(
-					new ArrayTypeSpecifier(element_specifier, fixed_size)), m_value(
-					value), m_initialized(initialized), m_fixed_size(fixed_size) {
+	Array(const TypeSpecifier* element_specifier, const void* value) :
+			m_type_specifier(new ArrayTypeSpecifier(element_specifier)), m_value(
+					value) {
 	}
 
 	const static void* GetStorage(const TypeSpecifier* element_specifier,
@@ -114,8 +103,6 @@ private:
 
 	const ArrayTypeSpecifier* m_type_specifier;
 	const void* m_value;
-	const bool m_initialized;
-	const bool m_fixed_size;
 
 	template<class T> const vector<T>* GetValue() const {
 		return ((const vector<T>*) m_value);

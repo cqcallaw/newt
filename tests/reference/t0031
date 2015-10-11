@@ -1,0 +1,28 @@
+Parsing file ../tests/t0031.nwt...
+Parsed file ../tests/t0031.nwt.
+Root Symbol Table:
+----------------
+test[] a:
+	[0]: 
+		int x: 10
+	[1]: 
+		int x: 12
+
+nested_container container:
+	test[][] test:
+		[0]: 
+		[1]: 
+		[2]: 
+			[0]: 
+				int x: 10
+			[1]: 
+				int x: 12
+
+
+
+Root Type Table:
+----------------
+nested_container: 
+	test[][] test ()
+test: 
+	int x (10)

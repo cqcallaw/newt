@@ -15,10 +15,15 @@ int index
 int i = 42
 double x = 3.14159
 string s = "hello"
-int[3] ints
-double[3] doubles
-string[3] strings
-rectangle[3] rects
+int[] ints
+ints[2] = #int
+double[] doubles
+doubles[2] = #double
+string[] strings
+strings[2] = #string
+rectangle[] rects
+rects[2] = #rectangle
+
 triangle my_triangle
 
     for (index = 0; index < 3; index += 1)

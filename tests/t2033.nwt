@@ -1,7 +1,7 @@
 string s
 int i = 4
 int j = 2
-int[4] nums
+int[] nums
 
     nums[i-j] = 42
 

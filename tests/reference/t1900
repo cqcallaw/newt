@@ -56,7 +56,7 @@ int i71: 1
 int i8: 0
 int i9: 0
 int ii: 1
-static int[] iii:
+int[] iii:
 	[0] 0
 	[1] 0
 	[2] 0
@@ -71,6 +71,7 @@ double pi: 3.1415
 string s: "to you all."
 string s2: "74 hellos to you all."
 string s3: "int i[0]0000"
+int size: 7
 
 Root Type Table:
 ----------------

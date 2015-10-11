@@ -1,5 +1,4 @@
 Parsing file ../tests/t1721.nwt...
-Semantic error on line 2, column 8: Arithmetic mod by zero at parse time.  Using zero as the result so parse can continue.
-Semantic error on line 2, column 5: The array 'nums' was declared with illegal size '0'.  Arrays sizes must be integers of 1 or larger.
+Parse error on line 2 reported by parser: syntax error, unexpected int constant, expecting ].
 Parsed file ../tests/t1721.nwt.
-2 errors found; giving up.
+1 error found; giving up.

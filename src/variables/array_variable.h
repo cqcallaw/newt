@@ -22,34 +22,48 @@
 
 #include <string>
 #include "variable.h"
+#include <assignment_type.h>
 
 class Expression;
 class ExecutionContext;
+class IndexList;
 
 class ArrayVariable: public Variable {
 public:
 	ArrayVariable(const std::string* name, YYLTYPE location,
-			const Expression* index_expression, YYLTYPE expression_location);
+			const IndexList* index_list,
+			YYLTYPE expression_location);
 	virtual ~ArrayVariable();
 
-	const Expression* GetIndexExpression() const {
-		return m_index_expression;
+	const IndexList* GetIndexList() const {
+		return m_index_list;
 	}
 
 	virtual const TypeSpecifier* GetType(const ExecutionContext* context) const;
 
 	virtual const std::string* ToString(const ExecutionContext* context) const;
 
-	const YYLTYPE GetExpressionLocation() const {
-		return m_expression_location;
+	const YYLTYPE GetIndexListLocation() const {
+		return m_index_list_location;
 	}
 
 	virtual const bool IsBasicReference() const {
 		return false;
 	}
 
+	virtual const TypeSpecifier* GetInnerMostElementType(
+			const ExecutionContext* context) const;
+
+	virtual const LinkedList<const Error*>* Validate(
+			const ExecutionContext* context) const;
+
 	virtual const Result* Evaluate(const ExecutionContext* context) const;
 
+	virtual const LinkedList<const Error*>* AssignValue(
+			const ExecutionContext* context, const Expression* expression,
+			const AssignmentType op) const;
+
+protected:
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context, const bool* value) const;
 
@@ -69,15 +83,13 @@ public:
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const;
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* context) const;
-
-protected:
 	class ValidationResult {
 	public:
 		ValidationResult(const Array* array, const int index,
+				const YYLTYPE index_location,
 				const LinkedList<const Error*>* errors) :
-				m_array(array), m_index(index), m_errors(errors) {
+				m_array(array), m_index(index), m_index_location(
+						index_location), m_errors(errors) {
 		}
 
 		const int GetIndex() const {
@@ -91,15 +103,21 @@ protected:
 		const LinkedList<const Error*>* GetErrors() const {
 			return m_errors;
 		}
+
+		const YYLTYPE GetIndexLocation() const {
+			return m_index_location;
+		}
+
 	private:
 		const Array* m_array;
 		const int m_index;
+		const YYLTYPE m_index_location;
 		const LinkedList<const Error*>* m_errors;
 	};
 
 private:
-	const Expression* m_index_expression;
-	const YYLTYPE m_expression_location;
+	const IndexList* m_index_list;
+	const YYLTYPE m_index_list_location;
 
 	const ValidationResult* ValidateOperation(
 			const ExecutionContext* context) const;

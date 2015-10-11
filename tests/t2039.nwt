@@ -1,6 +1,6 @@
 int i
 int k = 7000
-int[5] nums
+int[] nums
 
    for (i = 0; i < 5; i += 1) {
        nums[i] = i

@@ -1,5 +1,0 @@
-int i = 0
-int[10] nums
-
-    i = 7000
-    nums[i] = 42

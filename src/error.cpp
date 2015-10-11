@@ -58,10 +58,6 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Value passed to exit() must be an integer.  "
 				<< "Value passed was of type '" << s1 << "'.";
 		break;
-	case INVALID_ARRAY_SIZE:
-		os << "The array '" << s1 << "' was declared with illegal size '" << s2
-				<< "'.  Arrays sizes must be integers of 1 or larger.";
-		break;
 	case ARRAY_SIZE_MISMATCH:
 		os << "The size of array '" << s1
 				<< "' must match the size of the right-hand side of the assignment.";
@@ -103,10 +99,6 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		break;
 	case INVALID_ARRAY_TYPE:
 		os << "Invalid array type '" << s1 << "' for variable '" << s2 << "'.";
-		break;
-	case INVALID_ARRAY_SIZE_TYPE:
-		os << "Invalid array size type (" << s1 << ") for variable '" << s2
-				<< "'. Arrays sizes must be integers of 1 or larger.";
 		break;
 	case LHS_OF_PERIOD_MUST_BE_OBJECT:
 		os << "Variable '" << s1 << "' is not an object."

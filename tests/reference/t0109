@@ -3,7 +3,7 @@ Parsed file ../tests/t0109.nwt.
 3
 Root Symbol Table:
 ----------------
-dynamic int[] nums:
+int[] nums:
 	[0] 3
 end array
 
