@@ -24,13 +24,16 @@
 #include <assignment_statement.h>
 #include "statement_block.h"
 #include <error.h>
+#include <symbol_table.h>
+#include <execution_context.h>
 
 ForStatement::ForStatement(const AssignmentStatement* initial,
 		const Expression* loop_expression,
 		const AssignmentStatement* loop_assignment,
 		const StatementBlock* statement_block) :
 		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
-				loop_assignment), m_statement_block(statement_block) {
+				loop_assignment), m_statement_block(statement_block), m_block_table(
+				new SymbolTable()) {
 	assert(loop_expression != nullptr);
 	assert(loop_assignment != nullptr);
 }
@@ -38,36 +41,54 @@ ForStatement::ForStatement(const AssignmentStatement* initial,
 ForStatement::~ForStatement() {
 }
 
-LinkedList<const Error*>* ForStatement::preprocess(
+const LinkedList<const Error*>* ForStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors;
 
 	if (m_loop_expression != nullptr
-			&& !(m_loop_expression->GetType(execution_context) & (BOOLEAN | INT))) {
+			&& !(m_loop_expression->GetType(execution_context)->IsAssignableTo(
+					PrimitiveTypeSpecifier::GetInt()))) {
 		YYLTYPE position = m_loop_expression->GetPosition();
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC,
 						Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
 						position.first_line, position.first_column));
 	} else {
-		errors = LinkedList<const Error*>::Terminator;
+		SymbolContext* symbol_context = execution_context->GetSymbolContext();
+		const auto new_parent = symbol_context->GetParent()->With(
+				symbol_context);
+		SymbolTable* tmp_table = new SymbolTable(m_block_table->GetModifiers(),
+				new_parent, m_block_table->GetTable());
+		const ExecutionContext* new_execution_context =
+				execution_context->WithSymbolContext(tmp_table);
+		errors = m_statement_block->preprocess(new_execution_context);
+		delete new_execution_context;
+		delete tmp_table;
+		delete new_parent;
 	}
 
-	return (LinkedList<const Error*>*) errors;
+	return errors;
 }
 
 const LinkedList<const Error*>* ForStatement::execute(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* initialization_errors;
 
+	SymbolContext* symbol_context = execution_context->GetSymbolContext();
+	const auto new_parent = symbol_context->GetParent()->With(symbol_context);
+	SymbolTable* tmp_table = new SymbolTable(m_block_table->GetModifiers(),
+			new_parent, m_block_table->GetTable());
+	const ExecutionContext* new_execution_context =
+			execution_context->WithSymbolContext(tmp_table);
+
 	if (m_initial != nullptr) {
-		initialization_errors = m_initial->execute(execution_context);
+		initialization_errors = m_initial->execute(new_execution_context);
 		if (initialization_errors != LinkedList<const Error*>::Terminator) {
 			return initialization_errors;
 		}
 	}
-	Result* evaluation = (Result*) m_loop_expression->Evaluate(
-			execution_context);
+	const Result* evaluation = (Result*) m_loop_expression->Evaluate(
+			new_execution_context);
 
 	if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
 		delete (evaluation);
@@ -77,26 +98,32 @@ const LinkedList<const Error*>* ForStatement::execute(
 	while (*((bool*) evaluation->GetData())) {
 		const LinkedList<const Error*>* iteration_errors;
 		if (m_statement_block != nullptr) {
-			iteration_errors = m_statement_block->execute(execution_context);
+			iteration_errors = m_statement_block->execute(
+					new_execution_context);
 		}
 		if (iteration_errors != LinkedList<const Error*>::Terminator) {
 			return iteration_errors;
 		}
 
 		const LinkedList<const Error*>* assignment_errors;
-		assignment_errors = m_loop_assignment->execute(execution_context);
+		assignment_errors = m_loop_assignment->execute(new_execution_context);
 		if (assignment_errors != LinkedList<const Error*>::Terminator) {
 			return assignment_errors;
 		}
 
 		delete (evaluation);
-		evaluation = (Result*) m_loop_expression->Evaluate(execution_context);
+		evaluation = (Result*) m_loop_expression->Evaluate(
+				new_execution_context);
 
 		if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
 			return evaluation->GetErrors();
 		}
 	}
 	delete (evaluation);
+
+	delete new_execution_context;
+	delete tmp_table;
+	delete new_parent;
 
 	return LinkedList<const Error*>::Terminator;
 }

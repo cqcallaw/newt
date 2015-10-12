@@ -1,0 +1,32 @@
+Parsing file ../tests/t2050.nwt...
+Parsed file ../tests/t2050.nwt.
+Root Symbol Table:
+----------------
+int a: 20
+int b: 10
+circle my_circle:
+	int radius: 0
+	int w: 20
+	int x: 10
+	int y: 0
+
+circle[] my_circles:
+	[0]: 
+		int radius: 0
+		int w: 20
+		int x: 10
+		int y: 0
+	[1]: 
+		int radius: 0
+		int w: 20
+		int x: 10
+		int y: 0
+
+
+Root Type Table:
+----------------
+circle: 
+	int radius (0)
+	int w (20)
+	int x (10)
+	int y (0)

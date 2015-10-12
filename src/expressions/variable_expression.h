@@ -28,7 +28,7 @@ class VariableExpression: public Expression {
 public:
 	VariableExpression(const YYLTYPE position, const Variable* variable);
 
-	virtual const Type GetType(const ExecutionContext* execution_context) const;
+	virtual const TypeSpecifier* GetType(const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const;
@@ -38,6 +38,10 @@ public:
 	}
 
 	virtual const LinkedList<const Error*>* Validate(const ExecutionContext* execution_context) const;
+
+	const Variable* GetVariable() const {
+		return m_variable;
+	}
 
 private:
 	const Variable* m_variable;

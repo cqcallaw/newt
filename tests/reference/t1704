@@ -1,6 +1,10 @@
 Parsing file ../tests/t1704.nwt...
 Parsed file ../tests/t1704.nwt.
 Root Symbol Table:
-int i 3
-int j 4
-double should_be_0 0
+----------------
+int i: 3
+int j: 4
+double should_be_0: 0
+
+Root Type Table:
+----------------

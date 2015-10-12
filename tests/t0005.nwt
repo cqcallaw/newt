@@ -6,9 +6,9 @@ double y
 string s1
 string s2
 
-int nums[2]
-double values[3]
-string strings[4]
+int[] nums2
+double[] values2
+string[] strings2
 
 int a_very_long_identifier
 int an_identifier_with_digits_1234

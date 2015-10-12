@@ -1,2 +1,2 @@
-double values[3]
+double[] values
 int values

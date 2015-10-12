@@ -1,3 +1,4 @@
-int my_array[3]
+int[] my_array
+my_array[3] = 0
 
 int a = my_array[42]

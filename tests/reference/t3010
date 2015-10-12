@@ -1,0 +1,4 @@
+Parsing file ../tests/t3010.nwt...
+Semantic error on line 11, column 15: Cannot assign an expression of type 'my_other_struct' to a variable of type 'my_struct'.
+Parsed file ../tests/t3010.nwt.
+1 error found; giving up.

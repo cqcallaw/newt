@@ -1,7 +1,11 @@
 Parsing file ../tests/t1233.nwt...
 Parsed file ../tests/t1233.nwt.
 Root Symbol Table:
-int i 42
-string s "hello"
-string var "1"
-double x 3.14159
+----------------
+int i: 42
+string s: "hello"
+string var: "1"
+double x: 3.14159
+
+Root Type Table:
+----------------

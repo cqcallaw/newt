@@ -1,27 +1,22 @@
 Parsing file ../tests/t0005.nwt...
 Parsed file ../tests/t0005.nwt.
 Root Symbol Table:
-int _start_with_an_underscore 0
-int a 0
-int a_very_long_identifier 0
-int an_identifier_with_digits_1234 0
-int b 0
-int array nums:
-  [0] 0
-  [1] 0
-end array nums
-string s1 ""
-string s2 ""
-string array strings:
-  [0] ""
-  [1] ""
-  [2] ""
-  [3] ""
-end array strings
-double array values:
-  [0] 0
-  [1] 0
-  [2] 0
-end array values
-double x 0
-double y 0
+----------------
+int _start_with_an_underscore: 0
+int a: 0
+int a_very_long_identifier: 0
+int an_identifier_with_digits_1234: 0
+int b: 0
+int[] nums2:
+end array
+string s1: ""
+string s2: ""
+string[] strings2:
+end array
+double[] values2:
+end array
+double x: 0
+double y: 0
+
+Root Type Table:
+----------------

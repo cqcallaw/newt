@@ -4,6 +4,10 @@ a = 20
 b = 22
 c = 42
 Root Symbol Table:
-int a 20
-int b 22
-int c 42
+----------------
+int a: 20
+int b: 22
+int c: 42
+
+Root Type Table:
+----------------

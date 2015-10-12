@@ -1,0 +1,16 @@
+Parsing file ../tests/t3000.nwt...
+Parsed file ../tests/t3000.nwt.
+Root Symbol Table:
+----------------
+ronly i:
+	int x: 10
+	double y: 0
+	string z: "hello"
+
+
+Root Type Table:
+----------------
+ronly: 
+	int x (0)
+	double y (0)
+	string z ("")

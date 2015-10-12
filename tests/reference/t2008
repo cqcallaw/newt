@@ -10,18 +10,22 @@ strings[0] = zero
 strings[1] = one
 strings[2] = two
 Root Symbol Table:
-double array doubles:
-  [0] 0
-  [1] 1
-  [2] 2
-end array doubles
-int array ints:
-  [0] 0
-  [1] 1
-  [2] 2
-end array ints
-string array strings:
-  [0] "zero"
-  [1] "one"
-  [2] "two"
-end array strings
+----------------
+double[] doubles:
+	[0] 0
+	[1] 1
+	[2] 2
+end array
+int[] ints:
+	[0] 0
+	[1] 1
+	[2] 2
+end array
+string[] strings:
+	[0] "zero"
+	[1] "one"
+	[2] "two"
+end array
+
+Root Type Table:
+----------------

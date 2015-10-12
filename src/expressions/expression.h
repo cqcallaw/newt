@@ -20,14 +20,14 @@
 #ifndef EXPRESSION_H_
 #define EXPRESSION_H_
 
+#include <array.h>
 #include <symbol_table.h>
-#include <symbol.h>
-#include <array_symbol.h>
 #include <utils.h>
 #include <assert.h>
 #include <type.h>
 #include <linked_list.h>
 #include <result.h>
+#include <symbol.h>
 
 class ExecutionContext;
 
@@ -36,13 +36,13 @@ public:
 	Expression(const YYLTYPE position);
 	virtual ~Expression();
 
-	virtual const Type GetType(
+	virtual const TypeSpecifier* GetType(
 			const ExecutionContext* execution_context) const = 0;
 
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const = 0;
 
-	const string* ToString(const ExecutionContext* execution_context) const;
+	const Result* ToString(const ExecutionContext* execution_context) const;
 
 	const YYLTYPE GetPosition() const {
 		return m_position;

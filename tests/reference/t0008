@@ -1,4 +1,12 @@
 Parsing file ../tests/t0008.nwt...
 Parsed file ../tests/t0008.nwt.
 Root Symbol Table:
-int i 10000
+----------------
+my_struct s:
+	double x: 1
+
+
+Root Type Table:
+----------------
+my_struct: 
+	double x (0)

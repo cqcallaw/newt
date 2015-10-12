@@ -1,0 +1,19 @@
+struct rectangle {
+	int x
+	int y
+	int w
+	int h
+}
+
+rectangle[] rects
+rects[2] = #rectangle
+
+rects[0].x = 1
+rects[0].y = 2
+rects[0].w = 3
+rects[0].h = 4
+
+print("rects[0].x = " + rects[0].x)
+print("rects[0].y = " + rects[0].y)
+print("rects[0].w = " + rects[0].w)
+print("rects[0].h = " + rects[0].h)

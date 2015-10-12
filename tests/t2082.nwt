@@ -1,0 +1,6 @@
+//test assignment to a non-existing member of a primitive type
+//this is a runtime 
+
+int i
+
+double d = i.x

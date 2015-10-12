@@ -1,5 +1,10 @@
 Parsing file ../tests/t1423.nwt...
-Semantic error on line 6, column 16: Invalid right operand for operator 'abs'.
-Semantic error on line 6, column 12: Incorrect type for initial value of variable 'z'.
 Parsed file ../tests/t1423.nwt.
-2 errors found; giving up.
+Root Symbol Table:
+----------------
+int i: 42
+string s: "hello"
+double x: 3.14159
+
+Root Type Table:
+----------------

@@ -19,25 +19,24 @@
 
 #include "indent.h"
 #include <iostream>
+#include <sstream>
 
 #include "assert.h"
 using namespace std;
 
-/* static */int Indent::m_count = 0;
+Indent::Indent(const int level) :
+		m_level(level) {
+}
 
-Indent indent;
-
-Indent::Indent() {
-	m_level = 0;
-
-	// prevents more than one instance from ever being created
-	// not as elegant as implementing a singleton; quick and dirty
-	m_count++;
-	assert(m_count == 1);
+const string Indent::ToString() const {
+	ostringstream os;
+	for (int i = 0; i < m_level; i++)
+		os << "\t";
+	return os.str();
 }
 
 ostream & operator<<(ostream &os, const Indent &indent) {
-	for (int i = 0; i < indent.m_level; i++)
-		os << " ";
+	os << indent.ToString();
 	return os;
 }
+

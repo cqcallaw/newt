@@ -38,7 +38,8 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 
 const Result* ArithmeticExpression::compute(int left, int right,
 YYLTYPE left_position, YYLTYPE right_position) const {
-	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
 
 	int* result = new int;
 	switch (GetOperator()) {
@@ -50,7 +51,7 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		break;
 	case DIVIDE:
 		if (right == 0) {
-			errors = (LinkedList<const Error*>*) errors->With(
+			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
 							right_position.first_line,
 							right_position.first_column));
@@ -64,7 +65,7 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		break;
 	case MOD:
 		if (right == 0) {
-			errors = (LinkedList<const Error*>*) errors->With(
+			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::MOD_BY_ZERO,
 							right_position.first_line,
 							right_position.first_column));
@@ -82,7 +83,8 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 
 const Result* ArithmeticExpression::compute(double left, double right,
 YYLTYPE left_position, YYLTYPE right_position) const {
-	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
 
 	double* result = new double;
 	switch (GetOperator()) {
@@ -94,7 +96,7 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		break;
 	case DIVIDE:
 		if (right == 0.0) {
-			errors = (LinkedList<const Error*>*) errors->With(
+			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
 							right_position.first_line,
 							right_position.first_column));
@@ -113,15 +115,15 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	return new Result((void *) result, errors);
 }
 
-const Result* ArithmeticExpression::compute(string* left,
-		string* right, YYLTYPE left_position, YYLTYPE right_position) const {
+const Result* ArithmeticExpression::compute(string* left, string* right,
+YYLTYPE left_position, YYLTYPE right_position) const {
 	//string concatenation isn't strictly an arithmetic operation, so this is a hack
 	std::ostringstream buffer;
 	buffer << *left;
 	buffer << *right;
-	string* result = new string(buffer.str());
-	return new Result((void *) result,
-			LinkedList<const Error*>::Terminator);
+	const string buffer_string = buffer.str();
+	const string* result = new string(buffer_string);
+	return new Result((void *) result, LinkedList<const Error*>::Terminator);
 }
 
 const LinkedList<const Error*>* ArithmeticExpression::Validate(
@@ -129,13 +131,12 @@ const LinkedList<const Error*>* ArithmeticExpression::Validate(
 	if (GetOperator() == PLUS) {
 		//Allow STRING types because PLUS doubles as a concatenation operator
 		return BinaryExpression::Validate(execution_context,
-				(BOOLEAN | INT | DOUBLE | STRING),
-				(BOOLEAN | INT | DOUBLE | STRING));
+				PrimitiveTypeSpecifier::GetString(), PrimitiveTypeSpecifier::GetString());
 	} else if (GetOperator() == MOD) {
-		return BinaryExpression::Validate(execution_context, (BOOLEAN | INT),
-				(BOOLEAN | INT));
+		return BinaryExpression::Validate(execution_context,
+				PrimitiveTypeSpecifier::GetInt(), PrimitiveTypeSpecifier::GetInt());
 	} else {
 		return BinaryExpression::Validate(execution_context,
-				(BOOLEAN | INT | DOUBLE), (BOOLEAN | INT | DOUBLE));
+				PrimitiveTypeSpecifier::GetDouble(), PrimitiveTypeSpecifier::GetDouble());
 	}
 }

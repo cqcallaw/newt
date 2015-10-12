@@ -1,4 +1,4 @@
 Parsing file ../tests/t1103.nwt...
-Semantic error on line 1, column 11: Invalid array size type (string) for variable 'array'. Arrays sizes must be integers of 1 or larger.
+Parse error on line 1 reported by parser: syntax error, unexpected string constant, expecting ].
 Parsed file ../tests/t1103.nwt.
 1 error found; giving up.

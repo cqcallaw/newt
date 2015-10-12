@@ -19,7 +19,6 @@
 
 #include <assignment_statement.h>
 #include <defaults.h>
-#include <symbol.h>
 #include <expression.h>
 #include <for_statement.h>
 #include <if_statement.h>
@@ -27,13 +26,16 @@
 #include <print_statement.h>
 #include <statement_block.h>
 #include <statement_list.h>
+#include <symbol.h>
 #include <variable.h>
 #include "type.h"
 
-const YYLTYPE DefaultLocation = YYLTYPE { -1, -1, -1, -1 };
+const bool* DefaultBooleanValue = new bool(false);
+const int* DefaultIntValue = new int(0);
+const double* DefaultDoubleValue = new double(0.0);
+const string* DefaultStringValue = new string("");
 
-const Variable* DefaultVariable = new Variable(&(Symbol::DefaultSymbolName),
-		DefaultLocation);
+const YYLTYPE DefaultLocation = YYLTYPE { -1, -1, -1, -1 };
 
 /*const Expression* DefaultExpression = new Expression(DefaultLocation);
 

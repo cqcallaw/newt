@@ -1,4 +1,8 @@
 Parsing file ../tests/t1709.nwt...
 Parsed file ../tests/t1709.nwt.
 Root Symbol Table:
-int i 0
+----------------
+int i: 0
+
+Root Type Table:
+----------------

@@ -25,6 +25,7 @@
 class Expression;
 class StatementBlock;
 class Error;
+class SymbolTable;
 
 class IfStatement: public Statement {
 public:
@@ -37,14 +38,17 @@ public:
 		return m_expression;
 	}
 
-	virtual LinkedList<const Error*>* preprocess(
+	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;
+	virtual const LinkedList<const Error*>* execute(
+			const ExecutionContext* execution_context) const;
 private:
 	const Expression* m_expression;
 	const StatementBlock* m_block;
 	const StatementBlock* m_else_block;
+	SymbolTable* m_block_table;
+	SymbolTable* m_else_block_table;
 };
 
 #endif /* IF_STATEMENT_H_ */

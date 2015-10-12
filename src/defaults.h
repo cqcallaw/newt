@@ -33,6 +33,11 @@ class ExitStatement;
 class PrintStatement;
 class StatementBlock;
 
+extern const bool* DefaultBooleanValue;
+extern const int* DefaultIntValue;
+extern const double* DefaultDoubleValue;
+extern const std::string* DefaultStringValue;
+
 extern const YYLTYPE DefaultLocation;
 /*extern const Variable* DefaultVariable;
 extern const Expression* DefaultExpression;

@@ -1,5 +1,10 @@
 Parsing file ../tests/t1125.nwt...
 Parsed file ../tests/t1125.nwt.
 Root Symbol Table:
+----------------
 int a 3
 double x 3
+
+Root Type Table:
+----------------
+

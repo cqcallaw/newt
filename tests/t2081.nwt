@@ -1,0 +1,8 @@
+struct circle {
+	int x
+	int y
+	int w = 10
+}
+
+circle my_circle = #circle with {x = 42, y = 11}
+int foo = my_circle.bad_member_name

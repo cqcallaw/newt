@@ -1,0 +1,13 @@
+struct rectangle {
+	int x
+	int y
+	int w = 10
+	int h
+	double red
+	double blue
+	double green
+}
+
+rectangle r = #rectangle with {x = 100, y = 100, h = 100, w = 100}
+
+    r = 42

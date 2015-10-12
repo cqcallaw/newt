@@ -1,0 +1,35 @@
+Parsing file ../tests/t2087.nwt...
+Parsed file ../tests/t2087.nwt.
+my_rectangle:
+{
+	double blue: 0
+	double green: 0
+	int h: 0
+	double red: 0
+	int w: 10
+	int x: 100
+	int y: 100
+}
+
+Root Symbol Table:
+----------------
+rectangle my_rectangle:
+	double blue: 0
+	double green: 0
+	int h: 0
+	double red: 0
+	int w: 10
+	int x: 100
+	int y: 100
+
+
+Root Type Table:
+----------------
+rectangle: 
+	double blue (0)
+	double green (0)
+	int h (0)
+	double red (0)
+	int w (10)
+	int x (0)
+	int y (0)

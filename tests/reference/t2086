@@ -1,0 +1,4 @@
+Parsing file ../tests/t2086.nwt...
+Semantic error on line 13, column 9: Cannot assign an expression of type 'int' to a variable of type 'rectangle'.
+Parsed file ../tests/t2086.nwt.
+1 error found; giving up.

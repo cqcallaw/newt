@@ -1,7 +1,12 @@
 Parsing file ../tests/t1123.nwt...
 Parsed file ../tests/t1123.nwt.
 Root Symbol Table:
+----------------
 int a 42
 int b 42
 double x 4.2
 double y 4.2
+
+Root Type Table:
+----------------
+

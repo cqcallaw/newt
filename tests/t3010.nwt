@@ -1,0 +1,11 @@
+//test assignment of struct reference and verify assignment
+
+struct my_struct {
+	double y
+}
+
+struct my_other_struct {
+	int x
+}
+
+my_struct a = #my_other_struct //should generate a type error

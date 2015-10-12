@@ -1,0 +1,26 @@
+struct rectangle {
+	int x
+	int y
+	int w = 10
+	int h
+}
+
+string str
+int i
+int size = 4
+rectangle[] rects
+rects[size - 1] = #rectangle
+
+    for (i = 0; i < size; i += 1)
+    {
+        rects[i].x = i * 100
+        rects[i].y = i * 100
+    }
+
+    for (i = 0; i < size; i += 1)
+    {
+        str = "rects[" + i + "].x = " + rects[i].x
+        print(str)
+        str = "rects[" + i + "].y = " + rects[i].y
+        print(str)
+    }

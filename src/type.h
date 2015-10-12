@@ -21,27 +21,27 @@
 #define TYPE_H
 
 #include <iostream>
+#include <string>
+#include <linked_list.h>
 
-enum Type {
+class TypeSpecifier;
+class TypeTable;
+
+using namespace std;
+
+enum BasicType {
 	NONE = 0,
 	BOOLEAN = 1,
 	INT = 2,
 	DOUBLE = 4,
-	STRING = 8,
-	DOUBLE_ARRAY = 16,
-	INT_ARRAY = 32,
-	STRING_ARRAY = 64
+	STRING = 8
 };
 
-std::string type_to_string(Type type);
+const string type_to_string(const BasicType type);
 
-std::ostream &operator<<(std::ostream &os, const Type &type);
+const BasicType FromString(const string str);
 
-enum Status {
-	OK, MEMBER_NOT_OF_GIVEN_TYPE, MEMBER_NOT_DECLARED
-};
-
-std::string status_to_string(Status status);
+ostream &operator<<(ostream &os, const BasicType &type);
 
 enum OperatorType {
 	PLUS,
@@ -58,21 +58,9 @@ enum OperatorType {
 	LESS_THAN,
 	LESS_THAN_EQUAL,
 	GREATER_THAN,
-	GREATER_THAN_EQUAL,
-	NEAR,
-	TOUCHES,
-	SIN,
-	COS,
-	TAN,
-	ASIN,
-	ACOS,
-	ATAN,
-	SQRT,
-	FLOOR,
-	ABS,
-	RANDOM
+	GREATER_THAN_EQUAL
 };
 
-std::string operator_to_string(OperatorType op);
+string operator_to_string(OperatorType op);
 
 #endif // #ifndef TYPE_H

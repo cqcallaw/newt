@@ -1,0 +1,820 @@
+Parsing file ../tests/t2052.nwt...
+Parsed file ../tests/t2052.nwt.
+Root Symbol Table:
+----------------
+int i: 100
+int p: 467
+rectangle[] rects:
+	[0]: 
+		double blue: 0
+		double green: 0
+		int h: 5
+		double red: 0
+		int w: 5
+		int x: 0
+		int y: 0
+	[1]: 
+		double blue: 0.01
+		double green: 0
+		int h: 5
+		double red: 0.01
+		int w: 5
+		int x: 5
+		int y: 5
+	[2]: 
+		double blue: 0.02
+		double green: 0
+		int h: 5
+		double red: 0.02
+		int w: 5
+		int x: 10
+		int y: 10
+	[3]: 
+		double blue: 0.03
+		double green: 0
+		int h: 5
+		double red: 0.03
+		int w: 5
+		int x: 15
+		int y: 15
+	[4]: 
+		double blue: 0.04
+		double green: 0
+		int h: 5
+		double red: 0.04
+		int w: 5
+		int x: 20
+		int y: 20
+	[5]: 
+		double blue: 0.05
+		double green: 0
+		int h: 5
+		double red: 0.05
+		int w: 5
+		int x: 25
+		int y: 25
+	[6]: 
+		double blue: 0.06
+		double green: 0
+		int h: 5
+		double red: 0.06
+		int w: 5
+		int x: 30
+		int y: 30
+	[7]: 
+		double blue: 0.07
+		double green: 0
+		int h: 5
+		double red: 0.07
+		int w: 5
+		int x: 35
+		int y: 35
+	[8]: 
+		double blue: 0.08
+		double green: 0
+		int h: 5
+		double red: 0.08
+		int w: 5
+		int x: 40
+		int y: 40
+	[9]: 
+		double blue: 0.09
+		double green: 0
+		int h: 5
+		double red: 0.09
+		int w: 5
+		int x: 45
+		int y: 45
+	[10]: 
+		double blue: 0.1
+		double green: 0
+		int h: 5
+		double red: 0.1
+		int w: 5
+		int x: 50
+		int y: 50
+	[11]: 
+		double blue: 0.11
+		double green: 0
+		int h: 5
+		double red: 0.11
+		int w: 5
+		int x: 55
+		int y: 55
+	[12]: 
+		double blue: 0.12
+		double green: 0
+		int h: 5
+		double red: 0.12
+		int w: 5
+		int x: 60
+		int y: 60
+	[13]: 
+		double blue: 0.13
+		double green: 0
+		int h: 5
+		double red: 0.13
+		int w: 5
+		int x: 65
+		int y: 65
+	[14]: 
+		double blue: 0.14
+		double green: 0
+		int h: 5
+		double red: 0.14
+		int w: 5
+		int x: 70
+		int y: 70
+	[15]: 
+		double blue: 0.15
+		double green: 0
+		int h: 5
+		double red: 0.15
+		int w: 5
+		int x: 75
+		int y: 75
+	[16]: 
+		double blue: 0.16
+		double green: 0
+		int h: 5
+		double red: 0.16
+		int w: 5
+		int x: 80
+		int y: 80
+	[17]: 
+		double blue: 0.17
+		double green: 0
+		int h: 5
+		double red: 0.17
+		int w: 5
+		int x: 85
+		int y: 85
+	[18]: 
+		double blue: 0.18
+		double green: 0
+		int h: 5
+		double red: 0.18
+		int w: 5
+		int x: 90
+		int y: 90
+	[19]: 
+		double blue: 0.19
+		double green: 0
+		int h: 5
+		double red: 0.19
+		int w: 5
+		int x: 95
+		int y: 95
+	[20]: 
+		double blue: 0.2
+		double green: 0
+		int h: 5
+		double red: 0.2
+		int w: 5
+		int x: 100
+		int y: 100
+	[21]: 
+		double blue: 0.21
+		double green: 0
+		int h: 5
+		double red: 0.21
+		int w: 5
+		int x: 105
+		int y: 105
+	[22]: 
+		double blue: 0.22
+		double green: 0
+		int h: 5
+		double red: 0.22
+		int w: 5
+		int x: 110
+		int y: 110
+	[23]: 
+		double blue: 0.23
+		double green: 0
+		int h: 5
+		double red: 0.23
+		int w: 5
+		int x: 115
+		int y: 115
+	[24]: 
+		double blue: 0.24
+		double green: 0
+		int h: 5
+		double red: 0.24
+		int w: 5
+		int x: 120
+		int y: 120
+	[25]: 
+		double blue: 0.25
+		double green: 0
+		int h: 5
+		double red: 0.25
+		int w: 5
+		int x: 125
+		int y: 125
+	[26]: 
+		double blue: 0.26
+		double green: 0
+		int h: 5
+		double red: 0.26
+		int w: 5
+		int x: 130
+		int y: 130
+	[27]: 
+		double blue: 0.27
+		double green: 0
+		int h: 5
+		double red: 0.27
+		int w: 5
+		int x: 135
+		int y: 135
+	[28]: 
+		double blue: 0.28
+		double green: 0
+		int h: 5
+		double red: 0.28
+		int w: 5
+		int x: 140
+		int y: 140
+	[29]: 
+		double blue: 0.29
+		double green: 0
+		int h: 5
+		double red: 0.29
+		int w: 5
+		int x: 145
+		int y: 145
+	[30]: 
+		double blue: 0.3
+		double green: 0
+		int h: 5
+		double red: 0.3
+		int w: 5
+		int x: 150
+		int y: 150
+	[31]: 
+		double blue: 0.31
+		double green: 0
+		int h: 5
+		double red: 0.31
+		int w: 5
+		int x: 155
+		int y: 155
+	[32]: 
+		double blue: 0.32
+		double green: 0
+		int h: 5
+		double red: 0.32
+		int w: 5
+		int x: 160
+		int y: 160
+	[33]: 
+		double blue: 0.33
+		double green: 0
+		int h: 5
+		double red: 0.33
+		int w: 5
+		int x: 165
+		int y: 165
+	[34]: 
+		double blue: 0.34
+		double green: 0
+		int h: 5
+		double red: 0.34
+		int w: 5
+		int x: 170
+		int y: 170
+	[35]: 
+		double blue: 0.35
+		double green: 0
+		int h: 5
+		double red: 0.35
+		int w: 5
+		int x: 175
+		int y: 175
+	[36]: 
+		double blue: 0.36
+		double green: 0
+		int h: 5
+		double red: 0.36
+		int w: 5
+		int x: 180
+		int y: 180
+	[37]: 
+		double blue: 0.37
+		double green: 0
+		int h: 5
+		double red: 0.37
+		int w: 5
+		int x: 185
+		int y: 185
+	[38]: 
+		double blue: 0.38
+		double green: 0
+		int h: 5
+		double red: 0.38
+		int w: 5
+		int x: 190
+		int y: 190
+	[39]: 
+		double blue: 0.39
+		double green: 0
+		int h: 5
+		double red: 0.39
+		int w: 5
+		int x: 195
+		int y: 195
+	[40]: 
+		double blue: 0.4
+		double green: 0
+		int h: 5
+		double red: 0.4
+		int w: 5
+		int x: 200
+		int y: 200
+	[41]: 
+		double blue: 0.41
+		double green: 0
+		int h: 5
+		double red: 0.41
+		int w: 5
+		int x: 205
+		int y: 205
+	[42]: 
+		double blue: 0.42
+		double green: 0
+		int h: 5
+		double red: 0.42
+		int w: 5
+		int x: 210
+		int y: 210
+	[43]: 
+		double blue: 0.43
+		double green: 0
+		int h: 5
+		double red: 0.43
+		int w: 5
+		int x: 215
+		int y: 215
+	[44]: 
+		double blue: 0.44
+		double green: 0
+		int h: 5
+		double red: 0.44
+		int w: 5
+		int x: 220
+		int y: 220
+	[45]: 
+		double blue: 0.45
+		double green: 0
+		int h: 5
+		double red: 0.45
+		int w: 5
+		int x: 225
+		int y: 225
+	[46]: 
+		double blue: 0.46
+		double green: 0
+		int h: 5
+		double red: 0.46
+		int w: 5
+		int x: 230
+		int y: 230
+	[47]: 
+		double blue: 0.47
+		double green: 0
+		int h: 5
+		double red: 0.47
+		int w: 5
+		int x: 235
+		int y: 235
+	[48]: 
+		double blue: 0.48
+		double green: 0
+		int h: 5
+		double red: 0.48
+		int w: 5
+		int x: 240
+		int y: 240
+	[49]: 
+		double blue: 0.49
+		double green: 0
+		int h: 5
+		double red: 0.49
+		int w: 5
+		int x: 245
+		int y: 245
+	[50]: 
+		double blue: 0.5
+		double green: 0
+		int h: 5
+		double red: 0.5
+		int w: 5
+		int x: 250
+		int y: 250
+	[51]: 
+		double blue: 0.51
+		double green: 0
+		int h: 5
+		double red: 0.51
+		int w: 5
+		int x: 255
+		int y: 255
+	[52]: 
+		double blue: 0.52
+		double green: 0
+		int h: 5
+		double red: 0.52
+		int w: 5
+		int x: 260
+		int y: 260
+	[53]: 
+		double blue: 0.53
+		double green: 0
+		int h: 5
+		double red: 0.53
+		int w: 5
+		int x: 265
+		int y: 265
+	[54]: 
+		double blue: 0.54
+		double green: 0
+		int h: 5
+		double red: 0.54
+		int w: 5
+		int x: 270
+		int y: 270
+	[55]: 
+		double blue: 0.55
+		double green: 0
+		int h: 5
+		double red: 0.55
+		int w: 5
+		int x: 275
+		int y: 275
+	[56]: 
+		double blue: 0.56
+		double green: 0
+		int h: 5
+		double red: 0.56
+		int w: 5
+		int x: 280
+		int y: 280
+	[57]: 
+		double blue: 0.57
+		double green: 0
+		int h: 5
+		double red: 0.57
+		int w: 5
+		int x: 285
+		int y: 285
+	[58]: 
+		double blue: 0.58
+		double green: 0
+		int h: 5
+		double red: 0.58
+		int w: 5
+		int x: 290
+		int y: 290
+	[59]: 
+		double blue: 0.59
+		double green: 0
+		int h: 5
+		double red: 0.59
+		int w: 5
+		int x: 295
+		int y: 295
+	[60]: 
+		double blue: 0.6
+		double green: 0
+		int h: 5
+		double red: 0.6
+		int w: 5
+		int x: 300
+		int y: 300
+	[61]: 
+		double blue: 0.61
+		double green: 0
+		int h: 5
+		double red: 0.61
+		int w: 5
+		int x: 305
+		int y: 305
+	[62]: 
+		double blue: 0.62
+		double green: 0
+		int h: 5
+		double red: 0.62
+		int w: 5
+		int x: 310
+		int y: 310
+	[63]: 
+		double blue: 0.63
+		double green: 0
+		int h: 5
+		double red: 0.63
+		int w: 5
+		int x: 315
+		int y: 315
+	[64]: 
+		double blue: 0.64
+		double green: 0
+		int h: 5
+		double red: 0.64
+		int w: 5
+		int x: 320
+		int y: 320
+	[65]: 
+		double blue: 0.65
+		double green: 0
+		int h: 5
+		double red: 0.65
+		int w: 5
+		int x: 325
+		int y: 325
+	[66]: 
+		double blue: 0.66
+		double green: 0
+		int h: 5
+		double red: 0.66
+		int w: 5
+		int x: 330
+		int y: 330
+	[67]: 
+		double blue: 0.67
+		double green: 0
+		int h: 5
+		double red: 0.67
+		int w: 5
+		int x: 335
+		int y: 335
+	[68]: 
+		double blue: 0.68
+		double green: 0
+		int h: 5
+		double red: 0.68
+		int w: 5
+		int x: 340
+		int y: 340
+	[69]: 
+		double blue: 0.69
+		double green: 0
+		int h: 5
+		double red: 0.69
+		int w: 5
+		int x: 345
+		int y: 345
+	[70]: 
+		double blue: 0.7
+		double green: 0
+		int h: 5
+		double red: 0.7
+		int w: 5
+		int x: 350
+		int y: 350
+	[71]: 
+		double blue: 0.71
+		double green: 0
+		int h: 5
+		double red: 0.71
+		int w: 5
+		int x: 355
+		int y: 355
+	[72]: 
+		double blue: 0.72
+		double green: 0
+		int h: 5
+		double red: 0.72
+		int w: 5
+		int x: 360
+		int y: 360
+	[73]: 
+		double blue: 0.73
+		double green: 0
+		int h: 5
+		double red: 0.73
+		int w: 5
+		int x: 365
+		int y: 365
+	[74]: 
+		double blue: 0.74
+		double green: 0
+		int h: 5
+		double red: 0.74
+		int w: 5
+		int x: 370
+		int y: 370
+	[75]: 
+		double blue: 0.75
+		double green: 0
+		int h: 5
+		double red: 0.75
+		int w: 5
+		int x: 375
+		int y: 375
+	[76]: 
+		double blue: 0.76
+		double green: 0
+		int h: 5
+		double red: 0.76
+		int w: 5
+		int x: 380
+		int y: 380
+	[77]: 
+		double blue: 0.77
+		double green: 0
+		int h: 5
+		double red: 0.77
+		int w: 5
+		int x: 385
+		int y: 385
+	[78]: 
+		double blue: 0.78
+		double green: 0
+		int h: 5
+		double red: 0.78
+		int w: 5
+		int x: 390
+		int y: 390
+	[79]: 
+		double blue: 0.79
+		double green: 0
+		int h: 5
+		double red: 0.79
+		int w: 5
+		int x: 395
+		int y: 395
+	[80]: 
+		double blue: 0.8
+		double green: 0
+		int h: 5
+		double red: 0.8
+		int w: 5
+		int x: 400
+		int y: 400
+	[81]: 
+		double blue: 0.81
+		double green: 0
+		int h: 5
+		double red: 0.81
+		int w: 5
+		int x: 405
+		int y: 405
+	[82]: 
+		double blue: 0.82
+		double green: 0
+		int h: 5
+		double red: 0.82
+		int w: 5
+		int x: 410
+		int y: 410
+	[83]: 
+		double blue: 0.83
+		double green: 0
+		int h: 5
+		double red: 0.83
+		int w: 5
+		int x: 415
+		int y: 415
+	[84]: 
+		double blue: 0.84
+		double green: 0
+		int h: 5
+		double red: 0.84
+		int w: 5
+		int x: 420
+		int y: 420
+	[85]: 
+		double blue: 0.85
+		double green: 0
+		int h: 5
+		double red: 0.85
+		int w: 5
+		int x: 425
+		int y: 425
+	[86]: 
+		double blue: 0.86
+		double green: 0
+		int h: 5
+		double red: 0.86
+		int w: 5
+		int x: 430
+		int y: 430
+	[87]: 
+		double blue: 0.87
+		double green: 0
+		int h: 5
+		double red: 0.87
+		int w: 5
+		int x: 435
+		int y: 435
+	[88]: 
+		double blue: 0.88
+		double green: 0
+		int h: 5
+		double red: 0.88
+		int w: 5
+		int x: 440
+		int y: 440
+	[89]: 
+		double blue: 0.89
+		double green: 0
+		int h: 5
+		double red: 0.89
+		int w: 5
+		int x: 445
+		int y: 445
+	[90]: 
+		double blue: 0.9
+		double green: 0
+		int h: 5
+		double red: 0.9
+		int w: 5
+		int x: 450
+		int y: 450
+	[91]: 
+		double blue: 0.91
+		double green: 0
+		int h: 5
+		double red: 0.91
+		int w: 5
+		int x: 455
+		int y: 455
+	[92]: 
+		double blue: 0.92
+		double green: 0
+		int h: 5
+		double red: 0.92
+		int w: 5
+		int x: 460
+		int y: 460
+	[93]: 
+		double blue: 0.93
+		double green: 0
+		int h: 5
+		double red: 0.93
+		int w: 5
+		int x: 465
+		int y: 465
+	[94]: 
+		double blue: 0.94
+		double green: 0
+		int h: 5
+		double red: 0.94
+		int w: 5
+		int x: 470
+		int y: 470
+	[95]: 
+		double blue: 0.95
+		double green: 0
+		int h: 5
+		double red: 0.95
+		int w: 5
+		int x: 475
+		int y: 475
+	[96]: 
+		double blue: 0.96
+		double green: 0
+		int h: 5
+		double red: 0.96
+		int w: 5
+		int x: 480
+		int y: 480
+	[97]: 
+		double blue: 0.97
+		double green: 0
+		int h: 5
+		double red: 0.97
+		int w: 5
+		int x: 485
+		int y: 485
+	[98]: 
+		double blue: 0.98
+		double green: 0
+		int h: 5
+		double red: 0.98
+		int w: 5
+		int x: 490
+		int y: 490
+	[99]: 
+		double blue: 0.99
+		double green: 0
+		int h: 5
+		double red: 0.99
+		int w: 5
+		int x: 495
+		int y: 495
+
+int size: 100
+
+Root Type Table:
+----------------
+rectangle: 
+	double blue (0)
+	double green (0)
+	int h (0)
+	double red (0)
+	int w (10)
+	int x (0)
+	int y (0)

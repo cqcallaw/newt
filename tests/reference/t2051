@@ -1,0 +1,67 @@
+Parsing file ../tests/t2051.nwt...
+Parsed file ../tests/t2051.nwt.
+Root Symbol Table:
+----------------
+circle[] circles:
+	[0]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 0
+	[1]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 20
+	[2]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 40
+	[3]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 60
+	[4]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 80
+	[5]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 100
+	[6]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 120
+	[7]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 140
+	[8]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 160
+	[9]: 
+		int radius: 10
+		int w: 20
+		int x: 380
+		int y: 180
+
+int down: 9
+int i: 10
+int p: 20
+
+Root Type Table:
+----------------
+circle: 
+	int radius (0)
+	int w (20)
+	int x (0)
+	int y (0)

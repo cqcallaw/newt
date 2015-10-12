@@ -33,20 +33,20 @@ bool StatementBlock::empty() {
 	return m_statements == StatementList::Terminator;
 }
 
-LinkedList<const Error*>* StatementBlock::preprocess(
+const LinkedList<const Error*>* StatementBlock::preprocess(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
-	LinkedList<const Statement*>* subject =
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+	const LinkedList<const Statement*>* subject =
 			(LinkedList<const Statement*>*) m_statements;
 	while (subject != LinkedList<const Statement*>::Terminator) {
 		const Statement* statement = subject->GetData();
 		//TODO: handle nested statement blocks
-		LinkedList<const Error*>* statement_errors = statement->preprocess(
-				execution_context);
-		errors = (LinkedList<const Error*>*) errors->Concatenate(
-				statement_errors, true);
+		const LinkedList<const Error*>* statement_errors =
+				statement->preprocess(execution_context);
+		errors = errors->Concatenate(statement_errors, true);
 
-		subject = (LinkedList<const Statement*>*) subject->GetNext();
+		subject = subject->GetNext();
 	}
 
 	return errors;

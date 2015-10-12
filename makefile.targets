@@ -1,6 +1,6 @@
 #parser
 PCOMP = g++
-PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/statements" -I"../src" -I"./"
+PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/statements" -I"../src/variables" -I"../src" -I"./"
 
 parser: parser.tab.o
 
@@ -8,7 +8,7 @@ parser-clean: lexer-clean
 	rm -rf parser.tab.* parser.output
 
 parser.tab.c parser.tab.h: ../src/parser.y
-	bison -vd ../src/parser.y
+	bison -vd --report=itemset ../src/parser.y
 
 parser.tab.o: parser.tab.c parser.tab.h lexer.o
 	$(PCOMP) $(PCOMPFLAGS) -w -c parser.tab.c
@@ -49,7 +49,7 @@ w%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	./newt --debug $< >$(TEST_PATH)reference/$* 2>&1
 
 c%: $(TEST_PATH)%.nwt
-	@cat $<
+	@cat -n $<
 
 #compare test w/ reference output (requires kdiff)
 d%: $(TEST_PATH)%.nwt $(TEST_PATH)reference

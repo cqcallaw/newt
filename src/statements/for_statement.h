@@ -25,6 +25,7 @@
 class AssignmentStatement;
 class Expression;
 class StatementBlock;
+class SymbolTable;
 
 class ForStatement: public Statement {
 public:
@@ -34,16 +35,18 @@ public:
 			const StatementBlock* statement_block);
 	virtual ~ForStatement();
 
-	virtual LinkedList<const Error*>* preprocess(
+	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;
+	virtual const LinkedList<const Error*>* execute(
+			const ExecutionContext* execution_context) const;
 
 private:
 	const AssignmentStatement* m_initial;
 	const Expression* m_loop_expression;
 	const AssignmentStatement* m_loop_assignment;
 	const StatementBlock* m_statement_block;
+	SymbolTable* m_block_table;
 };
 
 #endif /* FOR_STATEMENT_H_ */

@@ -1,4 +1,15 @@
 Parsing file ../tests/t1102.nwt...
-Semantic error on line 3, column 9: Index value '42' is out of bounds for array 'my_array'.
 Parsed file ../tests/t1102.nwt.
-1 error found; giving up.
+Semantic error on line 4, column 18: Index value '42' is out of bounds for array 'my_array'.
+Root Symbol Table:
+----------------
+int a: 0
+int[] my_array:
+	[0] 0
+	[1] 0
+	[2] 0
+	[3] 0
+end array
+
+Root Type Table:
+----------------

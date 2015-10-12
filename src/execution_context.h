@@ -8,20 +8,31 @@
 #ifndef EXECUTION_CONTEXT_H_
 #define EXECUTION_CONTEXT_H_
 
-class SymbolTable;
+class SymbolContext;
+class TypeTable;
 
 class ExecutionContext {
 public:
 	ExecutionContext();
-	ExecutionContext(const SymbolTable* symbol_table);
+	ExecutionContext(SymbolContext* symbol_context, TypeTable* type_table);
 	virtual ~ExecutionContext();
 
-	const SymbolTable* GetSymbolTable() const {
-		return m_symbol_table;
+	SymbolContext* GetSymbolContext() const {
+		return m_symbol_context;
+	}
+
+	TypeTable* GetTypeTable() const {
+		return m_type_table;
+	}
+
+	const ExecutionContext* WithSymbolContext(
+			SymbolContext* symbol_context) const {
+		return new ExecutionContext(symbol_context, m_type_table);
 	}
 
 private:
-	const SymbolTable* m_symbol_table;
+	SymbolContext* m_symbol_context;
+	TypeTable* m_type_table;
 };
 
 #endif /* EXECUTION_CONTEXT_H_ */

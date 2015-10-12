@@ -1,0 +1,4 @@
+Parsing file ../tests/t2082.nwt...
+Semantic error on line 6, column 12: Variable 'i' does not reference a compound type.
+Parsed file ../tests/t2082.nwt.
+1 error found; giving up.

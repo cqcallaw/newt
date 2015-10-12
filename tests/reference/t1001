@@ -1,4 +1,8 @@
 Parsing file ../tests/t1001.nwt...
 Parsed file ../tests/t1001.nwt.
 Root Symbol Table:
-int i 86
+----------------
+int i: 86
+
+Root Type Table:
+----------------

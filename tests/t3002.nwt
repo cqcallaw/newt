@@ -1,0 +1,20 @@
+//test assignment of struct reference and verify assignment
+
+struct my_struct {
+	int x
+	double y
+	string z
+}
+
+my_struct a
+my_struct b
+b = a //reference assignment
+b.x = 12 //a.x should also be updated
+my_struct c = b
+my_struct d = b with { x = 50 } //copy assignment
+d.y = 20 //a, b, and c should be unchanged
+my_struct e = #my_struct //copy assignment
+e.z = "something"
+my_struct f = #my_struct with { x = 42 } //copy assignment
+
+print(#my_struct) //should be unchanged

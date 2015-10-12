@@ -2,4 +2,8 @@ Parsing file ../tests/t2046.nwt...
 Parsed file ../tests/t2046.nwt.
 i = 41
 Root Symbol Table:
-int i 41
+----------------
+int i: 41
+
+Root Type Table:
+----------------

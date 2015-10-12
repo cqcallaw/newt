@@ -26,15 +26,15 @@ LogicExpression::LogicExpression(const YYLTYPE position, const OperatorType op,
 	assert(op == OR || op == AND);
 }
 
-const Type LogicExpression::GetType(
+const TypeSpecifier* LogicExpression::GetType(
 		const ExecutionContext* execution_context) const {
-	return BOOLEAN;
+	return PrimitiveTypeSpecifier::GetBoolean();
 }
 
 const LinkedList<const Error*>* LogicExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	return BinaryExpression::Validate(execution_context,
-			(BOOLEAN | INT | DOUBLE), (BOOLEAN | INT | DOUBLE));
+			PrimitiveTypeSpecifier::GetDouble(), PrimitiveTypeSpecifier::GetDouble());
 }
 
 const Result* LogicExpression::compute(bool left, bool right,
@@ -56,12 +56,16 @@ const Result* LogicExpression::compute(int left, int right,
 YYLTYPE left_position,
 YYLTYPE right_position) const {
 	switch (GetOperator()) {
-	case OR:
-		return new Result((void *) new bool(left || right),
+	case OR: {
+		bool result = left || right;
+		return new Result((void *) new bool(result),
 				LinkedList<const Error*>::Terminator);
-	case AND:
-		return new Result((void *) new bool(left && right),
+	}
+	case AND: {
+		bool result = left && right;
+		return new Result((void *) new bool(result),
 				LinkedList<const Error*>::Terminator);
+	}
 	default:
 		assert(false);
 		return NULL;

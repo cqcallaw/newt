@@ -22,19 +22,19 @@
 
 #include <type.h>
 #include "statement.h"
+#include <assignment_type.h>
 
 using namespace std;
 
 class Expression;
 class Variable;
+class ArrayVariable;
+class MemberVariable;
 class Result;
+struct YYLTYPE;
 
 class AssignmentStatement: public Statement {
 public:
-	enum AssignmentType {
-		ASSIGN, PLUS_ASSIGN, MINUS_ASSIGN
-	};
-
 	AssignmentStatement(const Variable* variable, const AssignmentType op_type,
 			const Expression* expression);
 	virtual ~AssignmentStatement();
@@ -51,66 +51,65 @@ public:
 		return m_variable;
 	}
 
-	virtual LinkedList<const Error*>* preprocess(
+	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;
 
 	const static LinkedList<const Error*>* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const bool old_value, const bool expression_value,
-			const AssignmentType op, const ExecutionContext* execution_context,
-			bool& out);
+			const BasicType variable_type, int variable_line,
+			int variable_column, const bool old_value,
+			const bool expression_value, const AssignmentType op,
+			const ExecutionContext* execution_context, bool& out);
 	const static LinkedList<const Error*>* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const int old_value, const int expression_value,
-			const AssignmentType op, const ExecutionContext* execution_context,
-			int& out);
+			const BasicType variable_type, int variable_line,
+			int variable_column, const int old_value,
+			const int expression_value, const AssignmentType op,
+			const ExecutionContext* execution_context, int& out);
 	const static LinkedList<const Error*>* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const double old_value, const double expression_value,
-			const AssignmentType op, const ExecutionContext* execution_context,
-			double& out);
+			const BasicType variable_type, int variable_line,
+			int variable_column, const double old_value,
+			const double expression_value, const AssignmentType op,
+			const ExecutionContext* execution_context, double& out);
 	const static LinkedList<const Error*>* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const string* old_value, const bool expression_value,
-			const AssignmentType op, const ExecutionContext* execution_context,
-			string* &out);
+			const BasicType variable_type, int variable_line,
+			int variable_column, const string* old_value,
+			const bool expression_value, const AssignmentType op,
+			const ExecutionContext* execution_context, string* &out);
 	const static LinkedList<const Error*>* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const string* old_value, const int expression_value,
-			const AssignmentType op, const ExecutionContext* execution_context,
-			string* &out);
+			const BasicType variable_type, int variable_line,
+			int variable_column, const string* old_value,
+			const int expression_value, const AssignmentType op,
+			const ExecutionContext* execution_context, string* &out);
 	const static LinkedList<const Error*>* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const string* old_value, const double expression_value,
-			const AssignmentType op, const ExecutionContext* execution_context,
-			string* &out);
+			const BasicType variable_type, int variable_line,
+			int variable_column, const string* old_value,
+			const double expression_value, const AssignmentType op,
+			const ExecutionContext* execution_context, string* &out);
 	const static LinkedList<const Error*>* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const string* old_value, const string* expression_value,
-			const AssignmentType op, const ExecutionContext* execution_context,
-			string* &out);
+			const BasicType variable_type, int variable_line,
+			int variable_column, const string* old_value,
+			const string* expression_value, const AssignmentType op,
+			const ExecutionContext* execution_context, string* &out);
 
 	const static Result* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const int value, const Expression* expression,
+			const BasicType variable_type, int variable_line,
+			int variable_column, const int value, const Expression* expression,
 			const AssignmentType op, const ExecutionContext* execution_context);
 
 	const static Result* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const double value, const Expression* expression,
-			const AssignmentType op, const ExecutionContext* execution_context);
-
-	const static Result* do_op(const string* variable_name,
-			const Type variable_type, int variable_line, int variable_column,
-			const string* value, const Expression* expression,
-			const AssignmentType op, const ExecutionContext* execution_context);
-
-	const static LinkedList<const Error*>* do_op(const Variable* variable,
+			const BasicType variable_type, int variable_line,
+			int variable_column, const double value,
 			const Expression* expression, const AssignmentType op,
 			const ExecutionContext* execution_context);
+
+	const static Result* do_op(const string* variable_name,
+			const BasicType variable_type, int variable_line,
+			int variable_column, const string* value,
+			const Expression* expression, const AssignmentType op,
+			const ExecutionContext* execution_context);
+
 private:
 	const Variable* m_variable;
 	const AssignmentType m_op_type;

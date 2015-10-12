@@ -1,7 +1,10 @@
 Parsing file ../tests/t1421.nwt...
 Parsed file ../tests/t1421.nwt.
 Root Symbol Table:
-int i 42
-string s "hello"
-double x 3.14159
-double z 42
+----------------
+int i: 42
+string s: "hello"
+double x: 3.14159
+
+Root Type Table:
+----------------

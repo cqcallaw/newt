@@ -1,37 +1,38 @@
 /*
- * declaration_statement.h
- *
- *  Created on: Jun 14, 2015
- *      Author: caleb
+ Copyright (C) 2015 The newt Authors.
+
+ This file is part of newt.
+
+ newt is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ newt is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef STATEMENTS_DECLARATION_STATEMENT_H_
 #define STATEMENTS_DECLARATION_STATEMENT_H_
 
-#include "statement.h"
+#include <statement.h>
 #include <string>
-#include <defaults.h>
-#include <type.h>
+
+class Expression;
+class TypeSpecifier;
 
 class DeclarationStatement: public Statement {
 public:
-	DeclarationStatement(const Type type, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
-			const Expression* initializer_expression = nullptr,
-			const YYLTYPE initializer_position = DefaultLocation);
 	virtual ~DeclarationStatement();
 
-	virtual LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const;
-
-	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;
-private:
-	const Type m_type;
-	const YYLTYPE m_type_position;
-	const std::string* m_name;
-	const YYLTYPE m_name_position;
-	const Expression* m_initializer_expression;
-	const YYLTYPE m_initializer_position;
+	virtual const Expression* GetInitializerExpression() const = 0;
+	virtual const TypeSpecifier* GetType() const = 0;
+	virtual const std::string* GetName() const = 0;
 };
 
 #endif /* STATEMENTS_DECLARATION_STATEMENT_H_ */

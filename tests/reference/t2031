@@ -4,6 +4,10 @@ a = 20.1251
 b = 21.875
 c = 42.0001
 Root Symbol Table:
-double a 20.1251
-double b 21.875
-double c 42.0001
+----------------
+double a: 20.1251
+double b: 21.875
+double c: 42.0001
+
+Root Type Table:
+----------------

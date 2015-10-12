@@ -11,4 +11,8 @@ i = 7
 i = 8
 i = 9
 Root Symbol Table:
-int i 10
+----------------
+int i: 10
+
+Root Type Table:
+----------------

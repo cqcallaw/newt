@@ -58,15 +58,10 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Value passed to exit() must be an integer.  "
 				<< "Value passed was of type '" << s1 << "'.";
 		break;
-	case INCORRECT_CONSTRUCTOR_PARAMETER_TYPE:
-		os << "Incorrect type for parameter '" << s2 << "' of object " << s1
-				<< ".";
+	case ARRAY_SIZE_MISMATCH:
+		os << "The size of array '" << s1
+				<< "' must match the size of the right-hand side of the assignment.";
 		break;
-	case INVALID_ARRAY_SIZE:
-		os << "The array '" << s1 << "' was declared with illegal size '" << s2
-				<< "'.  Arrays sizes must be integers of 1 or larger.";
-		break;
-		// everything but a game object is a legal LHS of assignment
 	case INVALID_LHS_OF_ASSIGNMENT:
 		os
 				<< "Left-hand side of assignment must be of type INT, DOUBLE, or STRING."
@@ -105,10 +100,6 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case INVALID_ARRAY_TYPE:
 		os << "Invalid array type '" << s1 << "' for variable '" << s2 << "'.";
 		break;
-	case INVALID_ARRAY_SIZE_TYPE:
-		os << "Invalid array size type (" << s1 << ") for variable '" << s2
-				<< "'. Arrays sizes must be integers of 1 or larger.";
-		break;
 	case LHS_OF_PERIOD_MUST_BE_OBJECT:
 		os << "Variable '" << s1 << "' is not an object."
 				<< "  Only objects may be on the left of a period.";
@@ -135,6 +126,9 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case VARIABLE_NOT_AN_ARRAY:
 		os << "Variable '" << s1 << "' is not an array.";
 		break;
+	case VARIABLE_NOT_A_COMPOUND_TYPE:
+		os << "Variable '" << s1 << "' does not reference a compound type.";
+		break;
 	case DIVIDE_BY_ZERO:
 		os << "Arithmetic divide by zero at parse time.  "
 				<< "Using zero as the result so parse can continue.";
@@ -142,6 +136,19 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case MOD_BY_ZERO:
 		os << "Arithmetic mod by zero at parse time.  "
 				<< "Using zero as the result so parse can continue.";
+		break;
+	case MEMBER_DEFAULTS_MUST_BE_CONSTANT:
+		os << "Default member values must be constant.";
+		break;
+	case UNDECLARED_TYPE:
+		os << "Invalid type \"" << s1 << "\".";
+		break;
+	case UNDECLARED_MEMBER:
+		os << "Type \"" << s2 << "\" does not contain a member named \"" << s1
+				<< "\".";
+		break;
+	case READONLY:
+		os << "\"" << s1 << "\" is read-only.";
 		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";

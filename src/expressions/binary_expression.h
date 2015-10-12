@@ -29,10 +29,10 @@ public:
 	BinaryExpression(const YYLTYPE position, const OperatorType op,
 			const Expression* left, const Expression* right);
 
-	virtual const Type GetType(const ExecutionContext* execution_context) const;
-
-	const Result* Evaluate(
+	virtual const TypeSpecifier* GetType(
 			const ExecutionContext* execution_context) const;
+
+	const Result* Evaluate(const ExecutionContext* execution_context) const;
 
 	const Expression* GetLeft() const {
 		return m_left;
@@ -44,7 +44,7 @@ public:
 		return m_right;
 	}
 
-	const static Type ComputeResultType(const Expression* left,
+	const static TypeSpecifier* ComputeResultType(const Expression* left,
 			const Expression* right, const OperatorType op,
 			const ExecutionContext* execution_context);
 
@@ -53,8 +53,9 @@ public:
 	}
 
 	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context, int valid_left,
-			int valid_right) const;
+			const ExecutionContext* execution_context,
+			const TypeSpecifier* valid_left,
+			const TypeSpecifier* valid_right) const;
 
 protected:
 	virtual const Result* compute(bool left, bool right,

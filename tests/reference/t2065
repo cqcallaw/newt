@@ -1,6 +1,4 @@
 Parsing file ../tests/t2065.nwt...
-Parsed file ../tests/t2065.nwt.
 Semantic error on line 4, column 5: Cannot assign an expression of type 'double' to a variable of type 'int'.
-Root Symbol Table:
-int i 42
-double x 3.14159
+Parsed file ../tests/t2065.nwt.
+1 error found; giving up.

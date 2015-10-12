@@ -63,9 +63,7 @@ Error error_handler; // error reporting object
 
 %%
 
-[\n]            return T_NEWLINE; 
-
-[ \t\r]         // ignore spaces, tabs and the carriage return
+[ \t\r\n]       // ignore spaces, tabs, newlines, and the carriage return
 \/\/.*$         // ignore comments
 
 "bool"          return T_BOOLEAN;
@@ -81,18 +79,6 @@ Error error_handler; // error reporting object
 "print"         return T_PRINT;
 "true"          return T_TRUE;
 "false"         return T_FALSE;
-
-"sin"           return T_SIN;
-"cos"           return T_COS;
-"tan"           return T_TAN;
-"asin"          return T_ASIN;
-"acos"          return T_ACOS;
-"atan"          return T_ATAN;
-"sqrt"          return T_SQRT;
-
-"abs"           return T_ABS;
-"floor"         return T_FLOOR;
-"random"        return T_RANDOM;
 
 "="             return T_ASSIGN;
 "{"             return T_LBRACE;
@@ -112,7 +98,7 @@ Error error_handler; // error reporting object
 "/"             return T_DIVIDE;
 "+"             return T_PLUS;
 "-"             return T_MINUS;
-"%"             return T_MOD;
+"%"             return T_PERCENT;
 "<"             return T_LESS;
 ">"             return T_GREATER;
 "<="            return T_LESS_EQUAL;
@@ -120,13 +106,19 @@ Error error_handler; // error reporting object
 "=="            return T_EQUAL;
 "!="            return T_NOT_EQUAL;
 "!"             return T_NOT;
+"#"             return T_HASH;
 "&&"            return T_AND;
 "||"            return T_OR;
+"struct"        return T_STRUCT;
+"readonly"      return T_READONLY;
+"with"          return T_WITH;
 
 [0-9]+                              { yylval->union_int = atoi(yytext); return T_INT_CONSTANT; }
 ([0-9]+\.[0-9]+|[0-9]+\.|\.[0-9]+)  { yylval->union_double = atof(yytext); return T_DOUBLE_CONSTANT; }
 \"(\\.|[^\"])*\"                    { string* as_string = new string(yytext); yylval->union_string = new string(as_string->substr(1, as_string->length() - 2)); delete (as_string); return T_STRING_CONSTANT; } //regex taken from http://stackoverflow.com/a/2039820/577298 and http://stackoverflow.com/a/9260547/577298
 
 [_A-Za-z][_A-Za-z0-9]*              { yylval->union_string = new string(yytext); return T_ID; }
+
+\/\/.*         // ignore comments that end a file without a trailing newline
 
 .                                   { error_handler.lex_error(yylineno, yytext); yylval->union_string = new string(yytext); return T_ERROR; }

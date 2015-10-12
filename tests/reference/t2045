@@ -2,5 +2,9 @@ Parsing file ../tests/t2045.nwt...
 Parsed file ../tests/t2045.nwt.
 str = hello3.14159
 Root Symbol Table:
-string str "hello3.14159"
-double x 3.14159
+----------------
+string str: "hello3.14159"
+double x: 3.14159
+
+Root Type Table:
+----------------

@@ -1,0 +1,34 @@
+Parsing file ../tests/t3021.nwt...
+Parsed file ../tests/t3021.nwt.
+Root Symbol Table:
+----------------
+my_other_struct a:
+	my_struct i:
+		double y: 0
+
+	int x: 0
+
+my_array_struct b:
+	my_struct[] arr:
+		[0]: 
+			double y: 0
+		[1]: 
+			double y: 0
+		[2]: 
+			double y: 42.1
+
+	int z: 0
+
+
+Root Type Table:
+----------------
+my_array_struct: 
+	my_struct[] arr ()
+	int z (0)
+my_other_struct: 
+	my_struct i (
+		double y (0)
+	)
+	int x (0)
+my_struct: 
+	double y (0)

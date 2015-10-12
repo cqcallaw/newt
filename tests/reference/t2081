@@ -1,0 +1,4 @@
+Parsing file ../tests/t2081.nwt...
+Semantic error on line 8, column 21: Type "circle" does not contain a member named "bad_member_name".
+Parsed file ../tests/t2081.nwt.
+1 error found; giving up.

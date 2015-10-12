@@ -1,6 +1,0 @@
-Parsing file ../tests/t1707.nwt...
-Parsed file ../tests/t1707.nwt.
-Root Symbol Table:
-int should_be_minus_2 -2
-int x 293
-int y 34

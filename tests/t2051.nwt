@@ -1,0 +1,39 @@
+struct circle {
+	int x
+	int y
+	int radius
+	int w = 20
+}
+
+circle[] circles
+circles[9] = #circle
+int down = 0
+
+int p
+int i
+
+for (i = 0; i < 10; i += 1)
+{
+    circles[i].radius = 10
+    circles[i].x = i * 20 + 200
+    circles[i].y = 400
+}
+
+for (p = 0; p < 20; p += 1) { 
+    if (down == 9)
+    {
+        for (i = 0; i < 10; i += 1)
+        {
+            circles[i].y -= 20
+        }
+    }
+    else
+    {
+        for (i = down; i >= 0; i -= 1)
+        {
+            circles[i].x = circles[i+1].x
+            circles[i].y = circles[i+1].y - 20
+        }
+        down += 1
+    }
+}

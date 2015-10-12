@@ -1,0 +1,45 @@
+Parsing file ../tests/t2036.nwt...
+Parsed file ../tests/t2036.nwt.
+rects[0].x = 0
+rects[0].y = 0
+rects[1].x = 100
+rects[1].y = 100
+rects[2].x = 200
+rects[2].y = 200
+rects[3].x = 300
+rects[3].y = 300
+Root Symbol Table:
+----------------
+int i: 4
+rectangle[] rects:
+	[0]: 
+		int h: 0
+		int w: 10
+		int x: 0
+		int y: 0
+	[1]: 
+		int h: 0
+		int w: 10
+		int x: 100
+		int y: 100
+	[2]: 
+		int h: 0
+		int w: 10
+		int x: 200
+		int y: 200
+	[3]: 
+		int h: 0
+		int w: 10
+		int x: 300
+		int y: 300
+
+int size: 4
+string str: "rects[3].y = 300"
+
+Root Type Table:
+----------------
+rectangle: 
+	int h (0)
+	int w (10)
+	int x (0)
+	int y (0)

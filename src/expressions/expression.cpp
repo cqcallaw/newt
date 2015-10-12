@@ -22,6 +22,7 @@
 #include "error.h"
 #include "variable.h"
 #include "utils.h"
+#include <execution_context.h>
 
 Expression::Expression(const YYLTYPE position) :
 		m_position(position) {
@@ -30,29 +31,56 @@ Expression::Expression(const YYLTYPE position) :
 Expression::~Expression() {
 }
 
-const string* Expression::ToString(
+const Result* Expression::ToString(
 		const ExecutionContext* execution_context) const {
 	ostringstream buffer;
 	const Result* evaluation = Evaluate(execution_context);
-	switch (GetType(execution_context)) {
-	case BOOLEAN:
-		buffer << *((bool*) evaluation->GetData());
-		break;
-	case INT:
-		buffer << *((int*) evaluation->GetData());
-		break;
-	case DOUBLE:
-		buffer << *((double*) evaluation->GetData());
-		break;
-	case STRING:
-		buffer << *((string*) evaluation->GetData());
-		break;
-	default:
-		assert(false);
-		return NULL;
+	if (evaluation->GetErrors()->IsTerminator()) {
+		const TypeSpecifier* type_specifier = GetType(execution_context);
+		const void* value = evaluation->GetData();
+
+		const PrimitiveTypeSpecifier* as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier*>(type_specifier);
+		if (as_primitive) {
+			const BasicType basic_type = as_primitive->GetBasicType();
+			switch (basic_type) {
+			case BOOLEAN:
+				buffer << *((bool*) value);
+				break;
+			case INT:
+				buffer << *((int*) value);
+				break;
+			case DOUBLE:
+				buffer << *((double*) value);
+				break;
+			case STRING:
+				buffer << *((string*) value);
+				break;
+			default:
+				assert(false);
+			}
+		}
+
+		//TODO: array printing
+
+		const CompoundTypeSpecifier* as_compound =
+				dynamic_cast<const CompoundTypeSpecifier*>(type_specifier);
+		if (as_compound) {
+			const CompoundTypeInstance* instance =
+					(const CompoundTypeInstance*) value;
+
+			buffer << "{" << endl;
+			buffer
+					<< instance->ToString(execution_context->GetTypeTable(),
+							Indent(1));
+			buffer << "}" << endl;
+		}
+	} else {
+		return evaluation;
 	}
 
 	delete (evaluation);
 
-	return new string(buffer.str());
+	return new Result(new string(buffer.str()),
+			LinkedList<const Error*>::Terminator);
 }

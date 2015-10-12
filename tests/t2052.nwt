@@ -1,0 +1,238 @@
+struct rectangle {
+	int x
+	int y
+	int w = 10
+	int h
+	double red
+	double blue
+	double green
+}
+
+int i
+int size = 100
+rectangle[] rects
+rects[size - 1] = #rectangle
+
+    for (i = 0; i < size; i += 1)
+    {
+        rects[i].w = 5
+        rects[i].h = 5
+        rects[i].red = 1.0 * i / size
+        rects[i].blue = 1.0 * i / size
+    }
+
+    rects[0].x = 162
+    rects[0].y = 188
+    rects[1].x = 102
+    rects[1].y = 248
+    rects[2].x = 296
+    rects[2].y = 272
+    rects[3].x = 261
+    rects[3].y = 336
+    rects[4].x = 204
+    rects[4].y = 378
+    rects[5].x = 223
+    rects[5].y = 98
+    rects[6].x = 142
+    rects[6].y = 250
+    rects[7].x = 269
+    rects[7].y = 127
+    rects[8].x = 338
+    rects[8].y = 16
+    rects[9].x = 121
+    rects[9].y = 287
+    rects[10].x = 391
+    rects[10].y = 221
+    rects[11].x = 56
+    rects[11].y = 93
+    rects[12].x = 130
+    rects[12].y = 376
+    rects[13].x = 336
+    rects[13].y = 14
+    rects[14].x = 367
+    rects[14].y = 12
+    rects[15].x = 122
+    rects[15].y = 82
+    rects[16].x = 152
+    rects[16].y = 176
+    rects[17].x = 282
+    rects[17].y = 0
+    rects[18].x = 48
+    rects[18].y = 143
+    rects[19].x = 289
+    rects[19].y = 252
+    rects[20].x = 73
+    rects[20].y = 64
+    rects[21].x = 350
+    rects[21].y = 216
+    rects[22].x = 314
+    rects[22].y = 219
+    rects[23].x = 295
+    rects[23].y = 204
+    rects[24].x = 188
+    rects[24].y = 16
+    rects[25].x = 91
+    rects[25].y = 131
+    rects[26].x = 238
+    rects[26].y = 148
+    rects[27].x = 224
+    rects[27].y = 320
+    rects[28].x = 76
+    rects[28].y = 112
+    rects[29].x = 335
+    rects[29].y = 395
+    rects[30].x = 76
+    rects[30].y = 57
+    rects[31].x = 77
+    rects[31].y = 229
+    rects[32].x = 233
+    rects[32].y = 360
+    rects[33].x = 229
+    rects[33].y = 234
+    rects[34].x = 55
+    rects[34].y = 118
+    rects[35].x = 86
+    rects[35].y = 129
+    rects[36].x = 134
+    rects[36].y = 389
+    rects[37].x = 297
+    rects[37].y = 48
+    rects[38].x = 160
+    rects[38].y = 144
+    rects[39].x = 253
+    rects[39].y = 300
+    rects[40].x = 160
+    rects[40].y = 296
+    rects[41].x = 384
+    rects[41].y = 350
+    rects[42].x = 396
+    rects[42].y = 208
+    rects[43].x = 223
+    rects[43].y = 24
+    rects[44].x = 273
+    rects[44].y = 158
+    rects[45].x = 20
+    rects[45].y = 349
+    rects[46].x = 167
+    rects[46].y = 49
+    rects[47].x = 178
+    rects[47].y = 352
+    rects[48].x = 361
+    rects[48].y = 360
+    rects[49].x = 186
+    rects[49].y = 17
+    rects[50].x = 30
+    rects[50].y = 225
+    rects[51].x = 98
+    rects[51].y = 165
+    rects[52].x = 166
+    rects[52].y = 347
+    rects[53].x = 165
+    rects[53].y = 326
+    rects[54].x = 91
+    rects[54].y = 370
+    rects[55].x = 179
+    rects[55].y = 251
+    rects[56].x = 219
+    rects[56].y = 163
+    rects[57].x = 154
+    rects[57].y = 215
+    rects[58].x = 323
+    rects[58].y = 377
+    rects[59].x = 192
+    rects[59].y = 196
+    rects[60].x = 135
+    rects[60].y = 164
+    rects[61].x = 98
+    rects[61].y = 254
+    rects[62].x = 213
+    rects[62].y = 276
+    rects[63].x = 206
+    rects[63].y = 175
+    rects[64].x = 188
+    rects[64].y = 393
+    rects[65].x = 144
+    rects[65].y = 171
+    rects[66].x = 218
+    rects[66].y = 194
+    rects[67].x = 336
+    rects[67].y = 384
+    rects[68].x = 141
+    rects[68].y = 53
+    rects[69].x = 262
+    rects[69].y = 232
+    rects[70].x = 24
+    rects[70].y = 393
+    rects[71].x = 35
+    rects[71].y = 243
+    rects[72].x = 108
+    rects[72].y = 189
+    rects[73].x = 10
+    rects[73].y = 384
+    rects[74].x = 166
+    rects[74].y = 202
+    rects[75].x = 132
+    rects[75].y = 253
+    rects[76].x = 366
+    rects[76].y = 230
+    rects[77].x = 107
+    rects[77].y = 132
+    rects[78].x = 59
+    rects[78].y = 266
+    rects[79].x = 259
+    rects[79].y = 199
+    rects[80].x = 259
+    rects[80].y = 3
+    rects[81].x = 370
+    rects[81].y = 29
+    rects[82].x = 197
+    rects[82].y = 258
+    rects[83].x = 365
+    rects[83].y = 290
+    rects[84].x = 312
+    rects[84].y = 179
+    rects[85].x = 122
+    rects[85].y = 336
+    rects[86].x = 125
+    rects[86].y = 109
+    rects[87].x = 131
+    rects[87].y = 233
+    rects[88].x = 299
+    rects[88].y = 141
+    rects[89].x = 169
+    rects[89].y = 17
+    rects[90].x = 344
+    rects[90].y = 302
+    rects[91].x = 223
+    rects[91].y = 262
+    rects[92].x = 84
+    rects[92].y = 282
+    rects[93].x = 346
+    rects[93].y = 143
+    rects[94].x = 148
+    rects[94].y = 205
+    rects[95].x = 343
+    rects[95].y = 359
+    rects[96].x = 208
+    rects[96].y = 313
+    rects[97].x = 388
+    rects[97].y = 357
+    rects[98].x = 172
+    rects[98].y = 305
+    rects[99].x = 199
+    rects[99].y = 36
+
+int p
+for (p = 0; p < 467; p += 1) {
+    for (i = 0; i < size; i += 1)
+    {
+        if (rects[i].x > i * 5)
+            rects[i].x -= 1
+        else if (rects[i].x < i * 5)
+            rects[i].x += 1
+        if (rects[i].y > i * 5)
+            rects[i].y -= 1
+        else if (rects[i].y < i * 5)
+            rects[i].y += 1
+    }
+}

@@ -1,0 +1,17 @@
+struct my_struct {
+	double y
+}
+
+struct my_other_struct {
+	int x
+	my_struct i
+}
+
+struct my_nested_struct {
+	int z
+	my_struct i
+	my_other_struct n
+}
+
+my_other_struct a
+my_nested_struct b
