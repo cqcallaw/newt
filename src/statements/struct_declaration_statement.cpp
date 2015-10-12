@@ -52,69 +52,8 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 
 	TypeTable* type_table = execution_context->GetTypeTable();
 
-	std::map<const string, const MemberDefinition*>* mapping = new std::map<
-			const string, const MemberDefinition*>();
-
-	const LinkedList<const DeclarationStatement*>* subject =
-			m_member_declaration_list;
-	while (!subject->IsTerminator()) {
-		const DeclarationStatement* declaration = subject->GetData();
-		const TypeSpecifier* type = declaration->GetType();
-		const string* member_name = declaration->GetName();
-
-		//strip out intermediate dimensions
-		const ArrayTypeSpecifier* as_array =
-				dynamic_cast<const ArrayTypeSpecifier*>(type);
-		while (as_array) {
-			type = as_array->GetElementTypeSpecifier();
-			as_array = dynamic_cast<const ArrayTypeSpecifier*>(type);
-		}
-
-		//verify compound types exist
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(type);
-		if (as_compound) {
-			const string compound_type_name = as_compound->GetTypeName();
-			const CompoundType* type = type_table->GetType(compound_type_name);
-			if (type == CompoundType::GetDefaultCompoundType()) {
-				errors = errors->With(
-						new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-								as_compound->GetLocation().first_line,
-								as_compound->GetLocation().first_column,
-								compound_type_name));
-				break;
-			}
-		}
-
-		const Expression* initializer_expression =
-				subject->GetData()->GetInitializerExpression();
-		if (initializer_expression != nullptr
-				&& !initializer_expression->IsConstant()) {
-			YYLTYPE position = initializer_expression->GetPosition();
-			errors = errors->With(
-					new Error(Error::SEMANTIC,
-							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
-							position.first_line, position.first_column));
-		} else {
-			const TypeSpecifier* original_type = declaration->GetType();
-			mapping->insert(
-					pair<const string, const MemberDefinition*>(*member_name,
-							new MemberDefinition(original_type,
-									declaration->GetInitializerExpression()
-											!= nullptr ?
-											declaration->GetInitializerExpression()->Evaluate(
-													execution_context)->GetData() :
-											original_type->DefaultValue(
-													type_table))));
-
-		}
-		subject = subject->GetNext();
-	}
-
 	Modifier::Type modifiers = Modifier::NONE;
-
 	const LinkedList<const Modifier*>* modifier_list = m_modifier_list;
-
 	while (modifier_list != LinkedList<const Modifier*>::Terminator) {
 		//TODO: check invalid modifiers
 		Modifier::Type new_modifier = modifier_list->GetData()->GetType();
@@ -122,9 +61,63 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 		modifier_list = modifier_list->GetNext();
 	}
 
-	type_table->AddType(*m_name, new CompoundType(mapping, modifiers));
+	//generate a temporary structure in which to perform evaluations
+	//of the member declaration statements
+	map<const string, const Symbol*, comparator>* values = new map<const string,
+			const Symbol*, comparator>();
+	SymbolTable* member_buffer = new SymbolTable(Modifier::NONE,
+			LinkedList<SymbolContext*>::Terminator, values);
+	const ExecutionContext* struct_context =
+			execution_context->WithSymbolContext(member_buffer);
 
-//TODO: verify member names are unique
+	const LinkedList<const DeclarationStatement*>* subject =
+			m_member_declaration_list;
+	while (!subject->IsTerminator()) {
+		const DeclarationStatement* declaration = subject->GetData();
+
+		const Expression* initializer_expression =
+				declaration->GetInitializerExpression();
+		if (initializer_expression != nullptr
+				&& !initializer_expression->IsConstant()) {
+
+			YYLTYPE position = initializer_expression->GetPosition();
+			errors = errors->With(
+					new Error(Error::SEMANTIC,
+							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
+							position.first_line, position.first_column));
+		} else {
+			errors = errors->Concatenate(
+					declaration->preprocess(struct_context), true);
+		}
+
+		if (errors->IsTerminator()) {
+			//we've pre-processed this statement without issue
+			errors = errors->Concatenate(declaration->execute(struct_context),
+					true);
+		}
+
+		subject = subject->GetNext();
+	}
+
+	std::map<const string, const MemberDefinition*>* mapping = new std::map<
+			const string, const MemberDefinition*>();
+	map<const string, const Symbol*, comparator>::iterator iter;
+	if (errors->IsTerminator()) {
+		//we've evaluated everything without issue
+		//extract member declaration information into immutable MemberDefinition
+		for (iter = values->begin(); iter != values->end(); iter++) {
+			const string member_name = iter->first;
+			const Symbol* symbol = iter->second;
+			const TypeSpecifier* type = symbol->GetType();
+			const void* value = symbol->GetValue();
+			mapping->insert(
+					pair<const string, const MemberDefinition*>(member_name,
+							new MemberDefinition(type, value)));
+
+		}
+	}
+
+	type_table->AddType(*m_name, new CompoundType(mapping, modifiers));
 
 	return errors;
 }

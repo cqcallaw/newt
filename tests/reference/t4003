@@ -1,0 +1,12 @@
+Parsing file ../tests/t4003.nwt...
+Parsed file ../tests/t4003.nwt.
+Root Symbol Table:
+----------------
+test test_instance:
+	string s: "hmmm"
+
+
+Root Type Table:
+----------------
+test: 
+	string s ("hmmm")
