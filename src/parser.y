@@ -256,13 +256,13 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 program:
 	statement_list
 	{
-		//statement list comes in reverse order
-		//wrap in StatementList because Reverse is a LinkedList<T> function
-		*main_statement_block = new StatementBlock($1->Reverse(true));
-	}
-	| empty
-	{
-		*main_statement_block = new StatementBlock(StatementList::Terminator);
+		if($1->IsTerminator()){
+			*main_statement_block = new StatementBlock($1);
+		} else {
+			//statement list comes in reverse order
+			//wrap in StatementList because Reverse is a LinkedList<T> function
+			*main_statement_block = new StatementBlock($1->Reverse(true));
+		}
 	}
 	;
 
@@ -353,9 +353,9 @@ statement_list:
 	{
 		$$ = new StatementList($2, $1);
 	}
-	| statement
+	| empty
 	{
-		$$ = new StatementList($1, StatementList::Terminator);
+		$$ = StatementList::Terminator;
 	}
 	;
 
