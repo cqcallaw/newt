@@ -1,0 +1,10 @@
+Parsing file ../tests/t4000.nwt...
+Parsed file ../tests/t4000.nwt.
+Root Symbol Table:
+----------------
+int a: 1
+double b: 42.5
+string c: "hello, world!"
+
+Root Type Table:
+----------------

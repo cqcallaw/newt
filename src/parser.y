@@ -90,6 +90,7 @@ typedef void* yyscan_t;
 #include <array_declaration_statement.h>
 #include <struct_declaration_statement.h>
 #include <struct_instantiation_statement.h>
+#include <inferred_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -164,6 +165,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_LBRACKET            "["
 %token T_RBRACKET            "]"
 %token T_HASH                "#"
+%token T_COLON               ":"
 %token T_SEMIC               ";"
 %token T_COMMA               ","
 %token T_PERIOD              "."
@@ -299,6 +301,10 @@ variable_declaration:
 	| T_ID T_ID optional_initializer
 	{
 		$$ = new StructInstantiationStatement(new CompoundTypeSpecifier(*$1, @1), @1, $2, @2, $3);
+	}
+	| T_COLON T_ID T_ASSIGN expression
+	{
+		$$ = new InferredDeclarationStatement($2, @2, $4);
 	}
 	;
 

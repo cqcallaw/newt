@@ -1,0 +1,9 @@
+Parsing file ../tests/t4002.nwt...
+Parsed file ../tests/t4002.nwt.
+Semantic error on line 1, column 11: Arithmetic mod by zero.
+Root Symbol Table:
+----------------
+int a: 0
+
+Root Type Table:
+----------------

@@ -130,12 +130,10 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Variable '" << s1 << "' does not reference a compound type.";
 		break;
 	case DIVIDE_BY_ZERO:
-		os << "Arithmetic divide by zero at parse time.  "
-				<< "Using zero as the result so parse can continue.";
+		os << "Arithmetic divide by zero.";
 		break;
 	case MOD_BY_ZERO:
-		os << "Arithmetic mod by zero at parse time.  "
-				<< "Using zero as the result so parse can continue.";
+		os << "Arithmetic mod by zero.";
 		break;
 	case MEMBER_DEFAULTS_MUST_BE_CONSTANT:
 		os << "Default member values must be constant.";

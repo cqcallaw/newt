@@ -83,6 +83,7 @@ Error error_handler; // error reporting object
 "="             return T_ASSIGN;
 "{"             return T_LBRACE;
 "}"             return T_RBRACE;
+":"             return T_COLON;
 ";"             return T_SEMIC;
 ","             return T_COMMA;
 

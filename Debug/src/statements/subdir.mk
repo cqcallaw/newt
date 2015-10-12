@@ -10,6 +10,7 @@ CPP_SRCS += \
 ../src/statements/exit_statement.cpp \
 ../src/statements/for_statement.cpp \
 ../src/statements/if_statement.cpp \
+../src/statements/inferred_declaration_statement.cpp \
 ../src/statements/primitive_declaration_statement.cpp \
 ../src/statements/print_statement.cpp \
 ../src/statements/statement.cpp \
@@ -24,6 +25,7 @@ OBJS += \
 ./src/statements/exit_statement.o \
 ./src/statements/for_statement.o \
 ./src/statements/if_statement.o \
+./src/statements/inferred_declaration_statement.o \
 ./src/statements/primitive_declaration_statement.o \
 ./src/statements/print_statement.o \
 ./src/statements/statement.o \
@@ -38,6 +40,7 @@ CPP_DEPS += \
 ./src/statements/exit_statement.d \
 ./src/statements/for_statement.d \
 ./src/statements/if_statement.d \
+./src/statements/inferred_declaration_statement.d \
 ./src/statements/primitive_declaration_statement.d \
 ./src/statements/print_statement.d \
 ./src/statements/statement.d \
