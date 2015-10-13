@@ -41,6 +41,12 @@ public:
 
 	virtual const void* DefaultValue(const TypeTable* type_table) const;
 
+	virtual bool operator==(const TypeSpecifier &other) const;
+
+	virtual bool operator!=(const TypeSpecifier &other) const {
+		return !(*this == other);
+	}
+
 	const BasicType GetBasicType() const {
 		return m_basic_type;
 	}

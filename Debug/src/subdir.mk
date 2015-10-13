@@ -9,6 +9,7 @@ CPP_SRCS += \
 ../src/assert.cpp \
 ../src/compound_type.cpp \
 ../src/compound_type_instance.cpp \
+../src/compound_type_specifier.cpp \
 ../src/defaults.cpp \
 ../src/dimension.cpp \
 ../src/error.cpp \
@@ -36,6 +37,7 @@ OBJS += \
 ./src/assert.o \
 ./src/compound_type.o \
 ./src/compound_type_instance.o \
+./src/compound_type_specifier.o \
 ./src/defaults.o \
 ./src/dimension.o \
 ./src/error.o \
@@ -63,6 +65,7 @@ CPP_DEPS += \
 ./src/assert.d \
 ./src/compound_type.d \
 ./src/compound_type_instance.d \
+./src/compound_type_specifier.d \
 ./src/defaults.d \
 ./src/dimension.d \
 ./src/error.d \

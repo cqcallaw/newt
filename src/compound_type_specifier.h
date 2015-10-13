@@ -53,6 +53,12 @@ public:
 		return type_table->GetDefaultValue(m_type_name);
 	}
 
+	virtual bool operator==(const TypeSpecifier& other) const;
+
+	virtual bool operator!=(const TypeSpecifier &other) const {
+		return !(*this == other);
+	}
+
 	const YYLTYPE GetLocation() const {
 		return m_location;
 	}

@@ -17,28 +17,15 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPE_SPECIFIER_H_
-#define TYPE_SPECIFIER_H_
+#include <compound_type_specifier.h>
+#include <typeinfo>
 
-#include <string>
-#include <yyltype.h>
-
-class TypeTable;
-
-using namespace std;
-class TypeSpecifier {
-public:
-	virtual ~TypeSpecifier() {
+bool CompoundTypeSpecifier::operator ==(const TypeSpecifier& other) const {
+	try {
+		const CompoundTypeSpecifier& as_compound =
+				dynamic_cast<const CompoundTypeSpecifier&>(other);
+		return GetTypeName() == as_compound.GetTypeName();
+	} catch (std::bad_cast& e) {
+		return false;
 	}
-
-	virtual const string ToString() const = 0;
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const = 0;
-	virtual const void* DefaultValue(const TypeTable* type_table) const = 0;
-
-	virtual bool operator==(const TypeSpecifier &other) const = 0;
-	virtual bool operator!=(const TypeSpecifier &other) const = 0;
-};
-
-ostream &operator<<(ostream &os, const TypeSpecifier &type_specifier);
-
-#endif /* TYPE_SPECIFIER_H_ */
+}

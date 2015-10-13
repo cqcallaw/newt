@@ -26,8 +26,7 @@ using namespace std;
 class ArrayTypeSpecifier: public TypeSpecifier {
 public:
 	ArrayTypeSpecifier(const TypeSpecifier* element_type_specifier) :
-			m_element_type_specifier(
-					element_type_specifier) {
+			m_element_type_specifier(element_type_specifier) {
 	}
 
 	virtual ~ArrayTypeSpecifier() {
@@ -44,6 +43,12 @@ public:
 	}
 
 	virtual const void* DefaultValue(const TypeTable* type_table) const;
+
+	virtual bool operator==(const TypeSpecifier& other) const;
+
+	virtual bool operator!=(const TypeSpecifier &other) const {
+		return !(*this == other);
+	}
 
 	const TypeSpecifier* GetElementTypeSpecifier() const {
 		return m_element_type_specifier;

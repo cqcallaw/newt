@@ -19,6 +19,7 @@
 
 #include <array_type_specifier.h>
 #include <array.h>
+#include <typeinfo>
 
 const string ArrayTypeSpecifier::ToString() const {
 	ostringstream buffer;
@@ -30,51 +31,15 @@ const string ArrayTypeSpecifier::ToString() const {
 
 const void* ArrayTypeSpecifier::DefaultValue(
 		const TypeTable* type_table) const {
-	/*const void* value = nullptr;
-	 const void* fill_value = m_element_type_specifier->DefaultValue(
-	 type_table);
-
-	 int initial_size = 0;
-	 if (m_fixed_size) {
-	 assert(false);
-	 }*/
-
 	return new Array(m_element_type_specifier, type_table);
-
-	/*const PrimitiveTypeSpecifier* as_primitive =
-	 dynamic_cast<const PrimitiveTypeSpecifier*>(m_element_type_specifier);
-	 if (as_primitive) {
-	 if (as_primitive == PrimitiveTypeSpecifier::GetBoolean()) {
-	 value = new vector<const bool*>(initial_size,
-	 (const bool*) fill_value);
-	 } else if (as_primitive == PrimitiveTypeSpecifier::GetInt()) {
-	 value = new vector<const int*>(initial_size,
-	 (const int*) fill_value);
-	 } else if (as_primitive == PrimitiveTypeSpecifier::GetDouble()) {
-	 value = new vector<const double*>(initial_size,
-	 (const double*) fill_value);
-	 } else if (as_primitive == PrimitiveTypeSpecifier::GetString()) {
-	 value = new vector<const string*>(initial_size,
-	 (const string*) fill_value);
-	 } else {
-	 assert(false);
-	 }
-	 }
-
-	 const ArrayTypeSpecifier* as_array =
-	 dynamic_cast<const ArrayTypeSpecifier*>(m_element_type_specifier);
-	 if (as_array) {
-	 value = new vector<const Array*>(initial_size,
-	 (const Array*) fill_value);
-	 }
-
-	 const CompoundTypeSpecifier* as_compound =
-	 dynamic_cast<const CompoundTypeSpecifier*>(m_element_type_specifier);
-	 if (as_compound) {
-	 value = new vector<const CompoundTypeInstance*>(initial_size,
-	 (const CompoundTypeInstance*) fill_value);
-	 }
-
-	 return value;*/
 }
 
+bool ArrayTypeSpecifier::operator ==(const TypeSpecifier& other) const {
+	try {
+		const ArrayTypeSpecifier& as_array =
+				dynamic_cast<const ArrayTypeSpecifier&>(other);
+		return GetElementTypeSpecifier() == as_array.GetElementTypeSpecifier();
+	} catch (std::bad_cast& e) {
+		return false;
+	}
+}

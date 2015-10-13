@@ -18,6 +18,7 @@
  */
 
 #include <primitive_type_specifier.h>
+#include <typeinfo>
 
 const string PrimitiveTypeSpecifier::ToString(const void* value) const {
 	ostringstream buffer;
@@ -119,5 +120,15 @@ const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::FromBasicType(
 		return GetString();
 	default:
 		return GetNone();
+	}
+}
+
+bool PrimitiveTypeSpecifier::operator ==(const TypeSpecifier& other) const {
+	try {
+		const PrimitiveTypeSpecifier& as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier&>(other);
+		return GetBasicType() == as_primitive.GetBasicType();
+	} catch (std::bad_cast& e) {
+		return false;
 	}
 }
