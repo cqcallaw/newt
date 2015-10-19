@@ -119,10 +119,6 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Variable '" << s1 << "'"
 				<< " was not declared before it was used.";
 		break;
-	case UNKNOWN_CONSTRUCTOR_PARAMETER:
-		os << "Class '" << s1 << "' does not have a parameter called '" << s2
-				<< "'.";
-		break;
 	case VARIABLE_NOT_AN_ARRAY:
 		os << "Variable '" << s1 << "' is not an array.";
 		break;
