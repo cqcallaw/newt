@@ -26,6 +26,7 @@
 #include <error.h>
 #include <symbol_table.h>
 #include <execution_context.h>
+#include <type_specifier.h>
 
 ForStatement::ForStatement(const AssignmentStatement* initial,
 		const Expression* loop_expression,
@@ -126,4 +127,9 @@ const LinkedList<const Error*>* ForStatement::execute(
 	delete new_parent;
 
 	return LinkedList<const Error*>::Terminator;
+}
+
+const AnalysisResult ForStatement::Returns(
+		const TypeSpecifier* type_specifier) const {
+	return m_statement_block->Returns(type_specifier);
 }

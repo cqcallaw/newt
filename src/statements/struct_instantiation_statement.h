@@ -65,6 +65,10 @@ public:
 		return m_initializer_expression;
 	}
 
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
+		return AnalysisResult::NO;
+	}
+
 private:
 	const CompoundTypeSpecifier* m_type_specifier;
 	const YYLTYPE m_type_name_position;

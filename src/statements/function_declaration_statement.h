@@ -17,22 +17,23 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_INFERRED_DECLARATION_STATEMENT_H_
-#define STATEMENTS_INFERRED_DECLARATION_STATEMENT_H_
+#ifndef STATEMENTS_FUNCTION_DECLARATION_STATEMENT_H_
+#define STATEMENTS_FUNCTION_DECLARATION_STATEMENT_H_
 
 #include <declaration_statement.h>
-#include <yyltype.h>
 #include <string>
+#include <yyltype.h>
 
-class Expression;
-class TypeSpecifier;
+class ArgumentList;
+class DeclarationList;
+class StatementBlock;
+class FunctionExpression;
 
-class InferredDeclarationStatement: public DeclarationStatement {
+class FunctionDeclarationStatement: public DeclarationStatement {
 public:
-	InferredDeclarationStatement(const std::string* name,
-			const YYLTYPE name_position,
-			const Expression* initializer_expression);
-	virtual ~InferredDeclarationStatement();
+	FunctionDeclarationStatement(const std::string* name,
+			const YYLTYPE name_location, const FunctionExpression* expression);
+	virtual ~FunctionDeclarationStatement();
 
 	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
@@ -41,17 +42,17 @@ public:
 			const ExecutionContext* execution_context) const;
 
 	virtual const Expression* GetInitializerExpression() const;
-	virtual const TypeSpecifier* GetType() const;
-	virtual const std::string* GetName() const;
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
-		return AnalysisResult::NO;
+	virtual const TypeSpecifier* GetType() const;
+
+	virtual const std::string* GetName() const {
+		return m_name;
 	}
 
 private:
 	const std::string* m_name;
-	const YYLTYPE m_name_position;
-	const Expression* m_initializer_expression;
+	const YYLTYPE m_name_location;
+	const FunctionExpression* m_expression;
 };
 
-#endif /* STATEMENTS_INFERRED_DECLARATION_STATEMENT_H_ */
+#endif /* STATEMENTS_FUNCTION_DECLARATION_STATEMENT_H_ */

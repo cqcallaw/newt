@@ -41,6 +41,10 @@ public:
 		return m_expression;
 	}
 
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
+		return AnalysisResult::NO;
+	}
+
 private:
 	const int m_line_number;
 	const Expression* m_expression;

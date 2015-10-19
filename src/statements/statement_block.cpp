@@ -22,6 +22,7 @@
 #include <assert.h>
 #include "statement.h"
 #include "statement_list.h"
+#include "type_specifier.h"
 
 using namespace std;
 
@@ -65,3 +66,18 @@ const LinkedList<const Error*>* StatementBlock::execute(
 
 	return LinkedList<const Error*>::Terminator;
 }
+
+const AnalysisResult StatementBlock::Returns(
+		const TypeSpecifier* type_specifier) const {
+	AnalysisResult result = AnalysisResult::NO;
+	const LinkedList<const Statement*>* list = m_statements;
+	while (list != StatementList::Terminator) {
+		const Statement* statement = list->GetData();
+		result = static_cast<AnalysisResult>(result
+				| statement->Returns(type_specifier));
+		list = (LinkedList<const Statement*>*) list->GetNext();
+	}
+
+	return result;
+}
+

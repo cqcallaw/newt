@@ -14,6 +14,8 @@ CPP_SRCS += \
 ../src/dimension.cpp \
 ../src/error.cpp \
 ../src/execution_context.cpp \
+../src/function.cpp \
+../src/function_type_specifier.cpp \
 ../src/indent.cpp \
 ../src/index.cpp \
 ../src/member_declaration.cpp \
@@ -42,6 +44,8 @@ OBJS += \
 ./src/dimension.o \
 ./src/error.o \
 ./src/execution_context.o \
+./src/function.o \
+./src/function_type_specifier.o \
 ./src/indent.o \
 ./src/index.o \
 ./src/member_declaration.o \
@@ -70,6 +74,8 @@ CPP_DEPS += \
 ./src/dimension.d \
 ./src/error.d \
 ./src/execution_context.d \
+./src/function.d \
+./src/function_type_specifier.d \
 ./src/indent.d \
 ./src/index.d \
 ./src/member_declaration.d \

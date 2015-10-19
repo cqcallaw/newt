@@ -26,6 +26,7 @@ class AssignmentStatement;
 class Expression;
 class StatementBlock;
 class SymbolTable;
+class TypeSpecifier;
 
 class ForStatement: public Statement {
 public:
@@ -40,6 +41,9 @@ public:
 
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const;
+
+	virtual const AnalysisResult Returns(
+			const TypeSpecifier* type_specifier) const;
 
 private:
 	const AssignmentStatement* m_initial;

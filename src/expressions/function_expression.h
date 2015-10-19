@@ -17,44 +17,41 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESSION_H_
-#define EXPRESSION_H_
+#ifndef EXPRESSIONS_FUNCTION_EXPRESSION_H_
+#define EXPRESSIONS_FUNCTION_EXPRESSION_H_
 
-#include <array.h>
-#include <symbol_table.h>
-#include <utils.h>
-#include <assert.h>
-#include <type.h>
-#include <linked_list.h>
-#include <result.h>
-#include <symbol.h>
+#include <expression.h>
+#include <yyltype.h>
 
-class ExecutionContext;
+class FunctionTypeSpecifier;
+class StatementBlock;
+class DeclarationList;
 
-class Expression {
+class FunctionExpression: public Expression {
 public:
-	Expression(const YYLTYPE position);
-	virtual ~Expression();
-
-	const YYLTYPE GetPosition() const {
-		return m_position;
-	}
+	FunctionExpression(const YYLTYPE position,
+			const DeclarationList* parameter_list,
+			const TypeSpecifier* return_type, const StatementBlock* body);
+	virtual ~FunctionExpression();
 
 	virtual const TypeSpecifier* GetType(
-			const ExecutionContext* execution_context) const = 0;
+			const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const = 0;
+			const ExecutionContext* execution_context) const;
 
-	const Result* ToString(const ExecutionContext* execution_context) const;
-
-	virtual const bool IsConstant() const = 0;
+	virtual const bool IsConstant() const;
 
 	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context) const = 0;
+			const ExecutionContext* execution_context) const;
+
+	const FunctionTypeSpecifier* GetType() const {
+		return m_type;
+	}
 
 private:
-	const YYLTYPE m_position;
+	const FunctionTypeSpecifier* m_type;
+	const StatementBlock* m_body;
 };
 
-#endif /* EXPRESSION_H_ */
+#endif /* EXPRESSIONS_FUNCTION_EXPRESSION_H_ */

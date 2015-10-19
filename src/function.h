@@ -17,27 +17,22 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_DECLARATION_STATEMENT_H_
-#define STATEMENTS_DECLARATION_STATEMENT_H_
+#ifndef FUNCTION_H_
+#define FUNCTION_H_
 
-#include <statement.h>
-#include <string>
+class FunctionTypeSpecifier;
 
-class Expression;
-class TypeSpecifier;
-
-class DeclarationStatement: public Statement {
+class Function {
 public:
-	virtual ~DeclarationStatement();
+	Function(const FunctionTypeSpecifier* type);
+	virtual ~Function();
 
-	virtual const Expression* GetInitializerExpression() const = 0;
-	virtual const TypeSpecifier* GetType() const = 0;
-	virtual const std::string* GetName() const = 0;
-
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
-		return AnalysisResult::NO;
+	const FunctionTypeSpecifier* GetType() const {
+		return m_type;
 	}
 
+private:
+	const FunctionTypeSpecifier* m_type;
 };
 
-#endif /* STATEMENTS_DECLARATION_STATEMENT_H_ */
+#endif /* FUNCTION_H_ */

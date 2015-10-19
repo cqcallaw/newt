@@ -1,0 +1,17 @@
+int add (int a, int b) {
+	return a + b
+}
+
+int a = add(2, 3)
+
+add(4, 5)
+
+x = (int a, int b) -> int {
+	return a + b
+}
+
+y = x(6, 7)
+
+z = (int a, int b) -> int {
+	return a + b
+}(8,9)

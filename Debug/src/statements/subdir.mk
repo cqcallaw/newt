@@ -9,8 +9,10 @@ CPP_SRCS += \
 ../src/statements/declaration_statement.cpp \
 ../src/statements/exit_statement.cpp \
 ../src/statements/for_statement.cpp \
+../src/statements/function_declaration_statement.cpp \
 ../src/statements/if_statement.cpp \
 ../src/statements/inferred_declaration_statement.cpp \
+../src/statements/invoke_statement.cpp \
 ../src/statements/primitive_declaration_statement.cpp \
 ../src/statements/print_statement.cpp \
 ../src/statements/statement.cpp \
@@ -24,8 +26,10 @@ OBJS += \
 ./src/statements/declaration_statement.o \
 ./src/statements/exit_statement.o \
 ./src/statements/for_statement.o \
+./src/statements/function_declaration_statement.o \
 ./src/statements/if_statement.o \
 ./src/statements/inferred_declaration_statement.o \
+./src/statements/invoke_statement.o \
 ./src/statements/primitive_declaration_statement.o \
 ./src/statements/print_statement.o \
 ./src/statements/statement.o \
@@ -39,8 +43,10 @@ CPP_DEPS += \
 ./src/statements/declaration_statement.d \
 ./src/statements/exit_statement.d \
 ./src/statements/for_statement.d \
+./src/statements/function_declaration_statement.d \
 ./src/statements/if_statement.d \
 ./src/statements/inferred_declaration_statement.d \
+./src/statements/invoke_statement.d \
 ./src/statements/primitive_declaration_statement.d \
 ./src/statements/print_statement.d \
 ./src/statements/statement.d \

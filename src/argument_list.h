@@ -17,27 +17,23 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_DECLARATION_STATEMENT_H_
-#define STATEMENTS_DECLARATION_STATEMENT_H_
+#ifndef ARGUMENT_LIST_H_
+#define ARGUMENT_LIST_H_
 
-#include <statement.h>
-#include <string>
+#include "linked_list.h"
 
-class Expression;
-class TypeSpecifier;
-
-class DeclarationStatement: public Statement {
+class ArgumentList: public LinkedList<const Expression*> {
 public:
-	virtual ~DeclarationStatement();
-
-	virtual const Expression* GetInitializerExpression() const = 0;
-	virtual const TypeSpecifier* GetType() const = 0;
-	virtual const std::string* GetName() const = 0;
-
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
-		return AnalysisResult::NO;
+	ArgumentList(const Expression* data, const ArgumentList* next) :
+			LinkedList(data, next) {
 	}
 
+	ArgumentList(const LinkedList<const Expression*>* list) :
+			LinkedList(list) {
+	}
+
+	static constexpr ArgumentList* Terminator = (ArgumentList*) LinkedList<
+			const Expression*>::Terminator;
 };
 
-#endif /* STATEMENTS_DECLARATION_STATEMENT_H_ */
+#endif /* ARGUMENT_LIST_H_ */

@@ -17,31 +17,35 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXIT_STATEMENT_H_
-#define EXIT_STATEMENT_H_
+#ifndef STATEMENTS_INVOKE_STATEMENT_H_
+#define STATEMENTS_INVOKE_STATEMENT_H_
 
-#include "statement.h"
+#include <statement.h>
+#include <yyltype.h>
 
-class Expression;
-class Error;
+class ArgumentList;
+class Variable;
 
-class ExitStatement: public Statement {
+class InvokeStatement: public Statement {
 public:
-	ExitStatement();
-	ExitStatement(const Expression* exit_expression);
-	virtual ~ExitStatement();
+	InvokeStatement(const Variable* variable, const ArgumentList* argument_list,
+			const YYLTYPE argument_list_position);
+	virtual ~InvokeStatement();
 
 	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;
+	virtual const LinkedList<const Error*>* execute(
+			const ExecutionContext* execution_context) const;
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
+	virtual const AnalysisResult Returns(
+			const TypeSpecifier* type_specifier) const {
 		return AnalysisResult::NO;
 	}
-
 private:
-	const Expression* m_exit_expression;
+	const Variable* m_variable;
+	const ArgumentList* m_argument_list;
+	const YYLTYPE m_argument_list_position;
 };
 
-#endif /* EXIT_STATEMENT_H_ */
+#endif /* STATEMENTS_INVOKE_STATEMENT_H_ */

@@ -137,3 +137,24 @@ const LinkedList<const Error*>* IfStatement::execute(
 
 	return errors;
 }
+
+const AnalysisResult IfStatement::Returns(
+		const TypeSpecifier* type_specifier) const {
+	AnalysisResult result = m_block->Returns(type_specifier);
+
+	if (m_else_block) {
+		AnalysisResult else_result = m_else_block->Returns(type_specifier);
+
+		if (result == AnalysisResult::YES
+				&& else_result == AnalysisResult::YES) {
+			result = AnalysisResult::YES;
+		} else if (result == AnalysisResult::NO
+				&& else_result == AnalysisResult::NO) {
+			result = AnalysisResult::NO;
+		} else {
+			result = AnalysisResult::MAYBE;
+		}
+	}
+
+	return result;
+}

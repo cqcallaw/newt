@@ -1,0 +1,89 @@
+/*
+ Copyright (C) 2015 The newt Authors.
+
+ This file is part of newt.
+
+ newt is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ newt is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with newt.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <function_type_specifier.h>
+#include <typeinfo>
+#include <declaration_statement.h>
+#include <sstream>
+#include <declaration_list.h>
+#include <assert.h>
+
+FunctionTypeSpecifier::FunctionTypeSpecifier(
+		const DeclarationList* argument_list, const TypeSpecifier* return_type) :
+		m_argument_list(argument_list), m_return_type(return_type) {
+}
+
+FunctionTypeSpecifier::~FunctionTypeSpecifier() {
+}
+
+const string FunctionTypeSpecifier::ToString() const {
+	ostringstream buffer;
+	buffer << "(";
+	const LinkedList<const DeclarationStatement*>* subject = m_argument_list;
+	while (!subject->IsTerminator()) {
+		const DeclarationStatement* statement = subject->GetData();
+		buffer << statement->GetType() << " " << *statement->GetName();
+		subject = subject->GetNext();
+	}
+	buffer << ") -> " << m_return_type->ToString();
+	return buffer.str();
+}
+
+const bool FunctionTypeSpecifier::IsAssignableTo(
+		const TypeSpecifier* other) const {
+	return this == other;
+}
+
+const void* FunctionTypeSpecifier::DefaultValue(
+		const TypeTable* type_table) const {
+	assert(false);
+	return nullptr;
+}
+
+bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
+	try {
+		const FunctionTypeSpecifier& as_function =
+				dynamic_cast<const FunctionTypeSpecifier&>(other);
+		if (m_return_type == as_function.GetReturnType()) {
+			const LinkedList<const DeclarationStatement*>* subject =
+					m_argument_list;
+			const LinkedList<const DeclarationStatement*>* other_subject =
+					as_function.GetArgumentList();
+			while (!subject->IsTerminator()) {
+				const DeclarationStatement* statement = subject->GetData();
+				const DeclarationStatement* other_statement =
+						other_subject->GetData();
+				if (statement->GetType() == other_statement->GetType()
+						&& *statement->GetName()
+								== *other_statement->GetName()) {
+					subject = subject->GetNext();
+					other_subject = other_subject->GetNext();
+				} else {
+					return false;
+				}
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+	} catch (std::bad_cast& e) {
+		return false;
+	}
+}

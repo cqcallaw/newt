@@ -34,6 +34,8 @@
 #include <statement.h>
 #include <assignment_statement.h>
 #include <declaration_statement.h>
+#include <declaration_list.h>
+#include <argument_list.h>
 #include <statement_list.h>
 #include <statement_block.h>
 #include <execution_context.h>
@@ -83,6 +85,8 @@ typedef void* yyscan_t;
 #include <variable_expression.h>
 #include <with_expression.h>
 #include <default_value_expression.h>
+#include <function_expression.h>
+#include <invoke_expression.h>
 
 #include <print_statement.h>
 #include <assignment_statement.h>
@@ -91,9 +95,11 @@ typedef void* yyscan_t;
 #include <struct_declaration_statement.h>
 #include <struct_instantiation_statement.h>
 #include <inferred_declaration_statement.h>
+#include <function_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
+#include <invoke_statement.h>
 #include <statement_block.h>
 
 #include <array_type_specifier.h>
@@ -132,10 +138,12 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  const StatementBlock*      union_statement_block_type;
  const AssignmentStatement* union_assignment_statement_type;
  const DeclarationStatement* union_declaration_statement_type;
+ const DeclarationList*     union_declaration_list_type;
+ const ArgumentList*        union_argument_list_type;
  const Modifier*            union_modifier_type;
  const ModifierList*        union_modifier_list_type;
  const MemberDeclaration*   union_member_declaration_type;
- const DeclarationList*   union_declaration_list_type;
+
  const MemberInstantiation*   union_member_instantiation_type;
  const MemberInstantiationList*   union_member_instantiation_list_type;
  const Index*           union_index_type;
@@ -191,9 +199,12 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_OR                  "||"
 %token T_NOT                 "!"
 
+%token T_ARROW_LEFT          "->"
+
 %token T_STRUCT              "struct declaration"
 %token T_READONLY            "readonly modifier"
 %token T_WITH                "with"
+%token T_RETURN              "return"
 %token T_ERROR               "error"
 
 %token <union_string> T_ID               "identifier"
@@ -223,6 +234,10 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_expression> optional_initializer
 %type <union_variable> variable_reference
 
+%type <union_expression> variable_expression
+%type <union_expression> function_expression
+%type <union_expression> invoke_expression
+
 %type <union_statement_type> statement
 %type <union_statement_list_type> statement_list
 %type <union_declaration_statement_type> variable_declaration
@@ -234,6 +249,12 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_statement_type> for_statement
 %type <union_statement_type> exit_statement
 %type <union_statement_type> struct_declaration_statement
+%type <union_statement_type> function_declaration
+%type <union_statement_type> return_statement
+%type <union_declaration_list_type> parameter_list
+%type <union_declaration_list_type> optional_parameter_list
+%type <union_argument_list_type> argument_list
+%type <union_argument_list_type> optional_argument_list
 
 %type <union_modifier_type> modifier
 %type <union_modifier_list_type> modifier_list
@@ -365,6 +386,14 @@ statement:
 	{
 		$$ = $1;
 	}
+	| struct_declaration_statement
+	{
+		$$ = $1;
+	}
+	| function_declaration
+	{
+		$$ = $1;
+	}
 	| if_statement
 	{
 		$$ = $1;
@@ -385,9 +414,14 @@ statement:
 	{
 		$$ = $1;
 	}
-	| struct_declaration_statement
+	| return_statement
 	{
 		$$ = $1;
+	}
+	| variable_reference T_LPAREN optional_argument_list T_RPAREN
+	{
+		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
+		$$ = new InvokeStatement($1, argument_list, @3);
 	}
 	;
 
@@ -460,6 +494,31 @@ assign_statement:
 	;
 
 //---------------------------------------------------------------------
+function_declaration:
+	simple_type T_ID T_LPAREN optional_parameter_list T_RPAREN statement_block
+	{
+		const DeclarationList* parameter_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
+		const FunctionExpression* function_expression = new FunctionExpression(@1, parameter_list, $1, $6);
+		$$ = new FunctionDeclarationStatement($2, @2, function_expression);
+	}
+	|
+	T_ID T_ID T_LPAREN optional_parameter_list T_RPAREN statement_block
+	{
+		const DeclarationList* parameter_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
+		const FunctionExpression* function_expression = new FunctionExpression(@1, parameter_list, new CompoundTypeSpecifier(*$1, @1), $6);
+		$$ = new FunctionDeclarationStatement($2, @2, function_expression);
+	}
+	;
+
+//---------------------------------------------------------------------
+return_statement:
+	T_RETURN expression
+	{
+		//$$ = ReturnStatement($2);
+	}
+	;
+
+//---------------------------------------------------------------------
 variable_reference:
 	T_ID
 	{
@@ -482,9 +541,9 @@ expression:
 	{
 		$$ = $2;
 	}
-	| variable_reference
+	| variable_expression
 	{
-		$$ = new VariableExpression(@1, $1);
+		$$ = $1;
 	}
 	| T_INT_CONSTANT
 	{
@@ -578,6 +637,94 @@ expression:
 	| expression T_WITH member_instantiation_block
 	{
 		$$ = new WithExpression(@$, $1, $3, @3);
+	}
+	| function_expression
+	{
+		$$ = $1;
+	}
+	| invoke_expression
+	{
+		$$ = $1;
+	}
+	;
+
+variable_expression:
+	variable_reference
+	{
+		$$ = new VariableExpression(@1, $1);
+	}
+	;
+
+invoke_expression:
+	variable_expression T_LPAREN optional_argument_list T_RPAREN
+	{
+		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
+		$$ = new InvokeExpression(@$, $1, argument_list, @3);
+	}
+	| function_expression T_LPAREN optional_argument_list T_RPAREN
+	{
+		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
+		$$ = new InvokeExpression(@$, $1, argument_list, @3);
+	}
+	;
+
+function_expression:
+	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT simple_type statement_block
+	{
+		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
+		$$ = new FunctionExpression(@1, parameter_list, $5, $6);
+	}
+	| T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT T_ID statement_block {
+		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
+		$$ = new FunctionExpression(@1, parameter_list, new CompoundTypeSpecifier(*$5, @5), $6);
+	}
+	;
+
+//---------------------------------------------------------------------
+optional_parameter_list:
+	parameter_list
+	{
+		$$ = $1;
+	}
+	| empty
+	{
+		$$ = DeclarationList::Terminator;
+	}
+	;
+
+//---------------------------------------------------------------------
+parameter_list:
+	parameter_list T_COMMA variable_declaration
+	{
+		$$ = new DeclarationList($3, $1);
+	}
+	| variable_declaration
+	{
+		$$ = DeclarationList::Terminator;
+	}
+	;
+
+//---------------------------------------------------------------------
+optional_argument_list:
+	argument_list
+	{
+		$$ = $1;
+	}
+	| empty
+	{
+		$$ = ArgumentList::Terminator;
+	}
+	;
+
+//---------------------------------------------------------------------
+argument_list:
+	argument_list T_COMMA expression
+	{
+		$$ = new ArgumentList($3, $1);
+	}
+	| expression
+	{
+		$$ = new ArgumentList($1, ArgumentList::Terminator);
 	}
 	;
 
