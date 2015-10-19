@@ -37,8 +37,7 @@ const LinkedList<const Error*>* StatementBlock::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
-	const LinkedList<const Statement*>* subject =
-			(LinkedList<const Statement*>*) m_statements;
+	const LinkedList<const Statement*>* subject = m_statements;
 	while (subject != LinkedList<const Statement*>::Terminator) {
 		const Statement* statement = subject->GetData();
 		//TODO: handle nested statement blocks
@@ -54,8 +53,7 @@ const LinkedList<const Error*>* StatementBlock::preprocess(
 
 const LinkedList<const Error*>* StatementBlock::execute(
 		const ExecutionContext* execution_context) const {
-	LinkedList<const Statement*>* list =
-			(LinkedList<const Statement*>*) m_statements;
+	const LinkedList<const Statement*>* list = m_statements;
 	while (list != StatementList::Terminator) {
 		const Statement* statement = list->GetData();
 		auto errors = statement->execute(execution_context);
