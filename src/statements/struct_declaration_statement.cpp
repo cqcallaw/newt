@@ -30,7 +30,7 @@
 
 StructDeclarationStatement::StructDeclarationStatement(const std::string* name,
 		const YYLTYPE name_position,
-		const MemberDeclarationList* member_declaration_list,
+		const DeclarationList* member_declaration_list,
 		const YYLTYPE member_declaration_list_position,
 		const ModifierList* modifier_list, const YYLTYPE modifiers_location) :
 		m_name(name), m_name_position(name_position), m_member_declaration_list(

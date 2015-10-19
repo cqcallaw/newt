@@ -41,7 +41,7 @@
 #include <modifier.h>
 #include <modifier_list.h>
 #include <member_declaration.h>
-#include <member_declaration_list.h>
+#include <declaration_list.h>
 #include <member_instantiation.h>
 #include <member_instantiation_list.h>
 #include <index.h>
@@ -135,7 +135,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  const Modifier*            union_modifier_type;
  const ModifierList*        union_modifier_list_type;
  const MemberDeclaration*   union_member_declaration_type;
- const MemberDeclarationList*   union_member_declaration_list_type;
+ const DeclarationList*   union_declaration_list_type;
  const MemberInstantiation*   union_member_instantiation_type;
  const MemberInstantiationList*   union_member_instantiation_list_type;
  const Index*           union_index_type;
@@ -238,7 +238,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_modifier_type> modifier
 %type <union_modifier_list_type> modifier_list
 
-%type <union_member_declaration_list_type> member_declaration_list
+%type <union_declaration_list_type> declaration_list
 %type <union_member_instantiation_type> member_instantiation
 %type <union_member_instantiation_list_type> member_instantiation_list
 %type <union_member_instantiation_list_type> optional_member_instantiation_list
@@ -600,27 +600,27 @@ modifier:
 
 //---------------------------------------------------------------------
 struct_declaration_statement:
-	modifier_list T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	modifier_list T_STRUCT T_ID T_LBRACE declaration_list T_RBRACE
 	{
-		const MemberDeclarationList* member_declaration_list = $5->IsTerminator() ? $5 : new MemberDeclarationList($5->Reverse(true));
+		const DeclarationList* member_declaration_list = $5->IsTerminator() ? $5 : new DeclarationList($5->Reverse(true));
 		$$ = new StructDeclarationStatement($3, @3, member_declaration_list, @5, new ModifierList($1->Reverse(true)), @1);
 	}
-	| T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	| T_STRUCT T_ID T_LBRACE declaration_list T_RBRACE
 	{
-		const MemberDeclarationList* member_declaration_list = $4->IsTerminator() ? $4 : new MemberDeclarationList($4->Reverse(true));
+		const DeclarationList* member_declaration_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
 		$$ = new StructDeclarationStatement($2, @2, member_declaration_list, @4, ModifierList::Terminator, DefaultLocation);
 	}
 	;
 
 //---------------------------------------------------------------------
-member_declaration_list:
-	member_declaration_list variable_declaration
+declaration_list:
+	declaration_list variable_declaration
 	{
-		$$ = new MemberDeclarationList($2, $1);
+		$$ = new DeclarationList($2, $1);
 	}
 	| empty
 	{
-		$$ = MemberDeclarationList::Terminator;
+		$$ = DeclarationList::Terminator;
 	}
 	;
 
