@@ -100,6 +100,8 @@ typedef void* yyscan_t;
 #include <if_statement.h>
 #include <for_statement.h>
 #include <invoke_statement.h>
+#include <return_statement.h>
+
 #include <statement_block.h>
 
 #include <array_type_specifier.h>
@@ -514,7 +516,7 @@ function_declaration:
 return_statement:
 	T_RETURN expression
 	{
-		//$$ = ReturnStatement($2);
+		$$ = new ReturnStatement($2);
 	}
 	;
 
