@@ -129,3 +129,9 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
 		return LinkedList<const Error*>::Terminator;
 	}
 }
+
+const DeclarationStatement* PrimitiveDeclarationStatement::WithInitializerExpression(
+		const Expression* expression) const {
+	return new PrimitiveDeclarationStatement(m_type, m_type_position, m_name,
+			m_name_position, expression);
+}

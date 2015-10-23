@@ -37,6 +37,9 @@ public:
 		return nullptr;
 	}
 
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const;
+
 	virtual const TypeSpecifier* GetType() const;
 
 	virtual const std::string* GetName() const;

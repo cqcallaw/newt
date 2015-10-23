@@ -65,6 +65,9 @@ public:
 		return m_initializer_expression;
 	}
 
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const;
+
 	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
 		return AnalysisResult::NO;
 	}
@@ -75,9 +78,6 @@ private:
 	const string* m_name;
 	const YYLTYPE m_name_position;
 	const Expression* m_initializer_expression;
-
-	const Symbol* GetSymbol(const BasicType member_type,
-			const string member_name, const void* void_value) const;
 };
 
 #endif /* STATEMENTS_STRUCT_INSTANTIATION_STATEMENT_H_ */

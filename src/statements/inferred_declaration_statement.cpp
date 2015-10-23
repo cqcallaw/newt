@@ -122,6 +122,11 @@ const LinkedList<const Error*>* InferredDeclarationStatement::execute(
 	return errors;
 }
 
+const DeclarationStatement* InferredDeclarationStatement::WithInitializerExpression(
+		const Expression* expression) const {
+	return new InferredDeclarationStatement(m_name, m_name_position, expression);
+}
+
 const std::string* InferredDeclarationStatement::GetName() const {
 	return m_name;
 }

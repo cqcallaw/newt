@@ -41,6 +41,10 @@ public:
 			const ExecutionContext* execution_context) const;
 
 	virtual const Expression* GetInitializerExpression() const;
+
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const;
+
 	virtual const TypeSpecifier* GetType() const;
 	virtual const std::string* GetName() const;
 

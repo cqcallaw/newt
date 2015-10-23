@@ -126,6 +126,12 @@ const TypeSpecifier* ArrayDeclarationStatement::GetType() const {
 	return m_type;
 }
 
+const DeclarationStatement* ArrayDeclarationStatement::WithInitializerExpression(
+		const Expression* expression) const {
+	return new ArrayDeclarationStatement(m_type, m_type_position, m_name,
+			m_name_position, expression);
+}
+
 const std::string* ArrayDeclarationStatement::GetName() const {
 	return m_name;
 }
