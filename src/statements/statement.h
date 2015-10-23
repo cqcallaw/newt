@@ -41,7 +41,8 @@ public:
 	virtual const LinkedList<const Error*>* execute(
 			const ExecutionContext* execution_context) const = 0;
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const = 0;
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+			const ExecutionContext* execution_context) const = 0;
 };
 
 #endif /* STATEMENT_H_ */

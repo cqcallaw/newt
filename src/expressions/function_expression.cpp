@@ -66,12 +66,13 @@ const LinkedList<const Error*>* FunctionExpression::Validate(
 			tmp_table);
 
 	errors = m_body->preprocess(execution_context);
-	AnalysisResult returns = m_body->Returns(m_type->GetReturnType());
 
-	if (returns & AnalysisResult::MAYBE) {
-
-	} else if (!(returns & AnalysisResult::YES)) {
-
+	AnalysisResult returns = m_body->Returns(m_type->GetReturnType(),
+			execution_context);
+	if (returns == AnalysisResult::NO) {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::FUNCTION_RETURN,
+						GetPosition().first_line, GetPosition().first_column));
 	}
 
 	delete tmp_context;

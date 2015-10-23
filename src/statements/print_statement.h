@@ -41,7 +41,8 @@ public:
 		return m_expression;
 	}
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+			const ExecutionContext* execution_context) const {
 		return AnalysisResult::NO;
 	}
 

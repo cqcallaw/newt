@@ -68,13 +68,14 @@ const LinkedList<const Error*>* StatementBlock::execute(
 }
 
 const AnalysisResult StatementBlock::Returns(
-		const TypeSpecifier* type_specifier) const {
+		const TypeSpecifier* type_specifier,
+		const ExecutionContext* execution_context) const {
 	AnalysisResult result = AnalysisResult::NO;
 	const LinkedList<const Statement*>* list = m_statements;
 	while (list != StatementList::Terminator) {
 		const Statement* statement = list->GetData();
 		result = static_cast<AnalysisResult>(result
-				| statement->Returns(type_specifier));
+				| statement->Returns(type_specifier, execution_context));
 		list = (LinkedList<const Statement*>*) list->GetNext();
 	}
 

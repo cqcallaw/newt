@@ -129,7 +129,10 @@ const LinkedList<const Error*>* ForStatement::execute(
 	return LinkedList<const Error*>::Terminator;
 }
 
-const AnalysisResult ForStatement::Returns(
-		const TypeSpecifier* type_specifier) const {
-	return m_statement_block->Returns(type_specifier);
+const AnalysisResult ForStatement::Returns(const TypeSpecifier* type_specifier,
+		const ExecutionContext* execution_context) const {
+	//as of this writing, it is deemed prohibitively complicated to
+	//perform the semantic analysis that would determine whether or not
+	//this loop will execute, or how many times it will execute.
+	return AnalysisResult::NO;
 }

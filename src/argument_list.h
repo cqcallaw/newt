@@ -22,6 +22,8 @@
 
 #include "linked_list.h"
 
+class Expression;
+
 class ArgumentList: public LinkedList<const Expression*> {
 public:
 	ArgumentList(const Expression* data, const ArgumentList* next) :
