@@ -144,3 +144,9 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 
 	return errors;
 }
+
+const DeclarationStatement* StructInstantiationStatement::WithInitializerExpression(
+		const Expression* expression) const {
+	return new StructInstantiationStatement(m_type_specifier,
+			m_type_name_position, m_name, m_name_position, expression);
+}

@@ -43,6 +43,9 @@ public:
 
 	virtual const Expression* GetInitializerExpression() const;
 
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const;
+
 	virtual const TypeSpecifier* GetType() const;
 
 	virtual const std::string* GetName() const {

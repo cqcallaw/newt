@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <function_type_specifier.h>
 #include <function_expression.h>
+#include <expression.h>
 
 FunctionDeclarationStatement::FunctionDeclarationStatement(
 		const std::string* name, const YYLTYPE name_location,
@@ -41,6 +42,18 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::execute(
 
 const Expression* FunctionDeclarationStatement::GetInitializerExpression() const {
 	return m_expression;
+}
+
+const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpression(
+		const Expression* expression) const {
+	const FunctionExpression* as_function =
+			dynamic_cast<const FunctionExpression*>(expression);
+	if (as_function) {
+		return new FunctionDeclarationStatement(m_name, m_name_location,
+				as_function);
+	} else {
+		return nullptr;
+	}
 }
 
 const TypeSpecifier* FunctionDeclarationStatement::GetType() const {

@@ -126,3 +126,11 @@ const LinkedList<const Error*>* StructDeclarationStatement::execute(
 		const ExecutionContext* execution_context) const {
 	return LinkedList<const Error*>::Terminator;
 }
+
+const DeclarationStatement* StructDeclarationStatement::WithInitializerExpression(
+		const Expression* expression) const {
+	//no-op
+	return new StructDeclarationStatement(m_name, m_name_position,
+			m_member_declaration_list, m_member_declaration_list_position,
+			m_modifier_list, m_modifiers_location);
+}

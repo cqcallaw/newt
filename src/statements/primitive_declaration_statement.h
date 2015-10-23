@@ -32,6 +32,9 @@ public:
 		return m_initializer_expression;
 	}
 
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const;
+
 	virtual const TypeSpecifier* GetType() const {
 		return m_type;
 	}

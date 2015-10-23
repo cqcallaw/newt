@@ -59,6 +59,9 @@ public:
 		return m_initializer_expression;
 	}
 
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const;
+
 	const YYLTYPE GetMemberDeclarationListPosition() const {
 		return m_member_declaration_list_position;
 	}

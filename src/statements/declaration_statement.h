@@ -31,6 +31,8 @@ public:
 	virtual ~DeclarationStatement();
 
 	virtual const Expression* GetInitializerExpression() const = 0;
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const = 0;
 	virtual const TypeSpecifier* GetType() const = 0;
 	virtual const std::string* GetName() const = 0;
 
