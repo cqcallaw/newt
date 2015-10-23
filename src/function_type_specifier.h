@@ -26,7 +26,7 @@ class DeclarationList;
 
 class FunctionTypeSpecifier: public TypeSpecifier {
 public:
-	FunctionTypeSpecifier(const DeclarationList* argument_list,
+	FunctionTypeSpecifier(const DeclarationList* parameter_list,
 			const TypeSpecifier* return_type);
 	virtual ~FunctionTypeSpecifier();
 
@@ -40,8 +40,8 @@ public:
 		return !(*this == other);
 	}
 
-	const DeclarationList* GetArgumentList() const {
-		return m_argument_list;
+	const DeclarationList* GetParameterList() const {
+		return m_parameter_list;
 	}
 
 	const TypeSpecifier* GetReturnType() const {
@@ -49,7 +49,7 @@ public:
 	}
 
 private:
-	const DeclarationList* m_argument_list;
+	const DeclarationList* m_parameter_list;
 	const TypeSpecifier* m_return_type;
 };
 

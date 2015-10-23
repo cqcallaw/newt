@@ -25,8 +25,8 @@
 #include <assert.h>
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
-		const DeclarationList* argument_list, const TypeSpecifier* return_type) :
-		m_argument_list(argument_list), m_return_type(return_type) {
+		const DeclarationList* parameter_list, const TypeSpecifier* return_type) :
+		m_parameter_list(parameter_list), m_return_type(return_type) {
 }
 
 FunctionTypeSpecifier::~FunctionTypeSpecifier() {
@@ -35,7 +35,7 @@ FunctionTypeSpecifier::~FunctionTypeSpecifier() {
 const string FunctionTypeSpecifier::ToString() const {
 	ostringstream buffer;
 	buffer << "(";
-	const LinkedList<const DeclarationStatement*>* subject = m_argument_list;
+	const LinkedList<const DeclarationStatement*>* subject = m_parameter_list;
 	while (!subject->IsTerminator()) {
 		const DeclarationStatement* statement = subject->GetData();
 		buffer << statement->GetType() << " " << *statement->GetName();
@@ -62,9 +62,9 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 				dynamic_cast<const FunctionTypeSpecifier&>(other);
 		if (m_return_type == as_function.GetReturnType()) {
 			const LinkedList<const DeclarationStatement*>* subject =
-					m_argument_list;
+					m_parameter_list;
 			const LinkedList<const DeclarationStatement*>* other_subject =
-					as_function.GetArgumentList();
+					as_function.GetParameterList();
 			while (!subject->IsTerminator()) {
 				const DeclarationStatement* statement = subject->GetData();
 				const DeclarationStatement* other_statement =
