@@ -84,7 +84,7 @@ const LinkedList<const Error*>* InferredDeclarationStatement::preprocess(
 }
 
 const LinkedList<const Error*>* InferredDeclarationStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 

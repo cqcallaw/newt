@@ -53,7 +53,7 @@ const LinkedList<const Error*>* StatementBlock::preprocess(
 }
 
 const LinkedList<const Error*>* StatementBlock::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	const LinkedList<const Statement*>* list = m_statements;
 	while (list != StatementList::Terminator) {
 		const Statement* statement = list->GetData();

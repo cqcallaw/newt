@@ -62,7 +62,7 @@ const LinkedList<const Error*>* ExitStatement::preprocess(
 }
 
 const LinkedList<const Error*>* ExitStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	int exit_code = 0;
 
 	if (m_exit_expression == nullptr) {

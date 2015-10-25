@@ -37,14 +37,22 @@ public:
 		return m_type_table;
 	}
 
-	const ExecutionContext* WithSymbolContext(
-			SymbolContext* symbol_context) const {
+	ExecutionContext* WithSymbolContext(SymbolContext* symbol_context) const {
 		return new ExecutionContext(symbol_context, m_type_table);
+	}
+
+	const void* GetReturnValue() const {
+		return m_return_value;
+	}
+
+	void SetReturnValue(const void* return_value) {
+		m_return_value = return_value;
 	}
 
 private:
 	SymbolContext* m_symbol_context;
 	TypeTable* m_type_table;
+	const void* m_return_value;
 };
 
 #endif /* EXECUTION_CONTEXT_H_ */

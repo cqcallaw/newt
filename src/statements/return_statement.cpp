@@ -19,6 +19,7 @@
 
 #include <return_statement.h>
 #include <expression.h>
+#include <execution_context.h>
 
 ReturnStatement::ReturnStatement(const Expression* expression) :
 		m_expression(expression) {
@@ -33,7 +34,17 @@ const LinkedList<const Error*>* ReturnStatement::preprocess(
 }
 
 const LinkedList<const Error*>* ReturnStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+	auto result = m_expression->Evaluate(execution_context);
+
+	errors = result->GetErrors();
+	if (errors->IsTerminator()) {
+		execution_context->SetReturnValue(result->GetData());
+	}
+
+	return errors;
 }
 
 const AnalysisResult ReturnStatement::Returns(

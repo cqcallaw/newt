@@ -35,7 +35,7 @@ public:
 	}
 
 	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const;
+			ExecutionContext* execution_context) const;
 
 	const Expression* GetExpression() const {
 		return m_expression;

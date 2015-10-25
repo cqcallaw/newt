@@ -99,7 +99,7 @@ ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 }
 
 const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 	if (m_initializer_expression) {

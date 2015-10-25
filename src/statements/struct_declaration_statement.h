@@ -41,7 +41,7 @@ public:
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const;
+			ExecutionContext* execution_context) const;
 
 	const DeclarationList* GetMemberDeclarationList() const {
 		return m_member_declaration_list;

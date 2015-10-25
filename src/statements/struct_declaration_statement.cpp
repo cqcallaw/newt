@@ -67,7 +67,7 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 			const Symbol*, comparator>();
 	SymbolTable* member_buffer = new SymbolTable(Modifier::NONE,
 			LinkedList<SymbolContext*>::Terminator, values);
-	const ExecutionContext* struct_context =
+	ExecutionContext* struct_context =
 			execution_context->WithSymbolContext(member_buffer);
 
 	const LinkedList<const DeclarationStatement*>* subject =
@@ -123,7 +123,7 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 }
 
 const LinkedList<const Error*>* StructDeclarationStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	return LinkedList<const Error*>::Terminator;
 }
 

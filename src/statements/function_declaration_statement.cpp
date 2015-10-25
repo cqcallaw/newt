@@ -37,7 +37,7 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 }
 
 const LinkedList<const Error*>* FunctionDeclarationStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 }
 
 const Expression* FunctionDeclarationStatement::GetInitializerExpression() const {

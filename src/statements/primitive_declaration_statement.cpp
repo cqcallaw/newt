@@ -117,7 +117,7 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 }
 
 const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	if (m_initializer_expression != nullptr) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_position);
 		auto errors = temp_variable->AssignValue(execution_context,

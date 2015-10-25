@@ -26,7 +26,7 @@ public:
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const;
+			ExecutionContext* execution_context) const;
 
 	virtual const Expression* GetInitializerExpression() const {
 		return m_initializer_expression;

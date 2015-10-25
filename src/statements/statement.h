@@ -39,7 +39,7 @@ public:
 			const ExecutionContext* execution_context) const = 0;
 
 	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const = 0;
+			ExecutionContext* execution_context) const = 0;
 
 	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
 			const ExecutionContext* execution_context) const = 0;

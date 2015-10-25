@@ -96,7 +96,7 @@ const LinkedList<const Error*>* IfStatement::preprocess(
 }
 
 const LinkedList<const Error*>* IfStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 

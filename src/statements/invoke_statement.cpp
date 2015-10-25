@@ -37,5 +37,5 @@ const LinkedList<const Error*>* InvokeStatement::preprocess(
 }
 
 const LinkedList<const Error*>* InvokeStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 }

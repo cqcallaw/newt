@@ -72,14 +72,14 @@ const LinkedList<const Error*>* ForStatement::preprocess(
 }
 
 const LinkedList<const Error*>* ForStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* initialization_errors;
 
 	SymbolContext* symbol_context = execution_context->GetSymbolContext();
 	const auto new_parent = symbol_context->GetParent()->With(symbol_context);
 	SymbolTable* tmp_table = new SymbolTable(m_block_table->GetModifiers(),
 			new_parent, m_block_table->GetTable());
-	const ExecutionContext* new_execution_context =
+	ExecutionContext* new_execution_context =
 			execution_context->WithSymbolContext(tmp_table);
 
 	if (m_initial != nullptr) {
