@@ -23,11 +23,13 @@
 
 ExecutionContext::ExecutionContext(SymbolContext* symbol_context,
 		TypeTable* type_table) :
-		m_symbol_context(symbol_context), m_type_table(type_table) {
+		m_symbol_context(symbol_context), m_type_table(type_table), m_return_value(
+				nullptr) {
 }
 
 ExecutionContext::ExecutionContext() :
-		m_symbol_context(new SymbolTable()), m_type_table(new TypeTable()) {
+		m_symbol_context(new SymbolTable()), m_type_table(new TypeTable()), m_return_value(
+				nullptr) {
 }
 
 ExecutionContext::~ExecutionContext() {

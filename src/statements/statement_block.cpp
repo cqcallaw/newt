@@ -23,6 +23,7 @@
 #include "statement.h"
 #include "statement_list.h"
 #include "type_specifier.h"
+#include <execution_context.h>
 
 using namespace std;
 
@@ -58,7 +59,8 @@ const LinkedList<const Error*>* StatementBlock::execute(
 	while (list != StatementList::Terminator) {
 		const Statement* statement = list->GetData();
 		auto errors = statement->execute(execution_context);
-		if (errors != LinkedList<const Error*>::Terminator) {
+		if (errors != LinkedList<const Error*>::Terminator
+				|| execution_context->GetReturnValue() != nullptr) {
 			return errors;
 		}
 		list = (LinkedList<const Statement*>*) list->GetNext();
