@@ -1,0 +1,5 @@
+:x = (int a, int b) -> int {
+	return a + b
+}
+
+:y = x(6, 7)

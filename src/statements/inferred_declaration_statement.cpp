@@ -24,6 +24,9 @@
 #include <primitive_declaration_statement.h>
 #include <array_declaration_statement.h>
 #include <struct_instantiation_statement.h>
+#include <function_declaration_statement.h>
+#include <function_type_specifier.h>
+#include <function_expression.h>
 
 InferredDeclarationStatement::InferredDeclarationStatement(
 		const YYLTYPE position, const std::string* name,
@@ -80,6 +83,17 @@ const LinkedList<const Error*>* InferredDeclarationStatement::preprocess(
 		delete (temp_statement);
 	}
 
+	const FunctionTypeSpecifier* as_function =
+			dynamic_cast<const FunctionTypeSpecifier*>(expression_type);
+	if (as_function) {
+		auto temp_statement =
+				new FunctionDeclarationStatement(GetPosition(), m_name,
+						m_name_position,
+						static_cast<const FunctionExpression*>(m_initializer_expression));
+		errors = temp_statement->preprocess(execution_context);
+		delete (temp_statement);
+	}
+
 	return errors;
 }
 
@@ -115,6 +129,17 @@ const LinkedList<const Error*>* InferredDeclarationStatement::execute(
 		auto temp_statement = new StructInstantiationStatement(GetPosition(),
 				as_compound, m_initializer_expression->GetPosition(), m_name,
 				m_name_position, m_initializer_expression);
+		errors = temp_statement->execute(execution_context);
+		delete (temp_statement);
+	}
+
+	const FunctionTypeSpecifier* as_function =
+			dynamic_cast<const FunctionTypeSpecifier*>(expression_type);
+	if (as_function) {
+		auto temp_statement =
+				new FunctionDeclarationStatement(GetPosition(), m_name,
+						m_name_position,
+						static_cast<const FunctionExpression*>(m_initializer_expression));
 		errors = temp_statement->execute(execution_context);
 		delete (temp_statement);
 	}
