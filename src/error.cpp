@@ -144,6 +144,22 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case READONLY:
 		os << "\"" << s1 << "\" is read-only.";
 		break;
+	case FUNCTION_RETURN_MISMATCH:
+		os << "Function does not return specified type.";
+		break;
+	case FUNCTION_PARAMETER_TYPE_MISMATCH:
+		os << "Parameter type mismatch.";
+		break;
+	case FUNCTION_INVOCATION_LENGTH_MISMATCH:
+		os
+				<< "Number of non-default arguments does not match number of non-default parameters.";
+		break;
+	case NO_PARAMETER_DEFAULT:
+		os << "No parameter default.";
+		break;
+	case NOT_A_FUNCTION:
+		os << "\"" << s1 << "\" does not name a function.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

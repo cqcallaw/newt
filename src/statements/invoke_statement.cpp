@@ -20,6 +20,9 @@
 #include <invoke_statement.h>
 #include <expression.h>
 #include <argument_list.h>
+#include <invoke_expression.h>
+#include <variable.h>
+#include <variable_expression.h>
 
 InvokeStatement::InvokeStatement(const Variable* variable,
 		const ArgumentList* argument_list, const YYLTYPE argument_list_position) :
@@ -34,8 +37,28 @@ const LinkedList<const Error*>* InvokeStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	//variable reference must be a reference to a function
 	//argument list length and types must match
+	const VariableExpression* variable_expression = new VariableExpression(
+			m_variable->GetLocation(), m_variable);
+	const InvokeExpression* expression = new InvokeExpression(
+			m_variable->GetLocation(), variable_expression, m_argument_list,
+			m_argument_list_position);
+	auto result = expression->Validate(execution_context);
+	delete expression;
+	delete variable_expression;
+
+	return result;
 }
 
 const LinkedList<const Error*>* InvokeStatement::execute(
 		ExecutionContext* execution_context) const {
+	const VariableExpression* variable_expression = new VariableExpression(
+			m_variable->GetLocation(), m_variable);
+	const InvokeExpression* expression = new InvokeExpression(
+			m_variable->GetLocation(), variable_expression, m_argument_list,
+			m_argument_list_position);
+	auto result = expression->Evaluate(execution_context);
+	delete expression;
+	delete variable_expression;
+
+	return result->GetErrors();
 }

@@ -29,7 +29,9 @@
 #include <execution_context.h>
 #include <array_type_specifier.h>
 #include <primitive_type_specifier.h>
+#include <function_type_specifier.h>
 #include <symbol.h>
+#include <function.h>
 
 const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
 const Symbol* Symbol::DefaultSymbol = new Symbol(
@@ -59,6 +61,10 @@ Symbol::Symbol(const string name, const CompoundTypeInstance* value) :
 		Symbol(value->GetTypeSpecifier(), name, (void *) value) {
 }
 
+Symbol::Symbol(const string name, const Function* value) :
+		Symbol(value->GetType(), name, (void *) value) {
+}
+
 Symbol::Symbol(const TypeSpecifier* type, const string name, const void* value) :
 		m_type(type), m_name(name), m_value(value) {
 	assert(type != nullptr);
@@ -85,6 +91,10 @@ Symbol::Symbol(const string* name, const Array* value) :
 }
 
 Symbol::Symbol(const string* name, const CompoundTypeInstance* value) :
+		Symbol(*name, value) {
+}
+
+Symbol::Symbol(const string* name, const Function* value) :
 		Symbol(*name, value) {
 }
 
@@ -161,3 +171,4 @@ const string Symbol::ToString(const TypeTable* type_table,
 	return buffer.str();
 
 }
+

@@ -22,6 +22,10 @@
 #include <function_type_specifier.h>
 #include <function_expression.h>
 #include <expression.h>
+#include <basic_variable.h>
+#include <assignment_statement.h>
+#include <execution_context.h>
+#include <function.h>
 
 FunctionDeclarationStatement::FunctionDeclarationStatement(
 		const YYLTYPE position, const std::string* name,
@@ -35,10 +39,63 @@ FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 
 const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const Symbol* existing = execution_context->GetSymbolContext()->GetSymbol(
+			m_name);
+
+	if (existing == nullptr || existing == Symbol::DefaultSymbol) {
+		errors = m_expression->Validate(execution_context);
+		if (errors->IsTerminator()) {
+			const Symbol* existing =
+					execution_context->GetSymbolContext()->GetSymbol(m_name);
+
+			if (existing == nullptr || existing == Symbol::DefaultSymbol) {
+				const Result* result = m_expression->Evaluate(
+						execution_context);
+
+				errors = result->GetErrors();
+				if (errors->IsTerminator()) {
+					const Function* function =
+							static_cast<const Function*>(result->GetData());
+					const Symbol* symbol = new Symbol(m_name, function);
+					SymbolTable* symbol_table =
+							static_cast<SymbolTable*>(execution_context->GetSymbolContext());
+					InsertResult insert_result = symbol_table->InsertSymbol(
+							symbol);
+
+					if (insert_result != INSERT_SUCCESS) {
+						assert(false);
+					}
+				}
+				delete result;
+			} else {
+				errors = errors->With(
+						new Error(Error::SEMANTIC,
+								Error::PREVIOUSLY_DECLARED_VARIABLE,
+								m_name_location.first_line,
+								m_name_location.first_column, *(m_name)));
+
+			}
+		}
+	} else {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::PREVIOUSLY_DECLARED_VARIABLE,
+						m_name_location.first_line,
+						m_name_location.first_column, *(m_name)));
+
+	}
+
+	return errors;
 }
 
 const LinkedList<const Error*>* FunctionDeclarationStatement::execute(
 		ExecutionContext* execution_context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	return errors;
 }
 
 const Expression* FunctionDeclarationStatement::GetInitializerExpression() const {

@@ -21,18 +21,26 @@
 #define FUNCTION_H_
 
 class FunctionTypeSpecifier;
+class StatementBlock;
+class Result;
+class ArgumentList;
+class ExecutionContext;
 
 class Function {
 public:
-	Function(const FunctionTypeSpecifier* type);
+	Function(const FunctionTypeSpecifier* type, const StatementBlock* body);
 	virtual ~Function();
 
 	const FunctionTypeSpecifier* GetType() const {
 		return m_type;
 	}
 
+	const Result* Evaluate(const ArgumentList* argument_list,
+			const ExecutionContext* execution_context) const;
+
 private:
 	const FunctionTypeSpecifier* m_type;
+	const StatementBlock* m_body;
 };
 
 #endif /* FUNCTION_H_ */

@@ -18,11 +18,92 @@
  */
 
 #include <function.h>
+#include <expression.h>
+#include <argument_list.h>
+#include <declaration_list.h>
+#include <declaration_statement.h>
+#include <execution_context.h>
+#include <function_type_specifier.h>
+#include <error.h>
+#include <statement_block.h>
 
-Function::Function(const FunctionTypeSpecifier* type) :
-		m_type(type) {
+Function::Function(const FunctionTypeSpecifier* type,
+		const StatementBlock* body) :
+		m_type(type), m_body(body) {
 }
 
 Function::~Function() {
 }
 
+const Result* Function::Evaluate(const ArgumentList* argument_list,
+		const ExecutionContext* execution_context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	auto symbol_context = execution_context->GetSymbolContext();
+	auto parent = symbol_context->GetParent();
+	auto new_parent = parent->With(symbol_context);
+	SymbolTable* child_table = new SymbolTable(new_parent);
+	ExecutionContext* child_context = new ExecutionContext(child_table,
+			execution_context->GetTypeTable());
+
+	//populate child context with argument values
+	const LinkedList<const Expression*>* argument = argument_list;
+	const LinkedList<const DeclarationStatement*>* parameter =
+			m_type->GetParameterList();
+
+	while (!argument->IsTerminator()) {
+		const Expression* argument_expression = argument->GetData();
+		if (!parameter->IsTerminator()) {
+			const DeclarationStatement* declaration = parameter->GetData();
+			const DeclarationStatement* argument_declaration =
+					declaration->WithInitializerExpression(argument_expression);
+
+			auto preprocessing_errors = errors->Concatenate(
+					argument_declaration->preprocess(child_context), true);
+			if (preprocessing_errors->IsTerminator()) {
+				errors = errors->Concatenate(
+						argument_declaration->execute(child_context), true);
+			} else {
+				errors = errors->Concatenate(preprocessing_errors, true);
+			}
+
+			delete argument_declaration;
+
+			argument = argument->GetNext();
+			parameter = parameter->GetNext();
+		} else {
+			//argument list is longer than parameter list
+			errors = errors->With(
+					new Error(Error::SEMANTIC,
+							Error::FUNCTION_INVOCATION_LENGTH_MISMATCH,
+							argument_expression->GetPosition().first_line,
+							argument_expression->GetPosition().first_column));
+			break;
+		}
+	}
+
+	//handle any remaining parameter declarations. if any parameter declarations don't have default values, generate an error
+	while (!parameter->IsTerminator()) {
+		const DeclarationStatement* declaration = parameter->GetData();
+
+		if (declaration->GetInitializerExpression() != nullptr) {
+			errors = errors->Concatenate(declaration->execute(child_context),
+					true);
+			parameter = parameter->GetNext();
+		} else {
+			errors = errors->With(
+					new Error(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
+							declaration->GetPosition().first_line,
+							declaration->GetPosition().first_column,
+							*declaration->GetName()));
+			break;
+		}
+
+		parameter = parameter->GetNext();
+	}
+
+	errors = errors->Concatenate(m_body->execute(child_context), true);
+
+	return new Result(child_context->GetReturnValue(), errors);
+}

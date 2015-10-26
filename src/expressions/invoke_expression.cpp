@@ -17,8 +17,14 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sstream>
 #include <invoke_expression.h>
 #include <argument_list.h>
+#include <function_type_specifier.h>
+#include <declaration_statement.h>
+#include <declaration_list.h>
+#include <function.h>
+#include <execution_context.h>
 
 InvokeExpression::InvokeExpression(const YYLTYPE position,
 		const Expression* expression, const ArgumentList* argument_list,
@@ -32,16 +38,169 @@ InvokeExpression::~InvokeExpression() {
 
 const TypeSpecifier* InvokeExpression::GetType(
 		const ExecutionContext* execution_context) const {
+	const TypeSpecifier* type_specifier = m_expression->GetType(
+			execution_context);
+	const FunctionTypeSpecifier* as_function =
+			dynamic_cast<const FunctionTypeSpecifier*>(type_specifier);
+
+	if (as_function) {
+		return as_function->GetReturnType();
+	} else {
+		return PrimitiveTypeSpecifier::GetNone();
+	}
 }
 
 const Result* InvokeExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+	const void* value = nullptr;
+
+	const TypeSpecifier* type_specifier = m_expression->GetType(
+			execution_context);
+	const FunctionTypeSpecifier* as_function =
+			dynamic_cast<const FunctionTypeSpecifier*>(type_specifier);
+
+	if (as_function) {
+		const Result* expression_result = m_expression->Evaluate(
+				execution_context);
+
+		errors = expression_result->GetErrors();
+		if (errors->IsTerminator()) {
+			const Function* function =
+					static_cast<const Function*>(expression_result->GetData());
+
+			const Result* eval_result = function->Evaluate(m_argument_list,
+					execution_context);
+
+			errors = eval_result->GetErrors();
+			if (errors->IsTerminator()) {
+				value = eval_result->GetData();
+			}
+
+			delete eval_result;
+		}
+	} else {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::NOT_A_FUNCTION,
+						m_expression->GetPosition().first_line,
+						m_expression->GetPosition().first_column));
+	}
+
+	return new Result(value, errors);
 }
 
 const Result* InvokeExpression::ToString(
 		const ExecutionContext* execution_context) const {
+	ostringstream buf;
+	const Result* expression_result = m_expression->ToString(execution_context);
+
+	if (expression_result->GetErrors()) {
+		buf << *static_cast<const string*>(expression_result->GetData());
+		buf << "(";
+		const LinkedList<const Error*>* errors =
+
+		LinkedList<const Error*>::Terminator;
+		const LinkedList<const Expression*>* argument = m_argument_list;
+		while (!argument->IsTerminator()) {
+			const Result* argument_result = argument->GetData()->ToString(
+					execution_context);
+			errors = errors->Concatenate(argument_result->GetErrors(), true);
+			if (errors->IsTerminator()) {
+				buf << *static_cast<const string*>(argument_result->GetData());
+				if (!argument->GetNext()->IsTerminator()) {
+					buf << ",";
+				}
+			}
+			delete argument_result;
+		}
+		buf << ")";
+		return new Result(new string(buf.str()), errors);
+	} else {
+		return expression_result;
+	}
 }
 
 const LinkedList<const Error*>* InvokeExpression::Validate(
 		const ExecutionContext* execution_context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
+
+	const TypeSpecifier* type_specifier = m_expression->GetType(
+			execution_context);
+	const FunctionTypeSpecifier* as_function =
+			dynamic_cast<const FunctionTypeSpecifier*>(type_specifier);
+
+	if (as_function) {
+		//generate a temporary context for validation
+		auto parent = execution_context->GetSymbolContext()->GetParent();
+		auto new_parent = parent->With(execution_context->GetSymbolContext());
+		auto tmp_map = new map<const string, const Symbol*, comparator>();
+		SymbolTable* tmp_table = new SymbolTable(Modifier::Type::NONE,
+				new_parent, tmp_map);
+		const ExecutionContext* tmp_context =
+				execution_context->WithSymbolContext(tmp_table);
+
+		const LinkedList<const Expression*>* argument = m_argument_list;
+		const LinkedList<const DeclarationStatement*>* parameter =
+				as_function->GetParameterList();
+
+		while (!argument->IsTerminator()) {
+			const Expression* argument_expression = argument->GetData();
+			if (!parameter->IsTerminator()) {
+				const DeclarationStatement* declaration = parameter->GetData();
+
+				const DeclarationStatement* argument_declaration =
+						declaration->WithInitializerExpression(
+								argument_expression);
+				errors = errors->Concatenate(
+						argument_declaration->preprocess(tmp_context), true);
+				delete argument_declaration;
+
+				argument = argument->GetNext();
+				parameter = parameter->GetNext();
+			} else {
+				//argument list is longer than parameter list
+				errors =
+						errors->With(
+								new Error(Error::SEMANTIC,
+										Error::FUNCTION_INVOCATION_LENGTH_MISMATCH,
+										argument_expression->GetPosition().first_line,
+										argument_expression->GetPosition().first_column));
+				break;
+			}
+		}
+
+		//handle any remaining parameter declarations. if any parameter declarations don't have default values, generate an error
+		while (!parameter->IsTerminator()) {
+			const DeclarationStatement* declaration = parameter->GetData();
+
+			if (declaration->GetInitializerExpression() != nullptr) {
+				errors = errors->Concatenate(
+						declaration->preprocess(tmp_context), true);
+				parameter = parameter->GetNext();
+			} else {
+				errors = errors->With(
+						new Error(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
+								declaration->GetPosition().first_line,
+								declaration->GetPosition().first_column,
+								*declaration->GetName()));
+				break;
+			}
+
+			parameter = parameter->GetNext();
+		}
+
+		delete tmp_context;
+		delete tmp_table;
+		delete tmp_map;
+		delete new_parent;
+	} else {
+		errors = errors->With(
+				new Error(Error::SEMANTIC, Error::NOT_A_FUNCTION,
+						m_expression->GetPosition().first_line,
+						m_expression->GetPosition().first_column));
+	}
+
+	return errors;
 }

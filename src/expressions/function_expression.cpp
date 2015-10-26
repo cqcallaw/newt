@@ -23,6 +23,8 @@
 #include <declaration_list.h>
 #include <execution_context.h>
 #include <function_type_specifier.h>
+#include <declaration_statement.h>
+#include <symbol_table.h>
 
 FunctionExpression::FunctionExpression(const YYLTYPE position,
 		const DeclarationList* parameter_list, const TypeSpecifier* return_type,
@@ -44,7 +46,7 @@ const Result* FunctionExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
-	const Function* function = new Function(m_type);
+	const Function* function = new Function(m_type, m_body);
 	return new Result(function, errors);
 }
 
@@ -60,23 +62,43 @@ const LinkedList<const Error*>* FunctionExpression::Validate(
 	//generate a temporary context for validation
 	auto parent = execution_context->GetSymbolContext()->GetParent();
 	auto new_parent = parent->With(execution_context->GetSymbolContext());
-	SymbolContext* tmp_table = new SymbolContext(Modifier::Type::NONE,
-			new_parent);
-	const ExecutionContext* tmp_context = execution_context->WithSymbolContext(
+	auto tmp_map = new map<const string, const Symbol*, comparator>();
+	SymbolTable* tmp_table = new SymbolTable(Modifier::Type::NONE, new_parent,
+			tmp_map);
+	ExecutionContext* tmp_context = execution_context->WithSymbolContext(
 			tmp_table);
 
-	errors = m_body->preprocess(execution_context);
+	const LinkedList<const DeclarationStatement*>* declaration =
+			m_type->GetParameterList();
+	while (!declaration->IsTerminator()) {
+		auto declaration_statement = declaration->GetData();
+		auto preprocessing_errors = errors->Concatenate(
+				declaration_statement->preprocess(tmp_context), true);
+
+		if (preprocessing_errors->IsTerminator()) {
+			//yes we're casting away constness. yes it's smelly.
+			errors = errors->Concatenate(
+					declaration_statement->execute(tmp_context), true);
+		} else {
+			errors = errors->Concatenate(preprocessing_errors, true);
+		}
+
+		declaration = declaration->GetNext();
+	}
+
+	errors = m_body->preprocess(tmp_context);
 
 	AnalysisResult returns = m_body->Returns(m_type->GetReturnType(),
-			execution_context);
+			tmp_context);
 	if (returns == AnalysisResult::NO) {
 		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::FUNCTION_RETURN,
+				new Error(Error::SEMANTIC, Error::FUNCTION_RETURN_MISMATCH,
 						GetPosition().first_line, GetPosition().first_column));
 	}
 
 	delete tmp_context;
 	delete tmp_table;
+	delete tmp_map;
 	delete new_parent;
 
 	return errors;
