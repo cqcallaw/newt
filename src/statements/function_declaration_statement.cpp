@@ -24,9 +24,10 @@
 #include <expression.h>
 
 FunctionDeclarationStatement::FunctionDeclarationStatement(
-		const std::string* name, const YYLTYPE name_location,
-		const FunctionExpression* expression) :
-		m_name(name), m_name_location(name_location), m_expression(expression) {
+		const YYLTYPE position, const std::string* name,
+		const YYLTYPE name_location, const FunctionExpression* expression) :
+		DeclarationStatement(position), m_name(name), m_name_location(
+				name_location), m_expression(expression) {
 }
 
 FunctionDeclarationStatement::~FunctionDeclarationStatement() {
@@ -49,8 +50,8 @@ const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpress
 	const FunctionExpression* as_function =
 			dynamic_cast<const FunctionExpression*>(expression);
 	if (as_function) {
-		return new FunctionDeclarationStatement(m_name, m_name_location,
-				as_function);
+		return new FunctionDeclarationStatement(GetPosition(), m_name,
+				m_name_location, as_function);
 	} else {
 		return nullptr;
 	}

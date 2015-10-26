@@ -30,10 +30,10 @@
 #include <symbol.h>
 
 StructInstantiationStatement::StructInstantiationStatement(
-		const CompoundTypeSpecifier* type_specifier,
+		const YYLTYPE position, const CompoundTypeSpecifier* type_specifier,
 		const YYLTYPE type_name_position, const std::string* name,
 		const YYLTYPE name_position, const Expression* initializer_expression) :
-		m_type_specifier(type_specifier), m_type_name_position(
+		DeclarationStatement(position), m_type_specifier(type_specifier), m_type_name_position(
 				type_name_position), m_name(name), m_name_position(
 				name_position), m_initializer_expression(initializer_expression) {
 }
@@ -147,6 +147,6 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 
 const DeclarationStatement* StructInstantiationStatement::WithInitializerExpression(
 		const Expression* expression) const {
-	return new StructInstantiationStatement(m_type_specifier,
+	return new StructInstantiationStatement(GetPosition(), m_type_specifier,
 			m_type_name_position, m_name, m_name_position, expression);
 }

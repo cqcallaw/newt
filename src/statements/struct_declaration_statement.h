@@ -29,7 +29,7 @@
 
 class StructDeclarationStatement: public DeclarationStatement {
 public:
-	StructDeclarationStatement(const std::string* name,
+	StructDeclarationStatement(const YYLTYPE position, const std::string* name,
 			const YYLTYPE name_position,
 			const DeclarationList* member_declaration_list,
 			const YYLTYPE member_declaration_list_position,

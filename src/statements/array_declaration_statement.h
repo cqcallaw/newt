@@ -20,9 +20,9 @@ class DimensionList;
 
 class ArrayDeclarationStatement: public DeclarationStatement {
 public:
-	ArrayDeclarationStatement(const ArrayTypeSpecifier* type,
-			const YYLTYPE type_position, const std::string* name,
-			const YYLTYPE name_position,
+	ArrayDeclarationStatement(const YYLTYPE position,
+			const ArrayTypeSpecifier* type, const YYLTYPE type_position,
+			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression = nullptr);
 
 	virtual ~ArrayDeclarationStatement();

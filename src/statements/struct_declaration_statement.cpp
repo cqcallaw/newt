@@ -28,12 +28,13 @@
 #include <compound_type.h>
 #include <default_value_expression.h>
 
-StructDeclarationStatement::StructDeclarationStatement(const std::string* name,
-		const YYLTYPE name_position,
+StructDeclarationStatement::StructDeclarationStatement(const YYLTYPE position,
+		const std::string* name, const YYLTYPE name_position,
 		const DeclarationList* member_declaration_list,
 		const YYLTYPE member_declaration_list_position,
 		const ModifierList* modifier_list, const YYLTYPE modifiers_location) :
-		m_name(name), m_name_position(name_position), m_member_declaration_list(
+		DeclarationStatement(position), m_name(name), m_name_position(
+				name_position), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_position(
 				member_declaration_list_position), m_modifier_list(
 				modifier_list), m_modifiers_location(modifiers_location) {
@@ -67,8 +68,8 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 			const Symbol*, comparator>();
 	SymbolTable* member_buffer = new SymbolTable(Modifier::NONE,
 			LinkedList<SymbolContext*>::Terminator, values);
-	ExecutionContext* struct_context =
-			execution_context->WithSymbolContext(member_buffer);
+	ExecutionContext* struct_context = execution_context->WithSymbolContext(
+			member_buffer);
 
 	const LinkedList<const DeclarationStatement*>* subject =
 			m_member_declaration_list;
@@ -130,7 +131,8 @@ const LinkedList<const Error*>* StructDeclarationStatement::execute(
 const DeclarationStatement* StructDeclarationStatement::WithInitializerExpression(
 		const Expression* expression) const {
 	//no-op
-	return new StructDeclarationStatement(m_name, m_name_position,
-			m_member_declaration_list, m_member_declaration_list_position,
-			m_modifier_list, m_modifiers_location);
+	return new StructDeclarationStatement(GetPosition(), m_name,
+			m_name_position, m_member_declaration_list,
+			m_member_declaration_list_position, m_modifier_list,
+			m_modifiers_location);
 }

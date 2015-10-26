@@ -26,10 +26,10 @@
 #include <struct_instantiation_statement.h>
 
 InferredDeclarationStatement::InferredDeclarationStatement(
-		const std::string* name, const YYLTYPE name_position,
-		const Expression* initializer_expression) :
-		m_name(name), m_name_position(name_position), m_initializer_expression(
-				initializer_expression) {
+		const YYLTYPE position, const std::string* name,
+		const YYLTYPE name_position, const Expression* initializer_expression) :
+		DeclarationStatement(position), m_name(name), m_name_position(
+				name_position), m_initializer_expression(initializer_expression) {
 }
 
 InferredDeclarationStatement::~InferredDeclarationStatement() {
@@ -53,9 +53,9 @@ const LinkedList<const Error*>* InferredDeclarationStatement::preprocess(
 			execution_context);
 
 	if (dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type)) {
-		auto temp_statement = new PrimitiveDeclarationStatement(expression_type,
-				m_initializer_expression->GetPosition(), m_name,
-				m_name_position, m_initializer_expression);
+		auto temp_statement = new PrimitiveDeclarationStatement(GetPosition(),
+				expression_type, m_initializer_expression->GetPosition(),
+				m_name, m_name_position, m_initializer_expression);
 		errors = temp_statement->preprocess(execution_context);
 		delete (temp_statement);
 	}
@@ -63,8 +63,8 @@ const LinkedList<const Error*>* InferredDeclarationStatement::preprocess(
 	const ArrayTypeSpecifier* as_array =
 			dynamic_cast<const ArrayTypeSpecifier*>(expression_type);
 	if (as_array) {
-		auto temp_statement = new ArrayDeclarationStatement(as_array,
-				m_initializer_expression->GetPosition(), m_name,
+		auto temp_statement = new ArrayDeclarationStatement(GetPosition(),
+				as_array, m_initializer_expression->GetPosition(), m_name,
 				m_name_position, m_initializer_expression);
 		errors = temp_statement->preprocess(execution_context);
 		delete (temp_statement);
@@ -73,8 +73,8 @@ const LinkedList<const Error*>* InferredDeclarationStatement::preprocess(
 	const CompoundTypeSpecifier* as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(expression_type);
 	if (as_compound) {
-		auto temp_statement = new StructInstantiationStatement(as_compound,
-				m_initializer_expression->GetPosition(), m_name,
+		auto temp_statement = new StructInstantiationStatement(GetPosition(),
+				as_compound, m_initializer_expression->GetPosition(), m_name,
 				m_name_position, m_initializer_expression);
 		errors = temp_statement->preprocess(execution_context);
 		delete (temp_statement);
@@ -92,9 +92,9 @@ const LinkedList<const Error*>* InferredDeclarationStatement::execute(
 			execution_context);
 
 	if (dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type)) {
-		auto temp_statement = new PrimitiveDeclarationStatement(expression_type,
-				m_initializer_expression->GetPosition(), m_name,
-				m_name_position, m_initializer_expression);
+		auto temp_statement = new PrimitiveDeclarationStatement(GetPosition(),
+				expression_type, m_initializer_expression->GetPosition(),
+				m_name, m_name_position, m_initializer_expression);
 		errors = temp_statement->execute(execution_context);
 		delete (temp_statement);
 	}
@@ -102,8 +102,8 @@ const LinkedList<const Error*>* InferredDeclarationStatement::execute(
 	const ArrayTypeSpecifier* as_array =
 			dynamic_cast<const ArrayTypeSpecifier*>(expression_type);
 	if (as_array) {
-		auto temp_statement = new ArrayDeclarationStatement(as_array,
-				m_initializer_expression->GetPosition(), m_name,
+		auto temp_statement = new ArrayDeclarationStatement(GetPosition(),
+				as_array, m_initializer_expression->GetPosition(), m_name,
 				m_name_position, m_initializer_expression);
 		errors = temp_statement->execute(execution_context);
 		delete (temp_statement);
@@ -112,8 +112,8 @@ const LinkedList<const Error*>* InferredDeclarationStatement::execute(
 	const CompoundTypeSpecifier* as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(expression_type);
 	if (as_compound) {
-		auto temp_statement = new StructInstantiationStatement(as_compound,
-				m_initializer_expression->GetPosition(), m_name,
+		auto temp_statement = new StructInstantiationStatement(GetPosition(),
+				as_compound, m_initializer_expression->GetPosition(), m_name,
 				m_name_position, m_initializer_expression);
 		errors = temp_statement->execute(execution_context);
 		delete (temp_statement);
@@ -124,7 +124,8 @@ const LinkedList<const Error*>* InferredDeclarationStatement::execute(
 
 const DeclarationStatement* InferredDeclarationStatement::WithInitializerExpression(
 		const Expression* expression) const {
-	return new InferredDeclarationStatement(m_name, m_name_position, expression);
+	return new InferredDeclarationStatement(GetPosition(), m_name,
+			m_name_position, expression);
 }
 
 const std::string* InferredDeclarationStatement::GetName() const {

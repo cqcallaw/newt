@@ -21,12 +21,13 @@
 #include <array_type_specifier.h>
 #include <dimension_list.h>
 
-ArrayDeclarationStatement::ArrayDeclarationStatement(
+ArrayDeclarationStatement::ArrayDeclarationStatement(const YYLTYPE position,
 		const ArrayTypeSpecifier* type_specifier, const YYLTYPE type_position,
 		const std::string* name, const YYLTYPE name_position,
 		const Expression* initializer_expression) :
-		m_type(type_specifier), m_type_position(type_position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(initializer_expression) {
+		DeclarationStatement(position), m_type(type_specifier), m_type_position(
+				type_position), m_name(name), m_name_position(name_position), m_initializer_expression(
+				initializer_expression) {
 }
 
 const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
@@ -128,8 +129,8 @@ const TypeSpecifier* ArrayDeclarationStatement::GetType() const {
 
 const DeclarationStatement* ArrayDeclarationStatement::WithInitializerExpression(
 		const Expression* expression) const {
-	return new ArrayDeclarationStatement(m_type, m_type_position, m_name,
-			m_name_position, expression);
+	return new ArrayDeclarationStatement(GetPosition(), m_type, m_type_position,
+			m_name, m_name_position, expression);
 }
 
 const std::string* ArrayDeclarationStatement::GetName() const {

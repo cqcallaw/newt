@@ -29,8 +29,8 @@ class TypeSpecifier;
 
 class InferredDeclarationStatement: public DeclarationStatement {
 public:
-	InferredDeclarationStatement(const std::string* name,
-			const YYLTYPE name_position,
+	InferredDeclarationStatement(const YYLTYPE position,
+			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression);
 	virtual ~InferredDeclarationStatement();
 
@@ -48,7 +48,8 @@ public:
 	virtual const TypeSpecifier* GetType() const;
 	virtual const std::string* GetName() const;
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
+	virtual const AnalysisResult Returns(
+			const TypeSpecifier* type_specifier) const {
 		return AnalysisResult::NO;
 	}
 

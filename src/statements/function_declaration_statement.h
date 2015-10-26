@@ -31,8 +31,9 @@ class FunctionExpression;
 
 class FunctionDeclarationStatement: public DeclarationStatement {
 public:
-	FunctionDeclarationStatement(const std::string* name,
-			const YYLTYPE name_location, const FunctionExpression* expression);
+	FunctionDeclarationStatement(const YYLTYPE position,
+			const std::string* name, const YYLTYPE name_location,
+			const FunctionExpression* expression);
 	virtual ~FunctionDeclarationStatement();
 
 	virtual const LinkedList<const Error*>* preprocess(

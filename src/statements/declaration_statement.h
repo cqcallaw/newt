@@ -22,12 +22,14 @@
 
 #include <statement.h>
 #include <string>
+#include <yyltype.h>
 
 class Expression;
 class TypeSpecifier;
 
 class DeclarationStatement: public Statement {
 public:
+	DeclarationStatement(const YYLTYPE position);
 	virtual ~DeclarationStatement();
 
 	virtual const Expression* GetInitializerExpression() const = 0;
@@ -40,6 +42,13 @@ public:
 			const ExecutionContext* execution_context) const {
 		return AnalysisResult::NO;
 	}
+
+	const YYLTYPE GetPosition() const {
+		return m_position;
+	}
+
+private:
+	const YYLTYPE m_position;
 
 };
 

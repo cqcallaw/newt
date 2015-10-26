@@ -15,11 +15,12 @@
 #include <variable_expression.h>
 
 PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
-		const TypeSpecifier* type, const YYLTYPE type_position,
-		const std::string* name, const YYLTYPE name_position,
-		const Expression* initializer_expression) :
-		m_type(type), m_type_position(type_position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(initializer_expression) {
+		const YYLTYPE position, const TypeSpecifier* type,
+		const YYLTYPE type_position, const std::string* name,
+		const YYLTYPE name_position, const Expression* initializer_expression) :
+		DeclarationStatement(position), m_type(type), m_type_position(
+				type_position), m_name(name), m_name_position(name_position), m_initializer_expression(
+				initializer_expression) {
 }
 
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
@@ -132,6 +133,6 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
 
 const DeclarationStatement* PrimitiveDeclarationStatement::WithInitializerExpression(
 		const Expression* expression) const {
-	return new PrimitiveDeclarationStatement(m_type, m_type_position, m_name,
-			m_name_position, expression);
+	return new PrimitiveDeclarationStatement(GetPosition(), m_type,
+			m_type_position, m_name, m_name_position, expression);
 }

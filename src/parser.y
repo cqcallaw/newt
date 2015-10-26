@@ -293,7 +293,7 @@ program:
 variable_declaration:
 	simple_type T_ID optional_initializer
 	{
-		$$ = new PrimitiveDeclarationStatement($1, @1, $2, @2, $3);
+		$$ = new PrimitiveDeclarationStatement(@$, $1, @1, $2, @2, $3);
 	}
 	| simple_type dimensions T_ID optional_initializer
 	{
@@ -306,7 +306,7 @@ variable_declaration:
 			dimension = dimension->GetNext();
 		}
 
-		$$ = new ArrayDeclarationStatement(static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
+		$$ = new ArrayDeclarationStatement(@$, static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
 	}
 	| T_ID dimensions T_ID optional_initializer
 	{
@@ -319,15 +319,15 @@ variable_declaration:
 			dimension = dimension->GetNext();
 		}
 
-		$$ = new ArrayDeclarationStatement(static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
+		$$ = new ArrayDeclarationStatement(@$, static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
 	}
 	| T_ID T_ID optional_initializer
 	{
-		$$ = new StructInstantiationStatement(new CompoundTypeSpecifier(*$1, @1), @1, $2, @2, $3);
+		$$ = new StructInstantiationStatement(@$, new CompoundTypeSpecifier(*$1, @1), @1, $2, @2, $3);
 	}
 	| T_COLON T_ID T_ASSIGN expression
 	{
-		$$ = new InferredDeclarationStatement($2, @2, $4);
+		$$ = new InferredDeclarationStatement(@$, $2, @2, $4);
 	}
 	;
 
@@ -501,14 +501,14 @@ function_declaration:
 	{
 		const DeclarationList* parameter_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
 		const FunctionExpression* function_expression = new FunctionExpression(@1, parameter_list, $1, $6);
-		$$ = new FunctionDeclarationStatement($2, @2, function_expression);
+		$$ = new FunctionDeclarationStatement(@$, $2, @2, function_expression);
 	}
 	|
 	T_ID T_ID T_LPAREN optional_parameter_list T_RPAREN statement_block
 	{
 		const DeclarationList* parameter_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
 		const FunctionExpression* function_expression = new FunctionExpression(@1, parameter_list, new CompoundTypeSpecifier(*$1, @1), $6);
-		$$ = new FunctionDeclarationStatement($2, @2, function_expression);
+		$$ = new FunctionDeclarationStatement(@$, $2, @2, function_expression);
 	}
 	;
 
@@ -752,12 +752,12 @@ struct_declaration_statement:
 	modifier_list T_STRUCT T_ID T_LBRACE declaration_list T_RBRACE
 	{
 		const DeclarationList* member_declaration_list = $5->IsTerminator() ? $5 : new DeclarationList($5->Reverse(true));
-		$$ = new StructDeclarationStatement($3, @3, member_declaration_list, @5, new ModifierList($1->Reverse(true)), @1);
+		$$ = new StructDeclarationStatement(@$, $3, @3, member_declaration_list, @5, new ModifierList($1->Reverse(true)), @1);
 	}
 	| T_STRUCT T_ID T_LBRACE declaration_list T_RBRACE
 	{
 		const DeclarationList* member_declaration_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
-		$$ = new StructDeclarationStatement($2, @2, member_declaration_list, @4, ModifierList::Terminator, DefaultLocation);
+		$$ = new StructDeclarationStatement(@$, $2, @2, member_declaration_list, @4, ModifierList::Terminator, DefaultLocation);
 	}
 	;
 

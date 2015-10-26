@@ -35,7 +35,8 @@ using namespace std;
 
 class StructInstantiationStatement: public DeclarationStatement {
 public:
-	StructInstantiationStatement(const CompoundTypeSpecifier* type_specifier,
+	StructInstantiationStatement(const YYLTYPE position,
+			const CompoundTypeSpecifier* type_specifier,
 			const YYLTYPE type_name_position, const string* name,
 			const YYLTYPE name_position,
 			const Expression* initializer_expression = nullptr);
@@ -68,7 +69,8 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const Expression* expression) const;
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier) const {
+	virtual const AnalysisResult Returns(
+			const TypeSpecifier* type_specifier) const {
 		return AnalysisResult::NO;
 	}
 
