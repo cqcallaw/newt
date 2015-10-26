@@ -522,7 +522,8 @@ const Result* AssignmentStatement::do_op(const string* variable_name,
 
 const LinkedList<const Error*>* AssignmentStatement::execute(
 		ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors;
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
 
 	if (m_variable == nullptr || m_expression == nullptr) {
 		assert(false);
