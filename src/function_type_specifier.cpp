@@ -38,8 +38,14 @@ const string FunctionTypeSpecifier::ToString() const {
 	const LinkedList<const DeclarationStatement*>* subject = m_parameter_list;
 	while (!subject->IsTerminator()) {
 		const DeclarationStatement* statement = subject->GetData();
-		buffer << statement->GetType() << " " << *statement->GetName();
+		buffer << statement->GetType()->ToString() << " "
+				<< *statement->GetName();
 		subject = subject->GetNext();
+
+		if (!subject->IsTerminator()) {
+			//add separator
+			buffer << ", ";
+		}
 	}
 	buffer << ") -> " << m_return_type->ToString();
 	return buffer.str();
