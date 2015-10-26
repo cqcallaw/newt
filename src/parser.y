@@ -702,7 +702,7 @@ parameter_list:
 	}
 	| variable_declaration
 	{
-		$$ = DeclarationList::Terminator;
+		$$ = new DeclarationList($1, DeclarationList::Terminator);
 	}
 	;
 
