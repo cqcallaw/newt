@@ -663,6 +663,11 @@ invoke_expression:
 		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
 		$$ = new InvokeExpression(@$, $1, argument_list, @3);
 	}
+	| invoke_expression T_LPAREN optional_argument_list T_RPAREN
+	{
+		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
+		$$ = new InvokeExpression(@$, $1, argument_list, @3);
+	}
 	| function_expression T_LPAREN optional_argument_list T_RPAREN
 	{
 		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
