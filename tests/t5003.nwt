@@ -1,0 +1,12 @@
+int add (int a, int b = 0) {
+	return a + b
+}
+
+int add_default (int a = 1, int b = 0) {
+	return a + b
+}
+
+int a = add(3)
+int b = add_default()
+int c = add_default(3)
+int d = add_default(3, 2)
