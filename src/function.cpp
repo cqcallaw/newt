@@ -40,6 +40,8 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
+	//N.B. this code is almost identical to the validation of an InvokeExpression,
+	//but execution is performed in addition to preprocessing.
 	auto symbol_context = execution_context->GetSymbolContext();
 	auto parent = symbol_context->GetParent();
 	auto new_parent = parent->With(symbol_context);
@@ -88,6 +90,8 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 		const DeclarationStatement* declaration = parameter->GetData();
 
 		if (declaration->GetInitializerExpression() != nullptr) {
+			errors = errors->Concatenate(declaration->preprocess(child_context),
+					true);
 			errors = errors->Concatenate(declaration->execute(child_context),
 					true);
 			parameter = parameter->GetNext();
@@ -99,8 +103,6 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 							*declaration->GetName()));
 			break;
 		}
-
-		parameter = parameter->GetNext();
 	}
 
 	errors = errors->Concatenate(m_body->execute(child_context), true);

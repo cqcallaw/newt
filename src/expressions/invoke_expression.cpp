@@ -177,7 +177,6 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 			if (declaration->GetInitializerExpression() != nullptr) {
 				errors = errors->Concatenate(
 						declaration->preprocess(tmp_context), true);
-				parameter = parameter->GetNext();
 			} else {
 				errors = errors->With(
 						new Error(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
