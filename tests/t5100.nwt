@@ -1,0 +1,15 @@
+int trivial() {
+	return 1
+}
+
+int add (int a, int b) {
+	return a + b
+}
+
+int a = add()
+int b = add(2)
+int c = add(2, 3, 4)
+
+int x = trivial()
+int y = trivial(2)
+int z = trivial(2, 3, 4)

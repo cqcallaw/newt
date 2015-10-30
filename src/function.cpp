@@ -75,10 +75,10 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 		} else {
 			//argument list is longer than parameter list
 			errors = errors->With(
-					new Error(Error::SEMANTIC,
-							Error::FUNCTION_INVOCATION_LENGTH_MISMATCH,
+					new Error(Error::SEMANTIC, Error::TOO_MANY_ARGUMENTS,
 							argument_expression->GetPosition().first_line,
-							argument_expression->GetPosition().first_column));
+							argument_expression->GetPosition().first_column,
+							m_type->ToString()));
 			break;
 		}
 	}

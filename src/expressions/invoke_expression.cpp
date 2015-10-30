@@ -161,12 +161,11 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 				parameter = parameter->GetNext();
 			} else {
 				//argument list is longer than parameter list
-				errors =
-						errors->With(
-								new Error(Error::SEMANTIC,
-										Error::FUNCTION_INVOCATION_LENGTH_MISMATCH,
-										argument_expression->GetPosition().first_line,
-										argument_expression->GetPosition().first_column));
+				errors = errors->With(
+						new Error(Error::SEMANTIC, Error::TOO_MANY_ARGUMENTS,
+								argument_expression->GetPosition().first_line,
+								argument_expression->GetPosition().first_column,
+								as_function->ToString()));
 				break;
 			}
 		}
@@ -182,10 +181,9 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 			} else {
 				errors = errors->With(
 						new Error(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
-								declaration->GetPosition().first_line,
-								declaration->GetPosition().first_column,
+								m_argument_list_position.last_line,
+								m_argument_list_position.last_column,
 								*declaration->GetName()));
-				break;
 			}
 
 			parameter = parameter->GetNext();

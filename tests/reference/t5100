@@ -1,0 +1,7 @@
+Parsing file ../tests/t5100.nwt...
+Semantic error on line 5, column 13: No value specified for non-default parameter 'a'.
+Semantic error on line 5, column 13: No value specified for non-default parameter 'b'.
+Semantic error on line 6, column 14: No value specified for non-default parameter 'b'.
+Semantic error on line 7, column 19: Too many arguments for function of type '(int a, int b) -> int'.
+Parsed file ../tests/t5100.nwt.
+4 errors found; giving up.

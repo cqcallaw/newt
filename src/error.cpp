@@ -149,12 +149,11 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case FUNCTION_PARAMETER_TYPE_MISMATCH:
 		os << "Parameter type mismatch.";
 		break;
-	case FUNCTION_INVOCATION_LENGTH_MISMATCH:
-		os
-				<< "Number of non-default arguments does not match number of non-default parameters.";
+	case TOO_MANY_ARGUMENTS:
+		os << "Too many arguments for function of type '" << s1 << "'.";
 		break;
 	case NO_PARAMETER_DEFAULT:
-		os << "No parameter default.";
+		os << "No value specified for non-default parameter '" << s1 << "'.";
 		break;
 	case NOT_A_FUNCTION:
 		os << "\"" << s1 << "\" does not name a function.";
