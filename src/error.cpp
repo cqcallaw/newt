@@ -116,8 +116,7 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Variable '" << s1 << "'" << " previously declared.";
 		break;
 	case UNDECLARED_VARIABLE:
-		os << "Variable '" << s1 << "'"
-				<< " was not declared before it was used.";
+		os << "Undeclared variable '" << s1 << "'";
 		break;
 	case VARIABLE_NOT_AN_ARRAY:
 		os << "Variable '" << s1 << "' is not an array.";

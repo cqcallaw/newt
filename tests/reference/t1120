@@ -1,5 +1,5 @@
 Parsing file ../tests/t1120.nwt...
 Semantic error on line 5, column 9: Incorrect type for initial value of variable 'i'.
-Semantic error on line 11, column 9: Variable 'foo' was not declared before it was used.
+Semantic error on line 11, column 9: Undeclared variable 'foo'
 Parsed file ../tests/t1120.nwt.
 2 errors found; giving up.
