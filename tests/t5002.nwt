@@ -1,0 +1,7 @@
+:z = (int a, int b) -> int {
+	return a + b
+}(8,9)
+
+:s = (string a, string b) -> string {
+	return a + b
+}("Hello,", " world!")
