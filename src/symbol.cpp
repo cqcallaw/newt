@@ -28,10 +28,10 @@
 #include "expression.h"
 #include <execution_context.h>
 #include <array_type_specifier.h>
-#include <primitive_type_specifier.h>
 #include <function_type_specifier.h>
 #include <symbol.h>
 #include <function.h>
+#include <primitive_type_specifier.h>
 
 const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
 const Symbol* Symbol::DefaultSymbol = new Symbol(

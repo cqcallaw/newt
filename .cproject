@@ -33,6 +33,7 @@
 									<listOptionValue builtIn="false" value="./"/>
 									<listOptionValue builtIn="false" value="../src"/>
 									<listOptionValue builtIn="false" value="../src/expressions"/>
+									<listOptionValue builtIn="false" value="../src/specifiers"/>
 									<listOptionValue builtIn="false" value="../src/statements"/>
 									<listOptionValue builtIn="false" value="../src/variables"/>
 								</option>
@@ -112,8 +113,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="statements|expressions" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="specifiers|statements|expressions" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/expressions"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/specifiers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="tests"/>
 					</sourceEntries>
 				</configuration>

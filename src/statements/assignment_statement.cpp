@@ -30,8 +30,8 @@
 #include <typeinfo>
 #include <variable_expression.h>
 #include <yyltype.h>
-#include <type_specifier.h>
 #include <compound_type.h>
+#include <type_specifier.h>
 
 AssignmentStatement::AssignmentStatement(const Variable* variable,
 		const AssignmentType op_type, const Expression* expression) :

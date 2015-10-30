@@ -17,11 +17,11 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMPOUND_TYPE_SPECIFIER_H_
-#define COMPOUND_TYPE_SPECIFIER_H_
+#ifndef SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_
+#define SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_
 
-#include <type_specifier.h>
 #include <compound_type_instance.h>
+#include <type_specifier.h>
 #include <type_table.h>
 
 class SymbolContext;
@@ -68,4 +68,4 @@ private:
 	const YYLTYPE m_location;
 };
 
-#endif /* COMPOUND_TYPE_SPECIFIER_H_ */
+#endif /* SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_ */

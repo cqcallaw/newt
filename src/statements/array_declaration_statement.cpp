@@ -16,10 +16,10 @@
 #include <sstream>
 #include <constant_expression.h>
 #include <vector>
-#include <type_specifier.h>
 #include <compound_type.h>
 #include <array_type_specifier.h>
 #include <dimension_list.h>
+#include <type_specifier.h>
 
 ArrayDeclarationStatement::ArrayDeclarationStatement(const YYLTYPE position,
 		const ArrayTypeSpecifier* type_specifier, const YYLTYPE type_position,

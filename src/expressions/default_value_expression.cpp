@@ -19,9 +19,9 @@
 
 #include <default_value_expression.h>
 #include <compound_type.h>
-#include <compound_type_specifier.h>
 #include <type_table.h>
 #include <execution_context.h>
+#include <compound_type_specifier.h>
 
 DefaultValueExpression::DefaultValueExpression(const YYLTYPE position,
 		const TypeSpecifier* type, const YYLTYPE type_position) :

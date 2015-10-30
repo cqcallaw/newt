@@ -17,28 +17,24 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPE_SPECIFIER_H_
-#define TYPE_SPECIFIER_H_
+#ifndef PARAMETER_LIST_H_
+#define PARAMETER_LIST_H_
 
-#include <string>
-#include <yyltype.h>
+#include "linked_list.h"
 
-class TypeTable;
+class Parameter;
 
-using namespace std;
-class TypeSpecifier {
+class ParameterList: public LinkedList<const Parameter*> {
 public:
-	virtual ~TypeSpecifier() {
+	ParameterList(const Parameter* data, const ParameterList* next) :
+			LinkedList(data, next) {
 	}
 
-	virtual const string ToString() const = 0;
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const = 0;
-	virtual const void* DefaultValue(const TypeTable* type_table) const = 0;
+	ParameterList(const Parameter* data) :
+			ParameterList(data, ParameterList::Terminator) {
+	}
 
-	virtual bool operator==(const TypeSpecifier &other) const = 0;
-	virtual bool operator!=(const TypeSpecifier &other) const = 0;
+	static const ParameterList* Terminator;
 };
 
-ostream &operator<<(ostream &os, const TypeSpecifier &type_specifier);
-
-#endif /* TYPE_SPECIFIER_H_ */
+#endif /* PARAMETER_LIST_H_ */

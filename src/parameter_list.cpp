@@ -17,7 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "parameterlist.h"
+#include <parameter_list.h>
 
 const ParameterList* ParameterList::Terminator = new ParameterList(nullptr,
 		nullptr);

@@ -17,13 +17,13 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PRIMITIVE_TYPE_SPECIFIER_H_
-#define PRIMITIVE_TYPE_SPECIFIER_H_
+#ifndef SPECIFIERS_PRIMITIVE_TYPE_SPECIFIER_H_
+#define SPECIFIERS_PRIMITIVE_TYPE_SPECIFIER_H_
 
-#include <type_specifier.h>
 #include <assert.h>
 #include <sstream>
 #include <defaults.h>
+#include <type_specifier.h>
 #include <type.h>
 
 class PrimitiveTypeSpecifier: public TypeSpecifier {
@@ -71,4 +71,4 @@ private:
 	const BasicType m_basic_type;
 };
 
-#endif /* PRIMITIVE_TYPE_SPECIFIER_H_ */
+#endif /* SPECIFIERS_PRIMITIVE_TYPE_SPECIFIER_H_ */

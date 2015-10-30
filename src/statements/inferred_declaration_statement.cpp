@@ -19,7 +19,6 @@
 
 #include <inferred_declaration_statement.h>
 #include <assert.h>
-#include <type_specifier.h>
 #include <expression.h>
 #include <primitive_declaration_statement.h>
 #include <array_declaration_statement.h>
@@ -27,6 +26,7 @@
 #include <function_declaration_statement.h>
 #include <function_type_specifier.h>
 #include <function_expression.h>
+#include <type_specifier.h>
 
 InferredDeclarationStatement::InferredDeclarationStatement(
 		const YYLTYPE position, const std::string* name,

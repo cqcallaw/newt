@@ -25,6 +25,7 @@ C_DEPS :=
 SUBDIRS := \
 src \
 src/expressions \
+src/specifiers \
 src/statements \
 src/variables \
 

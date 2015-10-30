@@ -22,8 +22,8 @@
 #include <assert.h>
 #include "statement.h"
 #include "statement_list.h"
-#include "type_specifier.h"
 #include <execution_context.h>
+#include <type_specifier.h>
 
 using namespace std;
 

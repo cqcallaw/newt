@@ -10,6 +10,7 @@ RM := rm -rf
 -include sources.mk
 -include src/variables/subdir.mk
 -include src/statements/subdir.mk
+-include src/specifiers/subdir.mk
 -include src/expressions/subdir.mk
 -include src/subdir.mk
 -include subdir.mk
