@@ -27,11 +27,8 @@
 #include <symbol_table.h>
 
 FunctionExpression::FunctionExpression(const YYLTYPE position,
-		const DeclarationList* parameter_list, const TypeSpecifier* return_type,
-		const StatementBlock* body) :
-		Expression(position), m_type(
-				new FunctionTypeSpecifier(parameter_list, return_type)), m_body(
-				body) {
+		const FunctionTypeSpecifier* type, const StatementBlock* body) :
+		Expression(position), m_type(type), m_body(body) {
 }
 
 FunctionExpression::~FunctionExpression() {

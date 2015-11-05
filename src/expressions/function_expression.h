@@ -30,8 +30,7 @@ class DeclarationList;
 class FunctionExpression: public Expression {
 public:
 	FunctionExpression(const YYLTYPE position,
-			const DeclarationList* parameter_list,
-			const TypeSpecifier* return_type, const StatementBlock* body);
+			const FunctionTypeSpecifier* type, const StatementBlock* body);
 	virtual ~FunctionExpression();
 
 	virtual const TypeSpecifier* GetType(

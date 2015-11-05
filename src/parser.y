@@ -53,6 +53,8 @@
 
 #include <type.h>
 #include <type_specifier.h>
+#include <function_type_specifier.h>
+
 typedef void* yyscan_t;
 
 }
@@ -129,6 +131,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  double         union_double;
  std::string*   union_string;
  const PrimitiveTypeSpecifier*    union_primitive_type;
+ const FunctionTypeSpecifier*    union_function_type;
  const Expression*          union_expression;
  const Variable*            union_variable;
  OperatorType               union_operator_type;
@@ -232,6 +235,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %precedence T_ELSE
 
 %type <union_primitive_type> simple_type
+%type <union_function_type> function_type_specifier
 %type <union_expression> expression
 %type <union_expression> optional_initializer
 %type <union_variable> variable_reference
@@ -360,7 +364,20 @@ simple_type:
 		$$ = PrimitiveTypeSpecifier::GetString();
 	}
 	;
-	
+
+//---------------------------------------------------------------------
+function_type_specifier:
+	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT simple_type
+	{
+		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
+		$$ = new FunctionTypeSpecifier(parameter_list, $5);
+	}
+	| T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT T_ID
+	{
+		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
+		$$ = new FunctionTypeSpecifier(parameter_list, new CompoundTypeSpecifier(*$5, @5));
+	}
+	;
 
 //---------------------------------------------------------------------
 statement_block:
@@ -500,14 +517,16 @@ function_declaration:
 	simple_type T_ID T_LPAREN optional_parameter_list T_RPAREN statement_block
 	{
 		const DeclarationList* parameter_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
-		const FunctionExpression* function_expression = new FunctionExpression(@1, parameter_list, $1, $6);
+		const FunctionTypeSpecifier* type = new FunctionTypeSpecifier(parameter_list, $1);
+		const FunctionExpression* function_expression = new FunctionExpression(@1, type, $6);
 		$$ = new FunctionDeclarationStatement(@$, $2, @2, function_expression);
 	}
 	|
 	T_ID T_ID T_LPAREN optional_parameter_list T_RPAREN statement_block
 	{
 		const DeclarationList* parameter_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
-		const FunctionExpression* function_expression = new FunctionExpression(@1, parameter_list, new CompoundTypeSpecifier(*$1, @1), $6);
+		const FunctionTypeSpecifier* type = new FunctionTypeSpecifier(parameter_list, new CompoundTypeSpecifier(*$1, @1));
+		const FunctionExpression* function_expression = new FunctionExpression(@1, type, $6);
 		$$ = new FunctionDeclarationStatement(@$, $2, @2, function_expression);
 	}
 	;
@@ -676,14 +695,9 @@ invoke_expression:
 	;
 
 function_expression:
-	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT simple_type statement_block
+	function_type_specifier statement_block
 	{
-		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
-		$$ = new FunctionExpression(@1, parameter_list, $5, $6);
-	}
-	| T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT T_ID statement_block {
-		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
-		$$ = new FunctionExpression(@1, parameter_list, new CompoundTypeSpecifier(*$5, @5), $6);
+		$$ = new FunctionExpression(@1, $1, $2);
 	}
 	;
 
