@@ -118,7 +118,7 @@ typedef void* yyscan_t;
 #define YYMAXDEPTH 10000
 
 void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scanner, const char* str) {
-	Error::parse_error(locp->first_line, string(str));
+	Error::parse_error(locp->first_line, locp->first_column, string(str));
 }
 
 }

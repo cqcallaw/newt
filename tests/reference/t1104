@@ -1,4 +1,4 @@
 Parsing file ../tests/t1104.nwt...
-Parse error on line 1 reported by parser: syntax error, unexpected double constant, expecting ].
+Parse error on line 1, column 5 reported by parser: syntax error, unexpected double constant, expecting ].
 Parsed file ../tests/t1104.nwt.
 1 error found; giving up.

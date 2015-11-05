@@ -87,7 +87,7 @@ public:
 
 	static void lex_error(int line_number, string s1);
 
-	static void parse_error(int line_number, string s1);
+	static void parse_error(int line_number, int column_number, string s1);
 
 	static int num_errors() {
 		return m_num_errors;

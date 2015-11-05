@@ -30,9 +30,9 @@ void Error::lex_error(int line_number, string s1) {
 			<< " is not a legal token." << endl;
 }
 
-void Error::parse_error(int line_number, string s1) {
-	cerr << "Parse error on line " << line_number << " reported by parser: "
-			<< s1 << "." << endl;
+void Error::parse_error(int line_number, int column_number, string s1) {
+	cerr << "Parse error on line " << line_number << ", column "
+			<< column_number << " reported by parser: " << s1 << "." << endl;
 	m_num_errors++;
 }
 
