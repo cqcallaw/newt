@@ -1,0 +1,5 @@
+Parsing file ../tests/t5102.nwt...
+Semantic error on line 2, column 1: Function does not return specified type.
+Semantic error on line 8, column 1: Function does not return specified type.
+Parsed file ../tests/t5102.nwt.
+2 errors found; giving up.

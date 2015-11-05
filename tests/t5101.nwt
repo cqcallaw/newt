@@ -1,0 +1,4 @@
+//test return type
+int trivial() {
+	return 1.0
+}

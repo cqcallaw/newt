@@ -1,0 +1,14 @@
+//test return type
+int trivial() {
+	if (42 != 42) {
+		return 1.0
+	} 
+}
+
+int trivial2() {
+	if (42 != 42) {
+		return 1.0
+	} else {
+		return 1 
+	} 
+}
