@@ -1,5 +1,5 @@
 struct test {
-	:s = "hmmm"
+	s := "hmmm"
 }
 
-:test_instance = #test
+test_instance := #test

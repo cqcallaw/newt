@@ -1,4 +1,4 @@
 Parsing file ../tests/t0015.nwt...
-Parse error on line 1, column 12 reported by parser: syntax error, unexpected $end.
+Parse error on line 1, column 13 reported by parser: syntax error, unexpected $end.
 Parsed file ../tests/t0015.nwt.
 1 error found; giving up.

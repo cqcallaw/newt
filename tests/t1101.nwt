@@ -1,4 +1,4 @@
-int index = 3
-string my_string = index
-int[] array
-int x = array[my_string]
+index: int = 3
+my_string: string = index
+array: int[]
+x: int = array[my_string]

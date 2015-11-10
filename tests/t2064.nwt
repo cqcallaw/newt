@@ -1,4 +1,4 @@
-double x = 3.14159
-string str = "hello"
+x: double = 3.14159
+str: string = "hello"
 
     x += str

@@ -1,13 +1,13 @@
 struct circle {
-	int x = 10
-	int y
-	int radius
-	int w = 20
+	x: int = 10
+	y: int
+	radius: int
+	w: int = 20
 }
 
-circle my_circle
-int a = my_circle.w
+my_circle: circle
+a: int = my_circle.w
 
-circle[] my_circles
+my_circles: circle[]
 my_circles[1] = #circle
-int b = my_circles[1].x
+b: int = my_circles[1].x

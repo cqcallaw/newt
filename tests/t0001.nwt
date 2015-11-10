@@ -1,5 +1,5 @@
 // test basic integer declarations
 
-int i = 10000
-int j = -1
-int k = 0
+i: int = 10000
+j: int = -1
+k: int = 0

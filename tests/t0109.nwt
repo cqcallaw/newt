@@ -1,4 +1,4 @@
 // test valid array index for dynamic array 
-int[] nums
+nums: int[]
 nums[0] = 3
 print (nums[0])

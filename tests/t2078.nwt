@@ -1,4 +1,4 @@
-string str = "index"
-int[] nums
+str: string = "index"
+nums: int[]
 
     nums[str] = 42

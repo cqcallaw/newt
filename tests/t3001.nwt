@@ -1,11 +1,11 @@
 //test assignment to readonly struct
 
 readonly struct ronly {
-	int x
-	double y
-	string z
+	x: int
+	y: double
+	z: string
 }
 
-ronly i
+i: ronly
 
 i.y = 2.0

@@ -1,5 +1,5 @@
-int i
-double x
+i: int
+x: double
 
     for (i = 0; x * 2; i += 1) {
         print("hello")

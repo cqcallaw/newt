@@ -1,4 +1,4 @@
-int i = 1
-int[] nums
+i: int = 1
+nums: int[]
 
     nums[i * .25] = 42

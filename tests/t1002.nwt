@@ -1,2 +1,2 @@
-int i = 86
-int j = i
+i: int = 86
+j: int = i

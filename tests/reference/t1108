@@ -1,4 +1,4 @@
 Parsing file ../tests/t1108.nwt...
-Semantic error on line 2, column 8: Variable 'i' previously declared.
+Semantic error on line 2, column 1: Variable 'i' previously declared.
 Parsed file ../tests/t1108.nwt.
 1 error found; giving up.

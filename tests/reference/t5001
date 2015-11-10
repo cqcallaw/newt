@@ -2,7 +2,7 @@ Parsing file ../tests/t5001.nwt...
 Parsed file ../tests/t5001.nwt.
 Root Symbol Table:
 ----------------
-(int a, int b) -> int x:
+(int a, int b) -> [int] x:
 int y: 13
 
 Root Type Table:

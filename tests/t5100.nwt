@@ -1,15 +1,15 @@
-int trivial() {
+trivial := () -> int {
 	return 1
 }
 
-int add (int a, int b) {
+add := (a: int, b: int) -> int {
 	return a + b
 }
 
-int a = add()
-int b = add(2)
-int c = add(2, 3, 4)
+a: int = add()
+b: int = add(2)
+c: int = add(2, 3, 4)
 
-int x = trivial()
-int y = trivial(2)
-int z = trivial(2, 3, 4)
+x: int = trivial()
+y: int = trivial(2)
+z: int = trivial(2, 3, 4)

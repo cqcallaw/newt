@@ -1,16 +1,16 @@
 struct circle {
-	int x
-	int y
-	int radius
-	int w = 20
+	x: int
+	y: int
+	radius: int
+	w: int = 20
 }
 
-circle[] circles
+circles: circle[]
 circles[9] = #circle
-int down = 0
+down: int = 0
 
-int p
-int i
+p: int
+i: int
 
 for (i = 0; i < 10; i += 1)
 {

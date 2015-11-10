@@ -1,4 +1,4 @@
 Parsing file ../tests/t1700.nwt...
-Parse error on line 3, column 5 reported by parser: syntax error, unexpected identifier, expecting ].
+Parse error on line 3, column 11 reported by parser: syntax error, unexpected identifier, expecting ].
 Parsed file ../tests/t1700.nwt.
 1 error found; giving up.

@@ -97,7 +97,6 @@ typedef void* yyscan_t;
 #include <struct_declaration_statement.h>
 #include <struct_instantiation_statement.h>
 #include <inferred_declaration_statement.h>
-#include <function_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -130,6 +129,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  int            union_int;
  double         union_double;
  std::string*   union_string;
+ const TypeSpecifier*    union_type_specifier;
  const PrimitiveTypeSpecifier*    union_primitive_type;
  const FunctionTypeSpecifier*    union_function_type;
  const Expression*          union_expression;
@@ -234,7 +234,8 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %precedence IF_NO_ELSE
 %precedence T_ELSE
 
-%type <union_primitive_type> simple_type
+%type <union_type_specifier> type_specifier
+%type <union_primitive_type> primitive_type_specifier
 %type <union_function_type> function_type_specifier
 %type <union_expression> expression
 %type <union_expression> optional_initializer
@@ -255,7 +256,6 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_statement_type> for_statement
 %type <union_statement_type> exit_statement
 %type <union_statement_type> struct_declaration_statement
-%type <union_statement_type> function_declaration
 %type <union_statement_type> return_statement
 %type <union_declaration_list_type> parameter_list
 %type <union_declaration_list_type> optional_parameter_list
@@ -295,43 +295,43 @@ program:
 
 //---------------------------------------------------------------------
 variable_declaration:
-	simple_type T_ID optional_initializer
+	T_ID T_COLON primitive_type_specifier optional_initializer
 	{
-		$$ = new PrimitiveDeclarationStatement(@$, $1, @1, $2, @2, $3);
+		$$ = new PrimitiveDeclarationStatement(@$, $3, @4, $1, @1, $4);
 	}
-	| simple_type dimensions T_ID optional_initializer
+	| T_ID T_COLON primitive_type_specifier dimensions optional_initializer
 	{
-		const TypeSpecifier* type_specifier = new PrimitiveTypeSpecifier(*$1);
+		const TypeSpecifier* type_specifier = new PrimitiveTypeSpecifier(*$3);
 		//add dimensions to type specifier
-		const LinkedList<const Dimension*>* dimension = $2;
+		const LinkedList<const Dimension*>* dimension = $4;
 		while (!dimension->IsTerminator()) {
 			type_specifier = new ArrayTypeSpecifier(
 					type_specifier);
 			dimension = dimension->GetNext();
 		}
 
-		$$ = new ArrayDeclarationStatement(@$, static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
+		$$ = new ArrayDeclarationStatement(@$, static_cast<const ArrayTypeSpecifier*>(type_specifier), @3, $1, @1, $5);
 	}
-	| T_ID dimensions T_ID optional_initializer
+	| T_ID T_COLON T_ID dimensions optional_initializer
 	{
-		const TypeSpecifier* type_specifier = new CompoundTypeSpecifier(*$1, @1);
+		const TypeSpecifier* type_specifier = new CompoundTypeSpecifier(*$3, @3);
 		//add dimensions to type specifier
-		const LinkedList<const Dimension*>* dimension = $2;
+		const LinkedList<const Dimension*>* dimension = $4;
 		while (!dimension->IsTerminator()) {
 			type_specifier = new ArrayTypeSpecifier(
 					type_specifier);
 			dimension = dimension->GetNext();
 		}
 
-		$$ = new ArrayDeclarationStatement(@$, static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
+		$$ = new ArrayDeclarationStatement(@$, static_cast<const ArrayTypeSpecifier*>(type_specifier), @3, $1, @1, $5);
 	}
-	| T_ID T_ID optional_initializer
+	| T_ID T_COLON T_ID optional_initializer
 	{
-		$$ = new StructInstantiationStatement(@$, new CompoundTypeSpecifier(*$1, @1), @1, $2, @2, $3);
+		$$ = new StructInstantiationStatement(@$, new CompoundTypeSpecifier(*$3, @3), @3, $1, @1, $4);
 	}
-	| T_COLON T_ID T_ASSIGN expression
+	| T_ID T_COLON T_ASSIGN expression
 	{
-		$$ = new InferredDeclarationStatement(@$, $2, @2, $4);
+		$$ = new InferredDeclarationStatement(@$, $1, @1, $4);
 	}
 	;
 
@@ -346,7 +346,7 @@ optional_initializer:
 	;
 
 //---------------------------------------------------------------------
-simple_type:
+primitive_type_specifier:
 	T_BOOLEAN
 	{
 		$$ = PrimitiveTypeSpecifier::GetBoolean();
@@ -367,15 +367,26 @@ simple_type:
 
 //---------------------------------------------------------------------
 function_type_specifier:
-	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT simple_type
+	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT type_specifier
 	{
 		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
 		$$ = new FunctionTypeSpecifier(parameter_list, $5);
 	}
-	| T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT T_ID
+	;
+
+//---------------------------------------------------------------------
+type_specifier:
+	primitive_type_specifier
 	{
-		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
-		$$ = new FunctionTypeSpecifier(parameter_list, new CompoundTypeSpecifier(*$5, @5));
+		$$ = $1;
+	}
+	| T_ID
+	{
+		$$ = new CompoundTypeSpecifier(*$1, @1);
+	}
+	| function_type_specifier
+	{
+		$$ = $1;
 	}
 	;
 
@@ -406,10 +417,6 @@ statement:
 		$$ = $1;
 	}
 	| struct_declaration_statement
-	{
-		$$ = $1;
-	}
-	| function_declaration
 	{
 		$$ = $1;
 	}
@@ -509,25 +516,6 @@ assign_statement:
 	| variable_reference T_MINUS_ASSIGN expression
 	{
 		$$ = new AssignmentStatement($1, AssignmentType::MINUS_ASSIGN, $3);
-	}
-	;
-
-//---------------------------------------------------------------------
-function_declaration:
-	simple_type T_ID T_LPAREN optional_parameter_list T_RPAREN statement_block
-	{
-		const DeclarationList* parameter_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
-		const FunctionTypeSpecifier* type = new FunctionTypeSpecifier(parameter_list, $1);
-		const FunctionExpression* function_expression = new FunctionExpression(@1, type, $6);
-		$$ = new FunctionDeclarationStatement(@$, $2, @2, function_expression);
-	}
-	|
-	T_ID T_ID T_LPAREN optional_parameter_list T_RPAREN statement_block
-	{
-		const DeclarationList* parameter_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
-		const FunctionTypeSpecifier* type = new FunctionTypeSpecifier(parameter_list, new CompoundTypeSpecifier(*$1, @1));
-		const FunctionExpression* function_expression = new FunctionExpression(@1, type, $6);
-		$$ = new FunctionDeclarationStatement(@$, $2, @2, function_expression);
 	}
 	;
 
@@ -647,7 +635,7 @@ expression:
 	{
 		$$ = new UnaryExpression(@$, NOT, $2);
 	}
-	| T_HASH simple_type
+	| T_HASH primitive_type_specifier
 	{
 		$$ = new DefaultValueExpression(@$, $2, @2);
 	}

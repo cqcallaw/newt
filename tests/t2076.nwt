@@ -1,4 +1,4 @@
-double x = 3.14159
-int[] nums
+x: double = 3.14159
+nums: int[]
 
     nums[x] = 42

@@ -1,11 +1,11 @@
 struct rectangle {
-	int x
-	int y
-	int w
-	int h
+	x: int
+	y: int
+	w: int
+	h: int
 }
 
-rectangle[] rects
+rects: rectangle[]
 rects[2] = #rectangle
 
 rects[0].x = 1

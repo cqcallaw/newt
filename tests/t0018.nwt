@@ -1,2 +1,2 @@
-int i = 10000
-int a = 10 int b = 12
+i: int = 10000
+a: int = 10 b: int = 12

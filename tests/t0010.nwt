@@ -1,2 +1,2 @@
-int x
+x: int
 z = 8

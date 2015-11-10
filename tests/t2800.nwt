@@ -1,7 +1,7 @@
-int i = 42
-double x = 3.14159
-string s = "hello world"
-double[] values
+i: int = 42
+x: double = 3.14159
+s: string = "hello world"
+values: double[]
 values[99] = #double
 
     print("i = " + i)

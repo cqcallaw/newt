@@ -1,1 +1,1 @@
-double x = .42.0
+x: double = .42.0

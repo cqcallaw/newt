@@ -1,6 +1,6 @@
-int row
-int col
-string str
+row: int
+col: int
+str: string
 
     for (row = 0; row < 10; row += 1)    {
         for (col = 0; col < 10; col += 1) {

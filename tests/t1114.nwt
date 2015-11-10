@@ -1,8 +1,8 @@
 // test two things: 
 // (1) the type of a + b + c + x is a double
 // (2) that an int can't be initialized with a double
-double x = 3.14159
-int a = 1
-int b = 2
-int c = 3
-int d = a + b + c + x
+x: double = 3.14159
+a: int = 1
+b: int = 2
+c: int = 3
+d: int = a + b + c + x

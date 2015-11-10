@@ -1,16 +1,16 @@
 //test array assignment as member of struct
 struct test {
-	int x = 10
+	x: int = 10
 }
 
 struct nested_container {
-	test[][] test
+	test: test[][]
 }
 
-test[] a
+a: test[]
 a[1] = #test with { x = 12 }
 
-nested_container container
+container: nested_container
 container.test[2] = a
 
 //container[] containers

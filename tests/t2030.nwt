@@ -1,6 +1,6 @@
-int a = 20
-int b = 22
-int c = -99999
+a: int = 20
+b: int = 22
+c: int = -99999
 
     c = a + b
     print("a = " + a)

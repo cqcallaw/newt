@@ -1,5 +1,5 @@
-double a = 1
-double b = 0
-double c = 9
-double d = 16
-double should_be_1 = c / d * a || b
+a: double = 1
+b: double = 0
+c: double = 9
+d: double = 16
+should_be_1: double = c / d * a || b

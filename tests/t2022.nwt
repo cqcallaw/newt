@@ -1,5 +1,5 @@
-int[] index
-int count = 0
+index: int[]
+count: int = 0
 
  for (index[0] = 0; index[0] < 3; index[0] = index[0] + 1) {
   for (index[1] = 0; index[1] < 3; index[1] = index[1] + 1)  {

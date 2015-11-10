@@ -1,14 +1,14 @@
 struct rectangle {
-	int x
-	int y
-	int w = 10
-	int h
-	double red
-	double blue
-	double green
+	x: int
+	y: int
+	w: int = 10
+	h: int
+	red: double
+	blue: double
+	green: double
 }
 
-rectangle my_rectangle = #rectangle with { x = 100, y = 100 }
+my_rectangle: rectangle = #rectangle with { x = 100, y = 100 }
 
     print("my_rectangle:")
     print(my_rectangle)

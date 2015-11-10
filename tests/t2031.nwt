@@ -1,6 +1,6 @@
-double a = 20.1251
-double b = 21.875
-double c = -9.9999
+a: double = 20.1251
+b: double = 21.875
+c: double = -9.9999
 
     c = a + b
 

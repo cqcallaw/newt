@@ -1,6 +1,6 @@
-int[] ints
-double[] doubles
-string[] strings
+ints: int[]
+doubles: double[]
+strings: string[]
 
 ints[0] = 0
 ints[1] = 1

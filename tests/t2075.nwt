@@ -1,5 +1,5 @@
-int i = 0
-int[] nums
+i: int = 0
+nums: int[]
 
     i = -1
     nums[i] = 42

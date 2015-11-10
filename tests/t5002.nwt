@@ -1,7 +1,7 @@
-:z = (int a, int b) -> int {
+z := (a: int, b: int) -> int {
 	return a + b
 }(8,9)
 
-:s = (string a, string b) -> string {
+s := (a: string, b: string) -> string {
 	return a + b
 }("Hello,", " world!")

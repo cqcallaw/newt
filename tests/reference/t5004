@@ -2,7 +2,7 @@ Parsing file ../tests/t5004.nwt...
 Parsed file ../tests/t5004.nwt.
 Root Symbol Table:
 ----------------
-() -> int trivial:
+() -> [int] trivial:
 
 Root Type Table:
 ----------------

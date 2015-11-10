@@ -1,5 +1,5 @@
-:x = (int a, int b) -> int {
+x := (a: int, b: int) -> int {
 	return a + b
 }
 
-:y = x(6, 7)
+y := x(6, 7)

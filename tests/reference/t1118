@@ -1,4 +1,4 @@
 Parsing file ../tests/t1118.nwt...
-Semantic error on line 7, column 12: Incorrect type for initial value of variable 'z'.
+Semantic error on line 7, column 13: Incorrect type for initial value of variable 'z'.
 Parsed file ../tests/t1118.nwt.
 1 error found; giving up.

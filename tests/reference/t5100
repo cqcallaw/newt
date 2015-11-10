@@ -1,9 +1,9 @@
 Parsing file ../tests/t5100.nwt...
-Semantic error on line 9, column 13: No value specified for non-default parameter 'a'.
-Semantic error on line 9, column 13: No value specified for non-default parameter 'b'.
-Semantic error on line 10, column 14: No value specified for non-default parameter 'b'.
-Semantic error on line 11, column 19: Too many arguments for function of type '(int a, int b) -> int'.
-Semantic error on line 14, column 17: Too many arguments for function of type '() -> int'.
-Semantic error on line 15, column 17: Too many arguments for function of type '() -> int'.
+Semantic error on line 9, column 14: No value specified for non-default parameter 'a'.
+Semantic error on line 9, column 14: No value specified for non-default parameter 'b'.
+Semantic error on line 10, column 15: No value specified for non-default parameter 'b'.
+Semantic error on line 11, column 20: Too many arguments for function of type '(int a, int b) -> [int]'.
+Semantic error on line 14, column 18: Too many arguments for function of type '() -> [int]'.
+Semantic error on line 15, column 18: Too many arguments for function of type '() -> [int]'.
 Parsed file ../tests/t5100.nwt.
 6 errors found; giving up.

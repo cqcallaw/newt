@@ -1,16 +1,16 @@
 struct rectangle {
-	int x
-	int y
-	int w = 10
-	int h
-	double red
-	double blue
-	double green
+	x: int
+	y: int
+	w: int = 10
+	h: int
+	red: double
+	blue: double
+	green: double
 }
 
-int i
-int size = 100
-rectangle[] rects
+i: int
+size: int = 100
+rects: rectangle[]
 rects[size - 1] = #rectangle
 
     for (i = 0; i < size; i += 1)
@@ -222,7 +222,7 @@ rects[size - 1] = #rectangle
     rects[99].x = 199
     rects[99].y = 36
 
-int p
+p: int
 for (p = 0; p < 467; p += 1) {
     for (i = 0; i < size; i += 1)
     {

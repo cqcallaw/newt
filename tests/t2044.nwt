@@ -1,5 +1,5 @@
-string str = "hello"
-int i = 42
+str: string = "hello"
+i: int = 42
 
     str += i
 

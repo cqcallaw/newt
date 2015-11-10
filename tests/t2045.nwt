@@ -1,5 +1,5 @@
-string str = "hello"
-double x = 3.14159
+str: string = "hello"
+x: double = 3.14159
 
     str += x
 

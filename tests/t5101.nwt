@@ -1,4 +1,4 @@
 //test return type
-int trivial() {
+trivial := () -> int {
 	return 1.0
 }

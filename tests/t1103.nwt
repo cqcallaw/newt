@@ -1,1 +1,1 @@
-int["hello world"] array
+array: int["hello world"]

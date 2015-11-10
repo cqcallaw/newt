@@ -1,11 +1,11 @@
 //test return type
-int trivial() {
+trivial := () -> int {
 	if (42 != 42) {
 		return 1.0
 	} 
 }
 
-int trivial2() {
+trivial2 := () -> int {
 	if (42 != 42) {
 		return 1.0
 	} else {
