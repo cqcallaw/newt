@@ -47,7 +47,7 @@ const string FunctionTypeSpecifier::ToString() const {
 			buffer << ", ";
 		}
 	}
-	buffer << ") -> " << m_return_type->ToString();
+	buffer << ") -> [" << m_return_type->ToString() << "]";
 	return buffer.str();
 }
 
