@@ -38,7 +38,7 @@ bool ArrayTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const ArrayTypeSpecifier& as_array =
 				dynamic_cast<const ArrayTypeSpecifier&>(other);
-		return GetElementTypeSpecifier() == as_array.GetElementTypeSpecifier();
+		return *GetElementTypeSpecifier() == *as_array.GetElementTypeSpecifier();
 	} catch (std::bad_cast& e) {
 		return false;
 	}

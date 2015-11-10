@@ -75,9 +75,7 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 				const DeclarationStatement* statement = subject->GetData();
 				const DeclarationStatement* other_statement =
 						other_subject->GetData();
-				if (statement->GetType() == other_statement->GetType()
-						&& *statement->GetName()
-								== *other_statement->GetName()) {
+				if (*statement->GetType() == *other_statement->GetType()) {
 					subject = subject->GetNext();
 					other_subject = other_subject->GetNext();
 				} else {

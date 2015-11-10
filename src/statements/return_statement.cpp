@@ -50,7 +50,9 @@ const LinkedList<const Error*>* ReturnStatement::execute(
 const AnalysisResult ReturnStatement::Returns(
 		const TypeSpecifier* type_specifier,
 		const ExecutionContext* execution_context) const {
-	if (m_expression->GetType(execution_context) == type_specifier) {
+	const TypeSpecifier* expression_type_specifier = m_expression->GetType(
+			execution_context);
+	if (*expression_type_specifier == *type_specifier) {
 		return AnalysisResult::YES;
 	} else {
 		return AnalysisResult::NO;
