@@ -204,7 +204,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_OR                  "||"
 %token T_NOT                 "!"
 
-%token T_ARROW_LEFT          "->"
+%token T_ARROW_RIGHT          "->"
 
 %token T_STRUCT              "struct declaration"
 %token T_READONLY            "readonly modifier"
@@ -367,7 +367,7 @@ primitive_type_specifier:
 
 //---------------------------------------------------------------------
 function_type_specifier:
-	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_LEFT type_specifier
+	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_RIGHT type_specifier
 	{
 		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
 		$$ = new FunctionTypeSpecifier(parameter_list, $5);

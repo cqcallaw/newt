@@ -95,7 +95,7 @@ Error error_handler; // error reporting object
 "+="            return T_PLUS_ASSIGN;
 "-="            return T_MINUS_ASSIGN;
 
-"->"            return T_ARROW_LEFT;
+"->"            return T_ARROW_RIGHT;
 
 "*"             return T_ASTERISK;
 "/"             return T_DIVIDE;
