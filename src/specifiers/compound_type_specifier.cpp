@@ -19,6 +19,8 @@
 
 #include <compound_type_specifier.h>
 #include <typeinfo>
+#include <struct_instantiation_statement.h>
+#include <expression.h>
 
 bool CompoundTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
@@ -28,4 +30,13 @@ bool CompoundTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	} catch (std::bad_cast& e) {
 		return false;
 	}
+}
+
+const Statement* CompoundTypeSpecifier::GetInferredDeclarationStatement(
+		const YYLTYPE position, const std::string* name,
+		const YYLTYPE name_position,
+		const Expression* initializer_expression) const {
+	return new StructInstantiationStatement(position, this,
+			initializer_expression->GetPosition(), name, name_position,
+			initializer_expression);
 }

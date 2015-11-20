@@ -22,6 +22,9 @@
 
 #include <type_specifier.h>
 
+class Expression;
+class Statement;
+
 using namespace std;
 class ArrayTypeSpecifier: public TypeSpecifier {
 public:
@@ -53,6 +56,11 @@ public:
 	const TypeSpecifier* GetElementTypeSpecifier() const {
 		return m_element_type_specifier;
 	}
+
+	virtual const Statement* GetInferredDeclarationStatement(
+			const YYLTYPE position, const std::string* name,
+			const YYLTYPE name_position,
+			const Expression* initializer_expression) const;
 
 private:
 	const TypeSpecifier* m_element_type_specifier;

@@ -24,6 +24,8 @@
 #include <type_specifier.h>
 #include <type_table.h>
 
+class Expression;
+class Statement;
 class SymbolContext;
 
 class CompoundTypeSpecifier: public TypeSpecifier {
@@ -48,6 +50,11 @@ public:
 		return as_compound != nullptr
 				&& as_compound->GetTypeName().compare(m_type_name) == 0;
 	}
+
+	virtual const Statement* GetInferredDeclarationStatement(
+			const YYLTYPE position, const std::string* name,
+			const YYLTYPE name_position,
+			const Expression* initializer_expression) const;
 
 	virtual const void* DefaultValue(const TypeTable* type_table) const {
 		return type_table->GetDefaultValue(m_type_name);

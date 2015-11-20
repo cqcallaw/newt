@@ -20,6 +20,8 @@
 #include <array_type_specifier.h>
 #include <array.h>
 #include <typeinfo>
+#include <array_declaration_statement.h>
+#include <expression.h>
 
 const string ArrayTypeSpecifier::ToString() const {
 	ostringstream buffer;
@@ -42,4 +44,13 @@ bool ArrayTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	} catch (std::bad_cast& e) {
 		return false;
 	}
+}
+
+const Statement* ArrayTypeSpecifier::GetInferredDeclarationStatement(
+		const YYLTYPE position, const std::string* name,
+		const YYLTYPE name_position,
+		const Expression* initializer_expression) const {
+	return new ArrayDeclarationStatement(position, this,
+			initializer_expression->GetPosition(), name, name_position,
+			initializer_expression);
 }

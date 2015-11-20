@@ -23,6 +23,10 @@
 #include <sstream>
 #include <declaration_list.h>
 #include <assert.h>
+#include <function_result_type_specifier.h>
+#include <type_list.h>
+#include <function_declaration_statement.h>
+#include <function_expression.h>
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
 		const DeclarationList* parameter_list, const TypeSpecifier* return_type) :
@@ -47,7 +51,7 @@ const string FunctionTypeSpecifier::ToString() const {
 			buffer << ", ";
 		}
 	}
-	buffer << ") -> [" << m_return_type->ToString() << "]";
+	buffer << ") -> " << m_return_type->ToString() << "";
 	return buffer.str();
 }
 
@@ -58,15 +62,14 @@ const bool FunctionTypeSpecifier::IsAssignableTo(
 
 const void* FunctionTypeSpecifier::DefaultValue(
 		const TypeTable* type_table) const {
-	assert(false);
-	return nullptr;
+	return m_return_type->DefaultValue(type_table);
 }
 
 bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const FunctionTypeSpecifier& as_function =
 				dynamic_cast<const FunctionTypeSpecifier&>(other);
-		if (m_return_type == as_function.GetReturnType()) {
+		if (*m_return_type == *as_function.GetReturnType()) {
 			const LinkedList<const DeclarationStatement*>* subject =
 					m_parameter_list;
 			const LinkedList<const DeclarationStatement*>* other_subject =
@@ -90,4 +93,12 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	} catch (std::bad_cast& e) {
 		return false;
 	}
+}
+
+const Statement* FunctionTypeSpecifier::GetInferredDeclarationStatement(
+		const YYLTYPE position, const std::string* name,
+		const YYLTYPE name_position,
+		const Expression* initializer_expression) const {
+	return new FunctionDeclarationStatement(position, name, name_position,
+			static_cast<const FunctionExpression*>(initializer_expression));
 }

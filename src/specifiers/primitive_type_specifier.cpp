@@ -19,6 +19,8 @@
 
 #include <primitive_type_specifier.h>
 #include <typeinfo>
+#include <primitive_declaration_statement.h>
+#include <expression.h>
 
 const string PrimitiveTypeSpecifier::ToString(const void* value) const {
 	ostringstream buffer;
@@ -131,4 +133,13 @@ bool PrimitiveTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	} catch (std::bad_cast& e) {
 		return false;
 	}
+}
+
+const Statement* PrimitiveTypeSpecifier::GetInferredDeclarationStatement(
+		const YYLTYPE position, const std::string* name,
+		const YYLTYPE name_position,
+		const Expression* initializer_expression) const {
+	return new PrimitiveDeclarationStatement(position, this,
+			initializer_expression->GetPosition(), name, name_position,
+			initializer_expression);
 }

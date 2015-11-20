@@ -23,6 +23,8 @@
 #include <type_specifier.h>
 
 class DeclarationList;
+class Expression;
+class Statement;
 
 class FunctionTypeSpecifier: public TypeSpecifier {
 public:
@@ -39,6 +41,11 @@ public:
 	virtual bool operator!=(const TypeSpecifier &other) const {
 		return !(*this == other);
 	}
+
+	virtual const Statement* GetInferredDeclarationStatement(
+			const YYLTYPE position, const std::string* name,
+			const YYLTYPE name_position,
+			const Expression* initializer_expression) const;
 
 	const DeclarationList* GetParameterList() const {
 		return m_parameter_list;

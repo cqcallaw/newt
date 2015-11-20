@@ -23,6 +23,8 @@
 #include <string>
 #include <yyltype.h>
 
+class Expression;
+class Statement;
 class TypeTable;
 
 using namespace std;
@@ -34,6 +36,11 @@ public:
 	virtual const string ToString() const = 0;
 	virtual const bool IsAssignableTo(const TypeSpecifier* other) const = 0;
 	virtual const void* DefaultValue(const TypeTable* type_table) const = 0;
+
+	virtual const Statement* GetInferredDeclarationStatement(
+			const YYLTYPE position, const std::string* name,
+			const YYLTYPE name_position,
+			const Expression* initializer_expression) const = 0;
 
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
 	virtual bool operator!=(const TypeSpecifier &other) const = 0;
