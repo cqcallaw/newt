@@ -97,7 +97,7 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 			break;
 		}
 	} else {
-		assert(false); //our basic declaration statements should always be primitives
+		assert(false);
 	}
 
 	if (symbol != Symbol::DefaultSymbol) {

@@ -26,8 +26,7 @@ class ArgumentList;
 
 class InvokeExpression: public Expression {
 public:
-	InvokeExpression(const YYLTYPE position,
-			const Expression* expression,
+	InvokeExpression(const YYLTYPE position, const Expression* expression,
 			const ArgumentList* argument_list,
 			const YYLTYPE argument_list_position);
 	virtual ~InvokeExpression();

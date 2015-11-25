@@ -39,6 +39,11 @@ public:
 			map<const string, const Symbol*, comparator>* values);
 
 	InsertResult InsertSymbol(const Symbol* symbol);
+
+	virtual SymbolContext* WithParent(
+			const LinkedList<SymbolContext*>* parent_context) const {
+		return new SymbolTable(GetModifiers(), parent_context, GetTable());
+	}
 };
 
 #endif /* SYMBOL_TABLE_H_ */

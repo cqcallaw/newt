@@ -3,8 +3,8 @@ Parsed file ../tests/t5003.nwt.
 Root Symbol Table:
 ----------------
 int a: 3
-(int a, int b) -> [int] add:
-(int a, int b) -> [int] add_default:
+(int, int) -> int add:
+(int, int) -> int add_default:
 int b: 1
 int c: 3
 int d: 5

@@ -20,17 +20,17 @@
 #ifndef EXPRESSIONS_FUNCTION_EXPRESSION_H_
 #define EXPRESSIONS_FUNCTION_EXPRESSION_H_
 
-#include <expression.h>
 #include <yyltype.h>
+#include <expression.h>
 
-class FunctionTypeSpecifier;
+class FunctionDeclaration;
 class StatementBlock;
 class DeclarationList;
 
 class FunctionExpression: public Expression {
 public:
-	FunctionExpression(const YYLTYPE position,
-			const FunctionTypeSpecifier* type, const StatementBlock* body);
+	FunctionExpression(const YYLTYPE position, const FunctionDeclaration* type,
+			const StatementBlock* body);
 	virtual ~FunctionExpression();
 
 	virtual const TypeSpecifier* GetType(
@@ -44,12 +44,8 @@ public:
 	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context) const;
 
-	const FunctionTypeSpecifier* GetType() const {
-		return m_type;
-	}
-
 private:
-	const FunctionTypeSpecifier* m_type;
+	const FunctionDeclaration* m_declaration;
 	const StatementBlock* m_body;
 };
 

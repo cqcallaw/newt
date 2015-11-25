@@ -1,3 +1,2 @@
-a := 42
-
-a(3, 2)
+//test undefined function
+a(3, 4)

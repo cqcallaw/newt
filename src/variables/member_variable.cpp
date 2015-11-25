@@ -124,7 +124,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			PrimitiveTypeSpecifier::GetBoolean());
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
@@ -155,7 +156,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			PrimitiveTypeSpecifier::GetInt());
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
@@ -186,7 +188,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			PrimitiveTypeSpecifier::GetDouble());
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
@@ -217,7 +220,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			PrimitiveTypeSpecifier::GetString());
 }
 
 const LinkedList<const Error*>* MemberVariable::AssignValue(
@@ -283,7 +287,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			value->GetTypeSpecifier());
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
@@ -314,7 +319,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			value->GetTypeSpecifier());
 }
 
 const LinkedList<const Error*>* MemberVariable::Validate(

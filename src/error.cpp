@@ -147,7 +147,7 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Function does not return specified type.";
 		break;
 	case FUNCTION_PARAMETER_TYPE_MISMATCH:
-		os << "Parameter type mismatch.";
+		os << "Parameter type mismatch: can't assign '" << s1 << "' to '"  << s2 << "'";
 		break;
 	case TOO_MANY_ARGUMENTS:
 		os << "Too many arguments for function of type '" << s1 << "'.";
@@ -156,7 +156,7 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "No value specified for non-default parameter '" << s1 << "'.";
 		break;
 	case NOT_A_FUNCTION:
-		os << "Only functions can be invoked.";
+		os << "The given expression does not reference a valid function.";
 		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";

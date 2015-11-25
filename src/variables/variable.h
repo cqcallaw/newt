@@ -77,7 +77,9 @@ protected:
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const = 0;
 
-	const LinkedList<const Error*>* ToErrorList(SetResult result) const;
+	const LinkedList<const Error*>* ToErrorList(SetResult result,
+			const TypeSpecifier* symbol_type,
+			const TypeSpecifier* expression_type) const;
 
 private:
 	const string* m_name;

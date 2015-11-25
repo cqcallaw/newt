@@ -21,16 +21,22 @@
 #include <typeinfo>
 #include <declaration_statement.h>
 #include <sstream>
-#include <declaration_list.h>
+#include <type_list.h>
 #include <assert.h>
-#include <function_result_type_specifier.h>
 #include <type_list.h>
 #include <function_declaration_statement.h>
 #include <function_expression.h>
+#include <constant_expression.h>
+#include <return_statement.h>
+#include <statement_list.h>
+#include <statement_block.h>
+#include <function.h>
+#include <function_declaration.h>
+#include <execution_context.h>
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
-		const DeclarationList* parameter_list, const TypeSpecifier* return_type) :
-		m_parameter_list(parameter_list), m_return_type(return_type) {
+		const TypeList* parameter_type_list, const TypeSpecifier* return_type) :
+		m_parameter_type_list(parameter_type_list), m_return_type(return_type) {
 }
 
 FunctionTypeSpecifier::~FunctionTypeSpecifier() {
@@ -39,11 +45,10 @@ FunctionTypeSpecifier::~FunctionTypeSpecifier() {
 const string FunctionTypeSpecifier::ToString() const {
 	ostringstream buffer;
 	buffer << "(";
-	const LinkedList<const DeclarationStatement*>* subject = m_parameter_list;
+	const LinkedList<const TypeSpecifier*>* subject = m_parameter_type_list;
 	while (!subject->IsTerminator()) {
-		const DeclarationStatement* statement = subject->GetData();
-		buffer << statement->GetType()->ToString() << " "
-				<< *statement->GetName();
+		const TypeSpecifier* type = subject->GetData();
+		buffer << type->ToString();
 		subject = subject->GetNext();
 
 		if (!subject->IsTerminator()) {
@@ -57,12 +62,18 @@ const string FunctionTypeSpecifier::ToString() const {
 
 const bool FunctionTypeSpecifier::IsAssignableTo(
 		const TypeSpecifier* other) const {
-	return this == other;
+	return *this == *other;
 }
 
 const void* FunctionTypeSpecifier::DefaultValue(
 		const TypeTable* type_table) const {
-	return m_return_type->DefaultValue(type_table);
+	//return a function that returns the default value of the return type
+	auto statement_block = GetDefaultStatementBlock(type_table);
+
+	const FunctionDeclaration* declaration =
+			FunctionDeclaration::FromTypeSpecifier(this);
+	return new Function(declaration, statement_block,
+			ExecutionContext::GetDefault());
 }
 
 bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
@@ -70,15 +81,14 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 		const FunctionTypeSpecifier& as_function =
 				dynamic_cast<const FunctionTypeSpecifier&>(other);
 		if (*m_return_type == *as_function.GetReturnType()) {
-			const LinkedList<const DeclarationStatement*>* subject =
-					m_parameter_list;
-			const LinkedList<const DeclarationStatement*>* other_subject =
-					as_function.GetParameterList();
+			const LinkedList<const TypeSpecifier*>* subject =
+					m_parameter_type_list;
+			const LinkedList<const TypeSpecifier*>* other_subject =
+					as_function.GetParameterTypeList();
 			while (!subject->IsTerminator()) {
-				const DeclarationStatement* statement = subject->GetData();
-				const DeclarationStatement* other_statement =
-						other_subject->GetData();
-				if (*statement->GetType() == *other_statement->GetType()) {
+				const TypeSpecifier* type = subject->GetData();
+				const TypeSpecifier* other_type = other_subject->GetData();
+				if (*type == *other_type) {
 					subject = subject->GetNext();
 					other_subject = other_subject->GetNext();
 				} else {
@@ -95,10 +105,23 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const Statement* FunctionTypeSpecifier::GetInferredDeclarationStatement(
-		const YYLTYPE position, const std::string* name,
-		const YYLTYPE name_position,
+const DeclarationStatement* FunctionTypeSpecifier::GetDeclarationStatement(
+		const YYLTYPE position, const YYLTYPE type_position,
+		const std::string* name, const YYLTYPE name_position,
 		const Expression* initializer_expression) const {
-	return new FunctionDeclarationStatement(position, name, name_position,
-			static_cast<const FunctionExpression*>(initializer_expression));
+	return new FunctionDeclarationStatement(position, this, type_position, name,
+			name_position, initializer_expression);
+}
+
+const StatementBlock* FunctionTypeSpecifier::GetDefaultStatementBlock(
+		const TypeTable* type_table) const {
+	const ConstantExpression* return_expression =
+			ConstantExpression::GetDefaultExpression(m_return_type, type_table);
+	const ReturnStatement* default_return_statement = new ReturnStatement(
+			return_expression);
+	const StatementList* default_list = new StatementList(
+			default_return_statement, StatementList::Terminator);
+	const StatementBlock* statement_block = new StatementBlock(default_list);
+
+	return statement_block;
 }

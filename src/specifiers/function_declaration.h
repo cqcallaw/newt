@@ -17,35 +17,34 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SPECIFIERS_TYPE_SPECIFIER_H_
-#define SPECIFIERS_TYPE_SPECIFIER_H_
+#ifndef SPECIFIERS_FUNCTION_DECLARATION_H_
+#define SPECIFIERS_FUNCTION_DECLARATION_H_
 
-#include <string>
-#include <yyltype.h>
+#include <function_type_specifier.h>
+#include <declaration_list.h>
 
-class Expression;
-class DeclarationStatement;
-class TypeTable;
-
-using namespace std;
-class TypeSpecifier {
+class FunctionDeclaration: public FunctionTypeSpecifier {
 public:
-	virtual ~TypeSpecifier() {
-	}
+	FunctionDeclaration(const DeclarationList* parameter_list,
+			const TypeSpecifier* return_type);
+	virtual ~FunctionDeclaration();
 
-	virtual const string ToString() const = 0;
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const = 0;
-	virtual const void* DefaultValue(const TypeTable* type_table) const = 0;
+	const static FunctionDeclaration* FromTypeSpecifier(
+			const FunctionTypeSpecifier* type_specifier);
+
+	virtual const void* DefaultValue(const TypeTable* type_table) const;
 
 	virtual const DeclarationStatement* GetDeclarationStatement(
 			const YYLTYPE position, const YYLTYPE type_position,
 			const std::string* name, const YYLTYPE name_position,
-			const Expression* initializer_expression) const = 0;
+			const Expression* initializer_expression) const;
 
-	virtual bool operator==(const TypeSpecifier &other) const = 0;
-	virtual bool operator!=(const TypeSpecifier &other) const = 0;
+	const DeclarationList* GetParameterList() const {
+		return m_parameter_list;
+	}
+
+private:
+	const DeclarationList* m_parameter_list;
 };
 
-ostream &operator<<(ostream &os, const TypeSpecifier &type_specifier);
-
-#endif /* SPECIFIERS_TYPE_SPECIFIER_H_ */
+#endif /* SPECIFIERS_FUNCTION_DECLARATION_H_ */

@@ -49,6 +49,8 @@ public:
 		m_return_value = return_value;
 	}
 
+	const static ExecutionContext* GetDefault();
+
 private:
 	SymbolContext* m_symbol_context;
 	TypeTable* m_type_table;

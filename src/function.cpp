@@ -23,36 +23,37 @@
 #include <declaration_list.h>
 #include <declaration_statement.h>
 #include <execution_context.h>
-#include <function_type_specifier.h>
+#include <function_declaration.h>
 #include <error.h>
 #include <statement_block.h>
 
-Function::Function(const FunctionTypeSpecifier* type,
-		const StatementBlock* body) :
-		m_type(type), m_body(body) {
+Function::Function(const FunctionDeclaration* declaration,
+		const StatementBlock* body, const ExecutionContext* closure) :
+		m_declaration(declaration), m_body(body), m_closure(closure) {
 }
 
 Function::~Function() {
 }
 
 const Result* Function::Evaluate(const ArgumentList* argument_list,
-		const ExecutionContext* execution_context) const {
+		const ExecutionContext* invocation_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
-	//N.B. this code is almost identical to the validation of an InvokeExpression,
+	//N.B. the argument evaluation is almost identical to the validation of an InvokeExpression,
 	//but execution is performed in addition to preprocessing.
-	auto symbol_context = execution_context->GetSymbolContext();
-	auto parent = symbol_context->GetParent();
-	auto new_parent = parent->With(symbol_context);
-	SymbolTable* child_table = new SymbolTable(new_parent);
-	ExecutionContext* child_context = new ExecutionContext(child_table,
-			execution_context->GetTypeTable());
+	auto invocation_symbol_context = invocation_context->GetSymbolContext();
+	auto invocation_context_parent = invocation_symbol_context->GetParent();
+	auto parent_context = invocation_context_parent->With(
+			invocation_symbol_context);
+	SymbolTable* table = new SymbolTable(parent_context);
+	ExecutionContext* execution_context = new ExecutionContext(table,
+			m_closure->GetTypeTable());
 
-	//populate child context with argument values
+	//populate evaluation context with results of argument evaluation
 	const LinkedList<const Expression*>* argument = argument_list;
 	const LinkedList<const DeclarationStatement*>* parameter =
-			m_type->GetParameterList();
+			m_declaration->GetParameterList();
 
 	while (!argument->IsTerminator()) {
 		const Expression* argument_expression = argument->GetData();
@@ -62,10 +63,10 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 					declaration->WithInitializerExpression(argument_expression);
 
 			auto preprocessing_errors = errors->Concatenate(
-					argument_declaration->preprocess(child_context), true);
+					argument_declaration->preprocess(execution_context), true);
 			if (preprocessing_errors->IsTerminator()) {
 				errors = errors->Concatenate(
-						argument_declaration->execute(child_context), true);
+						argument_declaration->execute(execution_context), true);
 			} else {
 				errors = errors->Concatenate(preprocessing_errors, true);
 			}
@@ -80,7 +81,7 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 					new Error(Error::SEMANTIC, Error::TOO_MANY_ARGUMENTS,
 							argument_expression->GetPosition().first_line,
 							argument_expression->GetPosition().first_column,
-							m_type->ToString()));
+							m_declaration->ToString()));
 			break;
 		}
 	}
@@ -90,10 +91,10 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 		const DeclarationStatement* declaration = parameter->GetData();
 
 		if (declaration->GetInitializerExpression() != nullptr) {
-			errors = errors->Concatenate(declaration->preprocess(child_context),
-					true);
-			errors = errors->Concatenate(declaration->execute(child_context),
-					true);
+			errors = errors->Concatenate(
+					declaration->preprocess(execution_context), true);
+			errors = errors->Concatenate(
+					declaration->execute(execution_context), true);
 			parameter = parameter->GetNext();
 		} else {
 			errors = errors->With(
@@ -104,6 +105,18 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 			break;
 		}
 	}
+
+	//juggle the references so the evaluation context is a child of the closure context
+	auto closure_symbol_context = m_closure->GetSymbolContext();
+	auto closure_symbol_context_parent = closure_symbol_context->GetParent();
+	parent_context = closure_symbol_context_parent->With(
+			closure_symbol_context);
+	auto final_symbol_context = table->WithParent(parent_context);
+
+	//TODO: determine if it is necessary to type tables
+
+	ExecutionContext* child_context = new ExecutionContext(final_symbol_context,
+			m_closure->GetTypeTable());
 
 	errors = errors->Concatenate(m_body->execute(child_context), true);
 

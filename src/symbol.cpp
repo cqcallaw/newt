@@ -28,7 +28,7 @@
 #include "expression.h"
 #include <execution_context.h>
 #include <array_type_specifier.h>
-#include <function_type_specifier.h>
+#include <function_declaration.h>
 #include <symbol.h>
 #include <function.h>
 #include <primitive_type_specifier.h>

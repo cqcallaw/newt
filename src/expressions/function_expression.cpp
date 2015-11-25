@@ -17,6 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <function_declaration.h>
 #include <function_expression.h>
 #include <function.h>
 #include <statement_block.h>
@@ -27,8 +28,8 @@
 #include <symbol_table.h>
 
 FunctionExpression::FunctionExpression(const YYLTYPE position,
-		const FunctionTypeSpecifier* type, const StatementBlock* body) :
-		Expression(position), m_type(type), m_body(body) {
+		const FunctionDeclaration* declaration, const StatementBlock* body) :
+		Expression(position), m_declaration(declaration), m_body(body) {
 }
 
 FunctionExpression::~FunctionExpression() {
@@ -36,14 +37,14 @@ FunctionExpression::~FunctionExpression() {
 
 const TypeSpecifier* FunctionExpression::GetType(
 		const ExecutionContext* execution_context) const {
-	return m_type;
+	return m_declaration;
 }
 
 const Result* FunctionExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
-	const Function* function = new Function(m_type, m_body);
+	const Function* function = new Function(m_declaration, m_body, execution_context);
 	return new Result(function, errors);
 }
 
@@ -66,14 +67,13 @@ const LinkedList<const Error*>* FunctionExpression::Validate(
 			tmp_table);
 
 	const LinkedList<const DeclarationStatement*>* declaration =
-			m_type->GetParameterList();
+			m_declaration->GetParameterList();
 	while (!declaration->IsTerminator()) {
 		auto declaration_statement = declaration->GetData();
 		auto preprocessing_errors = errors->Concatenate(
 				declaration_statement->preprocess(tmp_context), true);
 
 		if (preprocessing_errors->IsTerminator()) {
-			//yes we're casting away constness. yes it's smelly.
 			errors = errors->Concatenate(
 					declaration_statement->execute(tmp_context), true);
 		} else {
@@ -85,7 +85,7 @@ const LinkedList<const Error*>* FunctionExpression::Validate(
 
 	errors = m_body->preprocess(tmp_context);
 
-	AnalysisResult returns = m_body->Returns(m_type->GetReturnType(),
+	AnalysisResult returns = m_body->Returns(m_declaration->GetReturnType(),
 			tmp_context);
 	if (returns == AnalysisResult::NO) {
 		errors = errors->With(
@@ -100,3 +100,4 @@ const LinkedList<const Error*>* FunctionExpression::Validate(
 
 	return errors;
 }
+

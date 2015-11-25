@@ -20,21 +20,25 @@
 #include "constant_expression.h"
 
 ConstantExpression::ConstantExpression(const YYLTYPE position, const bool value) :
-		ConstantExpression(position, PrimitiveTypeSpecifier::GetBoolean(), (void*) new bool(value)) {
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetBoolean(),
+				(void*) new bool(value)) {
 }
 
 ConstantExpression::ConstantExpression(const YYLTYPE position, const int value) :
-		ConstantExpression(position, PrimitiveTypeSpecifier::GetInt(), (void*) new int(value)) {
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetInt(),
+				(void*) new int(value)) {
 }
 
 ConstantExpression::ConstantExpression(const YYLTYPE position,
 		const double value) :
-		ConstantExpression(position, PrimitiveTypeSpecifier::GetDouble(), (void*) new double(value)) {
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetDouble(),
+				(void*) new double(value)) {
 }
 
 ConstantExpression::ConstantExpression(const YYLTYPE position,
 		const std::string* value) :
-		ConstantExpression(position, PrimitiveTypeSpecifier::GetString(), (void*) value) {
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetString(),
+				(void*) value) {
 }
 
 const TypeSpecifier* ConstantExpression::GetType(
@@ -47,8 +51,14 @@ const Result* ConstantExpression::Evaluate(
 	return new Result(m_value, LinkedList<const Error*>::Terminator);
 }
 
-ConstantExpression::ConstantExpression(const YYLTYPE position, const TypeSpecifier* type,
-		const void* value) :
+const ConstantExpression* ConstantExpression::GetDefaultExpression(
+		const TypeSpecifier* type, const TypeTable* type_table) {
+	return new ConstantExpression(DefaultLocation, type,
+			type->DefaultValue(type_table));
+}
+
+ConstantExpression::ConstantExpression(const YYLTYPE position,
+		const TypeSpecifier* type, const void* value) :
 		Expression(position), m_type(type), m_value(value) {
 }
 

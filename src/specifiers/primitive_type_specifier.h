@@ -50,9 +50,9 @@ public:
 		return !(*this == other);
 	}
 
-	virtual const Statement* GetInferredDeclarationStatement(
-			const YYLTYPE position, const std::string* name,
-			const YYLTYPE name_position,
+	virtual const DeclarationStatement* GetDeclarationStatement(
+			const YYLTYPE position, const YYLTYPE type_position,
+			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression) const;
 
 	const BasicType GetBasicType() const {

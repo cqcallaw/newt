@@ -27,13 +27,15 @@
 class ArgumentList;
 class DeclarationList;
 class StatementBlock;
-class FunctionExpression;
+class Expression;
+class FunctionTypeSpecifier;
 
 class FunctionDeclarationStatement: public DeclarationStatement {
 public:
 	FunctionDeclarationStatement(const YYLTYPE position,
+			const FunctionTypeSpecifier* type, const YYLTYPE type_position,
 			const std::string* name, const YYLTYPE name_location,
-			const FunctionExpression* expression);
+			const Expression* expression);
 	virtual ~FunctionDeclarationStatement();
 
 	virtual const LinkedList<const Error*>* preprocess(
@@ -54,9 +56,11 @@ public:
 	}
 
 private:
+	const FunctionTypeSpecifier* m_type;
+	const YYLTYPE m_type_position;
 	const std::string* m_name;
 	const YYLTYPE m_name_location;
-	const FunctionExpression* m_expression;
+	const Expression* m_initializer_expression;
 };
 
 #endif /* STATEMENTS_FUNCTION_DECLARATION_STATEMENT_H_ */

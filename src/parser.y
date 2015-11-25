@@ -31,6 +31,7 @@
 #include <variable.h>
 #include <parameter.h>
 #include <parameter_list.h>
+#include <type_list.h>
 #include <statement.h>
 #include <assignment_statement.h>
 #include <declaration_statement.h>
@@ -54,6 +55,7 @@
 #include <type.h>
 #include <type_specifier.h>
 #include <function_type_specifier.h>
+#include <function_declaration.h>
 
 typedef void* yyscan_t;
 
@@ -96,6 +98,7 @@ typedef void* yyscan_t;
 #include <array_declaration_statement.h>
 #include <struct_declaration_statement.h>
 #include <struct_instantiation_statement.h>
+#include <function_declaration_statement.h>
 #include <inferred_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
@@ -132,11 +135,13 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  const TypeSpecifier*    union_type_specifier;
  const PrimitiveTypeSpecifier*    union_primitive_type;
  const FunctionTypeSpecifier*    union_function_type;
+ const FunctionDeclaration*    union_function_declaration;
  const Expression*          union_expression;
  const Variable*            union_variable;
  OperatorType               union_operator_type;
  const Parameter*           union_parameter_type;
  const ParameterList*       union_parameter_list_type;
+ const TypeList*            union_type_list;
  const Symbol*              union_symbol_type;
  const Statement*           union_statement_type;
  const StatementList*       union_statement_list_type;
@@ -183,7 +188,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_COMMA               ","
 %token T_PERIOD              "."
 
-%token T_ASSIGN              "="
+%token T_EQUALS              "="
 %token T_PLUS_ASSIGN         "+="
 %token T_MINUS_ASSIGN        "-="
 
@@ -204,7 +209,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_OR                  "||"
 %token T_NOT                 "!"
 
-%token T_ARROW_RIGHT          "->"
+%token T_ARROW_RIGHT         "->"
 
 %token T_STRUCT              "struct declaration"
 %token T_READONLY            "readonly modifier"
@@ -225,7 +230,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %left T_PLUS T_MINUS
 %left T_ASTERISK T_DIVIDE T_PERCENT T_WITH
 
-%right T_ASSIGN
+%right T_EQUALS
 %right T_PLUS_ASSIGN
 %right T_MINUS_ASSIGN
 
@@ -236,6 +241,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 
 %type <union_type_specifier> type_specifier
 %type <union_primitive_type> primitive_type_specifier
+%type <union_function_declaration> function_declaration
 %type <union_function_type> function_type_specifier
 %type <union_expression> expression
 %type <union_expression> optional_initializer
@@ -259,6 +265,8 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_statement_type> return_statement
 %type <union_declaration_list_type> parameter_list
 %type <union_declaration_list_type> optional_parameter_list
+%type <union_type_list> anonymous_parameter_list
+%type <union_type_list> optional_anonymous_parameter_list
 %type <union_argument_list_type> argument_list
 %type <union_argument_list_type> optional_argument_list
 
@@ -297,7 +305,7 @@ program:
 variable_declaration:
 	T_ID T_COLON primitive_type_specifier optional_initializer
 	{
-		$$ = new PrimitiveDeclarationStatement(@$, $3, @4, $1, @1, $4);
+		$$ = new PrimitiveDeclarationStatement(@$, $3, @3, $1, @1, $4);
 	}
 	| T_ID T_COLON primitive_type_specifier dimensions optional_initializer
 	{
@@ -329,14 +337,22 @@ variable_declaration:
 	{
 		$$ = new StructInstantiationStatement(@$, new CompoundTypeSpecifier(*$3, @3), @3, $1, @1, $4);
 	}
-	| T_ID T_COLON T_ASSIGN expression
+	| T_ID T_COLON function_type_specifier
+	{
+		$$ = new FunctionDeclarationStatement(@$, $3, @3, $1, @1, nullptr);
+	}
+	| T_ID T_COLON function_type_specifier T_EQUALS function_expression
+	{
+		$$ = new FunctionDeclarationStatement(@$, $3, @3, $1, @1, $5);
+	}
+	| T_ID T_COLON T_EQUALS expression
 	{
 		$$ = new InferredDeclarationStatement(@$, $1, @1, $4);
 	}
 	;
 
 optional_initializer:
-	T_ASSIGN expression
+	T_EQUALS expression
 	{
 		$$ = $2;
 	}
@@ -367,12 +383,11 @@ primitive_type_specifier:
 
 //---------------------------------------------------------------------
 function_type_specifier:
-	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_RIGHT type_specifier
+	T_LPAREN optional_anonymous_parameter_list T_RPAREN T_ARROW_RIGHT type_specifier
 	{
-		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
-		$$ = new FunctionTypeSpecifier(parameter_list, $5);
+		const TypeList* type_list = $2->IsTerminator() ? $2 : new TypeList($2->Reverse(true));
+		$$ = new FunctionTypeSpecifier(type_list, $5);
 	}
-	;
 
 //---------------------------------------------------------------------
 type_specifier:
@@ -388,7 +403,6 @@ type_specifier:
 	{
 		$$ = $1;
 	}
-	;
 
 //---------------------------------------------------------------------
 statement_block:
@@ -505,7 +519,7 @@ exit_statement:
 
 //---------------------------------------------------------------------
 assign_statement:
-	variable_reference T_ASSIGN expression
+	variable_reference T_EQUALS expression
 	{
 		$$ = new AssignmentStatement($1, AssignmentType::ASSIGN, $3);
 	}
@@ -682,8 +696,18 @@ invoke_expression:
 	}
 	;
 
+//---------------------------------------------------------------------
+function_declaration:
+	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_RIGHT type_specifier
+	{
+		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
+		$$ = new FunctionDeclaration(parameter_list, $5);
+	}
+	;
+
+//---------------------------------------------------------------------
 function_expression:
-	function_type_specifier statement_block
+	function_declaration statement_block
 	{
 		$$ = new FunctionExpression(@1, $1, $2);
 	}
@@ -710,6 +734,30 @@ parameter_list:
 	| variable_declaration
 	{
 		$$ = new DeclarationList($1, DeclarationList::Terminator);
+	}
+	;
+
+//---------------------------------------------------------------------
+optional_anonymous_parameter_list:
+	anonymous_parameter_list
+	{
+		$$ = $1;
+	}
+	| empty
+	{
+		$$ = TypeList::Terminator;
+	}
+	;
+
+//---------------------------------------------------------------------
+anonymous_parameter_list:
+	anonymous_parameter_list T_COMMA type_specifier
+	{
+		$$ = new TypeList($3, $1);
+	}
+	| type_specifier
+	{
+		$$ = new TypeList($1, TypeList::Terminator);
 	}
 	;
 
@@ -813,7 +861,7 @@ member_instantiation_list:
 
 //---------------------------------------------------------------------
 member_instantiation:
-	T_ID T_ASSIGN expression
+	T_ID T_EQUALS expression
 	{
 		$$ = new MemberInstantiation($1, @1, $3, @3);
 	}

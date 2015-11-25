@@ -22,13 +22,14 @@
 
 #include <type_specifier.h>
 
-class DeclarationList;
+class TypeList;
 class Expression;
 class Statement;
+class StatementBlock;
 
 class FunctionTypeSpecifier: public TypeSpecifier {
 public:
-	FunctionTypeSpecifier(const DeclarationList* parameter_list,
+	FunctionTypeSpecifier(const TypeList* parameter_type_list,
 			const TypeSpecifier* return_type);
 	virtual ~FunctionTypeSpecifier();
 
@@ -42,13 +43,16 @@ public:
 		return !(*this == other);
 	}
 
-	virtual const Statement* GetInferredDeclarationStatement(
-			const YYLTYPE position, const std::string* name,
-			const YYLTYPE name_position,
+	virtual const DeclarationStatement* GetDeclarationStatement(
+			const YYLTYPE position, const YYLTYPE type_position,
+			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression) const;
 
-	const DeclarationList* GetParameterList() const {
-		return m_parameter_list;
+	const StatementBlock* GetDefaultStatementBlock(
+			const TypeTable* type_table) const;
+
+	const TypeList* GetParameterTypeList() const {
+		return m_parameter_type_list;
 	}
 
 	const TypeSpecifier* GetReturnType() const {
@@ -56,7 +60,7 @@ public:
 	}
 
 private:
-	const DeclarationList* m_parameter_list;
+	const TypeList* m_parameter_type_list;
 	const TypeSpecifier* m_return_type;
 };
 

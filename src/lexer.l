@@ -80,7 +80,7 @@ Error error_handler; // error reporting object
 "true"          return T_TRUE;
 "false"         return T_FALSE;
 
-"="             return T_ASSIGN;
+"="             return T_EQUALS;
 "{"             return T_LBRACE;
 "}"             return T_RBRACE;
 ":"             return T_COLON;

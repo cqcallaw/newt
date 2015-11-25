@@ -1,0 +1,9 @@
+f := (a:(int) -> int, b:int) -> int {
+	return a(b)
+}
+
+g := (c:int) -> int {
+	return c
+}
+
+x := f(g, 2)

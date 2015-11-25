@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../src/specifiers/array_type_specifier.cpp \
 ../src/specifiers/compound_type_specifier.cpp \
+../src/specifiers/function_declaration.cpp \
 ../src/specifiers/function_type_specifier.cpp \
 ../src/specifiers/primitive_type_specifier.cpp \
 ../src/specifiers/type_specifier.cpp 
@@ -13,6 +14,7 @@ CPP_SRCS += \
 OBJS += \
 ./src/specifiers/array_type_specifier.o \
 ./src/specifiers/compound_type_specifier.o \
+./src/specifiers/function_declaration.o \
 ./src/specifiers/function_type_specifier.o \
 ./src/specifiers/primitive_type_specifier.o \
 ./src/specifiers/type_specifier.o 
@@ -20,6 +22,7 @@ OBJS += \
 CPP_DEPS += \
 ./src/specifiers/array_type_specifier.d \
 ./src/specifiers/compound_type_specifier.d \
+./src/specifiers/function_declaration.d \
 ./src/specifiers/function_type_specifier.d \
 ./src/specifiers/primitive_type_specifier.d \
 ./src/specifiers/type_specifier.d 

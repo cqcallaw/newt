@@ -1,0 +1,9 @@
+Parsing file ../tests/t5007.nwt...
+Parsed file ../tests/t5007.nwt.
+Root Symbol Table:
+----------------
+(int) -> int f:
+int x: 2
+
+Root Type Table:
+----------------

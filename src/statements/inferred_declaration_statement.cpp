@@ -55,9 +55,9 @@ const LinkedList<const Error*>* InferredDeclarationStatement::preprocess(
 	const TypeSpecifier* expression_type = m_initializer_expression->GetType(
 			execution_context);
 
-	const Statement* temp_statement =
-			expression_type->GetInferredDeclarationStatement(GetPosition(),
-					m_name, m_name_position, m_initializer_expression);
+	const Statement* temp_statement = expression_type->GetDeclarationStatement(
+			GetPosition(), m_initializer_expression->GetPosition(), m_name,
+			m_name_position, m_initializer_expression);
 	errors = temp_statement->preprocess(execution_context);
 	delete (temp_statement);
 
@@ -72,44 +72,11 @@ const LinkedList<const Error*>* InferredDeclarationStatement::execute(
 	const TypeSpecifier* expression_type = m_initializer_expression->GetType(
 			execution_context);
 
-	if (dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type)) {
-		auto temp_statement = new PrimitiveDeclarationStatement(GetPosition(),
-				expression_type, m_initializer_expression->GetPosition(),
-				m_name, m_name_position, m_initializer_expression);
-		errors = temp_statement->execute(execution_context);
-		delete (temp_statement);
-	}
-
-	const ArrayTypeSpecifier* as_array =
-			dynamic_cast<const ArrayTypeSpecifier*>(expression_type);
-	if (as_array) {
-		auto temp_statement = new ArrayDeclarationStatement(GetPosition(),
-				as_array, m_initializer_expression->GetPosition(), m_name,
-				m_name_position, m_initializer_expression);
-		errors = temp_statement->execute(execution_context);
-		delete (temp_statement);
-	}
-
-	const CompoundTypeSpecifier* as_compound =
-			dynamic_cast<const CompoundTypeSpecifier*>(expression_type);
-	if (as_compound) {
-		auto temp_statement = new StructInstantiationStatement(GetPosition(),
-				as_compound, m_initializer_expression->GetPosition(), m_name,
-				m_name_position, m_initializer_expression);
-		errors = temp_statement->execute(execution_context);
-		delete (temp_statement);
-	}
-
-	const FunctionTypeSpecifier* as_function =
-			dynamic_cast<const FunctionTypeSpecifier*>(expression_type);
-	if (as_function) {
-		auto temp_statement =
-				new FunctionDeclarationStatement(GetPosition(), m_name,
-						m_name_position,
-						static_cast<const FunctionExpression*>(m_initializer_expression));
-		errors = temp_statement->execute(execution_context);
-		delete (temp_statement);
-	}
+	const Statement* temp_statement = expression_type->GetDeclarationStatement(
+			GetPosition(), m_initializer_expression->GetPosition(), m_name,
+			m_name_position, m_initializer_expression);
+	errors = temp_statement->execute(execution_context);
+	delete (temp_statement);
 
 	return errors;
 }

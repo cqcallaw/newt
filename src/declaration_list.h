@@ -21,8 +21,10 @@
 #define DECLARATION_LIST_H_
 
 #include "linked_list.h"
+#include "type_list.h"
+#include "declaration_statement.h"
 
-class DeclarationStatement;
+class TypeSpecifier;
 
 class DeclarationList: public LinkedList<const DeclarationStatement*> {
 public:
@@ -33,6 +35,20 @@ public:
 
 	DeclarationList(const LinkedList<const DeclarationStatement*>* list) :
 			LinkedList(list) {
+	}
+
+	const TypeList* GetTypeList() const {
+		const LinkedList<const DeclarationStatement*>* subject = this;
+		const LinkedList<const TypeSpecifier*>* result = TypeList::Terminator;
+		while (subject != Terminator) {
+			const DeclarationStatement* statement = subject->GetData();
+			const TypeSpecifier* type = statement->GetType();
+			result = result->With(type);
+			subject = subject->GetNext();
+		}
+
+		return result->IsTerminator() ?
+				TypeList::Terminator : new TypeList(result->Reverse(true));
 	}
 
 	static constexpr DeclarationList* Terminator =

@@ -35,3 +35,8 @@ ExecutionContext::ExecutionContext() :
 ExecutionContext::~ExecutionContext() {
 }
 
+const ExecutionContext* ExecutionContext::GetDefault() {
+	const static ExecutionContext* instance = new ExecutionContext(
+			SymbolContext::GetDefault(), TypeTable::GetDefault());
+	return instance;
+}

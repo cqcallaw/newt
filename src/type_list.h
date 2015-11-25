@@ -17,26 +17,29 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sstream>
-#include <defaults.h>
-#include <execution_context.h>
-#include <symbol_context.h>
+#ifndef TYPE_LIST_H_
+#define TYPE_LIST_H_
 
-#include "variable.h"
-#include "assert.h"
-#include "expression.h"
+#include "linked_list.h"
 
-Variable::Variable(const string* name, YYLTYPE location) :
-		m_name(name), m_location(location) {
-	assert(name != NULL && name != nullptr);
-}
+class TypeSpecifier;
 
-Variable::~Variable() {
-}
+class TypeList: public LinkedList<const TypeSpecifier*> {
+public:
+	TypeList(const TypeSpecifier* data, const TypeList* next) :
+			LinkedList(data, next) {
+	}
 
-const LinkedList<const Error*>* Variable::ToErrorList(SetResult result,
-		const TypeSpecifier* symbol_type,
-		const TypeSpecifier* expression_type) const {
-	return ::ToErrorList(result, GetLocation(), GetName(), symbol_type,
-			expression_type);
-}
+	TypeList(const LinkedList<const TypeSpecifier*>* list) :
+			LinkedList(list) {
+	}
+
+	TypeList(const TypeSpecifier* data) :
+			TypeList(data, TypeList::Terminator) {
+	}
+
+	static constexpr TypeList* Terminator = (TypeList*) LinkedList<
+			const TypeSpecifier*>::Terminator;
+};
+
+#endif /* TYPE_LIST_H_ */

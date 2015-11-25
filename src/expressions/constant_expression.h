@@ -30,8 +30,11 @@ public:
 	ConstantExpression(const YYLTYPE position, const int value);
 	ConstantExpression(const YYLTYPE position, const double value);
 	ConstantExpression(const YYLTYPE position, const std::string* value);
+	const static ConstantExpression* GetDefaultExpression(
+			const TypeSpecifier* type, const TypeTable* type_table);
 
-	virtual const TypeSpecifier* GetType(const ExecutionContext* execution_context) const;
+	virtual const TypeSpecifier* GetType(
+			const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const;

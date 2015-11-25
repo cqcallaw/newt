@@ -20,7 +20,7 @@
 #ifndef FUNCTION_H_
 #define FUNCTION_H_
 
-class FunctionTypeSpecifier;
+class FunctionDeclaration;
 class StatementBlock;
 class Result;
 class ArgumentList;
@@ -28,19 +28,21 @@ class ExecutionContext;
 
 class Function {
 public:
-	Function(const FunctionTypeSpecifier* type, const StatementBlock* body);
+	Function(const FunctionDeclaration* declaration, const StatementBlock* body,
+			const ExecutionContext* closure);
 	virtual ~Function();
 
-	const FunctionTypeSpecifier* GetType() const {
-		return m_type;
+	const FunctionDeclaration* GetType() const {
+		return m_declaration;
 	}
 
 	const Result* Evaluate(const ArgumentList* argument_list,
-			const ExecutionContext* execution_context) const;
+			const ExecutionContext* invocation_context) const;
 
 private:
-	const FunctionTypeSpecifier* m_type;
+	const FunctionDeclaration* m_declaration;
 	const StatementBlock* m_body;
+	const ExecutionContext* m_closure;
 };
 
 #endif /* FUNCTION_H_ */
