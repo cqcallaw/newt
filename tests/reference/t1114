@@ -1,4 +1,4 @@
 Parsing file ../tests/t1114.nwt...
-Semantic error on line 8, column 10: Incorrect type for initial value of variable 'd'.
+Semantic error on line 8, column 10: Variable 'd' of type 'int' cannot be assigned to an expression of type 'double'.
 Parsed file ../tests/t1114.nwt.
 1 error found; giving up.

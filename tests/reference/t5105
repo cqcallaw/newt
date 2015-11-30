@@ -1,0 +1,4 @@
+Parsing file ../tests/t5105.nwt...
+Semantic error on line 6, column 8: Variable 'a' of type 'int' cannot be assigned to an expression of type 'double'.
+Parsed file ../tests/t5105.nwt.
+1 error found; giving up.

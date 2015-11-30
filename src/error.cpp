@@ -81,8 +81,10 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case INVALID_RIGHT_OPERAND_TYPE:
 		os << "Invalid right operand for operator '" << s1 << "'.";
 		break;
-	case INVALID_TYPE_FOR_INITIAL_VALUE:
-		os << "Incorrect type for initial value of variable '" << s1 << "'.";
+	case INVALID_INITIALIZER_TYPE:
+		os << "Variable '" << s1 << "' of type '" << s2
+				<< "' cannot be assigned to an expression of type '" << s3
+				<< "'.";
 		break;
 	case INVALID_TYPE_FOR_FOR_STMT_EXPRESSION:
 		os << "Incorrect type for expression in for statement."
@@ -147,7 +149,8 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Function does not return specified type.";
 		break;
 	case FUNCTION_PARAMETER_TYPE_MISMATCH:
-		os << "Parameter type mismatch: can't assign '" << s1 << "' to '"  << s2 << "'";
+		os << "Parameter type mismatch: can't assign '" << s1 << "' to '" << s2
+				<< "'";
 		break;
 	case TOO_MANY_ARGUMENTS:
 		os << "Too many arguments for function of type '" << s1 << "'.";

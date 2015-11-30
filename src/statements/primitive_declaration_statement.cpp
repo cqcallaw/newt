@@ -65,10 +65,11 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 					errors =
 							errors->With(
 									new Error(Error::SEMANTIC,
-											Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+											Error::INVALID_INITIALIZER_TYPE,
 											m_initializer_expression->GetPosition().first_line,
 											m_initializer_expression->GetPosition().first_column,
-											*name));
+											*name, as_primitive->ToString(),
+											expression_type_specifier->ToString()));
 				}
 			}
 		}
