@@ -1,6 +1,6 @@
-int i
-int k = 7000
-int[] nums
+i: int
+k: int = 7000
+nums: int[]
 
    for (i = 0; i < 5; i += 1) {
        nums[i] = i

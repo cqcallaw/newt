@@ -34,7 +34,13 @@ public:
 	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const;
+	virtual const LinkedList<const Error*>* execute(
+			ExecutionContext* execution_context) const;
+
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+			const ExecutionContext* execution_context) const {
+		return AnalysisResult::NO;
+	}
 
 private:
 	const Expression* m_exit_expression;

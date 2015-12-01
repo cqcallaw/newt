@@ -1,7 +1,7 @@
-string s
-int i = 4
-int j = 2
-int[] nums
+s: string
+i: int = 4
+j: int = 2
+nums: int[]
 
     nums[i-j] = 42
 

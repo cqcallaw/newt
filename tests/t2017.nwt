@@ -1,5 +1,5 @@
 
-int i = 42
+i: int = 42
 
     print ("about to call exit with 42")
     exit(42)

@@ -1,30 +1,30 @@
 struct rectangle {
-	int x
-	int y
-	int w = 10
-	int h
+	x: int
+	y: int
+	w: int = 10
+	h: int
 }
 
 struct triangle {
-	int x
-	int y
-	int w = 10
+	x: int
+	y: int
+	w: int = 10
 }
 
-int index
-int i = 42
-double x = 3.14159
-string s = "hello"
-int[] ints
+index: int
+i: int = 42
+x: double = 3.14159
+s: string = "hello"
+ints: int[]
 ints[2] = #int
-double[] doubles
+doubles: double[]
 doubles[2] = #double
-string[] strings
+strings: string[]
 strings[2] = #string
-rectangle[] rects
+rects: rectangle[]
 rects[2] = #rectangle
 
-triangle my_triangle
+my_triangle: triangle
 
     for (index = 0; index < 3; index += 1)
     {

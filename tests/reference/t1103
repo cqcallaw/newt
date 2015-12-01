@@ -1,4 +1,4 @@
 Parsing file ../tests/t1103.nwt...
-Parse error on line 1 reported by parser: syntax error, unexpected string constant, expecting ].
+Parse error on line 1, column 12 reported by parser: syntax error, unexpected string constant, expecting ].
 Parsed file ../tests/t1103.nwt.
 1 error found; giving up.

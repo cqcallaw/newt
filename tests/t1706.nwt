@@ -1,4 +1,4 @@
 // arrays should be initialized to 0
-int[] nums
+nums: int[]
 nums[5] = 0
-int should_be_zero = nums[2]
+should_be_zero: int = nums[2]

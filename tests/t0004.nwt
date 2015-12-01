@@ -1,8 +1,8 @@
 // test array declarations
 
-int[] numbers
-double[] values
-string[] strings
+numbers: int[]
+values: double[]
+strings: string[]
 
 numbers[0] = 42
 numbers[2000] = 42

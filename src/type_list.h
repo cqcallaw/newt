@@ -17,7 +17,29 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "parameterlist.h"
+#ifndef TYPE_LIST_H_
+#define TYPE_LIST_H_
 
-const ParameterList* ParameterList::Terminator = new ParameterList(nullptr,
-		nullptr);
+#include "linked_list.h"
+
+class TypeSpecifier;
+
+class TypeList: public LinkedList<const TypeSpecifier*> {
+public:
+	TypeList(const TypeSpecifier* data, const TypeList* next) :
+			LinkedList(data, next) {
+	}
+
+	TypeList(const LinkedList<const TypeSpecifier*>* list) :
+			LinkedList(list) {
+	}
+
+	TypeList(const TypeSpecifier* data) :
+			TypeList(data, TypeList::Terminator) {
+	}
+
+	static constexpr TypeList* Terminator = (TypeList*) LinkedList<
+			const TypeSpecifier*>::Terminator;
+};
+
+#endif /* TYPE_LIST_H_ */

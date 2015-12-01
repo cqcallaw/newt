@@ -1,8 +1,8 @@
-int a = 1
-int b = 2
-int c = 3
-int d = 4
-int e = 5
+a: int = 1
+b: int = 2
+c: int = 3
+d: int = 4
+e: int = 5
 
     if (a > b) {
         if (a > c) if (a > d) if (a > e) print("a is the largest value.  a = " + a) else print("a is NOT largest value.  a = " + a)

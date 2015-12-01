@@ -27,6 +27,7 @@
 #include <symbol.h>
 
 class CompoundTypeInstance;
+class Function;
 
 using namespace std;
 
@@ -39,7 +40,8 @@ enum SetResult {
 };
 
 const LinkedList<const Error*>* ToErrorList(const SetResult result,
-		const YYLTYPE location, const string* name);
+		const YYLTYPE location, const string* name,
+		const TypeSpecifier* symbol_type, const TypeSpecifier* value_type);
 
 struct comparator {
 	bool operator()(const string lhs, const string rhs) const {
@@ -65,6 +67,11 @@ public:
 		return m_parent;
 	}
 
+	virtual SymbolContext* WithParent(
+			const LinkedList<SymbolContext*>* parent_context) const {
+		return new SymbolContext(m_modifiers, parent_context, m_table);
+	}
+
 	map<const string, const Symbol*, comparator>* GetTable() const {
 		return m_table;
 	}
@@ -86,6 +93,9 @@ public:
 	SetResult SetSymbol(const string identifier, const Array* value);
 	SetResult SetSymbol(const string identifier,
 			const CompoundTypeInstance* value);
+	SetResult SetSymbol(const string identifier, const Function* value);
+
+	static SymbolContext* GetDefault();
 
 private:
 	const Modifier::Type m_modifiers;

@@ -1,0 +1,8 @@
+//test return type
+trivial := () -> int {
+	if (42 != 42) {
+		return 1
+	} else {
+		return 2 
+	} 
+}

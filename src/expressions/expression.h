@@ -36,6 +36,10 @@ public:
 	Expression(const YYLTYPE position);
 	virtual ~Expression();
 
+	const YYLTYPE GetPosition() const {
+		return m_position;
+	}
+
 	virtual const TypeSpecifier* GetType(
 			const ExecutionContext* execution_context) const = 0;
 
@@ -43,10 +47,6 @@ public:
 			const ExecutionContext* execution_context) const = 0;
 
 	const Result* ToString(const ExecutionContext* execution_context) const;
-
-	const YYLTYPE GetPosition() const {
-		return m_position;
-	}
 
 	virtual const bool IsConstant() const = 0;
 

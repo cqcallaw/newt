@@ -17,13 +17,15 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMPOUND_TYPE_SPECIFIER_H_
-#define COMPOUND_TYPE_SPECIFIER_H_
+#ifndef SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_
+#define SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_
 
-#include <type_specifier.h>
 #include <compound_type_instance.h>
+#include <type_specifier.h>
 #include <type_table.h>
 
+class Expression;
+class Statement;
 class SymbolContext;
 
 class CompoundTypeSpecifier: public TypeSpecifier {
@@ -49,8 +51,19 @@ public:
 				&& as_compound->GetTypeName().compare(m_type_name) == 0;
 	}
 
+	virtual const DeclarationStatement* GetDeclarationStatement(
+			const YYLTYPE position, const YYLTYPE type_position,
+			const std::string* name, const YYLTYPE name_position,
+			const Expression* initializer_expression) const;
+
 	virtual const void* DefaultValue(const TypeTable* type_table) const {
 		return type_table->GetDefaultValue(m_type_name);
+	}
+
+	virtual bool operator==(const TypeSpecifier& other) const;
+
+	virtual bool operator!=(const TypeSpecifier &other) const {
+		return !(*this == other);
 	}
 
 	const YYLTYPE GetLocation() const {
@@ -62,4 +75,4 @@ private:
 	const YYLTYPE m_location;
 };
 
-#endif /* COMPOUND_TYPE_SPECIFIER_H_ */
+#endif /* SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_ */

@@ -21,10 +21,10 @@
 #define MEMBER_DEFINITION_H_
 
 #include <type.h>
-#include <type_specifier.h>
-#include <primitive_type_specifier.h>
-#include <compound_type_specifier.h>
 #include <compound_type.h>
+#include <compound_type_specifier.h>
+#include <primitive_type_specifier.h>
+#include <type_specifier.h>
 
 class MemberDefinition {
 public:

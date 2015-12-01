@@ -1,6 +1,6 @@
 
-double x = 3.14159
-double y = 3.14159
+x: double = 3.14159
+y: double = 3.14159
 
     x -= .005
     y -= 1

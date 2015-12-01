@@ -1,0 +1,4 @@
+//test return type
+trivial := () -> int {
+	return 1.0
+}

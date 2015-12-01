@@ -17,25 +17,32 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPE_SPECIFIER_H_
-#define TYPE_SPECIFIER_H_
+#ifndef FUNCTION_H_
+#define FUNCTION_H_
 
-#include <string>
-#include <yyltype.h>
+class FunctionDeclaration;
+class StatementBlock;
+class Result;
+class ArgumentList;
+class ExecutionContext;
 
-class TypeTable;
-
-using namespace std;
-class TypeSpecifier {
+class Function {
 public:
-	virtual ~TypeSpecifier() {
+	Function(const FunctionDeclaration* declaration, const StatementBlock* body,
+			const ExecutionContext* closure);
+	virtual ~Function();
+
+	const FunctionDeclaration* GetType() const {
+		return m_declaration;
 	}
 
-	virtual const string ToString() const = 0;
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const = 0;
-	virtual const void* DefaultValue(const TypeTable* type_table) const = 0;
+	const Result* Evaluate(const ArgumentList* argument_list,
+			const ExecutionContext* invocation_context) const;
+
+private:
+	const FunctionDeclaration* m_declaration;
+	const StatementBlock* m_body;
+	const ExecutionContext* m_closure;
 };
 
-ostream &operator<<(ostream &os, const TypeSpecifier &type_specifier);
-
-#endif /* TYPE_SPECIFIER_H_ */
+#endif /* FUNCTION_H_ */

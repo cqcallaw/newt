@@ -80,7 +80,7 @@ Error error_handler; // error reporting object
 "true"          return T_TRUE;
 "false"         return T_FALSE;
 
-"="             return T_ASSIGN;
+"="             return T_EQUALS;
 "{"             return T_LBRACE;
 "}"             return T_RBRACE;
 ":"             return T_COLON;
@@ -94,6 +94,8 @@ Error error_handler; // error reporting object
 "."             return T_PERIOD;
 "+="            return T_PLUS_ASSIGN;
 "-="            return T_MINUS_ASSIGN;
+
+"->"            return T_ARROW_RIGHT;
 
 "*"             return T_ASTERISK;
 "/"             return T_DIVIDE;
@@ -113,6 +115,7 @@ Error error_handler; // error reporting object
 "struct"        return T_STRUCT;
 "readonly"      return T_READONLY;
 "with"          return T_WITH;
+"return"        return T_RETURN;
 
 [0-9]+                              { yylval->union_int = atoi(yytext); return T_INT_CONSTANT; }
 ([0-9]+\.[0-9]+|[0-9]+\.|\.[0-9]+)  { yylval->union_double = atof(yytext); return T_DOUBLE_CONSTANT; }

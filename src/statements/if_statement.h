@@ -42,7 +42,11 @@ public:
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(
+			ExecutionContext* execution_context) const;
+
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
 			const ExecutionContext* execution_context) const;
+
 private:
 	const Expression* m_expression;
 	const StatementBlock* m_block;

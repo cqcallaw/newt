@@ -1,10 +1,10 @@
-string s1 = "one"
-string s2 = "two"
-string s3 = "three"
-string s4 = "four"
-string s5 = "five"
-int i = 1
-double x = 1.1
+s1: string = "one"
+s2: string = "two"
+s3: string = "three"
+s4: string = "four"
+s5: string = "five"
+i: int = 1
+x: double = 1.1
 
     s1 = s2
     s2 = i

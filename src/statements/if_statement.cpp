@@ -96,7 +96,7 @@ const LinkedList<const Error*>* IfStatement::preprocess(
 }
 
 const LinkedList<const Error*>* IfStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
@@ -136,4 +136,20 @@ const LinkedList<const Error*>* IfStatement::execute(
 	}
 
 	return errors;
+}
+
+const AnalysisResult IfStatement::Returns(const TypeSpecifier* type_specifier,
+		const ExecutionContext* execution_context) const {
+	AnalysisResult result = m_block->Returns(type_specifier, execution_context);
+
+	if (m_else_block) {
+		AnalysisResult else_result = m_else_block->Returns(type_specifier,
+				execution_context);
+
+		if (result == AnalysisResult::YES) {
+			result = else_result;
+		}
+	}
+
+	return result;
 }

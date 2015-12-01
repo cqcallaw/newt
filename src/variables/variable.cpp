@@ -34,6 +34,9 @@ Variable::Variable(const string* name, YYLTYPE location) :
 Variable::~Variable() {
 }
 
-const LinkedList<const Error*>* Variable::ToErrorList(SetResult result) const {
-	return ::ToErrorList(result, GetLocation(), GetName());
+const LinkedList<const Error*>* Variable::ToErrorList(SetResult result,
+		const TypeSpecifier* symbol_type,
+		const TypeSpecifier* expression_type) const {
+	return ::ToErrorList(result, GetLocation(), GetName(), symbol_type,
+			expression_type);
 }

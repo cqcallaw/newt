@@ -1,14 +1,14 @@
 struct rectangle {
-	int x
-	int y
-	int w = 10
-	int h
+	x: int
+	y: int
+	w: int = 10
+	h: int
 }
 
-string str
-int i
-int size = 4
-rectangle[] rects
+str: string
+i: int
+size: int = 4
+rects: rectangle[]
 rects[size - 1] = #rectangle
 
     for (i = 0; i < size; i += 1)

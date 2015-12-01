@@ -16,17 +16,18 @@
 #include <sstream>
 #include <constant_expression.h>
 #include <vector>
-#include <type_specifier.h>
 #include <compound_type.h>
 #include <array_type_specifier.h>
 #include <dimension_list.h>
+#include <type_specifier.h>
 
-ArrayDeclarationStatement::ArrayDeclarationStatement(
+ArrayDeclarationStatement::ArrayDeclarationStatement(const YYLTYPE position,
 		const ArrayTypeSpecifier* type_specifier, const YYLTYPE type_position,
 		const std::string* name, const YYLTYPE name_position,
 		const Expression* initializer_expression) :
-		m_type(type_specifier), m_type_position(type_position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(initializer_expression) {
+		DeclarationStatement(position), m_type(type_specifier), m_type_position(
+				type_position), m_name(name), m_name_position(name_position), m_initializer_expression(
+				initializer_expression) {
 }
 
 const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
@@ -99,7 +100,7 @@ ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 }
 
 const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 	if (m_initializer_expression) {
@@ -110,10 +111,12 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 		if (errors->IsTerminator()) {
 			const Array* array =
 					static_cast<const Array*>(initializer_result->GetData());
-			SetResult result = execution_context->GetSymbolContext()->SetSymbol(
-					*m_name, array);
+			auto symbol_context = execution_context->GetSymbolContext();
+			SetResult result = symbol_context->SetSymbol(*m_name, array);
 			errors = ToErrorList(result,
-					m_initializer_expression->GetPosition(), m_name);
+					m_initializer_expression->GetPosition(), m_name,
+					symbol_context->GetSymbol(m_name)->GetType(),
+					array->GetTypeSpecifier());
 		}
 
 		delete (initializer_result);
@@ -124,6 +127,12 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 
 const TypeSpecifier* ArrayDeclarationStatement::GetType() const {
 	return m_type;
+}
+
+const DeclarationStatement* ArrayDeclarationStatement::WithInitializerExpression(
+		const Expression* expression) const {
+	return new ArrayDeclarationStatement(GetPosition(), m_type, m_type_position,
+			m_name, m_name_position, expression);
 }
 
 const std::string* ArrayDeclarationStatement::GetName() const {

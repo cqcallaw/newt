@@ -63,6 +63,9 @@ protected:
 			const ExecutionContext* context,
 			const CompoundTypeInstance* value) const;
 
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context, const Function* value) const;
+
 };
 
 #endif /* VARIABLES_BASIC_VARIABLE_H_ */

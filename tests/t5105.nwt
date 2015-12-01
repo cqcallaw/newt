@@ -1,0 +1,6 @@
+//test invalid argument
+x := (a: int, b: int) -> int {
+	return a + b
+}
+
+y := x(6.0, 7)

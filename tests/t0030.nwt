@@ -1,12 +1,12 @@
 // test array declaration variants
 
 struct test {
-	int x = 10
+	x: int = 10
 }
 
-test[] a
+a: test[]
 a[1] = #test with { x = 12 }
-test[] b = a
-test[][] c
+b: test[] = a
+c: test[][]
 c[2] = a
-test[][] d = c
+d: test[][] = c

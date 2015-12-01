@@ -1,4 +1,4 @@
-int i
+i: int
 
    for (i = 0; i < 10; i += 1) {
        print("i = " + i)

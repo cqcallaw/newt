@@ -35,10 +35,15 @@ public:
 	}
 
 	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const;
+			ExecutionContext* execution_context) const;
 
 	const Expression* GetExpression() const {
 		return m_expression;
+	}
+
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+			const ExecutionContext* execution_context) const {
+		return AnalysisResult::NO;
 	}
 
 private:

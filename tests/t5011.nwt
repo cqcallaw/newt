@@ -1,0 +1,6 @@
+//test widening conversion of function arguments
+fun := (a: double) -> double {
+	return a
+}
+a:= 2
+c:= fun(a)

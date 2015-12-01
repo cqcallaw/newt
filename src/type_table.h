@@ -43,6 +43,8 @@ public:
 
 	const static string DefaultTypeName;
 
+	static TypeTable* GetDefault();
+
 private:
 	map<const string, const CompoundType*>* table;
 };

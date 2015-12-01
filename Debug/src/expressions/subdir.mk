@@ -10,6 +10,8 @@ CPP_SRCS += \
 ../src/expressions/constant_expression.cpp \
 ../src/expressions/default_value_expression.cpp \
 ../src/expressions/expression.cpp \
+../src/expressions/function_expression.cpp \
+../src/expressions/invoke_expression.cpp \
 ../src/expressions/logic_expression.cpp \
 ../src/expressions/unary_expression.cpp \
 ../src/expressions/variable_expression.cpp \
@@ -22,6 +24,8 @@ OBJS += \
 ./src/expressions/constant_expression.o \
 ./src/expressions/default_value_expression.o \
 ./src/expressions/expression.o \
+./src/expressions/function_expression.o \
+./src/expressions/invoke_expression.o \
 ./src/expressions/logic_expression.o \
 ./src/expressions/unary_expression.o \
 ./src/expressions/variable_expression.o \
@@ -34,6 +38,8 @@ CPP_DEPS += \
 ./src/expressions/constant_expression.d \
 ./src/expressions/default_value_expression.d \
 ./src/expressions/expression.d \
+./src/expressions/function_expression.d \
+./src/expressions/invoke_expression.d \
 ./src/expressions/logic_expression.d \
 ./src/expressions/unary_expression.d \
 ./src/expressions/variable_expression.d \
@@ -44,7 +50,7 @@ CPP_DEPS += \
 src/expressions/%.o: ../src/expressions/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -std=c++0x -I./ -I../src -I../src/expressions -I../src/statements -I../src/variables -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -std=c++0x -I./ -I../src -I../src/expressions -I../src/specifiers -I../src/statements -I../src/variables -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

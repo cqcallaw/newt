@@ -421,10 +421,13 @@ const LinkedList<const Error*>* ArrayVariable::SetSymbolCore(
 			}
 		}
 
-		const SetResult set_result = context->GetSymbolContext()->SetSymbol(
-				*GetName(), new_array);
+		auto symbol_context = context->GetSymbolContext();
+		const SetResult set_result = symbol_context->SetSymbol(*GetName(),
+				new_array);
 
-		errors = ToErrorList(set_result);
+		errors = ToErrorList(set_result,
+				symbol_context->GetSymbol(*GetName())->GetType(),
+				array->GetTypeSpecifier());
 	}
 	delete (validation_result);
 

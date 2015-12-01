@@ -1,7 +1,7 @@
 //test precedence rules
-int should_be_0 = 4 + 0 && 0 * 4
-int should_be_1 = 4 + 0 || 0 + 4
-int should_be_23 = 5 + 9 * 2
-int should_be_30 = 2 * 3 + 4 + 4 * 5 
-int should_be_7 = 12 % 7 + 2
-int should_be_8 = 3 + 12 % 7
+should_be_0: int = 4 + 0 && 0 * 4
+should_be_1: int = 4 + 0 || 0 + 4
+should_be_23: int = 5 + 9 * 2
+should_be_30: int = 2 * 3 + 4 + 4 * 5 
+should_be_7: int = 12 % 7 + 2
+should_be_8: int = 3 + 12 % 7

@@ -17,26 +17,25 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEMBER_DECLARATION_LIST_H_
-#define MEMBER_DECLARATION_LIST_H_
+#ifndef ARGUMENT_LIST_H_
+#define ARGUMENT_LIST_H_
 
 #include "linked_list.h"
 
-class DeclarationStatement;
+class Expression;
 
-class MemberDeclarationList: public LinkedList<const DeclarationStatement*> {
+class ArgumentList: public LinkedList<const Expression*> {
 public:
-	MemberDeclarationList(const DeclarationStatement* data,
-			const MemberDeclarationList* next) :
+	ArgumentList(const Expression* data, const ArgumentList* next) :
 			LinkedList(data, next) {
 	}
 
-	MemberDeclarationList(const LinkedList<const DeclarationStatement*>* list) :
+	ArgumentList(const LinkedList<const Expression*>* list) :
 			LinkedList(list) {
 	}
 
-	static constexpr MemberDeclarationList* Terminator =
-			(MemberDeclarationList*) LinkedList<const DeclarationStatement*>::Terminator;
+	static constexpr ArgumentList* Terminator = (ArgumentList*) LinkedList<
+			const Expression*>::Terminator;
 };
 
-#endif /* MEMBER_DECLARATION_LIST_H_ */
+#endif /* ARGUMENT_LIST_H_ */

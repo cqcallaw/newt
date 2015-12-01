@@ -1,2 +1,2 @@
 // test invalid type for array element 
-undefined[] nums
+nums: undefined[]

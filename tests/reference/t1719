@@ -1,4 +1,4 @@
 Parsing file ../tests/t1719.nwt...
-Semantic error on line 3, column 10: Invalid right operand for operator '!'.
+Semantic error on line 3, column 11: Invalid right operand for operator '!'.
 Parsed file ../tests/t1719.nwt.
 1 error found; giving up.

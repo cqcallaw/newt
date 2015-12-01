@@ -1,1 +1,1 @@
-string s = "a string of characters"
+s: string = "a string of characters"

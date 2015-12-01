@@ -1,4 +1,4 @@
 Parsing file ../tests/t0020.nwt...
-Semantic error on line 1, column 7: Variable 'y' was not declared before it was used.
+Semantic error on line 1, column 4: Invalid type "y".
 Parsed file ../tests/t0020.nwt.
 1 error found; giving up.

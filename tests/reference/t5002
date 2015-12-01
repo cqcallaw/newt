@@ -1,0 +1,9 @@
+Parsing file ../tests/t5002.nwt...
+Parsed file ../tests/t5002.nwt.
+Root Symbol Table:
+----------------
+string s: "Hello, world!"
+int z: 17
+
+Root Type Table:
+----------------

@@ -1,2 +1,2 @@
-double[] values
-int values
+values: double[]
+values: int

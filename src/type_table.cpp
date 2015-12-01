@@ -61,3 +61,8 @@ const void TypeTable::print(ostream& os) const {
 		os << type->ToString(this, Indent(0));
 	}
 }
+
+TypeTable* TypeTable::GetDefault() {
+	static TypeTable* instance = new TypeTable();
+	return instance;
+}

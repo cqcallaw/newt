@@ -1,0 +1,13 @@
+Parsing file ../tests/t5003.nwt...
+Parsed file ../tests/t5003.nwt.
+Root Symbol Table:
+----------------
+int a: 3
+(int, int) -> int add:
+(int, int) -> int add_default:
+int b: 1
+int c: 3
+int d: 5
+
+Root Type Table:
+----------------

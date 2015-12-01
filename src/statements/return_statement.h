@@ -17,24 +17,29 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARAMETERLIST_H_
-#define PARAMETERLIST_H_
+#ifndef STATEMENTS_RETURN_STATEMENT_H_
+#define STATEMENTS_RETURN_STATEMENT_H_
 
-#include "linked_list.h"
+#include <statement.h>
 
-class Parameter;
+class Expression;
 
-class ParameterList: public LinkedList<const Parameter*> {
+class ReturnStatement: public Statement {
 public:
-	ParameterList(const Parameter* data, const ParameterList* next) :
-			LinkedList(data, next) {
-	}
+	ReturnStatement(const Expression* expression);
+	virtual ~ReturnStatement();
 
-	ParameterList(const Parameter* data) :
-			ParameterList(data, ParameterList::Terminator) {
-	}
+	virtual const LinkedList<const Error*>* preprocess(
+			const ExecutionContext* execution_context) const;
 
-	static const ParameterList* Terminator;
+	virtual const LinkedList<const Error*>* execute(
+			ExecutionContext* execution_context) const;
+
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+			const ExecutionContext* execution_context) const;
+
+private:
+	const Expression* m_expression;
 };
 
-#endif /* PARAMETERLIST_H_ */
+#endif /* STATEMENTS_RETURN_STATEMENT_H_ */

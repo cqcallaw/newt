@@ -30,8 +30,11 @@ public:
 	ConstantExpression(const YYLTYPE position, const int value);
 	ConstantExpression(const YYLTYPE position, const double value);
 	ConstantExpression(const YYLTYPE position, const std::string* value);
+	const static ConstantExpression* GetDefaultExpression(
+			const TypeSpecifier* type, const TypeTable* type_table);
 
-	virtual const TypeSpecifier* GetType(const ExecutionContext* execution_context) const;
+	virtual const TypeSpecifier* GetType(
+			const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const;
@@ -42,6 +45,9 @@ public:
 
 	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context) const;
+
+	static const Result* GetConstantExpression(const Expression* expression,
+			const ExecutionContext* execution_context);
 
 private:
 	ConstantExpression(const YYLTYPE position, const TypeSpecifier* type,

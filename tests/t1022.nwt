@@ -1,5 +1,5 @@
-int a = !(true && false)
-int b = !true || !false
-int c = !(true && false || true)
-int d = true || false && true
-int e = (true || false) && true
+a: int = !(true && false)
+b: int = !true || !false
+c: int = !(true && false || true)
+d: int = true || false && true
+e: int = (true || false) && true

@@ -18,6 +18,8 @@
  */
 
 #include <compound_type_instance.h>
+#include <function.h>
+#include <function_declaration.h>
 #include <iostream>
 #include <sstream>
 #include <defaults.h>
@@ -28,7 +30,8 @@
 #include "utils.h"
 
 const LinkedList<const Error*>* ToErrorList(const SetResult result,
-		const YYLTYPE location, const string* name) {
+		const YYLTYPE location, const string* name,
+		const TypeSpecifier* symbol_type, const TypeSpecifier* value_type) {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
@@ -46,7 +49,8 @@ const LinkedList<const Error*>* ToErrorList(const SetResult result,
 	case INCOMPATIBLE_TYPE:
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-						location.first_line, location.first_column, *name));
+						location.first_line, location.first_column,
+						symbol_type->ToString(), value_type->ToString()));
 		break;
 	case MUTATION_DISALLOWED:
 		errors = errors->With(
@@ -130,6 +134,17 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 SetResult SymbolContext::SetSymbol(const string identifier,
 		const Array* value) {
 	return SetSymbol(identifier, value->GetTypeSpecifier(), (void*) value);
+}
+
+SetResult SymbolContext::SetSymbol(const string identifier,
+		const Function* value) {
+	return SetSymbol(identifier, value->GetType(), (void*) value);
+}
+
+SymbolContext* SymbolContext::GetDefault() {
+	static SymbolContext* instance = new SymbolContext(
+			Modifier::READONLY);
+	return instance;
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,

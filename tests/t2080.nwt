@@ -1,1 +1,1 @@
-int foo = my_circle.y
+foo: int = my_circle.y

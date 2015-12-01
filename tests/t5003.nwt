@@ -1,0 +1,12 @@
+add := (a: int, b: int = 0) -> int {
+	return a + b
+}
+
+add_default := (a: int = 1, b: int = 0) -> int {
+	return a + b
+}
+
+a: int = add(3)
+b: int = add_default()
+c: int = add_default(3)
+d: int = add_default(3, 2)

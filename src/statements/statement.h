@@ -20,10 +20,12 @@
 #ifndef STATEMENT_H_
 #define STATEMENT_H_
 #include "linked_list.h"
+#include "analysis_result.h"
 
 class ExecutionContext;
 class Error;
 class Result;
+class TypeSpecifier;
 
 class Statement {
 public:
@@ -36,7 +38,11 @@ public:
 	virtual const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const = 0;
 
-	virtual const LinkedList<const Error*>* execute(const ExecutionContext* execution_context) const = 0;
+	virtual const LinkedList<const Error*>* execute(
+			ExecutionContext* execution_context) const = 0;
+
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+			const ExecutionContext* execution_context) const = 0;
 };
 
 #endif /* STATEMENT_H_ */

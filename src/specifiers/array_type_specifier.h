@@ -22,12 +22,14 @@
 
 #include <type_specifier.h>
 
+class Expression;
+class Statement;
+
 using namespace std;
 class ArrayTypeSpecifier: public TypeSpecifier {
 public:
 	ArrayTypeSpecifier(const TypeSpecifier* element_type_specifier) :
-			m_element_type_specifier(
-					element_type_specifier) {
+			m_element_type_specifier(element_type_specifier) {
 	}
 
 	virtual ~ArrayTypeSpecifier() {
@@ -45,9 +47,20 @@ public:
 
 	virtual const void* DefaultValue(const TypeTable* type_table) const;
 
+	virtual bool operator==(const TypeSpecifier& other) const;
+
+	virtual bool operator!=(const TypeSpecifier &other) const {
+		return !(*this == other);
+	}
+
 	const TypeSpecifier* GetElementTypeSpecifier() const {
 		return m_element_type_specifier;
 	}
+
+	virtual const DeclarationStatement* GetDeclarationStatement(
+			const YYLTYPE position, const YYLTYPE type_position,
+			const std::string* name, const YYLTYPE name_position,
+			const Expression* initializer_expression) const;
 
 private:
 	const TypeSpecifier* m_element_type_specifier;

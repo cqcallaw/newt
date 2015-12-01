@@ -26,6 +26,7 @@
 #include <error.h>
 #include <symbol_table.h>
 #include <execution_context.h>
+#include <type_specifier.h>
 
 ForStatement::ForStatement(const AssignmentStatement* initial,
 		const Expression* loop_expression,
@@ -71,14 +72,14 @@ const LinkedList<const Error*>* ForStatement::preprocess(
 }
 
 const LinkedList<const Error*>* ForStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* initialization_errors;
 
 	SymbolContext* symbol_context = execution_context->GetSymbolContext();
 	const auto new_parent = symbol_context->GetParent()->With(symbol_context);
 	SymbolTable* tmp_table = new SymbolTable(m_block_table->GetModifiers(),
 			new_parent, m_block_table->GetTable());
-	const ExecutionContext* new_execution_context =
+	ExecutionContext* new_execution_context =
 			execution_context->WithSymbolContext(tmp_table);
 
 	if (m_initial != nullptr) {
@@ -126,4 +127,12 @@ const LinkedList<const Error*>* ForStatement::execute(
 	delete new_parent;
 
 	return LinkedList<const Error*>::Terminator;
+}
+
+const AnalysisResult ForStatement::Returns(const TypeSpecifier* type_specifier,
+		const ExecutionContext* execution_context) const {
+	//as of this writing, it is deemed prohibitively complicated to
+	//perform the semantic analysis that would determine whether or not
+	//this loop will execute, or how many times it will execute.
+	return AnalysisResult::NO;
 }

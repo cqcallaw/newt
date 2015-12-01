@@ -20,9 +20,9 @@ class DimensionList;
 
 class ArrayDeclarationStatement: public DeclarationStatement {
 public:
-	ArrayDeclarationStatement(const ArrayTypeSpecifier* type,
-			const YYLTYPE type_position, const std::string* name,
-			const YYLTYPE name_position,
+	ArrayDeclarationStatement(const YYLTYPE position,
+			const ArrayTypeSpecifier* type, const YYLTYPE type_position,
+			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression = nullptr);
 
 	virtual ~ArrayDeclarationStatement();
@@ -31,11 +31,14 @@ public:
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const;
+			ExecutionContext* execution_context) const;
 
 	virtual const Expression* GetInitializerExpression() const {
 		return nullptr;
 	}
+
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const;
 
 	virtual const TypeSpecifier* GetType() const;
 

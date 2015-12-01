@@ -1,2 +1,2 @@
-string s = "a string of characters"
-string t = s + ", concatenated together!"
+s: string = "a string of characters"
+t: string = s + ", concatenated together!"

@@ -1,0 +1,9 @@
+f:= (a:int) -> (int) -> int {
+	return (b:int) -> int {
+		return a * b
+	}
+}
+
+g := f(2)
+
+x := g(3)

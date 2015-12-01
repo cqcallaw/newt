@@ -1,12 +1,12 @@
 // test valid assignment of array index
 struct rectangle {
-	int x
-	int y
-	int w = 10
+	x: int
+	y: int
+	w: int = 10
 }
 
-int size = 2
-rectangle[] rects
+size: int = 2
+rects: rectangle[]
 rects[size - 1] = #rectangle
 
 rects[0].x = 20

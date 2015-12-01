@@ -1,10 +1,10 @@
-int a = 1
-int b = 2
-int c = 3
-int d = 4
-int e = 5
-int x
-int y
+a: int = 1
+b: int = 2
+c: int = 3
+d: int = 4
+e: int = 5
+x: int
+y: int
 
     x = a * b * c * d * e
     y = a + b + c + d + e

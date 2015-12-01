@@ -1,4 +1,4 @@
 Parsing file ../tests/t0013.nwt...
-Parse error on line 1 reported by parser: syntax error, unexpected double constant, expecting $end.
+Parse error on line 1, column 16 reported by parser: syntax error, unexpected double constant, expecting $end.
 Parsed file ../tests/t0013.nwt.
 1 error found; giving up.

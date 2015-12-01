@@ -30,8 +30,8 @@
 #include <typeinfo>
 #include <variable_expression.h>
 #include <yyltype.h>
-#include <type_specifier.h>
 #include <compound_type.h>
+#include <type_specifier.h>
 
 AssignmentStatement::AssignmentStatement(const Variable* variable,
 		const AssignmentType op_type, const Expression* expression) :
@@ -521,8 +521,9 @@ const Result* AssignmentStatement::do_op(const string* variable_name,
 }
 
 const LinkedList<const Error*>* AssignmentStatement::execute(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors;
+		ExecutionContext* execution_context) const {
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::Terminator;
 
 	if (m_variable == nullptr || m_expression == nullptr) {
 		assert(false);

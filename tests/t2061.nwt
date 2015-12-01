@@ -1,4 +1,4 @@
-int i
-string s
+i: int
+s: string
 
    i = s

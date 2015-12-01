@@ -1,2 +1,2 @@
 // do not allow divide by zero
-int[10/0] nums
+nums: int[10/0]

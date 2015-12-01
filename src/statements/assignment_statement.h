@@ -55,7 +55,12 @@ public:
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const;
+			ExecutionContext* execution_context) const;
+
+	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+			const ExecutionContext* execution_context) const {
+		return AnalysisResult::NO;
+	}
 
 	const static LinkedList<const Error*>* do_op(const string* variable_name,
 			const BasicType variable_type, int variable_line,

@@ -1,0 +1,6 @@
+//test un-inferred function declaration
+f:(int) -> int = (a:int) -> int {
+	return a
+}
+
+x := f(2)

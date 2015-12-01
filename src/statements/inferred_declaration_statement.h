@@ -29,8 +29,8 @@ class TypeSpecifier;
 
 class InferredDeclarationStatement: public DeclarationStatement {
 public:
-	InferredDeclarationStatement(const std::string* name,
-			const YYLTYPE name_position,
+	InferredDeclarationStatement(const YYLTYPE position,
+			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression);
 	virtual ~InferredDeclarationStatement();
 
@@ -38,11 +38,20 @@ public:
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const;
+			ExecutionContext* execution_context) const;
 
 	virtual const Expression* GetInitializerExpression() const;
+
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const;
+
 	virtual const TypeSpecifier* GetType() const;
 	virtual const std::string* GetName() const;
+
+	virtual const AnalysisResult Returns(
+			const TypeSpecifier* type_specifier) const {
+		return AnalysisResult::NO;
+	}
 
 private:
 	const std::string* m_name;

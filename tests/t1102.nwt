@@ -1,4 +1,4 @@
-int[] my_array
+my_array: int[]
 my_array[3] = 0
 
-int a = my_array[42]
+a: int = my_array[42]

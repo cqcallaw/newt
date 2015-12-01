@@ -15,11 +15,12 @@
 #include <variable_expression.h>
 
 PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
-		const TypeSpecifier* type, const YYLTYPE type_position,
-		const std::string* name, const YYLTYPE name_position,
-		const Expression* initializer_expression) :
-		m_type(type), m_type_position(type_position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(initializer_expression) {
+		const YYLTYPE position, const TypeSpecifier* type,
+		const YYLTYPE type_position, const std::string* name,
+		const YYLTYPE name_position, const Expression* initializer_expression) :
+		DeclarationStatement(position), m_type(type), m_type_position(
+				type_position), m_name(name), m_name_position(name_position), m_initializer_expression(
+				initializer_expression) {
 }
 
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
@@ -64,10 +65,11 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 					errors =
 							errors->With(
 									new Error(Error::SEMANTIC,
-											Error::INVALID_TYPE_FOR_INITIAL_VALUE,
+											Error::INVALID_INITIALIZER_TYPE,
 											m_initializer_expression->GetPosition().first_line,
 											m_initializer_expression->GetPosition().first_column,
-											*name));
+											*name, as_primitive->ToString(),
+											expression_type_specifier->ToString()));
 				}
 			}
 		}
@@ -96,7 +98,7 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 			break;
 		}
 	} else {
-		assert(false); //our basic declaration statements should always be primitives
+		assert(false);
 	}
 
 	if (symbol != Symbol::DefaultSymbol) {
@@ -117,7 +119,7 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 }
 
 const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
-		const ExecutionContext* execution_context) const {
+		ExecutionContext* execution_context) const {
 	if (m_initializer_expression != nullptr) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_position);
 		auto errors = temp_variable->AssignValue(execution_context,
@@ -128,4 +130,10 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
 	} else {
 		return LinkedList<const Error*>::Terminator;
 	}
+}
+
+const DeclarationStatement* PrimitiveDeclarationStatement::WithInitializerExpression(
+		const Expression* expression) const {
+	return new PrimitiveDeclarationStatement(GetPosition(), m_type,
+			m_type_position, m_name, m_name_position, expression);
 }

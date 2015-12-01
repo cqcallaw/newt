@@ -30,9 +30,9 @@ void Error::lex_error(int line_number, string s1) {
 			<< " is not a legal token." << endl;
 }
 
-void Error::parse_error(int line_number, string s1) {
-	cerr << "Parse error on line " << line_number << " reported by parser: "
-			<< s1 << "." << endl;
+void Error::parse_error(int line_number, int column_number, string s1) {
+	cerr << "Parse error on line " << line_number << ", column "
+			<< column_number << " reported by parser: " << s1 << "." << endl;
 	m_num_errors++;
 }
 
@@ -81,8 +81,10 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 	case INVALID_RIGHT_OPERAND_TYPE:
 		os << "Invalid right operand for operator '" << s1 << "'.";
 		break;
-	case INVALID_TYPE_FOR_INITIAL_VALUE:
-		os << "Incorrect type for initial value of variable '" << s1 << "'.";
+	case INVALID_INITIALIZER_TYPE:
+		os << "Variable '" << s1 << "' of type '" << s2
+				<< "' cannot be assigned to an expression of type '" << s3
+				<< "'.";
 		break;
 	case INVALID_TYPE_FOR_FOR_STMT_EXPRESSION:
 		os << "Incorrect type for expression in for statement."
@@ -116,12 +118,7 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		os << "Variable '" << s1 << "'" << " previously declared.";
 		break;
 	case UNDECLARED_VARIABLE:
-		os << "Variable '" << s1 << "'"
-				<< " was not declared before it was used.";
-		break;
-	case UNKNOWN_CONSTRUCTOR_PARAMETER:
-		os << "Class '" << s1 << "' does not have a parameter called '" << s2
-				<< "'.";
+		os << "Undeclared variable '" << s1 << "'";
 		break;
 	case VARIABLE_NOT_AN_ARRAY:
 		os << "Variable '" << s1 << "' is not an array.";
@@ -147,6 +144,22 @@ void Error::error_core(ostream &os, ErrorCode code, string s1, string s2,
 		break;
 	case READONLY:
 		os << "\"" << s1 << "\" is read-only.";
+		break;
+	case FUNCTION_RETURN_MISMATCH:
+		os << "Function does not return specified type.";
+		break;
+	case FUNCTION_PARAMETER_TYPE_MISMATCH:
+		os << "Parameter type mismatch: can't assign '" << s1 << "' to '" << s2
+				<< "'";
+		break;
+	case TOO_MANY_ARGUMENTS:
+		os << "Too many arguments for function of type '" << s1 << "'.";
+		break;
+	case NO_PARAMETER_DEFAULT:
+		os << "No value specified for non-default parameter '" << s1 << "'.";
+		break;
+	case NOT_A_FUNCTION:
+		os << "The given expression does not reference a valid function.";
 		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";

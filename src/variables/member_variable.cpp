@@ -34,10 +34,9 @@ const TypeSpecifier* MemberVariable::GetType(
 		const CompoundTypeInstance* instance =
 				static_cast<const CompoundTypeInstance*>(as_compound_type->DefaultValue(
 						context->GetTypeTable()));
-		const ExecutionContext* new_context = context->WithSymbolContext(
+		ExecutionContext* new_context = context->WithSymbolContext(
 				instance->GetDefinition());
-		const TypeSpecifier* result = m_member_variable->GetType(
-				new_context);
+		const TypeSpecifier* result = m_member_variable->GetType(new_context);
 		delete instance;
 		delete new_context;
 		return result;
@@ -72,8 +71,8 @@ const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 				const CompoundTypeInstance* instance =
 						(const CompoundTypeInstance*) container_result->GetData();
 				SymbolContext* new_symbol_context = instance->GetDefinition();
-				const ExecutionContext* new_context =
-						context->WithSymbolContext(new_symbol_context);
+				ExecutionContext* new_context = context->WithSymbolContext(
+						new_symbol_context);
 				const Result* member_result = m_member_variable->Evaluate(
 						new_context);
 				return member_result;
@@ -125,7 +124,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			PrimitiveTypeSpecifier::GetBoolean());
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
@@ -156,7 +156,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			PrimitiveTypeSpecifier::GetInt());
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
@@ -187,7 +188,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			PrimitiveTypeSpecifier::GetDouble());
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
@@ -218,7 +220,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			PrimitiveTypeSpecifier::GetString());
 }
 
 const LinkedList<const Error*>* MemberVariable::AssignValue(
@@ -243,7 +246,7 @@ const LinkedList<const Error*>* MemberVariable::AssignValue(
 				definition->GetModifiers(), new_parent_context,
 				definition->GetTable());
 
-		const ExecutionContext* new_context = context->WithSymbolContext(
+		ExecutionContext* new_context = context->WithSymbolContext(
 				new_definition);
 		const Variable* new_variable = GetMemberVariable();
 
@@ -284,7 +287,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			value->GetTypeSpecifier());
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
@@ -315,7 +319,8 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorList(set_result);
+	return ToErrorList(set_result, m_member_variable->GetType(context),
+			value->GetTypeSpecifier());
 }
 
 const LinkedList<const Error*>* MemberVariable::Validate(

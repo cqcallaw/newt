@@ -17,14 +17,17 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PRIMITIVE_TYPE_SPECIFIER_H_
-#define PRIMITIVE_TYPE_SPECIFIER_H_
+#ifndef SPECIFIERS_PRIMITIVE_TYPE_SPECIFIER_H_
+#define SPECIFIERS_PRIMITIVE_TYPE_SPECIFIER_H_
 
-#include <type_specifier.h>
 #include <assert.h>
 #include <sstream>
 #include <defaults.h>
+#include <type_specifier.h>
 #include <type.h>
+
+class Expression;
+class Statement;
 
 class PrimitiveTypeSpecifier: public TypeSpecifier {
 public:
@@ -40,6 +43,17 @@ public:
 	virtual const bool IsAssignableTo(const TypeSpecifier* other) const;
 
 	virtual const void* DefaultValue(const TypeTable* type_table) const;
+
+	virtual bool operator==(const TypeSpecifier &other) const;
+
+	virtual bool operator!=(const TypeSpecifier &other) const {
+		return !(*this == other);
+	}
+
+	virtual const DeclarationStatement* GetDeclarationStatement(
+			const YYLTYPE position, const YYLTYPE type_position,
+			const std::string* name, const YYLTYPE name_position,
+			const Expression* initializer_expression) const;
 
 	const BasicType GetBasicType() const {
 		return m_basic_type;
@@ -65,4 +79,4 @@ private:
 	const BasicType m_basic_type;
 };
 
-#endif /* PRIMITIVE_TYPE_SPECIFIER_H_ */
+#endif /* SPECIFIERS_PRIMITIVE_TYPE_SPECIFIER_H_ */

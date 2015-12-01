@@ -1,4 +1,4 @@
 Parsing file ../tests/t1117.nwt...
-Semantic error on line 1, column 12: Incorrect type for initial value of variable 'x'.
+Semantic error on line 1, column 13: Variable 'x' of type 'double' cannot be assigned to an expression of type 'string'.
 Parsed file ../tests/t1117.nwt.
 1 error found; giving up.

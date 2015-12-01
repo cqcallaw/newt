@@ -20,8 +20,8 @@
 #ifndef STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_
 #define STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_
 
+#include <declaration_list.h>
 #include <statement.h>
-#include <member_declaration_list.h>
 #include <modifier_list.h>
 #include <yyltype.h>
 #include <string>
@@ -29,9 +29,9 @@
 
 class StructDeclarationStatement: public DeclarationStatement {
 public:
-	StructDeclarationStatement(const std::string* name,
+	StructDeclarationStatement(const YYLTYPE position, const std::string* name,
 			const YYLTYPE name_position,
-			const MemberDeclarationList* member_declaration_list,
+			const DeclarationList* member_declaration_list,
 			const YYLTYPE member_declaration_list_position,
 			const ModifierList* modifier_list,
 			const YYLTYPE modifiers_location);
@@ -41,9 +41,9 @@ public:
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* execute(
-			const ExecutionContext* execution_context) const;
+			ExecutionContext* execution_context) const;
 
-	const MemberDeclarationList* GetMemberDeclarationList() const {
+	const DeclarationList* GetMemberDeclarationList() const {
 		return m_member_declaration_list;
 	}
 
@@ -58,6 +58,9 @@ public:
 	virtual const Expression* GetInitializerExpression() const {
 		return m_initializer_expression;
 	}
+
+	virtual const DeclarationStatement* WithInitializerExpression(
+			const Expression* expression) const;
 
 	const YYLTYPE GetMemberDeclarationListPosition() const {
 		return m_member_declaration_list_position;
@@ -78,7 +81,7 @@ public:
 private:
 	const std::string* m_name;
 	const YYLTYPE m_name_position;
-	const MemberDeclarationList* m_member_declaration_list;
+	const DeclarationList* m_member_declaration_list;
 	const YYLTYPE m_member_declaration_list_position;
 	const ModifierList* m_modifier_list;
 	const YYLTYPE m_modifiers_location;

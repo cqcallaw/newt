@@ -1,15 +1,15 @@
 // test various basic declarations
-int a
-int b
-double x
-double y
-string s1
-string s2
+a: int
+b: int
+x: double
+y: double
+s1: string
+s2: string
 
-int[] nums2
-double[] values2
-string[] strings2
+nums2: int[]
+values2: double[]
+strings2: string[]
 
-int a_very_long_identifier
-int an_identifier_with_digits_1234
-int _start_with_an_underscore
+a_very_long_identifier: int
+an_identifier_with_digits_1234: int
+_start_with_an_underscore: int

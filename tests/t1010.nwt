@@ -1,7 +1,7 @@
 // this file tests widening conversions
 //  int widens to a double
 //  both int and double convert to a string
-int a = 42
-double b = .9999
-string c = "a + b = "
-string d = c + a + " + " + b + " = " + (a + b)
+a: int = 42
+b: double = .9999
+c: string = "a + b = "
+d: string = c + a + " + " + b + " = " + (a + b)

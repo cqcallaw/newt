@@ -1,5 +1,5 @@
-int i
-string s
+i: int
+s: string
 
     for (i = 0; s + s; i += 1) {
         print("hello")

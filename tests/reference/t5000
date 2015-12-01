@@ -1,0 +1,9 @@
+Parsing file ../tests/t5000.nwt...
+Parsed file ../tests/t5000.nwt.
+Root Symbol Table:
+----------------
+int a: 5
+(int, int) -> int add:
+
+Root Type Table:
+----------------

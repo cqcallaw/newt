@@ -2,10 +2,10 @@
 // if the initialization fails
 
 // this is an error because 1.43 is not an int
-int i = 1.43
+i: int = 1.43
 
 // this should not be an error (i should be in the symbol table)
-int j = i
+j: int = i
 
 // this should be an error (foo is not in the symbol table)
-int k = foo
+k: int = foo

@@ -1,4 +1,4 @@
-string str1 = "hello"
-string str2 = "o"
+str1: string = "hello"
+str2: string = "o"
 
     str1 -= str2

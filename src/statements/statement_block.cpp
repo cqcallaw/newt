@@ -22,6 +22,8 @@
 #include <assert.h>
 #include "statement.h"
 #include "statement_list.h"
+#include <execution_context.h>
+#include <type_specifier.h>
 
 using namespace std;
 
@@ -37,8 +39,7 @@ const LinkedList<const Error*>* StatementBlock::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
-	const LinkedList<const Statement*>* subject =
-			(LinkedList<const Statement*>*) m_statements;
+	const LinkedList<const Statement*>* subject = m_statements;
 	while (subject != LinkedList<const Statement*>::Terminator) {
 		const Statement* statement = subject->GetData();
 		//TODO: handle nested statement blocks
@@ -53,13 +54,13 @@ const LinkedList<const Error*>* StatementBlock::preprocess(
 }
 
 const LinkedList<const Error*>* StatementBlock::execute(
-		const ExecutionContext* execution_context) const {
-	LinkedList<const Statement*>* list =
-			(LinkedList<const Statement*>*) m_statements;
+		ExecutionContext* execution_context) const {
+	const LinkedList<const Statement*>* list = m_statements;
 	while (list != StatementList::Terminator) {
 		const Statement* statement = list->GetData();
 		auto errors = statement->execute(execution_context);
-		if (errors != LinkedList<const Error*>::Terminator) {
+		if (errors != LinkedList<const Error*>::Terminator
+				|| execution_context->GetReturnValue() != nullptr) {
 			return errors;
 		}
 		list = (LinkedList<const Statement*>*) list->GetNext();
@@ -67,3 +68,19 @@ const LinkedList<const Error*>* StatementBlock::execute(
 
 	return LinkedList<const Error*>::Terminator;
 }
+
+const AnalysisResult StatementBlock::Returns(
+		const TypeSpecifier* type_specifier,
+		const ExecutionContext* execution_context) const {
+	AnalysisResult result = AnalysisResult::NO;
+	const LinkedList<const Statement*>* list = m_statements;
+	while (list != StatementList::Terminator) {
+		const Statement* statement = list->GetData();
+		result = static_cast<AnalysisResult>(result
+				| statement->Returns(type_specifier, execution_context));
+		list = (LinkedList<const Statement*>*) list->GetNext();
+	}
+
+	return result;
+}
+

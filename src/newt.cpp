@@ -37,6 +37,7 @@ void do_exit(bool debug, int exit_code) {
 		exit(exit_code);
 	}
 }
+
 int main(int argc, char *argv[]) {
 	FILE* input_file;
 	yyscan_t scanner;

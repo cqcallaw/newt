@@ -1,0 +1,7 @@
+add := (a: int, b: int) -> int {
+	return a + b
+}
+
+a: int = add(2, 3)
+
+add(4, 5)

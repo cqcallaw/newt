@@ -1,1 +1,1 @@
-double x = 42.4222
+x: double = 42.4222

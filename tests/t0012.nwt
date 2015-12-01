@@ -1,2 +1,2 @@
 //test invalid double
-double x = .42.
+x: double = .42.

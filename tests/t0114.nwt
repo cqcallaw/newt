@@ -1,15 +1,15 @@
 // test invalid assignment of runtime-specified fixed size array
 struct rectangle {
-	int x
-	int y
-	int w = 10
+	x: int
+	y: int
+	w: int = 10
 }
 
-int size = 2
-rectangle[] rects
+size: int = 2
+rects: rectangle[]
 rects[size -1] = #rectangle
 
-int i = 0
+i: int = 0
 for (i = 0; i < size; i += 1) {
 	rects[i].n = 20 //invalid struct member
 }

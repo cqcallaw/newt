@@ -33,6 +33,7 @@ class Expression;
 class ExecutionContext;
 class Array;
 class CompoundTypeInstance;
+class Function;
 
 class Symbol {
 public:
@@ -42,6 +43,7 @@ public:
 	Symbol(const string name, const string* value);
 	Symbol(const string name, const Array* value);
 	Symbol(const string name, const CompoundTypeInstance* value);
+	Symbol(const string name, const Function* value);
 
 	Symbol(const string* name, const bool* value);
 	Symbol(const string* name, const int* value);
@@ -49,6 +51,7 @@ public:
 	Symbol(const string* name, const string* value);
 	Symbol(const string* name, const Array* value);
 	Symbol(const string* name, const CompoundTypeInstance* value);
+	Symbol(const string* name, const Function* value);
 
 	virtual ~Symbol() {
 	}

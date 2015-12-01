@@ -1,2 +1,2 @@
-int i
-double i
+i: int
+i: double

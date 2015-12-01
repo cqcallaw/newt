@@ -1,3 +1,3 @@
-int numbers
+numbers: int
 
     numbers[42] = 11

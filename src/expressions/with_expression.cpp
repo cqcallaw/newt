@@ -19,11 +19,11 @@
 
 #include <with_expression.h>
 #include <execution_context.h>
-#include <compound_type_specifier.h>
 #include <compound_type.h>
 #include <member_definition.h>
 #include <member_instantiation.h>
 #include <member_instantiation_list.h>
+#include <compound_type_specifier.h>
 
 WithExpression::WithExpression(const YYLTYPE position,
 		const Expression* source_expression,

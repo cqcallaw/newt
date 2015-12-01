@@ -19,6 +19,9 @@
 
 #include <declaration_statement.h>
 
-DeclarationStatement::~DeclarationStatement() {
+DeclarationStatement::DeclarationStatement(const YYLTYPE position) :
+		m_position(position) {
 }
 
+DeclarationStatement::~DeclarationStatement() {
+}

@@ -30,10 +30,13 @@
 #include <expression.h>
 #include <variable.h>
 #include <parameter.h>
-#include <parameterlist.h>
+#include <parameter_list.h>
+#include <type_list.h>
 #include <statement.h>
 #include <assignment_statement.h>
 #include <declaration_statement.h>
+#include <declaration_list.h>
+#include <argument_list.h>
 #include <statement_list.h>
 #include <statement_block.h>
 #include <execution_context.h>
@@ -41,7 +44,7 @@
 #include <modifier.h>
 #include <modifier_list.h>
 #include <member_declaration.h>
-#include <member_declaration_list.h>
+#include <declaration_list.h>
 #include <member_instantiation.h>
 #include <member_instantiation_list.h>
 #include <index.h>
@@ -51,6 +54,9 @@
 
 #include <type.h>
 #include <type_specifier.h>
+#include <function_type_specifier.h>
+#include <function_declaration.h>
+
 typedef void* yyscan_t;
 
 }
@@ -83,6 +89,8 @@ typedef void* yyscan_t;
 #include <variable_expression.h>
 #include <with_expression.h>
 #include <default_value_expression.h>
+#include <function_expression.h>
+#include <invoke_expression.h>
 
 #include <print_statement.h>
 #include <assignment_statement.h>
@@ -90,10 +98,14 @@ typedef void* yyscan_t;
 #include <array_declaration_statement.h>
 #include <struct_declaration_statement.h>
 #include <struct_instantiation_statement.h>
+#include <function_declaration_statement.h>
 #include <inferred_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
+#include <invoke_statement.h>
+#include <return_statement.h>
+
 #include <statement_block.h>
 
 #include <array_type_specifier.h>
@@ -110,7 +122,7 @@ typedef void* yyscan_t;
 #define YYMAXDEPTH 10000
 
 void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scanner, const char* str) {
-	Error::parse_error(locp->first_line, string(str));
+	Error::parse_error(locp->first_line, locp->first_column, string(str));
 }
 
 }
@@ -120,22 +132,28 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
  int            union_int;
  double         union_double;
  std::string*   union_string;
+ const TypeSpecifier*    union_type_specifier;
  const PrimitiveTypeSpecifier*    union_primitive_type;
+ const FunctionTypeSpecifier*    union_function_type;
+ const FunctionDeclaration*    union_function_declaration;
  const Expression*          union_expression;
  const Variable*            union_variable;
  OperatorType               union_operator_type;
  const Parameter*           union_parameter_type;
  const ParameterList*       union_parameter_list_type;
+ const TypeList*            union_type_list;
  const Symbol*              union_symbol_type;
  const Statement*           union_statement_type;
  const StatementList*       union_statement_list_type;
  const StatementBlock*      union_statement_block_type;
  const AssignmentStatement* union_assignment_statement_type;
  const DeclarationStatement* union_declaration_statement_type;
+ const DeclarationList*     union_declaration_list_type;
+ const ArgumentList*        union_argument_list_type;
  const Modifier*            union_modifier_type;
  const ModifierList*        union_modifier_list_type;
  const MemberDeclaration*   union_member_declaration_type;
- const MemberDeclarationList*   union_member_declaration_list_type;
+
  const MemberInstantiation*   union_member_instantiation_type;
  const MemberInstantiationList*   union_member_instantiation_list_type;
  const Index*           union_index_type;
@@ -170,7 +188,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_COMMA               ","
 %token T_PERIOD              "."
 
-%token T_ASSIGN              "="
+%token T_EQUALS              "="
 %token T_PLUS_ASSIGN         "+="
 %token T_MINUS_ASSIGN        "-="
 
@@ -191,9 +209,12 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_OR                  "||"
 %token T_NOT                 "!"
 
+%token T_ARROW_RIGHT         "->"
+
 %token T_STRUCT              "struct declaration"
 %token T_READONLY            "readonly modifier"
 %token T_WITH                "with"
+%token T_RETURN              "return"
 %token T_ERROR               "error"
 
 %token <union_string> T_ID               "identifier"
@@ -209,7 +230,7 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %left T_PLUS T_MINUS
 %left T_ASTERISK T_DIVIDE T_PERCENT T_WITH
 
-%right T_ASSIGN
+%right T_EQUALS
 %right T_PLUS_ASSIGN
 %right T_MINUS_ASSIGN
 
@@ -218,10 +239,17 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %precedence IF_NO_ELSE
 %precedence T_ELSE
 
-%type <union_primitive_type> simple_type
+%type <union_type_specifier> type_specifier
+%type <union_primitive_type> primitive_type_specifier
+%type <union_function_declaration> function_declaration
+%type <union_function_type> function_type_specifier
 %type <union_expression> expression
 %type <union_expression> optional_initializer
 %type <union_variable> variable_reference
+
+%type <union_expression> variable_expression
+%type <union_expression> function_expression
+%type <union_expression> invoke_expression
 
 %type <union_statement_type> statement
 %type <union_statement_list_type> statement_list
@@ -234,11 +262,18 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %type <union_statement_type> for_statement
 %type <union_statement_type> exit_statement
 %type <union_statement_type> struct_declaration_statement
+%type <union_statement_type> return_statement
+%type <union_declaration_list_type> parameter_list
+%type <union_declaration_list_type> optional_parameter_list
+%type <union_type_list> anonymous_parameter_list
+%type <union_type_list> optional_anonymous_parameter_list
+%type <union_argument_list_type> argument_list
+%type <union_argument_list_type> optional_argument_list
 
 %type <union_modifier_type> modifier
 %type <union_modifier_list_type> modifier_list
 
-%type <union_member_declaration_list_type> member_declaration_list
+%type <union_declaration_list_type> declaration_list
 %type <union_member_instantiation_type> member_instantiation
 %type <union_member_instantiation_list_type> member_instantiation_list
 %type <union_member_instantiation_list_type> optional_member_instantiation_list
@@ -256,60 +291,68 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 program:
 	statement_list
 	{
-		//statement list comes in reverse order
-		//wrap in StatementList because Reverse is a LinkedList<T> function
-		*main_statement_block = new StatementBlock($1->Reverse(true));
-	}
-	| empty
-	{
-		*main_statement_block = new StatementBlock(StatementList::Terminator);
+		if($1->IsTerminator()){
+			*main_statement_block = new StatementBlock($1);
+		} else {
+			//statement list comes in reverse order
+			//wrap in StatementList because Reverse is a LinkedList<T> function
+			*main_statement_block = new StatementBlock($1->Reverse(true));
+		}
 	}
 	;
 
 //---------------------------------------------------------------------
 variable_declaration:
-	simple_type T_ID optional_initializer
+	T_ID T_COLON primitive_type_specifier optional_initializer
 	{
-		$$ = new PrimitiveDeclarationStatement($1, @1, $2, @2, $3);
+		$$ = new PrimitiveDeclarationStatement(@$, $3, @3, $1, @1, $4);
 	}
-	| simple_type dimensions T_ID optional_initializer
+	| T_ID T_COLON primitive_type_specifier dimensions optional_initializer
 	{
-		const TypeSpecifier* type_specifier = new PrimitiveTypeSpecifier(*$1);
+		const TypeSpecifier* type_specifier = new PrimitiveTypeSpecifier(*$3);
 		//add dimensions to type specifier
-		const LinkedList<const Dimension*>* dimension = $2;
+		const LinkedList<const Dimension*>* dimension = $4;
 		while (!dimension->IsTerminator()) {
 			type_specifier = new ArrayTypeSpecifier(
 					type_specifier);
 			dimension = dimension->GetNext();
 		}
 
-		$$ = new ArrayDeclarationStatement(static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
+		$$ = new ArrayDeclarationStatement(@$, static_cast<const ArrayTypeSpecifier*>(type_specifier), @3, $1, @1, $5);
 	}
-	| T_ID dimensions T_ID optional_initializer
+	| T_ID T_COLON T_ID dimensions optional_initializer
 	{
-		const TypeSpecifier* type_specifier = new CompoundTypeSpecifier(*$1, @1);
+		const TypeSpecifier* type_specifier = new CompoundTypeSpecifier(*$3, @3);
 		//add dimensions to type specifier
-		const LinkedList<const Dimension*>* dimension = $2;
+		const LinkedList<const Dimension*>* dimension = $4;
 		while (!dimension->IsTerminator()) {
 			type_specifier = new ArrayTypeSpecifier(
 					type_specifier);
 			dimension = dimension->GetNext();
 		}
 
-		$$ = new ArrayDeclarationStatement(static_cast<const ArrayTypeSpecifier*>(type_specifier), @1, $3, @3, $4);
+		$$ = new ArrayDeclarationStatement(@$, static_cast<const ArrayTypeSpecifier*>(type_specifier), @3, $1, @1, $5);
 	}
-	| T_ID T_ID optional_initializer
+	| T_ID T_COLON T_ID optional_initializer
 	{
-		$$ = new StructInstantiationStatement(new CompoundTypeSpecifier(*$1, @1), @1, $2, @2, $3);
+		$$ = new StructInstantiationStatement(@$, new CompoundTypeSpecifier(*$3, @3), @3, $1, @1, $4);
 	}
-	| T_COLON T_ID T_ASSIGN expression
+	| T_ID T_COLON function_type_specifier
 	{
-		$$ = new InferredDeclarationStatement($2, @2, $4);
+		$$ = new FunctionDeclarationStatement(@$, $3, @3, $1, @1, nullptr);
+	}
+	| T_ID T_COLON function_type_specifier T_EQUALS function_expression
+	{
+		$$ = new FunctionDeclarationStatement(@$, $3, @3, $1, @1, $5);
+	}
+	| T_ID T_COLON T_EQUALS expression
+	{
+		$$ = new InferredDeclarationStatement(@$, $1, @1, $4);
 	}
 	;
 
 optional_initializer:
-	T_ASSIGN expression
+	T_EQUALS expression
 	{
 		$$ = $2;
 	}
@@ -319,7 +362,7 @@ optional_initializer:
 	;
 
 //---------------------------------------------------------------------
-simple_type:
+primitive_type_specifier:
 	T_BOOLEAN
 	{
 		$$ = PrimitiveTypeSpecifier::GetBoolean();
@@ -337,7 +380,29 @@ simple_type:
 		$$ = PrimitiveTypeSpecifier::GetString();
 	}
 	;
-	
+
+//---------------------------------------------------------------------
+function_type_specifier:
+	T_LPAREN optional_anonymous_parameter_list T_RPAREN T_ARROW_RIGHT type_specifier
+	{
+		const TypeList* type_list = $2->IsTerminator() ? $2 : new TypeList($2->Reverse(true));
+		$$ = new FunctionTypeSpecifier(type_list, $5);
+	}
+
+//---------------------------------------------------------------------
+type_specifier:
+	primitive_type_specifier
+	{
+		$$ = $1;
+	}
+	| T_ID
+	{
+		$$ = new CompoundTypeSpecifier(*$1, @1);
+	}
+	| function_type_specifier
+	{
+		$$ = $1;
+	}
 
 //---------------------------------------------------------------------
 statement_block:
@@ -353,15 +418,19 @@ statement_list:
 	{
 		$$ = new StatementList($2, $1);
 	}
-	| statement
+	| empty
 	{
-		$$ = new StatementList($1, StatementList::Terminator);
+		$$ = StatementList::Terminator;
 	}
 	;
 
 //---------------------------------------------------------------------
 statement:
 	variable_declaration
+	{
+		$$ = $1;
+	}
+	| struct_declaration_statement
 	{
 		$$ = $1;
 	}
@@ -385,9 +454,14 @@ statement:
 	{
 		$$ = $1;
 	}
-	| struct_declaration_statement
+	| return_statement
 	{
 		$$ = $1;
+	}
+	| variable_reference T_LPAREN optional_argument_list T_RPAREN
+	{
+		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
+		$$ = new InvokeStatement($1, argument_list, @3);
 	}
 	;
 
@@ -445,7 +519,7 @@ exit_statement:
 
 //---------------------------------------------------------------------
 assign_statement:
-	variable_reference T_ASSIGN expression
+	variable_reference T_EQUALS expression
 	{
 		$$ = new AssignmentStatement($1, AssignmentType::ASSIGN, $3);
 	}
@@ -456,6 +530,14 @@ assign_statement:
 	| variable_reference T_MINUS_ASSIGN expression
 	{
 		$$ = new AssignmentStatement($1, AssignmentType::MINUS_ASSIGN, $3);
+	}
+	;
+
+//---------------------------------------------------------------------
+return_statement:
+	T_RETURN expression
+	{
+		$$ = new ReturnStatement($2);
 	}
 	;
 
@@ -482,9 +564,9 @@ expression:
 	{
 		$$ = $2;
 	}
-	| variable_reference
+	| variable_expression
 	{
-		$$ = new VariableExpression(@1, $1);
+		$$ = $1;
 	}
 	| T_INT_CONSTANT
 	{
@@ -567,7 +649,7 @@ expression:
 	{
 		$$ = new UnaryExpression(@$, NOT, $2);
 	}
-	| T_HASH simple_type
+	| T_HASH primitive_type_specifier
 	{
 		$$ = new DefaultValueExpression(@$, $2, @2);
 	}
@@ -578,6 +660,128 @@ expression:
 	| expression T_WITH member_instantiation_block
 	{
 		$$ = new WithExpression(@$, $1, $3, @3);
+	}
+	| function_expression
+	{
+		$$ = $1;
+	}
+	| invoke_expression
+	{
+		$$ = $1;
+	}
+	;
+
+variable_expression:
+	variable_reference
+	{
+		$$ = new VariableExpression(@1, $1);
+	}
+	;
+
+invoke_expression:
+	variable_expression T_LPAREN optional_argument_list T_RPAREN
+	{
+		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
+		$$ = new InvokeExpression(@$, $1, argument_list, @3);
+	}
+	| invoke_expression T_LPAREN optional_argument_list T_RPAREN
+	{
+		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
+		$$ = new InvokeExpression(@$, $1, argument_list, @3);
+	}
+	| function_expression T_LPAREN optional_argument_list T_RPAREN
+	{
+		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
+		$$ = new InvokeExpression(@$, $1, argument_list, @3);
+	}
+	;
+
+//---------------------------------------------------------------------
+function_declaration:
+	T_LPAREN optional_parameter_list T_RPAREN T_ARROW_RIGHT type_specifier
+	{
+		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
+		$$ = new FunctionDeclaration(parameter_list, $5);
+	}
+	;
+
+//---------------------------------------------------------------------
+function_expression:
+	function_declaration statement_block
+	{
+		$$ = new FunctionExpression(@1, $1, $2);
+	}
+	;
+
+//---------------------------------------------------------------------
+optional_parameter_list:
+	parameter_list
+	{
+		$$ = $1;
+	}
+	| empty
+	{
+		$$ = DeclarationList::Terminator;
+	}
+	;
+
+//---------------------------------------------------------------------
+parameter_list:
+	parameter_list T_COMMA variable_declaration
+	{
+		$$ = new DeclarationList($3, $1);
+	}
+	| variable_declaration
+	{
+		$$ = new DeclarationList($1, DeclarationList::Terminator);
+	}
+	;
+
+//---------------------------------------------------------------------
+optional_anonymous_parameter_list:
+	anonymous_parameter_list
+	{
+		$$ = $1;
+	}
+	| empty
+	{
+		$$ = TypeList::Terminator;
+	}
+	;
+
+//---------------------------------------------------------------------
+anonymous_parameter_list:
+	anonymous_parameter_list T_COMMA type_specifier
+	{
+		$$ = new TypeList($3, $1);
+	}
+	| type_specifier
+	{
+		$$ = new TypeList($1, TypeList::Terminator);
+	}
+	;
+
+//---------------------------------------------------------------------
+optional_argument_list:
+	argument_list
+	{
+		$$ = $1;
+	}
+	| empty
+	{
+		$$ = ArgumentList::Terminator;
+	}
+	;
+
+//---------------------------------------------------------------------
+argument_list:
+	argument_list T_COMMA expression
+	{
+		$$ = new ArgumentList($3, $1);
+	}
+	| expression
+	{
+		$$ = new ArgumentList($1, ArgumentList::Terminator);
 	}
 	;
 
@@ -600,27 +804,27 @@ modifier:
 
 //---------------------------------------------------------------------
 struct_declaration_statement:
-	modifier_list T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	modifier_list T_STRUCT T_ID T_LBRACE declaration_list T_RBRACE
 	{
-		const MemberDeclarationList* member_declaration_list = $5->IsTerminator() ? $5 : new MemberDeclarationList($5->Reverse(true));
-		$$ = new StructDeclarationStatement($3, @3, member_declaration_list, @5, new ModifierList($1->Reverse(true)), @1);
+		const DeclarationList* member_declaration_list = $5->IsTerminator() ? $5 : new DeclarationList($5->Reverse(true));
+		$$ = new StructDeclarationStatement(@$, $3, @3, member_declaration_list, @5, new ModifierList($1->Reverse(true)), @1);
 	}
-	| T_STRUCT T_ID T_LBRACE member_declaration_list T_RBRACE
+	| T_STRUCT T_ID T_LBRACE declaration_list T_RBRACE
 	{
-		const MemberDeclarationList* member_declaration_list = $4->IsTerminator() ? $4 : new MemberDeclarationList($4->Reverse(true));
-		$$ = new StructDeclarationStatement($2, @2, member_declaration_list, @4, ModifierList::Terminator, DefaultLocation);
+		const DeclarationList* member_declaration_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
+		$$ = new StructDeclarationStatement(@$, $2, @2, member_declaration_list, @4, ModifierList::Terminator, DefaultLocation);
 	}
 	;
 
 //---------------------------------------------------------------------
-member_declaration_list:
-	member_declaration_list variable_declaration
+declaration_list:
+	declaration_list variable_declaration
 	{
-		$$ = new MemberDeclarationList($2, $1);
+		$$ = new DeclarationList($2, $1);
 	}
 	| empty
 	{
-		$$ = MemberDeclarationList::Terminator;
+		$$ = DeclarationList::Terminator;
 	}
 	;
 
@@ -657,7 +861,7 @@ member_instantiation_list:
 
 //---------------------------------------------------------------------
 member_instantiation:
-	T_ID T_ASSIGN expression
+	T_ID T_EQUALS expression
 	{
 		$$ = new MemberInstantiation($1, @1, $3, @3);
 	}
