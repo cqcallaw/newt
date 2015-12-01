@@ -46,6 +46,9 @@ public:
 	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context) const;
 
+	static const Result* GetConstantExpression(const Expression* expression,
+			const ExecutionContext* execution_context);
+
 private:
 	ConstantExpression(const YYLTYPE position, const TypeSpecifier* type,
 			const void* value);

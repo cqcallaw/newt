@@ -1,0 +1,7 @@
+//test shadowing of variable names (parameter 'a' has same name as global variable) 
+fun := (a: int) -> int {
+	return a
+}
+a:= 1
+b:= 2
+c:= fun(a) + fun(b)

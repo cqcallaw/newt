@@ -1,10 +1,4 @@
 Parsing file ../tests/t5106.nwt...
+Semantic error on line 7, column 8: Parameter type mismatch: can't assign 'double' to 'int'
 Parsed file ../tests/t5106.nwt.
-Semantic error on line 7, column 8: Variable 'a' of type 'int' cannot be assigned to an expression of type 'double'.
-Root Symbol Table:
-----------------
-(int) -> (int) -> int f:
-int x: 0
-
-Root Type Table:
-----------------
+1 error found; giving up.

@@ -1,0 +1,10 @@
+Parsing file ../tests/t5011.nwt...
+Parsed file ../tests/t5011.nwt.
+Root Symbol Table:
+----------------
+int a: 2
+double c: 2
+(double) -> double fun:
+
+Root Type Table:
+----------------

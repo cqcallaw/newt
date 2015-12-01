@@ -57,6 +57,23 @@ const ConstantExpression* ConstantExpression::GetDefaultExpression(
 			type->DefaultValue(type_table));
 }
 
+const Result* ConstantExpression::GetConstantExpression(
+		const Expression* expression,
+		const ExecutionContext* execution_context) {
+	const Result* evaluation = expression->Evaluate(execution_context);
+	const void* result = nullptr;
+
+	auto errors = evaluation->GetErrors();
+	if (errors->IsTerminator()) {
+		result = (const void*) new ConstantExpression(expression->GetPosition(),
+				expression->GetType(execution_context), evaluation->GetData());
+	}
+
+	delete evaluation;
+
+	return new Result(result, errors);
+}
+
 ConstantExpression::ConstantExpression(const YYLTYPE position,
 		const TypeSpecifier* type, const void* value) :
 		Expression(position), m_type(type), m_value(value) {

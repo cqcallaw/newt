@@ -1,4 +1,4 @@
 Parsing file ../tests/t5103.nwt...
-Semantic error on line 2, column 1: The given expression does not reference a valid function.
+Semantic error on line 2, column 1: Undeclared variable 'a'
 Parsed file ../tests/t5103.nwt.
 1 error found; giving up.

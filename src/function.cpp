@@ -26,6 +26,7 @@
 #include <function_declaration.h>
 #include <error.h>
 #include <statement_block.h>
+#include <constant_expression.h>
 
 Function::Function(const FunctionDeclaration* declaration,
 		const StatementBlock* body, const ExecutionContext* closure) :
@@ -40,38 +41,55 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
 
-	//N.B. the argument evaluation is almost identical to the validation of an InvokeExpression,
-	//but execution is performed in addition to preprocessing.
 	auto invocation_symbol_context = invocation_context->GetSymbolContext();
 	auto invocation_context_parent = invocation_symbol_context->GetParent();
 	auto parent_context = invocation_context_parent->With(
 			invocation_symbol_context);
 	SymbolTable* table = new SymbolTable(parent_context);
-	ExecutionContext* execution_context = new ExecutionContext(table,
+	ExecutionContext* function_execution_context = new ExecutionContext(table,
 			m_closure->GetTypeTable());
 
 	//populate evaluation context with results of argument evaluation
 	const LinkedList<const Expression*>* argument = argument_list;
 	const LinkedList<const DeclarationStatement*>* parameter =
 			m_declaration->GetParameterList();
-
 	while (!argument->IsTerminator()) {
 		const Expression* argument_expression = argument->GetData();
 		if (!parameter->IsTerminator()) {
 			const DeclarationStatement* declaration = parameter->GetData();
-			const DeclarationStatement* argument_declaration =
-					declaration->WithInitializerExpression(argument_expression);
 
-			auto preprocessing_errors = errors->Concatenate(
-					argument_declaration->preprocess(execution_context), true);
-			if (preprocessing_errors->IsTerminator()) {
-				errors = errors->Concatenate(
-						argument_declaration->execute(execution_context), true);
+			const Result* argument_evaluation =
+					ConstantExpression::GetConstantExpression(
+							argument_expression, invocation_context);
+			auto evaluation_errors = argument_evaluation->GetErrors();
+			if (evaluation_errors->IsTerminator()) {
+				//generate a declaration statement for the function execution context.
+				//it's tempting to just stuff a value into the symbol table,
+				//but this simplistic approach ignores widening conversions
+				const Expression* evaluated_expression =
+						static_cast<const Expression*>(argument_evaluation->GetData());
+				const DeclarationStatement* argument_declaration =
+						declaration->WithInitializerExpression(
+								evaluated_expression);
+
+				auto preprocessing_errors = errors->Concatenate(
+						declaration->preprocess(function_execution_context),
+						true);
+				if (preprocessing_errors->IsTerminator()) {
+					errors = errors->Concatenate(
+							argument_declaration->execute(
+									function_execution_context), true);
+				} else {
+					errors = errors->Concatenate(preprocessing_errors, true);
+				}
+
+				delete argument_declaration;
+				delete evaluated_expression;
 			} else {
-				errors = errors->Concatenate(preprocessing_errors, true);
+				errors = errors->Concatenate(evaluation_errors, true);
 			}
 
-			delete argument_declaration;
+			delete argument_evaluation;
 
 			argument = argument->GetNext();
 			parameter = parameter->GetNext();
@@ -92,9 +110,9 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 
 		if (declaration->GetInitializerExpression() != nullptr) {
 			errors = errors->Concatenate(
-					declaration->preprocess(execution_context), true);
+					declaration->preprocess(function_execution_context), true);
 			errors = errors->Concatenate(
-					declaration->execute(execution_context), true);
+					declaration->execute(function_execution_context), true);
 			parameter = parameter->GetNext();
 		} else {
 			errors = errors->With(
@@ -113,11 +131,10 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 			closure_symbol_context);
 	auto final_symbol_context = table->WithParent(parent_context);
 
-	//TODO: determine if it is necessary to type tables
+	//TODO: determine if it is necessary to merge type tables
 
 	ExecutionContext* child_context = new ExecutionContext(final_symbol_context,
 			m_closure->GetTypeTable());
-
 	errors = errors->Concatenate(m_body->execute(child_context), true);
 
 	return new Result(child_context->GetReturnValue(), errors);
