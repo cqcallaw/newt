@@ -72,9 +72,8 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 						declaration->WithInitializerExpression(
 								evaluated_expression);
 
-				auto preprocessing_errors = errors->Concatenate(
-						declaration->preprocess(function_execution_context),
-						true);
+				auto preprocessing_errors = declaration->preprocess(
+						function_execution_context);
 				if (preprocessing_errors->IsTerminator()) {
 					errors = errors->Concatenate(
 							argument_declaration->execute(
@@ -133,9 +132,13 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 
 	//TODO: determine if it is necessary to merge type tables
 
-	ExecutionContext* child_context = new ExecutionContext(final_symbol_context,
-			m_closure->GetTypeTable());
-	errors = errors->Concatenate(m_body->execute(child_context), true);
+	if (errors->IsTerminator()) {
+		ExecutionContext* child_context = new ExecutionContext(
+				final_symbol_context, m_closure->GetTypeTable());
+		errors = errors->Concatenate(m_body->execute(child_context), true);
 
-	return new Result(child_context->GetReturnValue(), errors);
+		return new Result(child_context->GetReturnValue(), errors);
+	} else {
+		return new Result(nullptr, errors);
+	}
 }
