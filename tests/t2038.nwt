@@ -16,13 +16,13 @@ i: int = 42
 x: double = 3.14159
 s: string = "hello"
 ints: int[]
-ints[2] = #int
+ints[2] = @int
 doubles: double[]
-doubles[2] = #double
+doubles[2] = @double
 strings: string[]
-strings[2] = #string
+strings[2] = @string
 rects: rectangle[]
-rects[2] = #rectangle
+rects[2] = @rectangle
 
 my_triangle: triangle
 

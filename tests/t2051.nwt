@@ -6,7 +6,7 @@ struct circle {
 }
 
 circles: circle[]
-circles[9] = #circle
+circles[9] = @circle
 down: int = 0
 
 p: int

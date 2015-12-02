@@ -9,5 +9,5 @@ my_circle: circle
 a: int = my_circle.w
 
 my_circles: circle[]
-my_circles[1] = #circle
+my_circles[1] = @circle
 b: int = my_circles[1].x

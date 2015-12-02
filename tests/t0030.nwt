@@ -5,7 +5,7 @@ struct test {
 }
 
 a: test[]
-a[1] = #test with { x = 12 }
+a[1] = @test with { x = 12 }
 b: test[] = a
 c: test[][]
 c[2] = a

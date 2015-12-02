@@ -6,6 +6,6 @@ struct rectangle {
 }
 
 rects: rectangle[]
-rects[2] = #rectangle
+rects[2] = @rectangle
 
 rects[0].n = 20

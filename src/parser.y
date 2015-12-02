@@ -182,11 +182,11 @@ void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scan
 %token T_RBRACE              "}"
 %token T_LBRACKET            "["
 %token T_RBRACKET            "]"
-%token T_HASH                "#"
 %token T_COLON               ":"
 %token T_SEMIC               ";"
 %token T_COMMA               ","
 %token T_PERIOD              "."
+%token T_AT                  "@"
 
 %token T_EQUALS              "="
 %token T_PLUS_ASSIGN         "+="
@@ -649,11 +649,11 @@ expression:
 	{
 		$$ = new UnaryExpression(@$, NOT, $2);
 	}
-	| T_HASH primitive_type_specifier
+	| T_AT primitive_type_specifier
 	{
 		$$ = new DefaultValueExpression(@$, $2, @2);
 	}
-	| T_HASH T_ID
+	| T_AT T_ID
 	{
 		$$ = new DefaultValueExpression(@$, new CompoundTypeSpecifier(*$2, @2), @2);
 	}

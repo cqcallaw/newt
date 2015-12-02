@@ -7,6 +7,6 @@ struct rectangle {
 
 size: int = 2
 rects: rectangle[]
-rects[size - 1] = #rectangle
+rects[size - 1] = @rectangle
 
 rects[0].x = 20
