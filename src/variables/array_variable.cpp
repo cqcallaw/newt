@@ -38,7 +38,8 @@ YYLTYPE expression_location) :
 
 const TypeSpecifier* ArrayVariable::GetType(
 		const ExecutionContext* context) const {
-	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName());
+	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName(),
+			DEEP);
 	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
 		const Array* array = static_cast<const Array*>(symbol->GetValue());
 		const TypeSpecifier* result = array->GetTypeSpecifier();
@@ -96,7 +97,7 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 			LinkedList<const Error*>::Terminator;
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
-	const Symbol* symbol = symbol_context->GetSymbol(GetName());
+	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
 	const TypeTable* type_table = context->GetTypeTable();
 	int array_index = -1;
 	YYLTYPE index_location = DefaultLocation;
@@ -426,7 +427,7 @@ const LinkedList<const Error*>* ArrayVariable::SetSymbolCore(
 				new_array);
 
 		errors = ToErrorList(set_result,
-				symbol_context->GetSymbol(*GetName())->GetType(),
+				symbol_context->GetSymbol(*GetName(), DEEP)->GetType(),
 				array->GetTypeSpecifier());
 	}
 	delete (validation_result);
@@ -471,7 +472,7 @@ const LinkedList<const Error*>* ArrayVariable::Validate(
 			LinkedList<const Error*>::Terminator;
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
-	const Symbol* symbol = symbol_context->GetSymbol(GetName());
+	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
 
 	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
 		const TypeSpecifier* type_specifier = symbol->GetType();
@@ -523,7 +524,8 @@ const LinkedList<const Error*>* ArrayVariable::Validate(
 
 const TypeSpecifier* ArrayVariable::GetInnerMostElementType(
 		const ExecutionContext* context) const {
-	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName());
+	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName(),
+			DEEP);
 	const TypeSpecifier* type_specifier = PrimitiveTypeSpecifier::GetNone();
 	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
 		type_specifier = symbol->GetType();

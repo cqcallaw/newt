@@ -49,7 +49,7 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolContext();
 	const string* variable_name = m_variable->GetName();
-	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
+	const Symbol* symbol = symbol_table->GetSymbol(variable_name, DEEP);
 	const TypeSpecifier* symbol_type = symbol->GetType();
 
 	int variable_line = m_variable->GetLocation().first_line;
@@ -535,7 +535,7 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolContext();
-	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
+	const Symbol* symbol = symbol_table->GetSymbol(variable_name, DEEP);
 
 	if (symbol == NULL || symbol == Symbol::DefaultSymbol) {
 		errors = new LinkedList<const Error*>(

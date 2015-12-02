@@ -43,7 +43,7 @@ const string* BasicVariable::ToString(const ExecutionContext* context) const {
 
 const TypeSpecifier* BasicVariable::GetType(
 		const ExecutionContext* context) const {
-	auto symbol = context->GetSymbolContext()->GetSymbol(GetName());
+	auto symbol = context->GetSymbolContext()->GetSymbol(GetName(), DEEP);
 	return symbol->GetType();
 }
 
@@ -52,7 +52,7 @@ const Result* BasicVariable::Evaluate(const ExecutionContext* context) const {
 			LinkedList<const Error*>::Terminator;
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
-	const Symbol* symbol = symbol_context->GetSymbol(GetName());
+	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
 	const Symbol* result_symbol = Symbol::DefaultSymbol;
 
 	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
@@ -79,7 +79,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 	const int variable_column = GetLocation().first_column;
 
 	SymbolTable* symbol_table = (SymbolTable*) context->GetSymbolContext();
-	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
+	const Symbol* symbol = symbol_table->GetSymbol(variable_name, DEEP);
 	const TypeSpecifier* symbol_type = symbol->GetType();
 	const void* symbol_value = symbol->GetValue();
 
@@ -198,7 +198,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
 		const ExecutionContext* context, const bool* value) const {
 	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName());
+	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetBoolean());
 }
@@ -206,7 +206,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
 		const ExecutionContext* context, const int* value) const {
 	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName());
+	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetInt());
 }
@@ -214,7 +214,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
 		const ExecutionContext* context, const double* value) const {
 	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName());
+	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetDouble());
 }
@@ -222,7 +222,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
 		const ExecutionContext* context, const string* value) const {
 	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName());
+	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetString());
 }
@@ -230,7 +230,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
 		const ExecutionContext* context, const Array* value) const {
 	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName());
+	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
 			symbol->GetType(), value->GetTypeSpecifier());
 }
@@ -239,7 +239,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 		const ExecutionContext* context,
 		const CompoundTypeInstance* value) const {
 	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName());
+	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
 			symbol->GetType(), value->GetTypeSpecifier());
 }
@@ -247,7 +247,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
 		const ExecutionContext* context, const Function* value) const {
 	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName());
+	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
 			symbol->GetType(), value->GetType());
 }
@@ -265,7 +265,7 @@ const LinkedList<const Error*>* BasicVariable::Validate(
 			LinkedList<const Error*>::Terminator;
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
-	const Symbol* symbol = symbol_context->GetSymbol(GetName());
+	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
 
 	if (symbol == nullptr || symbol == Symbol::DefaultSymbol) {
 		errors = errors->With(

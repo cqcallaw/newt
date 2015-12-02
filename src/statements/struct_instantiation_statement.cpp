@@ -54,7 +54,7 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 		SymbolTable* symbol_table =
 				(SymbolTable*) execution_context->GetSymbolContext();
 
-		const Symbol* existing = symbol_table->GetSymbol(m_name);
+		const Symbol* existing = symbol_table->GetSymbol(m_name, SHALLOW);
 		if (existing == Symbol::DefaultSymbol) {
 			const CompoundTypeInstance* instance = nullptr;
 			if (m_initializer_expression) {

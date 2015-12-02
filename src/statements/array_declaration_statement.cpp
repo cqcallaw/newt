@@ -115,7 +115,7 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 			SetResult result = symbol_context->SetSymbol(*m_name, array);
 			errors = ToErrorList(result,
 					m_initializer_expression->GetPosition(), m_name,
-					symbol_context->GetSymbol(m_name)->GetType(),
+					symbol_context->GetSymbol(m_name, SHALLOW)->GetType(),
 					array->GetTypeSpecifier());
 		}
 

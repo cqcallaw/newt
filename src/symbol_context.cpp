@@ -74,20 +74,22 @@ SymbolContext::SymbolContext(const Modifier::Type modifiers,
 SymbolContext::~SymbolContext() {
 }
 
-const Symbol* SymbolContext::GetSymbol(const string identifier) const {
+const Symbol* SymbolContext::GetSymbol(const string identifier,
+		const SearchType search_type) const {
 	auto result = m_table->find(identifier);
 
 	if (result != m_table->end()) {
 		return result->second;
-	} else if (m_parent != nullptr) {
-		return m_parent->GetData()->GetSymbol(identifier);
+	} else if (m_parent != nullptr && search_type == DEEP) {
+		return m_parent->GetData()->GetSymbol(identifier, search_type);
 	} else {
 		return Symbol::DefaultSymbol;
 	}
 }
 
-const Symbol* SymbolContext::GetSymbol(const string* identifier) const {
-	const Symbol* result = GetSymbol(*identifier);
+const Symbol* SymbolContext::GetSymbol(const string* identifier,
+		const SearchType search_type) const {
+	const Symbol* result = GetSymbol(*identifier, search_type);
 	return result;
 }
 
@@ -142,8 +144,7 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 }
 
 SymbolContext* SymbolContext::GetDefault() {
-	static SymbolContext* instance = new SymbolContext(
-			Modifier::READONLY);
+	static SymbolContext* instance = new SymbolContext(Modifier::READONLY);
 	return instance;
 }
 

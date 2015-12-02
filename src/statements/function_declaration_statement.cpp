@@ -49,7 +49,7 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 	const Symbol* symbol = Symbol::DefaultSymbol;
 
 	const Symbol* existing = execution_context->GetSymbolContext()->GetSymbol(
-			m_name);
+			m_name, SHALLOW);
 
 	if (existing == nullptr || existing == Symbol::DefaultSymbol) {
 		if (m_initializer_expression) {
@@ -76,8 +76,7 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 
 			SymbolTable* symbol_table =
 					static_cast<SymbolTable*>(execution_context->GetSymbolContext());
-			InsertResult insert_result = symbol_table->InsertSymbol(
-					symbol);
+			InsertResult insert_result = symbol_table->InsertSymbol(symbol);
 
 			if (insert_result != INSERT_SUCCESS) {
 				assert(false);

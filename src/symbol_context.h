@@ -39,6 +39,11 @@ enum SetResult {
 	MUTATION_DISALLOWED = 4
 };
 
+enum SearchType {
+	SHALLOW = 0,
+	DEEP = 1
+};
+
 const LinkedList<const Error*>* ToErrorList(const SetResult result,
 		const YYLTYPE location, const string* name,
 		const TypeSpecifier* symbol_type, const TypeSpecifier* value_type);
@@ -83,8 +88,8 @@ public:
 	const void print(ostream &os, const TypeTable* type_table,
 			const Indent indent) const;
 
-	const Symbol* GetSymbol(const string identifier) const;
-	const Symbol* GetSymbol(const string* identifier) const;
+	const Symbol* GetSymbol(const string identifier, const SearchType search_type) const;
+	const Symbol* GetSymbol(const string* identifier, const SearchType search_type) const;
 
 	SetResult SetSymbol(const string identifier, const bool* value);
 	SetResult SetSymbol(const string identifier, const int* value);
