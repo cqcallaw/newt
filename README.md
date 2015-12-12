@@ -4,12 +4,14 @@ newt is an exploration of type safety and immutability, aiming to combine the su
 
 newt is derived from [a compilers class project](http://www.ecst.csuchico.edu/~tyson/classes/515.s15/), and is also a fulfillment of a project requirement for completion of a Bachelor's Degree of Science in Computer Science with Honors from CSU Chico.
 
+newt is [free software](http://www.gnu.org/philosophy/free-sw.en.html), licensed under the [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html).
+
 # Philosophy
 As creators of software, automation is what we do. We create software because we have the idea that this automation yields value. If we actually believe this idea that automation is valuable, we will apply it everywhere, including the software tools with which we create software (with some [exceptions](https://xkcd.com/1205/)).
 
 Automation leads to tighter feedback loops, and newt built on the principle that tighter feedback loops yield better solutions, and deliver the solution faster. Here "feedback loop" encompasses everything necessary to create a solution and be confident that it works as intended, and includes authoring code, compilation (if necessary), and all forms of testing.
 
-"boilerplate" code, and the manually synchronized declaration and definition exemplified by header files are examples of things that lack automation, and newt's creators are inspired by the succinctness and expressiveness found in languages such as [Python](https://www.python.org/) to avoid such constructs. However, newt is statically typed: variables are associated with a type and may only be assigned of that type (or its subtypes). This is because dynamic typing has been observed to lead to subtle defects, and also requires a great deal of non-automated unit testing to achieve the same correctness guarantees that are more succinctly and precisely expressed in a static type system.
+"boilerplate" code and the manually synchronized declaration and definition exemplified by header files are examples of things that lack automation, and newt's creators are inspired by the succinctness and expressiveness found in languages such as [Python](https://www.python.org/) to avoid such constructs. However, newt is statically typed: variables are associated with a type and may only be assigned of that type (or its subtypes). This is because dynamic typing has been observed to lead to subtle defects, and also requires a great deal of non-automated unit testing to achieve the same correctness guarantees that are more succinctly and precisely expressed in a static type system.
 
 newt also aims to automate immutability, as immutable data structures have been observed to avoid or mitigate many classes of defects. Little prior art is known to exist for such language constructs, so new syntax is introduced to achieve this goal. 
 
