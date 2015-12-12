@@ -27,7 +27,7 @@ my_array_struct:
 	int z (0)
 my_other_struct: 
 	my_struct i (
-		double y (0)
+		double y: 0
 	)
 	int x (0)
 my_struct: 

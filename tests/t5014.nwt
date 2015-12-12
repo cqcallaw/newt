@@ -5,7 +5,7 @@ readonly struct Point {
 
 readonly struct Line {
 	a:Point
-	b:Point
+	b:Point = @Point with { x = 1 }
 }
 
 readonly struct Circle {

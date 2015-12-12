@@ -70,9 +70,20 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 							&& m_type_specifier->GetTypeName().compare(
 									as_compound_specifier->GetTypeName())
 									== 0) {
-						//generate default instance
-						instance = CompoundTypeInstance::GetDefaultInstance(
-								m_type_specifier->GetTypeName(), type);
+						if (m_initializer_expression->IsConstant()) {
+							const Result* result =
+									m_initializer_expression->Evaluate(
+											execution_context);
+							errors = result->GetErrors();
+							if (errors->IsTerminator()) {
+								instance =
+										(const CompoundTypeInstance*) result->GetData();
+							}
+						} else {
+							//generate default instance
+							instance = CompoundTypeInstance::GetDefaultInstance(
+									m_type_specifier->GetTypeName(), type);
+						}
 					} else {
 						errors =
 								errors->With(
