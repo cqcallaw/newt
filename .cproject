@@ -48,7 +48,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.518998425" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
 							<tool command="g++" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GLDErrorParser" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1498002116" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
-								<option id="gnu.cpp.link.option.userobjs.53243205" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs"/>
+								<option id="gnu.cpp.link.option.userobjs.53243205" name="Other objects" superClass="gnu.cpp.link.option.userobjs"/>
 								<option id="gnu.cpp.link.option.libs.288012402" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.680735110" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -58,6 +58,16 @@
 							<tool command="as" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.tool.gnu.assembler.exe.debug.51208906" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1226756872" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.2067322212.1908349536" name="/" resourcePath="src/statements">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.1408488849" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1226516635" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.1450940737"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1616768071" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1611033503"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.486958175" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.296731996"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.863966335" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug.518998425"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.752775547" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1498002116"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1032642221" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug.51208906"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -90,6 +100,15 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1858025172" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
 								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.791674696" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.exe.release.option.debugging.level.1343514588" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.869731032" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="./"/>
+									<listOptionValue builtIn="false" value="../src"/>
+									<listOptionValue builtIn="false" value="../src/expressions"/>
+									<listOptionValue builtIn="false" value="../src/specifiers"/>
+									<listOptionValue builtIn="false" value="../src/statements"/>
+									<listOptionValue builtIn="false" value="../src/variables"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.dialect.std.349352185" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1497734038" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.856854345" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
@@ -109,8 +128,18 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.402213738.587069616" name="/" resourcePath="src/statements">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.1165442831" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.release" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.2046923142" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.107206447"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.2022814831" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1858025172"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.2087812034" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release.856854345"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1319861560" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release.1456155436"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1120029018" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.45724895"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1990673057" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release.48324392"/>
+						</toolChain>
+					</folderInfo>
 					<sourceEntries>
-						<entry excluding="specifiers|statements|expressions" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="specifiers|expressions" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/expressions"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/specifiers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="tests"/>
