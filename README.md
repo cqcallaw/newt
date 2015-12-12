@@ -17,6 +17,18 @@ newt also aims to automate immutability, as immutable data structures have been 
 
 newt is built with the understanding that non-astonishing behavior is important, and that "non-astonishing" frequently just means "familiar". Where possible, existing conventions and well-known programming idioms are preserved.
 
+# Building
+newt requires Flex, Bison, and g++ to build. To build a release binary, type the following from the commandline:
+
+```
+$ make -C Release all
+```
+
+To run the test suite:
+```
+$ make -C Release test
+```
+
 # Syntax
 
 newt's syntax is a blend of C-style language constructs and notation from more succinct grammars. The grammar does not include semi-colon statement terminators. Whitespace is not significant; blocks are surrounded by curly braces.
