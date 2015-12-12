@@ -15,14 +15,14 @@ $(TEST_PATH)output:
 	diff $(TEST_PATH)reference/$@ $(TEST_PATH)output/$@
 
 #run a test in debug mode
-r%: $(TEST_PATH)%.nwt
+r%: newt $(TEST_PATH)%.nwt
 	-@echo ' '
-	./newt --debug $<
+	./newt --debug $(word 2,$^)
 
 #update the reference output for the given test
-w%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
+w%: newt $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	-@echo ' '
-	./newt --debug $< >$(TEST_PATH)reference/$* 2>&1
+	./newt --debug $(word 2,$^) >$(TEST_PATH)reference/$* 2>&1
 
 c%: $(TEST_PATH)%.nwt
 	@cat -n $<
