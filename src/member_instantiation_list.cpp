@@ -17,28 +17,19 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEMBER_INSTANTIATION_LIST_H_
-#define MEMBER_INSTANTIATION_LIST_H_
+#include <member_instantiation.h>
+#include <member_instantiation_list.h>
+#include <expression.h>
 
-#include "linked_list.h"
-
-class MemberInstantiation;
-
-class MemberInstantiationList: public LinkedList<const MemberInstantiation*> {
-public:
-	MemberInstantiationList(const MemberInstantiation* data,
-			const MemberInstantiationList* next) :
-			LinkedList(data, next) {
+const bool MemberInstantiationList::IsConstant() const {
+	const LinkedList<const MemberInstantiation*>* subject = this;
+	while (!subject->IsTerminator()) {
+		auto data = subject->GetData();
+		if (!data->GetExpression()->IsConstant())
+			return false;
+		else
+			subject = subject->GetNext();
 	}
 
-	MemberInstantiationList(const LinkedList<const MemberInstantiation*>* list) :
-			LinkedList(list) {
-	}
-
-	const bool IsConstant() const;
-
-	static constexpr MemberInstantiationList* Terminator =
-			(MemberInstantiationList*) LinkedList<const MemberInstantiation*>::Terminator;
-};
-
-#endif /* MEMBER_INSTANTIATION_LIST_H_ */
+	return true;
+}

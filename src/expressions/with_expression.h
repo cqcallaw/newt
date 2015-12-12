@@ -37,9 +37,7 @@ public:
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const;
 
-	virtual const bool IsConstant() const {
-		return m_source_expression->IsConstant();
-	}
+	virtual const bool IsConstant() const;
 
 	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context) const;

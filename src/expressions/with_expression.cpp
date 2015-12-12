@@ -193,6 +193,11 @@ const Result* WithExpression::Evaluate(
 	}
 }
 
+const bool WithExpression::IsConstant() const {
+	return m_source_expression->IsConstant()
+			&& m_member_instantiation_list->IsConstant();
+}
+
 const LinkedList<const Error*>* WithExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors = m_source_expression->Validate(
