@@ -18,6 +18,7 @@ CPP_SRCS += \
 ../src/member_declaration.cpp \
 ../src/member_definition.cpp \
 ../src/member_instantiation.cpp \
+../src/member_instantiation_list.cpp \
 ../src/newt.cpp \
 ../src/parameter.cpp \
 ../src/parameter_list.cpp \
@@ -43,6 +44,7 @@ OBJS += \
 ./src/member_declaration.o \
 ./src/member_definition.o \
 ./src/member_instantiation.o \
+./src/member_instantiation_list.o \
 ./src/newt.o \
 ./src/parameter.o \
 ./src/parameter_list.o \
@@ -68,6 +70,7 @@ CPP_DEPS += \
 ./src/member_declaration.d \
 ./src/member_definition.d \
 ./src/member_instantiation.d \
+./src/member_instantiation_list.d \
 ./src/newt.d \
 ./src/parameter.d \
 ./src/parameter_list.d \
