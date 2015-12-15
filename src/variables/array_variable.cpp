@@ -40,7 +40,7 @@ const TypeSpecifier* ArrayVariable::GetType(
 		const ExecutionContext* context) const {
 	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName(),
 			DEEP);
-	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		const Array* array = static_cast<const Array*>(symbol->GetValue());
 		const TypeSpecifier* result = array->GetTypeSpecifier();
 
@@ -104,7 +104,7 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 	//this cast may not be valid, but is guaranteed to be unused if it's not valid.
 	const Array* array = nullptr;
 
-	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		const TypeSpecifier* type_specifier = symbol->GetType();
 		const LinkedList<const Index*>* subject = m_index_list;
 
@@ -474,7 +474,7 @@ const LinkedList<const Error*>* ArrayVariable::Validate(
 	const SymbolContext* symbol_context = context->GetSymbolContext();
 	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
 
-	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		const TypeSpecifier* type_specifier = symbol->GetType();
 
 		const LinkedList<const Index*>* subject = m_index_list;
@@ -527,7 +527,7 @@ const TypeSpecifier* ArrayVariable::GetInnerMostElementType(
 	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName(),
 			DEEP);
 	const TypeSpecifier* type_specifier = PrimitiveTypeSpecifier::GetNone();
-	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		type_specifier = symbol->GetType();
 		//const string str = type_specifier->ToString();
 

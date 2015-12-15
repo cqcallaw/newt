@@ -24,6 +24,7 @@
 #include <type.h>
 
 class TypeSpecifier;
+class Expression;
 
 class MemberDeclaration {
 public:

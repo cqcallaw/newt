@@ -66,12 +66,16 @@ const void* PrimitiveTypeSpecifier::DefaultValue(
 
 	switch (basic_type) {
 	case BasicType::BOOLEAN:
+		const static bool* DefaultBooleanValue = new bool(false);
 		return DefaultBooleanValue;
 	case BasicType::INT:
+		const static int* DefaultIntValue = new int(0);
 		return DefaultIntValue;
 	case BasicType::DOUBLE:
+		const static double* DefaultDoubleValue = new double(0.0);
 		return DefaultDoubleValue;
 	case BasicType::STRING:
+		const static string* DefaultStringValue = new string("");
 		return DefaultStringValue;
 	default:
 		assert(false);

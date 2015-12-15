@@ -20,32 +20,8 @@
 #ifndef DEFAULTS_H_
 #define DEFAULTS_H_
 
-#include <string>
 #include "yyltype.h"
 
-class Symbol;
-class Variable;
-class ForStatement;
-class Expression;
-class AssignmentStatement;
-class IfStatement;
-class ExitStatement;
-class PrintStatement;
-class StatementBlock;
-
-extern const bool* DefaultBooleanValue;
-extern const int* DefaultIntValue;
-extern const double* DefaultDoubleValue;
-extern const std::string* DefaultStringValue;
-
 extern const YYLTYPE DefaultLocation;
-/*extern const Variable* DefaultVariable;
-extern const Expression* DefaultExpression;
-extern const AssignmentStatement* DefaultAssignmentStatement;
-extern const ForStatement* DefaultForStatement;
-extern const ExitStatement* DefaultExitStatement;
-extern const IfStatement* DefaultIfStatement;
-extern const PrintStatement* DefaultPrintStatement;
-extern const StatementBlock* DefaultStatementBlock;*/
 
 #endif /* DEFAULTS_H_ */

@@ -30,30 +30,4 @@
 #include <variable.h>
 #include "type.h"
 
-const bool* DefaultBooleanValue = new bool(false);
-const int* DefaultIntValue = new int(0);
-const double* DefaultDoubleValue = new double(0.0);
-const string* DefaultStringValue = new string("");
-
 const YYLTYPE DefaultLocation = YYLTYPE { -1, -1, -1, -1 };
-
-/*const Expression* DefaultExpression = new Expression(DefaultLocation);
-
-const AssignmentStatement* DefaultAssignmentStatement = new AssignmentStatement(
-		DefaultVariable, AssignmentStatement::ASSIGN, DefaultExpression);
-
-const ExitStatement* DefaultExitStatement = new ExitStatement(-1,
-		DefaultExpression);
-
-const StatementBlock* DefaultStatementBlock = new StatementBlock(
-		StatementList::Terminator);
-
-const IfStatement* DefaultIfStatement = new IfStatement(DefaultExpression,
-		DefaultStatementBlock);
-
-const ForStatement* DefaultForStatement = new ForStatement(
-		DefaultAssignmentStatement, DefaultExpression,
-		DefaultAssignmentStatement, DefaultStatementBlock);
-
-const PrintStatement* DefaultPrintStatement = new PrintStatement(-1,
-		DefaultExpression);*/

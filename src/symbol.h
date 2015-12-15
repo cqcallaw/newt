@@ -71,8 +71,8 @@ public:
 	virtual const string ToString(const TypeTable* type_table,
 			const Indent indent) const;
 
-	const static string DefaultSymbolName;
-	const static Symbol* DefaultSymbol;
+	const static string GetDefaultSymbolName();
+	const static Symbol* GetDefaultSymbol();
 
 protected:
 	Symbol(const TypeSpecifier* type, const string name, const void* value);

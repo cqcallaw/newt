@@ -46,12 +46,12 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 
 	const TypeTable* type_table = execution_context->GetTypeTable();
 
-	const Symbol* symbol = Symbol::DefaultSymbol;
+	const Symbol* symbol = Symbol::GetDefaultSymbol();
 
 	const Symbol* existing = execution_context->GetSymbolContext()->GetSymbol(
 			m_name, SHALLOW);
 
-	if (existing == nullptr || existing == Symbol::DefaultSymbol) {
+	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (m_initializer_expression) {
 			const TypeSpecifier* expression_type =
 					m_initializer_expression->GetType(execution_context);

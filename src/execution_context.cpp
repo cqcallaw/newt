@@ -22,17 +22,25 @@
 #include <type_table.h>
 
 ExecutionContext::ExecutionContext(SymbolContext* symbol_context,
-		TypeTable* type_table) :
-		m_symbol_context(symbol_context), m_type_table(type_table), m_return_value(
-				nullptr) {
+		TypeTable* type_table, bool dispose_members) :
+		ExecutionContext(symbol_context, type_table, nullptr, dispose_members) {
 }
 
 ExecutionContext::ExecutionContext() :
-		m_symbol_context(new SymbolTable()), m_type_table(new TypeTable()), m_return_value(
-				nullptr) {
+		ExecutionContext(new SymbolTable(), new TypeTable(), nullptr, true) {
+}
+
+ExecutionContext::ExecutionContext(SymbolContext* symbol_context,
+		TypeTable* type_table, const void* m_return_value, bool dispose_members) :
+		m_symbol_context(symbol_context), m_type_table(type_table), m_return_value(
+				m_return_value), m_dispose_members(dispose_members) {
 }
 
 ExecutionContext::~ExecutionContext() {
+	if (m_dispose_members) {
+		delete m_symbol_context;
+		delete m_type_table;
+	}
 }
 
 const ExecutionContext* ExecutionContext::GetDefault() {
@@ -40,3 +48,4 @@ const ExecutionContext* ExecutionContext::GetDefault() {
 			SymbolContext::GetDefault(), TypeTable::GetDefault());
 	return instance;
 }
+

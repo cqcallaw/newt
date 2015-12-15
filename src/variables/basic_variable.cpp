@@ -53,9 +53,9 @@ const Result* BasicVariable::Evaluate(const ExecutionContext* context) const {
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
 	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
-	const Symbol* result_symbol = Symbol::DefaultSymbol;
+	const Symbol* result_symbol = Symbol::GetDefaultSymbol();
 
-	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		result_symbol = symbol;
 	} else {
 		errors = errors->With(
@@ -267,7 +267,7 @@ const LinkedList<const Error*>* BasicVariable::Validate(
 	const SymbolContext* symbol_context = context->GetSymbolContext();
 	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
 
-	if (symbol == nullptr || symbol == Symbol::DefaultSymbol) {
+	if (symbol == nullptr || symbol == Symbol::GetDefaultSymbol()) {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						GetLocation().first_line, GetLocation().first_column,

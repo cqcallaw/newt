@@ -40,8 +40,7 @@ enum SetResult {
 };
 
 enum SearchType {
-	SHALLOW = 0,
-	DEEP = 1
+	SHALLOW = 0, DEEP = 1
 };
 
 const LinkedList<const Error*>* ToErrorList(const SetResult result,
@@ -88,8 +87,10 @@ public:
 	const void print(ostream &os, const TypeTable* type_table,
 			const Indent indent) const;
 
-	const Symbol* GetSymbol(const string identifier, const SearchType search_type) const;
-	const Symbol* GetSymbol(const string* identifier, const SearchType search_type) const;
+	const Symbol* GetSymbol(const string identifier,
+			const SearchType search_type) const;
+	const Symbol* GetSymbol(const string* identifier,
+			const SearchType search_type) const;
 
 	SetResult SetSymbol(const string identifier, const bool* value);
 	SetResult SetSymbol(const string identifier, const int* value);
@@ -106,6 +107,12 @@ private:
 	const Modifier::Type m_modifiers;
 	const LinkedList<SymbolContext*>* m_parent;
 	map<const string, const Symbol*, comparator>* m_table;
+	const bool m_dispose_members;
+
+	SymbolContext(const Modifier::Type modifiers,
+			const LinkedList<SymbolContext*>* parent_context,
+			map<const string, const Symbol*, comparator>* values,
+			const bool dispose_members);
 
 	SetResult SetSymbol(const string identifier, const TypeSpecifier* type,
 			const void* value);

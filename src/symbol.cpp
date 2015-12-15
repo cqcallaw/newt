@@ -33,10 +33,6 @@
 #include <function.h>
 #include <primitive_type_specifier.h>
 
-const std::string Symbol::DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
-const Symbol* Symbol::DefaultSymbol = new Symbol(
-		PrimitiveTypeSpecifier::GetNone(), DefaultSymbolName, NULL);
-
 Symbol::Symbol(const string name, const bool *value) :
 		Symbol(PrimitiveTypeSpecifier::GetBoolean(), name, (void *) value) {
 }
@@ -134,7 +130,7 @@ const Symbol* Symbol::WithValue(const CompoundTypeInstance* value) const {
 const Symbol* Symbol::WithValue(const TypeSpecifier* type,
 		const void* value) const {
 	if (!type->IsAssignableTo(this->m_type)) {
-		return DefaultSymbol;
+		return GetDefaultSymbol();
 	}
 
 	return new Symbol(type, m_name, value);
@@ -172,3 +168,14 @@ const string Symbol::ToString(const TypeTable* type_table,
 
 }
 
+const string Symbol::GetDefaultSymbolName() {
+	const static std::string DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
+	return DefaultSymbolName;
+}
+
+const Symbol* Symbol::GetDefaultSymbol() {
+	const static Symbol* DefaultSymbol = new Symbol(
+			PrimitiveTypeSpecifier::GetNone(), GetDefaultSymbolName(), NULL);
+
+	return DefaultSymbol;
+}

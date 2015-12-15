@@ -21,7 +21,6 @@ CPP_SRCS += \
 ../src/member_instantiation_list.cpp \
 ../src/newt.cpp \
 ../src/parameter.cpp \
-../src/parameter_list.cpp \
 ../src/symbol.cpp \
 ../src/symbol_context.cpp \
 ../src/symbol_table.cpp \
@@ -47,7 +46,6 @@ OBJS += \
 ./src/member_instantiation_list.o \
 ./src/newt.o \
 ./src/parameter.o \
-./src/parameter_list.o \
 ./src/symbol.o \
 ./src/symbol_context.o \
 ./src/symbol_table.o \
@@ -73,7 +71,6 @@ CPP_DEPS += \
 ./src/member_instantiation_list.d \
 ./src/newt.d \
 ./src/parameter.d \
-./src/parameter_list.d \
 ./src/symbol.d \
 ./src/symbol_context.d \
 ./src/symbol_table.d \

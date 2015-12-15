@@ -66,12 +66,14 @@ int main(int argc, char *argv[]) {
 		cout << "Parsing file " << filename << "..." << endl;
 	}
 
-	StatementBlock* main_statement_block;
+	StatementBlock* main_statement_block = nullptr;
 	ExecutionContext* root_context = new ExecutionContext();
 	yylex_init(&scanner);
 	yyset_in(input_file, scanner);
 	int parse_result = yyparse(&main_statement_block, scanner);
 	yylex_destroy(scanner);
+
+	fclose(input_file);
 
 	if (parse_result != 0 || Error::num_errors() != 0) {
 		if (debug) {
@@ -83,6 +85,8 @@ int main(int argc, char *argv[]) {
 			cout << "s";
 		cout << " found; giving up." << endl;
 
+		delete root_context;
+		delete main_statement_block;
 		do_exit(debug, EXIT_FAILURE);
 	}
 
@@ -119,6 +123,9 @@ int main(int argc, char *argv[]) {
 				cout << "----------------" << endl;
 				root_context->GetTypeTable()->print(cout);
 			}
+
+			delete root_context;
+			delete main_statement_block;
 			do_exit(debug, has_execution_errors ? EXIT_FAILURE : EXIT_SUCCESS);
 		} else {
 			int semantic_error_count = 0;
@@ -140,6 +147,8 @@ int main(int argc, char *argv[]) {
 						<< endl;
 			}
 
+			delete root_context;
+			delete main_statement_block;
 			do_exit(debug, EXIT_FAILURE);
 		}
 	}

@@ -68,10 +68,27 @@ const LinkedList<const Error*>* ToErrorList(const SetResult result,
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
 		const LinkedList<SymbolContext*>* parent) :
 		SymbolContext(modifiers, parent,
-				new map<const string, const Symbol*, comparator>()) {
+				new map<const string, const Symbol*, comparator>(), true) {
+}
+
+SymbolContext::SymbolContext(const Modifier::Type modifiers,
+		const LinkedList<SymbolContext*>* parent,
+		map<const string, const Symbol*, comparator>* values) :
+		SymbolContext(modifiers, parent, values, false) {
+}
+
+SymbolContext::SymbolContext(const Modifier::Type modifiers,
+		const LinkedList<SymbolContext*>* parent_context,
+		map<const string, const Symbol*, comparator>* values,
+		const bool dispose_members) :
+		m_modifiers(modifiers), m_parent(parent_context), m_table(values), m_dispose_members(
+				dispose_members) {
 }
 
 SymbolContext::~SymbolContext() {
+	if (m_dispose_members) {
+		delete m_table;
+	}
 }
 
 const Symbol* SymbolContext::GetSymbol(const string identifier,
@@ -83,7 +100,7 @@ const Symbol* SymbolContext::GetSymbol(const string identifier,
 	} else if (m_parent != nullptr && search_type == DEEP) {
 		return m_parent->GetData()->GetSymbol(identifier, search_type);
 	} else {
-		return Symbol::DefaultSymbol;
+		return Symbol::GetDefaultSymbol();
 	}
 }
 
@@ -91,12 +108,6 @@ const Symbol* SymbolContext::GetSymbol(const string* identifier,
 		const SearchType search_type) const {
 	const Symbol* result = GetSymbol(*identifier, search_type);
 	return result;
-}
-
-SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const LinkedList<SymbolContext*>* parent,
-		map<const string, const Symbol*, comparator>* values) :
-		m_modifiers(modifiers), m_parent(parent), m_table(values) {
 }
 
 const void SymbolContext::print(ostream &os, const TypeTable* type_table,

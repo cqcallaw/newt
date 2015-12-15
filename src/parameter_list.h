@@ -34,7 +34,8 @@ public:
 			ParameterList(data, ParameterList::Terminator) {
 	}
 
-	static const ParameterList* Terminator;
+	static constexpr ParameterList* Terminator = (ParameterList*) LinkedList<
+			const Parameter*>::Terminator;
 };
 
 #endif /* PARAMETER_LIST_H_ */

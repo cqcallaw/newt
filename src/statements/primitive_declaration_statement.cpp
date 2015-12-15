@@ -30,7 +30,7 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::Terminator;
-	const Symbol* symbol = Symbol::DefaultSymbol;
+	const Symbol* symbol = Symbol::GetDefaultSymbol();
 	const Expression* expression = m_initializer_expression;
 	const string* name = m_name;
 
@@ -101,7 +101,7 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 		assert(false);
 	}
 
-	if (symbol != Symbol::DefaultSymbol) {
+	if (symbol != Symbol::GetDefaultSymbol()) {
 		SymbolTable* symbol_table =
 				(SymbolTable*) execution_context->GetSymbolContext();
 
