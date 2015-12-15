@@ -31,10 +31,6 @@ StatementBlock::StatementBlock(const LinkedList<const Statement*>* statements) :
 		m_statements(statements) {
 }
 
-bool StatementBlock::empty() {
-	return m_statements == StatementList::Terminator;
-}
-
 const LinkedList<const Error*>* StatementBlock::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
