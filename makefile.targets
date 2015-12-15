@@ -27,6 +27,9 @@ w%: newt $(TEST_PATH)%.nwt $(TEST_PATH)reference
 c%: $(TEST_PATH)%.nwt
 	@cat -n $<
 
+v%: newt $(TEST_PATH)%.nwt
+	@valgrind --leak-check=full --show-leak-kinds=all -v --error-exitcode=1 ./newt --debug $(word 2,$^)
+
 #compare test w/ reference output (requires kdiff)
 d%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	kdiff3 $(TEST_PATH)reference/$* $(TEST_PATH)output/$* 
