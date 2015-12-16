@@ -1,5 +1,4 @@
 #parser
-PCOMP = g++
 PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/specifiers" -I"../src/statements" -I"../src/variables" -I"../src" -I"./"
 
 parser: parser.tab.o
@@ -11,10 +10,10 @@ parser.tab.c parser.tab.h: ../src/parser.y
 	bison -vd --report=itemset ../src/parser.y
 
 parser.tab.o: parser.tab.c parser.tab.h lexer.o
-	$(PCOMP) $(PCOMPFLAGS) -w -c parser.tab.c
+	$(CXX) $(PCOMPFLAGS) -w -c parser.tab.c
 
 lexer.o: lexer.cpp parser.tab.h
-	$(PCOMP) $(PCOMPFLAGS) -c lexer.cpp
+	$(CXX) $(PCOMPFLAGS) -c lexer.cpp
 	
 lexer-clean:
 	rm -rf lexer.*
