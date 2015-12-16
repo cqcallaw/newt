@@ -18,7 +18,7 @@ newt also aims to automate immutability, as immutable data structures have been 
 newt is built with the understanding that non-astonishing behavior is important, and that "non-astonishing" frequently just means "familiar". Where possible, existing conventions and well-known programming idioms are preserved.
 
 # Building
-newt requires Flex, Bison, and g++ to build. To build a release binary, type the following from the commandline:
+newt requires flex (tested with version 2.5.35), Bison (tested with version 3.0.2), and g++ (tested with 4.8.4) to build. To build a release binary, type the following from the commandline:
 
 ```
 $ make -C Release all
