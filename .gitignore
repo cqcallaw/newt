@@ -1,6 +1,6 @@
 *.o
 *.d
-lexer.c
+lexer.cpp
 lexer.h
 parser.output
 parser.tab.c

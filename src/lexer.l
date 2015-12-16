@@ -53,7 +53,7 @@ Error error_handler; // error reporting object
 
 %}
 
-%option outfile="lexer.c"
+%option outfile="lexer.cpp"
 %option header-file="lexer.h"
 
 %option noyywrap

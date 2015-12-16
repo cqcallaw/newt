@@ -13,13 +13,13 @@ parser.tab.c parser.tab.h: ../src/parser.y
 parser.tab.o: parser.tab.c parser.tab.h lexer.o
 	$(PCOMP) $(PCOMPFLAGS) -w -c parser.tab.c
 
-lexer.o: lexer.c parser.tab.h
-	$(PCOMP) $(PCOMPFLAGS) -c lexer.c
+lexer.o: lexer.cpp parser.tab.h
+	$(PCOMP) $(PCOMPFLAGS) -c lexer.cpp
 	
 lexer-clean:
 	rm -rf lexer.*
 
-lexer.c: ../src/lexer.l
+lexer.cpp: ../src/lexer.l
 	flex ../src/lexer.l
 
 #prepend the parser build onto the CDT auto-generated build
