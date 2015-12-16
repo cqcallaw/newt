@@ -8,6 +8,6 @@ struct rectangle {
 	green: double
 }
 
-my_rectangle: rectangle = #rectangle with {x = 100, y = 100}
+my_rectangle: rectangle = @rectangle with {x = 100, y = 100}
 
     my_rectangle += 42

@@ -1,0 +1,10 @@
+callback := (a:int) -> string {
+	return "Good job " + a + "!"
+}
+
+do_op := (value:int, callback:(int) -> string) -> string {
+	#do some processing here, possibly in the background
+	return callback(value)
+}
+
+output:= do_op(3, callback)

@@ -11,7 +11,7 @@ struct rectangle {
 i: int
 size: int = 100
 rects: rectangle[]
-rects[size - 1] = #rectangle
+rects[size - 1] = @rectangle
 
     for (i = 0; i < size; i += 1)
     {

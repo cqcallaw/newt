@@ -6,7 +6,7 @@ struct rectangle {
 }
 
 rects: rectangle[]
-rects[2] = #rectangle
+rects[2] = @rectangle
 
 rects[0].x = 1
 rects[0].y = 2

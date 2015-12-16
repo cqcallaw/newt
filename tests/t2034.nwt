@@ -5,8 +5,8 @@ struct MyStruct {
 	h: int
 }
 
-m_struct: MyStruct = #MyStruct with { x = 1, h = 4 }
-m_struct2: MyStruct = #MyStruct with { y = 2 }
+m_struct: MyStruct = @MyStruct with { x = 1, h = 4 }
+m_struct2: MyStruct = @MyStruct with { y = 2 }
 
 struct MyStruct2 {
 	x: double
@@ -14,8 +14,8 @@ struct MyStruct2 {
 	w: int = 3
 }
 
-m2_struct: MyStruct2 = #MyStruct2 with { x = 1.0 }
-m3_struct: MyStruct2 = #MyStruct2 with { w = 10 }
+m2_struct: MyStruct2 = @MyStruct2 with { x = 1.0 }
+m3_struct: MyStruct2 = @MyStruct2 with { w = 10 }
 m4_struct: MyStruct2
 
 m_struct.x = 1
@@ -35,4 +35,4 @@ print("m_struct.y = " + m_struct.y)
 print("m_struct.w = " + m_struct.w)
 print("m_struct.h = " + m_struct.h)
 
-m_struct3: MyStruct = #MyStruct with { }
+m_struct3: MyStruct = @MyStruct with { }

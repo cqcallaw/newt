@@ -30,8 +30,6 @@ class StatementBlock {
 public:
 	StatementBlock(const LinkedList<const Statement*>* statements);
 
-	bool empty();
-
 	const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;
 	const LinkedList<const Error*>* execute(

@@ -17,7 +17,19 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <parameter_list.h>
+#include <member_instantiation.h>
+#include <member_instantiation_list.h>
+#include <expression.h>
 
-const ParameterList* ParameterList::Terminator = new ParameterList(nullptr,
-		nullptr);
+const bool MemberInstantiationList::IsConstant() const {
+	const LinkedList<const MemberInstantiation*>* subject = this;
+	while (!subject->IsTerminator()) {
+		auto data = subject->GetData();
+		if (!data->GetExpression()->IsConstant())
+			return false;
+		else
+			subject = subject->GetNext();
+	}
+
+	return true;
+}

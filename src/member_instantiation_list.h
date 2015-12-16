@@ -35,6 +35,8 @@ public:
 			LinkedList(list) {
 	}
 
+	const bool IsConstant() const;
+
 	static constexpr MemberInstantiationList* Terminator =
 			(MemberInstantiationList*) LinkedList<const MemberInstantiation*>::Terminator;
 };

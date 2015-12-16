@@ -1,0 +1,9 @@
+Parsing file ../tests/t5012.nwt...
+Parsed file ../tests/t5012.nwt.
+Root Symbol Table:
+----------------
+(int, (int) -> string) -> string do_op:
+string result: "Good job 3!"
+
+Root Type Table:
+----------------

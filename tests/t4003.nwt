@@ -2,4 +2,4 @@ struct test {
 	s := "hmmm"
 }
 
-test_instance := #test
+test_instance := @test

@@ -1,27 +1,3 @@
-#parser
-PCOMP = g++
-PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/specifiers" -I"../src/statements" -I"../src/variables" -I"../src" -I"./"
-
-parser: parser.tab.o
-
-parser-clean: lexer-clean
-	rm -rf parser.tab.* parser.output
-
-parser.tab.c parser.tab.h: ../src/parser.y
-	bison -vd --report=itemset ../src/parser.y
-
-parser.tab.o: parser.tab.c parser.tab.h lexer.o
-	$(PCOMP) $(PCOMPFLAGS) -w -c parser.tab.c
-
-lexer.o: lexer.c parser.tab.h
-	$(PCOMP) $(PCOMPFLAGS) -c lexer.c
-	
-lexer-clean:
-	rm -rf lexer.*
-
-lexer.c: ../src/lexer.l
-	flex ../src/lexer.l
-
 #Tests
 TEST_PATH = ../tests/
 #ref: http://stackoverflow.com/a/2706067/577298
@@ -39,17 +15,20 @@ $(TEST_PATH)output:
 	diff $(TEST_PATH)reference/$@ $(TEST_PATH)output/$@
 
 #run a test in debug mode
-r%: $(TEST_PATH)%.nwt
+r%: newt $(TEST_PATH)%.nwt
 	-@echo ' '
-	./newt --debug $<
+	./newt --debug $(word 2,$^)
 
 #update the reference output for the given test
-w%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
+w%: newt $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	-@echo ' '
-	./newt --debug $< >$(TEST_PATH)reference/$* 2>&1
+	./newt --debug $(word 2,$^) >$(TEST_PATH)reference/$* 2>&1
 
 c%: $(TEST_PATH)%.nwt
 	@cat -n $<
+
+v%: newt $(TEST_PATH)%.nwt
+	@valgrind --leak-check=full --show-leak-kinds=all -v --error-exitcode=1 ./newt --debug $(word 2,$^)
 
 #compare test w/ reference output (requires kdiff)
 d%: $(TEST_PATH)%.nwt $(TEST_PATH)reference

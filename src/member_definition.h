@@ -68,8 +68,9 @@ public:
 		if (as_compound != nullptr) {
 			buffer << endl;
 			const string type_name = as_compound->GetTypeName();
-			const CompoundType* compound_type = type_table->GetType(type_name);
-			buffer << compound_type->ToString(type_table, indent);
+			const CompoundTypeInstance* instance =
+					(const CompoundTypeInstance*) m_value;
+			buffer << instance->ToString(type_table, indent + 1);
 			buffer << indent;
 		}
 

@@ -80,13 +80,14 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 				declaration->GetInitializerExpression();
 		if (initializer_expression != nullptr
 				&& !initializer_expression->IsConstant()) {
-
+			//if we have a non-constant initializer expression, generate an error
 			YYLTYPE position = initializer_expression->GetPosition();
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
 							position.first_line, position.first_column));
 		} else {
+			//otherwise (no initializer expression OR a valid initializer expression), preprocess
 			errors = errors->Concatenate(
 					declaration->preprocess(struct_context), true);
 		}
@@ -111,15 +112,16 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 			const Symbol* symbol = iter->second;
 			const TypeSpecifier* type = symbol->GetType();
 			const void* value = symbol->GetValue();
+			const MemberDefinition* definition = new MemberDefinition(type,
+					value);
 			mapping->insert(
 					pair<const string, const MemberDefinition*>(member_name,
-							new MemberDefinition(type, value)));
-
+							definition));
 		}
 	}
 
-	type_table->AddType(*m_name, new CompoundType(mapping, modifiers));
-
+	auto type = new CompoundType(mapping, modifiers);
+	type_table->AddType(*m_name, type);
 	return errors;
 }
 

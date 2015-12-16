@@ -1,0 +1,29 @@
+#parser
+PCOMP = g++
+PCOMPFLAGS = -std=c++11 -g -MMD -I"../src/expressions" -I"../src/specifiers" -I"../src/statements" -I"../src/variables" -I"../src" -I"./"
+
+parser: parser.tab.o
+
+parser-clean: lexer-clean
+	rm -rf parser.tab.* parser.output
+
+parser.tab.c parser.tab.h: ../src/parser.y
+	bison -vd --report=itemset ../src/parser.y
+
+parser.tab.o: parser.tab.c parser.tab.h lexer.o
+	$(PCOMP) $(PCOMPFLAGS) -w -c parser.tab.c
+
+lexer.o: lexer.c parser.tab.h
+	$(PCOMP) $(PCOMPFLAGS) -c lexer.c
+	
+lexer-clean:
+	rm -rf lexer.*
+
+lexer.c: ../src/lexer.l
+	flex ../src/lexer.l
+
+#prepend the parser build onto the CDT auto-generated build
+OBJS := lexer.o parser.tab.o $(OBJS)
+
+#add generated files to C++_DEPS so the auto-generated clean rule will remove them
+C++_DEPS += parser.tab.* parser.output lexer.*  

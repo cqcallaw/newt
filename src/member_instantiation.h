@@ -23,6 +23,8 @@
 #include <defaults.h>
 #include <type.h>
 
+class Expression;
+
 class MemberInstantiation {
 public:
 	MemberInstantiation(const std::string* name, const YYLTYPE name_position,

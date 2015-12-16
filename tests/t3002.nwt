@@ -13,8 +13,8 @@ b.x = 12 //a.x should also be updated
 c: my_struct = b
 d: my_struct = b with { x = 50 } //copy assignment
 d.y = 20 //a, b, and c should be unchanged
-e: my_struct = #my_struct //copy assignment
+e: my_struct = @my_struct //copy assignment
 e.z = "something"
-f: my_struct = #my_struct with { x = 42 } //copy assignment
+f: my_struct = @my_struct with { x = 42 } //copy assignment
 
-print(#my_struct) //should be unchanged
+print(@my_struct) //should be unchanged

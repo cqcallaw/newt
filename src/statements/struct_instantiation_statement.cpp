@@ -54,8 +54,8 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 		SymbolTable* symbol_table =
 				(SymbolTable*) execution_context->GetSymbolContext();
 
-		const Symbol* existing = symbol_table->GetSymbol(m_name);
-		if (existing == Symbol::DefaultSymbol) {
+		const Symbol* existing = symbol_table->GetSymbol(m_name, SHALLOW);
+		if (existing == Symbol::GetDefaultSymbol()) {
 			const CompoundTypeInstance* instance = nullptr;
 			if (m_initializer_expression) {
 				const TypeSpecifier* expression_type =
@@ -70,9 +70,20 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 							&& m_type_specifier->GetTypeName().compare(
 									as_compound_specifier->GetTypeName())
 									== 0) {
-						//generate default instance
-						instance = CompoundTypeInstance::GetDefaultInstance(
-								m_type_specifier->GetTypeName(), type);
+						if (m_initializer_expression->IsConstant()) {
+							const Result* result =
+									m_initializer_expression->Evaluate(
+											execution_context);
+							errors = result->GetErrors();
+							if (errors->IsTerminator()) {
+								instance =
+										(const CompoundTypeInstance*) result->GetData();
+							}
+						} else {
+							//generate default instance
+							instance = CompoundTypeInstance::GetDefaultInstance(
+									m_type_specifier->GetTypeName(), type);
+						}
 					} else {
 						errors =
 								errors->With(

@@ -4,5 +4,5 @@ struct circle {
 	w: int = 10
 }
 
-my_circle: circle = #circle with {x = 42, y = 11}
+my_circle: circle = @circle with {x = 42, y = 11}
 foo: int = my_circle.bad_member_name

@@ -25,18 +25,18 @@ Root Type Table:
 ----------------
 my_nested_struct: 
 	my_struct i (
-		double y (0)
+		double y: 0
 	)
 	my_other_struct n (
-		my_struct i (
-			double y (0)
-		)
-		int x (0)
+		my_struct i:
+			double y: 0
+
+		int x: 0
 	)
 	int z (0)
 my_other_struct: 
 	my_struct i (
-		double y (0)
+		double y: 0
 	)
 	int x (0)
 my_struct: 

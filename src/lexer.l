@@ -65,6 +65,7 @@ Error error_handler; // error reporting object
 
 [ \t\r\n]       // ignore spaces, tabs, newlines, and the carriage return
 \/\/.*$         // ignore comments
+#.*$            // ignore comments
 
 "bool"          return T_BOOLEAN;
 "int"           return T_INT;
@@ -86,6 +87,7 @@ Error error_handler; // error reporting object
 ":"             return T_COLON;
 ";"             return T_SEMIC;
 ","             return T_COMMA;
+"@"             return T_AT;
 
 "("             return T_LPAREN;
 ")"             return T_RPAREN;
@@ -94,7 +96,6 @@ Error error_handler; // error reporting object
 "."             return T_PERIOD;
 "+="            return T_PLUS_ASSIGN;
 "-="            return T_MINUS_ASSIGN;
-
 "->"            return T_ARROW_RIGHT;
 
 "*"             return T_ASTERISK;
@@ -109,7 +110,6 @@ Error error_handler; // error reporting object
 "=="            return T_EQUAL;
 "!="            return T_NOT_EQUAL;
 "!"             return T_NOT;
-"#"             return T_HASH;
 "&&"            return T_AND;
 "||"            return T_OR;
 "struct"        return T_STRUCT;

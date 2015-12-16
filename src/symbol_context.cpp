@@ -68,33 +68,46 @@ const LinkedList<const Error*>* ToErrorList(const SetResult result,
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
 		const LinkedList<SymbolContext*>* parent) :
 		SymbolContext(modifiers, parent,
-				new map<const string, const Symbol*, comparator>()) {
-}
-
-SymbolContext::~SymbolContext() {
-}
-
-const Symbol* SymbolContext::GetSymbol(const string identifier) const {
-	auto result = m_table->find(identifier);
-
-	if (result != m_table->end()) {
-		return result->second;
-	} else if (m_parent != nullptr) {
-		return m_parent->GetData()->GetSymbol(identifier);
-	} else {
-		return Symbol::DefaultSymbol;
-	}
-}
-
-const Symbol* SymbolContext::GetSymbol(const string* identifier) const {
-	const Symbol* result = GetSymbol(*identifier);
-	return result;
+				new map<const string, const Symbol*, comparator>(), true) {
 }
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
 		const LinkedList<SymbolContext*>* parent,
 		map<const string, const Symbol*, comparator>* values) :
-		m_modifiers(modifiers), m_parent(parent), m_table(values) {
+		SymbolContext(modifiers, parent, values, false) {
+}
+
+SymbolContext::SymbolContext(const Modifier::Type modifiers,
+		const LinkedList<SymbolContext*>* parent_context,
+		map<const string, const Symbol*, comparator>* values,
+		const bool dispose_members) :
+		m_modifiers(modifiers), m_parent(parent_context), m_table(values), m_dispose_members(
+				dispose_members) {
+}
+
+SymbolContext::~SymbolContext() {
+	if (m_dispose_members) {
+		delete m_table;
+	}
+}
+
+const Symbol* SymbolContext::GetSymbol(const string identifier,
+		const SearchType search_type) const {
+	auto result = m_table->find(identifier);
+
+	if (result != m_table->end()) {
+		return result->second;
+	} else if (m_parent != nullptr && search_type == DEEP) {
+		return m_parent->GetData()->GetSymbol(identifier, search_type);
+	} else {
+		return Symbol::GetDefaultSymbol();
+	}
+}
+
+const Symbol* SymbolContext::GetSymbol(const string* identifier,
+		const SearchType search_type) const {
+	const Symbol* result = GetSymbol(*identifier, search_type);
+	return result;
 }
 
 const void SymbolContext::print(ostream &os, const TypeTable* type_table,
@@ -142,8 +155,7 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 }
 
 SymbolContext* SymbolContext::GetDefault() {
-	static SymbolContext* instance = new SymbolContext(
-			Modifier::READONLY);
+	static SymbolContext* instance = new SymbolContext(Modifier::READONLY);
 	return instance;
 }
 

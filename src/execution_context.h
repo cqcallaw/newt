@@ -26,7 +26,8 @@ class TypeTable;
 class ExecutionContext {
 public:
 	ExecutionContext();
-	ExecutionContext(SymbolContext* symbol_context, TypeTable* type_table);
+	ExecutionContext(SymbolContext* symbol_context, TypeTable* type_table,
+			bool dispose_members = false);
 	virtual ~ExecutionContext();
 
 	SymbolContext* GetSymbolContext() const {
@@ -52,9 +53,13 @@ public:
 	const static ExecutionContext* GetDefault();
 
 private:
+	ExecutionContext(SymbolContext* symbol_context, TypeTable* type_table,
+			const void* m_return_value, bool dispose_members);
+
 	SymbolContext* m_symbol_context;
 	TypeTable* m_type_table;
 	const void* m_return_value;
+	const bool m_dispose_members;
 };
 
 #endif /* EXECUTION_CONTEXT_H_ */

@@ -329,9 +329,10 @@ const LinkedList<const Error*>* MemberVariable::Validate(
 			LinkedList<const Error*>::Terminator;
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
-	const Symbol* symbol = symbol_context->GetSymbol(m_container->GetName());
+	const Symbol* symbol = symbol_context->GetSymbol(m_container->GetName(),
+			DEEP);
 
-	if (symbol != nullptr && symbol != Symbol::DefaultSymbol) {
+	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		const TypeSpecifier* container_type = m_container->GetType(context);
 		const CompoundTypeSpecifier* as_compound =
 				dynamic_cast<const CompoundTypeSpecifier*>(container_type);

@@ -133,9 +133,13 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 
 	//TODO: determine if it is necessary to merge type tables
 
-	ExecutionContext* child_context = new ExecutionContext(final_symbol_context,
-			m_closure->GetTypeTable());
-	errors = errors->Concatenate(m_body->execute(child_context), true);
+	if (errors->IsTerminator()) {
+		ExecutionContext* child_context = new ExecutionContext(
+				final_symbol_context, m_closure->GetTypeTable());
+		errors = errors->Concatenate(m_body->execute(child_context), true);
 
-	return new Result(child_context->GetReturnValue(), errors);
+		return new Result(child_context->GetReturnValue(), errors);
+	} else {
+		return new Result(nullptr, errors);
+	}
 }

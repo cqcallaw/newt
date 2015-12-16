@@ -15,4 +15,4 @@ struct my_array_struct {
 a: my_other_struct
 b: my_array_struct
 
-b.arr[2] = #my_struct with { y = 42.1 }
+b.arr[2] = @my_struct with { y = 42.1 }

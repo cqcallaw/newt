@@ -49,13 +49,13 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolContext();
 	const string* variable_name = m_variable->GetName();
-	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
+	const Symbol* symbol = symbol_table->GetSymbol(variable_name, DEEP);
 	const TypeSpecifier* symbol_type = symbol->GetType();
 
 	int variable_line = m_variable->GetLocation().first_line;
 	int variable_column = m_variable->GetLocation().first_column;
 
-	if (symbol != Symbol::DefaultSymbol) {
+	if (symbol != Symbol::GetDefaultSymbol()) {
 		const BasicVariable* basic_variable =
 				dynamic_cast<const BasicVariable*>(m_variable);
 		if (basic_variable != nullptr) {
@@ -535,9 +535,9 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolContext();
-	const Symbol* symbol = symbol_table->GetSymbol(variable_name);
+	const Symbol* symbol = symbol_table->GetSymbol(variable_name, DEEP);
 
-	if (symbol == NULL || symbol == Symbol::DefaultSymbol) {
+	if (symbol == NULL || symbol == Symbol::GetDefaultSymbol()) {
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						variable_line, variable_column, *(variable_name)));

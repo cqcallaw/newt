@@ -20,6 +20,8 @@
 #ifndef LINKED_LIST_H_
 #define LINKED_LIST_H_
 
+#include <stdexcept>
+
 template<class T> class LinkedList {
 public:
 	LinkedList(const T data) :
@@ -57,21 +59,24 @@ public:
 
 	const LinkedList<T>* Concatenate(const LinkedList<T>* other,
 			bool delete_original) const {
-		if (this == (LinkedList<T>*) Terminator) {
+		if (this->IsTerminator()) {
 			return other;
 		}
-		if (other == (LinkedList<T>*) Terminator) {
+		if (other->IsTerminator()) {
 			return this;
 		}
 
-		LinkedList<T>* result = (LinkedList<T>*) this;
-		LinkedList<T>* subject = (LinkedList<T>*) other->Reverse(
-				delete_original);
+		if (this == other) {
+			throw std::invalid_argument(
+					"Cannot concatenate a list onto itself.");
+		}
 
-		while (subject != Terminator) {
-			result = (LinkedList<T>*) new LinkedList<T>(subject->GetData(),
-					result);
-			subject = (LinkedList<T>*) subject->GetNext();
+		auto result = this;
+		auto subject = other->Reverse(delete_original);
+
+		while (!subject->IsTerminator()) {
+			result = new LinkedList<T>(subject->GetData(), result);
+			subject = subject->GetNext();
 		}
 
 		return result;

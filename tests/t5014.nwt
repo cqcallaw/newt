@@ -1,0 +1,41 @@
+readonly struct Point {
+	x:int
+	y:int
+}
+
+readonly struct Line {
+	a:Point
+	b:Point = @Point with { x = 1 }
+}
+
+readonly struct Circle {
+	center:Point
+	radius:int
+}
+
+translate_point:= (source:Point, x_offset:int = 0, y_offset:int = 0) -> Point {
+	return source with {
+		x = source.x + x_offset,
+		y = source.y + y_offset
+	}
+}
+
+translate_line:= (source:Line, x_offset:int = 0, y_offset:int = 0) -> Line {
+	return source with {
+		a = translate_point(source.a, x_offset, y_offset),
+		b = translate_point(source.b, x_offset, y_offset)
+	}
+}
+
+translate_circle:= (source:Circle, x_offset:int = 0, y_offset:int = 0) -> Circle {
+	return source with {
+		center = translate_point(source.center, x_offset, y_offset)
+	}
+}
+
+p1:= translate_point(@Point, 3, 4)
+p2:= translate_point(p1, 10, 12)
+
+l1:= translate_line(@Line, 42, 10)
+
+c1:= translate_circle(@Circle, 12)

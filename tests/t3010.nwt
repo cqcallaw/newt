@@ -8,4 +8,4 @@ struct my_other_struct {
 	x: int
 }
 
-a: my_struct = #my_other_struct //should generate a type error
+a: my_struct = @my_other_struct //should generate a type error

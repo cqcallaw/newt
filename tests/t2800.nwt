@@ -2,7 +2,7 @@ i: int = 42
 x: double = 3.14159
 s: string = "hello world"
 values: double[]
-values[99] = #double
+values[99] = @double
 
     print("i = " + i)
     print("x = " + x)

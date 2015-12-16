@@ -6,4 +6,4 @@ readonly struct ronly {
 	z: string
 }
 
-i: ronly = #ronly with {x = 10, z= "hello"}
+i: ronly = @ronly with {x = 10, z= "hello"}

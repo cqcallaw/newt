@@ -2,6 +2,6 @@ struct test {
 	s: string = "hmmm"
 }
 
-test_instance := #test
+test_instance := @test
 
-test_instance2 := #test with { s = "stuff" }
+test_instance2 := @test with { s = "stuff" }

@@ -12,7 +12,7 @@ i: int
 inc: int = 5
 num_rects: int = 100
 rects: rectangle[]
-rects[num_rects - 1] = #rectangle
+rects[num_rects - 1] = @rectangle
 
     for (i = 0; i < num_rects; i += 1)
     {
