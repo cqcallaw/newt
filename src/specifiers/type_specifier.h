@@ -46,6 +46,4 @@ public:
 	virtual bool operator!=(const TypeSpecifier &other) const = 0;
 };
 
-ostream &operator<<(ostream &os, const TypeSpecifier &type_specifier);
-
 #endif /* SPECIFIERS_TYPE_SPECIFIER_H_ */
