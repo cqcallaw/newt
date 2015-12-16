@@ -29,6 +29,7 @@ class Statement;
 class StatementBlock {
 public:
 	StatementBlock(const LinkedList<const Statement*>* statements);
+	virtual ~StatementBlock();
 
 	const LinkedList<const Error*>* preprocess(
 			const ExecutionContext* execution_context) const;

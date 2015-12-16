@@ -22,6 +22,7 @@
 #include <sstream>
 #include <assert.h>
 #include <type_specifier.h>
+#include <memory>
 
 CompoundType::CompoundType(
 		const map<const string, const MemberDefinition*>* definition,
@@ -62,7 +63,10 @@ const string CompoundType::ToString(const TypeTable* type_table,
 }
 
 const CompoundType* CompoundType::GetDefaultCompoundType() {
-	const static CompoundType* instance = new CompoundType(
-			new map<const string, const MemberDefinition*>(), Modifier::NONE);
-	return instance;
+	const static std::unique_ptr<CompoundType> instance = std::unique_ptr
+			< CompoundType
+			> (new CompoundType(
+					new map<const string, const MemberDefinition*>(),
+					Modifier::NONE));
+	return instance.get();
 }

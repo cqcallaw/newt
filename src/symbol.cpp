@@ -32,6 +32,7 @@
 #include <symbol.h>
 #include <function.h>
 #include <primitive_type_specifier.h>
+#include <memory>
 
 Symbol::Symbol(const string name, const bool *value) :
 		Symbol(PrimitiveTypeSpecifier::GetBoolean(), name, (void *) value) {
@@ -174,9 +175,11 @@ const string Symbol::GetDefaultSymbolName() {
 }
 
 const Symbol* Symbol::GetDefaultSymbol() {
-	const static Symbol* DefaultSymbol = new Symbol(
-			PrimitiveTypeSpecifier::GetNone(), GetDefaultSymbolName(), NULL);
+	const static std::unique_ptr<Symbol> DefaultSymbol = std::unique_ptr
+			< Symbol
+			> (new Symbol(PrimitiveTypeSpecifier::GetNone(),
+					GetDefaultSymbolName(), NULL));
 
-	return DefaultSymbol;
+	return DefaultSymbol.get();
 }
 

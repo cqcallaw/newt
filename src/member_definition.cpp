@@ -19,9 +19,12 @@
 
 #include <member_definition.h>
 #include <primitive_type_specifier.h>
+#include <memory>
 
 const MemberDefinition* MemberDefinition::GetDefaultMemberDefinition() {
-	const static MemberDefinition* instance = new MemberDefinition(
-			PrimitiveTypeSpecifier::GetNone(), nullptr);
-	return instance;
+	const static std::unique_ptr<MemberDefinition> instance =
+			std::unique_ptr < MemberDefinition
+					> (new MemberDefinition(PrimitiveTypeSpecifier::GetNone(),
+							nullptr));
+	return instance.get();
 }

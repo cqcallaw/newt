@@ -20,6 +20,7 @@
 #include <execution_context.h>
 #include <symbol_table.h>
 #include <type_table.h>
+#include <memory>
 
 ExecutionContext::ExecutionContext(SymbolContext* symbol_context,
 		TypeTable* type_table, bool dispose_members) :
@@ -44,7 +45,9 @@ ExecutionContext::~ExecutionContext() {
 }
 
 const ExecutionContext* ExecutionContext::GetDefault() {
-	const static ExecutionContext* instance = new ExecutionContext(
-			SymbolContext::GetDefault(), TypeTable::GetDefault());
-	return instance;
+	const static std::unique_ptr<ExecutionContext> instance = std::unique_ptr
+			< ExecutionContext
+			> (new ExecutionContext(SymbolContext::GetDefault(),
+					TypeTable::GetDefault()));
+	return instance.get();
 }

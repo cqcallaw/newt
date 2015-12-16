@@ -21,6 +21,7 @@
 #include <typeinfo>
 #include <primitive_declaration_statement.h>
 #include <expression.h>
+#include <memory>
 
 const string PrimitiveTypeSpecifier::ToString(const void* value) const {
 	ostringstream buffer;
@@ -66,17 +67,21 @@ const void* PrimitiveTypeSpecifier::DefaultValue(
 
 	switch (basic_type) {
 	case BasicType::BOOLEAN:
-		const static void* default_boolean_value = new bool(false);
-		return default_boolean_value;
+		const static std::unique_ptr<void> default_boolean_value =
+				std::unique_ptr<void>(new bool(false));
+		return default_boolean_value.get();
 	case BasicType::INT:
-		const static void* default_int_value = new int(0);
-		return default_int_value;
+		const static std::unique_ptr<void> default_int_value = std::unique_ptr<
+				void>(new int(0));
+		return default_int_value.get();
 	case BasicType::DOUBLE:
-		const static void* default_double_value = new double(0.0);
-		return default_double_value;
+		const static std::unique_ptr<void> default_double_value =
+				std::unique_ptr<void>(new double(0.0));
+		return default_double_value.get();
 	case BasicType::STRING:
-		const static void* default_string_value = new string("");
-		return default_string_value;
+		const static std::unique_ptr<void> default_string_value =
+				std::unique_ptr<void>(new string(""));
+		return default_string_value.get();
 	default:
 		assert(false);
 		return nullptr;
@@ -84,33 +89,38 @@ const void* PrimitiveTypeSpecifier::DefaultValue(
 }
 
 const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetNone() {
-	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
-			BasicType::NONE);
-	return instance;
+	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
+			std::unique_ptr < PrimitiveTypeSpecifier
+					> (new PrimitiveTypeSpecifier(BasicType::NONE));
+	return instance.get();
 }
 
 const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetBoolean() {
-	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
-			BasicType::BOOLEAN);
-	return instance;
+	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
+			std::unique_ptr < PrimitiveTypeSpecifier
+					> (new PrimitiveTypeSpecifier(BasicType::BOOLEAN));
+	return instance.get();
 }
 
 const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetInt() {
-	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
-			BasicType::INT);
-	return instance;
+	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
+			std::unique_ptr < PrimitiveTypeSpecifier
+					> (new PrimitiveTypeSpecifier(BasicType::INT));
+	return instance.get();
 }
 
 const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetDouble() {
-	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
-			BasicType::DOUBLE);
-	return instance;
+	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
+			std::unique_ptr < PrimitiveTypeSpecifier
+					> (new PrimitiveTypeSpecifier(BasicType::DOUBLE));
+	return instance.get();
 }
 
 const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetString() {
-	const static PrimitiveTypeSpecifier* instance = new PrimitiveTypeSpecifier(
-			BasicType::STRING);
-	return instance;
+	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
+			std::unique_ptr < PrimitiveTypeSpecifier
+					> (new PrimitiveTypeSpecifier(BasicType::STRING));
+	return instance.get();
 }
 
 const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::FromBasicType(

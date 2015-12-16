@@ -80,3 +80,11 @@ const AnalysisResult StatementBlock::Returns(
 	return result;
 }
 
+StatementBlock::~StatementBlock() {
+	const LinkedList<const Statement*>* subject = m_statements;
+	while (subject != LinkedList<const Statement*>::GetTerminator()) {
+		const Statement* statement = subject->GetData();
+		delete statement;
+		subject = subject->GetNext();
+	}
+}
