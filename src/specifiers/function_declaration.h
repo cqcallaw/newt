@@ -42,6 +42,10 @@ public:
 	const DeclarationList* GetParameterList() const {
 		return m_parameter_list;
 	}
+protected:
+	static const Function* GetDefaultFunctionDeclaration(
+			const FunctionDeclaration* function_declaration,
+			const TypeTable* type_table);
 
 private:
 	const DeclarationList* m_parameter_list;

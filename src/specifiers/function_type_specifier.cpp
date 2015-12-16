@@ -67,13 +67,8 @@ const bool FunctionTypeSpecifier::IsAssignableTo(
 
 const void* FunctionTypeSpecifier::DefaultValue(
 		const TypeTable* type_table) const {
-	//return a function that returns the default value of the return type
-	auto statement_block = GetDefaultStatementBlock(type_table);
-
-	const FunctionDeclaration* declaration =
-			FunctionDeclaration::FromTypeSpecifier(this);
-	return new Function(declaration, statement_block,
-			ExecutionContext::GetDefault());
+	const static Function* default_value = GetDefaultFunction(this, type_table);
+	return default_value;
 }
 
 bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
@@ -113,10 +108,22 @@ const DeclarationStatement* FunctionTypeSpecifier::GetDeclarationStatement(
 			name_position, initializer_expression);
 }
 
+const Function* FunctionTypeSpecifier::GetDefaultFunction(
+		const FunctionTypeSpecifier* type_specifier,
+		const TypeTable* type_table) {
+	auto statement_block = GetDefaultStatementBlock(
+			type_specifier->m_return_type, type_table);
+	const FunctionDeclaration* declaration =
+			FunctionDeclaration::FromTypeSpecifier(type_specifier);
+	return new Function(declaration, statement_block,
+			ExecutionContext::GetDefault());
+}
+
 const StatementBlock* FunctionTypeSpecifier::GetDefaultStatementBlock(
-		const TypeTable* type_table) const {
+		const TypeSpecifier* return_type, const TypeTable* type_table) {
+	//return a function that returns the default value of the return type
 	const ConstantExpression* return_expression =
-			ConstantExpression::GetDefaultExpression(m_return_type, type_table);
+			ConstantExpression::GetDefaultExpression(return_type, type_table);
 	const ReturnStatement* default_return_statement = new ReturnStatement(
 			return_expression);
 	const StatementList* default_list = new StatementList(

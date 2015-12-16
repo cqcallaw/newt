@@ -26,6 +26,7 @@ class TypeList;
 class Expression;
 class Statement;
 class StatementBlock;
+class Function;
 
 class FunctionTypeSpecifier: public TypeSpecifier {
 public:
@@ -48,9 +49,6 @@ public:
 			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression) const;
 
-	const StatementBlock* GetDefaultStatementBlock(
-			const TypeTable* type_table) const;
-
 	const TypeList* GetParameterTypeList() const {
 		return m_parameter_type_list;
 	}
@@ -58,6 +56,13 @@ public:
 	const TypeSpecifier* GetReturnType() const {
 		return m_return_type;
 	}
+protected:
+	static const StatementBlock* GetDefaultStatementBlock(
+			const TypeSpecifier* return_type, const TypeTable* type_table);
+
+	static const Function* GetDefaultFunction(
+			const FunctionTypeSpecifier* type_specifier,
+			const TypeTable* type_table);
 
 private:
 	const TypeList* m_parameter_type_list;

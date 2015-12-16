@@ -68,17 +68,9 @@ const FunctionDeclaration* FunctionDeclaration::FromTypeSpecifier(
 
 const void* FunctionDeclaration::DefaultValue(
 		const TypeTable* type_table) const {
-	//return a function that returns the default value of the return type
-	const ConstantExpression* return_expression =
-			ConstantExpression::GetDefaultExpression(GetReturnType(),
-					type_table);
-	const ReturnStatement* default_return_statement = new ReturnStatement(
-			return_expression);
-	const StatementList* default_list = new StatementList(
-			default_return_statement, StatementList::GetTerminator());
-	const StatementBlock* statement_block = new StatementBlock(default_list);
-
-	return new Function(this, statement_block, ExecutionContext::GetDefault());
+	const Function* default_value = GetDefaultFunctionDeclaration(this,
+			type_table);
+	return default_value;
 }
 
 const DeclarationStatement* FunctionDeclaration::GetDeclarationStatement(
@@ -87,4 +79,14 @@ const DeclarationStatement* FunctionDeclaration::GetDeclarationStatement(
 		const Expression* initializer_expression) const {
 	return new FunctionDeclarationStatement(position, this, type_position, name,
 			name_position, initializer_expression);
+}
+
+const Function* FunctionDeclaration::GetDefaultFunctionDeclaration(
+		const FunctionDeclaration* function_declaration,
+		const TypeTable* type_table) {
+	auto statement_block = GetDefaultStatementBlock(
+			function_declaration->GetReturnType(), type_table);
+
+	return new Function(function_declaration, statement_block,
+			ExecutionContext::GetDefault());
 }

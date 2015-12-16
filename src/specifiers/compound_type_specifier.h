@@ -57,7 +57,7 @@ public:
 			const Expression* initializer_expression) const;
 
 	virtual const void* DefaultValue(const TypeTable* type_table) const {
-		return type_table->GetDefaultValue(m_type_name);
+		return type_table->GetDefaultValue(m_type_name); //this result cannot be cached because the type table is mutable
 	}
 
 	virtual bool operator==(const TypeSpecifier& other) const;
