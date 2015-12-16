@@ -21,6 +21,7 @@
 #define SPECIFIERS_TYPE_SPECIFIER_H_
 
 #include <string>
+#include <ostream>
 #include <yyltype.h>
 
 class Expression;
