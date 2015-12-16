@@ -36,7 +36,7 @@ ExitStatement::~ExitStatement() {
 const LinkedList<const Error*>* ExitStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* result =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	if (m_exit_expression != nullptr) {
 		const TypeSpecifier* expression_type_specifier =

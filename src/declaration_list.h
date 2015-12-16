@@ -39,8 +39,9 @@ public:
 
 	const TypeList* GetTypeList() const {
 		const LinkedList<const DeclarationStatement*>* subject = this;
-		const LinkedList<const TypeSpecifier*>* result = TypeList::Terminator;
-		while (subject != Terminator) {
+		const LinkedList<const TypeSpecifier*>* result =
+				TypeList::GetTerminator();
+		while (subject != GetTerminator()) {
 			const DeclarationStatement* statement = subject->GetData();
 			const TypeSpecifier* type = statement->GetType();
 			result = result->With(type);
@@ -48,11 +49,14 @@ public:
 		}
 
 		return result->IsTerminator() ?
-				TypeList::Terminator : new TypeList(result->Reverse(true));
+				TypeList::GetTerminator() : new TypeList(result->Reverse(true));
 	}
 
-	static constexpr DeclarationList* Terminator =
-			(DeclarationList*) LinkedList<const DeclarationStatement*>::Terminator;
+	const static DeclarationList* GetTerminator() {
+		static DeclarationList* terminator = (DeclarationList*) LinkedList<
+				const DeclarationStatement*>::GetTerminator();
+		return terminator;
+	}
 };
 
 #endif /* DECLARATION_LIST_H_ */

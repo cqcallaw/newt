@@ -70,19 +70,21 @@ const TypeSpecifier* BinaryExpression::ComputeResultType(const Expression* left,
 
 const Result* BinaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors = LinkedList<const Error*>::Terminator;
+	const LinkedList<const Error*>* errors =
+			LinkedList<const Error*>::GetTerminator();
 	void* result = nullptr;
 
 	const Expression* left = GetLeft();
 	const Expression* right = GetRight();
 
 	const Result* left_result = left->Evaluate(execution_context);
-	if (left_result->GetErrors() != LinkedList<const Error*>::Terminator) {
+	if (left_result->GetErrors() != LinkedList<const Error*>::GetTerminator()) {
 		return left_result;
 	}
 
 	const Result* right_result = right->Evaluate(execution_context);
-	if (right_result->GetErrors() != LinkedList<const Error*>::Terminator) {
+	if (right_result->GetErrors()
+			!= LinkedList<const Error*>::GetTerminator()) {
 		return right_result;
 	}
 
@@ -212,14 +214,14 @@ const LinkedList<const Error*>* BinaryExpression::Validate(
 		const TypeSpecifier* valid_left,
 		const TypeSpecifier* valid_right) const {
 	const LinkedList<const Error*>* result =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const OperatorType op = GetOperator();
 	const Expression* left = GetLeft();
 
 	const LinkedList<const Error*>* left_errors = left->Validate(
 			execution_context);
-	if (left_errors != LinkedList<const Error*>::Terminator) {
+	if (left_errors != LinkedList<const Error*>::GetTerminator()) {
 		result = result->Concatenate(left_errors, true);
 		return result;
 	}
@@ -237,7 +239,7 @@ const LinkedList<const Error*>* BinaryExpression::Validate(
 
 	const LinkedList<const Error*>* right_errors = right->Validate(
 			execution_context);
-	if (right_errors != LinkedList<const Error*>::Terminator) {
+	if (right_errors != LinkedList<const Error*>::GetTerminator()) {
 		result = result->Concatenate(right_errors, true);
 		return result;
 	}

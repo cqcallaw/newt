@@ -422,7 +422,7 @@ statement_list:
 	}
 	| empty
 	{
-		$$ = StatementList::Terminator;
+		$$ = StatementList::GetTerminator();
 	}
 	;
 
@@ -471,7 +471,7 @@ statement:
 if_block:
 	statement
 	{
-		$$ = new StatementBlock(new StatementList($1, StatementList::Terminator));
+		$$ = new StatementBlock(new StatementList($1, StatementList::GetTerminator()));
 	}
 	| statement_block
 	{
@@ -723,7 +723,7 @@ optional_parameter_list:
 	}
 	| empty
 	{
-		$$ = DeclarationList::Terminator;
+		$$ = DeclarationList::GetTerminator();
 	}
 	;
 
@@ -735,7 +735,7 @@ parameter_list:
 	}
 	| variable_declaration
 	{
-		$$ = new DeclarationList($1, DeclarationList::Terminator);
+		$$ = new DeclarationList($1, DeclarationList::GetTerminator());
 	}
 	;
 
@@ -747,7 +747,7 @@ optional_anonymous_parameter_list:
 	}
 	| empty
 	{
-		$$ = TypeList::Terminator;
+		$$ = TypeList::GetTerminator();
 	}
 	;
 
@@ -759,7 +759,7 @@ anonymous_parameter_list:
 	}
 	| type_specifier
 	{
-		$$ = new TypeList($1, TypeList::Terminator);
+		$$ = new TypeList($1, TypeList::GetTerminator());
 	}
 	;
 
@@ -771,7 +771,7 @@ optional_argument_list:
 	}
 	| empty
 	{
-		$$ = ArgumentList::Terminator;
+		$$ = ArgumentList::GetTerminator();
 	}
 	;
 
@@ -783,7 +783,7 @@ argument_list:
 	}
 	| expression
 	{
-		$$ = new ArgumentList($1, ArgumentList::Terminator);
+		$$ = new ArgumentList($1, ArgumentList::GetTerminator());
 	}
 	;
 
@@ -795,7 +795,7 @@ modifier_list:
 	}
 	| modifier
 	{
-		$$ = new ModifierList($1, ModifierList::Terminator);
+		$$ = new ModifierList($1, ModifierList::GetTerminator());
 	}
 
 modifier:
@@ -814,7 +814,7 @@ struct_declaration_statement:
 	| T_STRUCT T_ID T_LBRACE declaration_list T_RBRACE
 	{
 		const DeclarationList* member_declaration_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
-		$$ = new StructDeclarationStatement(@$, $2, @2, member_declaration_list, @4, ModifierList::Terminator, DefaultLocation);
+		$$ = new StructDeclarationStatement(@$, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), DefaultLocation);
 	}
 	;
 
@@ -826,7 +826,7 @@ declaration_list:
 	}
 	| empty
 	{
-		$$ = DeclarationList::Terminator;
+		$$ = DeclarationList::GetTerminator();
 	}
 	;
 
@@ -846,7 +846,7 @@ optional_member_instantiation_list:
 	}
 	| empty
 	{
-		$$ = MemberInstantiationList::Terminator;
+		$$ = MemberInstantiationList::GetTerminator();
 	}
 	;
 
@@ -858,7 +858,7 @@ member_instantiation_list:
 	}
 	| member_instantiation
 	{
-		$$ = new MemberInstantiationList($1, MemberInstantiationList::Terminator);
+		$$ = new MemberInstantiationList($1, MemberInstantiationList::GetTerminator());
 	}
 
 //---------------------------------------------------------------------
@@ -877,7 +877,7 @@ indices:
 	}
 	| index
 	{
-		$$ = new IndexList($1, IndexList::Terminator);
+		$$ = new IndexList($1, IndexList::GetTerminator());
 	}
 	;
 
@@ -897,7 +897,7 @@ dimensions:
 	}
 	| dimension
 	{
-		$$ = new DimensionList($1, DimensionList::Terminator);
+		$$ = new DimensionList($1, DimensionList::GetTerminator());
 	}
 	;
 

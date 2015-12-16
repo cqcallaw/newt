@@ -37,8 +37,11 @@ public:
 
 	const bool IsConstant() const;
 
-	static constexpr MemberInstantiationList* Terminator =
-			(MemberInstantiationList*) LinkedList<const MemberInstantiation*>::Terminator;
+	const static MemberInstantiationList* GetTerminator() {
+		static MemberInstantiationList* terminator =
+				(MemberInstantiationList*) LinkedList<const MemberInstantiation*>::GetTerminator();
+		return terminator;
+	}
 };
 
 #endif /* MEMBER_INSTANTIATION_LIST_H_ */

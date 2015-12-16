@@ -25,7 +25,7 @@
 template<class T> class LinkedList {
 public:
 	LinkedList(const T data) :
-			m_data(data), m_next(Terminator) {
+			m_data(data), m_next(GetTerminator()) {
 	}
 
 	LinkedList(const T data, const LinkedList<T>* next) :
@@ -36,10 +36,10 @@ public:
 	//map null inputs to empty lists
 	LinkedList(const LinkedList<T>* list) :
 			m_data(
-					(list != nullptr && list != Terminator) ?
+					(list != nullptr && list != GetTerminator()) ?
 							list->GetData() : nullptr), m_next(
-					(list != nullptr && list != Terminator) ?
-							list->GetNext() : Terminator) {
+					(list != nullptr && list != GetTerminator()) ?
+							list->GetNext() : GetTerminator()) {
 	}
 
 	virtual ~LinkedList() {
@@ -85,8 +85,8 @@ public:
 	const LinkedList<T>* Reverse(bool delete_original) const {
 		//ref: http://stackoverflow.com/a/1801703/577298
 		const LinkedList<T>* subject = this;
-		const LinkedList<T>* new_next = Terminator;
-		while (subject != Terminator) {
+		const LinkedList<T>* new_next = GetTerminator();
+		while (subject != GetTerminator()) {
 			new_next = new LinkedList<T>(subject->GetData(), new_next);
 			const LinkedList<T>* tmp = subject;
 			subject = subject->GetNext();
@@ -99,10 +99,13 @@ public:
 	}
 
 	const bool IsTerminator() const {
-		return this == Terminator;
+		return this == GetTerminator();
 	}
 
-	static constexpr LinkedList<T>* Terminator = nullptr;
+	static const LinkedList<T>* GetTerminator() {
+		static LinkedList<T>* terminator = nullptr;
+		return terminator;
+	}
 
 private:
 	const T m_data;

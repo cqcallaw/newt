@@ -32,7 +32,7 @@ class SymbolTable: public SymbolContext {
 public:
 	SymbolTable(
 			const LinkedList<SymbolContext*>* parent =
-					LinkedList<SymbolContext*>::Terminator);
+					LinkedList<SymbolContext*>::GetTerminator());
 
 	SymbolTable(const Modifier::Type modifiers,
 			const LinkedList<SymbolContext*>* parent_context,

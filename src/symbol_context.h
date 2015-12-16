@@ -57,7 +57,7 @@ class SymbolContext {
 public:
 	SymbolContext(const Modifier::Type modifiers,
 			const LinkedList<SymbolContext*>* parent =
-					LinkedList<SymbolContext*>::Terminator);
+					LinkedList<SymbolContext*>::GetTerminator());
 	SymbolContext(const Modifier::Type modifiers,
 			const LinkedList<SymbolContext*>* parent_context,
 			map<const string, const Symbol*, comparator>* values);

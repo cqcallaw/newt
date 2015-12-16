@@ -42,10 +42,10 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case OR:
 		return new Result((void *) new bool(left || right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 	case AND:
 		return new Result((void *) new bool(left && right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 	default:
 		assert(false);
 		return NULL;
@@ -59,12 +59,12 @@ YYLTYPE right_position) const {
 	case OR: {
 		bool result = left || right;
 		return new Result((void *) new bool(result),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 	}
 	case AND: {
 		bool result = left && right;
 		return new Result((void *) new bool(result),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 	}
 	default:
 		assert(false);
@@ -77,10 +77,10 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case OR:
 		return new Result((void *) new bool(left || right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 	case AND:
 		return new Result((void *) new bool(left && right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 	default:
 		assert(false);
 		return NULL;

@@ -34,8 +34,11 @@ public:
 			LinkedList(list) {
 	}
 
-	static constexpr ArgumentList* Terminator = (ArgumentList*) LinkedList<
-			const Expression*>::Terminator;
+	const static ArgumentList* GetTerminator() {
+		static ArgumentList* terminator = (ArgumentList*) LinkedList<
+				const Expression*>::GetTerminator();
+		return terminator;
+	}
 };
 
 #endif /* ARGUMENT_LIST_H_ */

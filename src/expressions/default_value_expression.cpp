@@ -39,7 +39,7 @@ const TypeSpecifier* DefaultValueExpression::GetType(
 const Result* DefaultValueExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	const void* return_value = nullptr;
 
 	const PrimitiveTypeSpecifier* as_primitive =
@@ -81,7 +81,7 @@ const Result* DefaultValueExpression::Evaluate(
 const LinkedList<const Error*>* DefaultValueExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const PrimitiveTypeSpecifier* as_primitive =
 			dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);

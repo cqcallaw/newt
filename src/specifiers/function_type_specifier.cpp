@@ -120,7 +120,7 @@ const StatementBlock* FunctionTypeSpecifier::GetDefaultStatementBlock(
 	const ReturnStatement* default_return_statement = new ReturnStatement(
 			return_expression);
 	const StatementList* default_list = new StatementList(
-			default_return_statement, StatementList::Terminator);
+			default_return_statement, StatementList::GetTerminator());
 	const StatementBlock* statement_block = new StatementBlock(default_list);
 
 	return statement_block;

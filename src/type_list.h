@@ -35,11 +35,14 @@ public:
 	}
 
 	TypeList(const TypeSpecifier* data) :
-			TypeList(data, TypeList::Terminator) {
+			TypeList(data, TypeList::GetTerminator()) {
 	}
 
-	static constexpr TypeList* Terminator = (TypeList*) LinkedList<
-			const TypeSpecifier*>::Terminator;
+	const static TypeList* GetTerminator() {
+		static TypeList* terminator = (TypeList*) LinkedList<
+				const TypeSpecifier*>::GetTerminator();
+		return terminator;
+	}
 };
 
 #endif /* TYPE_LIST_H_ */

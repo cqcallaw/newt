@@ -42,7 +42,7 @@ FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const TypeTable* type_table = execution_context->GetTypeTable();
 
@@ -102,7 +102,7 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::execute(
 
 		return errors;
 	} else {
-		return LinkedList<const Error*>::Terminator;
+		return LinkedList<const Error*>::GetTerminator();
 	}
 }
 

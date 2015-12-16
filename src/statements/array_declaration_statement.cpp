@@ -33,7 +33,7 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(const YYLTYPE position,
 const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const CompoundTypeSpecifier* element_type_as_compound =
 			dynamic_cast<const CompoundTypeSpecifier*>(m_type->GetElementTypeSpecifier());
@@ -102,7 +102,7 @@ ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	if (m_initializer_expression) {
 		const Result* initializer_result = m_initializer_expression->Evaluate(
 				execution_context);

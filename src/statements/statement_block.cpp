@@ -34,9 +34,9 @@ StatementBlock::StatementBlock(const LinkedList<const Statement*>* statements) :
 const LinkedList<const Error*>* StatementBlock::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	const LinkedList<const Statement*>* subject = m_statements;
-	while (subject != LinkedList<const Statement*>::Terminator) {
+	while (subject != LinkedList<const Statement*>::GetTerminator()) {
 		const Statement* statement = subject->GetData();
 		//TODO: handle nested statement blocks
 		const LinkedList<const Error*>* statement_errors =
@@ -52,17 +52,17 @@ const LinkedList<const Error*>* StatementBlock::preprocess(
 const LinkedList<const Error*>* StatementBlock::execute(
 		ExecutionContext* execution_context) const {
 	const LinkedList<const Statement*>* list = m_statements;
-	while (list != StatementList::Terminator) {
+	while (list != StatementList::GetTerminator()) {
 		const Statement* statement = list->GetData();
 		auto errors = statement->execute(execution_context);
-		if (errors != LinkedList<const Error*>::Terminator
+		if (errors != LinkedList<const Error*>::GetTerminator()
 				|| execution_context->GetReturnValue() != nullptr) {
 			return errors;
 		}
 		list = (LinkedList<const Statement*>*) list->GetNext();
 	}
 
-	return LinkedList<const Error*>::Terminator;
+	return LinkedList<const Error*>::GetTerminator();
 }
 
 const AnalysisResult StatementBlock::Returns(
@@ -70,7 +70,7 @@ const AnalysisResult StatementBlock::Returns(
 		const ExecutionContext* execution_context) const {
 	AnalysisResult result = AnalysisResult::NO;
 	const LinkedList<const Statement*>* list = m_statements;
-	while (list != StatementList::Terminator) {
+	while (list != StatementList::GetTerminator()) {
 		const Statement* statement = list->GetData();
 		result = static_cast<AnalysisResult>(result
 				| statement->Returns(type_specifier, execution_context));

@@ -45,12 +45,12 @@ const TypeSpecifier* WithExpression::GetType(
 const Result* WithExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	const Result* source_result = m_source_expression->Evaluate(
 			execution_context);
 
 	errors = source_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const void* new_value = nullptr;
 		const TypeSpecifier* type_specifier = m_source_expression->GetType(
 				execution_context);
@@ -97,7 +97,7 @@ const Result* WithExpression::Evaluate(
 											execution_context);
 
 							if (evaluation_result->GetErrors()
-									== LinkedList<const Error*>::Terminator) {
+									== LinkedList<const Error*>::GetTerminator()) {
 								const void* void_value =
 										evaluation_result->GetData();
 
@@ -203,7 +203,7 @@ const LinkedList<const Error*>* WithExpression::Validate(
 	const LinkedList<const Error*>* errors = m_source_expression->Validate(
 			execution_context);
 
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const TypeSpecifier* type_specifier = m_source_expression->GetType(
 				execution_context);
 

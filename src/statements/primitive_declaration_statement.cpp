@@ -29,7 +29,7 @@ PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
 const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	const Symbol* symbol = Symbol::GetDefaultSymbol();
 	const Expression* expression = m_initializer_expression;
 	const string* name = m_name;
@@ -128,7 +128,7 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
 
 		return errors;
 	} else {
-		return LinkedList<const Error*>::Terminator;
+		return LinkedList<const Error*>::GetTerminator();
 	}
 }
 

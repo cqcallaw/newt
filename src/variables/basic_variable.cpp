@@ -49,7 +49,7 @@ const TypeSpecifier* BasicVariable::GetType(
 
 const Result* BasicVariable::Evaluate(const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
 	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
@@ -72,7 +72,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 		const ExecutionContext* context, const Expression* expression,
 		const AssignmentType op) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const string* variable_name = GetName();
 	const int variable_line = GetLocation().first_line;
@@ -94,7 +94,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 					*((int*) symbol_value), expression, op, context);
 
 			errors = result->GetErrors();
-			if (errors == LinkedList<const Error*>::Terminator) {
+			if (errors == LinkedList<const Error*>::GetTerminator()) {
 				errors = SetSymbol(context, (bool*) result->GetData());
 			}
 			break;
@@ -105,7 +105,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 					*((int*) symbol_value), expression, op, context);
 
 			errors = result->GetErrors();
-			if (errors == LinkedList<const Error*>::Terminator) {
+			if (errors == LinkedList<const Error*>::GetTerminator()) {
 				errors = SetSymbol(context, (int*) result->GetData());
 			}
 			break;
@@ -116,7 +116,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 					*((double*) symbol_value), expression, op, context);
 
 			errors = result->GetErrors();
-			if (errors == LinkedList<const Error*>::Terminator) {
+			if (errors == LinkedList<const Error*>::GetTerminator()) {
 				errors = SetSymbol(context, (double*) result->GetData());
 			}
 			break;
@@ -126,7 +126,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 					basic_type, variable_line, variable_column,
 					(string*) symbol_value, expression, op, context);
 			errors = result->GetErrors();
-			if (errors == LinkedList<const Error*>::Terminator) {
+			if (errors == LinkedList<const Error*>::GetTerminator()) {
 				errors = SetSymbol(context, (string*) result->GetData());
 			}
 			break;
@@ -144,7 +144,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 		const Result* expression_evaluation = expression->Evaluate(context);
 
 		errors = expression_evaluation->GetErrors();
-		if (errors == LinkedList<const Error*>::Terminator) {
+		if (errors == LinkedList<const Error*>::GetTerminator()) {
 			const Array* result_as_array =
 					static_cast<const Array*>(expression_evaluation->GetData());
 
@@ -167,7 +167,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 		const Result* expression_evaluation = expression->Evaluate(context);
 
 		errors = expression_evaluation->GetErrors();
-		if (errors == LinkedList<const Error*>::Terminator) {
+		if (errors == LinkedList<const Error*>::GetTerminator()) {
 			const CompoundTypeInstance* new_instance =
 					(const CompoundTypeInstance*) expression_evaluation->GetData();
 
@@ -183,7 +183,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 		const Result* expression_evaluation = expression->Evaluate(context);
 
 		errors = expression_evaluation->GetErrors();
-		if (errors == LinkedList<const Error*>::Terminator) {
+		if (errors == LinkedList<const Error*>::GetTerminator()) {
 			const Function* function =
 					(const Function*) expression_evaluation->GetData();
 
@@ -262,7 +262,7 @@ const Variable* BasicVariable::GetDefaultVariable() {
 const LinkedList<const Error*>* BasicVariable::Validate(
 		const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
 	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);

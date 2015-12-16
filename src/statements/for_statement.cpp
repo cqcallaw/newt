@@ -84,31 +84,33 @@ const LinkedList<const Error*>* ForStatement::execute(
 
 	if (m_initial != nullptr) {
 		initialization_errors = m_initial->execute(new_execution_context);
-		if (initialization_errors != LinkedList<const Error*>::Terminator) {
+		if (initialization_errors
+				!= LinkedList<const Error*>::GetTerminator()) {
 			return initialization_errors;
 		}
 	}
 	const Result* evaluation = (Result*) m_loop_expression->Evaluate(
 			new_execution_context);
 
-	if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
+	if (evaluation->GetErrors() != LinkedList<const Error*>::GetTerminator()) {
 		delete (evaluation);
 		return evaluation->GetErrors();
 	}
 
 	while (*((bool*) evaluation->GetData())) {
-		const LinkedList<const Error*>* iteration_errors;
+		const LinkedList<const Error*>* iteration_errors = LinkedList<
+				const Error*>::GetTerminator();
 		if (m_statement_block != nullptr) {
 			iteration_errors = m_statement_block->execute(
 					new_execution_context);
 		}
-		if (iteration_errors != LinkedList<const Error*>::Terminator) {
+		if (iteration_errors != LinkedList<const Error*>::GetTerminator()) {
 			return iteration_errors;
 		}
 
 		const LinkedList<const Error*>* assignment_errors;
 		assignment_errors = m_loop_assignment->execute(new_execution_context);
-		if (assignment_errors != LinkedList<const Error*>::Terminator) {
+		if (assignment_errors != LinkedList<const Error*>::GetTerminator()) {
 			return assignment_errors;
 		}
 
@@ -116,7 +118,8 @@ const LinkedList<const Error*>* ForStatement::execute(
 		evaluation = (Result*) m_loop_expression->Evaluate(
 				new_execution_context);
 
-		if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
+		if (evaluation->GetErrors()
+				!= LinkedList<const Error*>::GetTerminator()) {
 			return evaluation->GetErrors();
 		}
 	}
@@ -126,7 +129,7 @@ const LinkedList<const Error*>* ForStatement::execute(
 	delete tmp_table;
 	delete new_parent;
 
-	return LinkedList<const Error*>::Terminator;
+	return LinkedList<const Error*>::GetTerminator();
 }
 
 const AnalysisResult ForStatement::Returns(const TypeSpecifier* type_specifier,

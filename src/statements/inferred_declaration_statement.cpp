@@ -50,7 +50,7 @@ const TypeSpecifier* InferredDeclarationStatement::GetType() const {
 const LinkedList<const Error*>* InferredDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const TypeSpecifier* expression_type = m_initializer_expression->GetType(
 			execution_context);
@@ -67,7 +67,7 @@ const LinkedList<const Error*>* InferredDeclarationStatement::preprocess(
 const LinkedList<const Error*>* InferredDeclarationStatement::execute(
 		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const TypeSpecifier* expression_type = m_initializer_expression->GetType(
 			execution_context);

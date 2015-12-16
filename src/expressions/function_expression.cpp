@@ -43,7 +43,7 @@ const TypeSpecifier* FunctionExpression::GetType(
 const Result* FunctionExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	const Function* function = new Function(m_declaration, m_body, execution_context);
 	return new Result(function, errors);
 }
@@ -55,7 +55,7 @@ const bool FunctionExpression::IsConstant() const {
 const LinkedList<const Error*>* FunctionExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	//generate a temporary context for validation
 	auto parent = execution_context->GetSymbolContext()->GetParent();

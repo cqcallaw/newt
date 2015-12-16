@@ -95,14 +95,14 @@ const TypeSpecifier* UnaryExpression::GetType(
 const LinkedList<const Error*>* UnaryExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* result =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const OperatorType op = m_operator;
 	const Expression* expression = m_expression;
 
 	const LinkedList<const Error*>* expression_errors = expression->Validate(
 			execution_context);
-	if (expression_errors != LinkedList<const Error*>::Terminator) {
+	if (expression_errors != LinkedList<const Error*>::GetTerminator()) {
 		result = result->Concatenate(expression_errors, true);
 		return result;
 	}
@@ -127,7 +127,7 @@ double UnaryExpression::radians_to_degrees(double radians) {
 const Result* UnaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	void* result = nullptr;
 
 	const TypeSpecifier* expression_type = m_expression->GetType(
@@ -135,7 +135,7 @@ const Result* UnaryExpression::Evaluate(
 	const Result* evaluation = m_expression->Evaluate(execution_context);
 	const LinkedList<const Error*>* evaluation_errors = evaluation->GetErrors();
 
-	if (evaluation_errors != LinkedList<const Error*>::Terminator) {
+	if (evaluation_errors != LinkedList<const Error*>::GetTerminator()) {
 		errors = evaluation_errors;
 	} else {
 		const void* data = evaluation->GetData();

@@ -36,7 +36,7 @@ const LinkedList<const Error*>* ReturnStatement::preprocess(
 const LinkedList<const Error*>* ReturnStatement::execute(
 		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	auto result = m_expression->Evaluate(execution_context);
 
 	errors = result->GetErrors();

@@ -45,7 +45,7 @@ IfStatement::~IfStatement() {
 const LinkedList<const Error*>* IfStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	if (m_expression != nullptr) {
 		if (m_expression->GetType(execution_context)->IsAssignableTo(
@@ -98,7 +98,7 @@ const LinkedList<const Error*>* IfStatement::preprocess(
 const LinkedList<const Error*>* IfStatement::execute(
 		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const Result* evaluation = m_expression->Evaluate(execution_context);
 	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors

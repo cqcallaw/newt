@@ -44,7 +44,7 @@ StructInstantiationStatement::~StructInstantiationStatement() {
 const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	//TODO: validate that all members are initialized for readonly structs (?)
 
 	const CompoundType* type = execution_context->GetTypeTable()->GetType(
@@ -137,7 +137,7 @@ const TypeSpecifier* StructInstantiationStatement::GetType() const {
 const LinkedList<const Error*>* StructInstantiationStatement::execute(
 		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	if (m_initializer_expression) {
 		const Result* evaluation = m_initializer_expression->Evaluate(

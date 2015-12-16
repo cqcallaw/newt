@@ -24,8 +24,7 @@ class Dimension;
 
 class DimensionList: public LinkedList<const Dimension*> {
 public:
-	DimensionList(const Dimension* data,
-			const DimensionList* next) :
+	DimensionList(const Dimension* data, const DimensionList* next) :
 			LinkedList(data, next) {
 	}
 
@@ -33,8 +32,11 @@ public:
 			LinkedList(list) {
 	}
 
-	static constexpr DimensionList* Terminator =
-			(DimensionList*) LinkedList<const Dimension*>::Terminator;
+	const static DimensionList* GetTerminator() {
+		static DimensionList* terminator = (DimensionList*) LinkedList<
+				const Dimension*>::GetTerminator();
+		return terminator;
+	}
 };
 
 #endif /* DIMENSION_LIST_H_ */

@@ -48,7 +48,7 @@ const TypeSpecifier* ConstantExpression::GetType(
 
 const Result* ConstantExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
-	return new Result(m_value, LinkedList<const Error*>::Terminator);
+	return new Result(m_value, LinkedList<const Error*>::GetTerminator());
 }
 
 const ConstantExpression* ConstantExpression::GetDefaultExpression(
@@ -81,5 +81,5 @@ ConstantExpression::ConstantExpression(const YYLTYPE position,
 
 const LinkedList<const Error*>* ConstantExpression::Validate(
 		const ExecutionContext* execution_context) const {
-	return LinkedList<const Error*>::Terminator;
+	return LinkedList<const Error*>::GetTerminator();
 }

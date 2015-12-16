@@ -24,8 +24,7 @@ class Index;
 
 class IndexList: public LinkedList<const Index*> {
 public:
-	IndexList(const Index* data,
-			const IndexList* next) :
+	IndexList(const Index* data, const IndexList* next) :
 			LinkedList(data, next) {
 	}
 
@@ -33,8 +32,11 @@ public:
 			LinkedList(list) {
 	}
 
-	static constexpr IndexList* Terminator =
-			(IndexList*) LinkedList<const Index*>::Terminator;
+	const static IndexList* GetTerminator() {
+		static IndexList* terminator =
+				(IndexList*) LinkedList<const Index*>::GetTerminator();
+		return terminator;
+	}
 };
 
 #endif /* INDEX_LIST_H_ */

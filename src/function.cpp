@@ -39,7 +39,7 @@ Function::~Function() {
 const Result* Function::Evaluate(const ArgumentList* argument_list,
 		const ExecutionContext* invocation_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	auto invocation_symbol_context = invocation_context->GetSymbolContext();
 	auto invocation_context_parent = invocation_symbol_context->GetParent();

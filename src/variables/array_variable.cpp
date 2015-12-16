@@ -94,7 +94,7 @@ ArrayVariable::~ArrayVariable() {
 const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 		const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
 	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
@@ -123,7 +123,7 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 					const Result* index_expression_evaluation =
 							index_expression->Evaluate(context);
 					errors = index_expression_evaluation->GetErrors();
-					if (errors == LinkedList<const Error*>::Terminator) {
+					if (errors == LinkedList<const Error*>::GetTerminator()) {
 						const int i =
 								*((int*) index_expression_evaluation->GetData());
 
@@ -184,12 +184,12 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 
 const Result* ArrayVariable::Evaluate(const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const ValidationResult* validation_result = ValidateOperation(context);
 	const void* result_value = nullptr;
 	errors = validation_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const Array* array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
 		const int size = array->GetSize();
@@ -251,7 +251,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 		const ExecutionContext* context, const Expression* expression,
 		const AssignmentType op) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const string* variable_name = GetName();
 	const int variable_line = GetLocation().first_line;
@@ -259,7 +259,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 
 	const ValidationResult* validation_result = ValidateOperation(context);
 	errors = validation_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const Array* array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
 		delete (validation_result);
@@ -284,7 +284,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 							variable_column, *value, expression, op, context);
 
 					errors = result->GetErrors();
-					if (errors == LinkedList<const Error*>::Terminator) {
+					if (errors == LinkedList<const Error*>::GetTerminator()) {
 						errors = SetSymbol(context, (bool*) result->GetData());
 						break;
 					}
@@ -298,7 +298,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 							variable_column, *value, expression, op, context);
 
 					errors = result->GetErrors();
-					if (errors == LinkedList<const Error*>::Terminator) {
+					if (errors == LinkedList<const Error*>::GetTerminator()) {
 						errors = SetSymbol(context, (int*) result->GetData());
 						break;
 					}
@@ -312,7 +312,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 							variable_column, *value, expression, op, context);
 
 					errors = result->GetErrors();
-					if (errors == LinkedList<const Error*>::Terminator) {
+					if (errors == LinkedList<const Error*>::GetTerminator()) {
 						errors = SetSymbol(context,
 								(double*) result->GetData());
 					}
@@ -326,7 +326,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 							variable_column, value, expression, op, context);
 
 					errors = result->GetErrors();
-					if (errors == LinkedList<const Error*>::Terminator) {
+					if (errors == LinkedList<const Error*>::GetTerminator()) {
 						errors = SetSymbol(context,
 								(string*) result->GetData());
 					}
@@ -378,11 +378,11 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 const LinkedList<const Error*>* ArrayVariable::SetSymbolCore(
 		const ExecutionContext* context, const void* value) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const ValidationResult* validation_result = ValidateOperation(context);
 	errors = validation_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const Array* array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
 
@@ -469,7 +469,7 @@ const LinkedList<const Error*>* ArrayVariable::SetSymbol(
 const LinkedList<const Error*>* ArrayVariable::Validate(
 		const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
 	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);

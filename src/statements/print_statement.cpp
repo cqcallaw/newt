@@ -32,12 +32,12 @@ PrintStatement::~PrintStatement() {
 const LinkedList<const Error*>* PrintStatement::execute(
 		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const Result* string_result = m_expression->ToString(execution_context);
 	errors = string_result->GetErrors();
 
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		std::cout << *((string*) string_result->GetData()) << "\n";
 	}
 

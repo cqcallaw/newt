@@ -33,7 +33,7 @@ const LinkedList<const Error*>* ToErrorList(const SetResult result,
 		const YYLTYPE location, const string* name,
 		const TypeSpecifier* symbol_type, const TypeSpecifier* value_type) {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	switch (result) {
 	case NO_SET_RESULT:

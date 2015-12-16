@@ -49,13 +49,13 @@ StructDeclarationStatement::~StructDeclarationStatement() {
 const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	TypeTable* type_table = execution_context->GetTypeTable();
 
 	Modifier::Type modifiers = Modifier::NONE;
 	const LinkedList<const Modifier*>* modifier_list = m_modifier_list;
-	while (modifier_list != LinkedList<const Modifier*>::Terminator) {
+	while (modifier_list != LinkedList<const Modifier*>::GetTerminator()) {
 		//TODO: check invalid modifiers
 		Modifier::Type new_modifier = modifier_list->GetData()->GetType();
 		modifiers = Modifier::Type(modifiers | new_modifier);
@@ -67,7 +67,7 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 	map<const string, const Symbol*, comparator>* values = new map<const string,
 			const Symbol*, comparator>();
 	SymbolTable* member_buffer = new SymbolTable(Modifier::NONE,
-			LinkedList<SymbolContext*>::Terminator, values);
+			LinkedList<SymbolContext*>::GetTerminator(), values);
 	ExecutionContext* struct_context = execution_context->WithSymbolContext(
 			member_buffer);
 
@@ -127,7 +127,7 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 
 const LinkedList<const Error*>* StructDeclarationStatement::execute(
 		ExecutionContext* execution_context) const {
-	return LinkedList<const Error*>::Terminator;
+	return LinkedList<const Error*>::GetTerminator();
 }
 
 const DeclarationStatement* StructDeclarationStatement::WithInitializerExpression(

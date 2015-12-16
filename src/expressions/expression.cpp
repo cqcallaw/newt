@@ -82,5 +82,5 @@ const Result* Expression::ToString(
 	delete (evaluation);
 
 	return new Result(new string(buffer.str()),
-			LinkedList<const Error*>::Terminator);
+			LinkedList<const Error*>::GetTerminator());
 }

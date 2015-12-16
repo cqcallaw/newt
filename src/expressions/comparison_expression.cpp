@@ -47,11 +47,11 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case EQUAL:
 		return new Result((void*) new bool(left == right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case NOT_EQUAL:
 		return new Result((void*) new bool(left != right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case LESS_THAN:
 	case LESS_THAN_EQUAL:
@@ -74,28 +74,28 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	case EQUAL: {
 		bool* result = new bool(left == right);
 		//cout << "Integer comparison result: " << *result << "\n";
-		return new Result((void *) result, LinkedList<const Error*>::Terminator);
+		return new Result((void *) result, LinkedList<const Error*>::GetTerminator());
 		break;
 	}
 	case NOT_EQUAL:
 		return new Result((void*) new bool(left != right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case LESS_THAN:
 		return new Result((void*) new bool(left < right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case LESS_THAN_EQUAL:
 		return new Result((void*) new bool(left <= right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case GREATER_THAN:
 		return new Result((void*) new bool(left > right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case GREATER_THAN_EQUAL:
 		return new Result((void*) new bool(left >= right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	default:
 		assert(false);
@@ -110,27 +110,27 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case EQUAL:
 		return new Result((void*) new bool(left == right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case NOT_EQUAL:
 		return new Result((void*) new bool(left != right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case LESS_THAN:
 		return new Result((void*) new bool(left < right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case LESS_THAN_EQUAL:
 		return new Result((void*) new bool(left <= right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case GREATER_THAN:
 		return new Result((void*) new bool(left > right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case GREATER_THAN_EQUAL:
 		return new Result((void*) new bool(left >= right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	default:
 		assert(false);
@@ -145,27 +145,27 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	switch (GetOperator()) {
 	case EQUAL:
 		return new Result((void*) new bool(*left == *right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case NOT_EQUAL:
 		return new Result((void*) new bool(*left != *right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case LESS_THAN:
 		return new Result((void*) new bool(*left < *right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case LESS_THAN_EQUAL:
 		return new Result((void*) new bool(*left <= *right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case GREATER_THAN:
 		return new Result((void*) new bool(*left > *right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	case GREATER_THAN_EQUAL:
 		return new Result((void*) new bool(*left >= *right),
-				LinkedList<const Error*>::Terminator);
+				LinkedList<const Error*>::GetTerminator());
 		break;
 	default:
 		assert(false);

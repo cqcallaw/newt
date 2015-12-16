@@ -39,7 +39,7 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 const Result* ArithmeticExpression::compute(int left, int right,
 YYLTYPE left_position, YYLTYPE right_position) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	int* result = new int;
 	switch (GetOperator()) {
@@ -84,7 +84,7 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 const Result* ArithmeticExpression::compute(double left, double right,
 YYLTYPE left_position, YYLTYPE right_position) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	double* result = new double;
 	switch (GetOperator()) {
@@ -123,7 +123,7 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	buffer << *right;
 	const string buffer_string = buffer.str();
 	const string* result = new string(buffer_string);
-	return new Result((void *) result, LinkedList<const Error*>::Terminator);
+	return new Result((void *) result, LinkedList<const Error*>::GetTerminator());
 }
 
 const LinkedList<const Error*>* ArithmeticExpression::Validate(

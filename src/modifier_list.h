@@ -34,8 +34,11 @@ public:
 			LinkedList(list) {
 	}
 
-	static constexpr ModifierList* Terminator = (ModifierList*) LinkedList<
-			const Modifier*>::Terminator;
+	const static ModifierList* GetTerminator() {
+		static ModifierList* terminator = (ModifierList*) LinkedList<
+				const Modifier*>::GetTerminator();
+		return terminator;
+	}
 };
 
 #endif /* MODIFIER_LIST_H_ */

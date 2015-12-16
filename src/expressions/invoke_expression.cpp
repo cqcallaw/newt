@@ -53,7 +53,7 @@ const TypeSpecifier* InvokeExpression::GetType(
 const Result* InvokeExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	const void* value = nullptr;
 
 	const TypeSpecifier* type_specifier = m_expression->GetType(
@@ -100,7 +100,7 @@ const Result* InvokeExpression::ToString(
 		buf << "(";
 		const LinkedList<const Error*>* errors =
 
-		LinkedList<const Error*>::Terminator;
+		LinkedList<const Error*>::GetTerminator();
 		const LinkedList<const Expression*>* argument = m_argument_list;
 		while (!argument->IsTerminator()) {
 			const Result* argument_result = argument->GetData()->ToString(
@@ -124,7 +124,7 @@ const Result* InvokeExpression::ToString(
 const LinkedList<const Error*>* InvokeExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const TypeSpecifier* type_specifier = m_expression->GetType(
 			execution_context);

@@ -31,11 +31,14 @@ public:
 	}
 
 	ParameterList(const Parameter* data) :
-			ParameterList(data, ParameterList::Terminator) {
+			LinkedList(data) {
 	}
 
-	static constexpr ParameterList* Terminator = (ParameterList*) LinkedList<
-			const Parameter*>::Terminator;
+	const static ParameterList* GetTerminator() {
+		static ParameterList* terminator = (ParameterList*) LinkedList<
+				const Parameter*>::GetTerminator();
+		return terminator;
+	}
 };
 
 #endif /* PARAMETER_LIST_H_ */

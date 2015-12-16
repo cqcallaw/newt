@@ -55,7 +55,7 @@ const std::string* MemberVariable::ToString(
 
 const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 	const void* result_value = nullptr;
 
 	const TypeSpecifier* container_type = m_container->GetType(context);
@@ -67,7 +67,7 @@ const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 			const Result* container_result = m_container->Evaluate(context);
 
 			errors = container_result->GetErrors();
-			if (errors == LinkedList<const Error*>::Terminator) {
+			if (errors == LinkedList<const Error*>::GetTerminator()) {
 				const CompoundTypeInstance* instance =
 						(const CompoundTypeInstance*) container_result->GetData();
 				SymbolContext* new_symbol_context = instance->GetDefinition();
@@ -99,14 +99,14 @@ const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		const ExecutionContext* context, const bool* value) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const Result* container_result = m_container->Evaluate(context);
 
 	SetResult set_result = NO_SET_RESULT;
 
 	errors = container_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const TypeSpecifier* container_type = m_container->GetType(context);
 		const CompoundTypeSpecifier* as_compound =
 				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
@@ -131,14 +131,14 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		const ExecutionContext* context, const int* value) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const Result* container_result = m_container->Evaluate(context);
 
 	SetResult set_result = NO_SET_RESULT;
 
 	errors = container_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const TypeSpecifier* container_type = m_container->GetType(context);
 		const CompoundTypeSpecifier* as_compound =
 				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
@@ -163,14 +163,14 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		const ExecutionContext* context, const double* value) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const Result* container_result = m_container->Evaluate(context);
 
 	SetResult set_result = NO_SET_RESULT;
 
 	errors = container_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const TypeSpecifier* container_type = m_container->GetType(context);
 		const CompoundTypeSpecifier* as_compound =
 				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
@@ -195,14 +195,14 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		const ExecutionContext* context, const string* value) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const Result* container_result = m_container->Evaluate(context);
 
 	SetResult set_result = NO_SET_RESULT;
 
 	errors = container_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const TypeSpecifier* container_type = m_container->GetType(context);
 		const CompoundTypeSpecifier* as_compound =
 				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
@@ -228,11 +228,11 @@ const LinkedList<const Error*>* MemberVariable::AssignValue(
 		const ExecutionContext* context, const Expression* expression,
 		const AssignmentType op) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const Result* container_evaluation = GetContainer()->Evaluate(context);
 	errors = container_evaluation->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		//we're assigning a struct member reference
 		const CompoundTypeInstance* struct_value =
 				(const CompoundTypeInstance*) container_evaluation->GetData();
@@ -262,14 +262,14 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		const ExecutionContext* context,
 		const CompoundTypeInstance* value) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const Result* container_result = m_container->Evaluate(context);
 
 	SetResult set_result = NO_SET_RESULT;
 
 	errors = container_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const TypeSpecifier* container_type = m_container->GetType(context);
 		const CompoundTypeSpecifier* as_compound =
 				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
@@ -294,14 +294,14 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		const ExecutionContext* context, const Array* value) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const Result* container_result = m_container->Evaluate(context);
 
 	SetResult set_result = NO_SET_RESULT;
 
 	errors = container_result->GetErrors();
-	if (errors == LinkedList<const Error*>::Terminator) {
+	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		const TypeSpecifier* container_type = m_container->GetType(context);
 		const CompoundTypeSpecifier* as_compound =
 				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
@@ -326,7 +326,7 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 const LinkedList<const Error*>* MemberVariable::Validate(
 		const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
 	const Symbol* symbol = symbol_context->GetSymbol(m_container->GetName(),

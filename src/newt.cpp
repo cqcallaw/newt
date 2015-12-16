@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 		semantic_errors = (LinkedList<const Error*>*) semantic_errors->Reverse(
 				true);
 
-		if (semantic_errors == LinkedList<const Error*>::Terminator) {
+		if (semantic_errors == LinkedList<const Error*>::GetTerminator()) {
 			if (debug) {
 				cout << "Parsed file " << filename << "." << endl;
 			}
@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 					main_statement_block->execute(root_context.get());
 
 			bool has_execution_errors = false;
-			while (execution_errors != LinkedList<const Error*>::Terminator) {
+			while (execution_errors != LinkedList<const Error*>::GetTerminator()) {
 				has_execution_errors = true;
 				cerr << execution_errors->GetData()->ToString() << endl;
 				execution_errors = execution_errors->GetNext();
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
 		} else {
 			int semantic_error_count = 0;
 			const LinkedList<const Error*>* error = semantic_errors;
-			while (error != LinkedList<const Error*>::Terminator) {
+			while (error != LinkedList<const Error*>::GetTerminator()) {
 				semantic_error_count++;
 				cerr << *(error->GetData()) << endl;
 				error = error->GetNext();

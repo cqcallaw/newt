@@ -46,7 +46,7 @@ const CompoundTypeInstance* CompoundTypeInstance::GetDefaultInstance(
 	const CompoundTypeInstance* instance = new CompoundTypeInstance(
 			type_specifier,
 			new SymbolContext(type->GetModifiers(),
-					LinkedList<SymbolContext*>::Terminator, symbol_mapping));
+					LinkedList<SymbolContext*>::GetTerminator(), symbol_mapping));
 
 	return instance;
 }

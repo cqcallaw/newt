@@ -44,7 +44,7 @@ AssignmentStatement::~AssignmentStatement() {
 const LinkedList<const Error*>* AssignmentStatement::preprocess(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	SymbolTable* symbol_table =
 			(SymbolTable*) execution_context->GetSymbolContext();
@@ -65,7 +65,7 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 					execution_context);
 			if (as_primitive != nullptr) {
 				if (expression_type->IsAssignableTo(symbol_type)) {
-					errors = LinkedList<const Error*>::Terminator;
+					errors = LinkedList<const Error*>::GetTerminator();
 				} else {
 					const YYLTYPE variable_location = m_variable->GetLocation();
 					errors = new LinkedList<const Error*>(
@@ -210,7 +210,7 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 	const LinkedList<const Error*>* errors;
 	switch (op) {
 	case ASSIGN:
-		errors = LinkedList<const Error*>::Terminator;
+		errors = LinkedList<const Error*>::GetTerminator();
 		out = expression_value;
 		break;
 	default:
@@ -233,15 +233,15 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 
 	switch (op) {
 	case PLUS_ASSIGN:
-		errors = LinkedList<const Error*>::Terminator;
+		errors = LinkedList<const Error*>::GetTerminator();
 		out = old_value + expression_value;
 		break;
 	case MINUS_ASSIGN:
-		errors = LinkedList<const Error*>::Terminator;
+		errors = LinkedList<const Error*>::GetTerminator();
 		out = old_value - expression_value;
 		break;
 	case ASSIGN:
-		errors = LinkedList<const Error*>::Terminator;
+		errors = LinkedList<const Error*>::GetTerminator();
 		out = expression_value;
 		break;
 	default:
@@ -264,15 +264,15 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 
 	switch (op) {
 	case PLUS_ASSIGN:
-		errors = LinkedList<const Error*>::Terminator;
+		errors = LinkedList<const Error*>::GetTerminator();
 		out = old_value + expression_value;
 		break;
 	case MINUS_ASSIGN:
-		errors = LinkedList<const Error*>::Terminator;
+		errors = LinkedList<const Error*>::GetTerminator();
 		out = old_value - expression_value;
 		break;
 	case ASSIGN:
-		errors = LinkedList<const Error*>::Terminator;
+		errors = LinkedList<const Error*>::GetTerminator();
 		out = expression_value;
 		break;
 	default:
@@ -323,14 +323,14 @@ const LinkedList<const Error*>* AssignmentStatement::do_op(
 	ostringstream buffer;
 	switch (op) {
 	case PLUS_ASSIGN: {
-		errors = LinkedList<const Error*>::Terminator;
+		errors = LinkedList<const Error*>::GetTerminator();
 		buffer << *old_value;
 		buffer << *expression_value;
 		out = new string(buffer.str());
 		break;
 	}
 	case ASSIGN:
-		errors = LinkedList<const Error*>::Terminator;
+		errors = LinkedList<const Error*>::GetTerminator();
 		out = new string(*expression_value);
 		break;
 	case MINUS_ASSIGN:
@@ -352,7 +352,7 @@ const Result* AssignmentStatement::do_op(const string* variable_name,
 
 	int new_value = 0;
 	const Result* evaluation = expression->Evaluate(execution_context);
-	if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
+	if (evaluation->GetErrors() != LinkedList<const Error*>::GetTerminator()) {
 		return evaluation;
 	}
 
@@ -406,7 +406,7 @@ const Result* AssignmentStatement::do_op(const string* variable_name,
 
 	double new_value = 0;
 	const Result* evaluation = expression->Evaluate(execution_context);
-	if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
+	if (evaluation->GetErrors() != LinkedList<const Error*>::GetTerminator()) {
 		return evaluation;
 	}
 
@@ -465,7 +465,7 @@ const Result* AssignmentStatement::do_op(const string* variable_name,
 
 	string* new_value;
 	const Result* evaluation = expression->Evaluate(execution_context);
-	if (evaluation->GetErrors() != LinkedList<const Error*>::Terminator) {
+	if (evaluation->GetErrors() != LinkedList<const Error*>::GetTerminator()) {
 		return evaluation;
 	}
 
@@ -523,7 +523,7 @@ const Result* AssignmentStatement::do_op(const string* variable_name,
 const LinkedList<const Error*>* AssignmentStatement::execute(
 		ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::Terminator;
+			LinkedList<const Error*>::GetTerminator();
 
 	if (m_variable == nullptr || m_expression == nullptr) {
 		assert(false);
