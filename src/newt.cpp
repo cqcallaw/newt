@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <string.h>
+#include <memory>
 
 #include "error.h"
 #include "symbol_table.h"
@@ -29,12 +30,12 @@
 
 using namespace std;
 
-void do_exit(bool debug, int exit_code) {
+int get_exit_code(bool debug, int exit_code) {
 	if (debug) {
 		//return "success" so the test infrastructure doesn't barf
-		exit(EXIT_SUCCESS);
+		return EXIT_SUCCESS;
 	} else {
-		exit(exit_code);
+		return exit_code;
 	}
 }
 
@@ -66,11 +67,12 @@ int main(int argc, char *argv[]) {
 		cout << "Parsing file " << filename << "..." << endl;
 	}
 
-	StatementBlock* main_statement_block = nullptr;
-	ExecutionContext* root_context = new ExecutionContext();
+	std::shared_ptr<StatementBlock> main_statement_block;
+	std::shared_ptr<ExecutionContext> root_context = std::shared_ptr
+			< ExecutionContext > (new ExecutionContext());
 	yylex_init(&scanner);
 	yyset_in(input_file, scanner);
-	int parse_result = yyparse(&main_statement_block, scanner);
+	int parse_result = yyparse(main_statement_block, scanner);
 	yylex_destroy(scanner);
 
 	fclose(input_file);
@@ -85,14 +87,12 @@ int main(int argc, char *argv[]) {
 			cout << "s";
 		cout << " found; giving up." << endl;
 
-		delete root_context;
-		delete main_statement_block;
-		do_exit(debug, EXIT_FAILURE);
+		return get_exit_code(debug, EXIT_FAILURE);
 	}
 
 	if (parse_result == 0) {
 		const LinkedList<const Error*>* semantic_errors =
-				main_statement_block->preprocess(root_context);
+				main_statement_block->preprocess(root_context.get());
 
 		//reverse linked list of errors, which comes to us in reverse order
 		semantic_errors = (LinkedList<const Error*>*) semantic_errors->Reverse(
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 			}
 
 			const LinkedList<const Error*>* execution_errors =
-					main_statement_block->execute(root_context);
+					main_statement_block->execute(root_context.get());
 
 			bool has_execution_errors = false;
 			while (execution_errors != LinkedList<const Error*>::Terminator) {
@@ -124,9 +124,8 @@ int main(int argc, char *argv[]) {
 				root_context->GetTypeTable()->print(cout);
 			}
 
-			delete root_context;
-			delete main_statement_block;
-			do_exit(debug, has_execution_errors ? EXIT_FAILURE : EXIT_SUCCESS);
+			return get_exit_code(debug,
+					has_execution_errors ? EXIT_FAILURE : EXIT_SUCCESS);
 		} else {
 			int semantic_error_count = 0;
 			const LinkedList<const Error*>* error = semantic_errors;
@@ -147,9 +146,7 @@ int main(int argc, char *argv[]) {
 						<< endl;
 			}
 
-			delete root_context;
-			delete main_statement_block;
-			do_exit(debug, EXIT_FAILURE);
+			return get_exit_code(debug, EXIT_FAILURE);
 		}
 	}
 }

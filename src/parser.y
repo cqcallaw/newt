@@ -57,12 +57,14 @@
 #include <function_type_specifier.h>
 #include <function_declaration.h>
 
+#include <memory>
+
 typedef void* yyscan_t;
 
 }
 
 %lex-param   { yyscan_t scanner }
-%parse-param { StatementBlock** main_statement_block }
+%parse-param { std::shared_ptr<StatementBlock>& main_statement_block }
 %parse-param { yyscan_t scanner }
 
 %code {
@@ -121,7 +123,7 @@ typedef void* yyscan_t;
 #define YYINITDEPTH 10000
 #define YYMAXDEPTH 10000
 
-void yyerror(YYLTYPE* locp, StatementBlock** main_statement_block, yyscan_t scanner, const char* str) {
+void yyerror(YYLTYPE* locp, std::shared_ptr<StatementBlock>& main_statement_block, yyscan_t scanner, const char* str) {
 	Error::parse_error(locp->first_line, locp->first_column, string(str));
 }
 
@@ -292,11 +294,11 @@ program:
 	statement_list
 	{
 		if($1->IsTerminator()){
-			*main_statement_block = new StatementBlock($1);
+			main_statement_block = std::shared_ptr<StatementBlock>(new StatementBlock($1));
 		} else {
 			//statement list comes in reverse order
 			//wrap in StatementList because Reverse is a LinkedList<T> function
-			*main_statement_block = new StatementBlock($1->Reverse(true));
+			main_statement_block = std::shared_ptr<StatementBlock>(new StatementBlock($1->Reverse(true)));
 		}
 	}
 	;
