@@ -52,4 +52,6 @@ private:
 
 };
 
+typedef LinkedList<const DeclarationStatement*> DeclarationList;
+
 #endif /* STATEMENTS_DECLARATION_STATEMENT_H_ */

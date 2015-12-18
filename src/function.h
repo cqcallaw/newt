@@ -20,10 +20,11 @@
 #ifndef FUNCTION_H_
 #define FUNCTION_H_
 
+#include <expression.h>
+
 class FunctionDeclaration;
 class StatementBlock;
 class Result;
-class ArgumentList;
 class ExecutionContext;
 
 class Function {

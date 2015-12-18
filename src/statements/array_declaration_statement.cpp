@@ -18,7 +18,6 @@
 #include <vector>
 #include <compound_type.h>
 #include <array_type_specifier.h>
-#include <dimension_list.h>
 #include <type_specifier.h>
 
 ArrayDeclarationStatement::ArrayDeclarationStatement(const YYLTYPE position,

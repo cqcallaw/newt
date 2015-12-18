@@ -24,10 +24,15 @@
 
 class Dimension {
 public:
-	Dimension(const YYLTYPE location);
-	virtual ~Dimension();
+	Dimension(const YYLTYPE location) :
+			m_location(location) {
+	}
+	virtual ~Dimension() {
+	}
 private:
 	const YYLTYPE m_location;
 };
+
+typedef LinkedList<const Dimension*> DimensionList;
 
 #endif /* DIMENSION_H_ */

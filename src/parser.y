@@ -30,27 +30,17 @@
 #include <expression.h>
 #include <variable.h>
 #include <parameter.h>
-#include <parameter_list.h>
-#include <type_list.h>
 #include <statement.h>
 #include <assignment_statement.h>
 #include <declaration_statement.h>
-#include <declaration_list.h>
-#include <argument_list.h>
-#include <statement_list.h>
 #include <statement_block.h>
 #include <execution_context.h>
 #include <stack>
 #include <modifier.h>
-#include <modifier_list.h>
 #include <member_declaration.h>
-#include <declaration_list.h>
 #include <member_instantiation.h>
-#include <member_instantiation_list.h>
 #include <index.h>
-#include <index_list.h>
 #include <dimension.h>
-#include <dimension_list.h>
 
 #include <type.h>
 #include <type_specifier.h>
@@ -143,7 +133,7 @@ void yyerror(YYLTYPE* locp, std::shared_ptr<StatementBlock>& main_statement_bloc
  OperatorType               union_operator_type;
  const Parameter*           union_parameter_type;
  const ParameterList*       union_parameter_list_type;
- const TypeList*            union_type_list;
+ const TypeSpecifierList*   union_type_list;
  const Symbol*              union_symbol_type;
  const Statement*           union_statement_type;
  const StatementList*       union_statement_list_type;
@@ -387,7 +377,7 @@ primitive_type_specifier:
 function_type_specifier:
 	T_LPAREN optional_anonymous_parameter_list T_RPAREN T_ARROW_RIGHT type_specifier
 	{
-		const TypeList* type_list = $2->IsTerminator() ? $2 : new TypeList($2->Reverse(true));
+		const TypeSpecifierList* type_list = $2->IsTerminator() ? $2 : new TypeSpecifierList($2->Reverse(true));
 		$$ = new FunctionTypeSpecifier(type_list, $5);
 	}
 
@@ -747,7 +737,7 @@ optional_anonymous_parameter_list:
 	}
 	| empty
 	{
-		$$ = TypeList::GetTerminator();
+		$$ = TypeSpecifierList::GetTerminator();
 	}
 	;
 
@@ -755,11 +745,11 @@ optional_anonymous_parameter_list:
 anonymous_parameter_list:
 	anonymous_parameter_list T_COMMA type_specifier
 	{
-		$$ = new TypeList($3, $1);
+		$$ = new TypeSpecifierList($3, $1);
 	}
 	| type_specifier
 	{
-		$$ = new TypeList($1, TypeList::GetTerminator());
+		$$ = new TypeSpecifierList($1, TypeSpecifierList::GetTerminator());
 	}
 	;
 

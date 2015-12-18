@@ -19,8 +19,6 @@
 
 #include <function.h>
 #include <expression.h>
-#include <argument_list.h>
-#include <declaration_list.h>
 #include <declaration_statement.h>
 #include <execution_context.h>
 #include <function_declaration.h>

@@ -19,22 +19,19 @@
 
 #include <function_declaration.h>
 #include <linked_list.h>
-#include <declaration_list.h>
 #include <sstream>
 #include <defaults.h>
-#include <type_list.h>
 #include <function_declaration_statement.h>
 #include <function_expression.h>
 #include <constant_expression.h>
 #include <return_statement.h>
-#include <statement_list.h>
 #include <statement_block.h>
 #include <function.h>
 #include <execution_context.h>
 
 FunctionDeclaration::FunctionDeclaration(const DeclarationList* parameter_list,
 		const TypeSpecifier* return_type) :
-		FunctionTypeSpecifier(parameter_list->GetTypeList(), return_type), m_parameter_list(
+		FunctionTypeSpecifier(GetTypeList(parameter_list), return_type), m_parameter_list(
 				parameter_list) {
 }
 
@@ -89,4 +86,21 @@ const Function* FunctionDeclaration::GetDefaultFunctionDeclaration(
 
 	return new Function(function_declaration, statement_block,
 			ExecutionContext::GetDefault());
+}
+
+const TypeSpecifierList* FunctionDeclaration::GetTypeList(
+		const DeclarationList* parameter_list) {
+	const LinkedList<const DeclarationStatement*>* subject = parameter_list;
+	const LinkedList<const TypeSpecifier*>* result =
+			TypeSpecifierList::GetTerminator();
+	while (!subject->IsTerminator()) {
+		const DeclarationStatement* statement = subject->GetData();
+		const TypeSpecifier* type = statement->GetType();
+		result = result->With(type);
+		subject = subject->GetNext();
+	}
+
+	return result->IsTerminator() ?
+			TypeSpecifierList::GetTerminator() :
+			new TypeSpecifierList(result->Reverse(true));
 }

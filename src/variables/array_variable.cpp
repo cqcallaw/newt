@@ -19,14 +19,11 @@
 
 #include <array_variable.h>
 #include <expression.h>
-#include <index_list.h>
 #include <sstream>
 
 #include "yyltype.h"
 #include "assert.h"
 #include "execution_context.h"
-#include <index_list.h>
-#include <index.h>
 #include <assignment_statement.h>
 
 ArrayVariable::ArrayVariable(const string* name,

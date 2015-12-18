@@ -8,6 +8,8 @@
 #ifndef MODIFIER_H_
 #define MODIFIER_H_
 
+#include <defaults.h>
+
 class Modifier {
 public:
 	enum Type {
@@ -31,5 +33,7 @@ private:
 	const Type m_type;
 	const YYLTYPE m_type_position;
 };
+
+typedef LinkedList<const Modifier*> ModifierList;
 
 #endif /* MODIFIER_H_ */

@@ -16,7 +16,6 @@
 
 class Result;
 class ArrayTypeSpecifier;
-class DimensionList;
 
 class ArrayDeclarationStatement: public DeclarationStatement {
 public:

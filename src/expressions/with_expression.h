@@ -21,8 +21,7 @@
 #define EXPRESSIONS_WITH_EXPRESSION_H_
 
 #include <expression.h>
-
-class MemberInstantiationList;
+#include <member_instantiation.h>
 
 class WithExpression: public Expression {
 public:

@@ -57,4 +57,6 @@ private:
 	const YYLTYPE m_position;
 };
 
+typedef LinkedList<const Expression*> ArgumentList;
+
 #endif /* EXPRESSION_H_ */

@@ -22,7 +22,6 @@
 #include <compound_type.h>
 #include <member_definition.h>
 #include <member_instantiation.h>
-#include <member_instantiation_list.h>
 #include <compound_type_specifier.h>
 
 WithExpression::WithExpression(const YYLTYPE position,
@@ -194,8 +193,20 @@ const Result* WithExpression::Evaluate(
 }
 
 const bool WithExpression::IsConstant() const {
-	return m_source_expression->IsConstant()
-			&& m_member_instantiation_list->IsConstant();
+	if (m_source_expression->IsConstant()) {
+		const LinkedList<const MemberInstantiation*>* subject =
+				m_member_instantiation_list;
+		while (!subject->IsTerminator()) {
+			auto data = subject->GetData();
+			if (!data->GetExpression()->IsConstant())
+				return false;
+			else
+				subject = subject->GetNext();
+		}
+		return true;
+	} else {
+		return false;
+	}
 }
 
 const LinkedList<const Error*>* WithExpression::Validate(

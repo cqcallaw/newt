@@ -22,8 +22,6 @@
 
 #include <expression.h>
 
-class ArgumentList;
-
 class InvokeExpression: public Expression {
 public:
 	InvokeExpression(const YYLTYPE position, const Expression* expression,

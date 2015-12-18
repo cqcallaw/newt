@@ -25,7 +25,6 @@
 
 class FunctionDeclaration;
 class StatementBlock;
-class DeclarationList;
 
 class FunctionExpression: public Expression {
 public:

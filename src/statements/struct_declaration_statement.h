@@ -20,9 +20,8 @@
 #ifndef STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_
 #define STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_
 
-#include <declaration_list.h>
 #include <statement.h>
-#include <modifier_list.h>
+#include <modifier.h>
 #include <yyltype.h>
 #include <string>
 #include <declaration_statement.h>

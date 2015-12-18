@@ -22,7 +22,6 @@
 
 #include <type_specifier.h>
 
-class TypeList;
 class Expression;
 class Statement;
 class StatementBlock;
@@ -30,7 +29,7 @@ class Function;
 
 class FunctionTypeSpecifier: public TypeSpecifier {
 public:
-	FunctionTypeSpecifier(const TypeList* parameter_type_list,
+	FunctionTypeSpecifier(const TypeSpecifierList* parameter_type_list,
 			const TypeSpecifier* return_type);
 	virtual ~FunctionTypeSpecifier();
 
@@ -49,7 +48,7 @@ public:
 			const std::string* name, const YYLTYPE name_position,
 			const Expression* initializer_expression) const;
 
-	const TypeList* GetParameterTypeList() const {
+	const TypeSpecifierList* GetParameterTypeList() const {
 		return m_parameter_type_list;
 	}
 
@@ -65,7 +64,7 @@ protected:
 			const TypeTable* type_table);
 
 private:
-	const TypeList* m_parameter_type_list;
+	const TypeSpecifierList* m_parameter_type_list;
 	const TypeSpecifier* m_return_type;
 };
 

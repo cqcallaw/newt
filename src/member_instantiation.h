@@ -54,4 +54,6 @@ private:
 	const YYLTYPE m_expression_position;
 };
 
+typedef LinkedList<const MemberInstantiation*> MemberInstantiationList;
+
 #endif /* MEMBER_INSTANTIATION_H_ */

@@ -24,8 +24,6 @@
 #include <string>
 #include <yyltype.h>
 
-class ArgumentList;
-class DeclarationList;
 class StatementBlock;
 class Expression;
 class FunctionTypeSpecifier;

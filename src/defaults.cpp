@@ -17,17 +17,6 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <assignment_statement.h>
 #include <defaults.h>
-#include <expression.h>
-#include <for_statement.h>
-#include <if_statement.h>
-#include <exit_statement.h>
-#include <print_statement.h>
-#include <statement_block.h>
-#include <statement_list.h>
-#include <symbol.h>
-#include <variable.h>
-#include "type.h"
 
 const YYLTYPE DefaultLocation = YYLTYPE { -1, -1, -1, -1 };

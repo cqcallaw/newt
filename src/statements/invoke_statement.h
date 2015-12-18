@@ -20,10 +20,10 @@
 #ifndef STATEMENTS_INVOKE_STATEMENT_H_
 #define STATEMENTS_INVOKE_STATEMENT_H_
 
+#include <expression.h>
 #include <statement.h>
 #include <yyltype.h>
 
-class ArgumentList;
 class Variable;
 
 class InvokeStatement: public Statement {

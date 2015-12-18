@@ -27,22 +27,26 @@ using namespace std;
 
 class Parameter {
 public:
-	Parameter(const string* name, const Expression* expression);
-	virtual ~Parameter();
+	Parameter(const string* name, const Expression* expression) :
+			m_name(name), m_expression(expression) {
+	}
+
+	virtual ~Parameter() {
+	}
 
 	const Expression* GetExpression() const {
-		return expression;
+		return m_expression;
 	}
 
 	const string* GetName() const {
-		return name;
+		return m_name;
 	}
 
-	const static Parameter* DefaultParamater;
-
 private:
-	const string* name;
-	const Expression* expression;
+	const string* m_name;
+	const Expression* m_expression;
 };
+
+typedef LinkedList<const Parameter*> ParameterList;
 
 #endif /* PARAMETER_H_ */

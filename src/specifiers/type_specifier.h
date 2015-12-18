@@ -22,6 +22,7 @@
 
 #include <string>
 #include <yyltype.h>
+#include <linked_list.h>
 
 class Expression;
 class DeclarationStatement;
@@ -45,5 +46,7 @@ public:
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
 	virtual bool operator!=(const TypeSpecifier &other) const = 0;
 };
+
+typedef LinkedList<const TypeSpecifier*> TypeSpecifierList;
 
 #endif /* SPECIFIERS_TYPE_SPECIFIER_H_ */

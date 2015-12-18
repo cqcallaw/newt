@@ -29,8 +29,10 @@ class TypeSpecifier;
 
 class Statement {
 public:
-	Statement();
-	virtual ~Statement();
+	Statement() {
+	}
+	virtual ~Statement() {
+	}
 
 	/**
 	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
@@ -44,5 +46,7 @@ public:
 	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
 			const ExecutionContext* execution_context) const = 0;
 };
+
+typedef LinkedList<const Statement*> StatementList;
 
 #endif /* STATEMENT_H_ */

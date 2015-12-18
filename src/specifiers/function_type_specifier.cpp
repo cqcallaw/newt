@@ -21,21 +21,19 @@
 #include <typeinfo>
 #include <declaration_statement.h>
 #include <sstream>
-#include <type_list.h>
 #include <assert.h>
-#include <type_list.h>
 #include <function_declaration_statement.h>
 #include <function_expression.h>
 #include <constant_expression.h>
 #include <return_statement.h>
-#include <statement_list.h>
 #include <statement_block.h>
 #include <function.h>
 #include <function_declaration.h>
 #include <execution_context.h>
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
-		const TypeList* parameter_type_list, const TypeSpecifier* return_type) :
+		const TypeSpecifierList* parameter_type_list,
+		const TypeSpecifier* return_type) :
 		m_parameter_type_list(parameter_type_list), m_return_type(return_type) {
 }
 

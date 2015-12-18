@@ -26,8 +26,12 @@ class Expression;
 
 class Index {
 public:
-	Index(const YYLTYPE location, const Expression* index_expression);
-	virtual ~Index();
+	Index(const YYLTYPE location, const Expression* index_expression) :
+			m_location(location), m_index_expression(index_expression) {
+	}
+
+	virtual ~Index() {
+	}
 
 	const Expression* GetIndexExpression() const {
 		return m_index_expression;
@@ -41,5 +45,7 @@ private:
 	const YYLTYPE m_location;
 	const Expression* m_index_expression;
 };
+
+typedef LinkedList<const Index*> IndexList;
 
 #endif /* INDEX_H_ */

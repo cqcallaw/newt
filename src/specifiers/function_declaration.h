@@ -20,8 +20,8 @@
 #ifndef SPECIFIERS_FUNCTION_DECLARATION_H_
 #define SPECIFIERS_FUNCTION_DECLARATION_H_
 
+#include <declaration_statement.h>
 #include <function_type_specifier.h>
-#include <declaration_list.h>
 
 class FunctionDeclaration: public FunctionTypeSpecifier {
 public:
@@ -42,6 +42,9 @@ public:
 	const DeclarationList* GetParameterList() const {
 		return m_parameter_list;
 	}
+
+	static const TypeSpecifierList* GetTypeList(
+			const DeclarationList* parameter_list);
 protected:
 	static const Function* GetDefaultFunctionDeclaration(
 			const FunctionDeclaration* function_declaration,

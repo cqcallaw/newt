@@ -23,7 +23,6 @@
 #include <statement.h>
 #include <string>
 #include <yyltype.h>
-#include <member_instantiation_list.h>
 #include <type.h>
 #include <declaration_statement.h>
 
