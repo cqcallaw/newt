@@ -30,7 +30,7 @@ class SymbolContext;
 
 class CompoundTypeSpecifier: public TypeSpecifier {
 public:
-	CompoundTypeSpecifier(const string type_name, const YYLTYPE location) :
+	CompoundTypeSpecifier(const string type_name, const yy::location location) :
 			m_type_name(type_name), m_location(location) {
 	}
 	virtual ~CompoundTypeSpecifier() {
@@ -44,20 +44,23 @@ public:
 		return m_type_name;
 	}
 
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const {
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(other);
+	virtual const bool IsAssignableTo(
+			const_shared_ptr<TypeSpecifier> other) const {
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(other);
 		return as_compound != nullptr
 				&& as_compound->GetTypeName().compare(m_type_name) == 0;
 	}
 
 	virtual const DeclarationStatement* GetDeclarationStatement(
-			const YYLTYPE position, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const Expression* initializer_expression) const;
 
-	virtual const void* DefaultValue(const TypeTable* type_table) const {
-		return type_table->GetDefaultValue(m_type_name); //this result cannot be cached because the type table is mutable
+	virtual const_shared_ptr<void> DefaultValue(
+			const TypeTable& type_table) const {
+		return type_table.GetDefaultValue(m_type_name); //this result cannot be cached because the type table is mutable
 	}
 
 	virtual bool operator==(const TypeSpecifier& other) const;
@@ -66,13 +69,13 @@ public:
 		return !(*this == other);
 	}
 
-	const YYLTYPE GetLocation() const {
+	const yy::location GetLocation() const {
 		return m_location;
 	}
 
 private:
 	const string m_type_name;
-	const YYLTYPE m_location;
+	const yy::location m_location;
 };
 
 #endif /* SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_ */

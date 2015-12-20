@@ -26,9 +26,9 @@ class Variable;
 
 class VariableExpression: public Expression {
 public:
-	VariableExpression(const YYLTYPE position, const Variable* variable);
+	VariableExpression(const yy::location position, const Variable* variable);
 
-	virtual const TypeSpecifier* GetType(const ExecutionContext* execution_context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetType(const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const;

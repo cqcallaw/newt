@@ -33,7 +33,7 @@
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
 		const TypeSpecifierList* parameter_type_list,
-		const TypeSpecifier* return_type) :
+		const_shared_ptr<TypeSpecifier> return_type) :
 		m_parameter_type_list(parameter_type_list), m_return_type(return_type) {
 }
 
@@ -43,9 +43,10 @@ FunctionTypeSpecifier::~FunctionTypeSpecifier() {
 const string FunctionTypeSpecifier::ToString() const {
 	ostringstream buffer;
 	buffer << "(";
-	const LinkedList<const TypeSpecifier*>* subject = m_parameter_type_list;
+	const LinkedList<const_shared_ptr<TypeSpecifier>>* subject =
+			m_parameter_type_list;
 	while (!subject->IsTerminator()) {
-		const TypeSpecifier* type = subject->GetData();
+		const_shared_ptr<TypeSpecifier> type = subject->GetData();
 		buffer << type->ToString();
 		subject = subject->GetNext();
 
@@ -59,13 +60,14 @@ const string FunctionTypeSpecifier::ToString() const {
 }
 
 const bool FunctionTypeSpecifier::IsAssignableTo(
-		const TypeSpecifier* other) const {
+		const_shared_ptr<TypeSpecifier> other) const {
 	return *this == *other;
 }
 
-const void* FunctionTypeSpecifier::DefaultValue(
-		const TypeTable* type_table) const {
-	const static Function* default_value = GetDefaultFunction(this, type_table);
+const_shared_ptr<void> FunctionTypeSpecifier::DefaultValue(
+		const TypeTable& type_table) const {
+	const static const_shared_ptr<void> default_value = const_shared_ptr<void>(
+			GetDefaultFunction(*this, type_table));
 	return default_value;
 }
 
@@ -74,13 +76,14 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 		const FunctionTypeSpecifier& as_function =
 				dynamic_cast<const FunctionTypeSpecifier&>(other);
 		if (*m_return_type == *as_function.GetReturnType()) {
-			const LinkedList<const TypeSpecifier*>* subject =
+			const LinkedList<const_shared_ptr<TypeSpecifier>>* subject =
 					m_parameter_type_list;
-			const LinkedList<const TypeSpecifier*>* other_subject =
+			const LinkedList<const_shared_ptr<TypeSpecifier>>* other_subject =
 					as_function.GetParameterTypeList();
 			while (!subject->IsTerminator()) {
-				const TypeSpecifier* type = subject->GetData();
-				const TypeSpecifier* other_type = other_subject->GetData();
+				const_shared_ptr<TypeSpecifier> type = subject->GetData();
+				const_shared_ptr<TypeSpecifier> other_type =
+						other_subject->GetData();
 				if (*type == *other_type) {
 					subject = subject->GetNext();
 					other_subject = other_subject->GetNext();
@@ -99,26 +102,28 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 }
 
 const DeclarationStatement* FunctionTypeSpecifier::GetDeclarationStatement(
-		const YYLTYPE position, const YYLTYPE type_position,
-		const std::string* name, const YYLTYPE name_position,
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<string> name,
+		const yy::location name_position,
 		const Expression* initializer_expression) const {
-	return new FunctionDeclarationStatement(position, this, type_position, name,
-			name_position, initializer_expression);
+	return new FunctionDeclarationStatement(position,
+			static_pointer_cast<const FunctionTypeSpecifier>(type),
+			type_position, name, name_position, initializer_expression);
 }
 
 const Function* FunctionTypeSpecifier::GetDefaultFunction(
-		const FunctionTypeSpecifier* type_specifier,
-		const TypeTable* type_table) {
+		const FunctionTypeSpecifier& type_specifier,
+		const TypeTable& type_table) {
 	auto statement_block = GetDefaultStatementBlock(
-			type_specifier->m_return_type, type_table);
-	const FunctionDeclaration* declaration =
-			FunctionDeclaration::FromTypeSpecifier(type_specifier);
+			type_specifier.m_return_type, type_table);
+	auto declaration = FunctionDeclaration::FromTypeSpecifier(type_specifier);
 	return new Function(declaration, statement_block,
 			ExecutionContext::GetDefault());
 }
 
 const StatementBlock* FunctionTypeSpecifier::GetDefaultStatementBlock(
-		const TypeSpecifier* return_type, const TypeTable* type_table) {
+		const_shared_ptr<TypeSpecifier> return_type,
+		const TypeTable& type_table) {
 	//return a function that returns the default value of the return type
 	const ConstantExpression* return_expression =
 			ConstantExpression::GetDefaultExpression(return_type, type_table);

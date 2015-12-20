@@ -38,7 +38,7 @@ public:
 			const LinkedList<SymbolContext*>* parent_context,
 			map<const string, const Symbol*, comparator>* values);
 
-	InsertResult InsertSymbol(const Symbol* symbol);
+	InsertResult InsertSymbol(const string& name, const Symbol* symbol);
 
 	virtual SymbolContext* WithParent(
 			const LinkedList<SymbolContext*>* parent_context) const {

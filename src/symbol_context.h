@@ -44,8 +44,9 @@ enum SearchType {
 };
 
 const LinkedList<const Error*>* ToErrorList(const SetResult result,
-		const YYLTYPE location, const string* name,
-		const TypeSpecifier* symbol_type, const TypeSpecifier* value_type);
+		const yy::location location, const_shared_ptr<string> name,
+		const_shared_ptr<TypeSpecifier> symbol_type,
+		const_shared_ptr<TypeSpecifier> value_type);
 
 struct comparator {
 	bool operator()(const string lhs, const string rhs) const {
@@ -84,22 +85,25 @@ public:
 		return m_modifiers & Modifier::READONLY;
 	}
 
-	const void print(ostream &os, const TypeTable* type_table,
+	const void print(ostream &os, const TypeTable& type_table,
 			const Indent indent) const;
 
 	const Symbol* GetSymbol(const string identifier,
 			const SearchType search_type) const;
-	const Symbol* GetSymbol(const string* identifier,
+	const Symbol* GetSymbol(const_shared_ptr<string> identifier,
 			const SearchType search_type) const;
 
-	SetResult SetSymbol(const string identifier, const bool* value);
-	SetResult SetSymbol(const string identifier, const int* value);
-	SetResult SetSymbol(const string identifier, const double* value);
-	SetResult SetSymbol(const string identifier, const string* value);
-	SetResult SetSymbol(const string identifier, const Array* value);
+	SetResult SetSymbol(const string identifier, const_shared_ptr<bool> value);
+	SetResult SetSymbol(const string identifier, const_shared_ptr<int> value);
 	SetResult SetSymbol(const string identifier,
-			const CompoundTypeInstance* value);
-	SetResult SetSymbol(const string identifier, const Function* value);
+			const_shared_ptr<double> value);
+	SetResult SetSymbol(const string identifier,
+			const_shared_ptr<string> value);
+	SetResult SetSymbol(const string identifier, const_shared_ptr<Array> value);
+	SetResult SetSymbol(const string identifier,
+			const_shared_ptr<CompoundTypeInstance> value);
+	SetResult SetSymbol(const string identifier,
+			const_shared_ptr<Function> value);
 
 	static SymbolContext* GetDefault();
 
@@ -114,8 +118,8 @@ private:
 			map<const string, const Symbol*, comparator>* values,
 			const bool dispose_members);
 
-	SetResult SetSymbol(const string identifier, const TypeSpecifier* type,
-			const void* value);
+	SetResult SetSymbol(const string identifier,
+			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
 };
 
 #endif /* SYMBOL_CONTEXT_H_ */

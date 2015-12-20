@@ -36,7 +36,7 @@ public:
 	virtual ~CompoundType();
 	const MemberDefinition* GetMember(const string name) const;
 
-	const string ToString(const TypeTable* type_table,
+	const string ToString(const TypeTable& type_table,
 			const Indent indent) const;
 
 	const map<const string, const MemberDefinition*>* GetDefinition() const {

@@ -31,11 +31,6 @@ const string ArrayTypeSpecifier::ToString() const {
 	return buffer.str();
 }
 
-const void* ArrayTypeSpecifier::DefaultValue(
-		const TypeTable* type_table) const {
-	return new Array(m_element_type_specifier, type_table);
-}
-
 bool ArrayTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const ArrayTypeSpecifier& as_array =
@@ -47,9 +42,17 @@ bool ArrayTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 }
 
 const DeclarationStatement* ArrayTypeSpecifier::GetDeclarationStatement(
-		const YYLTYPE position, const YYLTYPE type_position,
-		const std::string* name, const YYLTYPE name_position,
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<string> name,
+		const yy::location name_position,
 		const Expression* initializer_expression) const {
-	return new ArrayDeclarationStatement(position, this, type_position, name,
-			name_position, initializer_expression);
+	return new ArrayDeclarationStatement(position,
+			static_pointer_cast<const ArrayTypeSpecifier>(type), type_position,
+			name, name_position, initializer_expression);
+}
+
+const_shared_ptr<void> ArrayTypeSpecifier::DefaultValue(
+		const TypeTable& type_table) const {
+	return const_shared_ptr<void>(
+			new Array(m_element_type_specifier, type_table));
 }

@@ -30,8 +30,9 @@
 #include "utils.h"
 
 const LinkedList<const Error*>* ToErrorList(const SetResult result,
-		const YYLTYPE location, const string* name,
-		const TypeSpecifier* symbol_type, const TypeSpecifier* value_type) {
+		const yy::location location, const_shared_ptr<string> name,
+		const_shared_ptr<TypeSpecifier> symbol_type,
+		const_shared_ptr<TypeSpecifier> value_type) {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -39,23 +40,23 @@ const LinkedList<const Error*>* ToErrorList(const SetResult result,
 	case NO_SET_RESULT:
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::DEFAULT_ERROR_CODE,
-						location.first_line, location.first_column, *name));
+						location.begin.line, location.begin.column, *name));
 		break;
 	case UNDEFINED_SYMBOL:
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						location.first_line, location.first_column, *name));
+						location.begin.line, location.begin.column, *name));
 		break;
 	case INCOMPATIBLE_TYPE:
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-						location.first_line, location.first_column,
+						location.begin.line, location.begin.column,
 						symbol_type->ToString(), value_type->ToString()));
 		break;
 	case MUTATION_DISALLOWED:
 		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::READONLY, location.first_line,
-						location.first_column, *name));
+				new Error(Error::SEMANTIC, Error::READONLY, location.begin.line,
+						location.begin.column, *name));
 		break;
 	case SET_SUCCESS:
 	default:
@@ -104,54 +105,64 @@ const Symbol* SymbolContext::GetSymbol(const string identifier,
 	}
 }
 
-const Symbol* SymbolContext::GetSymbol(const string* identifier,
+const Symbol* SymbolContext::GetSymbol(const_shared_ptr<string> identifier,
 		const SearchType search_type) const {
 	const Symbol* result = GetSymbol(*identifier, search_type);
 	return result;
 }
 
-const void SymbolContext::print(ostream &os, const TypeTable* type_table,
+const void SymbolContext::print(ostream &os, const TypeTable& type_table,
 		const Indent indent) const {
 	std::map<const string, const Symbol*>::iterator iter;
 	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
+		const string name = iter->first;
 		const Symbol* symbol = iter->second;
+		os << indent << symbol->GetType()->ToString() << " " << name << ":";
 		os << symbol->ToString(type_table, indent);
 		os << endl;
 	}
 }
 
-SetResult SymbolContext::SetSymbol(const string identifier, const bool* value) {
+SetResult SymbolContext::SetSymbol(const string identifier,
+		const_shared_ptr<bool> value) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetBoolean(),
-			(void*) value);
+			static_pointer_cast<const void>(value));
 }
-SetResult SymbolContext::SetSymbol(const string identifier, const int* value) {
+SetResult SymbolContext::SetSymbol(const string identifier,
+		const_shared_ptr<int> value) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetInt(),
-			(void*) value);
+			static_pointer_cast<const void>(value));
 }
 SetResult SymbolContext::SetSymbol(const string identifier,
-		const double* value) {
+		const_shared_ptr<double> value) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetDouble(),
-			(void*) value);
+			static_pointer_cast<const void>(value));
 }
 SetResult SymbolContext::SetSymbol(const string identifier,
-		const string* value) {
+		const_shared_ptr<string> value) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetString(),
-			(void*) value);
+			static_pointer_cast<const void>(value));
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
-		const CompoundTypeInstance* value) {
-	return SetSymbol(identifier, value->GetTypeSpecifier(), (void*) value);
+		const_shared_ptr<CompoundTypeInstance> value) {
+	return SetSymbol(identifier, value->GetTypeSpecifier(),
+			static_pointer_cast<const void>(value));
+
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
-		const Array* value) {
-	return SetSymbol(identifier, value->GetTypeSpecifier(), (void*) value);
+		const_shared_ptr<Array> value) {
+	return SetSymbol(identifier, value->GetTypeSpecifier(),
+			static_pointer_cast<const void>(value));
+
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
-		const Function* value) {
-	return SetSymbol(identifier, value->GetType(), (void*) value);
+		const_shared_ptr<Function> value) {
+	return SetSymbol(identifier, value->GetType(),
+			static_pointer_cast<const void>(value));
+
 }
 
 SymbolContext* SymbolContext::GetDefault() {
@@ -160,7 +171,7 @@ SymbolContext* SymbolContext::GetDefault() {
 }
 
 SetResult SymbolContext::SetSymbol(const string identifier,
-		const TypeSpecifier* type, const void* value) {
+		const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value) {
 	auto result = m_table->find(identifier);
 
 	if (result != m_table->end()) {

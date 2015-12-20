@@ -26,7 +26,7 @@
 #include "assert.h"
 #include "expression.h"
 
-Variable::Variable(const string* name, YYLTYPE location) :
+Variable::Variable(const_shared_ptr<string> name, yy::location location) :
 		m_name(name), m_location(location) {
 	assert(name != NULL && name != nullptr);
 }
@@ -35,8 +35,8 @@ Variable::~Variable() {
 }
 
 const LinkedList<const Error*>* Variable::ToErrorList(SetResult result,
-		const TypeSpecifier* symbol_type,
-		const TypeSpecifier* expression_type) const {
+		const_shared_ptr<TypeSpecifier> symbol_type,
+		const_shared_ptr<TypeSpecifier> expression_type) const {
 	return ::ToErrorList(result, GetLocation(), GetName(), symbol_type,
 			expression_type);
 }

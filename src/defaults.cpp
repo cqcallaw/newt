@@ -19,4 +19,10 @@
 
 #include <defaults.h>
 
-const YYLTYPE DefaultLocation = YYLTYPE { -1, -1, -1, -1 };
+const yy::location GetDefaultLocation() {
+	static volatile_shared_ptr<std::string> default_file_name =
+			volatile_shared_ptr<std::string>(new std::string(""));
+	static yy::location instance = yy::location(default_file_name.get(), -1,
+			-1);
+	return instance;
+}

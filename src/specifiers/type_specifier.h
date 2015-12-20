@@ -20,8 +20,8 @@
 #ifndef SPECIFIERS_TYPE_SPECIFIER_H_
 #define SPECIFIERS_TYPE_SPECIFIER_H_
 
+#include <defaults.h>
 #include <string>
-#include <yyltype.h>
 #include <linked_list.h>
 
 class Expression;
@@ -35,18 +35,21 @@ public:
 	}
 
 	virtual const string ToString() const = 0;
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const = 0;
-	virtual const void* DefaultValue(const TypeTable* type_table) const = 0;
+	virtual const bool IsAssignableTo(
+			const_shared_ptr<TypeSpecifier> other) const = 0;
+	virtual const_shared_ptr<void> DefaultValue(
+			const TypeTable& type_table) const = 0;
 
 	virtual const DeclarationStatement* GetDeclarationStatement(
-			const YYLTYPE position, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const Expression* initializer_expression) const = 0;
 
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
 	virtual bool operator!=(const TypeSpecifier &other) const = 0;
 };
 
-typedef LinkedList<const TypeSpecifier*> TypeSpecifierList;
+typedef const LinkedList<const_shared_ptr<TypeSpecifier>> TypeSpecifierList;
 
 #endif /* SPECIFIERS_TYPE_SPECIFIER_H_ */

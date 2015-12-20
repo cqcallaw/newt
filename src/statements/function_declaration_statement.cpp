@@ -28,9 +28,11 @@
 #include <function.h>
 
 FunctionDeclarationStatement::FunctionDeclarationStatement(
-		const YYLTYPE position, const FunctionTypeSpecifier* type,
-		const YYLTYPE type_position, const std::string* name,
-		const YYLTYPE name_location, const Expression* initializer_expression) :
+		const yy::location position,
+		const_shared_ptr<FunctionTypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<string> name,
+		const yy::location name_location,
+		const Expression* initializer_expression) :
 		DeclarationStatement(position), m_type(type), m_type_position(
 				type_position), m_name(name), m_name_location(name_location), m_initializer_expression(
 				initializer_expression) {
@@ -44,7 +46,7 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
-	const TypeTable* type_table = execution_context->GetTypeTable();
+	auto type_table = execution_context->GetTypeTable();
 
 	const Symbol* symbol = Symbol::GetDefaultSymbol();
 
@@ -53,10 +55,11 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (m_initializer_expression) {
-			const TypeSpecifier* expression_type =
+			const_shared_ptr<TypeSpecifier> expression_type =
 					m_initializer_expression->GetType(execution_context);
-			const FunctionTypeSpecifier* as_function =
-					dynamic_cast<const FunctionTypeSpecifier*>(expression_type);
+			const_shared_ptr<FunctionTypeSpecifier> as_function =
+					std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
+							expression_type);
 
 			if (as_function) {
 				errors = m_initializer_expression->Validate(execution_context);
@@ -65,18 +68,19 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 						errors->With(
 								new Error(Error::SEMANTIC,
 										Error::NOT_A_FUNCTION,
-										m_initializer_expression->GetPosition().first_line,
-										m_initializer_expression->GetPosition().first_column));
+										m_initializer_expression->GetPosition().begin.line,
+										m_initializer_expression->GetPosition().begin.column));
 			}
 		}
 
 		if (errors->IsTerminator()) {
-			const void* value = m_type->DefaultValue(type_table);
-			symbol = new Symbol(m_name, (Function*) value);
+			auto value = m_type->DefaultValue(*type_table);
+			symbol = new Symbol(static_pointer_cast<const Function>(value));
 
 			SymbolTable* symbol_table =
 					static_cast<SymbolTable*>(execution_context->GetSymbolContext());
-			InsertResult insert_result = symbol_table->InsertSymbol(symbol);
+			InsertResult insert_result = symbol_table->InsertSymbol(*m_name,
+					symbol);
 
 			if (insert_result != INSERT_SUCCESS) {
 				assert(false);
@@ -85,8 +89,8 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::PREVIOUSLY_DECLARED_VARIABLE,
-						m_name_location.first_line,
-						m_name_location.first_column, *(m_name)));
+						m_name_location.begin.line,
+						m_name_location.begin.column, *(m_name)));
 	}
 
 	return errors;
@@ -116,6 +120,6 @@ const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpress
 			expression->GetPosition(), m_name, m_name_location, expression);
 }
 
-const TypeSpecifier* FunctionDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetType() const {
 	return m_type;
 }

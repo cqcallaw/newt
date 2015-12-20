@@ -24,7 +24,7 @@
 #include <variable_expression.h>
 
 InvokeStatement::InvokeStatement(const Variable* variable,
-		const ArgumentList* argument_list, const YYLTYPE argument_list_position) :
+		const ArgumentList* argument_list, const yy::location argument_list_position) :
 		m_variable(variable), m_argument_list(argument_list), m_argument_list_position(
 				argument_list_position) {
 }

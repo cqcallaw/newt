@@ -20,19 +20,19 @@
 #ifndef DIMENSION_H_
 #define DIMENSION_H_
 
-#include <yyltype.h>
+#include <defaults.h>
 
 class Dimension {
 public:
-	Dimension(const YYLTYPE location) :
+	Dimension(const yy::location location) :
 			m_location(location) {
 	}
 	virtual ~Dimension() {
 	}
 private:
-	const YYLTYPE m_location;
+	const yy::location m_location;
 };
 
-typedef LinkedList<const Dimension*> DimensionList;
+typedef const LinkedList<const Dimension*> DimensionList;
 
 #endif /* DIMENSION_H_ */

@@ -23,8 +23,8 @@
 #include <string>
 #include <iostream>
 
+#include <defaults.h>
 #include <type.h>
-#include <yyltype.h>
 #include <indent.h>
 
 using namespace std;
@@ -37,50 +37,45 @@ class Function;
 
 class Symbol {
 public:
-	Symbol(const string name, const bool* value);
-	Symbol(const string name, const int* value);
-	Symbol(const string name, const double* value);
-	Symbol(const string name, const string* value);
-	Symbol(const string name, const Array* value);
-	Symbol(const string name, const CompoundTypeInstance* value);
-	Symbol(const string name, const Function* value);
-
-	Symbol(const string* name, const bool* value);
-	Symbol(const string* name, const int* value);
-	Symbol(const string* name, const double* value);
-	Symbol(const string* name, const string* value);
-	Symbol(const string* name, const Array* value);
-	Symbol(const string* name, const CompoundTypeInstance* value);
-	Symbol(const string* name, const Function* value);
+	Symbol(const_shared_ptr<const bool> value);
+	Symbol(const_shared_ptr<const int> value);
+	Symbol(const_shared_ptr<const double> value);
+	Symbol(const_shared_ptr<const string> value);
+	Symbol(const_shared_ptr<const Array> value);
+	Symbol(const_shared_ptr<const CompoundTypeInstance> value);
+	Symbol(const_shared_ptr<const Function> value);
 
 	virtual ~Symbol() {
 	}
 
-	const TypeSpecifier* GetType() const;
-	const string GetName() const;
-	const void* GetValue() const;
+	const_shared_ptr<TypeSpecifier> GetType() const {
+		return m_type;
+	}
 
-	const Symbol* WithValue(const bool* value) const;
-	const Symbol* WithValue(const int* value) const;
-	const Symbol* WithValue(const double* value) const;
-	const Symbol* WithValue(const string* value) const;
-	const Symbol* WithValue(const Array* value) const;
-	const Symbol* WithValue(const CompoundTypeInstance* value) const;
-	const Symbol* WithValue(const TypeSpecifier* type, const void* value) const;
+	const_shared_ptr<void> GetValue() const {
+		return m_value;
+	}
 
-	virtual const string ToString(const TypeTable* type_table,
+	const Symbol* WithValue(const_shared_ptr<bool> value) const;
+	const Symbol* WithValue(const_shared_ptr<int> value) const;
+	const Symbol* WithValue(const_shared_ptr<double> value) const;
+	const Symbol* WithValue(const_shared_ptr<string> value) const;
+	const Symbol* WithValue(const_shared_ptr<Array> value) const;
+	const Symbol* WithValue(const_shared_ptr<CompoundTypeInstance> value) const;
+	const Symbol* WithValue(const_shared_ptr<TypeSpecifier> type,
+			const_shared_ptr<void> value) const;
+
+	virtual const string ToString(const TypeTable& type_table,
 			const Indent indent) const;
 
-	const static string GetDefaultSymbolName();
 	const static Symbol* GetDefaultSymbol();
 
 protected:
-	Symbol(const TypeSpecifier* type, const string name, const void* value);
+	Symbol(const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
 
 private:
-	const TypeSpecifier* m_type;
-	const string m_name;
-	const void* m_value;
+	const_shared_ptr<TypeSpecifier> m_type;
+	const_shared_ptr<void> m_value;
 };
 
 #endif /* SYMBOL_H_ */

@@ -19,41 +19,39 @@
 
 #include <array.h>
 
-const string Array::ToString(const TypeTable* type_table,
+const string Array::ToString(const TypeTable& type_table,
 		const Indent indent) const {
 	ostringstream os;
 
-	const TypeSpecifier* element_type = GetElementType();
+	const_shared_ptr<TypeSpecifier> element_type = GetElementType();
 	int size = GetSize();
 
 	Indent child_indent = indent + 1;
 
-	const PrimitiveTypeSpecifier* as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(element_type);
+	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
+			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+					element_type);
 	if (as_primitive != nullptr) {
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case INT: {
 			for (int i = 0; i < size; i++) {
 				os << child_indent << "[" << i << "] "
-						<< *((int *) GetValue<const int*>(i, type_table))
-						<< endl;
+						<< *(GetValue<int>(i, type_table)) << endl;
 			}
 			break;
 		}
 		case DOUBLE: {
 			for (int i = 0; i < size; i++) {
 				os << child_indent << "[" << i << "] "
-						<< *((double *) GetValue<const double*>(i, type_table))
-						<< endl;
+						<< *(GetValue<double>(i, type_table)) << endl;
 			}
 			break;
 		}
 		case STRING: {
 			for (int i = 0; i < size; i++) {
 				os << child_indent << "[" << i << "] \""
-						<< *((string *) GetValue<const string*>(i, type_table))
-						<< "\"" << endl;
+						<< *(GetValue<string>(i, type_table)) << "\"" << endl;
 			}
 			break;
 		}
@@ -63,24 +61,24 @@ const string Array::ToString(const TypeTable* type_table,
 		os << "end array";
 	}
 
-	const ArrayTypeSpecifier* as_array =
-			dynamic_cast<const ArrayTypeSpecifier*>(element_type);
+	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
+			const ArrayTypeSpecifier>(element_type);
 	if (as_array) {
 		for (int i = 0; i < size; i++) {
-			const Array* sub_array = (const Array*) GetValue<const Array*>(i,
-					type_table);
+			auto sub_array = static_pointer_cast<const Array>(
+					GetValue<Array>(i, type_table));
 			os << child_indent << "[" << i << "]: " << endl
 					<< sub_array->ToString(type_table, child_indent);
 		}
 	}
 
-	const CompoundTypeSpecifier* as_compound =
-			dynamic_cast<const CompoundTypeSpecifier*>(element_type);
+	const_shared_ptr<CompoundTypeSpecifier> as_compound =
+			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+					element_type);
 	if (as_compound != nullptr) {
 		for (int i = 0; i < size; i++) {
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) GetValue<
-							const CompoundTypeInstance*>(i, type_table);
+			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+					GetValue<CompoundTypeInstance>(i, type_table));
 			os << child_indent << "[" << i << "]: " << endl
 					<< instance->ToString(type_table, child_indent + 1);
 		}
@@ -89,62 +87,12 @@ const string Array::ToString(const TypeTable* type_table,
 	return os.str();
 }
 
-const void* Array::GetStorage(const TypeSpecifier* element_specifier,
-		const int initial_size, const TypeTable* type_table) {
-	const PrimitiveTypeSpecifier* as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(element_specifier);
-
-	if (as_primitive != nullptr) {
-		const BasicType element_type = as_primitive->GetBasicType();
-		switch (element_type) {
-		case INT: {
-			auto result = new vector<const int*>(initial_size,
-					(int*) element_specifier->DefaultValue(type_table));
-			return result;
-		}
-		case DOUBLE: {
-			auto result = new vector<const double*>(initial_size,
-					(double*) element_specifier->DefaultValue(type_table));
-			return result;
-		}
-		case STRING: {
-			auto result = new vector<const string*>(initial_size,
-					(string*) element_specifier->DefaultValue(type_table));
-			return result;
-		}
-		default:
-			assert(false);
-			return nullptr;
-		}
-	}
-
-	const ArrayTypeSpecifier* as_array =
-			dynamic_cast<const ArrayTypeSpecifier*>(element_specifier);
-	if (as_array != nullptr) {
-		vector<const Array*>* result = new vector<const Array*>(initial_size);
-		for (int i = 0; i < initial_size; ++i) {
-			result->at(i) = (const Array*) element_specifier->DefaultValue(
-					type_table);
-		}
-
-		return result;
-	}
-
-	const CompoundTypeSpecifier* as_compound =
-			dynamic_cast<const CompoundTypeSpecifier*>(element_specifier);
-	if (as_compound != nullptr) {
-		vector<const CompoundTypeInstance*>* result = new vector<
-				const CompoundTypeInstance*>(initial_size);
-		for (int i = 0; i < initial_size; ++i) {
-			result->at(i) =
-					(const CompoundTypeInstance*) element_specifier->DefaultValue(
-							type_table);
-		}
-
-		return result;
-	}
-
-	assert(false);
-	return nullptr;
+const shared_ptr<const vector<shared_ptr<const void>>> Array::GetStorage(
+		const_shared_ptr<TypeSpecifier> element_specifier,
+		const int initial_size, const TypeTable& type_table) {
+	auto storage = new vector<shared_ptr<const void>>(initial_size, element_specifier->DefaultValue(
+					type_table));
+	auto result = const_shared_ptr<const vector<shared_ptr<const void>>>(storage);
+	return result;
 }
 

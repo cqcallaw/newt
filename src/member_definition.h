@@ -28,33 +28,34 @@
 
 class MemberDefinition {
 public:
-	MemberDefinition(const TypeSpecifier* type, const void* value) :
+	MemberDefinition(const_shared_ptr<TypeSpecifier> type,
+			const_shared_ptr<void> value) :
 			m_type(type), m_value(value) {
 	}
 	virtual ~MemberDefinition() {
 	}
 
-	const TypeSpecifier* GetType() const {
+	const_shared_ptr<TypeSpecifier> GetType() const {
 		return m_type;
 	}
 
-	const void* GetDefaultValue() const {
+	const_shared_ptr<void> GetDefaultValue() const {
 		return m_value;
 	}
 
-	const string ToString(const TypeTable* type_table,
+	const string ToString(const TypeTable& type_table,
 			const Indent indent) const {
 		ostringstream buffer;
-		const PrimitiveTypeSpecifier* as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
+		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
+				std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(m_type);
 		if (as_primitive != nullptr) {
 			buffer << as_primitive->ToString(m_value);
 		}
 
-		const ArrayTypeSpecifier* as_array =
-				dynamic_cast<const ArrayTypeSpecifier*>(m_type);
+		const_shared_ptr<ArrayTypeSpecifier> as_array =
+				std::dynamic_pointer_cast<const ArrayTypeSpecifier>(m_type);
 		if (as_array != nullptr) {
-			const Array* array = static_cast<const Array*>(m_value);
+			auto array = static_pointer_cast<const Array>(m_value);
 			if (array->GetSize() > 0) {
 				buffer << endl;
 				buffer << array->ToString(type_table, indent);
@@ -63,13 +64,13 @@ public:
 			}
 		}
 
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(m_type);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(m_type);
 		if (as_compound != nullptr) {
 			buffer << endl;
 			const string type_name = as_compound->GetTypeName();
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) m_value;
+			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+					m_value);
 			buffer << instance->ToString(type_table, indent + 1);
 			buffer << indent;
 		}
@@ -81,8 +82,8 @@ public:
 	const static MemberDefinition* GetDefaultMemberDefinition();
 
 private:
-	const TypeSpecifier* m_type;
-	const void* m_value;
+	const_shared_ptr<TypeSpecifier> m_type;
+	const_shared_ptr<void> m_value;
 };
 
 #endif /* MEMBER_DEFINITION_H_ */

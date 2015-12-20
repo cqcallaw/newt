@@ -22,22 +22,24 @@ MemberVariable::MemberVariable(const Variable* container,
 MemberVariable::~MemberVariable() {
 }
 
-const TypeSpecifier* MemberVariable::GetType(
+const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
 		const ExecutionContext* context) const {
-	const TypeSpecifier* container_type_specifier = m_container->GetType(
-			context);
-	const CompoundTypeSpecifier* as_compound_type =
-			dynamic_cast<const CompoundTypeSpecifier*>(container_type_specifier);
+	const_shared_ptr<TypeSpecifier> container_type_specifier =
+			m_container->GetType(context);
+	const_shared_ptr<CompoundTypeSpecifier> as_compound_type =
+			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+					container_type_specifier);
 	if (as_compound_type) {
 		const string type_name = as_compound_type->GetTypeName();
 
-		const CompoundTypeInstance* instance =
-				static_cast<const CompoundTypeInstance*>(as_compound_type->DefaultValue(
-						context->GetTypeTable()));
+		const_shared_ptr<CompoundTypeInstance> instance =
+				std::static_pointer_cast<const CompoundTypeInstance>(
+						as_compound_type->DefaultValue(
+								*context->GetTypeTable()));
 		ExecutionContext* new_context = context->WithSymbolContext(
 				instance->GetDefinition());
-		const TypeSpecifier* result = m_member_variable->GetType(new_context);
-		delete instance;
+		const_shared_ptr<TypeSpecifier> result = m_member_variable->GetType(
+				new_context);
 		delete new_context;
 		return result;
 	}
@@ -58,9 +60,11 @@ const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 			LinkedList<const Error*>::GetTerminator();
 	const void* result_value = nullptr;
 
-	const TypeSpecifier* container_type = m_container->GetType(context);
-	const CompoundTypeSpecifier* as_compound =
-			dynamic_cast<const CompoundTypeSpecifier*>(container_type);
+	const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
+			context);
+	const_shared_ptr<CompoundTypeSpecifier> as_compound =
+			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+					container_type);
 
 	if (container_type != PrimitiveTypeSpecifier::GetNone()) {
 		if (as_compound != nullptr) {
@@ -68,8 +72,8 @@ const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 
 			errors = container_result->GetErrors();
 			if (errors == LinkedList<const Error*>::GetTerminator()) {
-				const CompoundTypeInstance* instance =
-						(const CompoundTypeInstance*) container_result->GetData();
+				auto instance = static_pointer_cast<const CompoundTypeInstance>(
+						container_result->GetData());
 				SymbolContext* new_symbol_context = instance->GetDefinition();
 				ExecutionContext* new_context = context->WithSymbolContext(
 						new_symbol_context);
@@ -81,23 +85,24 @@ const Result* MemberVariable::Evaluate(const ExecutionContext* context) const {
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
-							m_container->GetLocation().first_line,
-							m_container->GetLocation().first_column,
+							m_container->GetLocation().begin.line,
+							m_container->GetLocation().begin.column,
 							*(GetName())));
 		}
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						m_container->GetLocation().first_line,
-						m_container->GetLocation().first_column, *(GetName())));
+						m_container->GetLocation().begin.line,
+						m_container->GetLocation().begin.column, *(GetName())));
 	}
 
-	const Result* result = new Result(result_value, errors);
+	auto wrapper = const_shared_ptr<void>(result_value);
+	const Result* result = new Result(wrapper, errors);
 	return result;
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
-		const ExecutionContext* context, const bool* value) const {
+		const ExecutionContext* context, const_shared_ptr<bool> value) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -107,13 +112,15 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const TypeSpecifier* container_type = m_container->GetType(context);
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
+		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
+				context);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						container_type);
 
 		if (as_compound != nullptr) {
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) container_result->GetData();
+			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -129,7 +136,7 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
-		const ExecutionContext* context, const int* value) const {
+		const ExecutionContext* context, const_shared_ptr<int> value) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -139,13 +146,15 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const TypeSpecifier* container_type = m_container->GetType(context);
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
+		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
+				context);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						container_type);
 
 		if (as_compound != nullptr) {
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) container_result->GetData();
+			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -161,7 +170,7 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
-		const ExecutionContext* context, const double* value) const {
+		const ExecutionContext* context, const_shared_ptr<double> value) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -171,13 +180,15 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const TypeSpecifier* container_type = m_container->GetType(context);
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
+		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
+				context);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						container_type);
 
 		if (as_compound != nullptr) {
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) container_result->GetData();
+			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -193,7 +204,7 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
-		const ExecutionContext* context, const string* value) const {
+		const ExecutionContext* context, const_shared_ptr<string> value) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -203,13 +214,15 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const TypeSpecifier* container_type = m_container->GetType(context);
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
+		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
+				context);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						container_type);
 
 		if (as_compound != nullptr) {
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) container_result->GetData();
+			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -234,8 +247,8 @@ const LinkedList<const Error*>* MemberVariable::AssignValue(
 	errors = container_evaluation->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
 		//we're assigning a struct member reference
-		const CompoundTypeInstance* struct_value =
-				(const CompoundTypeInstance*) container_evaluation->GetData();
+		auto struct_value = static_pointer_cast<const CompoundTypeInstance>(
+				container_evaluation->GetData());
 		const SymbolContext* definition = struct_value->GetDefinition();
 
 		SymbolContext* symbol_context = context->GetSymbolContext();
@@ -260,7 +273,7 @@ const LinkedList<const Error*>* MemberVariable::AssignValue(
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
 		const ExecutionContext* context,
-		const CompoundTypeInstance* value) const {
+		const_shared_ptr<CompoundTypeInstance> value) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -270,13 +283,15 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const TypeSpecifier* container_type = m_container->GetType(context);
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
+		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
+				context);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						container_type);
 
 		if (as_compound != nullptr) {
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) container_result->GetData();
+			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -292,7 +307,7 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 }
 
 const LinkedList<const Error*>* MemberVariable::SetSymbol(
-		const ExecutionContext* context, const Array* value) const {
+		const ExecutionContext* context, const_shared_ptr<Array> value) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -302,13 +317,15 @@ const LinkedList<const Error*>* MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const TypeSpecifier* container_type = m_container->GetType(context);
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
+		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
+				context);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						container_type);
 
 		if (as_compound != nullptr) {
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) container_result->GetData();
+			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -333,18 +350,20 @@ const LinkedList<const Error*>* MemberVariable::Validate(
 			DEEP);
 
 	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
-		const TypeSpecifier* container_type = m_container->GetType(context);
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(container_type);
+		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
+				context);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						container_type);
 
 		if (as_compound != nullptr) {
-			const TypeSpecifier* variable_type = GetType(context);
+			const_shared_ptr<TypeSpecifier> variable_type = GetType(context);
 
 			if (variable_type == PrimitiveTypeSpecifier::GetNone()) {
 				errors = errors->With(
 						new Error(Error::SEMANTIC, Error::UNDECLARED_MEMBER,
-								m_member_variable->GetLocation().first_line,
-								m_member_variable->GetLocation().first_column,
+								m_member_variable->GetLocation().begin.line,
+								m_member_variable->GetLocation().begin.column,
 								*m_member_variable->GetName(),
 								as_compound->GetTypeName()));
 			}
@@ -352,15 +371,15 @@ const LinkedList<const Error*>* MemberVariable::Validate(
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
-							m_container->GetLocation().first_line,
-							m_container->GetLocation().first_column,
+							m_container->GetLocation().begin.line,
+							m_container->GetLocation().begin.column,
 							*m_container->GetName()));
 		}
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						m_container->GetLocation().first_line,
-						m_container->GetLocation().first_column, *(GetName())));
+						m_container->GetLocation().begin.line,
+						m_container->GetLocation().begin.column, *(GetName())));
 	}
 
 	return errors;

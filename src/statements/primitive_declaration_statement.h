@@ -16,9 +16,10 @@
 
 class PrimitiveDeclarationStatement: public DeclarationStatement {
 public:
-	PrimitiveDeclarationStatement(const YYLTYPE position,
-			const TypeSpecifier* type, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+	PrimitiveDeclarationStatement(const yy::location position,
+			const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const Expression* initializer_expression = nullptr);
 	virtual ~PrimitiveDeclarationStatement();
 
@@ -35,19 +36,19 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const Expression* expression) const;
 
-	virtual const TypeSpecifier* GetType() const {
+	virtual const_shared_ptr<TypeSpecifier> GetType() const {
 		return m_type;
 	}
 
-	virtual const std::string* GetName() const {
+	virtual const_shared_ptr<string> GetName() const {
 		return m_name;
 	}
 
 private:
-	const TypeSpecifier* m_type;
-	const YYLTYPE m_type_position;
-	const std::string* m_name;
-	const YYLTYPE m_name_position;
+	const_shared_ptr<TypeSpecifier> m_type;
+	const yy::location m_type_position;
+	const_shared_ptr<string> m_name;
+	const yy::location m_name_position;
 	const Expression* m_initializer_expression;
 };
 

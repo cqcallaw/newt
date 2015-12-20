@@ -26,10 +26,10 @@ class Error;
 
 class BinaryExpression: public Expression {
 public:
-	BinaryExpression(const YYLTYPE position, const OperatorType op,
+	BinaryExpression(const yy::location position, const OperatorType op,
 			const Expression* left, const Expression* right);
 
-	virtual const TypeSpecifier* GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const ExecutionContext* execution_context) const;
 
 	const Result* Evaluate(const ExecutionContext* execution_context) const;
@@ -44,9 +44,9 @@ public:
 		return m_right;
 	}
 
-	const static TypeSpecifier* ComputeResultType(const Expression* left,
-			const Expression* right, const OperatorType op,
-			const ExecutionContext* execution_context);
+	static const_shared_ptr<TypeSpecifier> ComputeResultType(
+			const Expression* left, const Expression* right,
+			const OperatorType op, const ExecutionContext* execution_context);
 
 	virtual const bool IsConstant() const {
 		return m_left->IsConstant() && m_right->IsConstant();
@@ -54,45 +54,45 @@ public:
 
 	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context,
-			const TypeSpecifier* valid_left,
-			const TypeSpecifier* valid_right) const;
+			const_shared_ptr<TypeSpecifier> valid_left,
+			const_shared_ptr<TypeSpecifier> valid_right) const;
 
 protected:
-	virtual const Result* compute(bool left, bool right,
-	YYLTYPE left_position, YYLTYPE right_position) const = 0;
-	const Result* compute(bool left, int right, YYLTYPE left_position,
-	YYLTYPE right_position) const;
-	const Result* compute(bool left, double right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
-	const Result* compute(bool left, string* right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
+	virtual const Result* compute(bool& left, bool& right,
+			yy::location left_position, yy::location right_position) const = 0;
+	const Result* compute(bool& left, int& right, yy::location left_position,
+			yy::location right_position) const;
+	const Result* compute(bool& left, double& right, yy::location left_position,
+			yy::location right_position) const;
+	const Result* compute(bool& left, string& right, yy::location left_position,
+			yy::location right_position) const;
 
-	const Result* compute(int left, bool right, YYLTYPE left_position,
-	YYLTYPE right_position) const;
-	virtual const Result* compute(int left, int right,
-	YYLTYPE left_position, YYLTYPE right_position) const = 0;
-	const Result* compute(int left, double right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
-	const Result* compute(int left, string* right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
+	const Result* compute(int& left, bool& right, yy::location left_position,
+			yy::location right_position) const;
+	virtual const Result* compute(int& left, int& right,
+			yy::location left_position, yy::location right_position) const = 0;
+	const Result* compute(int& left, double& right, yy::location left_position,
+			yy::location right_position) const;
+	const Result* compute(int& left, string& right, yy::location left_position,
+			yy::location right_position) const;
 
-	const Result* compute(double left, bool right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
-	const Result* compute(double left, int right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
-	virtual const Result* compute(double left, double right,
-	YYLTYPE left_position, YYLTYPE right_position) const = 0;
-	const Result* compute(double left, string* right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
+	const Result* compute(double& left, bool& right, yy::location left_position,
+			yy::location right_position) const;
+	const Result* compute(double& left, int& right, yy::location left_position,
+			yy::location right_position) const;
+	virtual const Result* compute(double& left, double& right,
+			yy::location left_position, yy::location right_position) const = 0;
+	const Result* compute(double& left, string& right,
+			yy::location left_position, yy::location right_position) const;
 
-	const Result* compute(string* left, bool right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
-	const Result* compute(string* left, int right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
-	const Result* compute(string* left, double right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
-	virtual const Result* compute(string* left, string* right,
-	YYLTYPE left_position, YYLTYPE right_position) const = 0;
+	const Result* compute(string& left, bool& right, yy::location left_position,
+			yy::location right_position) const;
+	const Result* compute(string& left, int& right, yy::location left_position,
+			yy::location right_position) const;
+	const Result* compute(string& left, double& right,
+			yy::location left_position, yy::location right_position) const;
+	virtual const Result* compute(string& left, string& right,
+			yy::location left_position, yy::location right_position) const = 0;
 
 private:
 	const OperatorType m_operator;

@@ -24,10 +24,10 @@
 #include <member_instantiation.h>
 #include <compound_type_specifier.h>
 
-WithExpression::WithExpression(const YYLTYPE position,
+WithExpression::WithExpression(const yy::location position,
 		const Expression* source_expression,
 		const MemberInstantiationList* member_instantiation_list,
-		const YYLTYPE member_instantiation_list_position) :
+		const yy::location member_instantiation_list_position) :
 		Expression(position), m_source_expression(source_expression), m_member_instantiation_list(
 				member_instantiation_list), m_member_instantiation_list_position(
 				member_instantiation_list_position) {
@@ -36,7 +36,7 @@ WithExpression::WithExpression(const YYLTYPE position,
 WithExpression::~WithExpression() {
 }
 
-const TypeSpecifier* WithExpression::GetType(
+const_shared_ptr<TypeSpecifier> WithExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return m_source_expression->GetType(execution_context);
 }
@@ -50,21 +50,22 @@ const Result* WithExpression::Evaluate(
 
 	errors = source_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const void* new_value = nullptr;
-		const TypeSpecifier* type_specifier = m_source_expression->GetType(
-				execution_context);
+		plain_shared_ptr<void> new_value;
+		const_shared_ptr<TypeSpecifier> type_specifier =
+				m_source_expression->GetType(execution_context);
 
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(type_specifier);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						type_specifier);
 		if (as_compound) {
 			const string type_name = as_compound->GetTypeName();
 			const CompoundType* type =
 					execution_context->GetTypeTable()->GetType(type_name);
 
 			if (type != CompoundType::GetDefaultCompoundType()) {
-				const void* raw_result = source_result->GetData();
-				const CompoundTypeInstance* as_compound =
-						(const CompoundTypeInstance*) raw_result;
+				auto raw_result = source_result->GetData();
+				auto as_compound = static_pointer_cast<
+						const CompoundTypeInstance>(raw_result);
 				const SymbolContext* existing_context =
 						as_compound->GetDefinition();
 
@@ -77,15 +78,15 @@ const Result* WithExpression::Evaluate(
 				while (!subject->IsTerminator()) {
 					const MemberInstantiation* instantiation =
 							subject->GetData();
-					const string* member_name = instantiation->GetName();
+					auto member_name = instantiation->GetName();
 					const MemberDefinition* member_definition = type->GetMember(
 							*member_name);
 
 					if (member_definition
 							!= MemberDefinition::GetDefaultMemberDefinition()) {
-						const TypeSpecifier* member_type =
+						const_shared_ptr<TypeSpecifier> member_type =
 								member_definition->GetType();
-						const TypeSpecifier* expression_type =
+						const_shared_ptr<TypeSpecifier> expression_type =
 								instantiation->GetExpression()->GetType(
 										execution_context);
 						if (expression_type->IsAssignableTo(member_type)) {
@@ -97,38 +98,39 @@ const Result* WithExpression::Evaluate(
 
 							if (evaluation_result->GetErrors()
 									== LinkedList<const Error*>::GetTerminator()) {
-								const void* void_value =
-										evaluation_result->GetData();
+								auto void_value = evaluation_result->GetData();
 
 								/*SetResult result = NO_SET_RESULT;*/
 								if (member_type->IsAssignableTo(
 										PrimitiveTypeSpecifier::GetBoolean())) {
 									new_values->at(*member_name) = new Symbol(
-											*member_name, (bool*) void_value);
+											static_pointer_cast<const bool>(
+													void_value));
 								} else if (member_type->IsAssignableTo(
 										PrimitiveTypeSpecifier::GetInt())) {
 									new_values->at(*member_name) = new Symbol(
-											*member_name, (int*) void_value);
+											static_pointer_cast<const int>(
+													void_value));
 								} else if (member_type->IsAssignableTo(
 										PrimitiveTypeSpecifier::GetDouble())) {
 									new_values->at(*member_name) = new Symbol(
-											*member_name, (double*) void_value);
+											static_pointer_cast<const double>(
+													void_value));
 								} else if (member_type->IsAssignableTo(
 										PrimitiveTypeSpecifier::GetString())) {
 									new_values->at(*member_name) = new Symbol(
-											*member_name, (string*) void_value);
-								} else if (dynamic_cast<const CompoundTypeSpecifier*>(member_type)
-										!= nullptr) {
+											static_pointer_cast<const string>(
+													void_value));
+								} else if (std::dynamic_pointer_cast<
+										const CompoundTypeSpecifier>(
+										member_type) != nullptr) {
 									new_values->at(*member_name) = new Symbol(
-											*member_name,
-											(CompoundTypeInstance*) void_value);
+											static_pointer_cast<
+													const CompoundTypeInstance>(
+													void_value));
 								} else {
 									assert(false);
 								}
-
-								/*errors = ToErrorList(result,
-								 memberInstantiation->GetNamePosition(),
-								 *member_name);*/
 							} else {
 								errors = errors->Concatenate(
 										evaluation_result->GetErrors(), true);
@@ -139,8 +141,8 @@ const Result* WithExpression::Evaluate(
 									errors->With(
 											new Error(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
-													instantiation->GetExpressionPosition().first_line,
-													instantiation->GetExpressionPosition().first_column,
+													instantiation->GetExpressionPosition().begin.line,
+													instantiation->GetExpressionPosition().begin.column,
 													member_type->ToString(),
 													expression_type->ToString()));
 						}
@@ -150,8 +152,8 @@ const Result* WithExpression::Evaluate(
 								errors->With(
 										new Error(Error::SEMANTIC,
 												Error::UNDECLARED_MEMBER,
-												instantiation->GetNamePosition().first_line,
-												instantiation->GetNamePosition().first_column,
+												instantiation->GetNamePosition().begin.line,
+												instantiation->GetNamePosition().begin.column,
 												*member_name,
 												member_definition->GetType()->ToString()));
 
@@ -170,20 +172,20 @@ const Result* WithExpression::Evaluate(
 								as_compound->GetTypeSpecifier(),
 								new_symbol_context);
 
-				new_value = (void*) new_instance;
+				new_value = const_shared_ptr<void>(new_instance);
 			} else {
 				errors = errors->With(
 						new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-								m_source_expression->GetPosition().first_line,
-								m_source_expression->GetPosition().first_column,
+								m_source_expression->GetPosition().begin.line,
+								m_source_expression->GetPosition().begin.column,
 								type_name));
 			}
 		} else {
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
-							m_source_expression->GetPosition().first_line,
-							m_source_expression->GetPosition().first_column));
+							m_source_expression->GetPosition().begin.line,
+							m_source_expression->GetPosition().begin.column));
 		}
 
 		return new Result(new_value, errors);
@@ -215,11 +217,12 @@ const LinkedList<const Error*>* WithExpression::Validate(
 			execution_context);
 
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const TypeSpecifier* type_specifier = m_source_expression->GetType(
-				execution_context);
+		const_shared_ptr<TypeSpecifier> type_specifier =
+				m_source_expression->GetType(execution_context);
 
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(type_specifier);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						type_specifier);
 		if (as_compound) {
 			const string type_name = as_compound->GetTypeName();
 			const CompoundType* type =
@@ -231,15 +234,15 @@ const LinkedList<const Error*>* WithExpression::Validate(
 				while (!instantiation_list->IsTerminator()) {
 					const MemberInstantiation* instantiation =
 							instantiation_list->GetData();
-					const string* member_name = instantiation->GetName();
+					auto member_name = instantiation->GetName();
 					const MemberDefinition* member_definition = type->GetMember(
 							*member_name);
 
 					if (member_definition
 							!= MemberDefinition::GetDefaultMemberDefinition()) {
-						const TypeSpecifier* member_type =
+						const_shared_ptr<TypeSpecifier> member_type =
 								member_definition->GetType();
-						const TypeSpecifier* expression_type =
+						const_shared_ptr<TypeSpecifier> expression_type =
 								instantiation->GetExpression()->GetType(
 										execution_context);
 						if (!expression_type->IsAssignableTo(member_type)) {
@@ -248,8 +251,8 @@ const LinkedList<const Error*>* WithExpression::Validate(
 									errors->With(
 											new Error(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
-													instantiation->GetExpressionPosition().first_line,
-													instantiation->GetExpressionPosition().first_column,
+													instantiation->GetExpressionPosition().begin.line,
+													instantiation->GetExpressionPosition().begin.column,
 													member_type->ToString(),
 													expression_type->ToString()));
 						}
@@ -259,8 +262,8 @@ const LinkedList<const Error*>* WithExpression::Validate(
 								errors->With(
 										new Error(Error::SEMANTIC,
 												Error::UNDECLARED_MEMBER,
-												instantiation->GetNamePosition().first_line,
-												instantiation->GetNamePosition().first_column,
+												instantiation->GetNamePosition().begin.line,
+												instantiation->GetNamePosition().begin.column,
 												*member_name,
 												member_definition->GetType()->ToString()));
 
@@ -271,16 +274,16 @@ const LinkedList<const Error*>* WithExpression::Validate(
 			} else {
 				errors = errors->With(
 						new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-								m_source_expression->GetPosition().first_line,
-								m_source_expression->GetPosition().first_column,
+								m_source_expression->GetPosition().begin.line,
+								m_source_expression->GetPosition().begin.column,
 								type_name));
 			}
 		} else {
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
-							m_source_expression->GetPosition().first_line,
-							m_source_expression->GetPosition().first_column));
+							m_source_expression->GetPosition().begin.line,
+							m_source_expression->GetPosition().begin.column));
 		}
 	}
 

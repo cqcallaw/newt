@@ -24,11 +24,11 @@
 
 class DefaultValueExpression: public Expression {
 public:
-	DefaultValueExpression(const YYLTYPE position, const TypeSpecifier* type,
-			const YYLTYPE type_position);
+	DefaultValueExpression(const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position);
 	virtual ~DefaultValueExpression();
 
-	virtual const TypeSpecifier* GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
@@ -42,8 +42,8 @@ public:
 			const ExecutionContext* execution_context) const;
 
 private:
-	const TypeSpecifier* m_type;
-	const YYLTYPE m_type_position;
+	const_shared_ptr<TypeSpecifier> m_type;
+	const yy::location m_type_position;
 };
 
 #endif /* EXPRESSIONS_DEFAULT_VALUE_EXPRESSION_H_ */

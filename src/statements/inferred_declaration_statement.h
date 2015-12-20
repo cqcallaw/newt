@@ -21,7 +21,6 @@
 #define STATEMENTS_INFERRED_DECLARATION_STATEMENT_H_
 
 #include <declaration_statement.h>
-#include <yyltype.h>
 #include <string>
 
 class Expression;
@@ -29,8 +28,8 @@ class TypeSpecifier;
 
 class InferredDeclarationStatement: public DeclarationStatement {
 public:
-	InferredDeclarationStatement(const YYLTYPE position,
-			const std::string* name, const YYLTYPE name_position,
+	InferredDeclarationStatement(const yy::location position,
+			const_shared_ptr<string> name, const yy::location name_position,
 			const Expression* initializer_expression);
 	virtual ~InferredDeclarationStatement();
 
@@ -45,17 +44,19 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const Expression* expression) const;
 
-	virtual const TypeSpecifier* GetType() const;
-	virtual const std::string* GetName() const;
+	virtual const_shared_ptr<TypeSpecifier> GetType() const;
+	virtual const_shared_ptr<string> GetName() const {
+		return m_name;
+	}
 
 	virtual const AnalysisResult Returns(
-			const TypeSpecifier* type_specifier) const {
+			const_shared_ptr<TypeSpecifier> type_specifier) const {
 		return AnalysisResult::NO;
 	}
 
 private:
-	const std::string* m_name;
-	const YYLTYPE m_name_position;
+	const_shared_ptr<string> m_name;
+	const yy::location m_name_position;
 	const Expression* m_initializer_expression;
 };
 

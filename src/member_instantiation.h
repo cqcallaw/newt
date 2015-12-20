@@ -27,33 +27,34 @@ class Expression;
 
 class MemberInstantiation {
 public:
-	MemberInstantiation(const std::string* name, const YYLTYPE name_position,
-			const Expression* expression, const YYLTYPE expression_position);
+	MemberInstantiation(const_shared_ptr<string> name,
+			const yy::location name_position, const Expression* expression,
+			const yy::location expression_position);
 	virtual ~MemberInstantiation();
 
 	const Expression* GetExpression() const {
 		return m_expression;
 	}
 
-	const YYLTYPE GetExpressionPosition() const {
+	const yy::location GetExpressionPosition() const {
 		return m_expression_position;
 	}
 
-	const std::string* GetName() const {
+	const_shared_ptr<string> GetName() const {
 		return m_name;
 	}
 
-	const YYLTYPE GetNamePosition() const {
+	const yy::location GetNamePosition() const {
 		return m_name_position;
 	}
 
 private:
-	const std::string* m_name;
-	const YYLTYPE m_name_position;
+	const_shared_ptr<string> m_name;
+	const yy::location m_name_position;
 	const Expression* m_expression;
-	const YYLTYPE m_expression_position;
+	const yy::location m_expression_position;
 };
 
-typedef LinkedList<const MemberInstantiation*> MemberInstantiationList;
+typedef const LinkedList<const MemberInstantiation*> MemberInstantiationList;
 
 #endif /* MEMBER_INSTANTIATION_H_ */

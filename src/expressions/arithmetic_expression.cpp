@@ -22,7 +22,7 @@
 #include <sstream>
 #include <type.h>
 
-ArithmeticExpression::ArithmeticExpression(const YYLTYPE position,
+ArithmeticExpression::ArithmeticExpression(const yy::location position,
 		const OperatorType op, const Expression* left, const Expression* right) :
 		BinaryExpression(position, op, left, right) {
 	assert(
@@ -30,14 +30,14 @@ ArithmeticExpression::ArithmeticExpression(const YYLTYPE position,
 					|| op == MOD);
 }
 
-const Result* ArithmeticExpression::compute(bool left, bool right,
-YYLTYPE left_position, YYLTYPE right_position) const {
+const Result* ArithmeticExpression::compute(bool& left, bool& right,
+		yy::location left_position, yy::location right_position) const {
 	assert(false);
 	return NULL;
 }
 
-const Result* ArithmeticExpression::compute(int left, int right,
-YYLTYPE left_position, YYLTYPE right_position) const {
+const Result* ArithmeticExpression::compute(int& left, int& right,
+		yy::location left_position, yy::location right_position) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -53,8 +53,8 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		if (right == 0) {
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
-							right_position.first_line,
-							right_position.first_column));
+							right_position.begin.line,
+							right_position.begin.column));
 			*result = 0;
 		} else {
 			*result = left / right;
@@ -67,8 +67,8 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		if (right == 0) {
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::MOD_BY_ZERO,
-							right_position.first_line,
-							right_position.first_column));
+							right_position.begin.line,
+							right_position.begin.column));
 			*result = 0;
 		} else {
 			*result = left % right;
@@ -78,11 +78,11 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		break;
 	}
 
-	return new Result((void *) result, errors);
+	return new Result(const_shared_ptr<const void>(result), errors);
 }
 
-const Result* ArithmeticExpression::compute(double left, double right,
-YYLTYPE left_position, YYLTYPE right_position) const {
+const Result* ArithmeticExpression::compute(double& left, double& right,
+		yy::location left_position, yy::location right_position) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -98,8 +98,8 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		if (right == 0.0) {
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
-							right_position.first_line,
-							right_position.first_column));
+							right_position.begin.line,
+							right_position.begin.column));
 			*result = 0;
 		} else {
 			*result = left / right;
@@ -112,18 +112,19 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 		break;
 	}
 
-	return new Result((void *) result, errors);
+	return new Result(const_shared_ptr<const void>(result), errors);
 }
 
-const Result* ArithmeticExpression::compute(string* left, string* right,
-YYLTYPE left_position, YYLTYPE right_position) const {
+const Result* ArithmeticExpression::compute(string& left, string& right,
+		yy::location left_position, yy::location right_position) const {
 	//string concatenation isn't strictly an arithmetic operation, so this is a hack
 	std::ostringstream buffer;
-	buffer << *left;
-	buffer << *right;
+	buffer << left;
+	buffer << right;
 	const string buffer_string = buffer.str();
 	const string* result = new string(buffer_string);
-	return new Result((void *) result, LinkedList<const Error*>::GetTerminator());
+	return new Result(const_shared_ptr<const void>(result),
+			LinkedList<const Error*>::GetTerminator());
 }
 
 const LinkedList<const Error*>* ArithmeticExpression::Validate(
@@ -131,12 +132,15 @@ const LinkedList<const Error*>* ArithmeticExpression::Validate(
 	if (GetOperator() == PLUS) {
 		//Allow STRING types because PLUS doubles as a concatenation operator
 		return BinaryExpression::Validate(execution_context,
-				PrimitiveTypeSpecifier::GetString(), PrimitiveTypeSpecifier::GetString());
+				PrimitiveTypeSpecifier::GetString(),
+				PrimitiveTypeSpecifier::GetString());
 	} else if (GetOperator() == MOD) {
 		return BinaryExpression::Validate(execution_context,
-				PrimitiveTypeSpecifier::GetInt(), PrimitiveTypeSpecifier::GetInt());
+				PrimitiveTypeSpecifier::GetInt(),
+				PrimitiveTypeSpecifier::GetInt());
 	} else {
 		return BinaryExpression::Validate(execution_context,
-				PrimitiveTypeSpecifier::GetDouble(), PrimitiveTypeSpecifier::GetDouble());
+				PrimitiveTypeSpecifier::GetDouble(),
+				PrimitiveTypeSpecifier::GetDouble());
 	}
 }

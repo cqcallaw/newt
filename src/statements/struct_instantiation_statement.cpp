@@ -30,9 +30,11 @@
 #include <symbol.h>
 
 StructInstantiationStatement::StructInstantiationStatement(
-		const YYLTYPE position, const CompoundTypeSpecifier* type_specifier,
-		const YYLTYPE type_name_position, const std::string* name,
-		const YYLTYPE name_position, const Expression* initializer_expression) :
+		const yy::location position,
+		const_shared_ptr<CompoundTypeSpecifier> type_specifier,
+		const yy::location type_name_position, const_shared_ptr<string> name,
+		const yy::location name_position,
+		const Expression* initializer_expression) :
 		DeclarationStatement(position), m_type_specifier(type_specifier), m_type_name_position(
 				type_name_position), m_name(name), m_name_position(
 				name_position), m_initializer_expression(initializer_expression) {
@@ -56,15 +58,17 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 
 		const Symbol* existing = symbol_table->GetSymbol(m_name, SHALLOW);
 		if (existing == Symbol::GetDefaultSymbol()) {
-			const CompoundTypeInstance* instance = nullptr;
+			plain_shared_ptr<const CompoundTypeInstance> instance;
 			if (m_initializer_expression) {
-				const TypeSpecifier* expression_type =
+				const_shared_ptr<TypeSpecifier> expression_type =
 						m_initializer_expression->GetType(execution_context);
 				errors = m_initializer_expression->Validate(execution_context);
 
 				if (errors->IsTerminator()) {
-					const CompoundTypeSpecifier* as_compound_specifier =
-							dynamic_cast<const CompoundTypeSpecifier*>(expression_type);
+					const_shared_ptr<CompoundTypeSpecifier> as_compound_specifier =
+							std::dynamic_pointer_cast<
+									const CompoundTypeSpecifier>(
+									expression_type);
 
 					if (as_compound_specifier
 							&& m_type_specifier->GetTypeName().compare(
@@ -76,8 +80,9 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 											execution_context);
 							errors = result->GetErrors();
 							if (errors->IsTerminator()) {
-								instance =
-										(const CompoundTypeInstance*) result->GetData();
+								instance = static_pointer_cast<
+										const CompoundTypeInstance>(
+										result->GetData());
 							}
 						} else {
 							//generate default instance
@@ -89,8 +94,8 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 								errors->With(
 										new Error(Error::SEMANTIC,
 												Error::ASSIGNMENT_TYPE_ERROR,
-												m_initializer_expression->GetPosition().first_line,
-												m_initializer_expression->GetPosition().first_column,
+												m_initializer_expression->GetPosition().begin.line,
+												m_initializer_expression->GetPosition().begin.column,
 												m_type_specifier->GetTypeName(),
 												expression_type->ToString()));
 					}
@@ -102,9 +107,9 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 
 			if (errors->IsTerminator()) {
 				//we've been able to get a good initial value (that is, no errors have occurred)
-				const Symbol* symbol = new Symbol(*m_name, instance);
+				const Symbol* symbol = new Symbol(instance);
 				const InsertResult insert_result = symbol_table->InsertSymbol(
-						symbol);
+						*m_name, symbol);
 
 				if (insert_result != INSERT_SUCCESS) {
 					assert(false);
@@ -115,22 +120,22 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::PREVIOUSLY_DECLARED_VARIABLE,
-							m_type_name_position.first_line,
-							m_type_name_position.first_column, *m_name));
+							m_type_name_position.begin.line,
+							m_type_name_position.begin.column, *m_name));
 		}
 	} else {
 		//type does not exist
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						m_type_name_position.first_line,
-						m_type_name_position.first_column,
+						m_type_name_position.begin.line,
+						m_type_name_position.begin.column,
 						m_type_specifier->GetTypeName()));
 	}
 
 	return errors;
 }
 
-const TypeSpecifier* StructInstantiationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> StructInstantiationStatement::GetType() const {
 	return m_type_specifier;
 }
 
@@ -146,9 +151,9 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 		errors = evaluation->GetErrors();
 
 		if (errors->IsTerminator()) {
-			const void* void_value = evaluation->GetData();
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) void_value;
+			auto void_value = evaluation->GetData();
+			const_shared_ptr<const CompoundTypeInstance> instance =
+					static_pointer_cast<const CompoundTypeInstance>(void_value);
 			execution_context->GetSymbolContext()->SetSymbol(*m_name, instance);
 		}
 	}

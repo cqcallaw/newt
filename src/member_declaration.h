@@ -28,17 +28,19 @@ class Expression;
 
 class MemberDeclaration {
 public:
-	MemberDeclaration(const TypeSpecifier* type, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+	MemberDeclaration(const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position, const std::string* name,
+			const yy::location name_position,
 			const Expression* initializer_expression = nullptr,
-			const YYLTYPE initializer_expression_position = DefaultLocation);
+			const yy::location initializer_expression_position =
+					GetDefaultLocation());
 	virtual ~MemberDeclaration();
 
 	const Expression* GetInitializerExpression() const {
 		return m_initializer_expression;
 	}
 
-	const YYLTYPE GetInitializerExpressionPosition() const {
+	const yy::location GetInitializerExpressionPosition() const {
 		return m_initializer_expression_position;
 	}
 
@@ -46,25 +48,25 @@ public:
 		return m_name;
 	}
 
-	const YYLTYPE GetNamePosition() const {
+	const yy::location GetNamePosition() const {
 		return m_name_position;
 	}
 
-	const TypeSpecifier* GetType() const {
+	const_shared_ptr<TypeSpecifier> GetType() const {
 		return m_type;
 	}
 
-	const YYLTYPE GetTypePosition() const {
+	const yy::location GetTypePosition() const {
 		return m_type_position;
 	}
 
 private:
-	const TypeSpecifier* m_type;
-	const YYLTYPE m_type_position;
+	const_shared_ptr<TypeSpecifier> m_type;
+	const yy::location m_type_position;
 	const std::string* m_name;
-	const YYLTYPE m_name_position;
+	const yy::location m_name_position;
 	const Expression* m_initializer_expression;
-	const YYLTYPE m_initializer_expression_position;
+	const yy::location m_initializer_expression_position;
 };
 
 #endif /* MEMBER_DECLARATION_H_ */

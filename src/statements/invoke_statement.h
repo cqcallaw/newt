@@ -22,14 +22,13 @@
 
 #include <expression.h>
 #include <statement.h>
-#include <yyltype.h>
 
 class Variable;
 
 class InvokeStatement: public Statement {
 public:
 	InvokeStatement(const Variable* variable, const ArgumentList* argument_list,
-			const YYLTYPE argument_list_position);
+			const yy::location argument_list_position);
 	virtual ~InvokeStatement();
 
 	virtual const LinkedList<const Error*>* preprocess(
@@ -38,14 +37,14 @@ public:
 	virtual const LinkedList<const Error*>* execute(
 			ExecutionContext* execution_context) const;
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
 			const ExecutionContext* execution_context) const {
 		return AnalysisResult::NO;
 	}
 private:
 	const Variable* m_variable;
 	const ArgumentList* m_argument_list;
-	const YYLTYPE m_argument_list_position;
+	const yy::location m_argument_list_position;
 };
 
 #endif /* STATEMENTS_INVOKE_STATEMENT_H_ */

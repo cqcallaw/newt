@@ -22,36 +22,38 @@
 
 #include <statement.h>
 #include <string>
-#include <yyltype.h>
 
 class Expression;
 class TypeSpecifier;
 
+using namespace std;
+
 class DeclarationStatement: public Statement {
 public:
-	DeclarationStatement(const YYLTYPE position);
+	DeclarationStatement(const yy::location position);
 	virtual ~DeclarationStatement();
 
 	virtual const Expression* GetInitializerExpression() const = 0;
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const Expression* expression) const = 0;
-	virtual const TypeSpecifier* GetType() const = 0;
-	virtual const std::string* GetName() const = 0;
+	virtual const_shared_ptr<TypeSpecifier> GetType() const = 0;
+	virtual const_shared_ptr<string> GetName() const = 0;
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+	virtual const AnalysisResult Returns(
+			const_shared_ptr<TypeSpecifier> type_specifier,
 			const ExecutionContext* execution_context) const {
 		return AnalysisResult::NO;
 	}
 
-	const YYLTYPE GetPosition() const {
+	const yy::location GetPosition() const {
 		return m_position;
 	}
 
 private:
-	const YYLTYPE m_position;
+	const yy::location m_position;
 
 };
 
-typedef LinkedList<const DeclarationStatement*> DeclarationList;
+typedef const LinkedList<const DeclarationStatement*> DeclarationList;
 
 #endif /* STATEMENTS_DECLARATION_STATEMENT_H_ */

@@ -48,9 +48,9 @@ const LinkedList<const Error*>* ReturnStatement::execute(
 }
 
 const AnalysisResult ReturnStatement::Returns(
-		const TypeSpecifier* type_specifier,
+		const_shared_ptr<TypeSpecifier> type_specifier,
 		const ExecutionContext* execution_context) const {
-	const TypeSpecifier* expression_type_specifier = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> expression_type_specifier = m_expression->GetType(
 			execution_context);
 	if (*expression_type_specifier == *type_specifier) {
 		return AnalysisResult::YES;

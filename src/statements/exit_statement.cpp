@@ -39,20 +39,21 @@ const LinkedList<const Error*>* ExitStatement::preprocess(
 			LinkedList<const Error*>::GetTerminator();
 
 	if (m_exit_expression != nullptr) {
-		const TypeSpecifier* expression_type_specifier =
+		const_shared_ptr<TypeSpecifier> expression_type_specifier =
 				m_exit_expression->GetType(execution_context);
-		const PrimitiveTypeSpecifier* expression_as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type_specifier);
+		const_shared_ptr<PrimitiveTypeSpecifier> expression_as_primitive =
+				std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+						expression_type_specifier);
 
 		if (expression_as_primitive == nullptr
 				|| !(expression_as_primitive->IsAssignableTo(
 						PrimitiveTypeSpecifier::GetInt()))) {
-			YYLTYPE position = m_exit_expression->GetPosition();
+			yy::location position = m_exit_expression->GetPosition();
 			result =
 					result->With(
 							new Error(Error::SEMANTIC,
 									Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-									position.first_line, position.first_column,
+									position.begin.line, position.begin.column,
 									m_exit_expression->GetType(
 											execution_context)->ToString()));
 		}
@@ -69,7 +70,7 @@ const LinkedList<const Error*>* ExitStatement::execute(
 		const Result* evaluation = m_exit_expression->Evaluate(
 				execution_context);
 //TODO: handle evaluation errors
-		exit_code = *((int*) evaluation->GetData());
+		exit_code = *(static_pointer_cast<const int>(evaluation->GetData()));
 		delete (evaluation);
 	}
 

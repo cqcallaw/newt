@@ -15,9 +15,10 @@
 #include <variable_expression.h>
 
 PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
-		const YYLTYPE position, const TypeSpecifier* type,
-		const YYLTYPE type_position, const std::string* name,
-		const YYLTYPE name_position, const Expression* initializer_expression) :
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<string> name,
+		const yy::location name_position,
+		const Expression* initializer_expression) :
 		DeclarationStatement(position), m_type(type), m_type_position(
 				type_position), m_name(name), m_name_position(name_position), m_initializer_expression(
 				initializer_expression) {
@@ -32,16 +33,15 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 			LinkedList<const Error*>::GetTerminator();
 	const Symbol* symbol = Symbol::GetDefaultSymbol();
 	const Expression* expression = m_initializer_expression;
-	const string* name = m_name;
 
 	if (expression != nullptr) {
 		errors = expression->Validate(execution_context);
 	}
 
-	const TypeTable* type_table = execution_context->GetTypeTable();
+	auto type_table = execution_context->GetTypeTable();
 
-	const PrimitiveTypeSpecifier* as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
+	auto as_primitive = std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+			m_type);
 
 	if (as_primitive != nullptr) {
 		if (expression != nullptr) {
@@ -53,11 +53,12 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 			}
 
 			if (errors->IsTerminator()) {
-				const TypeSpecifier* expression_type_specifier =
+				const_shared_ptr<TypeSpecifier> expression_type_specifier =
 						expression->GetType(execution_context);
 
-				const PrimitiveTypeSpecifier* expression_as_primitive =
-						dynamic_cast<const PrimitiveTypeSpecifier*>(expression_type_specifier);
+				auto expression_as_primitive = std::dynamic_pointer_cast<
+						const PrimitiveTypeSpecifier>(
+						expression_type_specifier);
 
 				if (expression_as_primitive == nullptr
 						|| !expression_as_primitive->IsAssignableTo(
@@ -66,31 +67,31 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 							errors->With(
 									new Error(Error::SEMANTIC,
 											Error::INVALID_INITIALIZER_TYPE,
-											m_initializer_expression->GetPosition().first_line,
-											m_initializer_expression->GetPosition().first_column,
-											*name, as_primitive->ToString(),
+											m_initializer_expression->GetPosition().begin.line,
+											m_initializer_expression->GetPosition().begin.column,
+											*m_name, as_primitive->ToString(),
 											expression_type_specifier->ToString()));
 				}
 			}
 		}
 
-		const void* value = m_type->DefaultValue(type_table);
+		auto value = m_type->DefaultValue(*type_table);
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case BOOLEAN: {
-			symbol = new Symbol(name, (bool*) value);
+			symbol = new Symbol(static_pointer_cast<const bool>(value));
 			break;
 		}
 		case INT: {
-			symbol = new Symbol(name, (int*) value);
+			symbol = new Symbol(static_pointer_cast<const int>(value));
 			break;
 		}
 		case DOUBLE: {
-			symbol = new Symbol(name, (double*) value);
+			symbol = new Symbol(static_pointer_cast<const double>(value));
 			break;
 		}
 		case STRING: {
-			symbol = new Symbol(name, (string*) value);
+			symbol = new Symbol(static_pointer_cast<const string>(value));
 			break;
 		}
 		default:
@@ -105,13 +106,14 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 		SymbolTable* symbol_table =
 				(SymbolTable*) execution_context->GetSymbolContext();
 
-		InsertResult insert_result = symbol_table->InsertSymbol(symbol);
+		InsertResult insert_result = symbol_table->InsertSymbol(*m_name,
+				symbol);
 		if (insert_result == SYMBOL_EXISTS) {
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::PREVIOUSLY_DECLARED_VARIABLE,
-							m_name_position.first_line,
-							m_name_position.first_column, *m_name));
+							m_name_position.begin.line,
+							m_name_position.begin.column, *m_name));
 		}
 	}
 

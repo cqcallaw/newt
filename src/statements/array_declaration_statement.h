@@ -19,9 +19,10 @@ class ArrayTypeSpecifier;
 
 class ArrayDeclarationStatement: public DeclarationStatement {
 public:
-	ArrayDeclarationStatement(const YYLTYPE position,
-			const ArrayTypeSpecifier* type, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+	ArrayDeclarationStatement(const yy::location position,
+			const_shared_ptr<ArrayTypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const Expression* initializer_expression = nullptr);
 
 	virtual ~ArrayDeclarationStatement();
@@ -39,15 +40,17 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const Expression* expression) const;
 
-	virtual const TypeSpecifier* GetType() const;
+	virtual const_shared_ptr<TypeSpecifier> GetType() const;
 
-	virtual const std::string* GetName() const;
+	virtual const_shared_ptr<string> GetName() const {
+		return m_name;
+	}
 
 private:
-	const ArrayTypeSpecifier* m_type;
-	const YYLTYPE m_type_position;
-	const std::string* m_name;
-	const YYLTYPE m_name_position;
+	const_shared_ptr<ArrayTypeSpecifier> m_type;
+	const yy::location m_type_position;
+	const_shared_ptr<string> m_name;
+	const yy::location m_name_position;
 	const Expression* m_initializer_expression;
 };
 

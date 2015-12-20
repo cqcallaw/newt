@@ -22,7 +22,6 @@
 
 #include <declaration_statement.h>
 #include <string>
-#include <yyltype.h>
 
 class StatementBlock;
 class Expression;
@@ -30,10 +29,10 @@ class FunctionTypeSpecifier;
 
 class FunctionDeclarationStatement: public DeclarationStatement {
 public:
-	FunctionDeclarationStatement(const YYLTYPE position,
-			const FunctionTypeSpecifier* type, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_location,
-			const Expression* expression);
+	FunctionDeclarationStatement(const yy::location position,
+			const_shared_ptr<FunctionTypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_location, const Expression* expression);
 	virtual ~FunctionDeclarationStatement();
 
 	virtual const LinkedList<const Error*>* preprocess(
@@ -47,17 +46,17 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const Expression* expression) const;
 
-	virtual const TypeSpecifier* GetType() const;
+	virtual const_shared_ptr<TypeSpecifier> GetType() const;
 
-	virtual const std::string* GetName() const {
+	virtual const_shared_ptr<string> GetName() const {
 		return m_name;
 	}
 
 private:
-	const FunctionTypeSpecifier* m_type;
-	const YYLTYPE m_type_position;
-	const std::string* m_name;
-	const YYLTYPE m_name_location;
+	const_shared_ptr<FunctionTypeSpecifier> m_type;
+	const yy::location m_type_position;
+	const_shared_ptr<string> m_name;
+	const yy::location m_name_location;
 	const Expression* m_initializer_expression;
 };
 

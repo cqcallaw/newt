@@ -49,11 +49,11 @@ const LinkedList<const Error*>* ForStatement::preprocess(
 	if (m_loop_expression != nullptr
 			&& !(m_loop_expression->GetType(execution_context)->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt()))) {
-		YYLTYPE position = m_loop_expression->GetPosition();
+		yy::location position = m_loop_expression->GetPosition();
 		errors = new LinkedList<const Error*>(
 				new Error(Error::SEMANTIC,
 						Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
-						position.first_line, position.first_column));
+						position.begin.line, position.begin.column));
 	} else {
 		SymbolContext* symbol_context = execution_context->GetSymbolContext();
 		const auto new_parent = symbol_context->GetParent()->With(
@@ -97,7 +97,7 @@ const LinkedList<const Error*>* ForStatement::execute(
 		return evaluation->GetErrors();
 	}
 
-	while (*((bool*) evaluation->GetData())) {
+	while (*(static_pointer_cast<const bool>(evaluation->GetData()))) {
 		const LinkedList<const Error*>* iteration_errors = LinkedList<
 				const Error*>::GetTerminator();
 		if (m_statement_block != nullptr) {
@@ -132,7 +132,8 @@ const LinkedList<const Error*>* ForStatement::execute(
 	return LinkedList<const Error*>::GetTerminator();
 }
 
-const AnalysisResult ForStatement::Returns(const TypeSpecifier* type_specifier,
+const AnalysisResult ForStatement::Returns(
+		const_shared_ptr<TypeSpecifier> type_specifier,
 		const ExecutionContext* execution_context) const {
 	//as of this writing, it is deemed prohibitively complicated to
 	//perform the semantic analysis that would determine whether or not

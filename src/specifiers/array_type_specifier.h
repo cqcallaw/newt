@@ -28,7 +28,7 @@ class Statement;
 using namespace std;
 class ArrayTypeSpecifier: public TypeSpecifier {
 public:
-	ArrayTypeSpecifier(const TypeSpecifier* element_type_specifier) :
+	ArrayTypeSpecifier(const_shared_ptr<TypeSpecifier> element_type_specifier) :
 			m_element_type_specifier(element_type_specifier) {
 	}
 
@@ -37,15 +37,17 @@ public:
 
 	virtual const string ToString() const;
 
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const {
-		const ArrayTypeSpecifier* as_array =
-				dynamic_cast<const ArrayTypeSpecifier*>(other);
+	virtual const bool IsAssignableTo(
+			const_shared_ptr<TypeSpecifier> other) const {
+		const_shared_ptr<ArrayTypeSpecifier> as_array =
+				std::dynamic_pointer_cast<const ArrayTypeSpecifier>(other);
 		return as_array != nullptr
 				&& m_element_type_specifier->IsAssignableTo(
 						as_array->GetElementTypeSpecifier());
 	}
 
-	virtual const void* DefaultValue(const TypeTable* type_table) const;
+	virtual const_shared_ptr<void> DefaultValue(
+			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier& other) const;
 
@@ -53,17 +55,18 @@ public:
 		return !(*this == other);
 	}
 
-	const TypeSpecifier* GetElementTypeSpecifier() const {
+	const_shared_ptr<TypeSpecifier> GetElementTypeSpecifier() const {
 		return m_element_type_specifier;
 	}
 
 	virtual const DeclarationStatement* GetDeclarationStatement(
-			const YYLTYPE position, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const Expression* initializer_expression) const;
 
 private:
-	const TypeSpecifier* m_element_type_specifier;
+	const_shared_ptr<TypeSpecifier> m_element_type_specifier;
 };
 
 #endif /* ARRAY_TYPE_SPECIFIER_H_ */

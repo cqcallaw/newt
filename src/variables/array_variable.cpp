@@ -21,33 +21,31 @@
 #include <expression.h>
 #include <sstream>
 
-#include "yyltype.h"
 #include "assert.h"
 #include "execution_context.h"
 #include <assignment_statement.h>
 
-ArrayVariable::ArrayVariable(const string* name,
-YYLTYPE location, const IndexList* index_list,
-YYLTYPE expression_location) :
+ArrayVariable::ArrayVariable(const_shared_ptr<string> name,
+		yy::location location, const IndexList* index_list,
+		yy::location expression_location) :
 		Variable(name, location), m_index_list(index_list), m_index_list_location(
 				expression_location) {
 }
 
-const TypeSpecifier* ArrayVariable::GetType(
+const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
 		const ExecutionContext* context) const {
 	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName(),
 			DEEP);
 	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
-		const Array* array = static_cast<const Array*>(symbol->GetValue());
-		const TypeSpecifier* result = array->GetTypeSpecifier();
+		auto array = std::static_pointer_cast<const Array>(symbol->GetValue());
 
 		//handle intermediate indices
 		const LinkedList<const Index*>* subject = m_index_list;
 		while (!subject->IsTerminator()) {
-			const ArrayTypeSpecifier* as_array_specifier =
-					dynamic_cast<const ArrayTypeSpecifier*>(result);
+			const_shared_ptr<ArrayTypeSpecifier> as_array_specifier =
+					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
+							array->GetTypeSpecifier());
 			if (as_array_specifier) {
-				result = as_array_specifier->GetElementTypeSpecifier();
 				subject = subject->GetNext();
 			} else {
 				return PrimitiveTypeSpecifier::GetNone();
@@ -71,7 +69,7 @@ const string* ArrayVariable::ToString(const ExecutionContext* context) const {
 
 		auto errors = evaluation->GetErrors();
 		if (errors->IsTerminator()) {
-			buffer << *((int*) evaluation->GetData());
+			buffer << *(static_pointer_cast<const int>(evaluation->GetData()));
 		} else {
 			buffer << "EVALUATION ERROR";
 			break;
@@ -95,25 +93,25 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 
 	const SymbolContext* symbol_context = context->GetSymbolContext();
 	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
-	const TypeTable* type_table = context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 	int array_index = -1;
-	YYLTYPE index_location = DefaultLocation;
-	//this cast may not be valid, but is guaranteed to be unused if it's not valid.
-	const Array* array = nullptr;
+	yy::location index_location = GetDefaultLocation();
+	plain_shared_ptr<Array> array;
 
 	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
-		const TypeSpecifier* type_specifier = symbol->GetType();
+		plain_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
 		const LinkedList<const Index*>* subject = m_index_list;
 
 		//consume all intermediate indices and return the inner-most array and the index.
 		while (!subject->IsTerminator()) {
-			const ArrayTypeSpecifier* as_array_specifier =
-					dynamic_cast<const ArrayTypeSpecifier*>(type_specifier);
+			plain_shared_ptr<ArrayTypeSpecifier> as_array_specifier =
+					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
+							type_specifier);
 			if (as_array_specifier) {
 				const Index* index = subject->GetData();
 				const Expression* index_expression =
 						index->GetIndexExpression();
-				const TypeSpecifier* index_expression_type =
+				const_shared_ptr<TypeSpecifier> index_expression_type =
 						index_expression->GetType(context);
 				if (index_expression->GetType(context)->IsAssignableTo(
 						PrimitiveTypeSpecifier::GetInt())) {
@@ -121,19 +119,19 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 							index_expression->Evaluate(context);
 					errors = index_expression_evaluation->GetErrors();
 					if (errors == LinkedList<const Error*>::GetTerminator()) {
-						const int i =
-								*((int*) index_expression_evaluation->GetData());
+						const int i = *(static_pointer_cast<const int>(
+								index_expression_evaluation->GetData()));
 
 						if (i >= 0) {
 							//our validations have passed. set everything up for the next level of indexing, or for termination
 							type_specifier =
 									as_array_specifier->GetElementTypeSpecifier();
 							if (array == nullptr) {
-								array =
-										static_cast<const Array*>(symbol->GetValue());
+								array = std::static_pointer_cast<const Array>(
+										symbol->GetValue());
 							} else {
-								array = array->GetValue<const Array*>(
-										array_index, type_table);
+								array = array->GetValue<Array>(array_index,
+										*type_table);
 							}
 							array_index = i;
 							index_location = index_expression->GetPosition();
@@ -143,9 +141,9 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 									errors->With(
 											new Error(Error::SEMANTIC,
 													Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-													index_expression->GetPosition().first_line,
-													index_expression->GetPosition().first_column,
-													symbol->GetName(),
+													index_expression->GetPosition().begin.line,
+													index_expression->GetPosition().begin.column,
+													*(GetName()),
 													*AsString(index)));
 							break;
 						}
@@ -158,21 +156,21 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 					errors = errors->With(
 							new Error(Error::SEMANTIC,
 									Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-									index_location.first_line,
-									index_location.first_column, *(GetName()),
+									index_location.begin.line,
+									index_location.begin.column, *(GetName()),
 									buffer.str()));
 				}
 			} else {
 				errors = errors->With(
 						new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
-								GetLocation().first_line,
-								GetLocation().first_column, *(GetName())));
+								GetLocation().begin.line,
+								GetLocation().begin.column, *(GetName())));
 			}
 		}
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().first_line, GetLocation().first_column,
+						GetLocation().begin.line, GetLocation().begin.column,
 						*(GetName())));
 	}
 
@@ -184,57 +182,57 @@ const Result* ArrayVariable::Evaluate(const ExecutionContext* context) const {
 			LinkedList<const Error*>::GetTerminator();
 
 	const ValidationResult* validation_result = ValidateOperation(context);
-	const void* result_value = nullptr;
+	plain_shared_ptr<void> result_value;
 	errors = validation_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const Array* array = validation_result->GetArray();
+		auto array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
 		const int size = array->GetSize();
 		if (index < size && index >= 0) {
-			const TypeTable* type_table = context->GetTypeTable();
-			const TypeSpecifier* element_type_specifier =
+			auto type_table = context->GetTypeTable();
+			const_shared_ptr<TypeSpecifier> element_type_specifier =
 					array->GetElementType();
 			if (element_type_specifier->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetBoolean())) {
-				result_value = array->GetValue<const bool*>(index, type_table);
+				result_value = array->GetValue<bool>(index, *type_table);
 			} else if (element_type_specifier->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt())) {
-				result_value = array->GetValue<const int*>(index, type_table);
+				result_value = array->GetValue<int>(index, *type_table);
 			} else if (element_type_specifier->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetDouble())) {
-				result_value = array->GetValue<const double*>(index,
-						type_table);
+				result_value = array->GetValue<double>(index, *type_table);
 			} else if (element_type_specifier->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetString())) {
-				result_value = array->GetValue<const string*>(index,
-						type_table);
+				result_value = array->GetValue<string>(index, *type_table);
 			} else {
-				const ArrayTypeSpecifier* as_array =
-						dynamic_cast<const ArrayTypeSpecifier*>(element_type_specifier);
+				const_shared_ptr<ArrayTypeSpecifier> as_array =
+						std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
+								element_type_specifier);
 				if (as_array != nullptr) {
 					//TODO
 					assert(false);
 				}
 
-				const CompoundTypeSpecifier* as_compound =
-						dynamic_cast<const CompoundTypeSpecifier*>(element_type_specifier);
+				const_shared_ptr<CompoundTypeSpecifier> as_compound =
+						std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+								element_type_specifier);
 				if (as_compound != nullptr) {
-					result_value = array->GetValue<const CompoundTypeInstance*>(
-							index, type_table);
+					result_value = array->GetValue<CompoundTypeInstance>(index,
+							*type_table);
 				} else {
 					//we should never get here
 					assert(false);
 				}
 			}
 		} else {
-			const YYLTYPE index_location =
+			const yy::location index_location =
 					validation_result->GetIndexLocation();
 			ostringstream buffer;
 			buffer << index;
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-							index_location.first_line,
-							index_location.first_column, *GetName(),
+							index_location.begin.line,
+							index_location.begin.column, *GetName(),
 							buffer.str()));
 		}
 	}
@@ -250,82 +248,82 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
-	const string* variable_name = GetName();
-	const int variable_line = GetLocation().first_line;
-	const int variable_column = GetLocation().first_column;
+	auto variable_name = GetName();
+	const int variable_line = GetLocation().begin.line;
+	const int variable_column = GetLocation().begin.column;
 
 	const ValidationResult* validation_result = ValidateOperation(context);
 	errors = validation_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const Array* array = validation_result->GetArray();
+		auto array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
 		delete (validation_result);
 
 		if (index >= 0) {
-			const TypeSpecifier* element_type_specifier =
+			const_shared_ptr<TypeSpecifier> element_type_specifier =
 					array->GetElementType();
-			const PrimitiveTypeSpecifier* element_as_primitive =
-					dynamic_cast<const PrimitiveTypeSpecifier*>(element_type_specifier);
+			const_shared_ptr<PrimitiveTypeSpecifier> element_as_primitive =
+					std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+							element_type_specifier);
 
-			const TypeTable* type_table = context->GetTypeTable();
+			auto type_table = context->GetTypeTable();
 			if (element_as_primitive != nullptr) {
 				const BasicType element_type =
 						element_as_primitive->GetBasicType();
 
 				switch (element_type) {
 				case BOOLEAN: {
-					const bool* value = array->GetValue<const bool*>(index,
-							type_table);
+					const_shared_ptr<bool> value = array->GetValue<bool>(index,
+							*type_table);
 					const Result* result = AssignmentStatement::do_op(
 							variable_name, element_type, variable_line,
 							variable_column, *value, expression, op, context);
 
 					errors = result->GetErrors();
 					if (errors == LinkedList<const Error*>::GetTerminator()) {
-						errors = SetSymbol(context, (bool*) result->GetData());
+						errors = SetSymbolCore(context, result->GetData());
 						break;
 					}
 					break;
 				}
 				case INT: {
-					const int* value = array->GetValue<const int*>(index,
-							type_table);
+					const_shared_ptr<int> value = array->GetValue<int>(index,
+							*type_table);
 					const Result* result = AssignmentStatement::do_op(
 							variable_name, element_type, variable_line,
 							variable_column, *value, expression, op, context);
 
 					errors = result->GetErrors();
 					if (errors == LinkedList<const Error*>::GetTerminator()) {
-						errors = SetSymbol(context, (int*) result->GetData());
+						errors = SetSymbolCore(context, result->GetData());
 						break;
 					}
 					break;
 				}
 				case DOUBLE: {
-					const double* value = array->GetValue<const double*>(index,
-							type_table);
+					const_shared_ptr<double> value = array->GetValue<double>(
+							index, *type_table);
 					const Result* result = AssignmentStatement::do_op(
 							variable_name, element_type, variable_line,
 							variable_column, *value, expression, op, context);
 
 					errors = result->GetErrors();
 					if (errors == LinkedList<const Error*>::GetTerminator()) {
-						errors = SetSymbol(context,
-								(double*) result->GetData());
+						errors = SetSymbolCore(context, result->GetData());
 					}
 					break;
 				}
 				case STRING: {
-					const string* value = array->GetValue<const string*>(index,
-							type_table);
+					const_shared_ptr<string> value = array->GetValue<string>(
+							index, *type_table);
 					const Result* result = AssignmentStatement::do_op(
 							variable_name, element_type, variable_line,
-							variable_column, value, expression, op, context);
+							variable_column, value.get(), expression, op,
+							context);
 
 					errors = result->GetErrors();
 					if (errors == LinkedList<const Error*>::GetTerminator()) {
-						errors = SetSymbol(context,
-								(string*) result->GetData());
+						errors = SetSymbolCore(context, result->GetData());
 					}
 					break;
 				}
@@ -337,19 +335,20 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 					const Result* result = expression->Evaluate(context);
 					errors = result->GetErrors();
 					if (errors->IsTerminator()) {
-						const ArrayTypeSpecifier* element_as_array =
-								dynamic_cast<const ArrayTypeSpecifier*>(element_type_specifier);
+						const_shared_ptr<ArrayTypeSpecifier> element_as_array =
+								std::dynamic_pointer_cast<
+										const ArrayTypeSpecifier>(
+										element_type_specifier);
 						if (element_as_array) {
-							errors = SetSymbol(context,
-									(const Array*) result->GetData());
+							errors = SetSymbolCore(context, result->GetData());
 						}
 
-						const CompoundTypeSpecifier* element_as_compound =
-								dynamic_cast<const CompoundTypeSpecifier*>(element_type_specifier);
+						const_shared_ptr<CompoundTypeSpecifier> element_as_compound =
+								std::dynamic_pointer_cast<
+										const CompoundTypeSpecifier>(
+										element_type_specifier);
 						if (element_as_compound) {
-							errors =
-									SetSymbol(context,
-											(const CompoundTypeInstance*) result->GetData());
+							errors = SetSymbolCore(context, result->GetData());
 						}
 					}
 				} else {
@@ -372,50 +371,85 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 	return errors;
 }
 
+const LinkedList<const Error*>* ArrayVariable::SetSymbol(
+		const ExecutionContext* context, const_shared_ptr<bool> value) const {
+	return SetSymbolCore(context, static_pointer_cast<const void>(value));
+}
+
+const LinkedList<const Error*>* ArrayVariable::SetSymbol(
+		const ExecutionContext* context, const_shared_ptr<int> value) const {
+	return SetSymbolCore(context, static_pointer_cast<const void>(value));
+}
+
+const LinkedList<const Error*>* ArrayVariable::SetSymbol(
+		const ExecutionContext* context, const_shared_ptr<double> value) const {
+	return SetSymbolCore(context, static_pointer_cast<const void>(value));
+}
+
+const LinkedList<const Error*>* ArrayVariable::SetSymbol(
+		const ExecutionContext* context, const_shared_ptr<string> value) const {
+	return SetSymbolCore(context, static_pointer_cast<const void>(value));
+}
+
+const LinkedList<const Error*>* ArrayVariable::SetSymbol(
+		const ExecutionContext* context, const_shared_ptr<Array> value) const {
+	return SetSymbolCore(context, static_pointer_cast<const void>(value));
+}
+
+const LinkedList<const Error*>* ArrayVariable::SetSymbol(
+		const ExecutionContext* context,
+		const_shared_ptr<CompoundTypeInstance> value) const {
+	return SetSymbolCore(context, static_pointer_cast<const void>(value));
+}
+
 const LinkedList<const Error*>* ArrayVariable::SetSymbolCore(
-		const ExecutionContext* context, const void* value) const {
+		const ExecutionContext* context, const_shared_ptr<void> value) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
 	const ValidationResult* validation_result = ValidateOperation(context);
 	errors = validation_result->GetErrors();
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		const Array* array = validation_result->GetArray();
+		auto array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
 
-		const TypeTable* type_table = context->GetTypeTable();
-		const TypeSpecifier* element_type_specifier = array->GetElementType();
-		const Array* new_array = nullptr;
+		auto type_table = context->GetTypeTable();
+		const_shared_ptr<TypeSpecifier> element_type_specifier =
+				array->GetElementType();
+		plain_shared_ptr<Array> new_array = nullptr;
 
 		if (element_type_specifier->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetBoolean())) {
-			new_array = array->WithValue<const bool*>(index,
-					(const bool*) value, type_table);
+			new_array = array->WithValue<bool>(index,
+					static_pointer_cast<const bool>(value), *type_table);
 		} else if (element_type_specifier->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt())) {
-			new_array = array->WithValue<const int*>(index, (const int*) value,
-					type_table);
+			new_array = array->WithValue<int>(index,
+					static_pointer_cast<const int>(value), *type_table);
 		} else if (element_type_specifier->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetDouble())) {
-			new_array = array->WithValue<const double*>(index,
-					(const double*) value, type_table);
+			new_array = array->WithValue<double>(index,
+					static_pointer_cast<const double>(value), *type_table);
 		} else if (element_type_specifier->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetString())) {
-			new_array = array->WithValue<const string*>(index,
-					(const string*) value, type_table);
+			new_array = array->WithValue<string>(index,
+					static_pointer_cast<const string>(value), *type_table);
 		} else {
-			const ArrayTypeSpecifier* as_array =
-					dynamic_cast<const ArrayTypeSpecifier*>(element_type_specifier);
+			const_shared_ptr<ArrayTypeSpecifier> as_array =
+					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
+							element_type_specifier);
 			if (as_array != nullptr) {
-				new_array = array->WithValue<const Array*>(index,
-						(const Array*) value, type_table);
+				new_array = array->WithValue<Array>(index,
+						static_pointer_cast<const Array>(value), *type_table);
 			}
 
-			const CompoundTypeSpecifier* as_compound =
-					dynamic_cast<const CompoundTypeSpecifier*>(element_type_specifier);
+			const_shared_ptr<CompoundTypeSpecifier> as_compound =
+					std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+							element_type_specifier);
 			if (as_compound != nullptr) {
-				new_array = array->WithValue<const CompoundTypeInstance*>(index,
-						(const CompoundTypeInstance*) value, type_table);
+				new_array = array->WithValue<CompoundTypeInstance>(index,
+						static_pointer_cast<const CompoundTypeInstance>(value),
+						*type_table);
 			}
 		}
 
@@ -432,37 +466,6 @@ const LinkedList<const Error*>* ArrayVariable::SetSymbolCore(
 	return errors;
 }
 
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const bool* value) const {
-	return SetSymbolCore(context, (const void*) value);
-}
-
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const int* value) const {
-	return SetSymbolCore(context, (const void*) value);
-}
-
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const double* value) const {
-	return SetSymbolCore(context, (const void*) value);
-}
-
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const string* value) const {
-	return SetSymbolCore(context, (const void*) value);
-}
-
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const Array* value) const {
-	return SetSymbolCore(context, (const void*) value);
-}
-
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context,
-		const CompoundTypeInstance* value) const {
-	return SetSymbolCore(context, (const void*) value);
-}
-
 const LinkedList<const Error*>* ArrayVariable::Validate(
 		const ExecutionContext* context) const {
 	const LinkedList<const Error*>* errors =
@@ -472,18 +475,19 @@ const LinkedList<const Error*>* ArrayVariable::Validate(
 	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
 
 	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
-		const TypeSpecifier* type_specifier = symbol->GetType();
+		plain_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
 
 		const LinkedList<const Index*>* subject = m_index_list;
 		while (!subject->IsTerminator()) {
 			const Index* index = subject->GetData();
 			const Expression* index_expression = index->GetIndexExpression();
-			const TypeSpecifier* index_expression_type =
+			const_shared_ptr<TypeSpecifier> index_expression_type =
 					index_expression->GetType(context);
 			if (index_expression->GetType(context)->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt())) {
-				const ArrayTypeSpecifier* as_array =
-						dynamic_cast<const ArrayTypeSpecifier*>(type_specifier);
+				const_shared_ptr<ArrayTypeSpecifier> as_array =
+						std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
+								type_specifier);
 				if (as_array) {
 					type_specifier = as_array->GetElementTypeSpecifier();
 				} else {
@@ -491,8 +495,8 @@ const LinkedList<const Error*>* ArrayVariable::Validate(
 							errors->With(
 									new Error(Error::SEMANTIC,
 											Error::VARIABLE_NOT_AN_ARRAY,
-											index_expression->GetPosition().first_line,
-											index_expression->GetPosition().first_column,
+											index_expression->GetPosition().begin.line,
+											index_expression->GetPosition().begin.column,
 											*(GetName())));
 				}
 			} else {
@@ -502,8 +506,8 @@ const LinkedList<const Error*>* ArrayVariable::Validate(
 				errors = errors->With(
 						new Error(Error::SEMANTIC,
 								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-								index_expression->GetPosition().first_line,
-								index_expression->GetPosition().first_column,
+								index_expression->GetPosition().begin.line,
+								index_expression->GetPosition().begin.column,
 								*(GetName()), buffer.str()));
 			}
 
@@ -512,26 +516,28 @@ const LinkedList<const Error*>* ArrayVariable::Validate(
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().first_line, GetLocation().first_column,
+						GetLocation().begin.line, GetLocation().begin.column,
 						*(GetName())));
 	}
 
 	return errors;
 }
 
-const TypeSpecifier* ArrayVariable::GetInnerMostElementType(
+const_shared_ptr<TypeSpecifier> ArrayVariable::GetInnerMostElementType(
 		const ExecutionContext* context) const {
 	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName(),
 			DEEP);
-	const TypeSpecifier* type_specifier = PrimitiveTypeSpecifier::GetNone();
+	plain_shared_ptr<TypeSpecifier> type_specifier =
+			PrimitiveTypeSpecifier::GetNone();
 	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		type_specifier = symbol->GetType();
 		//const string str = type_specifier->ToString();
 
 		const LinkedList<const Index*>* subject = m_index_list;
 		while (!subject->IsTerminator()) {
-			const ArrayTypeSpecifier* as_array =
-					dynamic_cast<const ArrayTypeSpecifier*>(type_specifier);
+			const_shared_ptr<ArrayTypeSpecifier> as_array =
+					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
+							type_specifier);
 			if (as_array) {
 				type_specifier = as_array->GetElementTypeSpecifier();
 			} else {

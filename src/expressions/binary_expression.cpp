@@ -20,23 +20,25 @@
 #include "binary_expression.h"
 #include "error.h"
 
-BinaryExpression::BinaryExpression(const YYLTYPE position,
+BinaryExpression::BinaryExpression(const yy::location position,
 		const OperatorType op, const Expression* left, const Expression* right) :
 		Expression(position), m_operator(op), m_left(left), m_right(right) {
 	assert(left != NULL);
 	assert(right != NULL);
 }
 
-const TypeSpecifier* BinaryExpression::ComputeResultType(const Expression* left,
-		const Expression* right, const OperatorType op,
+const_shared_ptr<TypeSpecifier> BinaryExpression::ComputeResultType(
+		const Expression* left, const Expression* right, const OperatorType op,
 		const ExecutionContext* execution_context) {
-	const TypeSpecifier* left_type = left->GetType(execution_context);
-	const TypeSpecifier* right_type = right->GetType(execution_context);
+	const_shared_ptr<TypeSpecifier> left_type = left->GetType(
+			execution_context);
+	const_shared_ptr<TypeSpecifier> right_type = right->GetType(
+			execution_context);
 
-	const PrimitiveTypeSpecifier* left_as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(left_type);
-	const PrimitiveTypeSpecifier* right_as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(right_type);
+	const_shared_ptr<PrimitiveTypeSpecifier> left_as_primitive =
+			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(left_type);
+	const_shared_ptr<PrimitiveTypeSpecifier> right_as_primitive =
+			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(right_type);
 
 	if (left_as_primitive == nullptr || right_as_primitive == nullptr
 			|| left_as_primitive == PrimitiveTypeSpecifier::GetNone()
@@ -72,8 +74,6 @@ const Result* BinaryExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
-	void* result = nullptr;
-
 	const Expression* left = GetLeft();
 	const Expression* right = GetRight();
 
@@ -88,107 +88,129 @@ const Result* BinaryExpression::Evaluate(
 		return right_result;
 	}
 
-	const TypeSpecifier* left_type = left->GetType(execution_context);
-	const TypeSpecifier* right_type = right->GetType(execution_context);
+	const_shared_ptr<TypeSpecifier> left_type = left->GetType(
+			execution_context);
+	const_shared_ptr<TypeSpecifier> right_type = right->GetType(
+			execution_context);
 
-	YYLTYPE left_position = left->GetPosition();
-	YYLTYPE right_position = right->GetPosition();
+	yy::location left_position = left->GetPosition();
+	yy::location right_position = right->GetPosition();
 
 	if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
-		bool left_value = *((bool*) left_result->GetData());
+		bool left_value = *(static_pointer_cast<const bool>(
+				left_result->GetData()));
 
 		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
-			bool right_value = *((bool*) right_result->GetData());
+			bool right_value = *(static_pointer_cast<const bool>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt())) {
-			int right_value = *((int*) right_result->GetData());
+			int right_value = *(static_pointer_cast<const int>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetDouble())) {
-			double right_value = *((double*) right_result->GetData());
+			double right_value = *(static_pointer_cast<const double>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetString())) {
-			string* right_value = (string*) right_result->GetData();
+			string right_value = *(static_pointer_cast<const string>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else {
 			assert(false);
 		}
 	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt())) {
-		int left_value = *((int*) left_result->GetData());
+		int left_value = *(static_pointer_cast<const int>(
+				left_result->GetData()));
 
 		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
-			bool right_value = *((bool*) right_result->GetData());
+			bool right_value = *(static_pointer_cast<const bool>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt())) {
-			int right_value = *((int*) right_result->GetData());
+			int right_value = *(static_pointer_cast<const int>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetDouble())) {
-			double right_value = *((double*) right_result->GetData());
+			double right_value = *(static_pointer_cast<const double>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetString())) {
-			string* right_value = (string*) right_result->GetData();
+			string right_value = *(static_pointer_cast<const string>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else {
 			assert(false);
 		}
 	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetDouble())) {
-		double left_value = *((double*) left_result->GetData());
+		double left_value = *(static_pointer_cast<const double>(
+				left_result->GetData()));
 
 		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
-			bool right_value = *((bool*) right_result->GetData());
+			bool right_value = *(static_pointer_cast<const bool>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt())) {
-			int right_value = *((int*) right_result->GetData());
+			int right_value = *(static_pointer_cast<const int>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetDouble())) {
-			double right_value = *((double*) right_result->GetData());
+			double right_value = *(static_pointer_cast<const double>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetString())) {
-			string* right_value = (string*) right_result->GetData();
+			string right_value = *(static_pointer_cast<const string>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else {
 			assert(false);
 		}
 	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetString())) {
-		string* left_value = (string*) left_result->GetData();
+		string left_value = *(static_pointer_cast<const string>(
+				left_result->GetData()));
 
 		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
-			bool right_value = *((bool*) right_result->GetData());
+			bool right_value = *(static_pointer_cast<const bool>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt())) {
-			int right_value = *((int*) right_result->GetData());
+			int right_value = *(static_pointer_cast<const int>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetDouble())) {
-			double right_value = *((double*) right_result->GetData());
+			double right_value = *(static_pointer_cast<const double>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else if (right_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetString())) {
-			string* right_value = (string*) right_result->GetData();
+			string right_value = *(static_pointer_cast<const string>(
+					right_result->GetData()));
 			return compute(left_value, right_value, left_position,
 					right_position);
 		} else {
@@ -201,18 +223,18 @@ const Result* BinaryExpression::Evaluate(
 	delete (left_result);
 	delete (right_result);
 
-	return new Result(result, errors);
+	return new Result(const_shared_ptr<const void>(), errors);
 }
 
-const TypeSpecifier* BinaryExpression::GetType(
+const_shared_ptr<TypeSpecifier> BinaryExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return ComputeResultType(m_left, m_right, m_operator, execution_context);
 }
 
 const LinkedList<const Error*>* BinaryExpression::Validate(
 		const ExecutionContext* execution_context,
-		const TypeSpecifier* valid_left,
-		const TypeSpecifier* valid_right) const {
+		const_shared_ptr<TypeSpecifier> valid_left,
+		const_shared_ptr<TypeSpecifier> valid_right) const {
 	const LinkedList<const Error*>* result =
 			LinkedList<const Error*>::GetTerminator();
 
@@ -226,16 +248,18 @@ const LinkedList<const Error*>* BinaryExpression::Validate(
 		return result;
 	}
 
-	const TypeSpecifier* left_type = left->GetType(execution_context);
+	const_shared_ptr<TypeSpecifier> left_type = left->GetType(
+			execution_context);
 	if (!(left_type->IsAssignableTo(valid_left))) {
 		result = result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_LEFT_OPERAND_TYPE,
-						left->GetPosition().first_line,
-						left->GetPosition().first_column,
+						left->GetPosition().begin.line,
+						left->GetPosition().begin.column,
 						operator_to_string(op)));
 	}
 	const Expression* right = GetRight();
-	const TypeSpecifier* right_type = GetRight()->GetType(execution_context);
+	const_shared_ptr<TypeSpecifier> right_type = GetRight()->GetType(
+			execution_context);
 
 	const LinkedList<const Error*>* right_errors = right->Validate(
 			execution_context);
@@ -248,63 +272,69 @@ const LinkedList<const Error*>* BinaryExpression::Validate(
 	if (!(right_type->IsAssignableTo(valid_right))) {
 		result = result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
-						right->GetPosition().first_line,
-						right->GetPosition().first_column,
+						right->GetPosition().begin.line,
+						right->GetPosition().begin.column,
 						operator_to_string(op)));
 	}
 
 	return result;
 }
 
-const Result* BinaryExpression::compute(bool left, int right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute((int) left, right, left_position, right_position);
+const Result* BinaryExpression::compute(bool& left, int& right,
+		yy::location left_position, yy::location right_position) const {
+	int converted_left = left;
+	return compute(converted_left, right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(bool left, double right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute((double) left, right, left_position, right_position);
+const Result* BinaryExpression::compute(bool& left, double& right,
+		yy::location left_position, yy::location right_position) const {
+	double converted_left = left;
+	return compute(converted_left, right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(bool left, string* right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute(AsString(left), right, left_position, right_position);
-}
-
-const Result* BinaryExpression::compute(int left, bool right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute(left, (int) right, left_position, right_position);
-}
-const Result* BinaryExpression::compute(int left, double right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute((double) left, right, left_position, right_position);
-}
-const Result* BinaryExpression::compute(int left, string* right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute(AsString(left), right, left_position, right_position);
+const Result* BinaryExpression::compute(bool& left, string& right,
+		yy::location left_position, yy::location right_position) const {
+	return compute(*AsString(left), right, left_position, right_position);
 }
 
-const Result* BinaryExpression::compute(double left, bool right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute(left, (double) right, left_position, right_position);
+const Result* BinaryExpression::compute(int& left, bool& right,
+		yy::location left_position, yy::location right_position) const {
+	int converted_right = right;
+	return compute(left, converted_right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(double left, int right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute(left, (double) right, left_position, right_position);
+const Result* BinaryExpression::compute(int& left, double& right,
+		yy::location left_position, yy::location right_position) const {
+	double converted_left = left;
+	return compute(converted_left, right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(double left, string* right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute(AsString(left), right, left_position, right_position);
-}
-
-const Result* BinaryExpression::compute(string* left, bool right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute(left, AsString(right), left_position, right_position);
-}
-const Result* BinaryExpression::compute(string* left, int right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute(left, AsString(right), left_position, right_position);
+const Result* BinaryExpression::compute(int& left, string& right,
+		yy::location left_position, yy::location right_position) const {
+	return compute(*AsString(left), right, left_position, right_position);
 }
 
-const Result* BinaryExpression::compute(string* left, double right,
-YYLTYPE left_position, YYLTYPE right_position) const {
-	return compute(left, AsString(right), left_position, right_position);
+const Result* BinaryExpression::compute(double& left, bool& right,
+		yy::location left_position, yy::location right_position) const {
+	double converted_right = right;
+	return compute(left, converted_right, left_position, right_position);
+}
+const Result* BinaryExpression::compute(double& left, int& right,
+		yy::location left_position, yy::location right_position) const {
+	double converted_right = right;
+	return compute(left, converted_right, left_position, right_position);
+}
+const Result* BinaryExpression::compute(double& left, string& right,
+		yy::location left_position, yy::location right_position) const {
+	return compute(*AsString(left), right, left_position, right_position);
+}
+
+const Result* BinaryExpression::compute(string& left, bool& right,
+		yy::location left_position, yy::location right_position) const {
+	return compute(left, *AsString(right), left_position, right_position);
+}
+const Result* BinaryExpression::compute(string& left, int& right,
+		yy::location left_position, yy::location right_position) const {
+	return compute(left, *AsString(right), left_position, right_position);
+}
+
+const Result* BinaryExpression::compute(string& left, double& right,
+		yy::location left_position, yy::location right_position) const {
+	return compute(left, *AsString(right), left_position, right_position);
 }

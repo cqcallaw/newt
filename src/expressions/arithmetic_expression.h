@@ -24,21 +24,21 @@
 
 class ArithmeticExpression: public BinaryExpression {
 public:
-	ArithmeticExpression(const YYLTYPE position, const OperatorType op,
+	ArithmeticExpression(const yy::location position, const OperatorType op,
 			const Expression* left, const Expression* right);
 
 	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context) const;
 
 protected:
-	virtual const Result* compute(bool left, bool right,
-			YYLTYPE left_position, YYLTYPE right_position) const;
-	virtual const Result* compute(int left, int right,
-			YYLTYPE left_position, YYLTYPE right_position) const;
-	virtual const Result* compute(double left, double right,
-			YYLTYPE left_position, YYLTYPE right_position) const;
-	virtual const Result* compute(string* left, string* right,
-			YYLTYPE left_position, YYLTYPE right_position) const;
+	virtual const Result* compute(bool& left, bool& right,
+			yy::location left_position, yy::location right_position) const;
+	virtual const Result* compute(int& left, int& right,
+			yy::location left_position, yy::location right_position) const;
+	virtual const Result* compute(double& left, double& right,
+			yy::location left_position, yy::location right_position) const;
+	virtual const Result* compute(string& left, string& right,
+			yy::location left_position, yy::location right_position) const;
 };
 
 #endif /* ARITHMETIC_EXPRESSION_H_ */

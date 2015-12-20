@@ -33,9 +33,11 @@ bool CompoundTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 }
 
 const DeclarationStatement* CompoundTypeSpecifier::GetDeclarationStatement(
-		const YYLTYPE position, const YYLTYPE type_position,
-		const std::string* name, const YYLTYPE name_position,
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<string> name,
+		const yy::location name_position,
 		const Expression* initializer_expression) const {
-	return new StructInstantiationStatement(position, this, type_position, name,
-			name_position, initializer_expression);
+	return new StructInstantiationStatement(position,
+			static_pointer_cast<const CompoundTypeSpecifier>(type),
+			type_position, name, name_position, initializer_expression);
 }

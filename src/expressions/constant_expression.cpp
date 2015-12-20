@@ -19,29 +19,31 @@
 
 #include "constant_expression.h"
 
-ConstantExpression::ConstantExpression(const YYLTYPE position, const bool value) :
+ConstantExpression::ConstantExpression(const yy::location position,
+		const bool value) :
 		ConstantExpression(position, PrimitiveTypeSpecifier::GetBoolean(),
-				(void*) new bool(value)) {
+				const_shared_ptr<void>(new bool(value))) {
 }
 
-ConstantExpression::ConstantExpression(const YYLTYPE position, const int value) :
+ConstantExpression::ConstantExpression(const yy::location position,
+		const int value) :
 		ConstantExpression(position, PrimitiveTypeSpecifier::GetInt(),
-				(void*) new int(value)) {
+				const_shared_ptr<void>(new int(value))) {
 }
 
-ConstantExpression::ConstantExpression(const YYLTYPE position,
+ConstantExpression::ConstantExpression(const yy::location position,
 		const double value) :
 		ConstantExpression(position, PrimitiveTypeSpecifier::GetDouble(),
-				(void*) new double(value)) {
+				const_shared_ptr<void>(new double(value))) {
 }
 
-ConstantExpression::ConstantExpression(const YYLTYPE position,
-		const std::string* value) :
+ConstantExpression::ConstantExpression(const yy::location position,
+		const_shared_ptr<string> value) :
 		ConstantExpression(position, PrimitiveTypeSpecifier::GetString(),
-				(void*) value) {
+				std::static_pointer_cast<const void>(value)) {
 }
 
-const TypeSpecifier* ConstantExpression::GetType(
+const_shared_ptr<TypeSpecifier> ConstantExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return m_type;
 }
@@ -52,8 +54,8 @@ const Result* ConstantExpression::Evaluate(
 }
 
 const ConstantExpression* ConstantExpression::GetDefaultExpression(
-		const TypeSpecifier* type, const TypeTable* type_table) {
-	return new ConstantExpression(DefaultLocation, type,
+		const_shared_ptr<TypeSpecifier> type, const TypeTable& type_table) {
+	return new ConstantExpression(GetDefaultLocation(), type,
 			type->DefaultValue(type_table));
 }
 
@@ -61,12 +63,14 @@ const Result* ConstantExpression::GetConstantExpression(
 		const Expression* expression,
 		const ExecutionContext* execution_context) {
 	const Result* evaluation = expression->Evaluate(execution_context);
-	const void* result = nullptr;
+	plain_shared_ptr<void> result;
 
 	auto errors = evaluation->GetErrors();
 	if (errors->IsTerminator()) {
-		result = (const void*) new ConstantExpression(expression->GetPosition(),
-				expression->GetType(execution_context), evaluation->GetData());
+		result = const_shared_ptr<void>(
+				new ConstantExpression(expression->GetPosition(),
+						expression->GetType(execution_context),
+						evaluation->GetData()));
 	}
 
 	delete evaluation;
@@ -74,8 +78,8 @@ const Result* ConstantExpression::GetConstantExpression(
 	return new Result(result, errors);
 }
 
-ConstantExpression::ConstantExpression(const YYLTYPE position,
-		const TypeSpecifier* type, const void* value) :
+ConstantExpression::ConstantExpression(const yy::location position,
+		const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value) :
 		Expression(position), m_type(type), m_value(value) {
 }
 

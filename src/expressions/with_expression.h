@@ -25,12 +25,12 @@
 
 class WithExpression: public Expression {
 public:
-	WithExpression(const YYLTYPE position, const Expression* source_expression,
+	WithExpression(const yy::location position, const Expression* source_expression,
 			const MemberInstantiationList* member_instantiation_list,
-			const YYLTYPE member_instantiation_list_position);
+			const yy::location member_instantiation_list_position);
 	virtual ~WithExpression();
 
-	virtual const TypeSpecifier* GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
@@ -45,7 +45,7 @@ public:
 		return m_member_instantiation_list;
 	}
 
-	const YYLTYPE GetMemberInstantiationListPosition() const {
+	const yy::location GetMemberInstantiationListPosition() const {
 		return m_member_instantiation_list_position;
 	}
 
@@ -56,7 +56,7 @@ public:
 private:
 	const Expression* m_source_expression;
 	const MemberInstantiationList* m_member_instantiation_list;
-	const YYLTYPE m_member_instantiation_list_position;
+	const yy::location m_member_instantiation_list_position;
 };
 
 #endif /* EXPRESSIONS_WITH_EXPRESSION_H_ */

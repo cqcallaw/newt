@@ -20,8 +20,18 @@
 #ifndef DEFAULTS_H_
 #define DEFAULTS_H_
 
-#include "yyltype.h"
+#include <memory>
 
-extern const YYLTYPE DefaultLocation;
+template<class T>
+using const_shared_ptr = const std::shared_ptr<const T>;
+
+template<class T>
+using plain_shared_ptr = std::shared_ptr<const T>;
+
+template<class T>
+using volatile_shared_ptr = std::shared_ptr<T>;
+
+#include <location.hh>
+const yy::location GetDefaultLocation();
 
 #endif /* DEFAULTS_H_ */

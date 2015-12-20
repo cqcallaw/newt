@@ -19,7 +19,7 @@
 
 #include <declaration_statement.h>
 
-DeclarationStatement::DeclarationStatement(const YYLTYPE position) :
+DeclarationStatement::DeclarationStatement(const yy::location position) :
 		m_position(position) {
 }
 

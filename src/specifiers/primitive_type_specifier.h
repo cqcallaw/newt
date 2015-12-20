@@ -38,11 +38,13 @@ public:
 		return type_to_string(m_basic_type);
 	}
 
-	const string ToString(const void* value) const;
+	const string ToString(const_shared_ptr<void> value) const;
 
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const;
+	virtual const bool IsAssignableTo(
+			const_shared_ptr<TypeSpecifier> other) const;
 
-	virtual const void* DefaultValue(const TypeTable* type_table) const;
+	virtual const_shared_ptr<void> DefaultValue(
+			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
@@ -51,25 +53,27 @@ public:
 	}
 
 	virtual const DeclarationStatement* GetDeclarationStatement(
-			const YYLTYPE position, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const Expression* initializer_expression) const;
 
 	const BasicType GetBasicType() const {
 		return m_basic_type;
 	}
 
-	const static PrimitiveTypeSpecifier* FromBasicType(BasicType type);
+	static const_shared_ptr<PrimitiveTypeSpecifier> FromBasicType(
+			BasicType type);
 
-	static const PrimitiveTypeSpecifier* GetNone();
+	static const_shared_ptr<PrimitiveTypeSpecifier> GetNone();
 
-	static const PrimitiveTypeSpecifier* GetBoolean();
+	static const_shared_ptr<PrimitiveTypeSpecifier> GetBoolean();
 
-	static const PrimitiveTypeSpecifier* GetInt();
+	static const_shared_ptr<PrimitiveTypeSpecifier> GetInt();
 
-	static const PrimitiveTypeSpecifier* GetDouble();
+	static const_shared_ptr<PrimitiveTypeSpecifier> GetDouble();
 
-	static const PrimitiveTypeSpecifier* GetString();
+	static const_shared_ptr<PrimitiveTypeSpecifier> GetString();
 
 private:
 	PrimitiveTypeSpecifier(const BasicType basic_type) :

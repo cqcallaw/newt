@@ -47,6 +47,6 @@ private:
 	const Expression* m_expression;
 };
 
-typedef LinkedList<const Parameter*> ParameterList;
+typedef const LinkedList<const Parameter*> ParameterList;
 
 #endif /* PARAMETER_H_ */

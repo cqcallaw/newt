@@ -9,6 +9,7 @@ CPP_SRCS += \
 ../src/compound_type.cpp \
 ../src/compound_type_instance.cpp \
 ../src/defaults.cpp \
+../src/driver.cpp \
 ../src/error.cpp \
 ../src/execution_context.cpp \
 ../src/function.cpp \
@@ -30,6 +31,7 @@ OBJS += \
 ./src/compound_type.o \
 ./src/compound_type_instance.o \
 ./src/defaults.o \
+./src/driver.o \
 ./src/error.o \
 ./src/execution_context.o \
 ./src/function.o \
@@ -51,6 +53,7 @@ CPP_DEPS += \
 ./src/compound_type.d \
 ./src/compound_type_instance.d \
 ./src/defaults.d \
+./src/driver.d \
 ./src/error.d \
 ./src/execution_context.d \
 ./src/function.d \

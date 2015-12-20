@@ -34,134 +34,107 @@
 #include <primitive_type_specifier.h>
 #include <memory>
 
-Symbol::Symbol(const string name, const bool *value) :
-		Symbol(PrimitiveTypeSpecifier::GetBoolean(), name, (void *) value) {
+Symbol::Symbol(const_shared_ptr<const bool> value) :
+		Symbol(PrimitiveTypeSpecifier::GetBoolean(),
+				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const string name, const int *value) :
-		Symbol(PrimitiveTypeSpecifier::GetInt(), name, (void *) value) {
+Symbol::Symbol(const_shared_ptr<const int> value) :
+		Symbol(PrimitiveTypeSpecifier::GetInt(),
+				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const string name, const double *value) :
-		Symbol(PrimitiveTypeSpecifier::GetDouble(), name, (void *) value) {
+Symbol::Symbol(const_shared_ptr<const double> value) :
+		Symbol(PrimitiveTypeSpecifier::GetDouble(),
+				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const string name, const string *value) :
-		Symbol(PrimitiveTypeSpecifier::GetString(), name, (void *) value) {
+Symbol::Symbol(const_shared_ptr<const string> value) :
+		Symbol(PrimitiveTypeSpecifier::GetString(),
+				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const string name, const Array* value) :
-		Symbol(value->GetTypeSpecifier(), name, (void *) value) {
+Symbol::Symbol(const_shared_ptr<const Array> value) :
+		Symbol(value->GetTypeSpecifier(),
+				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const string name, const CompoundTypeInstance* value) :
-		Symbol(value->GetTypeSpecifier(), name, (void *) value) {
+Symbol::Symbol(const_shared_ptr<const CompoundTypeInstance> value) :
+		Symbol(value->GetTypeSpecifier(),
+				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const string name, const Function* value) :
-		Symbol(value->GetType(), name, (void *) value) {
+Symbol::Symbol(const_shared_ptr<Function> value) :
+		Symbol(value->GetType(), static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const TypeSpecifier* type, const string name, const void* value) :
-		m_type(type), m_name(name), m_value(value) {
+Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
+		const_shared_ptr<void> value) :
+		m_type(type), m_value(value) {
 	assert(type != nullptr);
 }
 
-Symbol::Symbol(const string* name, const bool *value) :
-		Symbol(*name, value) {
+const Symbol* Symbol::WithValue(const_shared_ptr<const bool> value) const {
+	return WithValue(PrimitiveTypeSpecifier::GetBoolean(),
+			static_pointer_cast<const void>(value));
+}
+const Symbol* Symbol::WithValue(const_shared_ptr<const int> value) const {
+	return WithValue(PrimitiveTypeSpecifier::GetInt(),
+			static_pointer_cast<const void>(value));
+}
+const Symbol* Symbol::WithValue(const_shared_ptr<const double> value) const {
+	return WithValue(PrimitiveTypeSpecifier::GetDouble(),
+			static_pointer_cast<const void>(value));
+}
+const Symbol* Symbol::WithValue(const_shared_ptr<const string> value) const {
+	return WithValue(PrimitiveTypeSpecifier::GetString(),
+			static_pointer_cast<const void>(value));
 }
 
-Symbol::Symbol(const string* name, const int *value) :
-		Symbol(*name, value) {
+const Symbol* Symbol::WithValue(const_shared_ptr<const Array> value) const {
+	return WithValue(value->GetTypeSpecifier(),
+			static_pointer_cast<const void>(value));
 }
 
-Symbol::Symbol(const string* name, const double *value) :
-		Symbol(*name, value) {
+const Symbol* Symbol::WithValue(
+		const_shared_ptr<const CompoundTypeInstance> value) const {
+	return WithValue(value->GetTypeSpecifier(),
+			static_pointer_cast<const void>(value));
 }
 
-Symbol::Symbol(const string* name, const string *value) :
-		Symbol(*name, value) {
-}
-
-Symbol::Symbol(const string* name, const Array* value) :
-		Symbol(value->GetTypeSpecifier(), *name, (void *) value) {
-}
-
-Symbol::Symbol(const string* name, const CompoundTypeInstance* value) :
-		Symbol(*name, value) {
-}
-
-Symbol::Symbol(const string* name, const Function* value) :
-		Symbol(*name, value) {
-}
-
-const TypeSpecifier* Symbol::GetType() const {
-	return m_type;
-}
-
-const std::string Symbol::GetName() const {
-	return m_name;
-}
-
-const void* Symbol::GetValue() const {
-	return m_value;
-}
-
-const Symbol* Symbol::WithValue(const bool* value) const {
-	return WithValue(PrimitiveTypeSpecifier::GetBoolean(), (void*) value);
-}
-const Symbol* Symbol::WithValue(const int* value) const {
-	return WithValue(PrimitiveTypeSpecifier::GetInt(), (void*) value);
-}
-const Symbol* Symbol::WithValue(const double* value) const {
-	return WithValue(PrimitiveTypeSpecifier::GetDouble(), (void*) value);
-}
-const Symbol* Symbol::WithValue(const string* value) const {
-	return WithValue(PrimitiveTypeSpecifier::GetString(), (void*) value);
-}
-
-const Symbol* Symbol::WithValue(const Array* value) const {
-	return WithValue(value->GetTypeSpecifier(), (void*) value);
-}
-
-const Symbol* Symbol::WithValue(const CompoundTypeInstance* value) const {
-	return WithValue(value->GetTypeSpecifier(), (void*) value);
-}
-
-const Symbol* Symbol::WithValue(const TypeSpecifier* type,
-		const void* value) const {
+const Symbol* Symbol::WithValue(const_shared_ptr<const TypeSpecifier> type,
+		const_shared_ptr<const void> value) const {
 	if (!type->IsAssignableTo(this->m_type)) {
 		return GetDefaultSymbol();
 	}
 
-	return new Symbol(type, m_name, value);
+	return new Symbol(type, value);
 }
 
-const string Symbol::ToString(const TypeTable* type_table,
+const string Symbol::ToString(const TypeTable& type_table,
 		const Indent indent) const {
 	ostringstream buffer;
-	buffer << indent << m_type->ToString() << " " << m_name << ":";
-	const PrimitiveTypeSpecifier* as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(m_type);
+	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
+			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(m_type);
 	if (as_primitive != nullptr) {
 		buffer << " ";
 		buffer << as_primitive->ToString(m_value);
 	}
 
-	const ArrayTypeSpecifier* as_array =
-			dynamic_cast<const ArrayTypeSpecifier*>(m_type);
+	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
+			const ArrayTypeSpecifier>(m_type);
 	if (as_array != nullptr) {
 		buffer << endl;
-		const Array* array = static_cast<const Array*>(m_value);
+		auto array = static_pointer_cast<const Array>(m_value);
 		buffer << array->ToString(type_table, indent);
 	}
 
-	const CompoundTypeSpecifier* as_compound =
-			dynamic_cast<const CompoundTypeSpecifier*>(m_type);
+	const_shared_ptr<CompoundTypeSpecifier> as_compound =
+			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(m_type);
 	if (as_compound != nullptr) {
 		buffer << endl;
-		const CompoundTypeInstance* compound_type_instance =
-				(const CompoundTypeInstance*) m_value;
+		auto compound_type_instance = static_pointer_cast<
+				const CompoundTypeInstance>(m_value);
 		buffer << compound_type_instance->ToString(type_table, indent + 1);
 	}
 
@@ -169,16 +142,10 @@ const string Symbol::ToString(const TypeTable* type_table,
 
 }
 
-const string Symbol::GetDefaultSymbolName() {
-	const static std::string DefaultSymbolName = std::string("[!!_DEFAULT_!!]");
-	return DefaultSymbolName;
-}
-
 const Symbol* Symbol::GetDefaultSymbol() {
-	const static std::unique_ptr<Symbol> DefaultSymbol = std::unique_ptr
-			< Symbol
-			> (new Symbol(PrimitiveTypeSpecifier::GetNone(),
-					GetDefaultSymbolName(), NULL));
+	const static std::unique_ptr<Symbol> DefaultSymbol =
+			std::unique_ptr<Symbol>(
+					new Symbol(PrimitiveTypeSpecifier::GetNone(), nullptr));
 
 	return DefaultSymbol.get();
 }

@@ -1,0 +1,6 @@
+//test default value operator
+struct my_struct {
+	x: double
+}
+
+s: my_struct = @my_struct

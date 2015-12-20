@@ -41,7 +41,7 @@ public:
 		return m_expression;
 	}
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
 			const ExecutionContext* execution_context) const {
 		return AnalysisResult::NO;
 	}

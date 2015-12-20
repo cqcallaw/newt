@@ -20,6 +20,7 @@
 #ifndef COMPOUND_TYPE_INSTANCE_H_
 #define COMPOUND_TYPE_INSTANCE_H_
 
+#include <defaults.h>
 #include <string>
 #include <linked_list.h>
 #include <type.h>
@@ -34,12 +35,12 @@ using namespace std;
 
 class CompoundTypeInstance {
 public:
-	CompoundTypeInstance(const CompoundTypeSpecifier* type,
+	CompoundTypeInstance(const_shared_ptr<CompoundTypeSpecifier> type,
 			SymbolContext* definition) :
 			m_type(type), m_definition(definition) {
 	}
 
-	const CompoundTypeSpecifier* GetTypeSpecifier() const {
+	const_shared_ptr<CompoundTypeSpecifier> GetTypeSpecifier() const {
 		return m_type;
 	}
 
@@ -47,17 +48,17 @@ public:
 		return m_definition;
 	}
 
-	const static CompoundTypeInstance* GetDefaultInstance(
+	static const_shared_ptr<CompoundTypeInstance> GetDefaultInstance(
 			const string type_name, const CompoundType* type);
 
-	const static Symbol* GetSymbol(const TypeSpecifier* member_type,
-			const string member_name, const void* void_value);
+	const static Symbol* GetSymbol(const_shared_ptr<TypeSpecifier> member_type,
+			const_shared_ptr<void> void_value);
 
-	const string ToString(const TypeTable* type_table,
+	const string ToString(const TypeTable& type_table,
 			const Indent indent) const;
 
 private:
-	const CompoundTypeSpecifier* m_type;
+	const_shared_ptr<CompoundTypeSpecifier> m_type;
 	SymbolContext* m_definition;
 };
 

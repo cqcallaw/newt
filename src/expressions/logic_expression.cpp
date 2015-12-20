@@ -20,13 +20,13 @@
 #include "logic_expression.h"
 #include "error.h"
 
-LogicExpression::LogicExpression(const YYLTYPE position, const OperatorType op,
-		const Expression* left, const Expression* right) :
+LogicExpression::LogicExpression(const yy::location position,
+		const OperatorType op, const Expression* left, const Expression* right) :
 		BinaryExpression(position, op, left, right) {
 	assert(op == OR || op == AND);
 }
 
-const TypeSpecifier* LogicExpression::GetType(
+const_shared_ptr<TypeSpecifier> LogicExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return PrimitiveTypeSpecifier::GetBoolean();
 }
@@ -34,17 +34,18 @@ const TypeSpecifier* LogicExpression::GetType(
 const LinkedList<const Error*>* LogicExpression::Validate(
 		const ExecutionContext* execution_context) const {
 	return BinaryExpression::Validate(execution_context,
-			PrimitiveTypeSpecifier::GetDouble(), PrimitiveTypeSpecifier::GetDouble());
+			PrimitiveTypeSpecifier::GetDouble(),
+			PrimitiveTypeSpecifier::GetDouble());
 }
 
-const Result* LogicExpression::compute(bool left, bool right,
-YYLTYPE left_position, YYLTYPE right_position) const {
+const Result* LogicExpression::compute(bool& left, bool& right,
+		yy::location left_position, yy::location right_position) const {
 	switch (GetOperator()) {
 	case OR:
-		return new Result((void *) new bool(left || right),
+		return new Result(const_shared_ptr<void>(new bool(left || right)),
 				LinkedList<const Error*>::GetTerminator());
 	case AND:
-		return new Result((void *) new bool(left && right),
+		return new Result(const_shared_ptr<void>(new bool(left && right)),
 				LinkedList<const Error*>::GetTerminator());
 	default:
 		assert(false);
@@ -52,18 +53,17 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	}
 }
 
-const Result* LogicExpression::compute(int left, int right,
-YYLTYPE left_position,
-YYLTYPE right_position) const {
+const Result* LogicExpression::compute(int& left, int& right,
+		yy::location left_position, yy::location right_position) const {
 	switch (GetOperator()) {
 	case OR: {
 		bool result = left || right;
-		return new Result((void *) new bool(result),
+		return new Result(const_shared_ptr<void>(new bool(result)),
 				LinkedList<const Error*>::GetTerminator());
 	}
 	case AND: {
 		bool result = left && right;
-		return new Result((void *) new bool(result),
+		return new Result(const_shared_ptr<void>(new bool(result)),
 				LinkedList<const Error*>::GetTerminator());
 	}
 	default:
@@ -72,14 +72,14 @@ YYLTYPE right_position) const {
 	}
 }
 
-const Result* LogicExpression::compute(double left, double right,
-YYLTYPE left_position, YYLTYPE right_position) const {
+const Result* LogicExpression::compute(double& left, double& right,
+		yy::location left_position, yy::location right_position) const {
 	switch (GetOperator()) {
 	case OR:
-		return new Result((void *) new bool(left || right),
+		return new Result(const_shared_ptr<void>(new bool(left || right)),
 				LinkedList<const Error*>::GetTerminator());
 	case AND:
-		return new Result((void *) new bool(left && right),
+		return new Result(const_shared_ptr<void>(new bool(left && right)),
 				LinkedList<const Error*>::GetTerminator());
 	default:
 		assert(false);
@@ -87,8 +87,8 @@ YYLTYPE left_position, YYLTYPE right_position) const {
 	}
 }
 
-const Result* LogicExpression::compute(string* left, string* right,
-YYLTYPE left_position, YYLTYPE right_position) const {
+const Result* LogicExpression::compute(string& left, string& right,
+		yy::location left_position, yy::location right_position) const {
 	assert(false);
-	return NULL;
+	return nullptr;
 }

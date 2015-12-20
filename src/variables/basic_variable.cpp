@@ -28,7 +28,8 @@
 #include "assert.h"
 #include "expression.h"
 
-BasicVariable::BasicVariable(const string* name, const YYLTYPE location) :
+BasicVariable::BasicVariable(const_shared_ptr<string> name,
+		const yy::location location) :
 		Variable(name, location) {
 }
 
@@ -41,7 +42,7 @@ const string* BasicVariable::ToString(const ExecutionContext* context) const {
 	return new string(buffer.str());
 }
 
-const TypeSpecifier* BasicVariable::GetType(
+const_shared_ptr<TypeSpecifier> BasicVariable::GetType(
 		const ExecutionContext* context) const {
 	auto symbol = context->GetSymbolContext()->GetSymbol(GetName(), DEEP);
 	return symbol->GetType();
@@ -60,7 +61,7 @@ const Result* BasicVariable::Evaluate(const ExecutionContext* context) const {
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().first_line, GetLocation().first_column,
+						GetLocation().begin.line, GetLocation().begin.column,
 						*(GetName())));
 	}
 
@@ -74,60 +75,68 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
-	const string* variable_name = GetName();
-	const int variable_line = GetLocation().first_line;
-	const int variable_column = GetLocation().first_column;
+	auto variable_name = GetName();
+	const int variable_line = GetLocation().begin.line;
+	const int variable_column = GetLocation().begin.column;
 
 	SymbolTable* symbol_table = (SymbolTable*) context->GetSymbolContext();
 	const Symbol* symbol = symbol_table->GetSymbol(variable_name, DEEP);
-	const TypeSpecifier* symbol_type = symbol->GetType();
-	const void* symbol_value = symbol->GetValue();
+	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
+	auto symbol_value = symbol->GetValue();
 
-	const PrimitiveTypeSpecifier* as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(symbol_type);
+	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
+			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(symbol_type);
 	if (as_primitive != nullptr) {
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case BOOLEAN: {
 			const Result* result = AssignmentStatement::do_op(variable_name,
 					basic_type, variable_line, variable_column,
-					*((int*) symbol_value), expression, op, context);
+					*(static_pointer_cast<const int>(symbol_value)), expression,
+					op, context);
 
 			errors = result->GetErrors();
 			if (errors == LinkedList<const Error*>::GetTerminator()) {
-				errors = SetSymbol(context, (bool*) result->GetData());
+				errors = SetSymbol(context,
+						static_pointer_cast<const bool>(result->GetData()));
 			}
 			break;
 		}
 		case INT: {
 			const Result* result = AssignmentStatement::do_op(variable_name,
 					basic_type, variable_line, variable_column,
-					*((int*) symbol_value), expression, op, context);
+					*(static_pointer_cast<const int>(symbol_value)), expression,
+					op, context);
 
 			errors = result->GetErrors();
 			if (errors == LinkedList<const Error*>::GetTerminator()) {
-				errors = SetSymbol(context, (int*) result->GetData());
+				errors = SetSymbol(context,
+						static_pointer_cast<const int>(result->GetData()));
 			}
 			break;
 		}
 		case DOUBLE: {
 			const Result* result = AssignmentStatement::do_op(variable_name,
 					basic_type, variable_line, variable_column,
-					*((double*) symbol_value), expression, op, context);
+					*(static_pointer_cast<const double>(symbol_value)),
+					expression, op, context);
 
 			errors = result->GetErrors();
 			if (errors == LinkedList<const Error*>::GetTerminator()) {
-				errors = SetSymbol(context, (double*) result->GetData());
+				errors = SetSymbol(context,
+						static_pointer_cast<const double>(result->GetData()));
 			}
 			break;
 		}
 		case STRING: {
 			const Result* result = AssignmentStatement::do_op(variable_name,
 					basic_type, variable_line, variable_column,
-					(string*) symbol_value, expression, op, context);
+					static_pointer_cast<const string>(symbol_value).get(),
+					expression, op, context);
 			errors = result->GetErrors();
 			if (errors == LinkedList<const Error*>::GetTerminator()) {
-				errors = SetSymbol(context, (string*) result->GetData());
+				errors = SetSymbol(context,
+						static_pointer_cast<const string>(result->GetData()));
 			}
 			break;
 		}
@@ -137,16 +146,16 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 	}
 
 	//TODO: don't allow += or -= operations on array specifiers
-	const ArrayTypeSpecifier* as_array =
-			dynamic_cast<const ArrayTypeSpecifier*>(symbol_type);
+	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
+			const ArrayTypeSpecifier>(symbol_type);
 	if (as_array) {
 		//re-assigning an array reference
 		const Result* expression_evaluation = expression->Evaluate(context);
 
 		errors = expression_evaluation->GetErrors();
 		if (errors == LinkedList<const Error*>::GetTerminator()) {
-			const Array* result_as_array =
-					static_cast<const Array*>(expression_evaluation->GetData());
+			auto result_as_array = static_pointer_cast<const Array>(
+					expression_evaluation->GetData());
 
 			if (result_as_array) {
 				errors = SetSymbol(context, result_as_array);
@@ -161,15 +170,15 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 	}
 
 	//TODO: don't allow += or -= operations on compound type specifiers
-	const CompoundTypeSpecifier* as_compound =
-			dynamic_cast<const CompoundTypeSpecifier*>(symbol_type);
+	const_shared_ptr<CompoundTypeSpecifier> as_compound =
+			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(symbol_type);
 	if (as_compound != nullptr) {
 		const Result* expression_evaluation = expression->Evaluate(context);
 
 		errors = expression_evaluation->GetErrors();
 		if (errors == LinkedList<const Error*>::GetTerminator()) {
-			const CompoundTypeInstance* new_instance =
-					(const CompoundTypeInstance*) expression_evaluation->GetData();
+			auto new_instance = static_pointer_cast<const CompoundTypeInstance>(
+					expression_evaluation->GetData());
 
 			//we're assigning a struct reference
 			errors = SetSymbol(context, new_instance);
@@ -177,15 +186,15 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 	}
 
 	//TODO: don't allow += or -= operations on function type specifiers
-	const FunctionTypeSpecifier* as_function =
-			dynamic_cast<const FunctionTypeSpecifier*>(symbol_type);
+	const_shared_ptr<FunctionTypeSpecifier> as_function =
+			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(symbol_type);
 	if (as_function != nullptr) {
 		const Result* expression_evaluation = expression->Evaluate(context);
 
 		errors = expression_evaluation->GetErrors();
 		if (errors == LinkedList<const Error*>::GetTerminator()) {
-			const Function* function =
-					(const Function*) expression_evaluation->GetData();
+			auto function = static_pointer_cast<const Function>(
+					expression_evaluation->GetData());
 
 			//we're assigning a struct reference
 			errors = SetSymbol(context, function);
@@ -196,7 +205,7 @@ const LinkedList<const Error*>* BasicVariable::AssignValue(
 }
 
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
-		const ExecutionContext* context, const bool* value) const {
+		const ExecutionContext* context, const_shared_ptr<bool> value) const {
 	auto symbol_context = context->GetSymbolContext();
 	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
@@ -204,7 +213,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 }
 
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
-		const ExecutionContext* context, const int* value) const {
+		const ExecutionContext* context, const_shared_ptr<int> value) const {
 	auto symbol_context = context->GetSymbolContext();
 	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
@@ -212,7 +221,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 }
 
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
-		const ExecutionContext* context, const double* value) const {
+		const ExecutionContext* context, const_shared_ptr<double> value) const {
 	auto symbol_context = context->GetSymbolContext();
 	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
@@ -220,7 +229,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 }
 
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
-		const ExecutionContext* context, const string* value) const {
+		const ExecutionContext* context, const_shared_ptr<string> value) const {
 	auto symbol_context = context->GetSymbolContext();
 	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
@@ -228,7 +237,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 }
 
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
-		const ExecutionContext* context, const Array* value) const {
+		const ExecutionContext* context, const_shared_ptr<Array> value) const {
 	auto symbol_context = context->GetSymbolContext();
 	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
@@ -237,7 +246,7 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
 		const ExecutionContext* context,
-		const CompoundTypeInstance* value) const {
+		const_shared_ptr<CompoundTypeInstance> value) const {
 	auto symbol_context = context->GetSymbolContext();
 	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
@@ -245,7 +254,8 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 }
 
 const LinkedList<const Error*>* BasicVariable::SetSymbol(
-		const ExecutionContext* context, const Function* value) const {
+		const ExecutionContext* context,
+		const_shared_ptr<Function> value) const {
 	auto symbol_context = context->GetSymbolContext();
 	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
 	return ToErrorList(symbol_context->SetSymbol(*GetName(), value),
@@ -253,8 +263,10 @@ const LinkedList<const Error*>* BasicVariable::SetSymbol(
 }
 
 const Variable* BasicVariable::GetDefaultVariable() {
-	const static string* name = new string("!!!!!DefaultVariable!!!!!");
-	const static Variable* instance = new BasicVariable(name, DefaultLocation);
+	static const_shared_ptr<string> name = const_shared_ptr<string>(
+			new string("!!!!!DefaultVariable!!!!!"));
+	const static Variable* instance = new BasicVariable(name,
+			GetDefaultLocation());
 
 	return instance;
 }
@@ -270,7 +282,7 @@ const LinkedList<const Error*>* BasicVariable::Validate(
 	if (symbol == nullptr || symbol == Symbol::GetDefaultSymbol()) {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().first_line, GetLocation().first_column,
+						GetLocation().begin.line, GetLocation().begin.column,
 						*(GetName())));
 	}
 

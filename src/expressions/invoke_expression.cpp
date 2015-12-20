@@ -24,9 +24,9 @@
 #include <function.h>
 #include <execution_context.h>
 
-InvokeExpression::InvokeExpression(const YYLTYPE position,
+InvokeExpression::InvokeExpression(const yy::location position,
 		const Expression* expression, const ArgumentList* argument_list,
-		const YYLTYPE argument_list_position) :
+		const yy::location argument_list_position) :
 		Expression(position), m_expression(expression), m_argument_list(
 				argument_list), m_argument_list_position(argument_list_position) {
 }
@@ -34,12 +34,13 @@ InvokeExpression::InvokeExpression(const YYLTYPE position,
 InvokeExpression::~InvokeExpression() {
 }
 
-const TypeSpecifier* InvokeExpression::GetType(
+const_shared_ptr<TypeSpecifier> InvokeExpression::GetType(
 		const ExecutionContext* execution_context) const {
-	const TypeSpecifier* type_specifier = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
 			execution_context);
-	const FunctionTypeSpecifier* as_function =
-			dynamic_cast<const FunctionTypeSpecifier*>(type_specifier);
+	const_shared_ptr<FunctionTypeSpecifier> as_function =
+			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
+					type_specifier);
 
 	if (as_function) {
 		return as_function->GetReturnType();
@@ -52,12 +53,13 @@ const Result* InvokeExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
-	const void* value = nullptr;
+	plain_shared_ptr<void> value;
 
-	const TypeSpecifier* type_specifier = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
 			execution_context);
-	const FunctionTypeSpecifier* as_function =
-			dynamic_cast<const FunctionTypeSpecifier*>(type_specifier);
+	const_shared_ptr<FunctionTypeSpecifier> as_function =
+			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
+					type_specifier);
 
 	if (as_function) {
 		const Result* expression_result = m_expression->Evaluate(
@@ -65,8 +67,8 @@ const Result* InvokeExpression::Evaluate(
 
 		errors = expression_result->GetErrors();
 		if (errors->IsTerminator()) {
-			const Function* function =
-					static_cast<const Function*>(expression_result->GetData());
+			auto function = static_pointer_cast<const Function>(
+					expression_result->GetData());
 
 			const Result* eval_result = function->Evaluate(m_argument_list,
 					execution_context);
@@ -81,8 +83,8 @@ const Result* InvokeExpression::Evaluate(
 	} else {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::NOT_A_FUNCTION,
-						m_expression->GetPosition().first_line,
-						m_expression->GetPosition().first_column));
+						m_expression->GetPosition().begin.line,
+						m_expression->GetPosition().begin.column));
 	}
 
 	return new Result(value, errors);
@@ -94,7 +96,9 @@ const Result* InvokeExpression::ToString(
 	const Result* expression_result = m_expression->ToString(execution_context);
 
 	if (expression_result->GetErrors()) {
-		buf << *static_cast<const string*>(expression_result->GetData());
+		buf
+				<< *(static_pointer_cast<const string>(
+						expression_result->GetData()));
 		buf << "(";
 		const LinkedList<const Error*>* errors =
 
@@ -105,7 +109,9 @@ const Result* InvokeExpression::ToString(
 					execution_context);
 			errors = errors->Concatenate(argument_result->GetErrors(), true);
 			if (errors->IsTerminator()) {
-				buf << *static_cast<const string*>(argument_result->GetData());
+				buf
+						<< *(static_pointer_cast<const string>(
+								argument_result->GetData()));
 				if (!argument->GetNext()->IsTerminator()) {
 					buf << ",";
 				}
@@ -113,7 +119,7 @@ const Result* InvokeExpression::ToString(
 			delete argument_result;
 		}
 		buf << ")";
-		return new Result(new string(buf.str()), errors);
+		return new Result(const_shared_ptr<void>(new string(buf.str())), errors);
 	} else {
 		return expression_result;
 	}
@@ -124,14 +130,15 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
-	const TypeSpecifier* type_specifier = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
 			execution_context);
 
 	errors = m_expression->Validate(execution_context);
 
 	if (errors->IsTerminator()) {
-		const FunctionTypeSpecifier* as_function =
-				dynamic_cast<const FunctionTypeSpecifier*>(type_specifier);
+		const_shared_ptr<FunctionTypeSpecifier> as_function =
+				std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
+						type_specifier);
 
 		if (as_function) {
 			//generate a temporary context for validation
@@ -146,8 +153,9 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 
 			const LinkedList<const Expression*>* argument = m_argument_list;
 
-			const FunctionDeclaration* as_function_declaration =
-					dynamic_cast<const FunctionDeclaration*>(type_specifier);
+			const_shared_ptr<FunctionDeclaration> as_function_declaration =
+					std::dynamic_pointer_cast<const FunctionDeclaration>(
+							type_specifier);
 
 			if (as_function_declaration) {
 				const LinkedList<const DeclarationStatement*>* parameter =
@@ -159,17 +167,17 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 						const DeclarationStatement* declaration =
 								parameter->GetData();
 
-						const TypeSpecifier* parameter_type =
+						const_shared_ptr<TypeSpecifier> parameter_type =
 								declaration->GetType();
-						const TypeSpecifier* argument_type =
+						const_shared_ptr<TypeSpecifier> argument_type =
 								argument_expression->GetType(execution_context);
 						if (!argument_type->IsAssignableTo(parameter_type)) {
 							errors =
 									errors->With(
 											new Error(Error::SEMANTIC,
 													Error::FUNCTION_PARAMETER_TYPE_MISMATCH,
-													argument_expression->GetPosition().first_line,
-													argument_expression->GetPosition().first_column,
+													argument_expression->GetPosition().begin.line,
+													argument_expression->GetPosition().begin.column,
 													argument_type->ToString(),
 													parameter_type->ToString()));
 						}
@@ -182,8 +190,8 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 								errors->With(
 										new Error(Error::SEMANTIC,
 												Error::TOO_MANY_ARGUMENTS,
-												argument_expression->GetPosition().first_line,
-												argument_expression->GetPosition().first_column,
+												argument_expression->GetPosition().begin.line,
+												argument_expression->GetPosition().begin.column,
 												as_function->ToString()));
 						break;
 					}
@@ -201,23 +209,23 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 						errors = errors->With(
 								new Error(Error::SEMANTIC,
 										Error::NO_PARAMETER_DEFAULT,
-										m_argument_list_position.last_line,
-										m_argument_list_position.last_column,
+										m_argument_list_position.end.line,
+										m_argument_list_position.end.column,
 										*declaration->GetName()));
 					}
 
 					parameter = parameter->GetNext();
 				}
 			} else {
-				const LinkedList<const TypeSpecifier*>* type_parameter_list =
+				const LinkedList<const_shared_ptr<TypeSpecifier>>* type_parameter_list =
 						as_function->GetParameterTypeList();
 
 				while (!argument->IsTerminator()) {
 					const Expression* argument_expression = argument->GetData();
 					if (!type_parameter_list->IsTerminator()) {
-						const TypeSpecifier* parameter_type =
+						const_shared_ptr<TypeSpecifier> parameter_type =
 								type_parameter_list->GetData();
-						const TypeSpecifier* argument_type =
+						const_shared_ptr<TypeSpecifier> argument_type =
 								argument_expression->GetType(execution_context);
 
 						if (!argument_type->IsAssignableTo(parameter_type)) {
@@ -225,8 +233,8 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 									errors->With(
 											new Error(Error::SEMANTIC,
 													Error::FUNCTION_PARAMETER_TYPE_MISMATCH,
-													argument_expression->GetPosition().first_line,
-													argument_expression->GetPosition().first_column,
+													argument_expression->GetPosition().begin.line,
+													argument_expression->GetPosition().begin.column,
 													argument_type->ToString(),
 													parameter_type->ToString()));
 						}
@@ -239,8 +247,8 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 								errors->With(
 										new Error(Error::SEMANTIC,
 												Error::TOO_MANY_ARGUMENTS,
-												argument_expression->GetPosition().first_line,
-												argument_expression->GetPosition().first_column,
+												argument_expression->GetPosition().begin.line,
+												argument_expression->GetPosition().begin.column,
 												as_function->ToString()));
 						break;
 					}
@@ -254,8 +262,8 @@ const LinkedList<const Error*>* InvokeExpression::Validate(
 		} else {
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::NOT_A_FUNCTION,
-							m_expression->GetPosition().first_line,
-							m_expression->GetPosition().first_column));
+							m_expression->GetPosition().begin.line,
+							m_expression->GetPosition().begin.column));
 		}
 	}
 

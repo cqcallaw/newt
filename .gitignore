@@ -3,8 +3,10 @@
 lexer.cpp
 lexer.h
 parser.output
-parser.tab.c
-parser.tab.h
+parser.tab.*
 newt
 tests/output
 .settings
+location.hh
+position.hh
+stack.hh

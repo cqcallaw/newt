@@ -38,18 +38,17 @@ SymbolTable::SymbolTable(const Modifier::Type modifiers,
 		SymbolContext(modifiers, parent_context, values) {
 }
 
-InsertResult SymbolTable::InsertSymbol(const Symbol* symbol) {
+InsertResult SymbolTable::InsertSymbol(const string& name,
+		const Symbol* symbol) {
 	std::map<const string, const Symbol*>::iterator search_result;
 
 	auto table = GetTable();
-	search_result = table->find(symbol->GetName());
+	search_result = table->find(name);
 
 	if (search_result != table->end()) {
 		return SYMBOL_EXISTS;
 	} else {
-		table->insert(
-				std::pair<const string, const Symbol*>(symbol->GetName(),
-						symbol));
+		table->insert(std::pair<const string, const Symbol*>(name, symbol));
 
 		return INSERT_SUCCESS;
 	}

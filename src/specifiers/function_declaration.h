@@ -26,17 +26,19 @@
 class FunctionDeclaration: public FunctionTypeSpecifier {
 public:
 	FunctionDeclaration(const DeclarationList* parameter_list,
-			const TypeSpecifier* return_type);
+			const_shared_ptr<TypeSpecifier> return_type);
 	virtual ~FunctionDeclaration();
 
-	const static FunctionDeclaration* FromTypeSpecifier(
-			const FunctionTypeSpecifier* type_specifier);
+	static const_shared_ptr<FunctionDeclaration> FromTypeSpecifier(
+			const FunctionTypeSpecifier& type_specifier);
 
-	virtual const void* DefaultValue(const TypeTable* type_table) const;
+	virtual const_shared_ptr<void> DefaultValue(
+			const TypeTable& type_table) const;
 
 	virtual const DeclarationStatement* GetDeclarationStatement(
-			const YYLTYPE position, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const Expression* initializer_expression) const;
 
 	const DeclarationList* GetParameterList() const {
@@ -48,7 +50,7 @@ public:
 protected:
 	static const Function* GetDefaultFunctionDeclaration(
 			const FunctionDeclaration* function_declaration,
-			const TypeTable* type_table);
+			const TypeTable& type_table);
 
 private:
 	const DeclarationList* m_parameter_list;

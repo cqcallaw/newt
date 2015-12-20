@@ -24,10 +24,11 @@
 
 class UnaryExpression: public Expression {
 public:
-	UnaryExpression(const YYLTYPE position, const OperatorType op,
+	UnaryExpression(const yy::location position, const OperatorType op,
 			const Expression* expression);
 
-	virtual const TypeSpecifier* GetType(const ExecutionContext* execution_context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetType(
+			const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
 			const ExecutionContext* execution_context) const;
@@ -40,8 +41,8 @@ public:
 			const ExecutionContext* execution_context) const;
 
 private:
-	const static TypeSpecifier* compute_result_type(const TypeSpecifier* input_type,
-			const OperatorType op);
+	static const_shared_ptr<TypeSpecifier> compute_result_type(
+			const_shared_ptr<TypeSpecifier> input_type, const OperatorType op);
 	const static void* compute(const BasicType input_type, const void* input,
 			double (*compute_function)(double),
 			double (*input_transform_function)(double) = NULL,

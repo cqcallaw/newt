@@ -65,7 +65,7 @@ const LinkedList<const Error*>* StatementBlock::execute(
 }
 
 const AnalysisResult StatementBlock::Returns(
-		const TypeSpecifier* type_specifier,
+		const_shared_ptr<TypeSpecifier> type_specifier,
 		const ExecutionContext* execution_context) const {
 	AnalysisResult result = AnalysisResult::NO;
 	const LinkedList<const Statement*>* list = m_statements;

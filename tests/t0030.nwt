@@ -1,5 +1,4 @@
 // test array declaration variants
-
 struct test {
 	x: int = 10
 }

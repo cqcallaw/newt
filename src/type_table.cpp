@@ -42,12 +42,11 @@ const CompoundType* TypeTable::GetType(const string name) const {
 	return CompoundType::GetDefaultCompoundType();
 }
 
-const void* TypeTable::GetDefaultValue(const string type_name) const {
+const_shared_ptr<void> TypeTable::GetDefaultValue(
+		const string type_name) const {
 	const CompoundType* type = GetType(type_name);
 	if (type != CompoundType::GetDefaultCompoundType()) {
-		const CompoundTypeInstance* default_instance =
-				CompoundTypeInstance::GetDefaultInstance(type_name, type);
-		return default_instance;
+		return CompoundTypeInstance::GetDefaultInstance(type_name, type);
 	} else {
 		return nullptr;
 	}
@@ -58,11 +57,12 @@ const void TypeTable::print(ostream& os) const {
 	for (iter = table->begin(); iter != table->end(); ++iter) {
 		os << iter->first << ": " << endl;
 		const CompoundType* type = iter->second;
-		os << type->ToString(this, Indent(0));
+		os << type->ToString(*this, Indent(0));
 	}
 }
 
-TypeTable* TypeTable::GetDefault() {
-	static TypeTable* instance = new TypeTable();
+volatile_shared_ptr<TypeTable> TypeTable::GetDefault() {
+	static volatile_shared_ptr<TypeTable> instance = volatile_shared_ptr<
+			TypeTable>(new TypeTable());
 	return instance;
 }

@@ -28,18 +28,21 @@
 #include <compound_type.h>
 #include <default_value_expression.h>
 
-StructDeclarationStatement::StructDeclarationStatement(const YYLTYPE position,
-		const std::string* name, const YYLTYPE name_position,
+StructDeclarationStatement::StructDeclarationStatement(
+		const yy::location position, const_shared_ptr<string> name,
+		const yy::location name_position,
 		const DeclarationList* member_declaration_list,
-		const YYLTYPE member_declaration_list_position,
-		const ModifierList* modifier_list, const YYLTYPE modifiers_location) :
+		const yy::location member_declaration_list_position,
+		const ModifierList* modifier_list,
+		const yy::location modifiers_location) :
 		DeclarationStatement(position), m_name(name), m_name_position(
 				name_position), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_position(
 				member_declaration_list_position), m_modifier_list(
-				modifier_list), m_modifiers_location(modifiers_location) {
-	m_type_specifier = new CompoundTypeSpecifier(*name, name_position);
-	m_initializer_expression = new DefaultValueExpression(DefaultLocation,
+				modifier_list), m_modifiers_location(modifiers_location), m_type_specifier(
+				const_shared_ptr<const CompoundTypeSpecifier>(
+						new CompoundTypeSpecifier(*name, name_position))) {
+	m_initializer_expression = new DefaultValueExpression(GetDefaultLocation(),
 			m_type_specifier, member_declaration_list_position);
 }
 
@@ -51,7 +54,7 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
-	TypeTable* type_table = execution_context->GetTypeTable();
+	auto type_table = execution_context->GetTypeTable();
 
 	Modifier::Type modifiers = Modifier::NONE;
 	const LinkedList<const Modifier*>* modifier_list = m_modifier_list;
@@ -81,11 +84,11 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 		if (initializer_expression != nullptr
 				&& !initializer_expression->IsConstant()) {
 			//if we have a non-constant initializer expression, generate an error
-			YYLTYPE position = initializer_expression->GetPosition();
+			yy::location position = initializer_expression->GetPosition();
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
-							position.first_line, position.first_column));
+							position.begin.line, position.begin.column));
 		} else {
 			//otherwise (no initializer expression OR a valid initializer expression), preprocess
 			errors = errors->Concatenate(
@@ -110,8 +113,8 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 		for (iter = values->begin(); iter != values->end(); iter++) {
 			const string member_name = iter->first;
 			const Symbol* symbol = iter->second;
-			const TypeSpecifier* type = symbol->GetType();
-			const void* value = symbol->GetValue();
+			const_shared_ptr<TypeSpecifier> type = symbol->GetType();
+			auto value = symbol->GetValue();
 			const MemberDefinition* definition = new MemberDefinition(type,
 					value);
 			mapping->insert(

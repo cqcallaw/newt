@@ -27,12 +27,12 @@
 #include <execution_context.h>
 #include <type.h>
 
-VariableExpression::VariableExpression(const YYLTYPE position,
+VariableExpression::VariableExpression(const yy::location position,
 		const Variable* variable) :
 		Expression(position), m_variable(variable) {
 }
 
-const TypeSpecifier* VariableExpression::GetType(
+const_shared_ptr<TypeSpecifier> VariableExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return m_variable->GetType(execution_context);
 }

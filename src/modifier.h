@@ -16,7 +16,7 @@ public:
 		NONE = 0, READONLY = 1
 	};
 
-	Modifier(const Type type, const YYLTYPE type_position) :
+	Modifier(const Type type, const yy::location type_position) :
 			m_type(type), m_type_position(type_position) {
 
 	}
@@ -25,15 +25,15 @@ public:
 		return m_type;
 	}
 
-	const YYLTYPE GetTypePosition() const {
+	const yy::location GetTypePosition() const {
 		return m_type_position;
 	}
 
 private:
 	const Type m_type;
-	const YYLTYPE m_type_position;
+	const yy::location m_type_position;
 };
 
-typedef LinkedList<const Modifier*> ModifierList;
+typedef const LinkedList<const Modifier*> ModifierList;
 
 #endif /* MODIFIER_H_ */

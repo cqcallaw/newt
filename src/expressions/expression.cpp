@@ -24,7 +24,7 @@
 #include "utils.h"
 #include <execution_context.h>
 
-Expression::Expression(const YYLTYPE position) :
+Expression::Expression(const yy::location position) :
 		m_position(position) {
 }
 
@@ -36,25 +36,27 @@ const Result* Expression::ToString(
 	ostringstream buffer;
 	const Result* evaluation = Evaluate(execution_context);
 	if (evaluation->GetErrors()->IsTerminator()) {
-		const TypeSpecifier* type_specifier = GetType(execution_context);
-		const void* value = evaluation->GetData();
+		const_shared_ptr<TypeSpecifier> type_specifier = GetType(
+				execution_context);
+		auto value = evaluation->GetData();
 
-		const PrimitiveTypeSpecifier* as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier*>(type_specifier);
+		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
+				std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+						type_specifier);
 		if (as_primitive) {
 			const BasicType basic_type = as_primitive->GetBasicType();
 			switch (basic_type) {
 			case BOOLEAN:
-				buffer << *((bool*) value);
+				buffer << *(static_pointer_cast<const bool>(value));
 				break;
 			case INT:
-				buffer << *((int*) value);
+				buffer << *(static_pointer_cast<const int>(value));
 				break;
 			case DOUBLE:
-				buffer << *((double*) value);
+				buffer << *(static_pointer_cast<const double>(value));
 				break;
 			case STRING:
-				buffer << *((string*) value);
+				buffer << *(static_pointer_cast<const string>(value));
 				break;
 			default:
 				assert(false);
@@ -63,15 +65,16 @@ const Result* Expression::ToString(
 
 		//TODO: array printing
 
-		const CompoundTypeSpecifier* as_compound =
-				dynamic_cast<const CompoundTypeSpecifier*>(type_specifier);
+		const_shared_ptr<CompoundTypeSpecifier> as_compound =
+				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+						type_specifier);
 		if (as_compound) {
-			const CompoundTypeInstance* instance =
-					(const CompoundTypeInstance*) value;
+			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+					value);
 
 			buffer << "{" << endl;
 			buffer
-					<< instance->ToString(execution_context->GetTypeTable(),
+					<< instance->ToString(*execution_context->GetTypeTable(),
 							Indent(1));
 			buffer << "}" << endl;
 		}
@@ -81,6 +84,6 @@ const Result* Expression::ToString(
 
 	delete (evaluation);
 
-	return new Result(new string(buffer.str()),
+	return new Result(const_shared_ptr<void>(new string(buffer.str())),
 			LinkedList<const Error*>::GetTerminator());
 }

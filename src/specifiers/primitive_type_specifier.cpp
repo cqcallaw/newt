@@ -23,23 +23,27 @@
 #include <expression.h>
 #include <memory>
 
-const string PrimitiveTypeSpecifier::ToString(const void* value) const {
+const string PrimitiveTypeSpecifier::ToString(
+		const_shared_ptr<void> value) const {
 	ostringstream buffer;
 	const BasicType type = GetBasicType();
 	switch (type) {
 	case BasicType::BOOLEAN:
 	case BasicType::INT: {
-		const int* default_value = (int*) value;
+		const_shared_ptr<int> default_value = static_pointer_cast<const int>(
+				value);
 		buffer << *default_value;
 		break;
 	}
 	case BasicType::DOUBLE: {
-		const double* default_value = (double*) value;
+		const_shared_ptr<double> default_value = static_pointer_cast<
+				const double>(value);
 		buffer << *default_value;
 		break;
 	}
 	case BasicType::STRING: {
-		const string* default_value = (string*) value;
+		const_shared_ptr<string> default_value = static_pointer_cast<
+				const string>(value);
 		buffer << "\"" << *default_value << "\"";
 		break;
 	}
@@ -51,9 +55,9 @@ const string PrimitiveTypeSpecifier::ToString(const void* value) const {
 }
 
 const bool PrimitiveTypeSpecifier::IsAssignableTo(
-		const TypeSpecifier* other) const {
-	const PrimitiveTypeSpecifier* other_as_primitive =
-			dynamic_cast<const PrimitiveTypeSpecifier*>(other);
+		const_shared_ptr<TypeSpecifier> other) const {
+	const_shared_ptr<PrimitiveTypeSpecifier> other_as_primitive =
+			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(other);
 	if (other_as_primitive != nullptr) {
 		const BasicType other_type = other_as_primitive->GetBasicType();
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
@@ -61,69 +65,68 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 	return false;
 }
 
-const void* PrimitiveTypeSpecifier::DefaultValue(
-		const TypeTable* type_table) const {
+const_shared_ptr<void> PrimitiveTypeSpecifier::DefaultValue(
+		const TypeTable& type_table) const {
 	const BasicType basic_type = GetBasicType();
 
 	switch (basic_type) {
 	case BasicType::BOOLEAN:
-		const static std::unique_ptr<void> default_boolean_value =
-				std::unique_ptr<void>(new bool(false));
-		return default_boolean_value.get();
+		static const_shared_ptr<void> default_boolean_value = const_shared_ptr<
+				void>(new bool(false));
+		return default_boolean_value;
 	case BasicType::INT:
-		const static std::unique_ptr<void> default_int_value = std::unique_ptr<
-				void>(new int(0));
-		return default_int_value.get();
+		static const_shared_ptr<void> default_int_value =
+				const_shared_ptr<void>(new int(0));
+		return default_int_value;
 	case BasicType::DOUBLE:
-		const static std::unique_ptr<void> default_double_value =
-				std::unique_ptr<void>(new double(0.0));
-		return default_double_value.get();
+		static const_shared_ptr<void> default_double_value = const_shared_ptr<
+				void>(new double(0.0));
+		return default_double_value;
 	case BasicType::STRING:
-		const static std::unique_ptr<void> default_string_value =
-				std::unique_ptr<void>(new string(""));
-		return default_string_value.get();
+		static const_shared_ptr<void> default_string_value = const_shared_ptr<
+				void>(new string(""));
+		return default_string_value;
 	default:
 		assert(false);
 		return nullptr;
 	}
 }
 
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetNone() {
-	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
-			std::unique_ptr < PrimitiveTypeSpecifier
-					> (new PrimitiveTypeSpecifier(BasicType::NONE));
-	return instance.get();
+const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetNone() {
+	static const_shared_ptr<PrimitiveTypeSpecifier> instance = const_shared_ptr<
+			PrimitiveTypeSpecifier>(
+			new PrimitiveTypeSpecifier(BasicType::NONE));
+	return instance;
 }
 
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetBoolean() {
-	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
-			std::unique_ptr < PrimitiveTypeSpecifier
-					> (new PrimitiveTypeSpecifier(BasicType::BOOLEAN));
-	return instance.get();
+const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetBoolean() {
+	static const_shared_ptr<PrimitiveTypeSpecifier> instance = const_shared_ptr<
+			PrimitiveTypeSpecifier>(
+			new PrimitiveTypeSpecifier(BasicType::BOOLEAN));
+	return instance;
 }
 
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetInt() {
-	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
-			std::unique_ptr < PrimitiveTypeSpecifier
-					> (new PrimitiveTypeSpecifier(BasicType::INT));
-	return instance.get();
+const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetInt() {
+	static const_shared_ptr<PrimitiveTypeSpecifier> instance = const_shared_ptr<
+			PrimitiveTypeSpecifier>(new PrimitiveTypeSpecifier(BasicType::INT));
+	return instance;
 }
 
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetDouble() {
-	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
-			std::unique_ptr < PrimitiveTypeSpecifier
-					> (new PrimitiveTypeSpecifier(BasicType::DOUBLE));
-	return instance.get();
+const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetDouble() {
+	static const_shared_ptr<PrimitiveTypeSpecifier> instance = const_shared_ptr<
+			PrimitiveTypeSpecifier>(
+			new PrimitiveTypeSpecifier(BasicType::DOUBLE));
+	return instance;
 }
 
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::GetString() {
-	const static std::unique_ptr<PrimitiveTypeSpecifier> instance =
-			std::unique_ptr < PrimitiveTypeSpecifier
-					> (new PrimitiveTypeSpecifier(BasicType::STRING));
-	return instance.get();
+const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetString() {
+	static const_shared_ptr<PrimitiveTypeSpecifier> instance = const_shared_ptr<
+			PrimitiveTypeSpecifier>(
+			new PrimitiveTypeSpecifier(BasicType::STRING));
+	return instance;
 }
 
-const PrimitiveTypeSpecifier* PrimitiveTypeSpecifier::FromBasicType(
+const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::FromBasicType(
 		BasicType type) {
 	switch (type) {
 	case BOOLEAN:
@@ -150,9 +153,10 @@ bool PrimitiveTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 }
 
 const DeclarationStatement* PrimitiveTypeSpecifier::GetDeclarationStatement(
-		const YYLTYPE position, const YYLTYPE type_position,
-		const std::string* name, const YYLTYPE name_position,
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<string> name,
+		const yy::location name_position,
 		const Expression* initializer_expression) const {
-	return new PrimitiveDeclarationStatement(position, this, type_position,
+	return new PrimitiveDeclarationStatement(position, type, type_position,
 			name, name_position, initializer_expression);
 }

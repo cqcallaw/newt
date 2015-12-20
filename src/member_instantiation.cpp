@@ -19,9 +19,9 @@
 
 #include <member_instantiation.h>
 
-MemberInstantiation::MemberInstantiation(const std::string* name,
-		const YYLTYPE name_position, const Expression* expression,
-		const YYLTYPE expression_position) :
+MemberInstantiation::MemberInstantiation(const_shared_ptr<string> name,
+		const yy::location name_position, const Expression* expression,
+		const yy::location expression_position) :
 		m_name(name), m_name_position(name_position), m_expression(expression), m_expression_position(
 				expression_position) {
 }

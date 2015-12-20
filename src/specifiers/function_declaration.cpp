@@ -30,7 +30,7 @@
 #include <execution_context.h>
 
 FunctionDeclaration::FunctionDeclaration(const DeclarationList* parameter_list,
-		const TypeSpecifier* return_type) :
+		const_shared_ptr<TypeSpecifier> return_type) :
 		FunctionTypeSpecifier(GetTypeList(parameter_list), return_type), m_parameter_list(
 				parameter_list) {
 }
@@ -38,20 +38,22 @@ FunctionDeclaration::FunctionDeclaration(const DeclarationList* parameter_list,
 FunctionDeclaration::~FunctionDeclaration() {
 }
 
-const FunctionDeclaration* FunctionDeclaration::FromTypeSpecifier(
-		const FunctionTypeSpecifier* type_specifier) {
-	const LinkedList<const TypeSpecifier*>* subject =
-			type_specifier->GetParameterTypeList();
+const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
+		const FunctionTypeSpecifier& type_specifier) {
+	const LinkedList<const_shared_ptr<TypeSpecifier>>* subject =
+			type_specifier.GetParameterTypeList();
 	const LinkedList<const DeclarationStatement*>* result =
 			DeclarationList::GetTerminator();
 	int count = 1;
 	while (!subject->IsTerminator()) {
 		ostringstream buf;
-		const TypeSpecifier* data = subject->GetData();
+		const_shared_ptr<TypeSpecifier> data = subject->GetData();
 		buf << "Arg" << count;
 		result = result->With(
-				data->GetDeclarationStatement(DefaultLocation, DefaultLocation,
-						new string(buf.str()), DefaultLocation, nullptr));
+				data->GetDeclarationStatement(GetDefaultLocation(), data,
+						GetDefaultLocation(),
+						const_shared_ptr<string>(new string(buf.str())),
+						GetDefaultLocation(), nullptr));
 		count++;
 		subject = subject->GetNext();
 	}
@@ -59,43 +61,47 @@ const FunctionDeclaration* FunctionDeclaration::FromTypeSpecifier(
 	const DeclarationList* declaration_list = new DeclarationList(
 			result->Reverse(true));
 
-	return new FunctionDeclaration(declaration_list,
-			type_specifier->GetReturnType());
+	return const_shared_ptr<FunctionDeclaration>(
+			new FunctionDeclaration(declaration_list,
+					type_specifier.GetReturnType()));
 }
 
-const void* FunctionDeclaration::DefaultValue(
-		const TypeTable* type_table) const {
+const_shared_ptr<void> FunctionDeclaration::DefaultValue(
+		const TypeTable& type_table) const {
 	const Function* default_value = GetDefaultFunctionDeclaration(this,
 			type_table);
-	return default_value;
+	return const_shared_ptr<void>(default_value);
 }
 
 const DeclarationStatement* FunctionDeclaration::GetDeclarationStatement(
-		const YYLTYPE position, const YYLTYPE type_position,
-		const std::string* name, const YYLTYPE name_position,
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<string> name,
+		const yy::location name_position,
 		const Expression* initializer_expression) const {
-	return new FunctionDeclarationStatement(position, this, type_position, name,
-			name_position, initializer_expression);
+	return new FunctionDeclarationStatement(position,
+			static_pointer_cast<const FunctionTypeSpecifier>(type),
+			type_position, name, name_position, initializer_expression);
 }
 
 const Function* FunctionDeclaration::GetDefaultFunctionDeclaration(
 		const FunctionDeclaration* function_declaration,
-		const TypeTable* type_table) {
+		const TypeTable& type_table) {
 	auto statement_block = GetDefaultStatementBlock(
 			function_declaration->GetReturnType(), type_table);
 
-	return new Function(function_declaration, statement_block,
-			ExecutionContext::GetDefault());
+	return new Function(
+			const_shared_ptr<FunctionDeclaration>(function_declaration),
+			statement_block, ExecutionContext::GetDefault());
 }
 
 const TypeSpecifierList* FunctionDeclaration::GetTypeList(
 		const DeclarationList* parameter_list) {
 	const LinkedList<const DeclarationStatement*>* subject = parameter_list;
-	const LinkedList<const TypeSpecifier*>* result =
+	const LinkedList<const_shared_ptr<TypeSpecifier>>* result =
 			TypeSpecifierList::GetTerminator();
 	while (!subject->IsTerminator()) {
 		const DeclarationStatement* statement = subject->GetData();
-		const TypeSpecifier* type = statement->GetType();
+		const_shared_ptr<TypeSpecifier> type = statement->GetType();
 		result = result->With(type);
 		subject = subject->GetNext();
 	}

@@ -24,12 +24,12 @@
 
 class InvokeExpression: public Expression {
 public:
-	InvokeExpression(const YYLTYPE position, const Expression* expression,
+	InvokeExpression(const yy::location position, const Expression* expression,
 			const ArgumentList* argument_list,
-			const YYLTYPE argument_list_position);
+			const yy::location argument_list_position);
 	virtual ~InvokeExpression();
 
-	virtual const TypeSpecifier* GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
@@ -52,14 +52,14 @@ public:
 		return m_argument_list;
 	}
 
-	const YYLTYPE GetArgumentListPosition() const {
+	const yy::location GetArgumentListPosition() const {
 		return m_argument_list_position;
 	}
 
 private:
 	const Expression* m_expression;
 	const ArgumentList* m_argument_list;
-	const YYLTYPE m_argument_list_position;
+	const yy::location m_argument_list_position;
 };
 
 #endif /* STATEMENTS_INVOKE_STATEMENT_H_ */

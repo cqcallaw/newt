@@ -22,7 +22,6 @@
 
 #include <statement.h>
 #include <string>
-#include <yyltype.h>
 #include <type.h>
 #include <declaration_statement.h>
 
@@ -34,24 +33,24 @@ using namespace std;
 
 class StructInstantiationStatement: public DeclarationStatement {
 public:
-	StructInstantiationStatement(const YYLTYPE position,
-			const CompoundTypeSpecifier* type_specifier,
-			const YYLTYPE type_name_position, const string* name,
-			const YYLTYPE name_position,
+	StructInstantiationStatement(const yy::location position,
+			const_shared_ptr<CompoundTypeSpecifier> type_specifier,
+			const yy::location type_name_position,
+			const_shared_ptr<string> name, const yy::location name_position,
 			const Expression* initializer_expression = nullptr);
 	virtual ~StructInstantiationStatement();
 
-	virtual const string* GetName() const {
+	virtual const_shared_ptr<string> GetName() const {
 		return m_name;
 	}
 
-	const YYLTYPE GetNamePosition() const {
+	const yy::location GetNamePosition() const {
 		return m_name_position;
 	}
 
-	const TypeSpecifier* GetType() const;
+	const_shared_ptr<TypeSpecifier> GetType() const;
 
-	const YYLTYPE GetTypeNamePosition() const {
+	const yy::location GetTypeNamePosition() const {
 		return m_type_name_position;
 	}
 
@@ -69,15 +68,15 @@ public:
 			const Expression* expression) const;
 
 	virtual const AnalysisResult Returns(
-			const TypeSpecifier* type_specifier) const {
+			const_shared_ptr<TypeSpecifier> type_specifier) const {
 		return AnalysisResult::NO;
 	}
 
 private:
-	const CompoundTypeSpecifier* m_type_specifier;
-	const YYLTYPE m_type_name_position;
-	const string* m_name;
-	const YYLTYPE m_name_position;
+	const_shared_ptr<CompoundTypeSpecifier> m_type_specifier;
+	const yy::location m_type_name_position;
+	const_shared_ptr<string> m_name;
+	const yy::location m_name_position;
 	const Expression* m_initializer_expression;
 };
 

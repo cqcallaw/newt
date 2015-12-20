@@ -29,8 +29,9 @@
 #include <type_specifier.h>
 
 InferredDeclarationStatement::InferredDeclarationStatement(
-		const YYLTYPE position, const std::string* name,
-		const YYLTYPE name_position, const Expression* initializer_expression) :
+		const yy::location position, const_shared_ptr<string> name,
+		const yy::location name_position,
+		const Expression* initializer_expression) :
 		DeclarationStatement(position), m_name(name), m_name_position(
 				name_position), m_initializer_expression(initializer_expression) {
 }
@@ -42,7 +43,7 @@ const Expression* InferredDeclarationStatement::GetInitializerExpression() const
 	return m_initializer_expression;
 }
 
-const TypeSpecifier* InferredDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetType() const {
 	assert(false);
 	return PrimitiveTypeSpecifier::GetNone();
 }
@@ -52,12 +53,13 @@ const LinkedList<const Error*>* InferredDeclarationStatement::preprocess(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
-	const TypeSpecifier* expression_type = m_initializer_expression->GetType(
-			execution_context);
+	const_shared_ptr<TypeSpecifier> expression_type =
+			m_initializer_expression->GetType(execution_context);
 
 	const Statement* temp_statement = expression_type->GetDeclarationStatement(
-			GetPosition(), m_initializer_expression->GetPosition(), m_name,
-			m_name_position, m_initializer_expression);
+			GetPosition(), expression_type,
+			m_initializer_expression->GetPosition(), m_name, m_name_position,
+			m_initializer_expression);
 	errors = temp_statement->preprocess(execution_context);
 	delete (temp_statement);
 
@@ -69,12 +71,13 @@ const LinkedList<const Error*>* InferredDeclarationStatement::execute(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
-	const TypeSpecifier* expression_type = m_initializer_expression->GetType(
-			execution_context);
+	const_shared_ptr<TypeSpecifier> expression_type =
+			m_initializer_expression->GetType(execution_context);
 
 	const Statement* temp_statement = expression_type->GetDeclarationStatement(
-			GetPosition(), m_initializer_expression->GetPosition(), m_name,
-			m_name_position, m_initializer_expression);
+			GetPosition(), expression_type,
+			m_initializer_expression->GetPosition(), m_name, m_name_position,
+			m_initializer_expression);
 	errors = temp_statement->execute(execution_context);
 	delete (temp_statement);
 
@@ -85,8 +88,4 @@ const DeclarationStatement* InferredDeclarationStatement::WithInitializerExpress
 		const Expression* expression) const {
 	return new InferredDeclarationStatement(GetPosition(), m_name,
 			m_name_position, expression);
-}
-
-const std::string* InferredDeclarationStatement::GetName() const {
-	return m_name;
 }

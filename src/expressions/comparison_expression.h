@@ -26,26 +26,24 @@ using namespace std;
 
 class ComparisonExpression: public BinaryExpression {
 public:
-	ComparisonExpression(const YYLTYPE position, const OperatorType op,
+	ComparisonExpression(const yy::location position, const OperatorType op,
 			const Expression* left, const Expression* right);
 
-	virtual const TypeSpecifier* GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const ExecutionContext* execution_context) const;
 
 	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* execution_context) const;
 
 protected:
-	virtual const Result* compute(bool left, bool right,
-	YYLTYPE left_position,
-	YYLTYPE right_position) const;
-	virtual const Result* compute(int left, int right,
-	YYLTYPE left_position,
-	YYLTYPE right_position) const;
-	virtual const Result* compute(double left, double right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
-	virtual const Result* compute(string* left, string* right,
-	YYLTYPE left_position, YYLTYPE right_position) const;
+	virtual const Result* compute(bool& left, bool& right,
+			yy::location left_position, yy::location right_position) const;
+	virtual const Result* compute(int& left, int& right,
+			yy::location left_position, yy::location right_position) const;
+	virtual const Result* compute(double& left, double& right,
+			yy::location left_position, yy::location right_position) const;
+	virtual const Result* compute(string& left, string& right,
+			yy::location left_position, yy::location right_position) const;
 };
 
 #endif /* COMPARISON_EXPRESSION_H_ */

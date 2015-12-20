@@ -33,14 +33,14 @@ class ExecutionContext;
 
 class Expression {
 public:
-	Expression(const YYLTYPE position);
+	Expression(const yy::location position);
 	virtual ~Expression();
 
-	const YYLTYPE GetPosition() const {
+	const yy::location GetPosition() const {
 		return m_position;
 	}
 
-	virtual const TypeSpecifier* GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const ExecutionContext* execution_context) const = 0;
 
 	virtual const Result* Evaluate(
@@ -54,9 +54,9 @@ public:
 			const ExecutionContext* execution_context) const = 0;
 
 private:
-	const YYLTYPE m_position;
+	const yy::location m_position;
 };
 
-typedef LinkedList<const Expression*> ArgumentList;
+typedef const LinkedList<const Expression*> ArgumentList;
 
 #endif /* EXPRESSION_H_ */

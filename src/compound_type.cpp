@@ -42,7 +42,7 @@ const MemberDefinition* CompoundType::GetMember(const string name) const {
 CompoundType::~CompoundType() {
 }
 
-const string CompoundType::ToString(const TypeTable* type_table,
+const string CompoundType::ToString(const TypeTable& type_table,
 		const Indent indent) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
@@ -51,7 +51,8 @@ const string CompoundType::ToString(const TypeTable* type_table,
 			++type_iter) {
 		const string member_name = type_iter->first;
 		const MemberDefinition* member_definition = type_iter->second;
-		const TypeSpecifier* member_type = member_definition->GetType();
+		const_shared_ptr<TypeSpecifier> member_type =
+				member_definition->GetType();
 
 		os << child_indent << member_type->ToString() << " " << member_name
 				<< " (" << member_definition->ToString(type_table, child_indent)
@@ -63,10 +64,9 @@ const string CompoundType::ToString(const TypeTable* type_table,
 }
 
 const CompoundType* CompoundType::GetDefaultCompoundType() {
-	const static std::unique_ptr<CompoundType> instance = std::unique_ptr
-			< CompoundType
-			> (new CompoundType(
-					new map<const string, const MemberDefinition*>(),
+	const static std::unique_ptr<CompoundType> instance = std::unique_ptr<
+			CompoundType>(
+			new CompoundType(new map<const string, const MemberDefinition*>(),
 					Modifier::NONE));
 	return instance.get();
 }

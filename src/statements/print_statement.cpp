@@ -38,7 +38,9 @@ const LinkedList<const Error*>* PrintStatement::execute(
 	errors = string_result->GetErrors();
 
 	if (errors == LinkedList<const Error*>::GetTerminator()) {
-		std::cout << *((string*) string_result->GetData()) << "\n";
+		std::cout
+				<< *(static_pointer_cast<const string>(string_result->GetData()))
+				<< "\n";
 	}
 
 	return errors;

@@ -24,11 +24,11 @@ class Error;
 
 class Result {
 public:
-	Result(const void* data, const LinkedList<const Error*>* errors) :
+	Result(const_shared_ptr<void> data, const LinkedList<const Error*>* errors) :
 			m_data(data), m_errors(errors) {
 	}
 
-	const void* GetData() const {
+	const_shared_ptr<void> GetData() const {
 		return m_data;
 	}
 
@@ -37,7 +37,7 @@ public:
 	}
 
 private:
-	const void* m_data;
+	const_shared_ptr<void> m_data;
 	const LinkedList<const Error*>* m_errors;
 };
 

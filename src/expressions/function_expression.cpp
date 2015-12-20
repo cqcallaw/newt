@@ -26,15 +26,16 @@
 #include <declaration_statement.h>
 #include <symbol_table.h>
 
-FunctionExpression::FunctionExpression(const YYLTYPE position,
-		const FunctionDeclaration* declaration, const StatementBlock* body) :
+FunctionExpression::FunctionExpression(const yy::location position,
+		const_shared_ptr<FunctionDeclaration> declaration,
+		const StatementBlock* body) :
 		Expression(position), m_declaration(declaration), m_body(body) {
 }
 
 FunctionExpression::~FunctionExpression() {
 }
 
-const TypeSpecifier* FunctionExpression::GetType(
+const_shared_ptr<TypeSpecifier> FunctionExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return m_declaration;
 }
@@ -43,8 +44,9 @@ const Result* FunctionExpression::Evaluate(
 		const ExecutionContext* execution_context) const {
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
-	const Function* function = new Function(m_declaration, m_body, execution_context);
-	return new Result(function, errors);
+	const Function* function = new Function(m_declaration, m_body,
+			execution_context);
+	return new Result(const_shared_ptr<void>(function), errors);
 }
 
 const bool FunctionExpression::IsConstant() const {
@@ -89,7 +91,7 @@ const LinkedList<const Error*>* FunctionExpression::Validate(
 	if (returns == AnalysisResult::NO) {
 		errors = errors->With(
 				new Error(Error::SEMANTIC, Error::FUNCTION_RETURN_MISMATCH,
-						GetPosition().first_line, GetPosition().first_column));
+						GetPosition().begin.line, GetPosition().begin.column));
 	}
 
 	delete tmp_context;

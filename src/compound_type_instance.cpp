@@ -20,7 +20,7 @@
 #include <compound_type_instance.h>
 #include <member_definition.h>
 
-const CompoundTypeInstance* CompoundTypeInstance::GetDefaultInstance(
+const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 		const string type_name, const CompoundType* type) {
 	map<const string, const Symbol*, comparator>* symbol_mapping = new map<
 			const string, const Symbol*, comparator>();
@@ -35,47 +35,51 @@ const CompoundTypeInstance* CompoundTypeInstance::GetDefaultInstance(
 		const MemberDefinition* member_type_information = iter->second;
 
 		const Symbol* symbol = GetSymbol(member_type_information->GetType(),
-				member_name, member_type_information->GetDefaultValue());
+				member_type_information->GetDefaultValue());
 		symbol_mapping->insert(
 				std::pair<const string, const Symbol*>(member_name, symbol));
 	}
 
-	const CompoundTypeSpecifier* type_specifier = new CompoundTypeSpecifier(
-			type_name, DefaultLocation);
+	const_shared_ptr<CompoundTypeSpecifier> type_specifier = const_shared_ptr<
+			CompoundTypeSpecifier>(
+			new CompoundTypeSpecifier(type_name, GetDefaultLocation()));
 
 	const CompoundTypeInstance* instance = new CompoundTypeInstance(
 			type_specifier,
 			new SymbolContext(type->GetModifiers(),
-					LinkedList<SymbolContext*>::GetTerminator(), symbol_mapping));
+					LinkedList<SymbolContext*>::GetTerminator(),
+					symbol_mapping));
 
-	return instance;
+	return const_shared_ptr<CompoundTypeInstance>(instance);
 }
 
-const Symbol* CompoundTypeInstance::GetSymbol(const TypeSpecifier* member_type,
-		const string member_name, const void* void_value) {
+const Symbol* CompoundTypeInstance::GetSymbol(
+		const_shared_ptr<TypeSpecifier> member_type,
+		const_shared_ptr<void> void_value) {
 	if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
-		return new Symbol(member_name, (bool*) void_value);
+		return new Symbol(static_pointer_cast<const bool>(void_value));
 	} else if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt())) {
-		return new Symbol(member_name, (int*) void_value);
+		return new Symbol(static_pointer_cast<const int>(void_value));
 	} else if (member_type->IsAssignableTo(
 			PrimitiveTypeSpecifier::GetDouble())) {
-		return new Symbol(member_name, (double*) void_value);
+		return new Symbol(static_pointer_cast<const double>(void_value));
 	} else if (member_type->IsAssignableTo(
 			PrimitiveTypeSpecifier::GetString())) {
-		return new Symbol(member_name, (string*) void_value);
-	} else if (dynamic_cast<const ArrayTypeSpecifier*>(member_type)
+		return new Symbol(static_pointer_cast<const string>(void_value));
+	} else if (std::dynamic_pointer_cast<const ArrayTypeSpecifier>(member_type)
 			!= nullptr) {
-		return new Symbol(member_name, (Array*) void_value);
-	} else if (dynamic_cast<const CompoundTypeSpecifier*>(member_type)
-			!= nullptr) {
-		return new Symbol(member_name, (CompoundTypeInstance*) void_value);
+		return new Symbol(static_pointer_cast<const Array>(void_value));
+	} else if (std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+			member_type) != nullptr) {
+		return new Symbol(
+				static_pointer_cast<const CompoundTypeInstance>(void_value));
 	} else {
 		assert(false);
 		return nullptr;
 	}
 }
 
-const string CompoundTypeInstance::ToString(const TypeTable* type_table,
+const string CompoundTypeInstance::ToString(const TypeTable& type_table,
 		const Indent indent) const {
 	ostringstream buffer;
 	m_definition->print(buffer, type_table, indent);

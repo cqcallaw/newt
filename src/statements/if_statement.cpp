@@ -82,11 +82,11 @@ const LinkedList<const Error*>* IfStatement::preprocess(
 			}
 
 		} else {
-			YYLTYPE position = m_expression->GetPosition();
+			yy::location position = m_expression->GetPosition();
 			errors = errors->With(
 					new Error(Error::SEMANTIC,
 							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
-							position.first_line, position.first_column));
+							position.begin.line, position.begin.column));
 		}
 	} else {
 		assert(false);
@@ -102,7 +102,7 @@ const LinkedList<const Error*>* IfStatement::execute(
 
 	const Result* evaluation = m_expression->Evaluate(execution_context);
 	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
-	bool test = *((bool*) evaluation->GetData());
+	bool test = *(static_pointer_cast<const bool>(evaluation->GetData()));
 	delete (evaluation);
 	if (test) {
 		SymbolContext* symbol_context = execution_context->GetSymbolContext();
@@ -138,7 +138,8 @@ const LinkedList<const Error*>* IfStatement::execute(
 	return errors;
 }
 
-const AnalysisResult IfStatement::Returns(const TypeSpecifier* type_specifier,
+const AnalysisResult IfStatement::Returns(
+		const_shared_ptr<TypeSpecifier> type_specifier,
 		const ExecutionContext* execution_context) const {
 	AnalysisResult result = m_block->Returns(type_specifier, execution_context);
 

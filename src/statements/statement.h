@@ -21,6 +21,7 @@
 #define STATEMENT_H_
 #include "linked_list.h"
 #include "analysis_result.h"
+#include <defaults.h>
 
 class ExecutionContext;
 class Error;
@@ -43,10 +44,11 @@ public:
 	virtual const LinkedList<const Error*>* execute(
 			ExecutionContext* execution_context) const = 0;
 
-	virtual const AnalysisResult Returns(const TypeSpecifier* type_specifier,
+	virtual const AnalysisResult Returns(
+			const_shared_ptr<TypeSpecifier> type_specifier,
 			const ExecutionContext* execution_context) const = 0;
 };
 
-typedef LinkedList<const Statement*> StatementList;
+typedef const LinkedList<const Statement*> StatementList;
 
 #endif /* STATEMENT_H_ */

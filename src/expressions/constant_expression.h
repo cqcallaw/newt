@@ -21,19 +21,25 @@
 #define EXPRESSIONS_CONSTANT_EXPRESSION_H_
 
 #include <string>
+#include <memory>
 
 #include "expression.h"
 
 class ConstantExpression: public Expression {
 public:
-	ConstantExpression(const YYLTYPE position, const bool value);
-	ConstantExpression(const YYLTYPE position, const int value);
-	ConstantExpression(const YYLTYPE position, const double value);
-	ConstantExpression(const YYLTYPE position, const std::string* value);
-	const static ConstantExpression* GetDefaultExpression(
-			const TypeSpecifier* type, const TypeTable* type_table);
+	ConstantExpression(const yy::location position, const bool value);
+	ConstantExpression(const yy::location position, const int value);
+	ConstantExpression(const yy::location position, const double value);
+	ConstantExpression(const yy::location position,
+			const_shared_ptr<string> value);
 
-	virtual const TypeSpecifier* GetType(
+	~ConstantExpression() {
+	}
+
+	const static ConstantExpression* GetDefaultExpression(
+			const_shared_ptr<TypeSpecifier> type, const TypeTable& type_table);
+
+	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
@@ -50,10 +56,11 @@ public:
 			const ExecutionContext* execution_context);
 
 private:
-	ConstantExpression(const YYLTYPE position, const TypeSpecifier* type,
-			const void* value);
-	const TypeSpecifier* m_type;
-	const void* m_value;
+	ConstantExpression(const yy::location position,
+			const_shared_ptr<TypeSpecifier> type,
+			const_shared_ptr<const void> value);
+	const_shared_ptr<TypeSpecifier> m_type;
+	const_shared_ptr<void> m_value;
 };
 
 #endif /* EXPRESSIONS_CONSTANT_EXPRESSION_H_ */

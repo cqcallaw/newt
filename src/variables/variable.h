@@ -20,9 +20,9 @@
 #ifndef VARIABLE_H_
 #define VARIABLE_H_
 
+#include <location.hh>
 #include <symbol.h>
 #include <string>
-#include "yyltype.h"
 #include <symbol_context.h>
 #include <assignment_type.h>
 
@@ -32,19 +32,19 @@ class Result;
 
 class Variable {
 public:
-	Variable(const string* name, const YYLTYPE location);
+	Variable(const_shared_ptr<string> name, const yy::location location);
 	virtual ~Variable();
 
 	virtual const string* ToString(const ExecutionContext* context) const = 0;
 
-	virtual const TypeSpecifier* GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const ExecutionContext* context) const = 0;
 
-	const string* GetName() const {
+	const_shared_ptr<string> GetName() const {
 		return m_name;
 	}
 
-	const YYLTYPE GetLocation() const {
+	const yy::location GetLocation() const {
 		return m_location;
 	}
 
@@ -59,31 +59,36 @@ public:
 
 protected:
 	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const bool* value) const = 0;
-
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const int* value) const = 0;
-
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const double* value) const = 0;
-
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const string* value) const = 0;
-
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const Array* value) const = 0;
+			const ExecutionContext* context,
+			const_shared_ptr<bool> value) const = 0;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context,
-			const CompoundTypeInstance* value) const = 0;
+			const_shared_ptr<int> value) const = 0;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const_shared_ptr<double> value) const = 0;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const_shared_ptr<string> value) const = 0;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const_shared_ptr<Array> value) const = 0;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const_shared_ptr<CompoundTypeInstance> value) const = 0;
 
 	const LinkedList<const Error*>* ToErrorList(SetResult result,
-			const TypeSpecifier* symbol_type,
-			const TypeSpecifier* expression_type) const;
+			const_shared_ptr<TypeSpecifier> symbol_type,
+			const_shared_ptr<TypeSpecifier> expression_type) const;
 
 private:
-	const string* m_name;
-	const YYLTYPE m_location;
+	const_shared_ptr<string> m_name;
+	const yy::location m_location;
 };
 
 #endif /* VARIABLE_H_ */

@@ -25,8 +25,7 @@
 #include "symbol_table.h"
 #include "type_table.h"
 
-#include "parser.tab.h"
-#include "lexer.h"
+#include "driver.h"
 
 using namespace std;
 
@@ -40,8 +39,8 @@ int get_exit_code(bool debug, int exit_code) {
 }
 
 int main(int argc, char *argv[]) {
-	FILE* input_file;
-	yyscan_t scanner;
+	//FILE* input_file;
+	//yyscan_t scanner;
 
 	if (argc < 2) {
 		cerr << "Input script must be specified." << endl;
@@ -56,26 +55,27 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	char *filename = argv[argc - 1];
-	input_file = fopen(filename, "r");
-	if (!input_file) {
-		cerr << "Cannot open input file <" << filename << ">." << endl;
-		return 2;
-	}
-
+	char* filename = argv[argc - 1];
+//	input_file = fopen(filename, "r");
+//	if (!input_file) {
+//		cerr << "Cannot open input file <" << filename << ">." << endl;
+//		return 2;
+//	}
+//
 	if (debug) {
 		cout << "Parsing file " << filename << "..." << endl;
 	}
 
-	std::shared_ptr<StatementBlock> main_statement_block;
-	std::shared_ptr<ExecutionContext> root_context = std::shared_ptr
-			< ExecutionContext > (new ExecutionContext());
-	yylex_init(&scanner);
-	yyset_in(input_file, scanner);
-	int parse_result = yyparse(main_statement_block, scanner);
-	yylex_destroy(scanner);
+//	std::shared_ptr<StatementBlock> main_statement_block;
+//	yylex_init(&scanner);
+//	yyset_in(input_file, scanner);
+//	int parse_result = yyparse(main_statement_block, scanner);
+//	yylex_destroy(scanner);
+//
+//	fclose(input_file);
 
-	fclose(input_file);
+	Driver driver;
+	int parse_result = driver.parse(filename, false, false);
 
 	if (parse_result != 0 || Error::num_errors() != 0) {
 		if (debug) {
@@ -91,6 +91,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (parse_result == 0) {
+		auto main_statement_block = driver.GetStatementBlock();
+		std::shared_ptr<ExecutionContext> root_context = std::shared_ptr<
+				ExecutionContext>(new ExecutionContext());
 		const LinkedList<const Error*>* semantic_errors =
 				main_statement_block->preprocess(root_context.get());
 
@@ -117,7 +120,7 @@ int main(int argc, char *argv[]) {
 				cout << "Root Symbol Table:" << endl;
 				cout << "----------------" << endl;
 				root_context->GetSymbolContext()->print(cout,
-						root_context->GetTypeTable(), Indent(0));
+						*root_context->GetTypeTable(), Indent(0));
 				cout << endl;
 				cout << "Root Type Table:" << endl;
 				cout << "----------------" << endl;

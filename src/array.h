@@ -20,7 +20,6 @@
 #ifndef ARRAY_H_
 #define ARRAY_H_
 
-#include "yyltype.h"
 #include <vector>
 #include <sstream>
 #include <type.h>
@@ -35,27 +34,31 @@
 
 class Array {
 public:
-	Array(const TypeSpecifier* element_specifier, const TypeTable* type_table) :
+	Array(const_shared_ptr<TypeSpecifier> element_specifier,
+			const TypeTable& type_table) :
 			Array(element_specifier,
 					GetStorage(element_specifier, 0, type_table)) {
 	}
 
-	const string ToString(const TypeTable* type_table,
+	const string ToString(const TypeTable& type_table,
 			const Indent indent) const;
 
-	template<class T> const T GetValue(const int index,
-			const TypeTable* type_table) const {
+	template<class T> const std::shared_ptr<const T> GetValue(const int index,
+			const TypeTable& type_table) const {
 		if (0 <= index && index < GetSize()) {
-			const T result = GetValue<T>()->at(index);
+			const shared_ptr<const T> result = static_pointer_cast<const T>(
+					m_value->at(index));
 			return result;
 		} else {
-			return (T) GetElementType()->DefaultValue(type_table);
+			return static_pointer_cast<const T>(
+					GetElementType()->DefaultValue(type_table));
 		}
 	}
 
-	template<class T> const Array* WithValue(const int index, const T value,
-			const TypeTable* type_table) const {
-		vector<T>* new_vector = new vector<T>(*(GetValue<T>()));
+	template<class T> const_shared_ptr<Array> WithValue(const int index,
+			shared_ptr<const T> value, const TypeTable& type_table) const {
+		auto new_vector = new vector<shared_ptr<const void>>(*m_value);
+
 		if (index < GetSize()) {
 			new_vector->at(index) = value;
 		} else {
@@ -64,49 +67,46 @@ public:
 
 			//fill with default values
 			for (int i = old_size; i < new_vector->size(); i++) {
-				new_vector->at(i) = (T) GetElementType()->DefaultValue(
-						type_table);
+				const_shared_ptr<void> default_value =
+						GetElementType()->DefaultValue(type_table);
+				new_vector->at(i) = default_value;
 			}
 
 			new_vector->insert(new_vector->end(), value);
 		}
-		return new Array(GetElementType(), (void*) new_vector);
-	}
 
-	template<class T> const Array* WithAppendedValue(const T value) const {
-		vector<T>* new_vector = new vector<T>(GetValue<T>());
-		new_vector->push_back(value);
-		return new Array(GetElementType(), new_vector);
+		const shared_ptr<const vector<shared_ptr<const void>>> wrapper = shared_ptr<const vector<shared_ptr<const void>>>(new_vector);
+		return const_shared_ptr<Array>(new Array(GetElementType(), wrapper));
 	}
 
 	const int GetSize() const {
-		int size = ((vector<const void*>*) m_value)->size();
+		int size = m_value->size();
 		return size;
 	}
 
-	const TypeSpecifier* GetTypeSpecifier() const {
+	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
 		return m_type_specifier;
 	}
 
-	const TypeSpecifier* GetElementType() const {
+	const_shared_ptr<TypeSpecifier> GetElementType() const {
 		return m_type_specifier->GetElementTypeSpecifier();
 	}
 
 private:
-	Array(const TypeSpecifier* element_specifier, const void* value) :
-			m_type_specifier(new ArrayTypeSpecifier(element_specifier)), m_value(
-					value) {
-	}
+	Array(const_shared_ptr<TypeSpecifier> element_specifier,
+			const shared_ptr<const vector<shared_ptr<const void>>> value) :
+			m_type_specifier(
+			const_shared_ptr<ArrayTypeSpecifier>(
+					new ArrayTypeSpecifier(element_specifier))), m_value(
+			value) {
+			}
 
-	const static void* GetStorage(const TypeSpecifier* element_specifier,
-			const int initial_size, const TypeTable* type_table);
+			static const shared_ptr<const vector<shared_ptr<const void>>> GetStorage(
+			const_shared_ptr<TypeSpecifier> element_specifier,
+			const int initial_size, const TypeTable& type_table);
 
-	const ArrayTypeSpecifier* m_type_specifier;
-	const void* m_value;
-
-	template<class T> const vector<T>* GetValue() const {
-		return ((const vector<T>*) m_value);
-	}
-};
+			const_shared_ptr<ArrayTypeSpecifier> m_type_specifier;
+			const shared_ptr<const vector<shared_ptr<const void>>> m_value;
+		};
 
 #endif /* ARRAY_H_ */

@@ -20,13 +20,11 @@
 #ifndef INDEX_H_
 #define INDEX_H_
 
-#include <yyltype.h>
-
 class Expression;
 
 class Index {
 public:
-	Index(const YYLTYPE location, const Expression* index_expression) :
+	Index(const yy::location location, const Expression* index_expression) :
 			m_location(location), m_index_expression(index_expression) {
 	}
 
@@ -37,15 +35,15 @@ public:
 		return m_index_expression;
 	}
 
-	const YYLTYPE GetLocation() const {
+	const yy::location GetLocation() const {
 		return m_location;
 	}
 
 private:
-	const YYLTYPE m_location;
+	const yy::location m_location;
 	const Expression* m_index_expression;
 };
 
-typedef LinkedList<const Index*> IndexList;
+typedef const LinkedList<const Index*> IndexList;
 
 #endif /* INDEX_H_ */

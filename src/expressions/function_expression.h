@@ -20,7 +20,6 @@
 #ifndef EXPRESSIONS_FUNCTION_EXPRESSION_H_
 #define EXPRESSIONS_FUNCTION_EXPRESSION_H_
 
-#include <yyltype.h>
 #include <expression.h>
 
 class FunctionDeclaration;
@@ -28,11 +27,12 @@ class StatementBlock;
 
 class FunctionExpression: public Expression {
 public:
-	FunctionExpression(const YYLTYPE position, const FunctionDeclaration* type,
+	FunctionExpression(const yy::location position,
+			const_shared_ptr<FunctionDeclaration> type,
 			const StatementBlock* body);
 	virtual ~FunctionExpression();
 
-	virtual const TypeSpecifier* GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const ExecutionContext* execution_context) const;
 
 	virtual const Result* Evaluate(
@@ -44,7 +44,7 @@ public:
 			const ExecutionContext* execution_context) const;
 
 private:
-	const FunctionDeclaration* m_declaration;
+	const_shared_ptr<FunctionDeclaration> m_declaration;
 	const StatementBlock* m_body;
 };
 

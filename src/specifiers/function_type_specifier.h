@@ -30,12 +30,14 @@ class Function;
 class FunctionTypeSpecifier: public TypeSpecifier {
 public:
 	FunctionTypeSpecifier(const TypeSpecifierList* parameter_type_list,
-			const TypeSpecifier* return_type);
+			const_shared_ptr<TypeSpecifier> return_type);
 	virtual ~FunctionTypeSpecifier();
 
 	virtual const string ToString() const;
-	virtual const bool IsAssignableTo(const TypeSpecifier* other) const;
-	virtual const void* DefaultValue(const TypeTable* type_table) const;
+	virtual const bool IsAssignableTo(
+			const_shared_ptr<TypeSpecifier> other) const;
+	virtual const_shared_ptr<void> DefaultValue(
+			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
@@ -44,28 +46,30 @@ public:
 	}
 
 	virtual const DeclarationStatement* GetDeclarationStatement(
-			const YYLTYPE position, const YYLTYPE type_position,
-			const std::string* name, const YYLTYPE name_position,
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const Expression* initializer_expression) const;
 
 	const TypeSpecifierList* GetParameterTypeList() const {
 		return m_parameter_type_list;
 	}
 
-	const TypeSpecifier* GetReturnType() const {
+	const_shared_ptr<TypeSpecifier> GetReturnType() const {
 		return m_return_type;
 	}
 protected:
 	static const StatementBlock* GetDefaultStatementBlock(
-			const TypeSpecifier* return_type, const TypeTable* type_table);
+			const_shared_ptr<TypeSpecifier> return_type,
+			const TypeTable& type_table);
 
 	static const Function* GetDefaultFunction(
-			const FunctionTypeSpecifier* type_specifier,
-			const TypeTable* type_table);
+			const FunctionTypeSpecifier& type_specifier,
+			const TypeTable& type_table);
 
 private:
 	const TypeSpecifierList* m_parameter_type_list;
-	const TypeSpecifier* m_return_type;
+	const_shared_ptr<TypeSpecifier> m_return_type;
 };
 
 #endif /* FUNCTION_TYPE_SPECIFIER_H_ */

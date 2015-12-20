@@ -25,14 +25,15 @@
 
 class BasicVariable: public Variable {
 public:
-	BasicVariable(const string* name, const YYLTYPE location);
+	BasicVariable(const_shared_ptr<string> name, const yy::location location);
 	virtual ~BasicVariable();
 
 	virtual const string* ToString(const ExecutionContext* context) const;
 
 	const static Variable* GetDefaultVariable();
 
-	virtual const TypeSpecifier* GetType(const ExecutionContext* context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetType(
+			const ExecutionContext* context) const;
 
 	virtual const LinkedList<const Error*>* Validate(
 			const ExecutionContext* context) const;
@@ -45,26 +46,31 @@ public:
 
 protected:
 	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const bool* value) const;
+			const ExecutionContext* context,
+			const_shared_ptr<bool> value) const;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const int* value) const;
-
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const double* value) const;
-
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const string* value) const;
-
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const Array* value) const;
+			const ExecutionContext* context, const_shared_ptr<int> value) const;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
 			const ExecutionContext* context,
-			const CompoundTypeInstance* value) const;
+			const_shared_ptr<double> value) const;
 
 	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context, const Function* value) const;
+			const ExecutionContext* context,
+			const_shared_ptr<string> value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const_shared_ptr<Array> value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const_shared_ptr<CompoundTypeInstance> value) const;
+
+	virtual const LinkedList<const Error*>* SetSymbol(
+			const ExecutionContext* context,
+			const_shared_ptr<Function> value) const;
 
 };
 

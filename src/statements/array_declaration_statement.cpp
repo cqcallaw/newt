@@ -20,9 +20,11 @@
 #include <array_type_specifier.h>
 #include <type_specifier.h>
 
-ArrayDeclarationStatement::ArrayDeclarationStatement(const YYLTYPE position,
-		const ArrayTypeSpecifier* type_specifier, const YYLTYPE type_position,
-		const std::string* name, const YYLTYPE name_position,
+ArrayDeclarationStatement::ArrayDeclarationStatement(
+		const yy::location position,
+		const_shared_ptr<ArrayTypeSpecifier> type_specifier,
+		const yy::location type_position, const_shared_ptr<string> name,
+		const yy::location name_position,
 		const Expression* initializer_expression) :
 		DeclarationStatement(position), m_type(type_specifier), m_type_position(
 				type_position), m_name(name), m_name_position(name_position), m_initializer_expression(
@@ -34,38 +36,41 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 	const LinkedList<const Error*>* errors =
 			LinkedList<const Error*>::GetTerminator();
 
-	const CompoundTypeSpecifier* element_type_as_compound =
-			dynamic_cast<const CompoundTypeSpecifier*>(m_type->GetElementTypeSpecifier());
+	const_shared_ptr<CompoundTypeSpecifier> element_type_as_compound =
+			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+					m_type->GetElementTypeSpecifier());
 	if (element_type_as_compound != nullptr) {
 		//check that element type exists
-		const TypeTable* type_table = execution_context->GetTypeTable();
+		const_shared_ptr<TypeTable> type_table =
+				execution_context->GetTypeTable();
 		const string type_name = element_type_as_compound->GetTypeName();
 		const CompoundType* type = type_table->GetType(type_name);
 
 		if (type == CompoundType::GetDefaultCompoundType()) {
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							m_type_position.first_line,
-							m_type_position.first_column, type_name));
+							m_type_position.begin.line,
+							m_type_position.begin.column, type_name));
 		}
 	}
 
 	if (errors->IsTerminator()) {
 		const Array* array = nullptr;
-		const string* name = m_name;
+		auto name = m_name;
 		if (m_initializer_expression) {
-			const TypeSpecifier* initializer_expression_type =
+			const_shared_ptr<TypeSpecifier> initializer_expression_type =
 					m_initializer_expression->GetType(execution_context);
-			const ArrayTypeSpecifier* as_array =
-					dynamic_cast<const ArrayTypeSpecifier*>(initializer_expression_type);
+			const_shared_ptr<ArrayTypeSpecifier> as_array =
+					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
+							initializer_expression_type);
 			if (!as_array
 					|| !initializer_expression_type->IsAssignableTo(m_type)) {
 				errors =
 						errors->With(
 								new Error(Error::SEMANTIC,
 										Error::ASSIGNMENT_TYPE_ERROR,
-										m_initializer_expression->GetPosition().first_line,
-										m_initializer_expression->GetPosition().first_column,
+										m_initializer_expression->GetPosition().begin.line,
+										m_initializer_expression->GetPosition().begin.column,
 										m_type->ToString(),
 										initializer_expression_type->ToString()));
 			}
@@ -73,21 +78,23 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 
 		if (errors->IsTerminator()) {
 			array = new Array(m_type->GetElementTypeSpecifier(),
-					execution_context->GetTypeTable());
+					*execution_context->GetTypeTable());
 		}
 
 		SymbolTable* symbol_table =
 				(SymbolTable*) execution_context->GetSymbolContext();
 
 		if (array != nullptr) {
-			const Symbol* symbol = new Symbol(name, array);
-			InsertResult insert_result = symbol_table->InsertSymbol(symbol);
+			auto wrapper = const_shared_ptr<Array>(array);
+			const Symbol* symbol = new Symbol(wrapper);
+			InsertResult insert_result = symbol_table->InsertSymbol(*name,
+					symbol);
 			if (insert_result == SYMBOL_EXISTS) {
 				errors = errors->With(
 						new Error(Error::SEMANTIC,
 								Error::PREVIOUSLY_DECLARED_VARIABLE,
-								m_name_position.first_line,
-								m_name_position.first_column, *m_name));
+								m_name_position.begin.line,
+								m_name_position.begin.column, *m_name));
 			}
 		}
 	}
@@ -108,8 +115,8 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 		errors = initializer_result->GetErrors();
 
 		if (errors->IsTerminator()) {
-			const Array* array =
-					static_cast<const Array*>(initializer_result->GetData());
+			auto array = static_pointer_cast<const Array>(
+					initializer_result->GetData());
 			auto symbol_context = execution_context->GetSymbolContext();
 			SetResult result = symbol_context->SetSymbol(*m_name, array);
 			errors = ToErrorList(result,
@@ -124,7 +131,7 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
 	return errors;
 }
 
-const TypeSpecifier* ArrayDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetType() const {
 	return m_type;
 }
 
@@ -132,8 +139,4 @@ const DeclarationStatement* ArrayDeclarationStatement::WithInitializerExpression
 		const Expression* expression) const {
 	return new ArrayDeclarationStatement(GetPosition(), m_type, m_type_position,
 			m_name, m_name_position, expression);
-}
-
-const std::string* ArrayDeclarationStatement::GetName() const {
-	return m_name;
 }

@@ -22,18 +22,17 @@
 
 #include <statement.h>
 #include <modifier.h>
-#include <yyltype.h>
 #include <string>
 #include <declaration_statement.h>
 
 class StructDeclarationStatement: public DeclarationStatement {
 public:
-	StructDeclarationStatement(const YYLTYPE position, const std::string* name,
-			const YYLTYPE name_position,
+	StructDeclarationStatement(const yy::location position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const DeclarationList* member_declaration_list,
-			const YYLTYPE member_declaration_list_position,
+			const yy::location member_declaration_list_position,
 			const ModifierList* modifier_list,
-			const YYLTYPE modifiers_location);
+			const yy::location modifiers_location);
 	virtual ~StructDeclarationStatement();
 
 	virtual const LinkedList<const Error*>* preprocess(
@@ -46,11 +45,11 @@ public:
 		return m_member_declaration_list;
 	}
 
-	virtual const TypeSpecifier* GetType() const {
+	virtual const_shared_ptr<TypeSpecifier> GetType() const {
 		return m_type_specifier;
 	}
 
-	virtual const std::string* GetName() const {
+	virtual const_shared_ptr<string> GetName() const {
 		return m_name;
 	}
 
@@ -61,7 +60,7 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const Expression* expression) const;
 
-	const YYLTYPE GetMemberDeclarationListPosition() const {
+	const yy::location GetMemberDeclarationListPosition() const {
 		return m_member_declaration_list_position;
 	}
 
@@ -69,23 +68,23 @@ public:
 		return m_modifier_list;
 	}
 
-	const YYLTYPE GetModifiersLocation() const {
+	const yy::location GetModifiersLocation() const {
 		return m_modifiers_location;
 	}
 
-	const YYLTYPE GetNamePosition() const {
+	const yy::location GetNamePosition() const {
 		return m_name_position;
 	}
 
 private:
-	const std::string* m_name;
-	const YYLTYPE m_name_position;
+	const_shared_ptr<string> m_name;
+	const yy::location m_name_position;
 	const DeclarationList* m_member_declaration_list;
-	const YYLTYPE m_member_declaration_list_position;
+	const yy::location m_member_declaration_list_position;
 	const ModifierList* m_modifier_list;
-	const YYLTYPE m_modifiers_location;
+	const yy::location m_modifiers_location;
 
-	const TypeSpecifier* m_type_specifier;
+	const_shared_ptr<TypeSpecifier> m_type_specifier;
 	const Expression* m_initializer_expression;
 };
 

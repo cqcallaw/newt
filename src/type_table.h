@@ -37,13 +37,13 @@ public:
 
 	const CompoundType* GetType(const string name) const;
 
-	const void* GetDefaultValue(const string type_name) const;
+	const_shared_ptr<void> GetDefaultValue(const string type_name) const;
 
 	const void print(ostream &os) const;
 
 	const static string DefaultTypeName;
 
-	static TypeTable* GetDefault();
+	static volatile_shared_ptr<TypeTable> GetDefault();
 
 private:
 	map<const string, const CompoundType*>* table;

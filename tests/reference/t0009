@@ -1,8 +1,12 @@
 Parsing file ../tests/t0009.nwt...
-Parse error on line 2 reported by parser: syntax error, unexpected $end, expecting = or += or -=.
 Parsed file ../tests/t0009.nwt.
-1 error found; giving up.
+Root Symbol Table:
+----------------
+my_struct s:
+	double x: 0
+
 
 Root Type Table:
 ----------------
-
+my_struct: 
+	double x (0)

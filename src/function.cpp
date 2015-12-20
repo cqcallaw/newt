@@ -26,7 +26,7 @@
 #include <statement_block.h>
 #include <constant_expression.h>
 
-Function::Function(const FunctionDeclaration* declaration,
+Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const StatementBlock* body, const ExecutionContext* closure) :
 		m_declaration(declaration), m_body(body), m_closure(closure) {
 }
@@ -64,11 +64,12 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 				//generate a declaration statement for the function execution context.
 				//it's tempting to just stuff a value into the symbol table,
 				//but this simplistic approach ignores widening conversions
-				const Expression* evaluated_expression =
-						static_cast<const Expression*>(argument_evaluation->GetData());
+				auto evaluated_expression =
+						static_pointer_cast<const Expression>(
+								argument_evaluation->GetData());
 				const DeclarationStatement* argument_declaration =
 						declaration->WithInitializerExpression(
-								evaluated_expression);
+								evaluated_expression.get());
 
 				auto preprocessing_errors = errors->Concatenate(
 						declaration->preprocess(function_execution_context),
@@ -82,7 +83,6 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 				}
 
 				delete argument_declaration;
-				delete evaluated_expression;
 			} else {
 				errors = errors->Concatenate(evaluation_errors, true);
 			}
@@ -95,8 +95,8 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 			//argument list is longer than parameter list
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::TOO_MANY_ARGUMENTS,
-							argument_expression->GetPosition().first_line,
-							argument_expression->GetPosition().first_column,
+							argument_expression->GetPosition().begin.line,
+							argument_expression->GetPosition().begin.column,
 							m_declaration->ToString()));
 			break;
 		}
@@ -115,8 +115,8 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 		} else {
 			errors = errors->With(
 					new Error(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
-							declaration->GetPosition().first_line,
-							declaration->GetPosition().first_column,
+							declaration->GetPosition().begin.line,
+							declaration->GetPosition().begin.column,
 							*declaration->GetName()));
 			break;
 		}

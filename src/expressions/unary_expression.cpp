@@ -23,14 +23,14 @@
 #include "unary_expression.h"
 #include "error.h"
 
-UnaryExpression::UnaryExpression(const YYLTYPE position, const OperatorType op,
-		const Expression* expression) :
+UnaryExpression::UnaryExpression(const yy::location position,
+		const OperatorType op, const Expression* expression) :
 		Expression(position), m_expression(expression), m_operator(op) {
 	assert(expression != NULL);
 }
 
-const TypeSpecifier* UnaryExpression::compute_result_type(
-		const TypeSpecifier* input_type, const OperatorType op) {
+const_shared_ptr<TypeSpecifier> UnaryExpression::compute_result_type(
+		const_shared_ptr<TypeSpecifier> input_type, const OperatorType op) {
 	switch (op) {
 	case UNARY_MINUS:
 		return input_type;
@@ -86,7 +86,7 @@ double UnaryExpression::degrees_to_radians(double angle) {
 	return angle * (M_PI / 180.0);
 }
 
-const TypeSpecifier* UnaryExpression::GetType(
+const_shared_ptr<TypeSpecifier> UnaryExpression::GetType(
 		const ExecutionContext* execution_context) const {
 	return compute_result_type(m_expression->GetType(execution_context),
 			m_operator);
@@ -107,13 +107,13 @@ const LinkedList<const Error*>* UnaryExpression::Validate(
 		return result;
 	}
 
-	const TypeSpecifier* expression_type = expression->GetType(
+	const_shared_ptr<TypeSpecifier> expression_type = expression->GetType(
 			execution_context);
 	if (!(expression_type->IsAssignableTo(PrimitiveTypeSpecifier::GetDouble()))) {
 		result = result->With(
 				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
-						expression->GetPosition().first_line,
-						expression->GetPosition().first_column,
+						expression->GetPosition().begin.line,
+						expression->GetPosition().begin.column,
 						operator_to_string(op)));
 	}
 
@@ -130,7 +130,7 @@ const Result* UnaryExpression::Evaluate(
 			LinkedList<const Error*>::GetTerminator();
 	void* result = nullptr;
 
-	const TypeSpecifier* expression_type = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
 			execution_context);
 	const Result* evaluation = m_expression->Evaluate(execution_context);
 	const LinkedList<const Error*>* evaluation_errors = evaluation->GetErrors();
@@ -138,18 +138,18 @@ const Result* UnaryExpression::Evaluate(
 	if (evaluation_errors != LinkedList<const Error*>::GetTerminator()) {
 		errors = evaluation_errors;
 	} else {
-		const void* data = evaluation->GetData();
+		auto data = evaluation->GetData();
 		switch (m_operator) {
 		case UNARY_MINUS: {
 			if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt())) {
 				int* value = new int;
-				*value = -(*((int*) data));
+				*value = -(*(static_pointer_cast<const int>(data)));
 				result = (void *) value;
 			} else if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetDouble())) {
 				double* value = new double;
-				*value = -(*((double*) data));
+				*value = -(*(static_pointer_cast<const double>(data)));
 				result = (void *) value;
 			} else {
 				assert(false);
@@ -159,18 +159,18 @@ const Result* UnaryExpression::Evaluate(
 		case NOT: {
 			if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetBoolean())) {
-				bool old_value = *((bool*) data);
+				bool old_value = *(static_pointer_cast<const bool>(data));
 				bool* value = new bool(!old_value);
 				result = (void *) value;
 			} else if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt())) {
-				int old_value = *((int*) data);
+				int old_value = *(static_pointer_cast<const int>(data));
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
 				break;
 			} else if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetDouble())) {
-				double old_value = *((double*) data);
+				double old_value = *(static_pointer_cast<const double>(data));
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
 				break;
@@ -187,6 +187,6 @@ const Result* UnaryExpression::Evaluate(
 
 	delete (evaluation);
 
-	return new Result(result, errors);
+	return new Result(const_shared_ptr<void>(result), errors);
 }
 
