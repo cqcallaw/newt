@@ -22,15 +22,14 @@
 #include <sstream>
 #include <assert.h>
 #include <type_specifier.h>
-#include <memory>
 
-CompoundType::CompoundType(
-		const map<const string, const MemberDefinition*>* definition,
+CompoundType::CompoundType(const definition_map* definition,
 		const Modifier::Type modifiers) :
 		m_definition(definition), m_modifiers(modifiers) {
 }
 
-const MemberDefinition* CompoundType::GetMember(const string name) const {
+const_shared_ptr<MemberDefinition> CompoundType::GetMember(
+		const string name) const {
 	auto result = m_definition->find(name);
 	if (result != m_definition->end()) {
 		return result->second;
@@ -46,11 +45,11 @@ const string CompoundType::ToString(const TypeTable& type_table,
 		const Indent indent) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
-	map<const string, const MemberDefinition*>::const_iterator type_iter;
+	definition_map::const_iterator type_iter;
 	for (type_iter = m_definition->begin(); type_iter != m_definition->end();
 			++type_iter) {
 		const string member_name = type_iter->first;
-		const MemberDefinition* member_definition = type_iter->second;
+		const_shared_ptr<MemberDefinition> member_definition = type_iter->second;
 		const_shared_ptr<TypeSpecifier> member_type =
 				member_definition->GetType();
 
@@ -63,10 +62,9 @@ const string CompoundType::ToString(const TypeTable& type_table,
 	return os.str();
 }
 
-const CompoundType* CompoundType::GetDefaultCompoundType() {
-	const static std::unique_ptr<CompoundType> instance = std::unique_ptr<
-			CompoundType>(
-			new CompoundType(new map<const string, const MemberDefinition*>(),
-					Modifier::NONE));
-	return instance.get();
+const_shared_ptr<CompoundType> CompoundType::GetDefaultCompoundType() {
+	const static std::shared_ptr<CompoundType> instance = std::shared_ptr
+			< CompoundType
+			> (new CompoundType(new definition_map(), Modifier::NONE));
+	return instance;
 }

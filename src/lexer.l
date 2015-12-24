@@ -22,6 +22,7 @@
 #include <climits>
 #include <cfloat>
 #include <driver.h>
+#include <string.h>
 #include "parser.tab.hh"
 
 // The location of the current token.
@@ -126,14 +127,12 @@ blank   [ \t\r]
 }
 
 {str} {
-	const std::string as_string = std::string(yytext);
-	const std::string* sans_quotes = new std::string(as_string.substr(1, as_string.length() - 2));
-	return yy::newt_parser::make_STRING_CONSTANT(plain_shared_ptr<std::string>(sans_quotes), loc);
+	int len = strlen(yytext);
+	return yy::newt_parser::make_STRING_CONSTANT(make_shared<const std::string>(yytext + 1, len - 2), loc);
 } 
 
 {id} {
-	const std::string* as_string = new std::string(yytext);
-	return yy::newt_parser::make_IDENTIFIER(plain_shared_ptr<std::string>(as_string), loc);
+	return yy::newt_parser::make_IDENTIFIER(make_shared<const std::string>(yytext), loc);
 }
 
 \/\/.* // ignore comments that end a file without a trailing newline

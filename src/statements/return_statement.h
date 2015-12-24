@@ -26,20 +26,20 @@ class Expression;
 
 class ReturnStatement: public Statement {
 public:
-	ReturnStatement(const Expression* expression);
+	ReturnStatement(const_shared_ptr<Expression> expression);
 	virtual ~ReturnStatement();
 
-	virtual const LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList preprocess(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(
-			ExecutionContext* execution_context) const;
+	virtual const ErrorList execute(
+			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
-	const Expression* m_expression;
+	const_shared_ptr<Expression> m_expression;
 };
 
 #endif /* STATEMENTS_RETURN_STATEMENT_H_ */

@@ -24,14 +24,15 @@ class Expression;
 
 class Index {
 public:
-	Index(const yy::location location, const Expression* index_expression) :
+	Index(const yy::location location,
+			const_shared_ptr<Expression> index_expression) :
 			m_location(location), m_index_expression(index_expression) {
 	}
 
 	virtual ~Index() {
 	}
 
-	const Expression* GetIndexExpression() const {
+	const_shared_ptr<Expression> GetIndexExpression() const {
 		return m_index_expression;
 	}
 
@@ -41,9 +42,10 @@ public:
 
 private:
 	const yy::location m_location;
-	const Expression* m_index_expression;
+	const_shared_ptr<Expression> m_index_expression;
 };
 
-typedef const LinkedList<const Index*> IndexList;
+typedef const LinkedList<const Index, NO_DUPLICATES> IndexListBase;
+typedef shared_ptr<IndexListBase> IndexList;
 
 #endif /* INDEX_H_ */

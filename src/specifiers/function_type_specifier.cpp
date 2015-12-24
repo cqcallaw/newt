@@ -32,9 +32,14 @@
 #include <execution_context.h>
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
-		const TypeSpecifierList* parameter_type_list,
+		TypeSpecifierList parameter_type_list,
 		const_shared_ptr<TypeSpecifier> return_type) :
 		m_parameter_type_list(parameter_type_list), m_return_type(return_type) {
+}
+
+FunctionTypeSpecifier::FunctionTypeSpecifier(const FunctionTypeSpecifier& other) :
+		m_parameter_type_list(other.m_parameter_type_list), m_return_type(
+				other.m_return_type) {
 }
 
 FunctionTypeSpecifier::~FunctionTypeSpecifier() {
@@ -43,14 +48,13 @@ FunctionTypeSpecifier::~FunctionTypeSpecifier() {
 const string FunctionTypeSpecifier::ToString() const {
 	ostringstream buffer;
 	buffer << "(";
-	const LinkedList<const_shared_ptr<TypeSpecifier>>* subject =
-			m_parameter_type_list;
-	while (!subject->IsTerminator()) {
+	TypeSpecifierList subject = m_parameter_type_list;
+	while (!TypeSpecifierListBase::IsTerminator(subject)) {
 		const_shared_ptr<TypeSpecifier> type = subject->GetData();
 		buffer << type->ToString();
 		subject = subject->GetNext();
 
-		if (!subject->IsTerminator()) {
+		if (!TypeSpecifierListBase::IsTerminator(subject)) {
 			//add separator
 			buffer << ", ";
 		}
@@ -76,11 +80,10 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 		const FunctionTypeSpecifier& as_function =
 				dynamic_cast<const FunctionTypeSpecifier&>(other);
 		if (*m_return_type == *as_function.GetReturnType()) {
-			const LinkedList<const_shared_ptr<TypeSpecifier>>* subject =
-					m_parameter_type_list;
-			const LinkedList<const_shared_ptr<TypeSpecifier>>* other_subject =
+			TypeSpecifierList subject = m_parameter_type_list;
+			TypeSpecifierList other_subject =
 					as_function.GetParameterTypeList();
-			while (!subject->IsTerminator()) {
+			while (!TypeSpecifierListBase::IsTerminator(subject)) {
 				const_shared_ptr<TypeSpecifier> type = subject->GetData();
 				const_shared_ptr<TypeSpecifier> other_type =
 						other_subject->GetData();
@@ -101,12 +104,12 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const DeclarationStatement* FunctionTypeSpecifier::GetDeclarationStatement(
+const_shared_ptr<DeclarationStatement> FunctionTypeSpecifier::GetDeclarationStatement(
 		const yy::location position, const_shared_ptr<TypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_position,
-		const Expression* initializer_expression) const {
-	return new FunctionDeclarationStatement(position,
+		const_shared_ptr<Expression> initializer_expression) const {
+	return make_shared<FunctionDeclarationStatement>(position,
 			static_pointer_cast<const FunctionTypeSpecifier>(type),
 			type_position, name, name_position, initializer_expression);
 }
@@ -121,17 +124,19 @@ const Function* FunctionTypeSpecifier::GetDefaultFunction(
 			ExecutionContext::GetDefault());
 }
 
-const StatementBlock* FunctionTypeSpecifier::GetDefaultStatementBlock(
+const_shared_ptr<StatementBlock> FunctionTypeSpecifier::GetDefaultStatementBlock(
 		const_shared_ptr<TypeSpecifier> return_type,
 		const TypeTable& type_table) {
 	//return a function that returns the default value of the return type
-	const ConstantExpression* return_expression =
+	const_shared_ptr<ConstantExpression> return_expression =
 			ConstantExpression::GetDefaultExpression(return_type, type_table);
-	const ReturnStatement* default_return_statement = new ReturnStatement(
-			return_expression);
-	const StatementList* default_list = new StatementList(
-			default_return_statement, StatementList::GetTerminator());
-	const StatementBlock* statement_block = new StatementBlock(default_list);
+	const_shared_ptr<ReturnStatement> default_return_statement = make_shared<
+			ReturnStatement>(return_expression);
+	const StatementList default_list = StatementListBase::From(
+			default_return_statement, StatementListBase::GetTerminator());
+
+	const_shared_ptr<StatementBlock> statement_block = make_shared<
+			StatementBlock>(default_list);
 
 	return statement_block;
 }

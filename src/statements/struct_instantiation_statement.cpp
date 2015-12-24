@@ -34,7 +34,7 @@ StructInstantiationStatement::StructInstantiationStatement(
 		const_shared_ptr<CompoundTypeSpecifier> type_specifier,
 		const yy::location type_name_position, const_shared_ptr<string> name,
 		const yy::location name_position,
-		const Expression* initializer_expression) :
+		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position), m_type_specifier(type_specifier), m_type_name_position(
 				type_name_position), m_name(name), m_name_position(
 				name_position), m_initializer_expression(initializer_expression) {
@@ -43,20 +43,20 @@ StructInstantiationStatement::StructInstantiationStatement(
 StructInstantiationStatement::~StructInstantiationStatement() {
 }
 
-const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList StructInstantiationStatement::preprocess(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 	//TODO: validate that all members are initialized for readonly structs (?)
 
-	const CompoundType* type = execution_context->GetTypeTable()->GetType(
-			m_type_specifier->GetTypeName());
+	const_shared_ptr<CompoundType> type =
+			execution_context->GetTypeTable()->GetType(
+					m_type_specifier->GetTypeName());
 
 	if (type != CompoundType::GetDefaultCompoundType()) {
-		SymbolTable* symbol_table =
-				(SymbolTable*) execution_context->GetSymbolContext();
+		shared_ptr<SymbolTable> symbol_table = static_pointer_cast<SymbolTable>(
+				execution_context->GetSymbolContext());
 
-		const Symbol* existing = symbol_table->GetSymbol(m_name, SHALLOW);
+		auto existing = symbol_table->GetSymbol(m_name, SHALLOW);
 		if (existing == Symbol::GetDefaultSymbol()) {
 			plain_shared_ptr<const CompoundTypeInstance> instance;
 			if (m_initializer_expression) {
@@ -64,7 +64,7 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 						m_initializer_expression->GetType(execution_context);
 				errors = m_initializer_expression->Validate(execution_context);
 
-				if (errors->IsTerminator()) {
+				if (ErrorListBase::IsTerminator(errors)) {
 					const_shared_ptr<CompoundTypeSpecifier> as_compound_specifier =
 							std::dynamic_pointer_cast<
 									const CompoundTypeSpecifier>(
@@ -79,7 +79,7 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 									m_initializer_expression->Evaluate(
 											execution_context);
 							errors = result->GetErrors();
-							if (errors->IsTerminator()) {
+							if (ErrorListBase::IsTerminator(errors)) {
 								instance = static_pointer_cast<
 										const CompoundTypeInstance>(
 										result->GetData());
@@ -91,13 +91,14 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 						}
 					} else {
 						errors =
-								errors->With(
-										new Error(Error::SEMANTIC,
+								ErrorListBase::From(
+										make_shared<Error>(Error::SEMANTIC,
 												Error::ASSIGNMENT_TYPE_ERROR,
 												m_initializer_expression->GetPosition().begin.line,
 												m_initializer_expression->GetPosition().begin.column,
 												m_type_specifier->GetTypeName(),
-												expression_type->ToString()));
+												expression_type->ToString()),
+										errors);
 					}
 				}
 			} else {
@@ -105,9 +106,9 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 						m_type_specifier->GetTypeName(), type);
 			}
 
-			if (errors->IsTerminator()) {
+			if (ErrorListBase::IsTerminator(errors)) {
 				//we've been able to get a good initial value (that is, no errors have occurred)
-				const Symbol* symbol = new Symbol(instance);
+				auto symbol = const_shared_ptr<Symbol>(new Symbol(instance));
 				const InsertResult insert_result = symbol_table->InsertSymbol(
 						*m_name, symbol);
 
@@ -117,19 +118,20 @@ const LinkedList<const Error*>* StructInstantiationStatement::preprocess(
 			}
 		} else {
 			//symbol already exists
-			errors = errors->With(
-					new Error(Error::SEMANTIC,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
 							Error::PREVIOUSLY_DECLARED_VARIABLE,
 							m_type_name_position.begin.line,
-							m_type_name_position.begin.column, *m_name));
+							m_type_name_position.begin.column, *m_name),
+					errors);
 		}
 	} else {
 		//type does not exist
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 						m_type_name_position.begin.line,
 						m_type_name_position.begin.column,
-						m_type_specifier->GetTypeName()));
+						m_type_specifier->GetTypeName()), errors);
 	}
 
 	return errors;
@@ -139,10 +141,9 @@ const_shared_ptr<TypeSpecifier> StructInstantiationStatement::GetType() const {
 	return m_type_specifier;
 }
 
-const LinkedList<const Error*>* StructInstantiationStatement::execute(
-		ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList StructInstantiationStatement::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	if (m_initializer_expression) {
 		const Result* evaluation = m_initializer_expression->Evaluate(
@@ -150,7 +151,7 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 
 		errors = evaluation->GetErrors();
 
-		if (errors->IsTerminator()) {
+		if (ErrorListBase::IsTerminator(errors)) {
 			auto void_value = evaluation->GetData();
 			const_shared_ptr<const CompoundTypeInstance> instance =
 					static_pointer_cast<const CompoundTypeInstance>(void_value);
@@ -162,7 +163,7 @@ const LinkedList<const Error*>* StructInstantiationStatement::execute(
 }
 
 const DeclarationStatement* StructInstantiationStatement::WithInitializerExpression(
-		const Expression* expression) const {
+		const_shared_ptr<Expression> expression) const {
 	return new StructInstantiationStatement(GetPosition(), m_type_specifier,
 			m_type_name_position, m_name, m_name_position, expression);
 }

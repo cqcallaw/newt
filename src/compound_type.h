@@ -28,33 +28,32 @@
 
 class MemberDefinition;
 
+typedef map<const string, const_shared_ptr<MemberDefinition>> definition_map;
+
 using namespace std;
 class CompoundType {
 public:
-	CompoundType(const map<const string, const MemberDefinition*>* definition,
+	CompoundType(const definition_map* definition,
 			const Modifier::Type modifiers);
 	virtual ~CompoundType();
-	const MemberDefinition* GetMember(const string name) const;
+	const_shared_ptr<MemberDefinition> GetMember(const string name) const;
 
 	const string ToString(const TypeTable& type_table,
 			const Indent indent) const;
 
-	const map<const string, const MemberDefinition*>* GetDefinition() const {
+	const definition_map* GetDefinition() const {
 		return m_definition;
 	}
 
-	const static CompoundType* GetDefaultCompoundType();
+	static const_shared_ptr<CompoundType> GetDefaultCompoundType();
 
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;
 	}
 
 private:
-	const map<const string, const MemberDefinition*>* m_definition;
+	const definition_map* m_definition;
 	const Modifier::Type m_modifiers;
-
-	const Symbol* GetSymbol(const BasicType member_type,
-			const string member_name, const void* void_value) const;
 };
 
 #endif /* COMPOUND_TYPE_H_ */

@@ -26,29 +26,29 @@ class Expression;
 
 class PrintStatement: public Statement {
 public:
-	PrintStatement(const int line_number, const Expression* expression);
+	PrintStatement(const int line_number, const_shared_ptr<Expression> expression);
 	virtual ~PrintStatement();
 
-	virtual const LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const {
+	virtual const ErrorList preprocess(
+			const_shared_ptr<ExecutionContext> execution_context) const {
 		return m_expression->Validate(execution_context);
 	}
 
-	virtual const LinkedList<const Error*>* execute(
-			ExecutionContext* execution_context) const;
+	virtual const ErrorList execute(
+			shared_ptr<ExecutionContext> execution_context) const;
 
-	const Expression* GetExpression() const {
+	const_shared_ptr<Expression> GetExpression() const {
 		return m_expression;
 	}
 
 	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
-			const ExecutionContext* execution_context) const {
+			const_shared_ptr<ExecutionContext> execution_context) const {
 		return AnalysisResult::NO;
 	}
 
 private:
 	const int m_line_number;
-	const Expression* m_expression;
+	const_shared_ptr<Expression> m_expression;
 };
 
 #endif /* PRINT_STATEMENT_H_ */

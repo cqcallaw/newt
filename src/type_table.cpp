@@ -20,19 +20,22 @@
 #include <type_table.h>
 #include <compound_type.h>
 
-TypeTable::TypeTable() {
-	table = new map<const string, const CompoundType*>();
+TypeTable::TypeTable() :
+		table(new type_map()) {
 }
 
 TypeTable::~TypeTable() {
 	delete (table);
 }
 
-void TypeTable::AddType(const string name, const CompoundType* definition) {
-	table->insert(pair<const string, const CompoundType*>(name, definition));
+void TypeTable::AddType(const string name,
+		const_shared_ptr<CompoundType> definition) {
+	table->insert(
+			pair<const string, const_shared_ptr<CompoundType>>(name,
+					definition));
 }
 
-const CompoundType* TypeTable::GetType(const string name) const {
+const_shared_ptr<CompoundType> TypeTable::GetType(const string& name) const {
 	auto result = table->find(name);
 
 	if (result != table->end()) {
@@ -43,8 +46,8 @@ const CompoundType* TypeTable::GetType(const string name) const {
 }
 
 const_shared_ptr<void> TypeTable::GetDefaultValue(
-		const string type_name) const {
-	const CompoundType* type = GetType(type_name);
+		const string& type_name) const {
+	const_shared_ptr<CompoundType> type = GetType(type_name);
 	if (type != CompoundType::GetDefaultCompoundType()) {
 		return CompoundTypeInstance::GetDefaultInstance(type_name, type);
 	} else {
@@ -53,16 +56,15 @@ const_shared_ptr<void> TypeTable::GetDefaultValue(
 }
 
 const void TypeTable::print(ostream& os) const {
-	map<const string, const CompoundType*>::iterator iter;
+	type_map::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {
 		os << iter->first << ": " << endl;
-		const CompoundType* type = iter->second;
+		const_shared_ptr<CompoundType> type = iter->second;
 		os << type->ToString(*this, Indent(0));
 	}
 }
 
 volatile_shared_ptr<TypeTable> TypeTable::GetDefault() {
-	static volatile_shared_ptr<TypeTable> instance = volatile_shared_ptr<
-			TypeTable>(new TypeTable());
+	static volatile_shared_ptr<TypeTable> instance = make_shared<TypeTable>();
 	return instance;
 }

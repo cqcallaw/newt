@@ -29,23 +29,23 @@ class FunctionExpression: public Expression {
 public:
 	FunctionExpression(const yy::location position,
 			const_shared_ptr<FunctionDeclaration> type,
-			const StatementBlock* body);
+			const_shared_ptr<StatementBlock> body);
 	virtual ~FunctionExpression();
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const;
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
 	const_shared_ptr<FunctionDeclaration> m_declaration;
-	const StatementBlock* m_body;
+	const_shared_ptr<StatementBlock> m_body;
 };
 
 #endif /* EXPRESSIONS_FUNCTION_EXPRESSION_H_ */

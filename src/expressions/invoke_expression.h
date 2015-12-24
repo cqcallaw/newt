@@ -24,31 +24,31 @@
 
 class InvokeExpression: public Expression {
 public:
-	InvokeExpression(const yy::location position, const Expression* expression,
-			const ArgumentList* argument_list,
+	InvokeExpression(const yy::location position, const_shared_ptr<Expression> expression,
+			ArgumentList argument_list,
 			const yy::location argument_list_position);
 	virtual ~InvokeExpression();
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	const Result* ToString(const ExecutionContext* execution_context) const;
+	const Result* ToString(const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return false;
 	}
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	const Expression* GetExpression() const {
+	const_shared_ptr<Expression> GetExpression() const {
 		return m_expression;
 	}
 
-	const ArgumentList* GetArgumentList() const {
+	ArgumentList GetArgumentList() const {
 		return m_argument_list;
 	}
 
@@ -57,8 +57,8 @@ public:
 	}
 
 private:
-	const Expression* m_expression;
-	const ArgumentList* m_argument_list;
+	const_shared_ptr<Expression> m_expression;
+	ArgumentList m_argument_list;
 	const yy::location m_argument_list_position;
 };
 

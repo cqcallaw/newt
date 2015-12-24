@@ -28,18 +28,23 @@ DefaultValueExpression::DefaultValueExpression(const yy::location position,
 		Expression(position), m_type(type), m_type_position(type_position) {
 }
 
+DefaultValueExpression::DefaultValueExpression(
+		const DefaultValueExpression* other) :
+		Expression(other->GetPosition()), m_type(other->m_type), m_type_position(
+				other->m_type_position) {
+}
+
 DefaultValueExpression::~DefaultValueExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetType(
-		const ExecutionContext* execution_context) const {
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	return m_type;
 }
 
 const Result* DefaultValueExpression::Evaluate(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 	plain_shared_ptr<void> return_value;
 
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
@@ -49,11 +54,11 @@ const Result* DefaultValueExpression::Evaluate(
 			return_value = as_primitive->DefaultValue(
 					*execution_context->GetTypeTable());
 		} else {
-			errors = errors->With(
-					new Error(Error::SEMANTIC,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
 							Error::INVALID_RIGHT_OPERAND_TYPE,
 							m_type_position.begin.line,
-							m_type_position.begin.column, "#"));
+							m_type_position.begin.column, "@"), errors);
 		}
 	}
 
@@ -61,37 +66,36 @@ const Result* DefaultValueExpression::Evaluate(
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(m_type);
 	if (as_compound) {
 		const string type_name = as_compound->GetTypeName();
-		const CompoundType* type = execution_context->GetTypeTable()->GetType(
-				type_name);
+		const_shared_ptr<CompoundType> type =
+				execution_context->GetTypeTable()->GetType(type_name);
 
 		if (type != CompoundType::GetDefaultCompoundType()) {
 			return_value = m_type->DefaultValue(
 					*execution_context->GetTypeTable());
 		} else {
-			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_type_position.begin.line,
-							m_type_position.begin.column, type_name));
+							m_type_position.begin.column, type_name), errors);
 		}
 	}
 
 	return new Result(return_value, errors);
 }
 
-const LinkedList<const Error*>* DefaultValueExpression::Validate(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList DefaultValueExpression::Validate(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(m_type);
 	if (as_primitive != nullptr) {
 		if (as_primitive == PrimitiveTypeSpecifier::GetNone()) {
-			errors = errors->With(
-					new Error(Error::SEMANTIC,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
 							Error::INVALID_RIGHT_OPERAND_TYPE,
 							m_type_position.begin.line,
-							m_type_position.begin.column, "#"));
+							m_type_position.begin.column, "@"), errors);
 		}
 	}
 
@@ -99,14 +103,14 @@ const LinkedList<const Error*>* DefaultValueExpression::Validate(
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(m_type);
 	if (as_compound) {
 		const string type_name = as_compound->GetTypeName();
-		const CompoundType* type = execution_context->GetTypeTable()->GetType(
-				type_name);
+		const_shared_ptr<CompoundType> type =
+				execution_context->GetTypeTable()->GetType(type_name);
 
 		if (type == CompoundType::GetDefaultCompoundType()) {
-			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_type_position.begin.line,
-							m_type_position.begin.column, type_name));
+							m_type_position.begin.column, type_name), errors);
 		}
 	}
 

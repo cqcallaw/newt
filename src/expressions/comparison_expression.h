@@ -27,13 +27,13 @@ using namespace std;
 class ComparisonExpression: public BinaryExpression {
 public:
 	ComparisonExpression(const yy::location position, const OperatorType op,
-			const Expression* left, const Expression* right);
+			const_shared_ptr<Expression> left, const_shared_ptr<Expression> right);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 protected:
 	virtual const Result* compute(bool& left, bool& right,

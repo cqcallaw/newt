@@ -43,8 +43,8 @@ enum SearchType {
 	SHALLOW = 0, DEEP = 1
 };
 
-const LinkedList<const Error*>* ToErrorList(const SetResult result,
-		const yy::location location, const_shared_ptr<string> name,
+const ErrorList ToErrorList(const SetResult result, const yy::location location,
+		const_shared_ptr<string> name,
 		const_shared_ptr<TypeSpecifier> symbol_type,
 		const_shared_ptr<TypeSpecifier> value_type);
 
@@ -54,30 +54,35 @@ struct comparator {
 	}
 };
 
+typedef map<const string, plain_shared_ptr<Symbol>, comparator> symbol_map;
+typedef const LinkedList<SymbolContext, NO_DUPLICATES> SymbolContextListBase;
+typedef shared_ptr<SymbolContextListBase> SymbolContextList;
+
 class SymbolContext {
 public:
 	SymbolContext(const Modifier::Type modifiers,
-			const LinkedList<SymbolContext*>* parent =
-					LinkedList<SymbolContext*>::GetTerminator());
+			const SymbolContextList parent =
+					SymbolContextListBase::GetTerminator());
 	SymbolContext(const Modifier::Type modifiers,
-			const LinkedList<SymbolContext*>* parent_context,
-			map<const string, const Symbol*, comparator>* values);
+			const SymbolContextList parent_context,
+			const shared_ptr<symbol_map> values);
 	virtual ~SymbolContext();
 
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;
 	}
 
-	const LinkedList<SymbolContext*>* GetParent() const {
+	const SymbolContextList GetParent() const {
 		return m_parent;
 	}
 
-	virtual SymbolContext* WithParent(
-			const LinkedList<SymbolContext*>* parent_context) const {
-		return new SymbolContext(m_modifiers, parent_context, m_table);
+	virtual volatile_shared_ptr<SymbolContext> WithParent(
+			const SymbolContextList parent_context) const {
+		return make_shared<SymbolContext>(
+				SymbolContext(m_modifiers, parent_context, m_table));
 	}
 
-	map<const string, const Symbol*, comparator>* GetTable() const {
+	const shared_ptr<symbol_map> GetTable() const {
 		return m_table;
 	}
 
@@ -86,39 +91,34 @@ public:
 	}
 
 	const void print(ostream &os, const TypeTable& type_table,
-			const Indent indent) const;
+			const Indent indent, const SearchType search_type = SHALLOW) const;
 
-	const Symbol* GetSymbol(const string identifier,
+	const_shared_ptr<Symbol> GetSymbol(const string& identifier,
 			const SearchType search_type) const;
-	const Symbol* GetSymbol(const_shared_ptr<string> identifier,
+	const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<string> identifier,
 			const SearchType search_type) const;
 
-	SetResult SetSymbol(const string identifier, const_shared_ptr<bool> value);
-	SetResult SetSymbol(const string identifier, const_shared_ptr<int> value);
-	SetResult SetSymbol(const string identifier,
+	SetResult SetSymbol(const string& identifier, const_shared_ptr<bool> value);
+	SetResult SetSymbol(const string& identifier, const_shared_ptr<int> value);
+	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<double> value);
-	SetResult SetSymbol(const string identifier,
+	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<string> value);
-	SetResult SetSymbol(const string identifier, const_shared_ptr<Array> value);
-	SetResult SetSymbol(const string identifier,
+	SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<Array> value);
+	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<CompoundTypeInstance> value);
-	SetResult SetSymbol(const string identifier,
+	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<Function> value);
 
-	static SymbolContext* GetDefault();
+	static volatile_shared_ptr<SymbolContext> GetDefault();
 
 private:
 	const Modifier::Type m_modifiers;
-	const LinkedList<SymbolContext*>* m_parent;
-	map<const string, const Symbol*, comparator>* m_table;
-	const bool m_dispose_members;
+	const SymbolContextList m_parent;
+	const shared_ptr<symbol_map> m_table;
 
-	SymbolContext(const Modifier::Type modifiers,
-			const LinkedList<SymbolContext*>* parent_context,
-			map<const string, const Symbol*, comparator>* values,
-			const bool dispose_members);
-
-	SetResult SetSymbol(const string identifier,
+	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
 };
 

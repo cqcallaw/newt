@@ -21,26 +21,25 @@
 #include <expression.h>
 #include <execution_context.h>
 
-ReturnStatement::ReturnStatement(const Expression* expression) :
+ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 		m_expression(expression) {
 }
 
 ReturnStatement::~ReturnStatement() {
 }
 
-const LinkedList<const Error*>* ReturnStatement::preprocess(
-		const ExecutionContext* execution_context) const {
+const ErrorList ReturnStatement::preprocess(
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	return m_expression->Validate(execution_context);
 }
 
-const LinkedList<const Error*>* ReturnStatement::execute(
-		ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList ReturnStatement::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 	auto result = m_expression->Evaluate(execution_context);
 
 	errors = result->GetErrors();
-	if (errors->IsTerminator()) {
+	if (ErrorListBase::IsTerminator(errors)) {
 		execution_context->SetReturnValue(result->GetData());
 	}
 
@@ -49,9 +48,9 @@ const LinkedList<const Error*>* ReturnStatement::execute(
 
 const AnalysisResult ReturnStatement::Returns(
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const ExecutionContext* execution_context) const {
-	const_shared_ptr<TypeSpecifier> expression_type_specifier = m_expression->GetType(
-			execution_context);
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	const_shared_ptr<TypeSpecifier> expression_type_specifier =
+			m_expression->GetType(execution_context);
 	if (*expression_type_specifier == *type_specifier) {
 		return AnalysisResult::YES;
 	} else {

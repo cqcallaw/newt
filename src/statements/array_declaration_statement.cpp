@@ -25,16 +25,15 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(
 		const_shared_ptr<ArrayTypeSpecifier> type_specifier,
 		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_position,
-		const Expression* initializer_expression) :
+		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position), m_type(type_specifier), m_type_position(
 				type_position), m_name(name), m_name_position(name_position), m_initializer_expression(
 				initializer_expression) {
 }
 
-const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList ArrayDeclarationStatement::preprocess(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	const_shared_ptr<CompoundTypeSpecifier> element_type_as_compound =
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
@@ -44,17 +43,17 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 		const_shared_ptr<TypeTable> type_table =
 				execution_context->GetTypeTable();
 		const string type_name = element_type_as_compound->GetTypeName();
-		const CompoundType* type = type_table->GetType(type_name);
+		const_shared_ptr<CompoundType> type = type_table->GetType(type_name);
 
 		if (type == CompoundType::GetDefaultCompoundType()) {
-			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::UNDECLARED_TYPE,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_type_position.begin.line,
-							m_type_position.begin.column, type_name));
+							m_type_position.begin.column, type_name), errors);
 		}
 	}
 
-	if (errors->IsTerminator()) {
+	if (ErrorListBase::IsTerminator(errors)) {
 		const Array* array = nullptr;
 		auto name = m_name;
 		if (m_initializer_expression) {
@@ -66,35 +65,36 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 			if (!as_array
 					|| !initializer_expression_type->IsAssignableTo(m_type)) {
 				errors =
-						errors->With(
-								new Error(Error::SEMANTIC,
+						ErrorListBase::From(
+								make_shared<Error>(Error::SEMANTIC,
 										Error::ASSIGNMENT_TYPE_ERROR,
 										m_initializer_expression->GetPosition().begin.line,
 										m_initializer_expression->GetPosition().begin.column,
 										m_type->ToString(),
-										initializer_expression_type->ToString()));
+										initializer_expression_type->ToString()),
+								errors);
 			}
 		}
 
-		if (errors->IsTerminator()) {
+		if (ErrorListBase::IsTerminator(errors)) {
 			array = new Array(m_type->GetElementTypeSpecifier(),
 					*execution_context->GetTypeTable());
 		}
 
-		SymbolTable* symbol_table =
-				(SymbolTable*) execution_context->GetSymbolContext();
+		volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
+				SymbolTable>(execution_context->GetSymbolContext());
 
 		if (array != nullptr) {
 			auto wrapper = const_shared_ptr<Array>(array);
-			const Symbol* symbol = new Symbol(wrapper);
+			auto symbol = const_shared_ptr<Symbol>(new Symbol(wrapper));
 			InsertResult insert_result = symbol_table->InsertSymbol(*name,
 					symbol);
 			if (insert_result == SYMBOL_EXISTS) {
-				errors = errors->With(
-						new Error(Error::SEMANTIC,
+				errors = ErrorListBase::From(
+						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUSLY_DECLARED_VARIABLE,
 								m_name_position.begin.line,
-								m_name_position.begin.column, *m_name));
+								m_name_position.begin.column, *m_name), errors);
 			}
 		}
 	}
@@ -105,16 +105,15 @@ const LinkedList<const Error*>* ArrayDeclarationStatement::preprocess(
 ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 }
 
-const LinkedList<const Error*>* ArrayDeclarationStatement::execute(
-		ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList ArrayDeclarationStatement::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 	if (m_initializer_expression) {
 		const Result* initializer_result = m_initializer_expression->Evaluate(
 				execution_context);
 		errors = initializer_result->GetErrors();
 
-		if (errors->IsTerminator()) {
+		if (ErrorListBase::IsTerminator(errors)) {
 			auto array = static_pointer_cast<const Array>(
 					initializer_result->GetData());
 			auto symbol_context = execution_context->GetSymbolContext();
@@ -136,7 +135,7 @@ const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetType() const {
 }
 
 const DeclarationStatement* ArrayDeclarationStatement::WithInitializerExpression(
-		const Expression* expression) const {
+		const_shared_ptr<Expression> expression) const {
 	return new ArrayDeclarationStatement(GetPosition(), m_type, m_type_position,
 			m_name, m_name_position, expression);
 }

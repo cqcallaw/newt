@@ -21,7 +21,7 @@
 
 MemberDeclaration::MemberDeclaration(const_shared_ptr<TypeSpecifier> type,
 		const yy::location type_position, const std::string* name,
-		const yy::location name_position, const Expression* initializer_expression,
+		const yy::location name_position, const_shared_ptr<Expression> initializer_expression,
 		const yy::location initializer_expression_position) :
 		m_type(type), m_type_position(type_position), m_name(name), m_name_position(
 				name_position), m_initializer_expression(

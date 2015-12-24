@@ -28,7 +28,7 @@
 
 FunctionExpression::FunctionExpression(const yy::location position,
 		const_shared_ptr<FunctionDeclaration> declaration,
-		const StatementBlock* body) :
+		const_shared_ptr<StatementBlock> body) :
 		Expression(position), m_declaration(declaration), m_body(body) {
 }
 
@@ -36,49 +36,47 @@ FunctionExpression::~FunctionExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> FunctionExpression::GetType(
-		const ExecutionContext* execution_context) const {
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	return m_declaration;
 }
 
 const Result* FunctionExpression::Evaluate(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
-	const Function* function = new Function(m_declaration, m_body,
-			execution_context);
-	return new Result(const_shared_ptr<void>(function), errors);
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
+	return new Result(
+			make_shared<Function>(m_declaration, m_body, execution_context),
+			errors);
 }
 
 const bool FunctionExpression::IsConstant() const {
 	return true;
 }
 
-const LinkedList<const Error*>* FunctionExpression::Validate(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList FunctionExpression::Validate(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	//generate a temporary context for validation
 	auto parent = execution_context->GetSymbolContext()->GetParent();
-	auto new_parent = parent->With(execution_context->GetSymbolContext());
-	auto tmp_map = new map<const string, const Symbol*, comparator>();
-	SymbolTable* tmp_table = new SymbolTable(Modifier::Type::NONE, new_parent,
-			tmp_map);
-	ExecutionContext* tmp_context = execution_context->WithSymbolContext(
-			tmp_table);
+	auto new_parent = SymbolContextListBase::From(
+			execution_context->GetSymbolContext(), parent);
+	auto tmp_map = make_shared<symbol_map>();
+	volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
+			Modifier::Type::NONE, new_parent, tmp_map);
+	shared_ptr<ExecutionContext> tmp_context =
+			execution_context->WithSymbolContext(tmp_table);
 
-	const LinkedList<const DeclarationStatement*>* declaration =
-			m_declaration->GetParameterList();
-	while (!declaration->IsTerminator()) {
+	DeclarationList declaration = m_declaration->GetParameterList();
+	while (!DeclarationListBase::IsTerminator(declaration)) {
 		auto declaration_statement = declaration->GetData();
-		auto preprocessing_errors = errors->Concatenate(
-				declaration_statement->preprocess(tmp_context), true);
+		auto preprocessing_errors = ErrorListBase::Concatenate(errors,
+				declaration_statement->preprocess(tmp_context));
 
-		if (preprocessing_errors->IsTerminator()) {
-			errors = errors->Concatenate(
-					declaration_statement->execute(tmp_context), true);
+		if (ErrorListBase::IsTerminator(preprocessing_errors)) {
+			errors = ErrorListBase::Concatenate(errors,
+					declaration_statement->execute(tmp_context));
 		} else {
-			errors = errors->Concatenate(preprocessing_errors, true);
+			errors = ErrorListBase::Concatenate(errors, preprocessing_errors);
 		}
 
 		declaration = declaration->GetNext();
@@ -89,15 +87,12 @@ const LinkedList<const Error*>* FunctionExpression::Validate(
 	AnalysisResult returns = m_body->Returns(m_declaration->GetReturnType(),
 			tmp_context);
 	if (returns == AnalysisResult::NO) {
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::FUNCTION_RETURN_MISMATCH,
-						GetPosition().begin.line, GetPosition().begin.column));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::FUNCTION_RETURN_MISMATCH,
+						GetPosition().begin.line, GetPosition().begin.column),
+				errors);
 	}
-
-	delete tmp_context;
-	delete tmp_table;
-	delete tmp_map;
-	delete new_parent;
 
 	return errors;
 }

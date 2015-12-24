@@ -79,7 +79,7 @@ public:
 		return result;
 	}
 
-	const static MemberDefinition* GetDefaultMemberDefinition();
+	static const_shared_ptr<MemberDefinition> GetDefaultMemberDefinition();
 
 private:
 	const_shared_ptr<TypeSpecifier> m_type;

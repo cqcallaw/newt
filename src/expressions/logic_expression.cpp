@@ -21,18 +21,19 @@
 #include "error.h"
 
 LogicExpression::LogicExpression(const yy::location position,
-		const OperatorType op, const Expression* left, const Expression* right) :
+		const OperatorType op, const_shared_ptr<Expression> left,
+		const_shared_ptr<Expression> right) :
 		BinaryExpression(position, op, left, right) {
 	assert(op == OR || op == AND);
 }
 
 const_shared_ptr<TypeSpecifier> LogicExpression::GetType(
-		const ExecutionContext* execution_context) const {
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	return PrimitiveTypeSpecifier::GetBoolean();
 }
 
-const LinkedList<const Error*>* LogicExpression::Validate(
-		const ExecutionContext* execution_context) const {
+const ErrorList LogicExpression::Validate(
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	return BinaryExpression::Validate(execution_context,
 			PrimitiveTypeSpecifier::GetDouble(),
 			PrimitiveTypeSpecifier::GetDouble());
@@ -43,10 +44,10 @@ const Result* LogicExpression::compute(bool& left, bool& right,
 	switch (GetOperator()) {
 	case OR:
 		return new Result(const_shared_ptr<void>(new bool(left || right)),
-				LinkedList<const Error*>::GetTerminator());
+				ErrorListBase::GetTerminator());
 	case AND:
 		return new Result(const_shared_ptr<void>(new bool(left && right)),
-				LinkedList<const Error*>::GetTerminator());
+				ErrorListBase::GetTerminator());
 	default:
 		assert(false);
 		return NULL;
@@ -59,12 +60,12 @@ const Result* LogicExpression::compute(int& left, int& right,
 	case OR: {
 		bool result = left || right;
 		return new Result(const_shared_ptr<void>(new bool(result)),
-				LinkedList<const Error*>::GetTerminator());
+				ErrorListBase::GetTerminator());
 	}
 	case AND: {
 		bool result = left && right;
 		return new Result(const_shared_ptr<void>(new bool(result)),
-				LinkedList<const Error*>::GetTerminator());
+				ErrorListBase::GetTerminator());
 	}
 	default:
 		assert(false);
@@ -77,10 +78,10 @@ const Result* LogicExpression::compute(double& left, double& right,
 	switch (GetOperator()) {
 	case OR:
 		return new Result(const_shared_ptr<void>(new bool(left || right)),
-				LinkedList<const Error*>::GetTerminator());
+				ErrorListBase::GetTerminator());
 	case AND:
 		return new Result(const_shared_ptr<void>(new bool(left && right)),
-				LinkedList<const Error*>::GetTerminator());
+				ErrorListBase::GetTerminator());
 	default:
 		assert(false);
 		return NULL;

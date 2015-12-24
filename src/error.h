@@ -34,6 +34,7 @@
 #define ERROR_H
 
 #include <string>
+#include <linked_list.h>
 
 using namespace std;
 
@@ -114,5 +115,8 @@ private:
 };
 
 std::ostream &operator<<(std::ostream &os, const Error &error);
+
+typedef const LinkedList<Error, NO_DUPLICATES> ErrorListBase;
+typedef shared_ptr<ErrorListBase> ErrorList;
 
 #endif // #ifndef ERROR_H

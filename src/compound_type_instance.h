@@ -36,7 +36,7 @@ using namespace std;
 class CompoundTypeInstance {
 public:
 	CompoundTypeInstance(const_shared_ptr<CompoundTypeSpecifier> type,
-			SymbolContext* definition) :
+			volatile_shared_ptr<SymbolContext> definition) :
 			m_type(type), m_definition(definition) {
 	}
 
@@ -44,14 +44,15 @@ public:
 		return m_type;
 	}
 
-	SymbolContext* GetDefinition() const {
+	volatile_shared_ptr<SymbolContext> GetDefinition() const {
 		return m_definition;
 	}
 
 	static const_shared_ptr<CompoundTypeInstance> GetDefaultInstance(
-			const string type_name, const CompoundType* type);
+			const string type_name, const_shared_ptr<CompoundType> type);
 
-	const static Symbol* GetSymbol(const_shared_ptr<TypeSpecifier> member_type,
+	const static const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<TypeSpecifier> member_type,
 			const_shared_ptr<void> void_value);
 
 	const string ToString(const TypeTable& type_table,
@@ -59,7 +60,7 @@ public:
 
 private:
 	const_shared_ptr<CompoundTypeSpecifier> m_type;
-	SymbolContext* m_definition;
+	volatile_shared_ptr<SymbolContext> m_definition;
 };
 
 #endif /* COMPOUND_TYPE_INSTANCE_H_ */

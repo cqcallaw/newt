@@ -32,7 +32,7 @@ FunctionDeclarationStatement::FunctionDeclarationStatement(
 		const_shared_ptr<FunctionTypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_location,
-		const Expression* initializer_expression) :
+		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position), m_type(type), m_type_position(
 				type_position), m_name(name), m_name_location(name_location), m_initializer_expression(
 				initializer_expression) {
@@ -41,17 +41,14 @@ FunctionDeclarationStatement::FunctionDeclarationStatement(
 FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 }
 
-const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList FunctionDeclarationStatement::preprocess(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	auto type_table = execution_context->GetTypeTable();
 
-	const Symbol* symbol = Symbol::GetDefaultSymbol();
-
-	const Symbol* existing = execution_context->GetSymbolContext()->GetSymbol(
-			m_name, SHALLOW);
+	auto existing = execution_context->GetSymbolContext()->GetSymbol(m_name,
+			SHALLOW);
 
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (m_initializer_expression) {
@@ -65,20 +62,22 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 				errors = m_initializer_expression->Validate(execution_context);
 			} else {
 				errors =
-						errors->With(
-								new Error(Error::SEMANTIC,
+						ErrorListBase::From(
+								make_shared<Error>(Error::SEMANTIC,
 										Error::NOT_A_FUNCTION,
 										m_initializer_expression->GetPosition().begin.line,
-										m_initializer_expression->GetPosition().begin.column));
+										m_initializer_expression->GetPosition().begin.column),
+								errors);
 			}
 		}
 
-		if (errors->IsTerminator()) {
+		if (ErrorListBase::IsTerminator(errors)) {
 			auto value = m_type->DefaultValue(*type_table);
-			symbol = new Symbol(static_pointer_cast<const Function>(value));
+			auto symbol = const_shared_ptr<Symbol>(
+					new Symbol(static_pointer_cast<const Function>(value)));
 
-			SymbolTable* symbol_table =
-					static_cast<SymbolTable*>(execution_context->GetSymbolContext());
+			volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
+					SymbolTable>(execution_context->GetSymbolContext());
 			InsertResult insert_result = symbol_table->InsertSymbol(*m_name,
 					symbol);
 
@@ -87,17 +86,18 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::preprocess(
 			}
 		}
 	} else {
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::PREVIOUSLY_DECLARED_VARIABLE,
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::PREVIOUSLY_DECLARED_VARIABLE,
 						m_name_location.begin.line,
-						m_name_location.begin.column, *(m_name)));
+						m_name_location.begin.column, *(m_name)), errors);
 	}
 
 	return errors;
 }
 
-const LinkedList<const Error*>* FunctionDeclarationStatement::execute(
-		ExecutionContext* execution_context) const {
+const ErrorList FunctionDeclarationStatement::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
 	if (m_initializer_expression != nullptr) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_location);
 		auto errors = temp_variable->AssignValue(execution_context,
@@ -106,16 +106,16 @@ const LinkedList<const Error*>* FunctionDeclarationStatement::execute(
 
 		return errors;
 	} else {
-		return LinkedList<const Error*>::GetTerminator();
+		return ErrorListBase::GetTerminator();
 	}
 }
 
-const Expression* FunctionDeclarationStatement::GetInitializerExpression() const {
+const_shared_ptr<Expression> FunctionDeclarationStatement::GetInitializerExpression() const {
 	return m_initializer_expression;
 }
 
 const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpression(
-		const Expression* expression) const {
+		const_shared_ptr<Expression> expression) const {
 	return new FunctionDeclarationStatement(GetPosition(), m_type,
 			expression->GetPosition(), m_name, m_name_location, expression);
 }

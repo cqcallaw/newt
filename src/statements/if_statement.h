@@ -29,28 +29,28 @@ class SymbolTable;
 
 class IfStatement: public Statement {
 public:
-	IfStatement(const Expression* expression, const StatementBlock* block);
-	IfStatement(const Expression* expression, const StatementBlock* block,
-			const StatementBlock* else_block);
+	IfStatement(const_shared_ptr<Expression> expression, const_shared_ptr<StatementBlock> block);
+	IfStatement(const_shared_ptr<Expression> expression, const_shared_ptr<StatementBlock> block,
+			const_shared_ptr<StatementBlock> else_block);
 	virtual ~IfStatement();
 
-	const Expression* GetExpression() const {
+	const_shared_ptr<Expression> GetExpression() const {
 		return m_expression;
 	}
 
-	virtual const LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList preprocess(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(
-			ExecutionContext* execution_context) const;
+	virtual const ErrorList execute(
+			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
-	const Expression* m_expression;
-	const StatementBlock* m_block;
-	const StatementBlock* m_else_block;
+	const_shared_ptr<Expression> m_expression;
+	const_shared_ptr<StatementBlock> m_block;
+	const_shared_ptr<StatementBlock> m_else_block;
 	SymbolTable* m_block_table;
 	SymbolTable* m_else_block_table;
 };

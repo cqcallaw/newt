@@ -22,33 +22,31 @@
 #include <type_table.h>
 #include <memory>
 
-ExecutionContext::ExecutionContext(SymbolContext* symbol_context,
-		volatile_shared_ptr<TypeTable> type_table, bool dispose_members) :
-		ExecutionContext(symbol_context, type_table, nullptr, dispose_members) {
+ExecutionContext::ExecutionContext(
+		volatile_shared_ptr<SymbolContext> symbol_context,
+		volatile_shared_ptr<TypeTable> type_table) :
+		ExecutionContext(symbol_context, type_table, nullptr) {
 }
 
 ExecutionContext::ExecutionContext() :
-		ExecutionContext(new SymbolTable(),
-				volatile_shared_ptr<TypeTable>(new TypeTable()), nullptr, true) {
+		ExecutionContext(make_shared<SymbolTable>(), make_shared<TypeTable>(),
+				nullptr) {
 }
 
-ExecutionContext::ExecutionContext(SymbolContext* symbol_context,
-		volatile_shared_ptr<TypeTable> type_table, const void* m_return_value,
-		bool dispose_members) :
+ExecutionContext::ExecutionContext(
+		volatile_shared_ptr<SymbolContext> symbol_context,
+		volatile_shared_ptr<TypeTable> type_table, const void* m_return_value) :
 		m_symbol_context(symbol_context), m_type_table(type_table), m_return_value(
-				m_return_value), m_dispose_members(dispose_members) {
+				m_return_value) {
 }
 
 ExecutionContext::~ExecutionContext() {
-	if (m_dispose_members) {
-		delete m_symbol_context;
-	}
 }
 
-const ExecutionContext* ExecutionContext::GetDefault() {
-	const static std::unique_ptr<ExecutionContext> instance = std::unique_ptr<
+const_shared_ptr<ExecutionContext> ExecutionContext::GetDefault() {
+	const static const_shared_ptr<ExecutionContext> instance = const_shared_ptr<
 			ExecutionContext>(
 			new ExecutionContext(SymbolContext::GetDefault(),
 					TypeTable::GetDefault()));
-	return instance.get();
+	return instance;
 }

@@ -24,22 +24,26 @@
 
 class DefaultValueExpression: public Expression {
 public:
-	DefaultValueExpression(const yy::location position, const_shared_ptr<TypeSpecifier> type,
+	DefaultValueExpression(const yy::location position,
+			const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position);
+
+	DefaultValueExpression(const DefaultValueExpression* other);
+
 	virtual ~DefaultValueExpression();
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return true;
 	}
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_type;

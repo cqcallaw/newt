@@ -32,10 +32,10 @@ Expression::~Expression() {
 }
 
 const Result* Expression::ToString(
-		const ExecutionContext* execution_context) const {
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buffer;
 	const Result* evaluation = Evaluate(execution_context);
-	if (evaluation->GetErrors()->IsTerminator()) {
+	if (ErrorListBase::IsTerminator(evaluation->GetErrors())) {
 		const_shared_ptr<TypeSpecifier> type_specifier = GetType(
 				execution_context);
 		auto value = evaluation->GetData();
@@ -85,5 +85,5 @@ const Result* Expression::ToString(
 	delete (evaluation);
 
 	return new Result(const_shared_ptr<void>(new string(buffer.str())),
-			LinkedList<const Error*>::GetTerminator());
+			ErrorListBase::GetTerminator());
 }

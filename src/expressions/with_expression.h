@@ -25,23 +25,23 @@
 
 class WithExpression: public Expression {
 public:
-	WithExpression(const yy::location position, const Expression* source_expression,
-			const MemberInstantiationList* member_instantiation_list,
+	WithExpression(const yy::location position, const_shared_ptr<Expression> source_expression,
+			MemberInstantiationList member_instantiation_list,
 			const yy::location member_instantiation_list_position);
 	virtual ~WithExpression();
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const;
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	const MemberInstantiationList* GetMemberInstantiationList() const {
+	MemberInstantiationList GetMemberInstantiationList() const {
 		return m_member_instantiation_list;
 	}
 
@@ -49,13 +49,13 @@ public:
 		return m_member_instantiation_list_position;
 	}
 
-	const Expression* GetSourceExpression() const {
+	const_shared_ptr<Expression> GetSourceExpression() const {
 		return m_source_expression;
 	}
 
 private:
-	const Expression* m_source_expression;
-	const MemberInstantiationList* m_member_instantiation_list;
+	const_shared_ptr<Expression> m_source_expression;
+	MemberInstantiationList m_member_instantiation_list;
 	const yy::location m_member_instantiation_list_position;
 };
 

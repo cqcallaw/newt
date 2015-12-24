@@ -22,22 +22,21 @@
 #include <defaults.h>
 
 PrintStatement::PrintStatement(const int line_number,
-		const Expression* expression) :
+		const_shared_ptr<Expression> expression) :
 		m_line_number(line_number), m_expression(expression) {
 }
 
 PrintStatement::~PrintStatement() {
 }
 
-const LinkedList<const Error*>* PrintStatement::execute(
-		ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList PrintStatement::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	const Result* string_result = m_expression->ToString(execution_context);
 	errors = string_result->GetErrors();
 
-	if (errors == LinkedList<const Error*>::GetTerminator()) {
+	if (ErrorListBase::IsTerminator(errors)) {
 		std::cout
 				<< *(static_pointer_cast<const string>(string_result->GetData()))
 				<< "\n";

@@ -32,28 +32,28 @@ public:
 	ConstantExpression(const yy::location position, const double value);
 	ConstantExpression(const yy::location position,
 			const_shared_ptr<string> value);
+	ConstantExpression(const ConstantExpression* other);
+	~ConstantExpression();
 
-	~ConstantExpression() {
-	}
-
-	const static ConstantExpression* GetDefaultExpression(
+	static const_shared_ptr<ConstantExpression> GetDefaultExpression(
 			const_shared_ptr<TypeSpecifier> type, const TypeTable& type_table);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return true;
 	}
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	static const Result* GetConstantExpression(const Expression* expression,
-			const ExecutionContext* execution_context);
+	static const Result* GetConstantExpression(
+			const_shared_ptr<Expression> expression,
+			const_shared_ptr<ExecutionContext> execution_context);
 
 private:
 	ConstantExpression(const yy::location position,

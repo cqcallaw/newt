@@ -59,11 +59,11 @@ public:
 		return m_element_type_specifier;
 	}
 
-	virtual const DeclarationStatement* GetDeclarationStatement(
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position, const_shared_ptr<string> name,
 			const yy::location name_position,
-			const Expression* initializer_expression) const;
+			const_shared_ptr<Expression> initializer_expression) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_element_type_specifier;

@@ -27,14 +27,14 @@ using namespace std;
 
 class Parameter {
 public:
-	Parameter(const string* name, const Expression* expression) :
+	Parameter(const string* name, const_shared_ptr<Expression> expression) :
 			m_name(name), m_expression(expression) {
 	}
 
 	virtual ~Parameter() {
 	}
 
-	const Expression* GetExpression() const {
+	const_shared_ptr<Expression> GetExpression() const {
 		return m_expression;
 	}
 
@@ -44,9 +44,9 @@ public:
 
 private:
 	const string* m_name;
-	const Expression* m_expression;
+	const_shared_ptr<Expression> m_expression;
 };
 
-typedef const LinkedList<const Parameter*> ParameterList;
+typedef shared_ptr<const LinkedList<Parameter, NO_DUPLICATES>> ParameterList;
 
 #endif /* PARAMETER_H_ */

@@ -26,25 +26,25 @@ class Variable;
 
 class VariableExpression: public Expression {
 public:
-	VariableExpression(const yy::location position, const Variable* variable);
+	VariableExpression(const yy::location position, const_shared_ptr<Variable> variable);
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(const ExecutionContext* execution_context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetType(const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return false;
 	}
 
-	virtual const LinkedList<const Error*>* Validate(const ExecutionContext* execution_context) const;
+	virtual const ErrorList Validate(const_shared_ptr<ExecutionContext> execution_context) const;
 
-	const Variable* GetVariable() const {
+	const_shared_ptr<Variable> GetVariable() const {
 		return m_variable;
 	}
 
 private:
-	const Variable* m_variable;
+	const_shared_ptr<Variable> m_variable;
 };
 
 #endif /* VARIABLE_EXPRESSION_H_ */

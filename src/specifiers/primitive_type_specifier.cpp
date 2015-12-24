@@ -152,11 +152,11 @@ bool PrimitiveTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const DeclarationStatement* PrimitiveTypeSpecifier::GetDeclarationStatement(
+const_shared_ptr<DeclarationStatement> PrimitiveTypeSpecifier::GetDeclarationStatement(
 		const yy::location position, const_shared_ptr<TypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_position,
-		const Expression* initializer_expression) const {
-	return new PrimitiveDeclarationStatement(position, type, type_position,
-			name, name_position, initializer_expression);
+		const_shared_ptr<Expression> initializer_expression) const {
+	return make_shared<PrimitiveDeclarationStatement>(position, type,
+			type_position, name, name_position, initializer_expression);
 }

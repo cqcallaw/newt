@@ -37,7 +37,7 @@ public:
 			const_shared_ptr<CompoundTypeSpecifier> type_specifier,
 			const yy::location type_name_position,
 			const_shared_ptr<string> name, const yy::location name_position,
-			const Expression* initializer_expression = nullptr);
+			const_shared_ptr<Expression> initializer_expression = nullptr);
 	virtual ~StructInstantiationStatement();
 
 	virtual const_shared_ptr<string> GetName() const {
@@ -54,18 +54,18 @@ public:
 		return m_type_name_position;
 	}
 
-	virtual const LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList preprocess(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(
-			ExecutionContext* execution_context) const;
+	virtual const ErrorList execute(
+			shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const Expression* GetInitializerExpression() const {
+	virtual const_shared_ptr<Expression> GetInitializerExpression() const {
 		return m_initializer_expression;
 	}
 
 	virtual const DeclarationStatement* WithInitializerExpression(
-			const Expression* expression) const;
+			const_shared_ptr<Expression> expression) const;
 
 	virtual const AnalysisResult Returns(
 			const_shared_ptr<TypeSpecifier> type_specifier) const {
@@ -77,7 +77,7 @@ private:
 	const yy::location m_type_name_position;
 	const_shared_ptr<string> m_name;
 	const yy::location m_name_position;
-	const Expression* m_initializer_expression;
+	const_shared_ptr<Expression> m_initializer_expression;
 };
 
 #endif /* STATEMENTS_STRUCT_INSTANTIATION_STATEMENT_H_ */

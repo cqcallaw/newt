@@ -19,12 +19,10 @@
 
 #include <member_definition.h>
 #include <primitive_type_specifier.h>
-#include <memory>
 
-const MemberDefinition* MemberDefinition::GetDefaultMemberDefinition() {
-	const static std::unique_ptr<MemberDefinition> instance =
-			std::unique_ptr < MemberDefinition
-					> (new MemberDefinition(PrimitiveTypeSpecifier::GetNone(),
-							nullptr));
-	return instance.get();
+const_shared_ptr<MemberDefinition> MemberDefinition::GetDefaultMemberDefinition() {
+	const static std::shared_ptr<MemberDefinition> instance = std::make_shared
+			< MemberDefinition
+			> (MemberDefinition(PrimitiveTypeSpecifier::GetNone(), nullptr));
+	return instance;
 }

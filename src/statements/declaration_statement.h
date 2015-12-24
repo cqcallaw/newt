@@ -33,15 +33,15 @@ public:
 	DeclarationStatement(const yy::location position);
 	virtual ~DeclarationStatement();
 
-	virtual const Expression* GetInitializerExpression() const = 0;
+	virtual const_shared_ptr<Expression> GetInitializerExpression() const = 0;
 	virtual const DeclarationStatement* WithInitializerExpression(
-			const Expression* expression) const = 0;
+			const_shared_ptr<Expression> expression) const = 0;
 	virtual const_shared_ptr<TypeSpecifier> GetType() const = 0;
 	virtual const_shared_ptr<string> GetName() const = 0;
 
 	virtual const AnalysisResult Returns(
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const ExecutionContext* execution_context) const {
+			const_shared_ptr<ExecutionContext> execution_context) const {
 		return AnalysisResult::NO;
 	}
 
@@ -54,6 +54,7 @@ private:
 
 };
 
-typedef const LinkedList<const DeclarationStatement*> DeclarationList;
+typedef const LinkedList<const DeclarationStatement, NO_DUPLICATES> DeclarationListBase;
+typedef shared_ptr<DeclarationListBase> DeclarationList;
 
 #endif /* STATEMENTS_DECLARATION_STATEMENT_H_ */

@@ -26,22 +26,21 @@
 #include <assignment_statement.h>
 
 ArrayVariable::ArrayVariable(const_shared_ptr<string> name,
-		yy::location location, const IndexList* index_list,
+		yy::location location, IndexList index_list,
 		yy::location expression_location) :
 		Variable(name, location), m_index_list(index_list), m_index_list_location(
 				expression_location) {
 }
 
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
-		const ExecutionContext* context) const {
-	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName(),
-			DEEP);
+		const_shared_ptr<ExecutionContext> context) const {
+	auto symbol = context->GetSymbolContext()->GetSymbol(GetName(), DEEP);
 	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		auto array = std::static_pointer_cast<const Array>(symbol->GetValue());
 
 		//handle intermediate indices
-		const LinkedList<const Index*>* subject = m_index_list;
-		while (!subject->IsTerminator()) {
+		IndexList subject = m_index_list;
+		while (!IndexListBase::IsTerminator(subject)) {
 			const_shared_ptr<ArrayTypeSpecifier> as_array_specifier =
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							array->GetTypeSpecifier());
@@ -57,18 +56,20 @@ const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
 	}
 }
 
-const string* ArrayVariable::ToString(const ExecutionContext* context) const {
+const string* ArrayVariable::ToString(
+		const_shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
 	buffer << "<" << *GetName();
-	const LinkedList<const Index*>* subject = m_index_list;
-	while (!subject->IsTerminator()) {
+	IndexList subject = m_index_list;
+	while (!IndexListBase::IsTerminator(subject)) {
 		buffer << "[";
-		const Index* index = subject->GetData();
-		const Expression* index_expression = index->GetIndexExpression();
+		const_shared_ptr<Index> index = subject->GetData();
+		const_shared_ptr<Expression> index_expression =
+				index->GetIndexExpression();
 		const Result* evaluation = index_expression->Evaluate(context);
 
 		auto errors = evaluation->GetErrors();
-		if (errors->IsTerminator()) {
+		if (ErrorListBase::IsTerminator(errors)) {
 			buffer << *(static_pointer_cast<const int>(evaluation->GetData()));
 		} else {
 			buffer << "EVALUATION ERROR";
@@ -87,12 +88,12 @@ ArrayVariable::~ArrayVariable() {
 }
 
 const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
-		const ExecutionContext* context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+		const_shared_ptr<ExecutionContext> context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
-	const SymbolContext* symbol_context = context->GetSymbolContext();
-	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
+	const_shared_ptr<SymbolContext> symbol_context =
+			context->GetSymbolContext();
+	auto symbol = symbol_context->GetSymbol(GetName(), DEEP);
 	auto type_table = context->GetTypeTable();
 	int array_index = -1;
 	yy::location index_location = GetDefaultLocation();
@@ -100,16 +101,16 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 
 	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		plain_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
-		const LinkedList<const Index*>* subject = m_index_list;
 
 		//consume all intermediate indices and return the inner-most array and the index.
-		while (!subject->IsTerminator()) {
+		IndexList subject = m_index_list;
+		while (!IndexListBase::IsTerminator(subject)) {
 			plain_shared_ptr<ArrayTypeSpecifier> as_array_specifier =
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							type_specifier);
 			if (as_array_specifier) {
-				const Index* index = subject->GetData();
-				const Expression* index_expression =
+				const_shared_ptr<Index> index = subject->GetData();
+				const_shared_ptr<Expression> index_expression =
 						index->GetIndexExpression();
 				const_shared_ptr<TypeSpecifier> index_expression_type =
 						index_expression->GetType(context);
@@ -118,7 +119,7 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 					const Result* index_expression_evaluation =
 							index_expression->Evaluate(context);
 					errors = index_expression_evaluation->GetErrors();
-					if (errors == LinkedList<const Error*>::GetTerminator()) {
+					if (errors == ErrorListBase::GetTerminator()) {
 						const int i = *(static_pointer_cast<const int>(
 								index_expression_evaluation->GetData()));
 
@@ -138,13 +139,13 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 							subject = subject->GetNext();
 						} else {
 							errors =
-									errors->With(
-											new Error(Error::SEMANTIC,
+									ErrorListBase::From(
+											make_shared<Error>(Error::SEMANTIC,
 													Error::ARRAY_INDEX_OUT_OF_BOUNDS,
 													index_expression->GetPosition().begin.line,
 													index_expression->GetPosition().begin.column,
-													*(GetName()),
-													*AsString(index)));
+													*(GetName()), *AsString(i)),
+											errors);
 							break;
 						}
 					}
@@ -153,38 +154,40 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 					ostringstream buffer;
 					buffer << "A " << index_expression_type->ToString()
 							<< " expression";
-					errors = errors->With(
-							new Error(Error::SEMANTIC,
+					errors = ErrorListBase::From(
+							make_shared<Error>(Error::SEMANTIC,
 									Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
 									index_location.begin.line,
 									index_location.begin.column, *(GetName()),
-									buffer.str()));
+									buffer.str()), errors);
 				}
 			} else {
-				errors = errors->With(
-						new Error(Error::SEMANTIC, Error::VARIABLE_NOT_AN_ARRAY,
+				errors = ErrorListBase::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::VARIABLE_NOT_AN_ARRAY,
 								GetLocation().begin.line,
-								GetLocation().begin.column, *(GetName())));
+								GetLocation().begin.column, *(GetName())),
+						errors);
 			}
 		}
 	} else {
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						GetLocation().begin.line, GetLocation().begin.column,
-						*(GetName())));
+						*(GetName())), errors);
 	}
 
 	return new ValidationResult(array, array_index, index_location, errors);
 }
 
-const Result* ArrayVariable::Evaluate(const ExecutionContext* context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const Result* ArrayVariable::Evaluate(
+		const_shared_ptr<ExecutionContext> context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	const ValidationResult* validation_result = ValidateOperation(context);
 	plain_shared_ptr<void> result_value;
 	errors = validation_result->GetErrors();
-	if (errors == LinkedList<const Error*>::GetTerminator()) {
+	if (ErrorListBase::IsTerminator(errors)) {
 		auto array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
 		const int size = array->GetSize();
@@ -229,11 +232,12 @@ const Result* ArrayVariable::Evaluate(const ExecutionContext* context) const {
 					validation_result->GetIndexLocation();
 			ostringstream buffer;
 			buffer << index;
-			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::ARRAY_INDEX_OUT_OF_BOUNDS,
 							index_location.begin.line,
 							index_location.begin.column, *GetName(),
-							buffer.str()));
+							buffer.str()), errors);
 		}
 	}
 	delete (validation_result);
@@ -242,11 +246,11 @@ const Result* ArrayVariable::Evaluate(const ExecutionContext* context) const {
 	return result;
 }
 
-const LinkedList<const Error*>* ArrayVariable::AssignValue(
-		const ExecutionContext* context, const Expression* expression,
+const ErrorList ArrayVariable::AssignValue(
+		const_shared_ptr<ExecutionContext> context,
+		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	auto variable_name = GetName();
 	const int variable_line = GetLocation().begin.line;
@@ -254,7 +258,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 
 	const ValidationResult* validation_result = ValidateOperation(context);
 	errors = validation_result->GetErrors();
-	if (errors == LinkedList<const Error*>::GetTerminator()) {
+	if (ErrorListBase::IsTerminator(errors)) {
 		auto array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
 		delete (validation_result);
@@ -280,7 +284,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 							variable_column, *value, expression, op, context);
 
 					errors = result->GetErrors();
-					if (errors == LinkedList<const Error*>::GetTerminator()) {
+					if (ErrorListBase::IsTerminator(errors)) {
 						errors = SetSymbolCore(context, result->GetData());
 						break;
 					}
@@ -294,7 +298,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 							variable_column, *value, expression, op, context);
 
 					errors = result->GetErrors();
-					if (errors == LinkedList<const Error*>::GetTerminator()) {
+					if (ErrorListBase::IsTerminator(errors)) {
 						errors = SetSymbolCore(context, result->GetData());
 						break;
 					}
@@ -308,7 +312,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 							variable_column, *value, expression, op, context);
 
 					errors = result->GetErrors();
-					if (errors == LinkedList<const Error*>::GetTerminator()) {
+					if (ErrorListBase::IsTerminator(errors)) {
 						errors = SetSymbolCore(context, result->GetData());
 					}
 					break;
@@ -322,7 +326,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 							context);
 
 					errors = result->GetErrors();
-					if (errors == LinkedList<const Error*>::GetTerminator()) {
+					if (ErrorListBase::IsTerminator(errors)) {
 						errors = SetSymbolCore(context, result->GetData());
 					}
 					break;
@@ -334,7 +338,7 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 				if (op == AssignmentType::ASSIGN) {
 					const Result* result = expression->Evaluate(context);
 					errors = result->GetErrors();
-					if (errors->IsTerminator()) {
+					if (ErrorListBase::IsTerminator(errors)) {
 						const_shared_ptr<ArrayTypeSpecifier> element_as_array =
 								std::dynamic_pointer_cast<
 										const ArrayTypeSpecifier>(
@@ -352,64 +356,71 @@ const LinkedList<const Error*>* ArrayVariable::AssignValue(
 						}
 					}
 				} else {
-					errors = new LinkedList<const Error*>(
-							new Error(Error::SEMANTIC,
+					errors = errors->From(
+							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 									variable_column,
 									expression->GetType(context)->ToString(),
-									element_type_specifier->ToString()));
+									element_type_specifier->ToString()),
+							errors);
 				}
 			}
 		} else {
-			errors = new LinkedList<const Error*>(
-					new Error(Error::SEMANTIC, Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-							variable_line, variable_column, *GetName(),
-							*AsString(index)));
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::ARRAY_INDEX_OUT_OF_BOUNDS, variable_line,
+							variable_column, *GetName(), *AsString(index)),
+					errors);
 		}
 	}
 
 	return errors;
 }
 
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const_shared_ptr<bool> value) const {
+const ErrorList ArrayVariable::SetSymbol(
+		const_shared_ptr<ExecutionContext> context,
+		const_shared_ptr<bool> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const_shared_ptr<int> value) const {
+const ErrorList ArrayVariable::SetSymbol(
+		const_shared_ptr<ExecutionContext> context,
+		const_shared_ptr<int> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const_shared_ptr<double> value) const {
+const ErrorList ArrayVariable::SetSymbol(
+		const_shared_ptr<ExecutionContext> context,
+		const_shared_ptr<double> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const_shared_ptr<string> value) const {
+const ErrorList ArrayVariable::SetSymbol(
+		const_shared_ptr<ExecutionContext> context,
+		const_shared_ptr<string> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context, const_shared_ptr<Array> value) const {
+const ErrorList ArrayVariable::SetSymbol(
+		const_shared_ptr<ExecutionContext> context,
+		const_shared_ptr<Array> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
-const LinkedList<const Error*>* ArrayVariable::SetSymbol(
-		const ExecutionContext* context,
+const ErrorList ArrayVariable::SetSymbol(
+		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<CompoundTypeInstance> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
-const LinkedList<const Error*>* ArrayVariable::SetSymbolCore(
-		const ExecutionContext* context, const_shared_ptr<void> value) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList ArrayVariable::SetSymbolCore(
+		const_shared_ptr<ExecutionContext> context,
+		const_shared_ptr<void> value) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	const ValidationResult* validation_result = ValidateOperation(context);
 	errors = validation_result->GetErrors();
-	if (errors == LinkedList<const Error*>::GetTerminator()) {
+	if (ErrorListBase::IsTerminator(errors)) {
 		auto array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
 
@@ -466,21 +477,22 @@ const LinkedList<const Error*>* ArrayVariable::SetSymbolCore(
 	return errors;
 }
 
-const LinkedList<const Error*>* ArrayVariable::Validate(
-		const ExecutionContext* context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList ArrayVariable::Validate(
+		const_shared_ptr<ExecutionContext> context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
-	const SymbolContext* symbol_context = context->GetSymbolContext();
-	const Symbol* symbol = symbol_context->GetSymbol(GetName(), DEEP);
+	const_shared_ptr<SymbolContext> symbol_context =
+			context->GetSymbolContext();
+	auto symbol = symbol_context->GetSymbol(GetName(), DEEP);
 
 	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		plain_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
 
-		const LinkedList<const Index*>* subject = m_index_list;
-		while (!subject->IsTerminator()) {
-			const Index* index = subject->GetData();
-			const Expression* index_expression = index->GetIndexExpression();
+		IndexList subject = m_index_list;
+		while (!IndexListBase::IsTerminator(subject)) {
+			const shared_ptr<const Index> index = subject->GetData();
+			const_shared_ptr<Expression> index_expression =
+					index->GetIndexExpression();
 			const_shared_ptr<TypeSpecifier> index_expression_type =
 					index_expression->GetType(context);
 			if (index_expression->GetType(context)->IsAssignableTo(
@@ -492,49 +504,48 @@ const LinkedList<const Error*>* ArrayVariable::Validate(
 					type_specifier = as_array->GetElementTypeSpecifier();
 				} else {
 					errors =
-							errors->With(
-									new Error(Error::SEMANTIC,
+							ErrorListBase::From(
+									make_shared<Error>(Error::SEMANTIC,
 											Error::VARIABLE_NOT_AN_ARRAY,
 											index_expression->GetPosition().begin.line,
 											index_expression->GetPosition().begin.column,
-											*(GetName())));
+											*(GetName())), errors);
 				}
 			} else {
 				ostringstream buffer;
 				buffer << "A " << index_expression_type->ToString()
 						<< " expression";
-				errors = errors->With(
-						new Error(Error::SEMANTIC,
+				errors = ErrorListBase::From(
+						make_shared<Error>(Error::SEMANTIC,
 								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
 								index_expression->GetPosition().begin.line,
 								index_expression->GetPosition().begin.column,
-								*(GetName()), buffer.str()));
+								*(GetName()), buffer.str()), errors);
 			}
 
 			subject = subject->GetNext();
 		}
 	} else {
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						GetLocation().begin.line, GetLocation().begin.column,
-						*(GetName())));
+						*(GetName())), errors);
 	}
 
 	return errors;
 }
 
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetInnerMostElementType(
-		const ExecutionContext* context) const {
-	const Symbol* symbol = context->GetSymbolContext()->GetSymbol(GetName(),
-			DEEP);
+		const_shared_ptr<ExecutionContext> context) const {
+	auto symbol = context->GetSymbolContext()->GetSymbol(GetName(), DEEP);
 	plain_shared_ptr<TypeSpecifier> type_specifier =
 			PrimitiveTypeSpecifier::GetNone();
 	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
 		type_specifier = symbol->GetType();
 		//const string str = type_specifier->ToString();
 
-		const LinkedList<const Index*>* subject = m_index_list;
-		while (!subject->IsTerminator()) {
+		IndexList subject = m_index_list;
+		while (!IndexListBase::IsTerminator(subject)) {
 			const_shared_ptr<ArrayTypeSpecifier> as_array =
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							type_specifier);
@@ -547,6 +558,5 @@ const_shared_ptr<TypeSpecifier> ArrayVariable::GetInnerMostElementType(
 		}
 	}
 
-//const string str = type_specifier->ToString();
 	return type_specifier;
 }

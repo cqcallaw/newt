@@ -28,22 +28,23 @@ class Error;
 class ExitStatement: public Statement {
 public:
 	ExitStatement();
-	ExitStatement(const Expression* exit_expression);
+	ExitStatement(const_shared_ptr<Expression> exit_expression);
 	virtual ~ExitStatement();
 
-	virtual const LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList preprocess(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(
-			ExecutionContext* execution_context) const;
+	virtual const ErrorList execute(
+			shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
-			const ExecutionContext* execution_context) const {
+	virtual const AnalysisResult Returns(
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<ExecutionContext> execution_context) const {
 		return AnalysisResult::NO;
 	}
 
 private:
-	const Expression* m_exit_expression;
+	const_shared_ptr<Expression> m_exit_expression;
 };
 
 #endif /* EXIT_STATEMENT_H_ */

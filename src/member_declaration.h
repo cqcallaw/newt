@@ -31,12 +31,12 @@ public:
 	MemberDeclaration(const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position, const std::string* name,
 			const yy::location name_position,
-			const Expression* initializer_expression = nullptr,
+			const_shared_ptr<Expression> initializer_expression = nullptr,
 			const yy::location initializer_expression_position =
 					GetDefaultLocation());
 	virtual ~MemberDeclaration();
 
-	const Expression* GetInitializerExpression() const {
+	const_shared_ptr<Expression> GetInitializerExpression() const {
 		return m_initializer_expression;
 	}
 
@@ -65,7 +65,7 @@ private:
 	const yy::location m_type_position;
 	const std::string* m_name;
 	const yy::location m_name_position;
-	const Expression* m_initializer_expression;
+	const_shared_ptr<Expression> m_initializer_expression;
 	const yy::location m_initializer_expression_position;
 };
 

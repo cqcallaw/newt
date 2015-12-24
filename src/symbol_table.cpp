@@ -28,19 +28,19 @@
 
 using namespace std;
 
-SymbolTable::SymbolTable(const LinkedList<SymbolContext*>* parent) :
+SymbolTable::SymbolTable(SymbolContextList parent) :
 		SymbolContext(Modifier::NONE, parent) {
 }
 
 SymbolTable::SymbolTable(const Modifier::Type modifiers,
-		const LinkedList<SymbolContext*>* parent_context,
-		map<const string, const Symbol*, comparator>* values) :
+		const SymbolContextList parent_context,
+		const shared_ptr<symbol_map> values) :
 		SymbolContext(modifiers, parent_context, values) {
 }
 
 InsertResult SymbolTable::InsertSymbol(const string& name,
-		const Symbol* symbol) {
-	std::map<const string, const Symbol*>::iterator search_result;
+		const_shared_ptr<Symbol> symbol) {
+	symbol_map::iterator search_result;
 
 	auto table = GetTable();
 	search_result = table->find(name);
@@ -48,7 +48,9 @@ InsertResult SymbolTable::InsertSymbol(const string& name,
 	if (search_result != table->end()) {
 		return SYMBOL_EXISTS;
 	} else {
-		table->insert(std::pair<const string, const Symbol*>(name, symbol));
+		table->insert(
+				std::pair<const string, const_shared_ptr<Symbol>>(name,
+						symbol));
 
 		return INSERT_SUCCESS;
 	}

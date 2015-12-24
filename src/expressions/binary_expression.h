@@ -27,33 +27,33 @@ class Error;
 class BinaryExpression: public Expression {
 public:
 	BinaryExpression(const yy::location position, const OperatorType op,
-			const Expression* left, const Expression* right);
+			const_shared_ptr<Expression> left, const_shared_ptr<Expression> right);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	const Result* Evaluate(const ExecutionContext* execution_context) const;
+	const Result* Evaluate(const_shared_ptr<ExecutionContext> execution_context) const;
 
-	const Expression* GetLeft() const {
+	const_shared_ptr<Expression> GetLeft() const {
 		return m_left;
 	}
 	const OperatorType GetOperator() const {
 		return m_operator;
 	}
-	const Expression* GetRight() const {
+	const_shared_ptr<Expression> GetRight() const {
 		return m_right;
 	}
 
 	static const_shared_ptr<TypeSpecifier> ComputeResultType(
-			const Expression* left, const Expression* right,
-			const OperatorType op, const ExecutionContext* execution_context);
+			const_shared_ptr<Expression> left, const_shared_ptr<Expression> right,
+			const OperatorType op, const_shared_ptr<ExecutionContext> execution_context);
 
 	virtual const bool IsConstant() const {
 		return m_left->IsConstant() && m_right->IsConstant();
 	}
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context,
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<TypeSpecifier> valid_left,
 			const_shared_ptr<TypeSpecifier> valid_right) const;
 
@@ -96,8 +96,8 @@ protected:
 
 private:
 	const OperatorType m_operator;
-	const Expression* m_left;
-	const Expression* m_right;
+	const_shared_ptr<Expression> m_left;
+	const_shared_ptr<Expression> m_right;
 }
 ;
 

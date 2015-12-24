@@ -40,86 +40,84 @@ AssignmentStatement::AssignmentStatement(const_shared_ptr<Variable> variable,
 AssignmentStatement::~AssignmentStatement() {
 }
 
-const LinkedList<const Error*>* AssignmentStatement::preprocess(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList AssignmentStatement::preprocess(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
-	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolContext();
+	shared_ptr<SymbolTable> symbol_table = static_pointer_cast<SymbolTable>(
+			execution_context->GetSymbolContext());
 	const_shared_ptr<string> variable_name = m_variable->GetName();
-	const Symbol* symbol = symbol_table->GetSymbol(variable_name, DEEP);
+	auto symbol = symbol_table->GetSymbol(variable_name, DEEP);
 	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
 
 	int variable_line = m_variable->GetLocation().begin.line;
 	int variable_column = m_variable->GetLocation().begin.column;
 
 	if (symbol != Symbol::GetDefaultSymbol()) {
-		const BasicVariable* basic_variable =
-				dynamic_cast<const BasicVariable*>(m_variable.get());
-		if (basic_variable != nullptr) {
+		const_shared_ptr<BasicVariable> basic_variable = dynamic_pointer_cast<
+				const BasicVariable>(m_variable);
+		if (basic_variable) {
 			const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-					std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+					dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 							symbol_type);
 			const_shared_ptr<TypeSpecifier> expression_type =
 					m_expression->GetType(execution_context);
 			if (as_primitive != nullptr) {
 				if (expression_type->IsAssignableTo(symbol_type)) {
-					errors = LinkedList<const Error*>::GetTerminator();
+					errors = ErrorListBase::GetTerminator();
 				} else {
 					const yy::location variable_location =
 							m_variable->GetLocation();
-					errors = new LinkedList<const Error*>(
-							new Error(Error::SEMANTIC,
+					errors = ErrorListBase::From(
+							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
 									variable_location.begin.line,
 									variable_location.begin.column,
 									symbol_type->ToString(),
-									expression_type->ToString()));
+									expression_type->ToString()), errors);
 				}
 			}
 
 			const_shared_ptr<ArrayTypeSpecifier> as_array =
-					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
-							symbol_type);
-			if (as_array != nullptr) {
+					dynamic_pointer_cast<const ArrayTypeSpecifier>(symbol_type);
+			if (as_array) {
 				//reassigning raw array reference, not an array element
 				if (!expression_type->IsAssignableTo(symbol_type)) {
 					yy::location expression_position =
 							m_expression->GetPosition();
-					errors = new LinkedList<const Error*>(
-							new Error(Error::SEMANTIC,
+					errors = ErrorListBase::From(
+							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
 									expression_position.begin.line,
 									expression_position.begin.column,
 									as_array->ToString(),
-									expression_type->ToString()));
+									expression_type->ToString()), errors);
 				}
 			}
 
 			const_shared_ptr<CompoundTypeSpecifier> as_compound =
-					std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+					dynamic_pointer_cast<const CompoundTypeSpecifier>(
 							symbol_type);
-			if (as_compound != nullptr) {
+			if (as_compound) {
 				//reassigning raw struct reference, not a member
 				if (!expression_type->IsAssignableTo(symbol_type)) {
 					yy::location expression_position =
 							m_expression->GetPosition();
 					const string struct_type_name = as_compound->GetTypeName();
-					errors = new LinkedList<const Error*>(
-							new Error(Error::SEMANTIC,
+					errors = ErrorListBase::From(
+							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
 									expression_position.begin.line,
 									expression_position.begin.column,
 									struct_type_name,
-									expression_type->ToString()));
+									expression_type->ToString()), errors);
 				}
 			}
 		}
 
-		const ArrayVariable* array_variable =
-				dynamic_cast<const ArrayVariable*>(m_variable.get());
-		if (array_variable != nullptr) {
+		const_shared_ptr<ArrayVariable> array_variable = dynamic_pointer_cast<
+				const ArrayVariable>(m_variable);
+		if (array_variable) {
 			errors = array_variable->Validate(execution_context);
 
 			const_shared_ptr<TypeSpecifier> expression_type =
@@ -128,25 +126,26 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 					array_variable->GetInnerMostElementType(execution_context);
 			if (!expression_type->IsAssignableTo(innermost_element_type)) {
 				yy::location expression_position = m_expression->GetPosition();
-				errors = new LinkedList<const Error*>(
-						new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
+				errors = ErrorListBase::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::ASSIGNMENT_TYPE_ERROR,
 								expression_position.begin.line,
 								expression_position.begin.column,
 								innermost_element_type->ToString(),
-								expression_type->ToString()));
+								expression_type->ToString()), errors);
 			}
 		}
 
-		const MemberVariable* member_variable =
-				dynamic_cast<const MemberVariable*>(m_variable.get());
-		if (member_variable != nullptr) {
+		const_shared_ptr<MemberVariable> member_variable = dynamic_pointer_cast<
+				const MemberVariable>(m_variable);
+		if (member_variable) {
 			const_shared_ptr<CompoundTypeSpecifier> as_compound =
-					std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+					dynamic_pointer_cast<const CompoundTypeSpecifier>(
 							member_variable->GetContainer()->GetType(
 									execution_context));
 
 			if (as_compound) {
-				const CompoundType* type =
+				const_shared_ptr<CompoundType> type =
 						execution_context->GetTypeTable()->GetType(
 								as_compound->GetTypeName());
 
@@ -162,203 +161,203 @@ const LinkedList<const Error*>* AssignmentStatement::preprocess(
 						if (!expression_type->IsAssignableTo(
 								member_variable_type)) {
 							errors =
-									new LinkedList<const Error*>(
-											new Error(Error::SEMANTIC,
+									ErrorListBase::From(
+											make_shared<Error>(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
 													member_variable->GetContainer()->GetLocation().begin.line,
 													member_variable->GetContainer()->GetLocation().begin.column,
 													member_variable_type->ToString(),
-													expression_type->ToString()));
+													expression_type->ToString()),
+											errors);
 						}
 					} else {
 						errors =
-								new LinkedList<const Error*>(
-										new Error(Error::SEMANTIC,
+								ErrorListBase::From(
+										make_shared<Error>(Error::SEMANTIC,
 												Error::UNDECLARED_MEMBER,
 												member_variable->GetMemberVariable()->GetLocation().begin.line,
 												member_variable->GetMemberVariable()->GetLocation().begin.column,
 												*member_variable->GetMemberVariable()->GetName(),
 												member_variable->GetContainer()->GetType(
-														execution_context)->ToString()));
+														execution_context)->ToString()),
+										errors);
 					}
 				} else {
 					errors =
-							errors->With(
-									new Error(Error::SEMANTIC, Error::READONLY,
+							ErrorListBase::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::READONLY,
 											member_variable->GetContainer()->GetLocation().begin.line,
 											member_variable->GetContainer()->GetLocation().begin.column,
-											*variable_name));
+											*variable_name), errors);
 				}
 			} else {
 				errors =
-						errors->With(
-								new Error(Error::SEMANTIC,
+						ErrorListBase::From(
+								make_shared<Error>(Error::SEMANTIC,
 										Error::VARIABLE_NOT_A_COMPOUND_TYPE,
 										member_variable->GetContainer()->GetLocation().begin.line,
 										member_variable->GetContainer()->GetLocation().begin.column,
-										*variable_name));
+										*variable_name), errors);
 			}
 		}
 	} else {
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						variable_line, variable_column, *variable_name));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						variable_line, variable_column, *variable_name),
+				errors);
 	}
 
 	return errors;
 }
 
-const LinkedList<const Error*>* AssignmentStatement::do_op(
+const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const bool old_value,
 		const bool expression_value, const AssignmentType op,
-		const ExecutionContext* execution_context, bool &out) {
-	const LinkedList<const Error*>* errors;
+		const_shared_ptr<ExecutionContext> execution_context, bool &out) {
+	ErrorList errors = ErrorListBase::GetTerminator();
 	switch (op) {
 	case ASSIGN:
-		errors = LinkedList<const Error*>::GetTerminator();
 		out = expression_value;
 		break;
 	default:
-		errors = new LinkedList<const Error*>(
-				new Error(Error::SEMANTIC, Error::INVALID_LHS_OF_ASSIGNMENT,
-						variable_line, variable_column, *variable_name,
-						type_to_string(variable_type)));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
+						variable_column, *variable_name,
+						type_to_string(variable_type)), errors);
 		out = false;
 	}
 
 	return errors;
 }
 
-const LinkedList<const Error*>* AssignmentStatement::do_op(
+const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const int old_value,
 		const int expression_value, const AssignmentType op,
-		const ExecutionContext* execution_context, int& out) {
-	const LinkedList<const Error*>* errors;
+		const_shared_ptr<ExecutionContext> execution_context, int& out) {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	switch (op) {
 	case PLUS_ASSIGN:
-		errors = LinkedList<const Error*>::GetTerminator();
 		out = old_value + expression_value;
 		break;
 	case MINUS_ASSIGN:
-		errors = LinkedList<const Error*>::GetTerminator();
 		out = old_value - expression_value;
 		break;
 	case ASSIGN:
-		errors = LinkedList<const Error*>::GetTerminator();
 		out = expression_value;
 		break;
 	default:
-		errors = new LinkedList<const Error*>(
-				new Error(Error::SEMANTIC, Error::INVALID_LHS_OF_ASSIGNMENT,
-						variable_line, variable_column, *variable_name,
-						type_to_string(variable_type)));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
+						variable_column, *variable_name,
+						type_to_string(variable_type)), errors);
 		out = 0;
 	}
 
 	return errors;
 }
 
-const LinkedList<const Error*>* AssignmentStatement::do_op(
+const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const double old_value,
 		const double expression_value, const AssignmentType op,
-		const ExecutionContext* execution_context, double &out) {
-	const LinkedList<const Error*>* errors;
+		const_shared_ptr<ExecutionContext> execution_context, double &out) {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	switch (op) {
 	case PLUS_ASSIGN:
-		errors = LinkedList<const Error*>::GetTerminator();
 		out = old_value + expression_value;
 		break;
 	case MINUS_ASSIGN:
-		errors = LinkedList<const Error*>::GetTerminator();
 		out = old_value - expression_value;
 		break;
 	case ASSIGN:
-		errors = LinkedList<const Error*>::GetTerminator();
 		out = expression_value;
 		break;
 	default:
-		errors = new LinkedList<const Error*>(
-				new Error(Error::SEMANTIC, Error::INVALID_LHS_OF_ASSIGNMENT,
-						variable_line, variable_column, *variable_name,
-						type_to_string(variable_type)));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
+						variable_column, *variable_name,
+						type_to_string(variable_type)), errors);
 		out = 1.0;
 	}
 
 	return errors;
 }
 
-const LinkedList<const Error*>* AssignmentStatement::do_op(
+const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const string* old_value,
 		const bool expression_value, const AssignmentType op,
-		const ExecutionContext* execution_context, string* &out) {
+		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
 	return do_op(variable_name, variable_type, variable_line, variable_column,
 			old_value, AsString(expression_value), op, execution_context, out);
 }
 
-const LinkedList<const Error*>* AssignmentStatement::do_op(
+const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const string* old_value,
 		const int expression_value, const AssignmentType op,
-		const ExecutionContext* execution_context, string* &out) {
+		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
 	return do_op(variable_name, variable_type, variable_line, variable_column,
 			old_value, AsString(expression_value), op, execution_context, out);
 }
 
-const LinkedList<const Error*>* AssignmentStatement::do_op(
+const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const string* old_value,
 		const double expression_value, const AssignmentType op,
-		const ExecutionContext* execution_context, string* &out) {
+		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
 	return do_op(variable_name, variable_type, variable_line, variable_column,
 			old_value, AsString(expression_value), op, execution_context, out);
 }
 
-const LinkedList<const Error*>* AssignmentStatement::do_op(
+const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const string* old_value,
 		const string* expression_value, const AssignmentType op,
-		const ExecutionContext* execution_context, string* &out) {
-	const LinkedList<const Error*>* errors;
+		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	ostringstream buffer;
 	switch (op) {
 	case PLUS_ASSIGN: {
-		errors = LinkedList<const Error*>::GetTerminator();
 		buffer << *old_value;
 		buffer << *expression_value;
 		out = new string(buffer.str());
 		break;
 	}
 	case ASSIGN:
-		errors = LinkedList<const Error*>::GetTerminator();
 		out = new string(*expression_value);
 		break;
 	case MINUS_ASSIGN:
 	default:
-		errors = new LinkedList<const Error*>(
-				new Error(Error::SEMANTIC, Error::INVALID_LHS_OF_ASSIGNMENT,
-						variable_line, variable_column, *(variable_name),
-						type_to_string(variable_type)));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
+						variable_column, *(variable_name),
+						type_to_string(variable_type)), errors);
 	}
 
 	return errors;
 }
 const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 		const BasicType variable_type, int variable_line, int variable_column,
-		const int value, const Expression* expression, const AssignmentType op,
-		const ExecutionContext* execution_context) {
-	const LinkedList<const Error*>* errors;
+		const int value, const_shared_ptr<Expression> expression,
+		const AssignmentType op,
+		const_shared_ptr<ExecutionContext> execution_context) {
+	ErrorList errors;
 	const void* result;
 
 	int new_value = 0;
 	const Result* evaluation = expression->Evaluate(execution_context);
-	if (evaluation->GetErrors() != LinkedList<const Error*>::GetTerminator()) {
+	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
 
@@ -368,7 +367,7 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
 
 	if (as_primitive != nullptr) {
@@ -389,16 +388,18 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 			break;
 		}
 		default:
-			errors = new LinkedList<const Error*>(
-					new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-							variable_line, variable_column, type_to_string(INT),
-							expression_type_specifier->ToString()));
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+							variable_column, type_to_string(INT),
+							expression_type_specifier->ToString()), errors);
 		}
 	} else {
-		errors = new LinkedList<const Error*>(
-				new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-						variable_line, variable_column, type_to_string(INT),
-						expression_type_specifier->ToString()));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+						variable_column, type_to_string(INT),
+						expression_type_specifier->ToString()), errors);
 	}
 
 	result = new int(new_value);
@@ -408,14 +409,15 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 
 const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 		const BasicType variable_type, int variable_line, int variable_column,
-		const double value, const Expression* expression, AssignmentType op,
-		const ExecutionContext* execution_context) {
-	const LinkedList<const Error*>* errors;
+		const double value, const_shared_ptr<Expression> expression,
+		AssignmentType op,
+		const_shared_ptr<ExecutionContext> execution_context) {
+	ErrorList errors;
 	const void* result;
 
 	double new_value = 0;
 	const Result* evaluation = expression->Evaluate(execution_context);
-	if (evaluation->GetErrors() != LinkedList<const Error*>::GetTerminator()) {
+	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
 
@@ -425,7 +427,7 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
 
 	if (as_primitive != nullptr) {
@@ -452,17 +454,18 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 			break;
 		}
 		default:
-			errors = new LinkedList<const Error*>(
-					new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-							variable_line, variable_column,
-							type_to_string(DOUBLE),
-							expression_type_specifier->ToString()));
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+							variable_column, type_to_string(DOUBLE),
+							expression_type_specifier->ToString()), errors);
 		}
 	} else {
-		errors = new LinkedList<const Error*>(
-				new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-						variable_line, variable_column, type_to_string(DOUBLE),
-						expression_type_specifier->ToString()));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+						variable_column, type_to_string(DOUBLE),
+						expression_type_specifier->ToString()), errors);
 	}
 
 	result = new double(new_value);
@@ -472,13 +475,14 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 
 const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 		const BasicType variable_type, int variable_line, int variable_column,
-		const string* value, const Expression* expression, AssignmentType op,
-		const ExecutionContext* execution_context) {
-	const LinkedList<const Error*>* errors;
+		const string* value, const_shared_ptr<Expression> expression,
+		AssignmentType op,
+		const_shared_ptr<ExecutionContext> execution_context) {
+	ErrorList errors;
 
 	string* new_value;
 	const Result* evaluation = expression->Evaluate(execution_context);
-	if (evaluation->GetErrors() != LinkedList<const Error*>::GetTerminator()) {
+	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
 
@@ -488,7 +492,7 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
 
 	if (as_primitive != nullptr) {
@@ -522,27 +526,27 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 			break;
 		}
 		default:
-			errors = new LinkedList<const Error*>(
-					new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-							variable_line, variable_column,
-							type_to_string(STRING),
-							expression_type_specifier->ToString()));
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+							variable_column, type_to_string(STRING),
+							expression_type_specifier->ToString()), errors);
 		}
 	} else {
-		errors = new LinkedList<const Error*>(
-				new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-						variable_line, variable_column, type_to_string(STRING),
-						expression_type_specifier->ToString()));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+						variable_column, type_to_string(STRING),
+						expression_type_specifier->ToString()), errors);
 	}
 
 	auto wrapper = const_shared_ptr<void>(new_value);
 	return new Result(wrapper, errors);
 }
 
-const LinkedList<const Error*>* AssignmentStatement::execute(
-		ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList AssignmentStatement::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	if (m_variable == nullptr || m_expression == nullptr) {
 		assert(false);
@@ -552,16 +556,18 @@ const LinkedList<const Error*>* AssignmentStatement::execute(
 	int variable_line = m_variable->GetLocation().begin.line;
 	int variable_column = m_variable->GetLocation().begin.column;
 
-	SymbolTable* symbol_table =
-			(SymbolTable*) execution_context->GetSymbolContext();
-	const Symbol* symbol = symbol_table->GetSymbol(variable_name, DEEP);
+	const_shared_ptr<SymbolTable> symbol_table =
+			static_pointer_cast<SymbolTable>(
+					execution_context->GetSymbolContext());
+	auto symbol = symbol_table->GetSymbol(variable_name, DEEP);
 
 	if (symbol == NULL || symbol == Symbol::GetDefaultSymbol()) {
-		errors = new LinkedList<const Error*>(
-				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						variable_line, variable_column, *(variable_name)));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						variable_line, variable_column, *(variable_name)),
+				errors);
 	} else {
-		errors = m_variable->AssignValue(execution_context, m_expression.get(),
+		errors = m_variable->AssignValue(execution_context, m_expression,
 				m_op_type);
 	}
 

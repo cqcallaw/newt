@@ -29,19 +29,19 @@ class StructDeclarationStatement: public DeclarationStatement {
 public:
 	StructDeclarationStatement(const yy::location position, const_shared_ptr<string> name,
 			const yy::location name_position,
-			const DeclarationList* member_declaration_list,
+			DeclarationList member_declaration_list,
 			const yy::location member_declaration_list_position,
-			const ModifierList* modifier_list,
+			ModifierList modifier_list,
 			const yy::location modifiers_location);
 	virtual ~StructDeclarationStatement();
 
-	virtual const LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList preprocess(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(
-			ExecutionContext* execution_context) const;
+	virtual const ErrorList execute(
+			shared_ptr<ExecutionContext> execution_context) const;
 
-	const DeclarationList* GetMemberDeclarationList() const {
+	DeclarationList GetMemberDeclarationList() const {
 		return m_member_declaration_list;
 	}
 
@@ -53,18 +53,18 @@ public:
 		return m_name;
 	}
 
-	virtual const Expression* GetInitializerExpression() const {
+	virtual const_shared_ptr<Expression> GetInitializerExpression() const {
 		return m_initializer_expression;
 	}
 
 	virtual const DeclarationStatement* WithInitializerExpression(
-			const Expression* expression) const;
+			const_shared_ptr<Expression> expression) const;
 
 	const yy::location GetMemberDeclarationListPosition() const {
 		return m_member_declaration_list_position;
 	}
 
-	const ModifierList* GetModifierList() const {
+	ModifierList GetModifierList() const {
 		return m_modifier_list;
 	}
 
@@ -79,13 +79,13 @@ public:
 private:
 	const_shared_ptr<string> m_name;
 	const yy::location m_name_position;
-	const DeclarationList* m_member_declaration_list;
+	DeclarationList m_member_declaration_list;
 	const yy::location m_member_declaration_list_position;
-	const ModifierList* m_modifier_list;
+	ModifierList m_modifier_list;
 	const yy::location m_modifiers_location;
 
 	const_shared_ptr<TypeSpecifier> m_type_specifier;
-	const Expression* m_initializer_expression;
+	const_shared_ptr<Expression> m_initializer_expression;
 };
 
 #endif /* STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_ */

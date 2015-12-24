@@ -32,19 +32,19 @@ public:
 	FunctionDeclarationStatement(const yy::location position,
 			const_shared_ptr<FunctionTypeSpecifier> type,
 			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_location, const Expression* expression);
+			const yy::location name_location, const_shared_ptr<Expression> expression);
 	virtual ~FunctionDeclarationStatement();
 
-	virtual const LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList preprocess(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(
-			ExecutionContext* execution_context) const;
+	virtual const ErrorList execute(
+			shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const Expression* GetInitializerExpression() const;
+	virtual const_shared_ptr<Expression> GetInitializerExpression() const;
 
 	virtual const DeclarationStatement* WithInitializerExpression(
-			const Expression* expression) const;
+			const_shared_ptr<Expression> expression) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetType() const;
 
@@ -57,7 +57,7 @@ private:
 	const yy::location m_type_position;
 	const_shared_ptr<string> m_name;
 	const yy::location m_name_location;
-	const Expression* m_initializer_expression;
+	const_shared_ptr<Expression> m_initializer_expression;
 };
 
 #endif /* STATEMENTS_FUNCTION_DECLARATION_STATEMENT_H_ */

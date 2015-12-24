@@ -36,6 +36,7 @@ class CompoundTypeInstance;
 class Function;
 
 class Symbol {
+	friend class SymbolContext;
 public:
 	Symbol(const_shared_ptr<const bool> value);
 	Symbol(const_shared_ptr<const int> value);
@@ -45,8 +46,7 @@ public:
 	Symbol(const_shared_ptr<const CompoundTypeInstance> value);
 	Symbol(const_shared_ptr<const Function> value);
 
-	virtual ~Symbol() {
-	}
+	virtual ~Symbol();
 
 	const_shared_ptr<TypeSpecifier> GetType() const {
 		return m_type;
@@ -56,22 +56,16 @@ public:
 		return m_value;
 	}
 
-	const Symbol* WithValue(const_shared_ptr<bool> value) const;
-	const Symbol* WithValue(const_shared_ptr<int> value) const;
-	const Symbol* WithValue(const_shared_ptr<double> value) const;
-	const Symbol* WithValue(const_shared_ptr<string> value) const;
-	const Symbol* WithValue(const_shared_ptr<Array> value) const;
-	const Symbol* WithValue(const_shared_ptr<CompoundTypeInstance> value) const;
-	const Symbol* WithValue(const_shared_ptr<TypeSpecifier> type,
-			const_shared_ptr<void> value) const;
-
 	virtual const string ToString(const TypeTable& type_table,
 			const Indent indent) const;
 
-	const static Symbol* GetDefaultSymbol();
+	static const_shared_ptr<Symbol> GetDefaultSymbol();
 
 protected:
 	Symbol(const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
+
+	const_shared_ptr<Symbol> WithValue(const_shared_ptr<TypeSpecifier> type,
+			const_shared_ptr<void> value) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_type;

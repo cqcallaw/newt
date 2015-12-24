@@ -27,38 +27,39 @@
 #include <member_definition.h>
 #include <compound_type.h>
 #include <default_value_expression.h>
+#include <defaults.h>
 
 StructDeclarationStatement::StructDeclarationStatement(
 		const yy::location position, const_shared_ptr<string> name,
 		const yy::location name_position,
-		const DeclarationList* member_declaration_list,
+		DeclarationList member_declaration_list,
 		const yy::location member_declaration_list_position,
-		const ModifierList* modifier_list,
-		const yy::location modifiers_location) :
+		ModifierList modifier_list, const yy::location modifiers_location) :
 		DeclarationStatement(position), m_name(name), m_name_position(
 				name_position), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_position(
 				member_declaration_list_position), m_modifier_list(
 				modifier_list), m_modifiers_location(modifiers_location), m_type_specifier(
 				const_shared_ptr<const CompoundTypeSpecifier>(
-						new CompoundTypeSpecifier(*name, name_position))) {
-	m_initializer_expression = new DefaultValueExpression(GetDefaultLocation(),
-			m_type_specifier, member_declaration_list_position);
+						new CompoundTypeSpecifier(*name, name_position))), m_initializer_expression(
+				make_shared<DefaultValueExpression>(
+						DefaultValueExpression(GetDefaultLocation(),
+								m_type_specifier,
+								member_declaration_list_position))) {
 }
 
 StructDeclarationStatement::~StructDeclarationStatement() {
 }
 
-const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList StructDeclarationStatement::preprocess(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	auto type_table = execution_context->GetTypeTable();
 
 	Modifier::Type modifiers = Modifier::NONE;
-	const LinkedList<const Modifier*>* modifier_list = m_modifier_list;
-	while (modifier_list != LinkedList<const Modifier*>::GetTerminator()) {
+	ModifierList modifier_list = m_modifier_list;
+	while (!ModifierListBase::IsTerminator(modifier_list)) {
 		//TODO: check invalid modifiers
 		Modifier::Type new_modifier = modifier_list->GetData()->GetType();
 		modifiers = Modifier::Type(modifiers | new_modifier);
@@ -67,74 +68,73 @@ const LinkedList<const Error*>* StructDeclarationStatement::preprocess(
 
 	//generate a temporary structure in which to perform evaluations
 	//of the member declaration statements
-	map<const string, const Symbol*, comparator>* values = new map<const string,
-			const Symbol*, comparator>();
-	SymbolTable* member_buffer = new SymbolTable(Modifier::NONE,
-			LinkedList<SymbolContext*>::GetTerminator(), values);
-	ExecutionContext* struct_context = execution_context->WithSymbolContext(
-			member_buffer);
+	const shared_ptr<symbol_map> values = make_shared<symbol_map>();
+	volatile_shared_ptr<SymbolTable> member_buffer = make_shared<SymbolTable>(
+			Modifier::NONE, SymbolContextListBase::GetTerminator(), values);
+	shared_ptr<ExecutionContext> struct_context =
+			execution_context->WithSymbolContext(member_buffer);
 
-	const LinkedList<const DeclarationStatement*>* subject =
-			m_member_declaration_list;
-	while (!subject->IsTerminator()) {
-		const DeclarationStatement* declaration = subject->GetData();
+	DeclarationList subject = m_member_declaration_list;
+	while (!DeclarationListBase::IsTerminator(subject)) {
+		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
 
-		const Expression* initializer_expression =
+		const_shared_ptr<Expression> initializer_expression =
 				declaration->GetInitializerExpression();
 		if (initializer_expression != nullptr
 				&& !initializer_expression->IsConstant()) {
 			//if we have a non-constant initializer expression, generate an error
 			yy::location position = initializer_expression->GetPosition();
-			errors = errors->With(
-					new Error(Error::SEMANTIC,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
 							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
-							position.begin.line, position.begin.column));
+							position.begin.line, position.begin.column),
+					errors);
 		} else {
 			//otherwise (no initializer expression OR a valid initializer expression), preprocess
-			errors = errors->Concatenate(
-					declaration->preprocess(struct_context), true);
+			errors = ErrorListBase::Concatenate(errors,
+					declaration->preprocess(struct_context));
 		}
 
-		if (errors->IsTerminator()) {
+		if (ErrorListBase::IsTerminator(errors)) {
 			//we've pre-processed this statement without issue
-			errors = errors->Concatenate(declaration->execute(struct_context),
-					true);
+			errors = ErrorListBase::Concatenate(errors,
+					declaration->execute(struct_context));
 		}
 
 		subject = subject->GetNext();
 	}
 
-	std::map<const string, const MemberDefinition*>* mapping = new std::map<
-			const string, const MemberDefinition*>();
-	map<const string, const Symbol*, comparator>::iterator iter;
-	if (errors->IsTerminator()) {
+	std::map<const string, const_shared_ptr<MemberDefinition>>* mapping =
+			new std::map<const string, const_shared_ptr<MemberDefinition>>();
+	symbol_map::iterator iter;
+	if (ErrorListBase::IsTerminator(errors)) {
 		//we've evaluated everything without issue
 		//extract member declaration information into immutable MemberDefinition
 		for (iter = values->begin(); iter != values->end(); iter++) {
 			const string member_name = iter->first;
-			const Symbol* symbol = iter->second;
+			auto symbol = iter->second;
 			const_shared_ptr<TypeSpecifier> type = symbol->GetType();
 			auto value = symbol->GetValue();
-			const MemberDefinition* definition = new MemberDefinition(type,
-					value);
+			const_shared_ptr<MemberDefinition> definition = make_shared<
+					MemberDefinition>(type, value);
 			mapping->insert(
-					pair<const string, const MemberDefinition*>(member_name,
-							definition));
+					pair<const string, const_shared_ptr<MemberDefinition>>(
+							member_name, definition));
 		}
 	}
 
-	auto type = new CompoundType(mapping, modifiers);
+	auto type = make_shared<CompoundType>(mapping, modifiers);
 	type_table->AddType(*m_name, type);
 	return errors;
 }
 
-const LinkedList<const Error*>* StructDeclarationStatement::execute(
-		ExecutionContext* execution_context) const {
-	return LinkedList<const Error*>::GetTerminator();
+const ErrorList StructDeclarationStatement::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
+	return ErrorListBase::GetTerminator();
 }
 
 const DeclarationStatement* StructDeclarationStatement::WithInitializerExpression(
-		const Expression* expression) const {
+		const_shared_ptr<Expression> expression) const {
 	//no-op
 	return new StructDeclarationStatement(GetPosition(), m_name,
 			m_name_position, m_member_declaration_list,

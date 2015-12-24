@@ -26,21 +26,19 @@
 
 using namespace std;
 
-StatementBlock::StatementBlock(const LinkedList<const Statement*>* statements) :
+StatementBlock::StatementBlock(StatementList statements) :
 		m_statements(statements) {
 }
 
-const LinkedList<const Error*>* StatementBlock::preprocess(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
-	const LinkedList<const Statement*>* subject = m_statements;
-	while (subject != LinkedList<const Statement*>::GetTerminator()) {
-		const Statement* statement = subject->GetData();
+const ErrorList StatementBlock::preprocess(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
+	auto subject = m_statements;
+	while (!StatementListBase::IsTerminator(subject)) {
+		const_shared_ptr<Statement> statement = subject->GetData();
 		//TODO: handle nested statement blocks
-		const LinkedList<const Error*>* statement_errors =
-				statement->preprocess(execution_context);
-		errors = errors->Concatenate(statement_errors, true);
+		ErrorList statement_errors = statement->preprocess(execution_context);
+		errors = ErrorListBase::Concatenate(errors, statement_errors);
 
 		subject = subject->GetNext();
 	}
@@ -48,42 +46,43 @@ const LinkedList<const Error*>* StatementBlock::preprocess(
 	return errors;
 }
 
-const LinkedList<const Error*>* StatementBlock::execute(
-		ExecutionContext* execution_context) const {
-	const LinkedList<const Statement*>* list = m_statements;
-	while (list != StatementList::GetTerminator()) {
-		const Statement* statement = list->GetData();
+const ErrorList StatementBlock::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
+	auto subject = m_statements;
+	while (!StatementListBase::IsTerminator(subject)) {
+		const_shared_ptr<Statement> statement = subject->GetData();
 		auto errors = statement->execute(execution_context);
-		if (errors != LinkedList<const Error*>::GetTerminator()
-				|| execution_context->GetReturnValue() != nullptr) {
+		if (!ErrorListBase::IsTerminator(errors)
+				|| execution_context->GetReturnValue()) {
+			//we've either encountered an error, or a return value has been set
 			return errors;
 		}
-		list = (LinkedList<const Statement*>*) list->GetNext();
+		subject = subject->GetNext();
 	}
 
-	return LinkedList<const Error*>::GetTerminator();
+	return ErrorListBase::GetTerminator();
 }
 
 const AnalysisResult StatementBlock::Returns(
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const ExecutionContext* execution_context) const {
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	AnalysisResult result = AnalysisResult::NO;
-	const LinkedList<const Statement*>* list = m_statements;
-	while (list != StatementList::GetTerminator()) {
-		const Statement* statement = list->GetData();
+	auto subject = m_statements;
+	while (!StatementListBase::IsTerminator(subject)) {
+		const_shared_ptr<Statement> statement = subject->GetData();
 		result = static_cast<AnalysisResult>(result
 				| statement->Returns(type_specifier, execution_context));
-		list = (LinkedList<const Statement*>*) list->GetNext();
+		subject = subject->GetNext();
 	}
 
 	return result;
 }
 
 StatementBlock::~StatementBlock() {
-	const LinkedList<const Statement*>* subject = m_statements;
-	while (subject != LinkedList<const Statement*>::GetTerminator()) {
-		const Statement* statement = subject->GetData();
-		delete statement;
-		subject = subject->GetNext();
-	}
+	/*auto subject = m_statements.get();
+	 while (!StatementListBase::IsTerminator(subject)) {
+	 const_shared_ptr<Statement> statement = subject->GetData();
+	 delete statement;
+	 subject = subject->GetNext();
+	 }*/
 }

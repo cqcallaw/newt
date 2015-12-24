@@ -39,9 +39,6 @@ int get_exit_code(bool debug, int exit_code) {
 }
 
 int main(int argc, char *argv[]) {
-	//FILE* input_file;
-	//yyscan_t scanner;
-
 	if (argc < 2) {
 		cerr << "Input script must be specified." << endl;
 		return 1;
@@ -56,23 +53,10 @@ int main(int argc, char *argv[]) {
 	}
 
 	char* filename = argv[argc - 1];
-//	input_file = fopen(filename, "r");
-//	if (!input_file) {
-//		cerr << "Cannot open input file <" << filename << ">." << endl;
-//		return 2;
-//	}
-//
+
 	if (debug) {
 		cout << "Parsing file " << filename << "..." << endl;
 	}
-
-//	std::shared_ptr<StatementBlock> main_statement_block;
-//	yylex_init(&scanner);
-//	yyset_in(input_file, scanner);
-//	int parse_result = yyparse(main_statement_block, scanner);
-//	yylex_destroy(scanner);
-//
-//	fclose(input_file);
 
 	Driver driver;
 	int parse_result = driver.parse(filename, false, false);
@@ -92,25 +76,21 @@ int main(int argc, char *argv[]) {
 
 	if (parse_result == 0) {
 		auto main_statement_block = driver.GetStatementBlock();
-		std::shared_ptr<ExecutionContext> root_context = std::shared_ptr<
-				ExecutionContext>(new ExecutionContext());
-		const LinkedList<const Error*>* semantic_errors =
-				main_statement_block->preprocess(root_context.get());
+		shared_ptr<ExecutionContext> root_context =
+				make_shared<ExecutionContext>();
+		ErrorList semantic_errors = main_statement_block->preprocess(
+				root_context);
 
-		//reverse linked list of errors, which comes to us in reverse order
-		semantic_errors = (LinkedList<const Error*>*) semantic_errors->Reverse(
-				true);
-
-		if (semantic_errors == LinkedList<const Error*>::GetTerminator()) {
+		if (ErrorListBase::IsTerminator(semantic_errors)) {
 			if (debug) {
 				cout << "Parsed file " << filename << "." << endl;
 			}
 
-			const LinkedList<const Error*>* execution_errors =
-					main_statement_block->execute(root_context.get());
+			ErrorList execution_errors = main_statement_block->execute(
+					root_context);
 
 			bool has_execution_errors = false;
-			while (execution_errors != LinkedList<const Error*>::GetTerminator()) {
+			while (!ErrorListBase::IsTerminator(execution_errors)) {
 				has_execution_errors = true;
 				cerr << execution_errors->GetData()->ToString() << endl;
 				execution_errors = execution_errors->GetNext();
@@ -130,9 +110,12 @@ int main(int argc, char *argv[]) {
 			return get_exit_code(debug,
 					has_execution_errors ? EXIT_FAILURE : EXIT_SUCCESS);
 		} else {
+			//reverse linked list of errors, which comes to us in reverse order
+			semantic_errors = ErrorListBase::Reverse(semantic_errors);
+
 			int semantic_error_count = 0;
-			const LinkedList<const Error*>* error = semantic_errors;
-			while (error != LinkedList<const Error*>::GetTerminator()) {
+			ErrorList error = semantic_errors;
+			while (!ErrorListBase::IsTerminator(error)) {
 				semantic_error_count++;
 				cerr << *(error->GetData()) << endl;
 				error = error->GetNext();

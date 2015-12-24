@@ -29,10 +29,15 @@
 #include <function.h>
 #include <execution_context.h>
 
-FunctionDeclaration::FunctionDeclaration(const DeclarationList* parameter_list,
+FunctionDeclaration::FunctionDeclaration(DeclarationList parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type) :
 		FunctionTypeSpecifier(GetTypeList(parameter_list), return_type), m_parameter_list(
 				parameter_list) {
+}
+
+FunctionDeclaration::FunctionDeclaration(const FunctionDeclaration& other) :
+		FunctionTypeSpecifier(other.GetParameterTypeList(),
+				other.GetReturnType()), m_parameter_list(other.m_parameter_list) {
 }
 
 FunctionDeclaration::~FunctionDeclaration() {
@@ -40,26 +45,23 @@ FunctionDeclaration::~FunctionDeclaration() {
 
 const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 		const FunctionTypeSpecifier& type_specifier) {
-	const LinkedList<const_shared_ptr<TypeSpecifier>>* subject =
-			type_specifier.GetParameterTypeList();
-	const LinkedList<const DeclarationStatement*>* result =
-			DeclarationList::GetTerminator();
+	TypeSpecifierList subject = type_specifier.GetParameterTypeList();
+	DeclarationList result = DeclarationListBase::GetTerminator();
 	int count = 1;
-	while (!subject->IsTerminator()) {
+	while (!TypeSpecifierListBase::IsTerminator(subject)) {
 		ostringstream buf;
 		const_shared_ptr<TypeSpecifier> data = subject->GetData();
 		buf << "Arg" << count;
-		result = result->With(
+		result = DeclarationListBase::From(
 				data->GetDeclarationStatement(GetDefaultLocation(), data,
 						GetDefaultLocation(),
 						const_shared_ptr<string>(new string(buf.str())),
-						GetDefaultLocation(), nullptr));
+						GetDefaultLocation(), nullptr), result);
 		count++;
 		subject = subject->GetNext();
 	}
 
-	const DeclarationList* declaration_list = new DeclarationList(
-			result->Reverse(true));
+	DeclarationList declaration_list = DeclarationListBase::Reverse(result);
 
 	return const_shared_ptr<FunctionDeclaration>(
 			new FunctionDeclaration(declaration_list,
@@ -68,45 +70,43 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 
 const_shared_ptr<void> FunctionDeclaration::DefaultValue(
 		const TypeTable& type_table) const {
-	const Function* default_value = GetDefaultFunctionDeclaration(this,
+	const Function* default_value = GetDefaultFunctionDeclaration(*this,
 			type_table);
 	return const_shared_ptr<void>(default_value);
 }
 
-const DeclarationStatement* FunctionDeclaration::GetDeclarationStatement(
+const_shared_ptr<DeclarationStatement> FunctionDeclaration::GetDeclarationStatement(
 		const yy::location position, const_shared_ptr<TypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_position,
-		const Expression* initializer_expression) const {
-	return new FunctionDeclarationStatement(position,
+		const_shared_ptr<Expression> initializer_expression) const {
+	return make_shared<FunctionDeclarationStatement>(position,
 			static_pointer_cast<const FunctionTypeSpecifier>(type),
 			type_position, name, name_position, initializer_expression);
 }
 
 const Function* FunctionDeclaration::GetDefaultFunctionDeclaration(
-		const FunctionDeclaration* function_declaration,
+		const FunctionDeclaration& function_declaration,
 		const TypeTable& type_table) {
 	auto statement_block = GetDefaultStatementBlock(
-			function_declaration->GetReturnType(), type_table);
+			function_declaration.GetReturnType(), type_table);
 
 	return new Function(
-			const_shared_ptr<FunctionDeclaration>(function_declaration),
+			const_shared_ptr<FunctionDeclaration>(
+					new FunctionDeclaration(function_declaration)),
 			statement_block, ExecutionContext::GetDefault());
 }
 
-const TypeSpecifierList* FunctionDeclaration::GetTypeList(
-		const DeclarationList* parameter_list) {
-	const LinkedList<const DeclarationStatement*>* subject = parameter_list;
-	const LinkedList<const_shared_ptr<TypeSpecifier>>* result =
-			TypeSpecifierList::GetTerminator();
-	while (!subject->IsTerminator()) {
-		const DeclarationStatement* statement = subject->GetData();
+TypeSpecifierList FunctionDeclaration::GetTypeList(
+		DeclarationList parameter_list) {
+	DeclarationList subject = parameter_list;
+	TypeSpecifierList result = TypeSpecifierListBase::GetTerminator();
+	while (!DeclarationListBase::IsTerminator(subject)) {
+		const_shared_ptr<DeclarationStatement> statement = subject->GetData();
 		const_shared_ptr<TypeSpecifier> type = statement->GetType();
-		result = result->With(type);
+		result = TypeSpecifierListBase::From(type, result);
 		subject = subject->GetNext();
 	}
 
-	return result->IsTerminator() ?
-			TypeSpecifierList::GetTerminator() :
-			new TypeSpecifierList(result->Reverse(true));
+	return TypeSpecifierListBase::Reverse(result);
 }

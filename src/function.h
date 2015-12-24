@@ -30,20 +30,20 @@ class ExecutionContext;
 class Function {
 public:
 	Function(const_shared_ptr<FunctionDeclaration> declaration,
-			const StatementBlock* body, const ExecutionContext* closure);
+			const_shared_ptr<StatementBlock> body, const_shared_ptr<ExecutionContext> closure);
 	virtual ~Function();
 
 	const_shared_ptr<FunctionDeclaration> GetType() const {
 		return m_declaration;
 	}
 
-	const Result* Evaluate(const ArgumentList* argument_list,
-			const ExecutionContext* invocation_context) const;
+	const Result* Evaluate(ArgumentList argument_list,
+			const_shared_ptr<ExecutionContext> invocation_context) const;
 
 private:
 	const_shared_ptr<FunctionDeclaration> m_declaration;
-	const StatementBlock* m_body;
-	const ExecutionContext* m_closure;
+	const_shared_ptr<StatementBlock> m_body;
+	const_shared_ptr<ExecutionContext> m_closure;
 };
 
 #endif /* FUNCTION_H_ */

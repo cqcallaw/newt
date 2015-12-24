@@ -74,41 +74,14 @@ Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 	assert(type != nullptr);
 }
 
-const Symbol* Symbol::WithValue(const_shared_ptr<const bool> value) const {
-	return WithValue(PrimitiveTypeSpecifier::GetBoolean(),
-			static_pointer_cast<const void>(value));
-}
-const Symbol* Symbol::WithValue(const_shared_ptr<const int> value) const {
-	return WithValue(PrimitiveTypeSpecifier::GetInt(),
-			static_pointer_cast<const void>(value));
-}
-const Symbol* Symbol::WithValue(const_shared_ptr<const double> value) const {
-	return WithValue(PrimitiveTypeSpecifier::GetDouble(),
-			static_pointer_cast<const void>(value));
-}
-const Symbol* Symbol::WithValue(const_shared_ptr<const string> value) const {
-	return WithValue(PrimitiveTypeSpecifier::GetString(),
-			static_pointer_cast<const void>(value));
-}
-
-const Symbol* Symbol::WithValue(const_shared_ptr<const Array> value) const {
-	return WithValue(value->GetTypeSpecifier(),
-			static_pointer_cast<const void>(value));
-}
-
-const Symbol* Symbol::WithValue(
-		const_shared_ptr<const CompoundTypeInstance> value) const {
-	return WithValue(value->GetTypeSpecifier(),
-			static_pointer_cast<const void>(value));
-}
-
-const Symbol* Symbol::WithValue(const_shared_ptr<const TypeSpecifier> type,
+const_shared_ptr<Symbol> Symbol::WithValue(
+		const_shared_ptr<const TypeSpecifier> type,
 		const_shared_ptr<const void> value) const {
 	if (!type->IsAssignableTo(this->m_type)) {
 		return GetDefaultSymbol();
 	}
 
-	return new Symbol(type, value);
+	return const_shared_ptr<Symbol>(new Symbol(type, value));
 }
 
 const string Symbol::ToString(const TypeTable& type_table,
@@ -142,11 +115,12 @@ const string Symbol::ToString(const TypeTable& type_table,
 
 }
 
-const Symbol* Symbol::GetDefaultSymbol() {
-	const static std::unique_ptr<Symbol> DefaultSymbol =
-			std::unique_ptr<Symbol>(
-					new Symbol(PrimitiveTypeSpecifier::GetNone(), nullptr));
+const_shared_ptr<Symbol> Symbol::GetDefaultSymbol() {
+	const static const_shared_ptr<Symbol> DefaultSymbol = const_shared_ptr<
+			Symbol>(new Symbol(PrimitiveTypeSpecifier::GetNone(), nullptr));
 
-	return DefaultSymbol.get();
+	return DefaultSymbol;
 }
 
+Symbol::~Symbol() {
+}

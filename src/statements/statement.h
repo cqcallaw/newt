@@ -22,9 +22,9 @@
 #include "linked_list.h"
 #include "analysis_result.h"
 #include <defaults.h>
+#include <error.h>
 
 class ExecutionContext;
-class Error;
 class Result;
 class TypeSpecifier;
 
@@ -38,17 +38,18 @@ public:
 	/**
 	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
 	 */
-	virtual const LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const = 0;
+	virtual const ErrorList preprocess(
+			const_shared_ptr<ExecutionContext> execution_context) const = 0;
 
-	virtual const LinkedList<const Error*>* execute(
-			ExecutionContext* execution_context) const = 0;
+	virtual const ErrorList execute(
+			shared_ptr<ExecutionContext> execution_context) const = 0;
 
 	virtual const AnalysisResult Returns(
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const ExecutionContext* execution_context) const = 0;
+			const_shared_ptr<ExecutionContext> execution_context) const = 0;
 };
 
-typedef const LinkedList<const Statement*> StatementList;
+typedef const LinkedList<const Statement, NO_DUPLICATES> StatementListBase;
+typedef shared_ptr<StatementListBase> StatementList;
 
 #endif /* STATEMENT_H_ */

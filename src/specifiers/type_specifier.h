@@ -40,16 +40,17 @@ public:
 	virtual const_shared_ptr<void> DefaultValue(
 			const TypeTable& type_table) const = 0;
 
-	virtual const DeclarationStatement* GetDeclarationStatement(
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position, const_shared_ptr<string> name,
 			const yy::location name_position,
-			const Expression* initializer_expression) const = 0;
+			const_shared_ptr<Expression> initializer_expression) const = 0;
 
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
 	virtual bool operator!=(const TypeSpecifier &other) const = 0;
 };
 
-typedef const LinkedList<const_shared_ptr<TypeSpecifier>> TypeSpecifierList;
+typedef const LinkedList<const TypeSpecifier, ALLOW_DUPLICATES> TypeSpecifierListBase;
+typedef shared_ptr<TypeSpecifierListBase> TypeSpecifierList;
 
 #endif /* SPECIFIERS_TYPE_SPECIFIER_H_ */

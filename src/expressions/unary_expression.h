@@ -25,20 +25,20 @@
 class UnaryExpression: public Expression {
 public:
 	UnaryExpression(const yy::location position, const OperatorType op,
-			const Expression* expression);
+			const_shared_ptr<Expression> expression);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return m_operator == UNARY_MINUS && m_expression->IsConstant();
 	}
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
 	static const_shared_ptr<TypeSpecifier> compute_result_type(
@@ -49,7 +49,7 @@ private:
 			double (*output_transform_function)(double) = NULL);
 	static double degrees_to_radians(double angle);
 	static double radians_to_degrees(double radians);
-	const Expression* m_expression;
+	const_shared_ptr<Expression> m_expression;
 	const OperatorType m_operator;
 };
 

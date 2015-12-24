@@ -7,6 +7,4 @@ parser.tab.*
 newt
 tests/output
 .settings
-location.hh
-position.hh
 stack.hh

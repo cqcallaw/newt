@@ -25,42 +25,44 @@
 #include <error.h>
 #include <statement_block.h>
 #include <constant_expression.h>
+#include <defaults.h>
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
-		const StatementBlock* body, const ExecutionContext* closure) :
+		const_shared_ptr<StatementBlock> body,
+		const_shared_ptr<ExecutionContext> closure) :
 		m_declaration(declaration), m_body(body), m_closure(closure) {
 }
 
 Function::~Function() {
 }
 
-const Result* Function::Evaluate(const ArgumentList* argument_list,
-		const ExecutionContext* invocation_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+const Result* Function::Evaluate(ArgumentList argument_list,
+		const_shared_ptr<ExecutionContext> invocation_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	auto invocation_symbol_context = invocation_context->GetSymbolContext();
 	auto invocation_context_parent = invocation_symbol_context->GetParent();
-	auto parent_context = invocation_context_parent->With(
-			invocation_symbol_context);
-	SymbolTable* table = new SymbolTable(parent_context);
-	ExecutionContext* function_execution_context = new ExecutionContext(table,
-			m_closure->GetTypeTable());
+	auto parent_context = SymbolContextListBase::From(invocation_symbol_context,
+			invocation_context_parent);
+	auto table = make_shared<SymbolTable>(parent_context);
+	shared_ptr<ExecutionContext> function_execution_context = shared_ptr<
+			ExecutionContext>(
+			new ExecutionContext(table, m_closure->GetTypeTable()));
 
 	//populate evaluation context with results of argument evaluation
-	const LinkedList<const Expression*>* argument = argument_list;
-	const LinkedList<const DeclarationStatement*>* parameter =
-			m_declaration->GetParameterList();
-	while (!argument->IsTerminator()) {
-		const Expression* argument_expression = argument->GetData();
-		if (!parameter->IsTerminator()) {
-			const DeclarationStatement* declaration = parameter->GetData();
+	ArgumentList argument = argument_list;
+	DeclarationList parameter = m_declaration->GetParameterList();
+	while (!ArgumentListBase::IsTerminator(argument)) {
+		const_shared_ptr<Expression> argument_expression = argument->GetData();
+		if (!DeclarationListBase::IsTerminator(parameter)) {
+			const_shared_ptr<DeclarationStatement> declaration =
+					parameter->GetData();
 
 			const Result* argument_evaluation =
 					ConstantExpression::GetConstantExpression(
 							argument_expression, invocation_context);
 			auto evaluation_errors = argument_evaluation->GetErrors();
-			if (evaluation_errors->IsTerminator()) {
+			if (ErrorListBase::IsTerminator(evaluation_errors)) {
 				//generate a declaration statement for the function execution context.
 				//it's tempting to just stuff a value into the symbol table,
 				//but this simplistic approach ignores widening conversions
@@ -69,22 +71,22 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 								argument_evaluation->GetData());
 				const DeclarationStatement* argument_declaration =
 						declaration->WithInitializerExpression(
-								evaluated_expression.get());
+								evaluated_expression);
 
-				auto preprocessing_errors = errors->Concatenate(
-						declaration->preprocess(function_execution_context),
-						true);
-				if (preprocessing_errors->IsTerminator()) {
-					errors = errors->Concatenate(
+				auto preprocessing_errors = ErrorListBase::Concatenate(errors,
+						declaration->preprocess(function_execution_context));
+				if (ErrorListBase::IsTerminator(preprocessing_errors)) {
+					errors = ErrorListBase::Concatenate(errors,
 							argument_declaration->execute(
-									function_execution_context), true);
+									function_execution_context));
 				} else {
-					errors = errors->Concatenate(preprocessing_errors, true);
+					errors = ErrorListBase::Concatenate(errors,
+							preprocessing_errors);
 				}
 
 				delete argument_declaration;
 			} else {
-				errors = errors->Concatenate(evaluation_errors, true);
+				errors = ErrorListBase::Concatenate(errors, evaluation_errors);
 			}
 
 			delete argument_evaluation;
@@ -93,31 +95,34 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 			parameter = parameter->GetNext();
 		} else {
 			//argument list is longer than parameter list
-			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::TOO_MANY_ARGUMENTS,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::TOO_MANY_ARGUMENTS,
 							argument_expression->GetPosition().begin.line,
 							argument_expression->GetPosition().begin.column,
-							m_declaration->ToString()));
+							m_declaration->ToString()), errors);
 			break;
 		}
 	}
 
 	//handle any remaining parameter declarations. if any parameter declarations don't have default values, generate an error
-	while (!parameter->IsTerminator()) {
-		const DeclarationStatement* declaration = parameter->GetData();
+	while (!DeclarationListBase::IsTerminator(parameter)) {
+		const_shared_ptr<DeclarationStatement> declaration =
+				parameter->GetData();
 
 		if (declaration->GetInitializerExpression() != nullptr) {
-			errors = errors->Concatenate(
-					declaration->preprocess(function_execution_context), true);
-			errors = errors->Concatenate(
-					declaration->execute(function_execution_context), true);
+			errors = ErrorListBase::Concatenate(errors,
+					declaration->preprocess(function_execution_context));
+			errors = ErrorListBase::Concatenate(errors,
+					declaration->execute(function_execution_context));
 			parameter = parameter->GetNext();
 		} else {
-			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::NO_PARAMETER_DEFAULT,
 							declaration->GetPosition().begin.line,
 							declaration->GetPosition().begin.column,
-							*declaration->GetName()));
+							*declaration->GetName()), errors);
 			break;
 		}
 	}
@@ -125,16 +130,19 @@ const Result* Function::Evaluate(const ArgumentList* argument_list,
 	//juggle the references so the evaluation context is a child of the closure context
 	auto closure_symbol_context = m_closure->GetSymbolContext();
 	auto closure_symbol_context_parent = closure_symbol_context->GetParent();
-	parent_context = closure_symbol_context_parent->With(
-			closure_symbol_context);
+	parent_context = SymbolContextListBase::From(closure_symbol_context,
+			closure_symbol_context_parent);
 	auto final_symbol_context = table->WithParent(parent_context);
 
 	//TODO: determine if it is necessary to merge type tables
 
-	if (errors->IsTerminator()) {
-		ExecutionContext* child_context = new ExecutionContext(
-				final_symbol_context, m_closure->GetTypeTable());
-		errors = errors->Concatenate(m_body->execute(child_context), true);
+	if (ErrorListBase::IsTerminator(errors)) {
+		shared_ptr<ExecutionContext> child_context =
+				shared_ptr<ExecutionContext>(
+						new ExecutionContext(final_symbol_context,
+								m_closure->GetTypeTable()));
+		errors = ErrorListBase::Concatenate(errors,
+				m_body->execute(child_context));
 
 		return new Result(child_context->GetReturnValue(), errors);
 	} else {

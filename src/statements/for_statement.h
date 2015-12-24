@@ -30,26 +30,26 @@ class TypeSpecifier;
 
 class ForStatement: public Statement {
 public:
-	ForStatement(const AssignmentStatement* initial,
-			const Expression* loop_expression,
-			const AssignmentStatement* loop_assignment,
-			const StatementBlock* statement_block);
+	ForStatement(const_shared_ptr<AssignmentStatement> initial,
+			const_shared_ptr<Expression> loop_expression,
+			const_shared_ptr<AssignmentStatement> loop_assignment,
+			const_shared_ptr<StatementBlock> statement_block);
 	virtual ~ForStatement();
 
-	virtual const LinkedList<const Error*>* preprocess(
-			const ExecutionContext* execution_context) const;
+	virtual const ErrorList preprocess(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const LinkedList<const Error*>* execute(
-			ExecutionContext* execution_context) const;
+	virtual const ErrorList execute(
+			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
-			const ExecutionContext* execution_context) const;
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
-	const AssignmentStatement* m_initial;
-	const Expression* m_loop_expression;
-	const AssignmentStatement* m_loop_assignment;
-	const StatementBlock* m_statement_block;
+	const_shared_ptr<AssignmentStatement> m_initial;
+	const_shared_ptr<Expression> m_loop_expression;
+	const_shared_ptr<AssignmentStatement> m_loop_assignment;
+	const_shared_ptr<StatementBlock> m_statement_block;
 	SymbolTable* m_block_table;
 };
 

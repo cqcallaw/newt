@@ -28,6 +28,7 @@
 #include <linked_list.h>
 #include <result.h>
 #include <symbol.h>
+#include <error.h>
 
 class ExecutionContext;
 
@@ -41,22 +42,24 @@ public:
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* execution_context) const = 0;
+			const_shared_ptr<ExecutionContext> execution_context) const = 0;
 
 	virtual const Result* Evaluate(
-			const ExecutionContext* execution_context) const = 0;
+			const_shared_ptr<ExecutionContext> execution_context) const = 0;
 
-	const Result* ToString(const ExecutionContext* execution_context) const;
+	const Result* ToString(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const = 0;
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* execution_context) const = 0;
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> execution_context) const = 0;
 
 private:
 	const yy::location m_position;
 };
 
-typedef const LinkedList<const Expression*> ArgumentList;
+typedef const LinkedList<const Expression, NO_DUPLICATES> ArgumentListBase;
+typedef shared_ptr<ArgumentListBase> ArgumentList;
 
 #endif /* EXPRESSION_H_ */

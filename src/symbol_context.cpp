@@ -29,34 +29,37 @@
 #include "type.h"
 #include "utils.h"
 
-const LinkedList<const Error*>* ToErrorList(const SetResult result,
-		const yy::location location, const_shared_ptr<string> name,
+const ErrorList ToErrorList(const SetResult result, const yy::location location,
+		const_shared_ptr<string> name,
 		const_shared_ptr<TypeSpecifier> symbol_type,
 		const_shared_ptr<TypeSpecifier> value_type) {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	switch (result) {
 	case NO_SET_RESULT:
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::DEFAULT_ERROR_CODE,
-						location.begin.line, location.begin.column, *name));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC, Error::DEFAULT_ERROR_CODE,
+						location.begin.line, location.begin.column, *name),
+				errors);
 		break;
 	case UNDEFINED_SYMBOL:
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						location.begin.line, location.begin.column, *name));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
+						location.begin.line, location.begin.column, *name),
+				errors);
 		break;
 	case INCOMPATIBLE_TYPE:
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::ASSIGNMENT_TYPE_ERROR,
-						location.begin.line, location.begin.column,
-						symbol_type->ToString(), value_type->ToString()));
+		ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::ASSIGNMENT_TYPE_ERROR, location.begin.line,
+						location.begin.column, symbol_type->ToString(),
+						value_type->ToString()), errors);
 		break;
 	case MUTATION_DISALLOWED:
-		errors = errors->With(
-				new Error(Error::SEMANTIC, Error::READONLY, location.begin.line,
-						location.begin.column, *name));
+		errors = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC, Error::READONLY,
+						location.begin.line, location.begin.column, *name),
+				errors);
 		break;
 	case SET_SUCCESS:
 	default:
@@ -67,127 +70,118 @@ const LinkedList<const Error*>* ToErrorList(const SetResult result,
 }
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const LinkedList<SymbolContext*>* parent) :
-		SymbolContext(modifiers, parent,
-				new map<const string, const Symbol*, comparator>(), true) {
+		const SymbolContextList parent) :
+		SymbolContext(modifiers, parent, make_shared<symbol_map>()) {
 }
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const LinkedList<SymbolContext*>* parent,
-		map<const string, const Symbol*, comparator>* values) :
-		SymbolContext(modifiers, parent, values, false) {
-}
-
-SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const LinkedList<SymbolContext*>* parent_context,
-		map<const string, const Symbol*, comparator>* values,
-		const bool dispose_members) :
-		m_modifiers(modifiers), m_parent(parent_context), m_table(values), m_dispose_members(
-				dispose_members) {
+		const SymbolContextList parent_context,
+		const shared_ptr<symbol_map> values) :
+		m_modifiers(modifiers), m_parent(parent_context), m_table(values) {
 }
 
 SymbolContext::~SymbolContext() {
-	if (m_dispose_members) {
-		delete m_table;
-	}
 }
 
-const Symbol* SymbolContext::GetSymbol(const string identifier,
+const_shared_ptr<Symbol> SymbolContext::GetSymbol(const string& identifier,
 		const SearchType search_type) const {
 	auto result = m_table->find(identifier);
 
 	if (result != m_table->end()) {
 		return result->second;
-	} else if (m_parent != nullptr && search_type == DEEP) {
+	} else if (m_parent && search_type == DEEP) {
 		return m_parent->GetData()->GetSymbol(identifier, search_type);
 	} else {
 		return Symbol::GetDefaultSymbol();
 	}
 }
 
-const Symbol* SymbolContext::GetSymbol(const_shared_ptr<string> identifier,
+const_shared_ptr<Symbol> SymbolContext::GetSymbol(
+		const_shared_ptr<string> identifier,
 		const SearchType search_type) const {
-	const Symbol* result = GetSymbol(*identifier, search_type);
+	const_shared_ptr<Symbol> result = GetSymbol(*identifier, search_type);
 	return result;
 }
 
 const void SymbolContext::print(ostream &os, const TypeTable& type_table,
-		const Indent indent) const {
-	std::map<const string, const Symbol*>::iterator iter;
+		const Indent indent, const SearchType search_type) const {
+	symbol_map::iterator iter;
 	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
 		const string name = iter->first;
-		const Symbol* symbol = iter->second;
+		auto symbol = iter->second;
 		os << indent << symbol->GetType()->ToString() << " " << name << ":";
 		os << symbol->ToString(type_table, indent);
 		os << endl;
 	}
+
+	if (search_type == DEEP && m_parent) {
+		os << indent + 1 << "-->" << m_parent << endl;
+		m_parent->GetData()->print(os, type_table, indent + 1);
+	}
 }
 
-SetResult SymbolContext::SetSymbol(const string identifier,
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<bool> value) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetBoolean(),
 			static_pointer_cast<const void>(value));
 }
-SetResult SymbolContext::SetSymbol(const string identifier,
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<int> value) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetInt(),
 			static_pointer_cast<const void>(value));
 }
-SetResult SymbolContext::SetSymbol(const string identifier,
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<double> value) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetDouble(),
 			static_pointer_cast<const void>(value));
 }
-SetResult SymbolContext::SetSymbol(const string identifier,
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<string> value) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetString(),
 			static_pointer_cast<const void>(value));
 }
 
-SetResult SymbolContext::SetSymbol(const string identifier,
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<CompoundTypeInstance> value) {
 	return SetSymbol(identifier, value->GetTypeSpecifier(),
 			static_pointer_cast<const void>(value));
-
 }
 
-SetResult SymbolContext::SetSymbol(const string identifier,
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<Array> value) {
 	return SetSymbol(identifier, value->GetTypeSpecifier(),
 			static_pointer_cast<const void>(value));
-
 }
 
-SetResult SymbolContext::SetSymbol(const string identifier,
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<Function> value) {
 	return SetSymbol(identifier, value->GetType(),
 			static_pointer_cast<const void>(value));
-
 }
 
-SymbolContext* SymbolContext::GetDefault() {
-	static SymbolContext* instance = new SymbolContext(Modifier::READONLY);
+volatile_shared_ptr<SymbolContext> SymbolContext::GetDefault() {
+	static volatile_shared_ptr<SymbolContext> instance = make_shared<
+			SymbolContext>(Modifier::READONLY);
 	return instance;
 }
 
-SetResult SymbolContext::SetSymbol(const string identifier,
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value) {
 	auto result = m_table->find(identifier);
 
 	if (result != m_table->end()) {
-		const Symbol* symbol = result->second;
+		auto symbol = result->second;
 		if ((symbol->GetType()->IsAssignableTo(type))) {
 			if (m_modifiers & Modifier::READONLY) {
 				return MUTATION_DISALLOWED;
 			} else {
-				const Symbol* new_symbol = symbol->WithValue(type, value);
+				auto new_symbol = symbol->WithValue(type, value);
 
 				//TODO: error checking
-				//TODO: free memory from old symbols
 				m_table->erase(identifier);
 				m_table->insert(
-						std::pair<const string, const Symbol*>(identifier,
-								new_symbol));
+						std::pair<const string, const_shared_ptr<Symbol>>(
+								identifier, new_symbol));
 
 				return SET_SUCCESS;
 			}
@@ -195,7 +189,8 @@ SetResult SymbolContext::SetSymbol(const string identifier,
 			return INCOMPATIBLE_TYPE;
 		}
 	} else if (m_parent != nullptr) {
-		return m_parent->GetData()->SetSymbol(identifier, type, value);
+		auto context = m_parent->GetData();
+		return context->SetSymbol(identifier, type, value);
 	} else {
 		return UNDEFINED_SYMBOL;
 	}

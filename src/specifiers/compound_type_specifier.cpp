@@ -32,12 +32,12 @@ bool CompoundTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const DeclarationStatement* CompoundTypeSpecifier::GetDeclarationStatement(
+const_shared_ptr<DeclarationStatement> CompoundTypeSpecifier::GetDeclarationStatement(
 		const yy::location position, const_shared_ptr<TypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_position,
-		const Expression* initializer_expression) const {
-	return new StructInstantiationStatement(position,
+		const_shared_ptr<Expression> initializer_expression) const {
+	return make_shared<StructInstantiationStatement>(position,
 			static_pointer_cast<const CompoundTypeSpecifier>(type),
 			type_position, name, name_position, initializer_expression);
 }

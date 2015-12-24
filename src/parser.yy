@@ -26,6 +26,7 @@
 %define parse.assert
 
 %locations
+%define api.location.type {yy::location}
 %define parse.error verbose
 %define parse.trace
 
@@ -207,47 +208,47 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<PrimitiveTypeSpecifier>> primitive_type_specifier
 %type <plain_shared_ptr<FunctionDeclaration>> function_declaration
 %type <plain_shared_ptr<FunctionTypeSpecifier>> function_type_specifier
-%type <Expression*> expression
-%type <Expression*> optional_initializer
-%type <Variable*> variable_reference
+%type <plain_shared_ptr<Expression>> expression
+%type <plain_shared_ptr<Expression>> variable_expression
+%type <plain_shared_ptr<Expression>> function_expression
+%type <plain_shared_ptr<Expression>> invoke_expression
+%type <plain_shared_ptr<Expression>> optional_initializer
 
-%type <Expression*> variable_expression
-%type <Expression*> function_expression
-%type <Expression*> invoke_expression
+%type <plain_shared_ptr<Variable>> variable_reference
 
-%type <Statement*> statement
-%type <StatementList*> statement_list
-%type <DeclarationStatement*> variable_declaration
-%type <StatementBlock*> if_block
-%type <StatementBlock*> statement_block
-%type <Statement*> if_statement
-%type <AssignmentStatement*> assign_statement
-%type <Statement*> print_statement
-%type <Statement*> for_statement
-%type <Statement*> exit_statement
-%type <Statement*> struct_declaration_statement
-%type <Statement*> return_statement
-%type <DeclarationList*> parameter_list
-%type <DeclarationList*> optional_parameter_list
-%type <TypeSpecifierList*> anonymous_parameter_list
-%type <TypeSpecifierList*> optional_anonymous_parameter_list
-%type <ArgumentList*> argument_list
-%type <ArgumentList*> optional_argument_list
+%type <plain_shared_ptr<Statement>> statement
+%type <StatementList> statement_list
+%type <plain_shared_ptr<DeclarationStatement>> variable_declaration
+%type <plain_shared_ptr<StatementBlock>> if_block
+%type <plain_shared_ptr<StatementBlock>> statement_block
+%type <plain_shared_ptr<Statement>> if_statement
+%type <plain_shared_ptr<AssignmentStatement>> assign_statement
+%type <plain_shared_ptr<Statement>> print_statement
+%type <plain_shared_ptr<Statement>> for_statement
+%type <plain_shared_ptr<Statement>> exit_statement
+%type <plain_shared_ptr<Statement>> struct_declaration_statement
+%type <plain_shared_ptr<Statement>> return_statement
+%type <DeclarationList> parameter_list
+%type <DeclarationList> optional_parameter_list
+%type <TypeSpecifierList> anonymous_parameter_list
+%type <TypeSpecifierList> optional_anonymous_parameter_list
+%type <ArgumentList> argument_list
+%type <ArgumentList> optional_argument_list
 
-%type <Modifier*> modifier
-%type <ModifierList*> modifier_list
+%type <plain_shared_ptr<Modifier>> modifier
+%type <ModifierList> modifier_list
 
-%type <DeclarationList*> declaration_list
-%type <MemberInstantiation*> member_instantiation
-%type <MemberInstantiationList*> member_instantiation_list
-%type <MemberInstantiationList*> optional_member_instantiation_list
-%type <MemberInstantiationList*> member_instantiation_block
+%type <DeclarationList> declaration_list
+%type <plain_shared_ptr<MemberInstantiation>> member_instantiation
+%type <MemberInstantiationList> member_instantiation_list
+%type <MemberInstantiationList> optional_member_instantiation_list
+%type <MemberInstantiationList> member_instantiation_block
 
-%type <Index*> index
-%type <IndexList*> indices
+%type <plain_shared_ptr<Index>> index
+%type <IndexList> indices
 
-%type <Dimension*> dimension
-%type <DimensionList*> dimensions
+%type <plain_shared_ptr<Dimension>> dimension
+%type <DimensionList> dimensions
 
 %printer { yyoutput << $$; } <*>;
 
@@ -257,14 +258,9 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 program:
 	statement_list
 	{
-		plain_shared_ptr<StatementBlock> main_statement_block;
-		if($1->IsTerminator()){
-			main_statement_block = const_shared_ptr<StatementBlock>(new StatementBlock($1));
-		} else {
-			//statement list comes in reverse order
-			//wrap in StatementList because Reverse is a LinkedList<T> function
-			main_statement_block = const_shared_ptr<StatementBlock>(new StatementBlock($1->Reverse(true)));
-		}
+		//statement list comes in reverse order
+		//wrap in StatementList because Reverse is a LinkedList<T> function
+		plain_shared_ptr<StatementBlock> main_statement_block = make_shared<const StatementBlock>(StatementListBase::Reverse($1));
 		driver.SetStatementBlock(main_statement_block);
 	}
 	;
@@ -273,49 +269,50 @@ program:
 variable_declaration:
 	IDENTIFIER COLON primitive_type_specifier optional_initializer
 	{
-		$$ = new PrimitiveDeclarationStatement(@$, $3, @3, $1, @1, $4);
+		$$ = make_shared<PrimitiveDeclarationStatement>(@$, $3, @3, $1, @1, $4);
 	}
 	| IDENTIFIER COLON primitive_type_specifier dimensions optional_initializer
 	{
 		plain_shared_ptr<TypeSpecifier> type_specifier = $3;
 		//add dimensions to type specifier
-		const LinkedList<const Dimension*>* dimension = $4;
-		while (!dimension->IsTerminator()) {
-			type_specifier = const_shared_ptr<TypeSpecifier>(new ArrayTypeSpecifier(type_specifier));
+		DimensionList dimension = $4;
+		while (!DimensionListBase::IsTerminator(dimension)) {
+			type_specifier = make_shared<ArrayTypeSpecifier>(type_specifier);
 			dimension = dimension->GetNext();
 		}
 
 		const_shared_ptr<ArrayTypeSpecifier> array_type_specifier = std::dynamic_pointer_cast<const ArrayTypeSpecifier>(type_specifier);
-		$$ = new ArrayDeclarationStatement(@$, array_type_specifier, @3, $1, @1, $5);
+		$$ = make_shared<ArrayDeclarationStatement>(@$, array_type_specifier, @3, $1, @1, $5);
 	}
 	| IDENTIFIER COLON IDENTIFIER dimensions optional_initializer
 	{
-		plain_shared_ptr<TypeSpecifier> type_specifier = const_shared_ptr<TypeSpecifier>(new CompoundTypeSpecifier(*$3, @3));
+		plain_shared_ptr<TypeSpecifier> type_specifier = make_shared<CompoundTypeSpecifier>(*$3, @3);
 		//add dimensions to type specifier
-		const LinkedList<const Dimension*>* dimension = $4;
-		while (!dimension->IsTerminator()) {
-			type_specifier = const_shared_ptr<TypeSpecifier>(new ArrayTypeSpecifier(type_specifier));
+		DimensionList dimension = $4;
+		while (!DimensionListBase::IsTerminator(dimension)) {
+			type_specifier = make_shared<ArrayTypeSpecifier>(type_specifier);
 			dimension = dimension->GetNext();
 		}
 
 		const_shared_ptr<ArrayTypeSpecifier> array_type_specifier = std::dynamic_pointer_cast<const ArrayTypeSpecifier>(type_specifier);
-		$$ = new ArrayDeclarationStatement(@$, array_type_specifier, @3, $1, @1, $5);
+		$$ = make_shared<ArrayDeclarationStatement>(@$, array_type_specifier, @3, $1, @1, $5);
 	}
 	| IDENTIFIER COLON IDENTIFIER optional_initializer
 	{
-		$$ = new StructInstantiationStatement(@$, const_shared_ptr<CompoundTypeSpecifier>(new CompoundTypeSpecifier(*$3, @3)), @3, $1, @1, $4);
+		auto type_specifier = make_shared<CompoundTypeSpecifier>(CompoundTypeSpecifier(*$3, @3));
+		$$ = make_shared<StructInstantiationStatement>(@$, type_specifier, @3, $1, @1, $4);
 	}
 	| IDENTIFIER COLON function_type_specifier
 	{
-		$$ = new FunctionDeclarationStatement(@$, $3, @3, $1, @1, nullptr);
+		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, @3, $1, @1, nullptr);
 	}
 	| IDENTIFIER COLON function_type_specifier EQUALS function_expression
 	{
-		$$ = new FunctionDeclarationStatement(@$, $3, @3, $1, @1, $5);
+		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, @3, $1, @1, $5);
 	}
 	| IDENTIFIER COLON EQUALS expression
 	{
-		$$ = new InferredDeclarationStatement(@$, $1, @1, $4);
+		$$ = make_shared<InferredDeclarationStatement>(@$, $1, @1, $4);
 	}
 	;
 
@@ -353,8 +350,8 @@ primitive_type_specifier:
 function_type_specifier:
 	LPAREN optional_anonymous_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
-		const TypeSpecifierList* type_list = $2->IsTerminator() ? $2 : new TypeSpecifierList($2->Reverse(true));
-		$$ = const_shared_ptr<FunctionTypeSpecifier>(new FunctionTypeSpecifier(type_list, $5));
+		const TypeSpecifierList type_list = TypeSpecifierListBase::Reverse($2);
+		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5);
 	}
 
 //---------------------------------------------------------------------
@@ -365,7 +362,7 @@ type_specifier:
 	}
 	| IDENTIFIER
 	{
-		$$ = const_shared_ptr<TypeSpecifier>(new CompoundTypeSpecifier(*$1, @1));
+		$$ = make_shared<CompoundTypeSpecifier>(*$1, @1);
 	}
 	| function_type_specifier
 	{
@@ -376,7 +373,7 @@ type_specifier:
 statement_block:
 	LBRACE statement_list RBRACE
 	{
-		$$ = new StatementBlock($2->Reverse(true)); //statement list comes in reverse order
+		$$ = make_shared<StatementBlock>(StatementListBase::Reverse($2)); //statement list comes in reverse order
 	}
 	;
 
@@ -384,11 +381,11 @@ statement_block:
 statement_list:
 	statement_list statement
 	{
-		$$ = new StatementList($2, $1);
+		$$ = StatementListBase::From($2, $1);
 	}
 	| empty
 	{
-		$$ = StatementList::GetTerminator();
+		$$ = StatementListBase::GetTerminator();
 	}
 	;
 
@@ -428,8 +425,8 @@ statement:
 	}
 	| variable_reference LPAREN optional_argument_list RPAREN
 	{
-		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
-		$$ = new InvokeStatement($1, argument_list, @3);
+		const ArgumentList argument_list = ArgumentListBase::Reverse($3);
+		$$ = make_shared<InvokeStatement>($1, argument_list, @3);
 	}
 	;
 
@@ -437,7 +434,7 @@ statement:
 if_block:
 	statement
 	{
-		$$ = new StatementBlock(new StatementList($1, StatementList::GetTerminator()));
+		$$ = make_shared<StatementBlock>(StatementListBase::From($1, StatementListBase::GetTerminator()));
 	}
 	| statement_block
 	{
@@ -449,11 +446,11 @@ if_block:
 if_statement:
 	IF LPAREN expression RPAREN if_block %prec IF_NO_ELSE
 	{
-		$$ = new IfStatement($3, $5);
+		$$ = make_shared<IfStatement>($3, $5);
 	}
 	| IF LPAREN expression RPAREN if_block ELSE if_block
 	{
-		$$ = new IfStatement($3, $5, $7);
+		$$ = make_shared<IfStatement>($3, $5, $7);
 	}
 	;
 
@@ -461,7 +458,7 @@ if_statement:
 for_statement:
 	FOR LPAREN assign_statement SEMICOLON expression SEMICOLON assign_statement RPAREN statement_block
 	{
-		$$ = new ForStatement($3, $5, $7, $9);
+		$$ = make_shared<ForStatement>($3, $5, $7, $9);
 	}
 	;
 
@@ -469,7 +466,7 @@ for_statement:
 print_statement:
 	PRINT LPAREN expression RPAREN
 	{
-		$$ = new PrintStatement(@1.begin.line, $3);
+		$$ = make_shared<PrintStatement>(@1.begin.line, $3);
 	}
 	;
 
@@ -477,11 +474,11 @@ print_statement:
 exit_statement:
 	EXIT LPAREN expression RPAREN
 	{
-		$$ = new ExitStatement($3);
+		$$ = make_shared<ExitStatement>($3);
 	}
 	| PRINT LPAREN RPAREN
 	{
-		$$ = new ExitStatement();
+		$$ = make_shared<ExitStatement>();
 	}
 	;
 
@@ -489,15 +486,15 @@ exit_statement:
 assign_statement:
 	variable_reference EQUALS expression
 	{
-		$$ = new AssignmentStatement(const_shared_ptr<Variable>($1), AssignmentType::ASSIGN, const_shared_ptr<Expression>($3));
+		$$ = make_shared<const AssignmentStatement>($1, AssignmentType::ASSIGN, $3);
 	}
 	| variable_reference PLUS_ASSIGN expression
 	{
-		$$ = new AssignmentStatement(const_shared_ptr<Variable>($1), AssignmentType::PLUS_ASSIGN, const_shared_ptr<Expression>($3));
+		$$ = make_shared<const AssignmentStatement>($1, AssignmentType::PLUS_ASSIGN, $3);
 	}
 	| variable_reference MINUS_ASSIGN expression
 	{
-		$$ = new AssignmentStatement(const_shared_ptr<Variable>($1), AssignmentType::MINUS_ASSIGN, const_shared_ptr<Expression>($3));
+		$$ = make_shared<const AssignmentStatement>($1, AssignmentType::MINUS_ASSIGN, $3);
 	}
 	;
 
@@ -505,7 +502,7 @@ assign_statement:
 return_statement:
 	RETURN expression
 	{
-		$$ = new ReturnStatement($2);
+		$$ = make_shared<ReturnStatement>($2);
 	}
 	;
 
@@ -513,16 +510,15 @@ return_statement:
 variable_reference:
 	IDENTIFIER
 	{
-		$$ = new BasicVariable($1, @1);
+		$$ = make_shared<BasicVariable>($1, @1);
 	}
 	| IDENTIFIER indices
 	{
-		const IndexList* reverse = new IndexList($2->Reverse(true));
-		$$ = new ArrayVariable($1, @1, reverse, @2);
+		$$ = make_shared<ArrayVariable>($1, @1, IndexListBase::Reverse($2), @2);
 	}
 	| variable_reference PERIOD variable_reference
 	{
-		$$ = new MemberVariable($1, $3);
+		$$ = make_shared<MemberVariable>($1, $3);
 	}
 	;
 
@@ -538,96 +534,96 @@ expression:
 	}
 	| INT_CONSTANT
 	{
-		$$ = new ConstantExpression(@1, $1);
+		$$ = make_shared<const ConstantExpression>(@1, $1);
 	}
 	| TRUE
 	{
-		$$ = new ConstantExpression(@1, true);
+		$$ = make_shared<const ConstantExpression>(@1, true);
 	}
 	| FALSE
 	{
-		$$ = new ConstantExpression(@1, false);
+		$$ = make_shared<const ConstantExpression>(@1, false);
 	}
 	| DOUBLE_CONSTANT
 	{
-		$$ = new ConstantExpression(@1, $1);
+		$$ = make_shared<const ConstantExpression>(@1, $1);
 	}
 	| STRING_CONSTANT
 	{
-		$$ = new ConstantExpression(@1, $1);
+		$$ = make_shared<const ConstantExpression>(@1, $1);
 	}
 	| expression OR expression
 	{
-		$$ = new LogicExpression(@$, OR, $1, $3);
+		$$ = make_shared<const LogicExpression>(@$, OR, $1, $3);
 	}
 	| expression AND expression
 	{
-		$$ = new LogicExpression(@$, AND, $1, $3);
+		$$ = make_shared<const LogicExpression>(@$, AND, $1, $3);
 	}
 	| expression LESS_EQUAL expression
 	{
-		$$ = new ComparisonExpression(@$, LESS_THAN_EQUAL, $1, $3);
+		$$ = make_shared<const ComparisonExpression>(@$, LESS_THAN_EQUAL, $1, $3);
 	}
 	| expression GREATER_EQUAL  expression
 	{
-		$$ = new ComparisonExpression(@$, GREATER_THAN_EQUAL, $1, $3);
+		$$ = make_shared<const ComparisonExpression>(@$, GREATER_THAN_EQUAL, $1, $3);
 	}
 	| expression LESS expression 
 	{
-		$$ = new ComparisonExpression(@$, LESS_THAN, $1, $3);
+		$$ = make_shared<const ComparisonExpression>(@$, LESS_THAN, $1, $3);
 	}
 	| expression GREATER  expression
 	{
-		$$ = new ComparisonExpression(@$, GREATER_THAN, $1, $3);
+		$$ = make_shared<const ComparisonExpression>(@$, GREATER_THAN, $1, $3);
 	}
 	| expression EQUAL expression
 	{
-		$$ = new ComparisonExpression(@$, EQUAL, $1, $3);
+		$$ = make_shared<const ComparisonExpression>(@$, EQUAL, $1, $3);
 	}
 	| expression NOT_EQUAL expression
 	{
-		$$ = new ComparisonExpression(@$, NOT_EQUAL, $1, $3);
+		$$ = make_shared<const ComparisonExpression>(@$, NOT_EQUAL, $1, $3);
 	}
 	| expression PLUS expression 
 	{
 		//string concatenation isn't strictly an arithmetic operation, so this is something of a hack
-		$$ = new ArithmeticExpression(@$, PLUS, $1, $3);
+		$$ = make_shared<const ArithmeticExpression>(@$, PLUS, $1, $3);
 	}
 	| expression MINUS expression
 	{
-		$$ = new ArithmeticExpression(@$, MINUS, $1, $3);
+		$$ = make_shared<const ArithmeticExpression>(@$, MINUS, $1, $3);
 	}
 	| expression ASTERISK expression
 	{
-		$$ = new ArithmeticExpression(@$, MULTIPLY, $1, $3);
+		$$ = make_shared<const ArithmeticExpression>(@$, MULTIPLY, $1, $3);
 	}
 	| expression DIVIDE expression
 	{
-		$$ = new ArithmeticExpression(@$, DIVIDE, $1, $3);
+		$$ = make_shared<const ArithmeticExpression>(@$, DIVIDE, $1, $3);
 	}
 	| expression PERCENT expression
 	{
-		$$ = new ArithmeticExpression(@$, MOD, $1, $3);
+		$$ = make_shared<const ArithmeticExpression>(@$, MOD, $1, $3);
 	}
 	| MINUS expression %prec UNARY_OPS
 	{
-		$$ = new UnaryExpression(@$, UNARY_MINUS, $2);
+		$$ = make_shared<const UnaryExpression>(@$, UNARY_MINUS, $2);
 	}
 	| NOT expression %prec UNARY_OPS
 	{
-		$$ = new UnaryExpression(@$, NOT, $2);
+		$$ = make_shared<const UnaryExpression>(@$, NOT, $2);
 	}
 	| AT primitive_type_specifier
 	{
-		$$ = new DefaultValueExpression(@$, const_shared_ptr<TypeSpecifier>($2), @2);
+		$$ = make_shared<const DefaultValueExpression>(@$, const_shared_ptr<TypeSpecifier>($2), @2);
 	}
 	| AT IDENTIFIER
 	{
-		$$ = new DefaultValueExpression(@$, const_shared_ptr<TypeSpecifier>(new CompoundTypeSpecifier(*$2, @2)), @2);
+		$$ = make_shared<const DefaultValueExpression>(@$, const_shared_ptr<TypeSpecifier>(new CompoundTypeSpecifier(*$2, @2)), @2);
 	}
 	| expression WITH member_instantiation_block
 	{
-		$$ = new WithExpression(@$, $1, $3, @3);
+		$$ = make_shared<const WithExpression>(@$, $1, $3, @3);
 	}
 	| function_expression
 	{
@@ -642,25 +638,25 @@ expression:
 variable_expression:
 	variable_reference
 	{
-		$$ = new VariableExpression(@1, $1);
+		$$ = make_shared<VariableExpression>(@1, $1);
 	}
 	;
 
 invoke_expression:
 	variable_expression LPAREN optional_argument_list RPAREN
 	{
-		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
-		$$ = new InvokeExpression(@$, $1, argument_list, @3);
+		const ArgumentList argument_list = ArgumentListBase::Reverse($3);
+		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
 	}
 	| invoke_expression LPAREN optional_argument_list RPAREN
 	{
-		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
-		$$ = new InvokeExpression(@$, $1, argument_list, @3);
+		const ArgumentList argument_list = ArgumentListBase::Reverse($3);
+		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
 	}
 	| function_expression LPAREN optional_argument_list RPAREN
 	{
-		const ArgumentList* argument_list = $3->IsTerminator() ? $3 : new ArgumentList($3->Reverse(true));
-		$$ = new InvokeExpression(@$, $1, argument_list, @3);
+		const ArgumentList argument_list = ArgumentListBase::Reverse($3);
+		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
 	}
 	;
 
@@ -668,8 +664,8 @@ invoke_expression:
 function_declaration:
 	LPAREN optional_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
-		const DeclarationList* parameter_list = $2->IsTerminator() ? $2 : new DeclarationList($2->Reverse(true));
-		$$ = const_shared_ptr<FunctionDeclaration>(new FunctionDeclaration(parameter_list, $5));
+		const DeclarationList parameter_list = DeclarationListBase::Reverse($2);
+		$$ = make_shared<FunctionDeclaration>(parameter_list, $5);
 	}
 	;
 
@@ -677,7 +673,7 @@ function_declaration:
 function_expression:
 	function_declaration statement_block
 	{
-		$$ = new FunctionExpression(@1, $1, $2);
+		$$ = make_shared<FunctionExpression>(@1, $1, $2);
 	}
 	;
 
@@ -689,7 +685,7 @@ optional_parameter_list:
 	}
 	| empty
 	{
-		$$ = DeclarationList::GetTerminator();
+		$$ = DeclarationListBase::GetTerminator();
 	}
 	;
 
@@ -697,11 +693,11 @@ optional_parameter_list:
 parameter_list:
 	parameter_list COMMA variable_declaration
 	{
-		$$ = new DeclarationList($3, $1);
+		$$ = DeclarationListBase::From($3, $1);
 	}
 	| variable_declaration
 	{
-		$$ = new DeclarationList($1, DeclarationList::GetTerminator());
+		$$ = DeclarationListBase::From($1, DeclarationListBase::GetTerminator());
 	}
 	;
 
@@ -713,7 +709,7 @@ optional_anonymous_parameter_list:
 	}
 	| empty
 	{
-		$$ = TypeSpecifierList::GetTerminator();
+		$$ = TypeSpecifierListBase::GetTerminator();
 	}
 	;
 
@@ -721,11 +717,11 @@ optional_anonymous_parameter_list:
 anonymous_parameter_list:
 	anonymous_parameter_list COMMA type_specifier
 	{
-		$$ = new TypeSpecifierList($3, $1);
+		$$ = TypeSpecifierListBase::From($3, $1);
 	}
 	| type_specifier
 	{
-		$$ = new TypeSpecifierList($1, TypeSpecifierList::GetTerminator());
+		$$ = TypeSpecifierListBase::From($1, TypeSpecifierListBase::GetTerminator());
 	}
 	;
 
@@ -737,7 +733,7 @@ optional_argument_list:
 	}
 	| empty
 	{
-		$$ = ArgumentList::GetTerminator();
+		$$ = ArgumentListBase::GetTerminator();
 	}
 	;
 
@@ -745,11 +741,11 @@ optional_argument_list:
 argument_list:
 	argument_list COMMA expression
 	{
-		$$ = new ArgumentList($3, $1);
+		$$ = ArgumentListBase::From($3, $1);
 	}
 	| expression
 	{
-		$$ = new ArgumentList($1, ArgumentList::GetTerminator());
+		$$ = ArgumentListBase::From($1, ArgumentListBase::GetTerminator());
 	}
 	;
 
@@ -757,30 +753,31 @@ argument_list:
 modifier_list:
 	modifier_list modifier
 	{
-		$$ = new ModifierList($2, $1);
+		$$ = ModifierListBase::From($2, $1);
 	}
 	| modifier
 	{
-		$$ = new ModifierList($1, ModifierList::GetTerminator());
+		$$ = ModifierListBase::From($1, ModifierListBase::GetTerminator());
 	}
 
 modifier:
 	READONLY
 	{
-		$$ = new Modifier(Modifier::READONLY, @1);
+		$$ = make_shared<Modifier>(Modifier(Modifier::READONLY, @1));
 	}
 
 //---------------------------------------------------------------------
 struct_declaration_statement:
 	modifier_list STRUCT IDENTIFIER LBRACE declaration_list RBRACE
 	{
-		const DeclarationList* member_declaration_list = $5->IsTerminator() ? $5 : new DeclarationList($5->Reverse(true));
-		$$ = new StructDeclarationStatement(@$, $3, @3, member_declaration_list, @5, new ModifierList($1->Reverse(true)), @1);
+		const DeclarationList member_declaration_list = DeclarationListBase::Reverse($5);
+		ModifierList modifier_list = ModifierListBase::From(ModifierListBase::Reverse($1));
+		$$ = make_shared<StructDeclarationStatement>(@$, $3, @3, member_declaration_list, @5, modifier_list, @1);
 	}
 	| STRUCT IDENTIFIER LBRACE declaration_list RBRACE
 	{
-		const DeclarationList* member_declaration_list = $4->IsTerminator() ? $4 : new DeclarationList($4->Reverse(true));
-		$$ = new StructDeclarationStatement(@$, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
+		const DeclarationList member_declaration_list = DeclarationListBase::Reverse($4);
+		$$ = make_shared<StructDeclarationStatement>(@$, $2, @2, member_declaration_list, @4, ModifierListBase::GetTerminator(), GetDefaultLocation());
 	}
 	;
 
@@ -788,11 +785,11 @@ struct_declaration_statement:
 declaration_list:
 	declaration_list variable_declaration
 	{
-		$$ = new DeclarationList($2, $1);
+		$$ = DeclarationListBase::From($2, $1);
 	}
 	| empty
 	{
-		$$ = DeclarationList::GetTerminator();
+		$$ = DeclarationListBase::GetTerminator();
 	}
 	;
 
@@ -812,7 +809,7 @@ optional_member_instantiation_list:
 	}
 	| empty
 	{
-		$$ = MemberInstantiationList::GetTerminator();
+		$$ = MemberInstantiationListBase::GetTerminator();
 	}
 	;
 
@@ -820,18 +817,18 @@ optional_member_instantiation_list:
 member_instantiation_list:
 	member_instantiation_list COMMA member_instantiation
 	{
-		$$ = new MemberInstantiationList($3, $1);
+		$$ = MemberInstantiationListBase::From($3, $1);
 	}
 	| member_instantiation
 	{
-		$$ = new MemberInstantiationList($1, MemberInstantiationList::GetTerminator());
+		$$ = MemberInstantiationListBase::From($1, MemberInstantiationListBase::GetTerminator());
 	}
 
 //---------------------------------------------------------------------
 member_instantiation:
 	IDENTIFIER EQUALS expression
 	{
-		$$ = new MemberInstantiation($1, @1, $3, @3);
+		$$ = make_shared<MemberInstantiation>(MemberInstantiation($1, @1, $3, @3));
 	}
 	;
 
@@ -839,11 +836,11 @@ member_instantiation:
 indices:
 	indices index
 	{
-		$$ = new IndexList($2, $1);
+		$$ = IndexListBase::From($2, $1);
 	}
 	| index
 	{
-		$$ = new IndexList($1, IndexList::GetTerminator());
+		$$ = IndexListBase::From($1, IndexListBase::GetTerminator());
 	}
 	;
 
@@ -851,7 +848,7 @@ indices:
 index:
 	LBRACKET expression RBRACKET
 	{
-		$$ = new Index(@$, $2);
+		$$ = make_shared<Index>(Index(@$, $2));
 	}
 	;
 
@@ -859,11 +856,11 @@ index:
 dimensions:
 	dimensions dimension
 	{
-		$$ = new DimensionList($2, $1);
+		$$ = DimensionListBase::From($2, $1);
 	}
 	| dimension
 	{
-		$$ = new DimensionList($1, DimensionList::GetTerminator());
+		$$ = DimensionListBase::From($1, DimensionListBase::GetTerminator());
 	}
 	;
 
@@ -871,7 +868,7 @@ dimensions:
 dimension:
 	LBRACKET RBRACKET
 	{
-		$$ = new Dimension(@$);
+		$$ = make_shared<Dimension>(Dimension(@$));
 	}
 	;
 

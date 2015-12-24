@@ -33,6 +33,7 @@ private:
 	const yy::location m_location;
 };
 
-typedef const LinkedList<const Dimension*> DimensionList;
+typedef const LinkedList<const Dimension, NO_DUPLICATES> DimensionListBase;
+typedef shared_ptr<DimensionListBase> DimensionList;
 
 #endif /* DIMENSION_H_ */

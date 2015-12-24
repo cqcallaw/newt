@@ -24,7 +24,7 @@
 #include "error.h"
 
 UnaryExpression::UnaryExpression(const yy::location position,
-		const OperatorType op, const Expression* expression) :
+		const OperatorType op, const_shared_ptr<Expression> expression) :
 		Expression(position), m_expression(expression), m_operator(op) {
 	assert(expression != NULL);
 }
@@ -87,34 +87,33 @@ double UnaryExpression::degrees_to_radians(double angle) {
 }
 
 const_shared_ptr<TypeSpecifier> UnaryExpression::GetType(
-		const ExecutionContext* execution_context) const {
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	return compute_result_type(m_expression->GetType(execution_context),
 			m_operator);
 }
 
-const LinkedList<const Error*>* UnaryExpression::Validate(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* result =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList UnaryExpression::Validate(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList result = ErrorListBase::GetTerminator();
 
 	const OperatorType op = m_operator;
-	const Expression* expression = m_expression;
+	const_shared_ptr<Expression> expression = m_expression;
 
-	const LinkedList<const Error*>* expression_errors = expression->Validate(
-			execution_context);
-	if (expression_errors != LinkedList<const Error*>::GetTerminator()) {
-		result = result->Concatenate(expression_errors, true);
+	ErrorList expression_errors = expression->Validate(execution_context);
+	if (!ErrorListBase::IsTerminator(expression_errors)) {
+		result = ErrorListBase::Concatenate(result, expression_errors);
 		return result;
 	}
 
 	const_shared_ptr<TypeSpecifier> expression_type = expression->GetType(
 			execution_context);
 	if (!(expression_type->IsAssignableTo(PrimitiveTypeSpecifier::GetDouble()))) {
-		result = result->With(
-				new Error(Error::SEMANTIC, Error::INVALID_RIGHT_OPERAND_TYPE,
+		result = ErrorListBase::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::INVALID_RIGHT_OPERAND_TYPE,
 						expression->GetPosition().begin.line,
 						expression->GetPosition().begin.column,
-						operator_to_string(op)));
+						operator_to_string(op)), result);
 	}
 
 	return result;
@@ -125,17 +124,16 @@ double UnaryExpression::radians_to_degrees(double radians) {
 }
 
 const Result* UnaryExpression::Evaluate(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 	void* result = nullptr;
 
 	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
 			execution_context);
 	const Result* evaluation = m_expression->Evaluate(execution_context);
-	const LinkedList<const Error*>* evaluation_errors = evaluation->GetErrors();
+	ErrorList evaluation_errors = evaluation->GetErrors();
 
-	if (evaluation_errors != LinkedList<const Error*>::GetTerminator()) {
+	if (!ErrorListBase::IsTerminator(evaluation_errors)) {
 		errors = evaluation_errors;
 	} else {
 		auto data = evaluation->GetData();

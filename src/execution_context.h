@@ -28,12 +28,11 @@ class TypeTable;
 class ExecutionContext {
 public:
 	ExecutionContext();
-	ExecutionContext(SymbolContext* symbol_context,
-			volatile_shared_ptr<TypeTable> type_table, bool dispose_members =
-					false);
+	ExecutionContext(volatile_shared_ptr<SymbolContext> symbol_context,
+			volatile_shared_ptr<TypeTable> type_table);
 	virtual ~ExecutionContext();
 
-	SymbolContext* GetSymbolContext() const {
+	volatile_shared_ptr<SymbolContext> GetSymbolContext() const {
 		return m_symbol_context;
 	}
 
@@ -41,8 +40,10 @@ public:
 		return m_type_table;
 	}
 
-	ExecutionContext* WithSymbolContext(SymbolContext* symbol_context) const {
-		return new ExecutionContext(symbol_context, m_type_table);
+	volatile_shared_ptr<ExecutionContext> WithSymbolContext(
+			volatile_shared_ptr<SymbolContext> symbol_context) const {
+		return std::shared_ptr < ExecutionContext
+				> (new ExecutionContext(symbol_context, m_type_table));
 	}
 
 	plain_shared_ptr<void> GetReturnValue() const {
@@ -53,17 +54,16 @@ public:
 		m_return_value = return_value;
 	}
 
-	const static ExecutionContext* GetDefault();
+	static const_shared_ptr<ExecutionContext> GetDefault();
 
 private:
-	ExecutionContext(SymbolContext* symbol_context,
+	ExecutionContext(volatile_shared_ptr<SymbolContext> symbol_context,
 			volatile_shared_ptr<TypeTable> type_table,
-			const void* m_return_value, bool dispose_members);
+			const void* m_return_value);
 
-	SymbolContext* m_symbol_context;
+	volatile_shared_ptr<SymbolContext> m_symbol_context;
 	volatile_shared_ptr<TypeTable> m_type_table;
 	plain_shared_ptr<void> m_return_value;
-	const bool m_dispose_members;
 };
 
 #endif /* EXECUTION_CONTEXT_H_ */

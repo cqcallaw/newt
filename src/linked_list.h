@@ -21,95 +21,125 @@
 #define LINKED_LIST_H_
 
 #include <stdexcept>
+#include <memory>
+#include <assert.h>
 
-template<class T> class LinkedList {
+using namespace std;
+
+enum ListDuplicatePolicy {
+	NO_DUPLICATES = 0, ALLOW_DUPLICATES = 1
+};
+
+template<class T, ListDuplicatePolicy duplicate_policy> class LinkedList {
 public:
-	LinkedList(const T data) :
-			m_data(data), m_next(GetTerminator()) {
-	}
-
-	LinkedList(const T data, const LinkedList<T>* next) :
-			m_data(data), m_next(next) {
-	}
-
-	//construct a linked list from the given input
-	//map null inputs to empty lists
-	LinkedList(const LinkedList<T>* list) :
-			m_data(
-					(list != nullptr && list != GetTerminator()) ?
-							list->GetData() : nullptr), m_next(
-					(list != nullptr && list != GetTerminator()) ?
-							list->GetNext() : GetTerminator()) {
-	}
-
 	virtual ~LinkedList() {
 	}
 
-	const T GetData() const {
+	const shared_ptr<T> GetData() const {
 		return m_data;
 	}
 
-	const LinkedList<T>* GetNext() const {
+	const shared_ptr<const LinkedList<T, duplicate_policy>> GetNext() const {
 		return m_next;
 	}
 
-	const LinkedList<T>* With(const T data) const {
-		return new LinkedList<T>(data, this);
+	static const shared_ptr<const LinkedList<T, duplicate_policy>> From(
+			const shared_ptr<const LinkedList<T, duplicate_policy>> subject) {
+		return shared_ptr<const LinkedList<T, duplicate_policy>>(
+				new const LinkedList<T, duplicate_policy>(subject));
 	}
 
-	const LinkedList<T>* Concatenate(const LinkedList<T>* other,
-			bool delete_original) const {
-		if (this->IsTerminator()) {
-			return other;
+	static const shared_ptr<const LinkedList<T, duplicate_policy>> From(
+			const shared_ptr<T> data,
+			const shared_ptr<const LinkedList<T, duplicate_policy>> next) {
+		return shared_ptr<const LinkedList<T, duplicate_policy>>(
+				new const LinkedList<T, duplicate_policy>(data, next));
+	}
+
+	static const shared_ptr<const LinkedList<T, duplicate_policy>> Concatenate(
+			const shared_ptr<const LinkedList<T, duplicate_policy>> base,
+			const shared_ptr<const LinkedList<T, duplicate_policy>> continuation) {
+		if (IsTerminator(base)) {
+			return continuation;
 		}
-		if (other->IsTerminator()) {
-			return this;
+		if (IsTerminator(continuation)) {
+			return base;
 		}
 
-		if (this == other) {
+		if (base == continuation) {
 			throw std::invalid_argument(
 					"Cannot concatenate a list onto itself.");
 		}
 
-		auto result = this;
-		auto subject = other->Reverse(delete_original);
+		shared_ptr<const LinkedList<T, duplicate_policy>> result = base;
+		shared_ptr<const LinkedList<T, duplicate_policy>> subject = Reverse(
+				continuation);
 
-		while (!subject->IsTerminator()) {
-			result = new LinkedList<T>(subject->GetData(), result);
+		while (!IsTerminator(subject)) {
+			result = shared_ptr<const LinkedList<T, duplicate_policy>>(
+					new const LinkedList<T, duplicate_policy>(
+							subject->GetData(), result));
 			subject = subject->GetNext();
 		}
 
 		return result;
 	}
 
-	const LinkedList<T>* Reverse(bool delete_original) const {
+	static const shared_ptr<const LinkedList<T, duplicate_policy>> Reverse(
+			const shared_ptr<const LinkedList<T, duplicate_policy>> subject) {
+		if (IsTerminator(subject)) {
+			return subject;
+		}
+
 		//ref: http://stackoverflow.com/a/1801703/577298
-		const LinkedList<T>* subject = this;
-		const LinkedList<T>* new_next = GetTerminator();
-		while (subject != GetTerminator()) {
-			new_next = new LinkedList<T>(subject->GetData(), new_next);
-			const LinkedList<T>* tmp = subject;
-			subject = subject->GetNext();
-			if (delete_original) {
-				delete (tmp);
-			}
+		shared_ptr<const LinkedList<T, duplicate_policy>> iter = subject;
+		shared_ptr<const LinkedList<T, duplicate_policy>> new_next =
+				GetTerminator();
+		while (!IsTerminator(iter)) {
+			new_next = shared_ptr<const LinkedList<T, duplicate_policy>>(
+					new const LinkedList<T, duplicate_policy>(iter->GetData(),
+							new_next));
+			iter = iter->GetNext();
 		}
 
 		return new_next;
 	}
 
-	const bool IsTerminator() const {
-		return this == GetTerminator();
+	static const bool IsTerminator(
+			const shared_ptr<const LinkedList<T, duplicate_policy>> subject) {
+		return subject == GetTerminator();
 	}
 
-	static const LinkedList<T>* GetTerminator() {
-		static LinkedList<T>* terminator = nullptr;
+	static const shared_ptr<const LinkedList<T, duplicate_policy>> GetTerminator() {
+		static const shared_ptr<const LinkedList<T, duplicate_policy>> terminator;
 		return terminator;
 	}
 
 private:
-	const T m_data;
-	const LinkedList<T>* m_next;
+	LinkedList(const shared_ptr<T> data) :
+			LinkedList(data, GetTerminator()) {
+	}
+
+	LinkedList(const shared_ptr<T> data,
+			const shared_ptr<const LinkedList<T, duplicate_policy>> next) :
+			m_data(data), m_next(next) {
+		if (duplicate_policy == NO_DUPLICATES && !IsTerminator(m_next)) {
+			assert(m_data != m_next->GetData());
+		}
+	}
+
+//construct a linked list from the given input
+//map null inputs to empty lists
+	LinkedList(const shared_ptr<const LinkedList<T, duplicate_policy>> list) :
+			m_data(
+					(list.get() != nullptr && !IsTerminator(list)) ?
+							list->GetData() : nullptr), m_next(
+					(list.get() != nullptr && !IsTerminator(list)) ?
+							list->GetNext() : GetTerminator()) {
+	}
+
+	const shared_ptr<T> m_data;
+	const shared_ptr<const LinkedList<T, duplicate_policy>> m_next;
 };
 
 #endif /* LINKED_LIST_H_ */

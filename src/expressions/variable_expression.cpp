@@ -28,24 +28,23 @@
 #include <type.h>
 
 VariableExpression::VariableExpression(const yy::location position,
-		const Variable* variable) :
+		const_shared_ptr<Variable> variable) :
 		Expression(position), m_variable(variable) {
 }
 
 const_shared_ptr<TypeSpecifier> VariableExpression::GetType(
-		const ExecutionContext* execution_context) const {
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	return m_variable->GetType(execution_context);
 }
 
 const Result* VariableExpression::Evaluate(
-		const ExecutionContext* execution_context) const {
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	return m_variable->Evaluate(execution_context);
 }
 
-const LinkedList<const Error*>* VariableExpression::Validate(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors = m_variable->Validate(
-			execution_context);
+const ErrorList VariableExpression::Validate(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = m_variable->Validate(execution_context);
 
 	return errors;
 }

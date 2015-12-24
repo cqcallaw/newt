@@ -43,30 +43,38 @@ ConstantExpression::ConstantExpression(const yy::location position,
 				std::static_pointer_cast<const void>(value)) {
 }
 
+ConstantExpression::ConstantExpression(const ConstantExpression* other) :
+		ConstantExpression(other->GetPosition(), other->m_type, other->m_value) {
+}
+
+ConstantExpression::~ConstantExpression() {
+}
+
 const_shared_ptr<TypeSpecifier> ConstantExpression::GetType(
-		const ExecutionContext* execution_context) const {
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	return m_type;
 }
 
 const Result* ConstantExpression::Evaluate(
-		const ExecutionContext* execution_context) const {
-	return new Result(m_value, LinkedList<const Error*>::GetTerminator());
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	return new Result(m_value, ErrorListBase::GetTerminator());
 }
 
-const ConstantExpression* ConstantExpression::GetDefaultExpression(
+const_shared_ptr<ConstantExpression> ConstantExpression::GetDefaultExpression(
 		const_shared_ptr<TypeSpecifier> type, const TypeTable& type_table) {
-	return new ConstantExpression(GetDefaultLocation(), type,
-			type->DefaultValue(type_table));
+	return const_shared_ptr<ConstantExpression>(
+			new ConstantExpression(GetDefaultLocation(), type,
+					type->DefaultValue(type_table)));
 }
 
 const Result* ConstantExpression::GetConstantExpression(
-		const Expression* expression,
-		const ExecutionContext* execution_context) {
+		const_shared_ptr<Expression> expression,
+		const_shared_ptr<ExecutionContext> execution_context) {
 	const Result* evaluation = expression->Evaluate(execution_context);
 	plain_shared_ptr<void> result;
 
 	auto errors = evaluation->GetErrors();
-	if (errors->IsTerminator()) {
+	if (ErrorListBase::IsTerminator(errors)) {
 		result = const_shared_ptr<void>(
 				new ConstantExpression(expression->GetPosition(),
 						expression->GetType(execution_context),
@@ -83,7 +91,7 @@ ConstantExpression::ConstantExpression(const yy::location position,
 		Expression(position), m_type(type), m_value(value) {
 }
 
-const LinkedList<const Error*>* ConstantExpression::Validate(
-		const ExecutionContext* execution_context) const {
-	return LinkedList<const Error*>::GetTerminator();
+const ErrorList ConstantExpression::Validate(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	return ErrorListBase::GetTerminator();
 }

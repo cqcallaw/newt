@@ -23,7 +23,8 @@
 #include <type.h>
 
 ArithmeticExpression::ArithmeticExpression(const yy::location position,
-		const OperatorType op, const Expression* left, const Expression* right) :
+		const OperatorType op, const_shared_ptr<Expression> left,
+		const_shared_ptr<Expression> right) :
 		BinaryExpression(position, op, left, right) {
 	assert(
 			op == PLUS || op == MINUS || op == MULTIPLY || op == DIVIDE
@@ -38,8 +39,7 @@ const Result* ArithmeticExpression::compute(bool& left, bool& right,
 
 const Result* ArithmeticExpression::compute(int& left, int& right,
 		yy::location left_position, yy::location right_position) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	int* result = new int;
 	switch (GetOperator()) {
@@ -51,10 +51,10 @@ const Result* ArithmeticExpression::compute(int& left, int& right,
 		break;
 	case DIVIDE:
 		if (right == 0) {
-			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
 							right_position.begin.line,
-							right_position.begin.column));
+							right_position.begin.column), errors);
 			*result = 0;
 		} else {
 			*result = left / right;
@@ -65,10 +65,10 @@ const Result* ArithmeticExpression::compute(int& left, int& right,
 		break;
 	case MOD:
 		if (right == 0) {
-			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::MOD_BY_ZERO,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC, Error::MOD_BY_ZERO,
 							right_position.begin.line,
-							right_position.begin.column));
+							right_position.begin.column), errors);
 			*result = 0;
 		} else {
 			*result = left % right;
@@ -83,8 +83,7 @@ const Result* ArithmeticExpression::compute(int& left, int& right,
 
 const Result* ArithmeticExpression::compute(double& left, double& right,
 		yy::location left_position, yy::location right_position) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	double* result = new double;
 	switch (GetOperator()) {
@@ -96,10 +95,10 @@ const Result* ArithmeticExpression::compute(double& left, double& right,
 		break;
 	case DIVIDE:
 		if (right == 0.0) {
-			errors = errors->With(
-					new Error(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
 							right_position.begin.line,
-							right_position.begin.column));
+							right_position.begin.column), errors);
 			*result = 0;
 		} else {
 			*result = left / right;
@@ -124,11 +123,11 @@ const Result* ArithmeticExpression::compute(string& left, string& right,
 	const string buffer_string = buffer.str();
 	const string* result = new string(buffer_string);
 	return new Result(const_shared_ptr<const void>(result),
-			LinkedList<const Error*>::GetTerminator());
+			ErrorListBase::GetTerminator());
 }
 
-const LinkedList<const Error*>* ArithmeticExpression::Validate(
-		const ExecutionContext* execution_context) const {
+const ErrorList ArithmeticExpression::Validate(
+		const_shared_ptr<ExecutionContext> execution_context) const {
 	if (GetOperator() == PLUS) {
 		//Allow STRING types because PLUS doubles as a concatenation operator
 		return BinaryExpression::Validate(execution_context,

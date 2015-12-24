@@ -28,16 +28,18 @@ class CompoundType;
 
 using namespace std;
 
+typedef map<const string, const_shared_ptr<CompoundType>> type_map;
+
 class TypeTable {
 public:
 	TypeTable();
 	virtual ~TypeTable();
 
-	void AddType(const string name, const CompoundType* definition);
+	void AddType(const string name, const_shared_ptr<CompoundType> definition);
 
-	const CompoundType* GetType(const string name) const;
+	const_shared_ptr<CompoundType> GetType(const string& name) const;
 
-	const_shared_ptr<void> GetDefaultValue(const string type_name) const;
+	const_shared_ptr<void> GetDefaultValue(const string& type_name) const;
 
 	const void print(ostream &os) const;
 
@@ -46,7 +48,7 @@ public:
 	static volatile_shared_ptr<TypeTable> GetDefault();
 
 private:
-	map<const string, const CompoundType*>* table;
+	type_map* table;
 };
 
 #endif /* TYPE_TABLE_H_ */

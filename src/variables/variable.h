@@ -35,10 +35,11 @@ public:
 	Variable(const_shared_ptr<string> name, const yy::location location);
 	virtual ~Variable();
 
-	virtual const string* ToString(const ExecutionContext* context) const = 0;
+	virtual const string* ToString(
+			const_shared_ptr<ExecutionContext> context) const = 0;
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const ExecutionContext* context) const = 0;
+			const_shared_ptr<ExecutionContext> context) const = 0;
 
 	const_shared_ptr<string> GetName() const {
 		return m_name;
@@ -48,41 +49,43 @@ public:
 		return m_location;
 	}
 
-	virtual const LinkedList<const Error*>* Validate(
-			const ExecutionContext* context) const = 0;
+	virtual const ErrorList Validate(
+			const_shared_ptr<ExecutionContext> context) const = 0;
 
-	virtual const Result* Evaluate(const ExecutionContext* context) const = 0;
+	virtual const Result* Evaluate(
+			const_shared_ptr<ExecutionContext> context) const = 0;
 
-	virtual const LinkedList<const Error*>* AssignValue(
-			const ExecutionContext* context, const Expression* expression,
+	virtual const ErrorList AssignValue(
+			const_shared_ptr<ExecutionContext> context,
+			const_shared_ptr<Expression> expression,
 			const AssignmentType op) const = 0;
 
 protected:
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context,
+	virtual const ErrorList SetSymbol(
+			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<bool> value) const = 0;
 
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context,
+	virtual const ErrorList SetSymbol(
+			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<int> value) const = 0;
 
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context,
+	virtual const ErrorList SetSymbol(
+			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<double> value) const = 0;
 
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context,
+	virtual const ErrorList SetSymbol(
+			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<string> value) const = 0;
 
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context,
+	virtual const ErrorList SetSymbol(
+			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Array> value) const = 0;
 
-	virtual const LinkedList<const Error*>* SetSymbol(
-			const ExecutionContext* context,
+	virtual const ErrorList SetSymbol(
+			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<CompoundTypeInstance> value) const = 0;
 
-	const LinkedList<const Error*>* ToErrorList(SetResult result,
+	const ErrorList ToErrorList(SetResult result,
 			const_shared_ptr<TypeSpecifier> symbol_type,
 			const_shared_ptr<TypeSpecifier> expression_type) const;
 

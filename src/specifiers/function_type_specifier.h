@@ -29,8 +29,9 @@ class Function;
 
 class FunctionTypeSpecifier: public TypeSpecifier {
 public:
-	FunctionTypeSpecifier(const TypeSpecifierList* parameter_type_list,
+	FunctionTypeSpecifier(TypeSpecifierList parameter_type_list,
 			const_shared_ptr<TypeSpecifier> return_type);
+	FunctionTypeSpecifier(const FunctionTypeSpecifier& other);
 	virtual ~FunctionTypeSpecifier();
 
 	virtual const string ToString() const;
@@ -45,13 +46,13 @@ public:
 		return !(*this == other);
 	}
 
-	virtual const DeclarationStatement* GetDeclarationStatement(
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position, const_shared_ptr<string> name,
 			const yy::location name_position,
-			const Expression* initializer_expression) const;
+			const_shared_ptr<Expression> initializer_expression) const;
 
-	const TypeSpecifierList* GetParameterTypeList() const {
+	TypeSpecifierList GetParameterTypeList() const {
 		return m_parameter_type_list;
 	}
 
@@ -59,7 +60,7 @@ public:
 		return m_return_type;
 	}
 protected:
-	static const StatementBlock* GetDefaultStatementBlock(
+	static const_shared_ptr<StatementBlock> GetDefaultStatementBlock(
 			const_shared_ptr<TypeSpecifier> return_type,
 			const TypeTable& type_table);
 
@@ -68,7 +69,7 @@ protected:
 			const TypeTable& type_table);
 
 private:
-	const TypeSpecifierList* m_parameter_type_list;
+	TypeSpecifierList m_parameter_type_list;
 	const_shared_ptr<TypeSpecifier> m_return_type;
 };
 

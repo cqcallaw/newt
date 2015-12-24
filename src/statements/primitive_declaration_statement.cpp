@@ -18,7 +18,7 @@ PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
 		const yy::location position, const_shared_ptr<TypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_position,
-		const Expression* initializer_expression) :
+		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position), m_type(type), m_type_position(
 				type_position), m_name(name), m_name_position(name_position), m_initializer_expression(
 				initializer_expression) {
@@ -27,12 +27,11 @@ PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
 }
 
-const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* errors =
-			LinkedList<const Error*>::GetTerminator();
-	const Symbol* symbol = Symbol::GetDefaultSymbol();
-	const Expression* expression = m_initializer_expression;
+const ErrorList PrimitiveDeclarationStatement::preprocess(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
+	auto symbol = Symbol::GetDefaultSymbol();
+	const_shared_ptr<Expression> expression = m_initializer_expression;
 
 	if (expression != nullptr) {
 		errors = expression->Validate(execution_context);
@@ -45,14 +44,14 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 
 	if (as_primitive != nullptr) {
 		if (expression != nullptr) {
-			const VariableExpression* as_variable =
-					dynamic_cast<const VariableExpression*>(expression);
+			const_shared_ptr<VariableExpression> as_variable =
+					dynamic_pointer_cast<const VariableExpression>(expression);
 
 			if (as_variable) {
 				errors = as_variable->Validate(execution_context);
 			}
 
-			if (errors->IsTerminator()) {
+			if (ErrorListBase::IsTerminator(errors)) {
 				const_shared_ptr<TypeSpecifier> expression_type_specifier =
 						expression->GetType(execution_context);
 
@@ -64,13 +63,14 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 						|| !expression_as_primitive->IsAssignableTo(
 								as_primitive)) {
 					errors =
-							errors->With(
-									new Error(Error::SEMANTIC,
+							ErrorListBase::From(
+									make_shared<Error>(Error::SEMANTIC,
 											Error::INVALID_INITIALIZER_TYPE,
 											m_initializer_expression->GetPosition().begin.line,
 											m_initializer_expression->GetPosition().begin.column,
 											*m_name, as_primitive->ToString(),
-											expression_type_specifier->ToString()));
+											expression_type_specifier->ToString()),
+									errors);
 				}
 			}
 		}
@@ -79,19 +79,23 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case BOOLEAN: {
-			symbol = new Symbol(static_pointer_cast<const bool>(value));
+			symbol = const_shared_ptr<Symbol>(
+					new Symbol(static_pointer_cast<const bool>(value)));
 			break;
 		}
 		case INT: {
-			symbol = new Symbol(static_pointer_cast<const int>(value));
+			symbol = const_shared_ptr<Symbol>(
+					new Symbol(static_pointer_cast<const int>(value)));
 			break;
 		}
 		case DOUBLE: {
-			symbol = new Symbol(static_pointer_cast<const double>(value));
+			symbol = const_shared_ptr<Symbol>(
+					new Symbol(static_pointer_cast<const double>(value)));
 			break;
 		}
 		case STRING: {
-			symbol = new Symbol(static_pointer_cast<const string>(value));
+			symbol = const_shared_ptr<Symbol>(
+					new Symbol(static_pointer_cast<const string>(value)));
 			break;
 		}
 		default:
@@ -103,25 +107,25 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::preprocess(
 	}
 
 	if (symbol != Symbol::GetDefaultSymbol()) {
-		SymbolTable* symbol_table =
-				(SymbolTable*) execution_context->GetSymbolContext();
+		volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
+				SymbolTable>(execution_context->GetSymbolContext());
 
 		InsertResult insert_result = symbol_table->InsertSymbol(*m_name,
 				symbol);
 		if (insert_result == SYMBOL_EXISTS) {
-			errors = errors->With(
-					new Error(Error::SEMANTIC,
+			errors = ErrorListBase::From(
+					make_shared<Error>(Error::SEMANTIC,
 							Error::PREVIOUSLY_DECLARED_VARIABLE,
 							m_name_position.begin.line,
-							m_name_position.begin.column, *m_name));
+							m_name_position.begin.column, *m_name), errors);
 		}
 	}
 
 	return errors;
 }
 
-const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
-		ExecutionContext* execution_context) const {
+const ErrorList PrimitiveDeclarationStatement::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
 	if (m_initializer_expression != nullptr) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_position);
 		auto errors = temp_variable->AssignValue(execution_context,
@@ -130,12 +134,12 @@ const LinkedList<const Error*>* PrimitiveDeclarationStatement::execute(
 
 		return errors;
 	} else {
-		return LinkedList<const Error*>::GetTerminator();
+		return ErrorListBase::GetTerminator();
 	}
 }
 
 const DeclarationStatement* PrimitiveDeclarationStatement::WithInitializerExpression(
-		const Expression* expression) const {
+		const_shared_ptr<Expression> expression) const {
 	return new PrimitiveDeclarationStatement(GetPosition(), m_type,
 			m_type_position, m_name, m_name_position, expression);
 }

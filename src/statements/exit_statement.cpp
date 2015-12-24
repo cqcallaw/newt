@@ -26,17 +26,16 @@ ExitStatement::ExitStatement() :
 		m_exit_expression(nullptr) {
 }
 
-ExitStatement::ExitStatement(const Expression* exit_expression) :
+ExitStatement::ExitStatement(const_shared_ptr<Expression> exit_expression) :
 		m_exit_expression(exit_expression) {
 }
 
 ExitStatement::~ExitStatement() {
 }
 
-const LinkedList<const Error*>* ExitStatement::preprocess(
-		const ExecutionContext* execution_context) const {
-	const LinkedList<const Error*>* result =
-			LinkedList<const Error*>::GetTerminator();
+const ErrorList ExitStatement::preprocess(
+		const_shared_ptr<ExecutionContext> execution_context) const {
+	ErrorList errors = ErrorListBase::GetTerminator();
 
 	if (m_exit_expression != nullptr) {
 		const_shared_ptr<TypeSpecifier> expression_type_specifier =
@@ -49,21 +48,22 @@ const LinkedList<const Error*>* ExitStatement::preprocess(
 				|| !(expression_as_primitive->IsAssignableTo(
 						PrimitiveTypeSpecifier::GetInt()))) {
 			yy::location position = m_exit_expression->GetPosition();
-			result =
-					result->With(
-							new Error(Error::SEMANTIC,
+			errors =
+					ErrorListBase::From(
+							make_shared<Error>(Error::SEMANTIC,
 									Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
 									position.begin.line, position.begin.column,
 									m_exit_expression->GetType(
-											execution_context)->ToString()));
+											execution_context)->ToString()),
+							errors);
 		}
 	}
 
-	return result;
+	return errors;
 }
 
-const LinkedList<const Error*>* ExitStatement::execute(
-		ExecutionContext* execution_context) const {
+const ErrorList ExitStatement::execute(
+		shared_ptr<ExecutionContext> execution_context) const {
 	int exit_code = 0;
 
 	if (m_exit_expression == nullptr) {

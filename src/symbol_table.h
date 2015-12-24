@@ -30,19 +30,20 @@ enum InsertResult {
 
 class SymbolTable: public SymbolContext {
 public:
-	SymbolTable(
-			const LinkedList<SymbolContext*>* parent =
-					LinkedList<SymbolContext*>::GetTerminator());
+	SymbolTable(SymbolContextList parent =
+			SymbolContextListBase::GetTerminator());
 
 	SymbolTable(const Modifier::Type modifiers,
-			const LinkedList<SymbolContext*>* parent_context,
-			map<const string, const Symbol*, comparator>* values);
+			const SymbolContextList parent_context,
+			const shared_ptr<symbol_map> values);
 
-	InsertResult InsertSymbol(const string& name, const Symbol* symbol);
+	InsertResult InsertSymbol(const string& name,
+			const_shared_ptr<Symbol> symbol);
 
-	virtual SymbolContext* WithParent(
-			const LinkedList<SymbolContext*>* parent_context) const {
-		return new SymbolTable(GetModifiers(), parent_context, GetTable());
+	virtual volatile_shared_ptr<SymbolContext> WithParent(
+			SymbolContextList parent_context) const {
+		return make_shared<SymbolTable>(
+				SymbolTable(GetModifiers(), parent_context, GetTable()));
 	}
 };
 
