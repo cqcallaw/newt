@@ -131,10 +131,8 @@ private:
 //construct a linked list from the given input
 //map null inputs to empty lists
 	LinkedList(const shared_ptr<const LinkedList<T, duplicate_policy>> list) :
-			m_data(
-					(list.get() != nullptr && !IsTerminator(list)) ?
-							list->GetData() : nullptr), m_next(
-					(list.get() != nullptr && !IsTerminator(list)) ?
+			m_data((list && !IsTerminator(list)) ? list->GetData() : nullptr), m_next(
+					(list && !IsTerminator(list)) ?
 							list->GetNext() : GetTerminator()) {
 	}
 

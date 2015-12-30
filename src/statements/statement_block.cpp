@@ -79,10 +79,4 @@ const AnalysisResult StatementBlock::Returns(
 }
 
 StatementBlock::~StatementBlock() {
-	/*auto subject = m_statements.get();
-	 while (!StatementListBase::IsTerminator(subject)) {
-	 const_shared_ptr<Statement> statement = subject->GetData();
-	 delete statement;
-	 subject = subject->GetNext();
-	 }*/
 }
