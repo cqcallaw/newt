@@ -156,4 +156,5 @@ int Driver::scan_begin(const std::string& file_name,
 
 void Driver::scan_end() {
 	fclose(yyin);
+	yylex_destroy();
 }
