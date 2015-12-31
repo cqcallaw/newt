@@ -74,6 +74,8 @@ int main(int argc, char *argv[]) {
 		return get_exit_code(debug, EXIT_FAILURE);
 	}
 
+	int exit_code = EXIT_SUCCESS;
+
 	if (parse_result == 0) {
 		auto main_statement_block = driver.GetStatementBlock();
 		shared_ptr<ExecutionContext> root_context =
@@ -107,8 +109,12 @@ int main(int argc, char *argv[]) {
 				root_context->GetTypeTable()->print(cout);
 			}
 
+			if (root_context->GetExitCode()) {
+				exit_code = *root_context->GetExitCode();
+			}
+
 			return get_exit_code(debug,
-					has_execution_errors ? EXIT_FAILURE : EXIT_SUCCESS);
+					has_execution_errors ? EXIT_FAILURE : exit_code);
 		} else {
 			//reverse linked list of errors, which comes to us in reverse order
 			semantic_errors = ErrorListBase::Reverse(semantic_errors);

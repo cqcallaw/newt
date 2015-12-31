@@ -53,8 +53,10 @@ const ErrorList StatementBlock::execute(
 		const_shared_ptr<Statement> statement = subject->GetData();
 		auto errors = statement->execute(execution_context);
 		if (!ErrorListBase::IsTerminator(errors)
-				|| execution_context->GetReturnValue()) {
-			//we've either encountered an error, or a return value has been set
+				|| execution_context->GetReturnValue()
+				|| execution_context->GetExitCode()) {
+			//we've either encountered an error, a return value has been set,
+			//or an exit code has been set
 			return errors;
 		}
 		subject = subject->GetNext();

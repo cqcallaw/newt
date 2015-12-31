@@ -42,7 +42,8 @@ public:
 	virtual const ErrorList execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
+	virtual const AnalysisResult Returns(
+			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
@@ -50,7 +51,7 @@ private:
 	const_shared_ptr<Expression> m_loop_expression;
 	const_shared_ptr<AssignmentStatement> m_loop_assignment;
 	const_shared_ptr<StatementBlock> m_statement_block;
-	SymbolTable* m_block_table;
+	shared_ptr<SymbolTable> m_block_table;
 };
 
 #endif /* FOR_STATEMENT_H_ */

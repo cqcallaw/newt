@@ -23,7 +23,7 @@
 #include <assert.h>
 #include <type_specifier.h>
 
-CompoundType::CompoundType(const definition_map* definition,
+CompoundType::CompoundType(const_shared_ptr<definition_map> definition,
 		const Modifier::Type modifiers) :
 		m_definition(definition), m_modifiers(modifiers) {
 }
@@ -63,8 +63,7 @@ const string CompoundType::ToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<CompoundType> CompoundType::GetDefaultCompoundType() {
-	const static std::shared_ptr<CompoundType> instance = std::shared_ptr
-			< CompoundType
-			> (new CompoundType(new definition_map(), Modifier::NONE));
+	const static std::shared_ptr<CompoundType> instance = make_shared<
+			CompoundType>(make_shared<definition_map>(), Modifier::NONE);
 	return instance;
 }

@@ -24,7 +24,7 @@ const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 		const string type_name, const_shared_ptr<CompoundType> type) {
 	auto symbol_mapping = make_shared<symbol_map>();
 
-	const definition_map* type_definition = type->GetDefinition();
+	plain_shared_ptr<definition_map> type_definition = type->GetDefinition();
 	definition_map::const_iterator iter;
 
 	for (iter = type_definition->begin(); iter != type_definition->end();

@@ -42,8 +42,8 @@ public:
 
 	volatile_shared_ptr<ExecutionContext> WithSymbolContext(
 			volatile_shared_ptr<SymbolContext> symbol_context) const {
-		return std::shared_ptr < ExecutionContext
-				> (new ExecutionContext(symbol_context, m_type_table));
+		return std::shared_ptr<ExecutionContext>(
+				new ExecutionContext(symbol_context, m_type_table));
 	}
 
 	plain_shared_ptr<void> GetReturnValue() const {
@@ -54,16 +54,26 @@ public:
 		m_return_value = return_value;
 	}
 
+	plain_shared_ptr<int> GetExitCode() const {
+		return m_exit_code;
+	}
+
+	void SetExitCode(plain_shared_ptr<int> exit_code) {
+		m_exit_code = exit_code;
+	}
+
 	static const_shared_ptr<ExecutionContext> GetDefault();
 
 private:
 	ExecutionContext(volatile_shared_ptr<SymbolContext> symbol_context,
 			volatile_shared_ptr<TypeTable> type_table,
-			const void* m_return_value);
+			plain_shared_ptr<void> m_return_value,
+			plain_shared_ptr<int> exit_code);
 
 	volatile_shared_ptr<SymbolContext> m_symbol_context;
 	volatile_shared_ptr<TypeTable> m_type_table;
 	plain_shared_ptr<void> m_return_value;
+	plain_shared_ptr<int> m_exit_code;
 };
 
 #endif /* EXECUTION_CONTEXT_H_ */

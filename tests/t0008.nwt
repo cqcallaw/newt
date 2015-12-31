@@ -4,4 +4,4 @@ struct my_struct {
 }
 
 s: my_struct
-s.x = 1.0
+s.x = 1

@@ -104,8 +104,7 @@ const ErrorList StructDeclarationStatement::preprocess(
 		subject = subject->GetNext();
 	}
 
-	std::map<const string, const_shared_ptr<MemberDefinition>>* mapping =
-			new std::map<const string, const_shared_ptr<MemberDefinition>>();
+	volatile_shared_ptr<definition_map> mapping = make_shared<definition_map>();
 	symbol_map::iterator iter;
 	if (ErrorListBase::IsTerminator(errors)) {
 		//we've evaluated everything without issue

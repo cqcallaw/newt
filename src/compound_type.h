@@ -33,7 +33,7 @@ typedef map<const string, const_shared_ptr<MemberDefinition>> definition_map;
 using namespace std;
 class CompoundType {
 public:
-	CompoundType(const definition_map* definition,
+	CompoundType(const_shared_ptr<definition_map> definition,
 			const Modifier::Type modifiers);
 	virtual ~CompoundType();
 	const_shared_ptr<MemberDefinition> GetMember(const string name) const;
@@ -41,7 +41,7 @@ public:
 	const string ToString(const TypeTable& type_table,
 			const Indent indent) const;
 
-	const definition_map* GetDefinition() const {
+	const_shared_ptr<definition_map> GetDefinition() const {
 		return m_definition;
 	}
 
@@ -52,7 +52,7 @@ public:
 	}
 
 private:
-	const definition_map* m_definition;
+	const_shared_ptr<definition_map> m_definition;
 	const Modifier::Type m_modifiers;
 };
 

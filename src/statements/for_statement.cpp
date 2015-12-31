@@ -34,7 +34,7 @@ ForStatement::ForStatement(const_shared_ptr<AssignmentStatement> initial,
 		const_shared_ptr<StatementBlock> statement_block) :
 		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
 				loop_assignment), m_statement_block(statement_block), m_block_table(
-				new SymbolTable()) {
+				make_shared<SymbolTable>()) {
 	assert(loop_expression != nullptr);
 	assert(loop_assignment != nullptr);
 }

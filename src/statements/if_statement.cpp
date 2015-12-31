@@ -37,7 +37,8 @@ IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block,
 		const_shared_ptr<StatementBlock> else_block) :
 		m_expression(expression), m_block(block), m_else_block(else_block), m_block_table(
-				new SymbolTable()), m_else_block_table(new SymbolTable()) {
+				make_shared<SymbolTable>()), m_else_block_table(
+				make_shared<SymbolTable>()) {
 }
 
 IfStatement::~IfStatement() {
@@ -96,10 +97,11 @@ const ErrorList IfStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
-	const_shared_ptr<Result> evaluation = m_expression->Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
+			execution_context);
 	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *(static_pointer_cast<const bool>(evaluation->GetData()));
-	
+
 	if (test) {
 		volatile_shared_ptr<SymbolContext> symbol_context =
 				execution_context->GetSymbolContext();

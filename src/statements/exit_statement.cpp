@@ -21,6 +21,7 @@
 #include <expression.h>
 #include <assert.h>
 #include <error.h>
+#include <execution_context.h>
 
 ExitStatement::ExitStatement() :
 		m_exit_expression(nullptr) {
@@ -64,15 +65,18 @@ const ErrorList ExitStatement::preprocess(
 
 const ErrorList ExitStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	int exit_code = 0;
-
-	if (m_exit_expression == nullptr) {
+	plain_shared_ptr<int> exit_code = make_shared<int>(0);
+	if (m_exit_expression) {
 		const_shared_ptr<Result> evaluation = m_exit_expression->Evaluate(
 				execution_context);
-//TODO: handle evaluation errors
-		exit_code = *(static_pointer_cast<const int>(evaluation->GetData()));
-		
+
+		if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
+			return evaluation->GetErrors();
+		} else {
+			exit_code = static_pointer_cast<const int>(evaluation->GetData());
+		}
 	}
 
-	exit(exit_code);
+	execution_context->SetExitCode(exit_code);
+	return ErrorListBase::GetTerminator();
 }

@@ -87,7 +87,7 @@ const string* ArrayVariable::ToString(
 ArrayVariable::~ArrayVariable() {
 }
 
-const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
+const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperation(
 		const_shared_ptr<ExecutionContext> context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
@@ -176,14 +176,16 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 						*(GetName())), errors);
 	}
 
-	return new ValidationResult(array, array_index, index_location, errors);
+	return make_shared<ArrayVariable::ValidationResult>(array, array_index,
+			index_location, errors);
 }
 
 const_shared_ptr<Result> ArrayVariable::Evaluate(
 		const_shared_ptr<ExecutionContext> context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
-	const ValidationResult* validation_result = ValidateOperation(context);
+	const_shared_ptr<ValidationResult> validation_result = ValidateOperation(
+			context);
 	plain_shared_ptr<void> result_value;
 	errors = validation_result->GetErrors();
 	if (ErrorListBase::IsTerminator(errors)) {
@@ -239,7 +241,6 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 							buffer.str()), errors);
 		}
 	}
-	delete (validation_result);
 
 	const_shared_ptr<Result> result = make_shared<Result>(result_value, errors);
 	return result;
@@ -255,12 +256,12 @@ const ErrorList ArrayVariable::AssignValue(
 	const int variable_line = GetLocation().begin.line;
 	const int variable_column = GetLocation().begin.column;
 
-	const ValidationResult* validation_result = ValidateOperation(context);
+	const_shared_ptr<ValidationResult> validation_result = ValidateOperation(
+			context);
 	errors = validation_result->GetErrors();
 	if (ErrorListBase::IsTerminator(errors)) {
 		auto array = validation_result->GetArray();
 		const int index = validation_result->GetIndex();
-		delete (validation_result);
 
 		if (index >= 0) {
 			const_shared_ptr<TypeSpecifier> element_type_specifier =
@@ -328,8 +329,8 @@ const ErrorList ArrayVariable::AssignValue(
 					const_shared_ptr<Result> result =
 							AssignmentStatement::do_op(variable_name,
 									element_type, variable_line,
-									variable_column, value, expression,
-									op, context);
+									variable_column, value, expression, op,
+									context);
 
 					errors = result->GetErrors();
 					if (ErrorListBase::IsTerminator(errors)) {
@@ -425,7 +426,8 @@ const ErrorList ArrayVariable::SetSymbolCore(
 		const_shared_ptr<void> value) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
-	const ValidationResult* validation_result = ValidateOperation(context);
+	const_shared_ptr<ValidationResult> validation_result = ValidateOperation(
+			context);
 	errors = validation_result->GetErrors();
 	if (ErrorListBase::IsTerminator(errors)) {
 		auto array = validation_result->GetArray();
@@ -479,7 +481,6 @@ const ErrorList ArrayVariable::SetSymbolCore(
 				symbol_context->GetSymbol(*GetName(), DEEP)->GetType(),
 				array->GetTypeSpecifier());
 	}
-	delete (validation_result);
 
 	return errors;
 }

@@ -29,8 +29,10 @@ class SymbolTable;
 
 class IfStatement: public Statement {
 public:
-	IfStatement(const_shared_ptr<Expression> expression, const_shared_ptr<StatementBlock> block);
-	IfStatement(const_shared_ptr<Expression> expression, const_shared_ptr<StatementBlock> block,
+	IfStatement(const_shared_ptr<Expression> expression,
+			const_shared_ptr<StatementBlock> block);
+	IfStatement(const_shared_ptr<Expression> expression,
+			const_shared_ptr<StatementBlock> block,
 			const_shared_ptr<StatementBlock> else_block);
 	virtual ~IfStatement();
 
@@ -44,15 +46,16 @@ public:
 	virtual const ErrorList execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
+	virtual const AnalysisResult Returns(
+			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
 	const_shared_ptr<Expression> m_expression;
 	const_shared_ptr<StatementBlock> m_block;
 	const_shared_ptr<StatementBlock> m_else_block;
-	SymbolTable* m_block_table;
-	SymbolTable* m_else_block_table;
+	shared_ptr<SymbolTable> m_block_table;
+	shared_ptr<SymbolTable> m_else_block_table;
 };
 
 #endif /* IF_STATEMENT_H_ */

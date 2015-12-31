@@ -1,3 +1,9 @@
 Parsing file ../tests/t2017.nwt...
 Parsed file ../tests/t2017.nwt.
 about to call exit with 42
+Root Symbol Table:
+----------------
+int i: 42
+
+Root Type Table:
+----------------

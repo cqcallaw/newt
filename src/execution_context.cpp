@@ -25,19 +25,21 @@
 ExecutionContext::ExecutionContext(
 		volatile_shared_ptr<SymbolContext> symbol_context,
 		volatile_shared_ptr<TypeTable> type_table) :
-		ExecutionContext(symbol_context, type_table, nullptr) {
+		ExecutionContext(symbol_context, type_table,
+				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr)) {
 }
 
 ExecutionContext::ExecutionContext() :
 		ExecutionContext(make_shared<SymbolTable>(), make_shared<TypeTable>(),
-				nullptr) {
+				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr)) {
 }
 
 ExecutionContext::ExecutionContext(
 		volatile_shared_ptr<SymbolContext> symbol_context,
-		volatile_shared_ptr<TypeTable> type_table, const void* m_return_value) :
+		volatile_shared_ptr<TypeTable> type_table,
+		plain_shared_ptr<void> m_return_value, plain_shared_ptr<int> exit_code) :
 		m_symbol_context(symbol_context), m_type_table(type_table), m_return_value(
-				m_return_value) {
+				m_return_value), m_exit_code(exit_code) {
 }
 
 ExecutionContext::~ExecutionContext() {
