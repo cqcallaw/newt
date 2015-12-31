@@ -75,7 +75,7 @@ const ErrorList StructInstantiationStatement::preprocess(
 									as_compound_specifier->GetTypeName())
 									== 0) {
 						if (m_initializer_expression->IsConstant()) {
-							const Result* result =
+							const_shared_ptr<Result> result =
 									m_initializer_expression->Evaluate(
 											execution_context);
 							errors = result->GetErrors();
@@ -146,7 +146,7 @@ const ErrorList StructInstantiationStatement::execute(
 	ErrorList errors = ErrorListBase::GetTerminator();
 
 	if (m_initializer_expression) {
-		const Result* evaluation = m_initializer_expression->Evaluate(
+		const_shared_ptr<Result> evaluation = m_initializer_expression->Evaluate(
 				execution_context);
 
 		errors = evaluation->GetErrors();

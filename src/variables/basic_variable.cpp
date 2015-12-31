@@ -49,7 +49,7 @@ const_shared_ptr<TypeSpecifier> BasicVariable::GetType(
 	return symbol->GetType();
 }
 
-const Result* BasicVariable::Evaluate(
+const_shared_ptr<Result> BasicVariable::Evaluate(
 		const_shared_ptr<ExecutionContext> context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
@@ -68,7 +68,8 @@ const Result* BasicVariable::Evaluate(
 						*(GetName())), errors);
 	}
 
-	const Result* result = new Result(result_symbol->GetValue(), errors);
+	const_shared_ptr<Result> result = make_shared<Result>(
+			result_symbol->GetValue(), errors);
 	return result;
 }
 
@@ -95,8 +96,8 @@ const ErrorList BasicVariable::AssignValue(
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case BOOLEAN: {
-			const Result* result = AssignmentStatement::do_op(variable_name,
-					basic_type, variable_line, variable_column,
+			const_shared_ptr<Result> result = AssignmentStatement::do_op(
+					variable_name, basic_type, variable_line, variable_column,
 					*(static_pointer_cast<const int>(symbol_value)), expression,
 					op, context);
 
@@ -108,8 +109,8 @@ const ErrorList BasicVariable::AssignValue(
 			break;
 		}
 		case INT: {
-			const Result* result = AssignmentStatement::do_op(variable_name,
-					basic_type, variable_line, variable_column,
+			const_shared_ptr<Result> result = AssignmentStatement::do_op(
+					variable_name, basic_type, variable_line, variable_column,
 					*(static_pointer_cast<const int>(symbol_value)), expression,
 					op, context);
 
@@ -121,8 +122,8 @@ const ErrorList BasicVariable::AssignValue(
 			break;
 		}
 		case DOUBLE: {
-			const Result* result = AssignmentStatement::do_op(variable_name,
-					basic_type, variable_line, variable_column,
+			const_shared_ptr<Result> result = AssignmentStatement::do_op(
+					variable_name, basic_type, variable_line, variable_column,
 					*(static_pointer_cast<const double>(symbol_value)),
 					expression, op, context);
 
@@ -134,10 +135,10 @@ const ErrorList BasicVariable::AssignValue(
 			break;
 		}
 		case STRING: {
-			const Result* result = AssignmentStatement::do_op(variable_name,
-					basic_type, variable_line, variable_column,
-					static_pointer_cast<const string>(symbol_value).get(),
-					expression, op, context);
+			const_shared_ptr<Result> result = AssignmentStatement::do_op(
+					variable_name, basic_type, variable_line, variable_column,
+					static_pointer_cast<const string>(symbol_value), expression,
+					op, context);
 			errors = result->GetErrors();
 			if (ErrorListBase::IsTerminator(errors)) {
 				errors = SetSymbol(context,
@@ -155,7 +156,8 @@ const ErrorList BasicVariable::AssignValue(
 			const ArrayTypeSpecifier>(symbol_type);
 	if (as_array) {
 		//re-assigning an array reference
-		const Result* expression_evaluation = expression->Evaluate(context);
+		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
+				context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorListBase::IsTerminator(errors)) {
@@ -179,7 +181,8 @@ const ErrorList BasicVariable::AssignValue(
 	const_shared_ptr<CompoundTypeSpecifier> as_compound =
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(symbol_type);
 	if (as_compound != nullptr) {
-		const Result* expression_evaluation = expression->Evaluate(context);
+		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
+				context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorListBase::IsTerminator(errors)) {
@@ -195,7 +198,8 @@ const ErrorList BasicVariable::AssignValue(
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(symbol_type);
 	if (as_function != nullptr) {
-		const Result* expression_evaluation = expression->Evaluate(context);
+		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
+				context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorListBase::IsTerminator(errors)) {

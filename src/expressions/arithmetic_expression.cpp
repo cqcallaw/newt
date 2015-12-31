@@ -31,14 +31,16 @@ ArithmeticExpression::ArithmeticExpression(const yy::location position,
 					|| op == MOD);
 }
 
-const Result* ArithmeticExpression::compute(bool& left, bool& right,
-		yy::location left_position, yy::location right_position) const {
+const_shared_ptr<Result> ArithmeticExpression::compute(const bool& left,
+		const bool& right, yy::location left_position,
+		yy::location right_position) const {
 	assert(false);
 	return NULL;
 }
 
-const Result* ArithmeticExpression::compute(int& left, int& right,
-		yy::location left_position, yy::location right_position) const {
+const_shared_ptr<Result> ArithmeticExpression::compute(const int& left,
+		const int& right, yy::location left_position,
+		yy::location right_position) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
 	int* result = new int;
@@ -78,11 +80,12 @@ const Result* ArithmeticExpression::compute(int& left, int& right,
 		break;
 	}
 
-	return new Result(const_shared_ptr<const void>(result), errors);
+	return make_shared<Result>(const_shared_ptr<const void>(result), errors);
 }
 
-const Result* ArithmeticExpression::compute(double& left, double& right,
-		yy::location left_position, yy::location right_position) const {
+const_shared_ptr<Result> ArithmeticExpression::compute(const double& left,
+		const double& right, yy::location left_position,
+		yy::location right_position) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
 	double* result = new double;
@@ -111,18 +114,19 @@ const Result* ArithmeticExpression::compute(double& left, double& right,
 		break;
 	}
 
-	return new Result(const_shared_ptr<const void>(result), errors);
+	return make_shared<Result>(const_shared_ptr<const void>(result), errors);
 }
 
-const Result* ArithmeticExpression::compute(string& left, string& right,
-		yy::location left_position, yy::location right_position) const {
+const_shared_ptr<Result> ArithmeticExpression::compute(const string& left,
+		const string& right, yy::location left_position,
+		yy::location right_position) const {
 	//string concatenation isn't strictly an arithmetic operation, so this is a hack
 	std::ostringstream buffer;
 	buffer << left;
 	buffer << right;
 	const string buffer_string = buffer.str();
 	const string* result = new string(buffer_string);
-	return new Result(const_shared_ptr<const void>(result),
+	return make_shared<Result>(const_shared_ptr<const void>(result),
 			ErrorListBase::GetTerminator());
 }
 

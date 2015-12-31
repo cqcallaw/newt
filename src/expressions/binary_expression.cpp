@@ -72,18 +72,18 @@ const_shared_ptr<TypeSpecifier> BinaryExpression::ComputeResultType(
 	return PrimitiveTypeSpecifier::GetNone();
 }
 
-const Result* BinaryExpression::Evaluate(
+const_shared_ptr<Result> BinaryExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 	const_shared_ptr<Expression> left = GetLeft();
 	const_shared_ptr<Expression> right = GetRight();
 
-	const Result* left_result = left->Evaluate(execution_context);
+	const_shared_ptr<Result> left_result = left->Evaluate(execution_context);
 	if (!ErrorListBase::IsTerminator(left_result->GetErrors())) {
 		return left_result;
 	}
 
-	const Result* right_result = right->Evaluate(execution_context);
+	const_shared_ptr<Result> right_result = right->Evaluate(execution_context);
 	if (!ErrorListBase::IsTerminator(right_result->GetErrors())) {
 		return right_result;
 	}
@@ -220,10 +220,7 @@ const Result* BinaryExpression::Evaluate(
 		assert(false);
 	}
 
-	delete (left_result);
-	delete (right_result);
-
-	return new Result(const_shared_ptr<const void>(), errors);
+	return make_shared<Result>(const_shared_ptr<const void>(), errors);
 }
 
 const_shared_ptr<TypeSpecifier> BinaryExpression::GetType(
@@ -280,61 +277,61 @@ const ErrorList BinaryExpression::Validate(
 	return result;
 }
 
-const Result* BinaryExpression::compute(bool& left, int& right,
+const_shared_ptr<Result> BinaryExpression::compute(const bool& left, const int& right,
 		yy::location left_position, yy::location right_position) const {
 	int converted_left = left;
 	return compute(converted_left, right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(bool& left, double& right,
+const_shared_ptr<Result> BinaryExpression::compute(const bool& left, const double& right,
 		yy::location left_position, yy::location right_position) const {
 	double converted_left = left;
 	return compute(converted_left, right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(bool& left, string& right,
+const_shared_ptr<Result> BinaryExpression::compute(const bool& left, const string& right,
 		yy::location left_position, yy::location right_position) const {
 	return compute(*AsString(left), right, left_position, right_position);
 }
 
-const Result* BinaryExpression::compute(int& left, bool& right,
+const_shared_ptr<Result> BinaryExpression::compute(const int& left, const bool& right,
 		yy::location left_position, yy::location right_position) const {
 	int converted_right = right;
 	return compute(left, converted_right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(int& left, double& right,
+const_shared_ptr<Result> BinaryExpression::compute(const int& left, const double& right,
 		yy::location left_position, yy::location right_position) const {
 	double converted_left = left;
 	return compute(converted_left, right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(int& left, string& right,
+const_shared_ptr<Result> BinaryExpression::compute(const int& left, const string& right,
 		yy::location left_position, yy::location right_position) const {
 	return compute(*AsString(left), right, left_position, right_position);
 }
 
-const Result* BinaryExpression::compute(double& left, bool& right,
+const_shared_ptr<Result> BinaryExpression::compute(const double& left, const bool& right,
 		yy::location left_position, yy::location right_position) const {
 	double converted_right = right;
 	return compute(left, converted_right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(double& left, int& right,
+const_shared_ptr<Result> BinaryExpression::compute(const double& left, const int& right,
 		yy::location left_position, yy::location right_position) const {
 	double converted_right = right;
 	return compute(left, converted_right, left_position, right_position);
 }
-const Result* BinaryExpression::compute(double& left, string& right,
+const_shared_ptr<Result> BinaryExpression::compute(const double& left, const string& right,
 		yy::location left_position, yy::location right_position) const {
 	return compute(*AsString(left), right, left_position, right_position);
 }
 
-const Result* BinaryExpression::compute(string& left, bool& right,
+const_shared_ptr<Result> BinaryExpression::compute(const string& left, const bool& right,
 		yy::location left_position, yy::location right_position) const {
 	return compute(left, *AsString(right), left_position, right_position);
 }
-const Result* BinaryExpression::compute(string& left, int& right,
+const_shared_ptr<Result> BinaryExpression::compute(const string& left, const int& right,
 		yy::location left_position, yy::location right_position) const {
 	return compute(left, *AsString(right), left_position, right_position);
 }
 
-const Result* BinaryExpression::compute(string& left, double& right,
+const_shared_ptr<Result> BinaryExpression::compute(const string& left, const double& right,
 		yy::location left_position, yy::location right_position) const {
 	return compute(left, *AsString(right), left_position, right_position);
 }

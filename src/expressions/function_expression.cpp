@@ -40,10 +40,10 @@ const_shared_ptr<TypeSpecifier> FunctionExpression::GetType(
 	return m_declaration;
 }
 
-const Result* FunctionExpression::Evaluate(
+const_shared_ptr<Result> FunctionExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
-	return new Result(
+	return make_shared<Result>(
 			make_shared<Function>(m_declaration, m_body, execution_context),
 			errors);
 }

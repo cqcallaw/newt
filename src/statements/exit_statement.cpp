@@ -67,11 +67,11 @@ const ErrorList ExitStatement::execute(
 	int exit_code = 0;
 
 	if (m_exit_expression == nullptr) {
-		const Result* evaluation = m_exit_expression->Evaluate(
+		const_shared_ptr<Result> evaluation = m_exit_expression->Evaluate(
 				execution_context);
 //TODO: handle evaluation errors
 		exit_code = *(static_pointer_cast<const int>(evaluation->GetData()));
-		delete (evaluation);
+		
 	}
 
 	exit(exit_code);

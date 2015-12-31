@@ -91,11 +91,11 @@ const ErrorList ForStatement::execute(
 			return initialization_errors;
 		}
 	}
-	const Result* evaluation = (Result*) m_loop_expression->Evaluate(
+	plain_shared_ptr<Result> evaluation = m_loop_expression->Evaluate(
 			new_execution_context);
 
 	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
-		delete (evaluation);
+
 		return evaluation->GetErrors();
 	}
 
@@ -115,15 +115,12 @@ const ErrorList ForStatement::execute(
 			return assignment_errors;
 		}
 
-		delete (evaluation);
-		evaluation = (Result*) m_loop_expression->Evaluate(
-				new_execution_context);
+		evaluation = m_loop_expression->Evaluate(new_execution_context);
 
 		if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
 			return evaluation->GetErrors();
 		}
 	}
-	delete (evaluation);
 
 	return ErrorListBase::GetTerminator();
 }

@@ -31,10 +31,10 @@ Expression::Expression(const yy::location position) :
 Expression::~Expression() {
 }
 
-const Result* Expression::ToString(
+const_shared_ptr<Result> Expression::ToString(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buffer;
-	const Result* evaluation = Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = Evaluate(execution_context);
 	if (ErrorListBase::IsTerminator(evaluation->GetErrors())) {
 		const_shared_ptr<TypeSpecifier> type_specifier = GetType(
 				execution_context);
@@ -82,8 +82,8 @@ const Result* Expression::ToString(
 		return evaluation;
 	}
 
-	delete (evaluation);
+	
 
-	return new Result(const_shared_ptr<void>(new string(buffer.str())),
+	return make_shared<Result>(const_shared_ptr<void>(new string(buffer.str())),
 			ErrorListBase::GetTerminator());
 }

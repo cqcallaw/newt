@@ -42,7 +42,7 @@ const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetType(
 	return m_type;
 }
 
-const Result* DefaultValueExpression::Evaluate(
+const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 	plain_shared_ptr<void> return_value;
@@ -80,7 +80,7 @@ const Result* DefaultValueExpression::Evaluate(
 		}
 	}
 
-	return new Result(return_value, errors);
+	return make_shared<Result>(return_value, errors);
 }
 
 const ErrorList DefaultValueExpression::Validate(

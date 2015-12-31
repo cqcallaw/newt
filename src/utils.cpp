@@ -22,36 +22,36 @@
 
 using namespace std;
 
-string* AsString(bool value) {
+const_shared_ptr<string> AsString(const bool& value) {
 	ostringstream buffer;
 	buffer << value;
-	string* converted = new string(buffer.str());
+	const_shared_ptr<string> converted = make_shared<string>(buffer.str());
 	return converted;
 }
 
-string* AsString(int value) {
+const_shared_ptr<string> AsString(const int& value) {
 	ostringstream buffer;
 	buffer << value;
-	string* converted = new string(buffer.str());
+	const_shared_ptr<string> converted = make_shared<string>(buffer.str());
 	return converted;
 }
 
-string* AsString(double value) {
+const_shared_ptr<string> AsString(const double& value) {
 	ostringstream buffer;
 	buffer << value;
-	string* converted = new string(buffer.str());
+	const_shared_ptr<string> converted = make_shared<string>(buffer.str());
 	return converted;
 }
 
-string* AsString(bool* value) {
+const_shared_ptr<string> AsString(bool* value) {
 	return AsString(*value);
 }
 
-string* AsString(int* value) {
+const_shared_ptr<string> AsString(int* value) {
 	return AsString(*value);
 }
 
-string* AsString(double* value) {
+const_shared_ptr<string> AsString(double* value) {
 	return AsString(*value);
 }
 

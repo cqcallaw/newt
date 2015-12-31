@@ -81,40 +81,43 @@ public:
 			const_shared_ptr<ExecutionContext> execution_context, double& out);
 	static const ErrorList do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
-			int variable_column, const string* old_value,
+			int variable_column, const_shared_ptr<string> old_value,
 			const bool expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, string* &out);
 	static const ErrorList do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
-			int variable_column, const string* old_value,
+			int variable_column, const_shared_ptr<string> old_value,
 			const int expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, string* &out);
 	static const ErrorList do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
-			int variable_column, const string* old_value,
+			int variable_column, const_shared_ptr<string> old_value,
 			const double expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, string* &out);
 	static const ErrorList do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
-			int variable_column, const string* old_value,
-			const string* expression_value, const AssignmentType op,
+			int variable_column, const_shared_ptr<string> old_value,
+			const_shared_ptr<string> expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, string* &out);
 
-	const static Result* do_op(const_shared_ptr<string> variable_name,
+	static const_shared_ptr<Result> do_op(
+			const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
 			int variable_column, const int value,
 			const_shared_ptr<Expression> expression, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context);
 
-	const static Result* do_op(const_shared_ptr<string> variable_name,
+	static const_shared_ptr<Result> do_op(
+			const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
 			int variable_column, const double value,
 			const_shared_ptr<Expression> expression, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context);
 
-	const static Result* do_op(const_shared_ptr<string> variable_name,
+	static const_shared_ptr<Result> do_op(
+			const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
-			int variable_column, const string* value,
+			int variable_column, const_shared_ptr<string> value,
 			const_shared_ptr<Expression> expression, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context);
 

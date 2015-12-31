@@ -25,7 +25,8 @@
 class LogicExpression: public BinaryExpression {
 public:
 	LogicExpression(const yy::location position, const OperatorType op,
-			const_shared_ptr<Expression> left, const_shared_ptr<Expression> right);
+			const_shared_ptr<Expression> left,
+			const_shared_ptr<Expression> right);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const_shared_ptr<ExecutionContext> execution_context) const;
@@ -34,13 +35,16 @@ public:
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 protected:
-	virtual const Result* compute(bool& left, bool& right,
+	virtual const_shared_ptr<Result> compute(const bool& left,
+			const bool& right, yy::location left_position,
+			yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const int& left, const int& right,
 			yy::location left_position, yy::location right_position) const;
-	virtual const Result* compute(int& left, int& right,
-			yy::location left_position, yy::location right_position) const;
-	virtual const Result* compute(double& left, double& right,
-			yy::location left_position, yy::location right_position) const;
-	virtual const Result* compute(string& left, string& right,
-			yy::location left_position, yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const double& left,
+			const double& right, yy::location left_position,
+			yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const string& left,
+			const string& right, yy::location left_position,
+			yy::location right_position) const;
 };
 #endif /* LOGIC_EXPRESSION_H_ */

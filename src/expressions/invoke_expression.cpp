@@ -50,7 +50,7 @@ const_shared_ptr<TypeSpecifier> InvokeExpression::GetType(
 	}
 }
 
-const Result* InvokeExpression::Evaluate(
+const_shared_ptr<Result> InvokeExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 	plain_shared_ptr<void> value;
@@ -62,7 +62,7 @@ const Result* InvokeExpression::Evaluate(
 					type_specifier);
 
 	if (as_function) {
-		const Result* expression_result = m_expression->Evaluate(
+		const_shared_ptr<Result> expression_result = m_expression->Evaluate(
 				execution_context);
 
 		errors = expression_result->GetErrors();
@@ -70,15 +70,13 @@ const Result* InvokeExpression::Evaluate(
 			auto function = static_pointer_cast<const Function>(
 					expression_result->GetData());
 
-			const Result* eval_result = function->Evaluate(m_argument_list,
-					execution_context);
+			const_shared_ptr<Result> eval_result = function->Evaluate(
+					m_argument_list, execution_context);
 
 			errors = eval_result->GetErrors();
 			if (ErrorListBase::IsTerminator(errors)) {
 				value = eval_result->GetData();
 			}
-
-			delete eval_result;
 		}
 	} else {
 		errors = ErrorListBase::From(
@@ -87,13 +85,14 @@ const Result* InvokeExpression::Evaluate(
 						m_expression->GetPosition().begin.column), errors);
 	}
 
-	return new Result(value, errors);
+	return make_shared<Result>(value, errors);
 }
 
-const Result* InvokeExpression::ToString(
+const_shared_ptr<Result> InvokeExpression::ToString(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buf;
-	const Result* expression_result = m_expression->ToString(execution_context);
+	const_shared_ptr<Result> expression_result = m_expression->ToString(
+			execution_context);
 
 	if (expression_result->GetErrors()) {
 		buf
@@ -105,8 +104,8 @@ const Result* InvokeExpression::ToString(
 		ErrorListBase::GetTerminator();
 		ArgumentList argument = m_argument_list;
 		while (!ArgumentListBase::IsTerminator(argument)) {
-			const Result* argument_result = argument->GetData()->ToString(
-					execution_context);
+			const_shared_ptr<Result> argument_result =
+					argument->GetData()->ToString(execution_context);
 			errors = ErrorListBase::Concatenate(errors,
 					argument_result->GetErrors());
 			if (ErrorListBase::IsTerminator(errors)) {
@@ -117,10 +116,10 @@ const Result* InvokeExpression::ToString(
 					buf << ",";
 				}
 			}
-			delete argument_result;
 		}
 		buf << ")";
-		return new Result(const_shared_ptr<void>(new string(buf.str())), errors);
+		return make_shared<Result>(
+				const_shared_ptr<void>(new string(buf.str())), errors);
 	} else {
 		return expression_result;
 	}

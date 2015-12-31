@@ -33,7 +33,7 @@ const ErrorList PrintStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
-	const Result* string_result = m_expression->ToString(execution_context);
+	const_shared_ptr<Result> string_result = m_expression->ToString(execution_context);
 	errors = string_result->GetErrors();
 
 	if (ErrorListBase::IsTerminator(errors)) {

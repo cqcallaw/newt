@@ -52,7 +52,7 @@ public:
 	virtual const ErrorList Validate(
 			const_shared_ptr<ExecutionContext> context) const = 0;
 
-	virtual const Result* Evaluate(
+	virtual const_shared_ptr<Result> Evaluate(
 			const_shared_ptr<ExecutionContext> context) const = 0;
 
 	virtual const ErrorList AssignValue(

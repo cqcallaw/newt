@@ -21,20 +21,21 @@
 #define UTILS_H_
 
 #include <string>
+#include <defaults.h>
 
 using namespace std;
 
-string* AsString(bool value);
+const_shared_ptr<string> AsString(const bool& value);
 
-string* AsString(int value);
+const_shared_ptr<string> AsString(const int& value);
 
-string* AsString(double value);
+const_shared_ptr<string> AsString(const double& value);
 
-string* AsString(bool* value);
+const_shared_ptr<string> AsString(bool* value);
 
-string* AsString(int* value);
+const_shared_ptr<string> AsString(int* value);
 
-string* AsString(double* value);
+const_shared_ptr<string> AsString(double* value);
 
 bool EndsWith(std::string const &fullString, std::string const &ending);
 #endif /* UTILS_H_ */

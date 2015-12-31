@@ -293,8 +293,9 @@ const ErrorList AssignmentStatement::do_op(
 
 const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const string* old_value,
-		const bool expression_value, const AssignmentType op,
+		int variable_line, int variable_column,
+		const_shared_ptr<string> old_value, const bool expression_value,
+		const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
 	return do_op(variable_name, variable_type, variable_line, variable_column,
 			old_value, AsString(expression_value), op, execution_context, out);
@@ -302,8 +303,9 @@ const ErrorList AssignmentStatement::do_op(
 
 const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const string* old_value,
-		const int expression_value, const AssignmentType op,
+		int variable_line, int variable_column,
+		const_shared_ptr<string> old_value, const int expression_value,
+		const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
 	return do_op(variable_name, variable_type, variable_line, variable_column,
 			old_value, AsString(expression_value), op, execution_context, out);
@@ -311,8 +313,9 @@ const ErrorList AssignmentStatement::do_op(
 
 const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const string* old_value,
-		const double expression_value, const AssignmentType op,
+		int variable_line, int variable_column,
+		const_shared_ptr<string> old_value, const double expression_value,
+		const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
 	return do_op(variable_name, variable_type, variable_line, variable_column,
 			old_value, AsString(expression_value), op, execution_context, out);
@@ -320,8 +323,9 @@ const ErrorList AssignmentStatement::do_op(
 
 const ErrorList AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const string* old_value,
-		const string* expression_value, const AssignmentType op,
+		int variable_line, int variable_column,
+		const_shared_ptr<string> old_value,
+		const_shared_ptr<string> expression_value, const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
@@ -347,22 +351,22 @@ const ErrorList AssignmentStatement::do_op(
 
 	return errors;
 }
-const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
-		const BasicType variable_type, int variable_line, int variable_column,
-		const int value, const_shared_ptr<Expression> expression,
-		const AssignmentType op,
+const_shared_ptr<Result> AssignmentStatement::do_op(
+		const_shared_ptr<string> variable_name, const BasicType variable_type,
+		int variable_line, int variable_column, const int value,
+		const_shared_ptr<Expression> expression, const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context) {
 	ErrorList errors;
 	const void* result;
 
 	int new_value = 0;
-	const Result* evaluation = expression->Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = expression->Evaluate(
+			execution_context);
 	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
 
 	auto void_value = evaluation->GetData();
-	delete (evaluation);
 
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);
@@ -404,25 +408,25 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 
 	result = new int(new_value);
 	auto wrapper = const_shared_ptr<void>(result);
-	return new Result(wrapper, errors);
+	return make_shared<Result>(wrapper, errors);
 }
 
-const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
-		const BasicType variable_type, int variable_line, int variable_column,
-		const double value, const_shared_ptr<Expression> expression,
-		AssignmentType op,
+const_shared_ptr<Result> AssignmentStatement::do_op(
+		const_shared_ptr<string> variable_name, const BasicType variable_type,
+		int variable_line, int variable_column, const double value,
+		const_shared_ptr<Expression> expression, AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context) {
 	ErrorList errors;
 	const void* result;
 
 	double new_value = 0;
-	const Result* evaluation = expression->Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = expression->Evaluate(
+			execution_context);
 	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
 
 	auto void_value = evaluation->GetData();
-	delete (evaluation);
 
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);
@@ -470,24 +474,24 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 
 	result = new double(new_value);
 	auto wrapper = const_shared_ptr<void>(result);
-	return new Result(wrapper, errors);
+	return make_shared<Result>(wrapper, errors);
 }
 
-const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
-		const BasicType variable_type, int variable_line, int variable_column,
-		const string* value, const_shared_ptr<Expression> expression,
-		AssignmentType op,
+const_shared_ptr<Result> AssignmentStatement::do_op(
+		const_shared_ptr<string> variable_name, const BasicType variable_type,
+		int variable_line, int variable_column, const_shared_ptr<string> value,
+		const_shared_ptr<Expression> expression, AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context) {
 	ErrorList errors;
 
-	string* new_value;
-	const Result* evaluation = expression->Evaluate(execution_context);
+	string* new_value = nullptr;
+	const_shared_ptr<Result> evaluation = expression->Evaluate(
+			execution_context);
 	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
 
 	auto void_value = evaluation->GetData();
-	delete (evaluation);
 
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);
@@ -521,7 +525,7 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 		case STRING: {
 			errors = do_op(variable_name, variable_type, variable_line,
 					variable_column, value,
-					static_pointer_cast<const string>(void_value).get(), op,
+					static_pointer_cast<const string>(void_value), op,
 					execution_context, new_value);
 			break;
 		}
@@ -541,7 +545,7 @@ const Result* AssignmentStatement::do_op(const_shared_ptr<string> variable_name,
 	}
 
 	auto wrapper = const_shared_ptr<void>(new_value);
-	return new Result(wrapper, errors);
+	return make_shared<Result>(wrapper, errors);
 }
 
 const ErrorList AssignmentStatement::execute(

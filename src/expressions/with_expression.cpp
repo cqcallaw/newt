@@ -41,10 +41,10 @@ const_shared_ptr<TypeSpecifier> WithExpression::GetType(
 	return m_source_expression->GetType(execution_context);
 }
 
-const Result* WithExpression::Evaluate(
+const_shared_ptr<Result> WithExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
-	const Result* source_result = m_source_expression->Evaluate(
+	const_shared_ptr<Result> source_result = m_source_expression->Evaluate(
 			execution_context);
 
 	errors = source_result->GetErrors();
@@ -90,7 +90,7 @@ const Result* WithExpression::Evaluate(
 						if (expression_type->IsAssignableTo(member_type)) {
 							const_shared_ptr<MemberInstantiation> memberInstantiation =
 									subject->GetData();
-							const Result* evaluation_result =
+							const_shared_ptr<Result> evaluation_result =
 									memberInstantiation->GetExpression()->Evaluate(
 											execution_context);
 
@@ -201,7 +201,7 @@ const Result* WithExpression::Evaluate(
 					errors);
 		}
 
-		return new Result(new_value, errors);
+		return make_shared<Result>(new_value, errors);
 	} else {
 		return source_result;
 	}

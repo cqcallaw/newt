@@ -27,12 +27,14 @@ class Error;
 class BinaryExpression: public Expression {
 public:
 	BinaryExpression(const yy::location position, const OperatorType op,
-			const_shared_ptr<Expression> left, const_shared_ptr<Expression> right);
+			const_shared_ptr<Expression> left,
+			const_shared_ptr<Expression> right);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	const Result* Evaluate(const_shared_ptr<ExecutionContext> execution_context) const;
+	const_shared_ptr<Result> Evaluate(
+			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	const_shared_ptr<Expression> GetLeft() const {
 		return m_left;
@@ -45,8 +47,9 @@ public:
 	}
 
 	static const_shared_ptr<TypeSpecifier> ComputeResultType(
-			const_shared_ptr<Expression> left, const_shared_ptr<Expression> right,
-			const OperatorType op, const_shared_ptr<ExecutionContext> execution_context);
+			const_shared_ptr<Expression> left,
+			const_shared_ptr<Expression> right, const OperatorType op,
+			const_shared_ptr<ExecutionContext> execution_context);
 
 	virtual const bool IsConstant() const {
 		return m_left->IsConstant() && m_right->IsConstant();
@@ -58,41 +61,44 @@ public:
 			const_shared_ptr<TypeSpecifier> valid_right) const;
 
 protected:
-	virtual const Result* compute(bool& left, bool& right,
-			yy::location left_position, yy::location right_position) const = 0;
-	const Result* compute(bool& left, int& right, yy::location left_position,
-			yy::location right_position) const;
-	const Result* compute(bool& left, double& right, yy::location left_position,
-			yy::location right_position) const;
-	const Result* compute(bool& left, string& right, yy::location left_position,
-			yy::location right_position) const;
-
-	const Result* compute(int& left, bool& right, yy::location left_position,
-			yy::location right_position) const;
-	virtual const Result* compute(int& left, int& right,
-			yy::location left_position, yy::location right_position) const = 0;
-	const Result* compute(int& left, double& right, yy::location left_position,
-			yy::location right_position) const;
-	const Result* compute(int& left, string& right, yy::location left_position,
-			yy::location right_position) const;
-
-	const Result* compute(double& left, bool& right, yy::location left_position,
-			yy::location right_position) const;
-	const Result* compute(double& left, int& right, yy::location left_position,
-			yy::location right_position) const;
-	virtual const Result* compute(double& left, double& right,
-			yy::location left_position, yy::location right_position) const = 0;
-	const Result* compute(double& left, string& right,
+	virtual const_shared_ptr<Result> compute(const bool& left,
+			const bool& right, yy::location left_position,
+			yy::location right_position) const = 0;
+	const_shared_ptr<Result> compute(const bool& left, const int& right,
+			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const bool& left, const double& right,
+			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const bool& left, const string& right,
 			yy::location left_position, yy::location right_position) const;
 
-	const Result* compute(string& left, bool& right, yy::location left_position,
-			yy::location right_position) const;
-	const Result* compute(string& left, int& right, yy::location left_position,
-			yy::location right_position) const;
-	const Result* compute(string& left, double& right,
+	const_shared_ptr<Result> compute(const int& left, const bool& right,
 			yy::location left_position, yy::location right_position) const;
-	virtual const Result* compute(string& left, string& right,
+	virtual const_shared_ptr<Result> compute(const int& left, const int& right,
 			yy::location left_position, yy::location right_position) const = 0;
+	const_shared_ptr<Result> compute(const int& left, const double& right,
+			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const int& left, const string& right,
+			yy::location left_position, yy::location right_position) const;
+
+	const_shared_ptr<Result> compute(const double& left, const bool& right,
+			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const double& left, const int& right,
+			yy::location left_position, yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const double& left,
+			const double& right, yy::location left_position,
+			yy::location right_position) const = 0;
+	const_shared_ptr<Result> compute(const double& left, const string& right,
+			yy::location left_position, yy::location right_position) const;
+
+	const_shared_ptr<Result> compute(const string& left, const bool& right,
+			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const string& left, const int& right,
+			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const string& left, const double& right,
+			yy::location left_position, yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const string& left,
+			const string& right, yy::location left_position,
+			yy::location right_position) const = 0;
 
 private:
 	const OperatorType m_operator;

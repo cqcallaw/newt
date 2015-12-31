@@ -109,8 +109,8 @@ const ErrorList ArrayDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 	if (m_initializer_expression) {
-		const Result* initializer_result = m_initializer_expression->Evaluate(
-				execution_context);
+		const_shared_ptr<Result> initializer_result =
+				m_initializer_expression->Evaluate(execution_context);
 		errors = initializer_result->GetErrors();
 
 		if (ErrorListBase::IsTerminator(errors)) {
@@ -123,8 +123,6 @@ const ErrorList ArrayDeclarationStatement::execute(
 					symbol_context->GetSymbol(m_name, SHALLOW)->GetType(),
 					array->GetTypeSpecifier());
 		}
-
-		delete (initializer_result);
 	}
 
 	return errors;

@@ -66,7 +66,8 @@ const string* ArrayVariable::ToString(
 		const_shared_ptr<Index> index = subject->GetData();
 		const_shared_ptr<Expression> index_expression =
 				index->GetIndexExpression();
-		const Result* evaluation = index_expression->Evaluate(context);
+		const_shared_ptr<Result> evaluation = index_expression->Evaluate(
+				context);
 
 		auto errors = evaluation->GetErrors();
 		if (ErrorListBase::IsTerminator(errors)) {
@@ -75,7 +76,6 @@ const string* ArrayVariable::ToString(
 			buffer << "EVALUATION ERROR";
 			break;
 		}
-		delete (evaluation);
 
 		buffer << "]";
 		subject = subject->GetNext();
@@ -116,7 +116,7 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 						index_expression->GetType(context);
 				if (index_expression->GetType(context)->IsAssignableTo(
 						PrimitiveTypeSpecifier::GetInt())) {
-					const Result* index_expression_evaluation =
+					const_shared_ptr<Result> index_expression_evaluation =
 							index_expression->Evaluate(context);
 					errors = index_expression_evaluation->GetErrors();
 					if (errors == ErrorListBase::GetTerminator()) {
@@ -149,7 +149,6 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 							break;
 						}
 					}
-					delete (index_expression_evaluation);
 				} else {
 					ostringstream buffer;
 					buffer << "A " << index_expression_type->ToString()
@@ -180,7 +179,7 @@ const ArrayVariable::ValidationResult* ArrayVariable::ValidateOperation(
 	return new ValidationResult(array, array_index, index_location, errors);
 }
 
-const Result* ArrayVariable::Evaluate(
+const_shared_ptr<Result> ArrayVariable::Evaluate(
 		const_shared_ptr<ExecutionContext> context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
@@ -242,7 +241,7 @@ const Result* ArrayVariable::Evaluate(
 	}
 	delete (validation_result);
 
-	const Result* result = new Result(result_value, errors);
+	const_shared_ptr<Result> result = make_shared<Result>(result_value, errors);
 	return result;
 }
 
@@ -279,9 +278,11 @@ const ErrorList ArrayVariable::AssignValue(
 				case BOOLEAN: {
 					const_shared_ptr<bool> value = array->GetValue<bool>(index,
 							*type_table);
-					const Result* result = AssignmentStatement::do_op(
-							variable_name, element_type, variable_line,
-							variable_column, *value, expression, op, context);
+					const_shared_ptr<Result> result =
+							AssignmentStatement::do_op(variable_name,
+									element_type, variable_line,
+									variable_column, *value, expression, op,
+									context);
 
 					errors = result->GetErrors();
 					if (ErrorListBase::IsTerminator(errors)) {
@@ -293,9 +294,11 @@ const ErrorList ArrayVariable::AssignValue(
 				case INT: {
 					const_shared_ptr<int> value = array->GetValue<int>(index,
 							*type_table);
-					const Result* result = AssignmentStatement::do_op(
-							variable_name, element_type, variable_line,
-							variable_column, *value, expression, op, context);
+					const_shared_ptr<Result> result =
+							AssignmentStatement::do_op(variable_name,
+									element_type, variable_line,
+									variable_column, *value, expression, op,
+									context);
 
 					errors = result->GetErrors();
 					if (ErrorListBase::IsTerminator(errors)) {
@@ -307,9 +310,11 @@ const ErrorList ArrayVariable::AssignValue(
 				case DOUBLE: {
 					const_shared_ptr<double> value = array->GetValue<double>(
 							index, *type_table);
-					const Result* result = AssignmentStatement::do_op(
-							variable_name, element_type, variable_line,
-							variable_column, *value, expression, op, context);
+					const_shared_ptr<Result> result =
+							AssignmentStatement::do_op(variable_name,
+									element_type, variable_line,
+									variable_column, *value, expression, op,
+									context);
 
 					errors = result->GetErrors();
 					if (ErrorListBase::IsTerminator(errors)) {
@@ -320,10 +325,11 @@ const ErrorList ArrayVariable::AssignValue(
 				case STRING: {
 					const_shared_ptr<string> value = array->GetValue<string>(
 							index, *type_table);
-					const Result* result = AssignmentStatement::do_op(
-							variable_name, element_type, variable_line,
-							variable_column, value.get(), expression, op,
-							context);
+					const_shared_ptr<Result> result =
+							AssignmentStatement::do_op(variable_name,
+									element_type, variable_line,
+									variable_column, value, expression,
+									op, context);
 
 					errors = result->GetErrors();
 					if (ErrorListBase::IsTerminator(errors)) {
@@ -336,7 +342,8 @@ const ErrorList ArrayVariable::AssignValue(
 				}
 			} else {
 				if (op == AssignmentType::ASSIGN) {
-					const Result* result = expression->Evaluate(context);
+					const_shared_ptr<Result> result = expression->Evaluate(
+							context);
 					errors = result->GetErrors();
 					if (ErrorListBase::IsTerminator(errors)) {
 						const_shared_ptr<ArrayTypeSpecifier> element_as_array =

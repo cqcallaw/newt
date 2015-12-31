@@ -96,10 +96,10 @@ const ErrorList IfStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
-	const Result* evaluation = m_expression->Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = m_expression->Evaluate(execution_context);
 	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *(static_pointer_cast<const bool>(evaluation->GetData()));
-	delete (evaluation);
+	
 	if (test) {
 		volatile_shared_ptr<SymbolContext> symbol_context =
 				execution_context->GetSymbolContext();

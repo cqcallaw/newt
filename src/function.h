@@ -37,7 +37,7 @@ public:
 		return m_declaration;
 	}
 
-	const Result* Evaluate(ArgumentList argument_list,
+	const_shared_ptr<Result> Evaluate(ArgumentList argument_list,
 			const_shared_ptr<ExecutionContext> invocation_context) const;
 
 private:

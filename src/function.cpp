@@ -36,7 +36,7 @@ Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 Function::~Function() {
 }
 
-const Result* Function::Evaluate(ArgumentList argument_list,
+const_shared_ptr<Result> Function::Evaluate(ArgumentList argument_list,
 		const_shared_ptr<ExecutionContext> invocation_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 
@@ -58,7 +58,7 @@ const Result* Function::Evaluate(ArgumentList argument_list,
 			const_shared_ptr<DeclarationStatement> declaration =
 					parameter->GetData();
 
-			const Result* argument_evaluation =
+			const_shared_ptr<Result> argument_evaluation =
 					ConstantExpression::GetConstantExpression(
 							argument_expression, invocation_context);
 			auto evaluation_errors = argument_evaluation->GetErrors();
@@ -88,8 +88,6 @@ const Result* Function::Evaluate(ArgumentList argument_list,
 			} else {
 				errors = ErrorListBase::Concatenate(errors, evaluation_errors);
 			}
-
-			delete argument_evaluation;
 
 			argument = argument->GetNext();
 			parameter = parameter->GetNext();
@@ -144,8 +142,8 @@ const Result* Function::Evaluate(ArgumentList argument_list,
 		errors = ErrorListBase::Concatenate(errors,
 				m_body->execute(child_context));
 
-		return new Result(child_context->GetReturnValue(), errors);
+		return make_shared<Result>(child_context->GetReturnValue(), errors);
 	} else {
-		return new Result(nullptr, errors);
+		return make_shared<Result>(nullptr, errors);
 	}
 }

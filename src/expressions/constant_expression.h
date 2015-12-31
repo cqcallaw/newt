@@ -41,7 +41,7 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const Result* Evaluate(
+	virtual const_shared_ptr<Result> Evaluate(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
@@ -51,7 +51,7 @@ public:
 	virtual const ErrorList Validate(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	static const Result* GetConstantExpression(
+	static const_shared_ptr<Result> GetConstantExpression(
 			const_shared_ptr<Expression> expression,
 			const_shared_ptr<ExecutionContext> execution_context);
 

@@ -55,9 +55,9 @@ const_shared_ptr<TypeSpecifier> ConstantExpression::GetType(
 	return m_type;
 }
 
-const Result* ConstantExpression::Evaluate(
+const_shared_ptr<Result> ConstantExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	return new Result(m_value, ErrorListBase::GetTerminator());
+	return make_shared<Result>(m_value, ErrorListBase::GetTerminator());
 }
 
 const_shared_ptr<ConstantExpression> ConstantExpression::GetDefaultExpression(
@@ -67,10 +67,10 @@ const_shared_ptr<ConstantExpression> ConstantExpression::GetDefaultExpression(
 					type->DefaultValue(type_table)));
 }
 
-const Result* ConstantExpression::GetConstantExpression(
+const_shared_ptr<Result> ConstantExpression::GetConstantExpression(
 		const_shared_ptr<Expression> expression,
 		const_shared_ptr<ExecutionContext> execution_context) {
-	const Result* evaluation = expression->Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = expression->Evaluate(execution_context);
 	plain_shared_ptr<void> result;
 
 	auto errors = evaluation->GetErrors();
@@ -81,9 +81,7 @@ const Result* ConstantExpression::GetConstantExpression(
 						evaluation->GetData()));
 	}
 
-	delete evaluation;
-
-	return new Result(result, errors);
+	return make_shared<Result>(result, errors);
 }
 
 ConstantExpression::ConstantExpression(const yy::location position,

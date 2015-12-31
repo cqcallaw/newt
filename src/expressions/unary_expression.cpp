@@ -123,14 +123,14 @@ double UnaryExpression::radians_to_degrees(double radians) {
 	return radians * (180.0 / M_PI);
 }
 
-const Result* UnaryExpression::Evaluate(
+const_shared_ptr<Result> UnaryExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
 	void* result = nullptr;
 
 	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
 			execution_context);
-	const Result* evaluation = m_expression->Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = m_expression->Evaluate(execution_context);
 	ErrorList evaluation_errors = evaluation->GetErrors();
 
 	if (!ErrorListBase::IsTerminator(evaluation_errors)) {
@@ -183,8 +183,8 @@ const Result* UnaryExpression::Evaluate(
 		}
 	}
 
-	delete (evaluation);
+	
 
-	return new Result(const_shared_ptr<void>(result), errors);
+	return make_shared<Result>(const_shared_ptr<void>(result), errors);
 }
 

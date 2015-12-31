@@ -36,13 +36,13 @@ public:
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 protected:
-	virtual const Result* compute(bool& left, bool& right,
+	virtual const_shared_ptr<Result> compute(const bool& left, const bool& right,
 			yy::location left_position, yy::location right_position) const;
-	virtual const Result* compute(int& left, int& right,
+	virtual const_shared_ptr<Result> compute(const int& left, const int& right,
 			yy::location left_position, yy::location right_position) const;
-	virtual const Result* compute(double& left, double& right,
+	virtual const_shared_ptr<Result> compute(const double& left, const double& right,
 			yy::location left_position, yy::location right_position) const;
-	virtual const Result* compute(string& left, string& right,
+	virtual const_shared_ptr<Result> compute(const string& left, const string& right,
 			yy::location left_position, yy::location right_position) const;
 };
 

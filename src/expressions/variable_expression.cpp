@@ -37,7 +37,7 @@ const_shared_ptr<TypeSpecifier> VariableExpression::GetType(
 	return m_variable->GetType(execution_context);
 }
 
-const Result* VariableExpression::Evaluate(
+const_shared_ptr<Result> VariableExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	return m_variable->Evaluate(execution_context);
 }
