@@ -36,10 +36,10 @@ public:
 	CompoundType(const_shared_ptr<definition_map> definition,
 			const Modifier::Type modifiers);
 	virtual ~CompoundType();
-	const_shared_ptr<MemberDefinition> GetMember(const string name) const;
+	const_shared_ptr<MemberDefinition> GetMember(const string& name) const;
 
 	const string ToString(const TypeTable& type_table,
-			const Indent indent) const;
+			const Indent& indent) const;
 
 	const_shared_ptr<definition_map> GetDefinition() const {
 		return m_definition;

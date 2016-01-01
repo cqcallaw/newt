@@ -43,12 +43,6 @@ public:
 private:
 	static const_shared_ptr<TypeSpecifier> compute_result_type(
 			const_shared_ptr<TypeSpecifier> input_type, const OperatorType op);
-	const static void* compute(const BasicType input_type, const void* input,
-			double (*compute_function)(double),
-			double (*input_transform_function)(double) = NULL,
-			double (*output_transform_function)(double) = NULL);
-	static double degrees_to_radians(double angle);
-	static double radians_to_degrees(double radians);
 	const_shared_ptr<Expression> m_expression;
 	const OperatorType m_operator;
 };

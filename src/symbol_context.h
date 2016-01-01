@@ -49,7 +49,7 @@ const ErrorList ToErrorList(const SetResult result, const yy::location location,
 		const_shared_ptr<TypeSpecifier> value_type);
 
 struct comparator {
-	bool operator()(const string lhs, const string rhs) const {
+	bool operator()(const string& lhs, const string& rhs) const {
 		return lhs < rhs;
 	}
 };
@@ -91,7 +91,7 @@ public:
 	}
 
 	const void print(ostream &os, const TypeTable& type_table,
-			const Indent indent, const SearchType search_type = SHALLOW) const;
+			const Indent& indent, const SearchType search_type = SHALLOW) const;
 
 	const_shared_ptr<Symbol> GetSymbol(const string& identifier,
 			const SearchType search_type) const;

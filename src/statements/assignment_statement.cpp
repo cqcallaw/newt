@@ -357,7 +357,6 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		const_shared_ptr<Expression> expression, const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context) {
 	ErrorList errors;
-	const void* result;
 
 	int new_value = 0;
 	const_shared_ptr<Result> evaluation = expression->Evaluate(
@@ -406,8 +405,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 						expression_type_specifier->ToString()), errors);
 	}
 
-	result = new int(new_value);
-	auto wrapper = const_shared_ptr<void>(result);
+	const_shared_ptr<int> wrapper = make_shared<int>(new_value);
 	return make_shared<Result>(wrapper, errors);
 }
 
@@ -417,7 +415,6 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		const_shared_ptr<Expression> expression, AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context) {
 	ErrorList errors;
-	const void* result;
 
 	double new_value = 0;
 	const_shared_ptr<Result> evaluation = expression->Evaluate(
@@ -472,8 +469,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 						expression_type_specifier->ToString()), errors);
 	}
 
-	result = new double(new_value);
-	auto wrapper = const_shared_ptr<void>(result);
+	const_shared_ptr<void> wrapper = make_shared<double>(new_value);
 	return make_shared<Result>(wrapper, errors);
 }
 

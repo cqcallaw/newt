@@ -89,7 +89,7 @@ string operator_to_string(OperatorType op) {
 	return ""; // to prevent a compilation warning
 }
 
-const BasicType FromString(const string str) {
+const BasicType FromString(const string& str) {
 	if (str.compare("bool") == 0) {
 		return BasicType::BOOLEAN;
 	} else if (str.compare("int") == 0) {

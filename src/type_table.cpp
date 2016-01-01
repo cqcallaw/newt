@@ -21,14 +21,13 @@
 #include <compound_type.h>
 
 TypeTable::TypeTable() :
-		table(new type_map()) {
+		table(make_shared<type_map>()) {
 }
 
 TypeTable::~TypeTable() {
-	delete (table);
 }
 
-void TypeTable::AddType(const string name,
+void TypeTable::AddType(const string& name,
 		const_shared_ptr<CompoundType> definition) {
 	table->insert(
 			pair<const string, const_shared_ptr<CompoundType>>(name,

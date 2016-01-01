@@ -127,7 +127,7 @@ const_shared_ptr<Result> InvokeExpression::ToString(
 
 const ErrorList InvokeExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
 			execution_context);

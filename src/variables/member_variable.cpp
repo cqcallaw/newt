@@ -30,8 +30,6 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 					container_type_specifier);
 	if (as_compound_type) {
-		const string type_name = as_compound_type->GetTypeName();
-
 		const_shared_ptr<CompoundTypeInstance> instance =
 				std::static_pointer_cast<const CompoundTypeInstance>(
 						as_compound_type->DefaultValue(
@@ -56,8 +54,7 @@ const std::string* MemberVariable::ToString(
 
 const_shared_ptr<Result> MemberVariable::Evaluate(
 		const_shared_ptr<ExecutionContext> context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
-	const void* result_value = nullptr;
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 			context);
@@ -67,7 +64,8 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 
 	if (container_type != PrimitiveTypeSpecifier::GetNone()) {
 		if (as_compound != nullptr) {
-			const_shared_ptr<Result> container_result = m_container->Evaluate(context);
+			const_shared_ptr<Result> container_result = m_container->Evaluate(
+					context);
 
 			errors = container_result->GetErrors();
 			if (ErrorListBase::IsTerminator(errors)) {
@@ -77,8 +75,8 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 						instance->GetDefinition();
 				auto new_context = context->WithSymbolContext(
 						new_symbol_context);
-				const_shared_ptr<Result> member_result = m_member_variable->Evaluate(
-						new_context);
+				const_shared_ptr<Result> member_result =
+						m_member_variable->Evaluate(new_context);
 				return member_result;
 			}
 		} else {
@@ -97,21 +95,21 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 				errors);
 	}
 
-	auto wrapper = const_shared_ptr<void>(result_value);
-	const_shared_ptr<Result> result = make_shared<Result>(wrapper, errors);
+	const_shared_ptr<Result> result = make_shared<Result>(
+			const_shared_ptr<void>(nullptr), errors);
 	return result;
 }
 
 const ErrorList MemberVariable::SetSymbol(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<bool> value) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
-	SetResult set_result = NO_SET_RESULT;
-
 	errors = container_result->GetErrors();
-	if (ErrorListBase::Reverse(errors)) {
+	if (ErrorListBase::IsTerminator(errors)) {
+		SetResult set_result = NO_SET_RESULT;
+
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
 		const_shared_ptr<CompoundTypeSpecifier> as_compound =
@@ -127,18 +125,18 @@ const ErrorList MemberVariable::SetSymbol(
 		} else {
 			set_result = INCOMPATIBLE_TYPE;
 		}
+
+		return ToErrorList(set_result, m_member_variable->GetType(context),
+				PrimitiveTypeSpecifier::GetBoolean());
 	} else {
 		return errors;
 	}
-
-	return ToErrorList(set_result, m_member_variable->GetType(context),
-			PrimitiveTypeSpecifier::GetBoolean());
 }
 
 const ErrorList MemberVariable::SetSymbol(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<int> value) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
@@ -172,7 +170,7 @@ const ErrorList MemberVariable::SetSymbol(
 const ErrorList MemberVariable::SetSymbol(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<double> value) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
@@ -206,7 +204,7 @@ const ErrorList MemberVariable::SetSymbol(
 const ErrorList MemberVariable::SetSymbol(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<string> value) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
@@ -241,9 +239,10 @@ const ErrorList MemberVariable::AssignValue(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
-	const_shared_ptr<Result> container_evaluation = GetContainer()->Evaluate(context);
+	const_shared_ptr<Result> container_evaluation = GetContainer()->Evaluate(
+			context);
 	errors = container_evaluation->GetErrors();
 	if (ErrorListBase::IsTerminator(errors)) {
 		//we're assigning a struct member reference
@@ -273,7 +272,7 @@ const ErrorList MemberVariable::AssignValue(
 const ErrorList MemberVariable::SetSymbol(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<CompoundTypeInstance> value) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
@@ -307,7 +306,7 @@ const ErrorList MemberVariable::SetSymbol(
 const ErrorList MemberVariable::SetSymbol(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Array> value) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
@@ -340,7 +339,7 @@ const ErrorList MemberVariable::SetSymbol(
 
 const ErrorList MemberVariable::Validate(
 		const_shared_ptr<ExecutionContext> context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<SymbolContext> symbol_context =
 			context->GetSymbolContext();

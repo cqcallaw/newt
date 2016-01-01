@@ -30,7 +30,7 @@ class SymbolContext;
 
 class CompoundTypeSpecifier: public TypeSpecifier {
 public:
-	CompoundTypeSpecifier(const string type_name, const yy::location location) :
+	CompoundTypeSpecifier(const string& type_name, const yy::location location) :
 			m_type_name(type_name), m_location(location) {
 	}
 	virtual ~CompoundTypeSpecifier() {

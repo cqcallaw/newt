@@ -182,7 +182,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 
 const_shared_ptr<Result> ArrayVariable::Evaluate(
 		const_shared_ptr<ExecutionContext> context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<ValidationResult> validation_result = ValidateOperation(
 			context);
@@ -250,7 +250,7 @@ const ErrorList ArrayVariable::AssignValue(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	auto variable_name = GetName();
 	const int variable_line = GetLocation().begin.line;
@@ -424,7 +424,7 @@ const ErrorList ArrayVariable::SetSymbol(
 const ErrorList ArrayVariable::SetSymbolCore(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<void> value) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 
 	const_shared_ptr<ValidationResult> validation_result = ValidateOperation(
 			context);

@@ -82,33 +82,27 @@ const_shared_ptr<Result> ComparisonExpression::compute(const int& left,
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left == right)),
 				ErrorListBase::GetTerminator());
-		break;
 	}
 	case NOT_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left != right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case LESS_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left < right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case LESS_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left <= right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case GREATER_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left > right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case GREATER_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left >= right)),
 				ErrorListBase::GetTerminator());
-		break;
 	default:
 		assert(false);
 		return NULL;
@@ -121,37 +115,30 @@ const_shared_ptr<Result> ComparisonExpression::compute(const double& left,
 		const double& right, yy::location left_position,
 		yy::location right_position) const {
 	switch (GetOperator()) {
-	case EQUAL: {
+	case EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left == right)),
 				ErrorListBase::GetTerminator());
-		break;
-	}
 	case NOT_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left != right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case LESS_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left < right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case LESS_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left <= right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case GREATER_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left > right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case GREATER_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left >= right)),
 				ErrorListBase::GetTerminator());
-		break;
 	default:
 		assert(false);
 		return NULL;
@@ -164,37 +151,30 @@ const_shared_ptr<Result> ComparisonExpression::compute(const string& left,
 		const string& right, yy::location left_position,
 		yy::location right_position) const {
 	switch (GetOperator()) {
-	case EQUAL: {
+	case EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left == right)),
 				ErrorListBase::GetTerminator());
-		break;
-	}
 	case NOT_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left != right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case LESS_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left < right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case LESS_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left <= right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case GREATER_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left > right)),
 				ErrorListBase::GetTerminator());
-		break;
 	case GREATER_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left >= right)),
 				ErrorListBase::GetTerminator());
-		break;
 	default:
 		assert(false);
 		return NULL;

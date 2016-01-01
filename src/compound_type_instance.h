@@ -49,14 +49,14 @@ public:
 	}
 
 	static const_shared_ptr<CompoundTypeInstance> GetDefaultInstance(
-			const string type_name, const_shared_ptr<CompoundType> type);
+			const string& type_name, const_shared_ptr<CompoundType> type);
 
 	const static const_shared_ptr<Symbol> GetSymbol(
 			const_shared_ptr<TypeSpecifier> member_type,
 			const_shared_ptr<void> void_value);
 
 	const string ToString(const TypeTable& type_table,
-			const Indent indent) const;
+			const Indent& indent) const;
 
 private:
 	const_shared_ptr<CompoundTypeSpecifier> m_type;

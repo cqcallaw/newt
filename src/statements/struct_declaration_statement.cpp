@@ -109,7 +109,7 @@ const ErrorList StructDeclarationStatement::preprocess(
 	if (ErrorListBase::IsTerminator(errors)) {
 		//we've evaluated everything without issue
 		//extract member declaration information into immutable MemberDefinition
-		for (iter = values->begin(); iter != values->end(); iter++) {
+		for (iter = values->begin(); iter != values->end(); ++iter) {
 			const string member_name = iter->first;
 			auto symbol = iter->second;
 			const_shared_ptr<TypeSpecifier> type = symbol->GetType();

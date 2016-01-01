@@ -35,7 +35,7 @@ public:
 	TypeTable();
 	virtual ~TypeTable();
 
-	void AddType(const string name, const_shared_ptr<CompoundType> definition);
+	void AddType(const string& name, const_shared_ptr<CompoundType> definition);
 
 	const_shared_ptr<CompoundType> GetType(const string& name) const;
 
@@ -48,7 +48,7 @@ public:
 	static volatile_shared_ptr<TypeTable> GetDefault();
 
 private:
-	type_map* table;
+	const shared_ptr<type_map> table;
 };
 
 #endif /* TYPE_TABLE_H_ */

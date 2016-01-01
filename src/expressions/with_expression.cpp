@@ -43,7 +43,7 @@ const_shared_ptr<TypeSpecifier> WithExpression::GetType(
 
 const_shared_ptr<Result> WithExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 	const_shared_ptr<Result> source_result = m_source_expression->Evaluate(
 			execution_context);
 

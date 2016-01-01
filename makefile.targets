@@ -6,6 +6,8 @@ TESTS = $(patsubst $(TEST_PATH)%.nwt,%,$(TEST_FILES))
 MTESTS = $(patsubst $(TEST_PATH)%.nwt,m%,$(TEST_FILES))
 MQTESTS = $(patsubst $(TEST_PATH)%.nwt,mq%,$(TEST_FILES))
 
+INCLUDE_DIRS = -I"../src/expressions" -I"../src/specifiers" -I"../src/statements" -I"../src/variables" -I"../src" -I"./"
+
 test: newt $(TESTS)
 
 $(TEST_PATH)output:
@@ -47,3 +49,7 @@ d%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
 
 test-clean:
 	rm -rf $(TEST_PATH)output/*
+
+lint:
+	cppcheck $(INCLUDE_DIRS) --enable=all ../src/
+	

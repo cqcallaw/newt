@@ -29,7 +29,7 @@ CompoundType::CompoundType(const_shared_ptr<definition_map> definition,
 }
 
 const_shared_ptr<MemberDefinition> CompoundType::GetMember(
-		const string name) const {
+		const string& name) const {
 	auto result = m_definition->find(name);
 	if (result != m_definition->end()) {
 		return result->second;
@@ -42,7 +42,7 @@ CompoundType::~CompoundType() {
 }
 
 const string CompoundType::ToString(const TypeTable& type_table,
-		const Indent indent) const {
+		const Indent& indent) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
 	definition_map::const_iterator type_iter;

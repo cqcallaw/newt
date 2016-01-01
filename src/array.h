@@ -41,7 +41,7 @@ public:
 	}
 
 	const string ToString(const TypeTable& type_table,
-			const Indent indent) const;
+			const Indent& indent) const;
 
 	template<class T> const std::shared_ptr<const T> GetValue(const int index,
 			const TypeTable& type_table) const {

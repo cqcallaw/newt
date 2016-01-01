@@ -30,16 +30,12 @@ class TypeTable;
 using namespace std;
 
 enum BasicType {
-	NONE = 0,
-	BOOLEAN = 1,
-	INT = 2,
-	DOUBLE = 4,
-	STRING = 8
+	NONE = 0, BOOLEAN = 1, INT = 2, DOUBLE = 4, STRING = 8
 };
 
 const string type_to_string(const BasicType type);
 
-const BasicType FromString(const string str);
+const BasicType FromString(const string& str);
 
 ostream &operator<<(ostream &os, const BasicType &type);
 

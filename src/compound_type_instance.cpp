@@ -21,7 +21,7 @@
 #include <member_definition.h>
 
 const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
-		const string type_name, const_shared_ptr<CompoundType> type) {
+		const string& type_name, const_shared_ptr<CompoundType> type) {
 	auto symbol_mapping = make_shared<symbol_map>();
 
 	plain_shared_ptr<definition_map> type_definition = type->GetDefinition();
@@ -86,7 +86,7 @@ const_shared_ptr<Symbol> CompoundTypeInstance::GetSymbol(
 }
 
 const string CompoundTypeInstance::ToString(const TypeTable& type_table,
-		const Indent indent) const {
+		const Indent& indent) const {
 	ostringstream buffer;
 	m_definition->print(buffer, type_table, indent);
 	string result = buffer.str();

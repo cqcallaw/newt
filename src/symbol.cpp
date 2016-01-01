@@ -85,7 +85,7 @@ const_shared_ptr<Symbol> Symbol::WithValue(
 }
 
 const string Symbol::ToString(const TypeTable& type_table,
-		const Indent indent) const {
+		const Indent& indent) const {
 	ostringstream buffer;
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(m_type);

@@ -57,7 +57,7 @@ public:
 	}
 
 	virtual const string ToString(const TypeTable& type_table,
-			const Indent indent) const;
+			const Indent& indent) const;
 
 	static const_shared_ptr<Symbol> GetDefaultSymbol();
 

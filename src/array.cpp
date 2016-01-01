@@ -20,7 +20,7 @@
 #include <array.h>
 
 const string Array::ToString(const TypeTable& type_table,
-		const Indent indent) const {
+		const Indent& indent) const {
 	ostringstream os;
 
 	const_shared_ptr<TypeSpecifier> element_type = GetElementType();

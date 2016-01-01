@@ -44,7 +44,7 @@ public:
 	}
 
 	const string ToString(const TypeTable& type_table,
-			const Indent indent) const {
+			const Indent& indent) const {
 		ostringstream buffer;
 		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 				std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(m_type);
@@ -68,7 +68,6 @@ public:
 				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(m_type);
 		if (as_compound != nullptr) {
 			buffer << endl;
-			const string type_name = as_compound->GetTypeName();
 			auto instance = static_pointer_cast<const CompoundTypeInstance>(
 					m_value);
 			buffer << instance->ToString(type_table, indent + 1);

@@ -42,50 +42,6 @@ const_shared_ptr<TypeSpecifier> UnaryExpression::compute_result_type(
 	}
 }
 
-const void* UnaryExpression::compute(const BasicType input_type,
-		const void* input, double (*compute_function)(double),
-		double (*input_transform_function)(double),
-		double (*output_transform_function)(double)) {
-	switch (input_type) {
-	case INT: {
-		int as_int = *((int*) input);
-		double* result = new double;
-
-		*result =
-				input_transform_function != NULL ?
-						compute_function(input_transform_function(as_int)) :
-						compute_function(as_int);
-
-		if (output_transform_function != NULL) {
-			*result = output_transform_function(*result);
-		}
-
-		return (void *) result;
-	}
-	case DOUBLE: {
-		double casted = *((double*) input);
-		double* result = new double;
-		*result =
-				input_transform_function != NULL ?
-						compute_function(input_transform_function(casted)) :
-						compute_function(casted);
-
-		if (output_transform_function != NULL) {
-			*result = output_transform_function(*result);
-		}
-
-		return (void *) result;
-	}
-	default:
-		assert(false);
-		return NULL;
-	}
-}
-
-double UnaryExpression::degrees_to_radians(double angle) {
-	return angle * (M_PI / 180.0);
-}
-
 const_shared_ptr<TypeSpecifier> UnaryExpression::GetType(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	return compute_result_type(m_expression->GetType(execution_context),
@@ -119,10 +75,6 @@ const ErrorList UnaryExpression::Validate(
 	return result;
 }
 
-double UnaryExpression::radians_to_degrees(double radians) {
-	return radians * (180.0 / M_PI);
-}
-
 const_shared_ptr<Result> UnaryExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorList errors = ErrorListBase::GetTerminator();
@@ -130,7 +82,8 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 
 	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
 			execution_context);
-	const_shared_ptr<Result> evaluation = m_expression->Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
+			execution_context);
 	ErrorList evaluation_errors = evaluation->GetErrors();
 
 	if (!ErrorListBase::IsTerminator(evaluation_errors)) {
@@ -182,8 +135,6 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 			assert(false);
 		}
 	}
-
-	
 
 	return make_shared<Result>(const_shared_ptr<void>(result), errors);
 }

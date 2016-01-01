@@ -1,0 +1,6 @@
+//test invalid assignment of struct member variable
+struct my_struct {
+	y: double
+}
+a: my_struct
+a.y = "str" //should generate a type error

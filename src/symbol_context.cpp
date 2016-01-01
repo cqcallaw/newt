@@ -104,7 +104,7 @@ const_shared_ptr<Symbol> SymbolContext::GetSymbol(
 }
 
 const void SymbolContext::print(ostream &os, const TypeTable& type_table,
-		const Indent indent, const SearchType search_type) const {
+		const Indent& indent, const SearchType search_type) const {
 	symbol_map::iterator iter;
 	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
 		const string name = iter->first;

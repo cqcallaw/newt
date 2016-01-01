@@ -35,7 +35,7 @@ const ErrorList ReturnStatement::preprocess(
 
 const ErrorList ReturnStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorList errors(ErrorListBase::GetTerminator());
 	auto result = m_expression->Evaluate(execution_context);
 
 	errors = result->GetErrors();

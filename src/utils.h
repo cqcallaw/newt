@@ -37,5 +37,4 @@ const_shared_ptr<string> AsString(int* value);
 
 const_shared_ptr<string> AsString(double* value);
 
-bool EndsWith(std::string const &fullString, std::string const &ending);
 #endif /* UTILS_H_ */

@@ -28,7 +28,7 @@
 
 Variable::Variable(const_shared_ptr<string> name, yy::location location) :
 		m_name(name), m_location(location) {
-	assert(name != NULL && name != nullptr);
+	assert(name);
 }
 
 Variable::~Variable() {
