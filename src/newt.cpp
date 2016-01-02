@@ -45,10 +45,18 @@ int main(int argc, char *argv[]) {
 	}
 
 	bool debug = false;
+	TRACE trace = NO_TRACE;
 	for (int i = 1; i < argc - 1; i++) {
-		int compare = strcmp(argv[i], "--debug");
-		if (compare == 0) {
+		if (strcmp(argv[i], "--debug") == 0) {
 			debug = true;
+		}
+
+		if (strcmp(argv[i], "--trace-scanning") == 0) {
+			trace = TRACE(trace | SCANNING);
+		}
+
+		if (strcmp(argv[i], "--trace-parsing") == 0) {
+			trace = TRACE(trace | PARSING);
 		}
 	}
 
@@ -59,7 +67,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	Driver driver;
-	int parse_result = driver.parse(filename, false, false);
+	int parse_result = driver.parse(filename, trace);
 
 	if (parse_result != 0 || driver.GetErrorCount() != 0) {
 		if (debug) {

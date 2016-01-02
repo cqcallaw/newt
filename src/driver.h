@@ -26,6 +26,10 @@
 	yy::newt_parser::symbol_type yylex (Driver& driver)
 YY_DECL;
 
+enum TRACE {
+	NO_TRACE = 0, SCANNING = 1, PARSING = 2,
+};
+
 class Driver {
 public:
 	Driver() {
@@ -38,8 +42,7 @@ public:
 
 	// Run the parser on the file specified by <file_name>
 	// Return 0 on success.
-	int parse(const std::string& file_name, const bool trace_parsing,
-			const bool trace_scanning);
+	int parse(const std::string& file_name, const TRACE trace_level);
 
 	void error(const std::string& message);
 	void lexer_error(const yy::location& location, const std::string& message);
