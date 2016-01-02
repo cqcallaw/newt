@@ -3,6 +3,7 @@ TEST_PATH = ../tests/
 #ref: http://stackoverflow.com/a/2706067/577298
 TEST_FILES = $(wildcard $(TEST_PATH)*.nwt)
 TESTS = $(patsubst $(TEST_PATH)%.nwt,%,$(TEST_FILES))
+WTESTS = $(patsubst $(TEST_PATH)%.nwt,w%,$(TEST_FILES))
 MTESTS = $(patsubst $(TEST_PATH)%.nwt,m%,$(TEST_FILES))
 MQTESTS = $(patsubst $(TEST_PATH)%.nwt,mq%,$(TEST_FILES))
 
@@ -27,6 +28,9 @@ r%: newt $(TEST_PATH)%.nwt
 w%: newt $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	-@echo ' '
 	./newt --debug $(word 2,$^) >$(TEST_PATH)reference/$* 2>&1
+
+#DANGER: update all test output
+wtest: newt $(WTESTS)
 
 c%: $(TEST_PATH)%.nwt
 	@cat -n $<
