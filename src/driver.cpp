@@ -40,14 +40,14 @@ void Driver::error(const std::string& message) {
 
 void Driver::lexer_error(const yy::location& location,
 		const std::string& message) {
-	std::cerr << "Lexer error on line " << location.begin.line << ", column "
+	std::cerr << "Lex error on line " << location.begin.line << ", column "
 			<< location.begin.column << ": " << message << std::endl;
 	m_error_count++;
 }
 
 void Driver::invalid_token(const yy::location& location,
 		const std::string& token_name) {
-	std::cerr << "Lexer error on line " << location.begin.line << ", column "
+	std::cerr << "Lex error on line " << location.begin.line << ", column "
 			<< location.begin.column << ": '" << token_name << "'"
 			<< " is not a legal token." << std::endl;
 	m_error_count++;
@@ -56,7 +56,7 @@ void Driver::invalid_token(const yy::location& location,
 void Driver::parser_error(const yy::location& location,
 		const std::string& message) {
 	std::cerr << "Parse error on line " << location.begin.line << ", column "
-			<< location.begin.column << " reported by parser: " << message
+			<< location.begin.column << ": " << message
 			<< "." << std::endl;
 	m_error_count++;
 }

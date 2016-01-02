@@ -1,4 +1,4 @@
 Parsing file ../tests/t0014.nwt...
-Parse error on line 1, column 13 reported by parser: syntax error, unexpected ..
+Parse error on line 1, column 13: syntax error, unexpected ..
 Parsed file ../tests/t0014.nwt.
 1 error found; giving up.
