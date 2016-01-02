@@ -61,13 +61,13 @@ int main(int argc, char *argv[]) {
 	Driver driver;
 	int parse_result = driver.parse(filename, false, false);
 
-	if (parse_result != 0 || Error::num_errors() != 0) {
+	if (parse_result != 0 || driver.GetErrorCount() != 0) {
 		if (debug) {
 			cout << "Parsed file " << filename << "." << endl;
 		}
 
-		cerr << Error::num_errors() << " error";
-		if (Error::num_errors() > 1)
+		cerr << driver.GetErrorCount() << " error";
+		if (driver.GetErrorCount() > 1)
 			cout << "s";
 		cout << " found; giving up." << endl;
 

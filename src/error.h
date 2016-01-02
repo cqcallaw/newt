@@ -82,25 +82,14 @@ public:
 		NOT_A_FUNCTION
 	};
 
-	Error();
 	Error(ErrorClass error_class, ErrorCode code, int line_number,
 			int column_number, string s1 = "", string s2 = "", string s3 = "");
-
-	static void lex_error(int line_number, string s1);
-
-	static void parse_error(int line_number, int column_number, string s1);
-
-	static int num_errors() {
-		return m_num_errors;
-	}
 
 	const string ToString() const;
 
 protected:
 	static void error_core(ostream &os, ErrorCode code, string s1 = "",
 			string s2 = "", string s3 = "");
-
-	static int m_num_errors;
 
 	const string get_error_message() const;
 
