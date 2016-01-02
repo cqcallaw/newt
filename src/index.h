@@ -45,7 +45,7 @@ private:
 	const_shared_ptr<Expression> m_index_expression;
 };
 
-typedef const LinkedList<const Index, NO_DUPLICATES> IndexListBase;
-typedef shared_ptr<IndexListBase> IndexList;
+typedef const LinkedList<const Index, NO_DUPLICATES> IndexList;
+typedef shared_ptr<IndexList> IndexListRef;
 
 #endif /* INDEX_H_ */

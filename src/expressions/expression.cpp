@@ -35,7 +35,7 @@ const_shared_ptr<Result> Expression::ToString(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buffer;
 	const_shared_ptr<Result> evaluation = Evaluate(execution_context);
-	if (ErrorListBase::IsTerminator(evaluation->GetErrors())) {
+	if (ErrorList::IsTerminator(evaluation->GetErrors())) {
 		const_shared_ptr<TypeSpecifier> type_specifier = GetType(
 				execution_context);
 		auto value = evaluation->GetData();
@@ -85,5 +85,5 @@ const_shared_ptr<Result> Expression::ToString(
 	
 
 	return make_shared<Result>(const_shared_ptr<void>(new string(buffer.str())),
-			ErrorListBase::GetTerminator());
+			ErrorList::GetTerminator());
 }

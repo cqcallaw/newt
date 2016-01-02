@@ -28,19 +28,19 @@ class Statement;
 
 class StatementBlock {
 public:
-	StatementBlock(StatementList statements);
+	StatementBlock(StatementListRef statements);
 	virtual ~StatementBlock();
 
-	const ErrorList preprocess(
+	const ErrorListRef preprocess(
 			const_shared_ptr<ExecutionContext> execution_context) const;
-	const ErrorList execute(
+	const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
-	StatementList m_statements;
+	StatementListRef m_statements;
 };
 
 #endif // #ifndef STATEMENT_BLOCK_H

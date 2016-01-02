@@ -31,9 +31,9 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(
 				initializer_expression) {
 }
 
-const ErrorList ArrayDeclarationStatement::preprocess(
+const ErrorListRef ArrayDeclarationStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<CompoundTypeSpecifier> element_type_as_compound =
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
@@ -46,14 +46,14 @@ const ErrorList ArrayDeclarationStatement::preprocess(
 		const_shared_ptr<CompoundType> type = type_table->GetType(type_name);
 
 		if (type == CompoundType::GetDefaultCompoundType()) {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_type_position.begin.line,
 							m_type_position.begin.column, type_name), errors);
 		}
 	}
 
-	if (ErrorListBase::IsTerminator(errors)) {
+	if (ErrorList::IsTerminator(errors)) {
 		const Array* array = nullptr;
 		auto name = m_name;
 		if (m_initializer_expression) {
@@ -65,7 +65,7 @@ const ErrorList ArrayDeclarationStatement::preprocess(
 			if (!as_array
 					|| !initializer_expression_type->IsAssignableTo(m_type)) {
 				errors =
-						ErrorListBase::From(
+						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::ASSIGNMENT_TYPE_ERROR,
 										m_initializer_expression->GetPosition().begin.line,
@@ -76,7 +76,7 @@ const ErrorList ArrayDeclarationStatement::preprocess(
 			}
 		}
 
-		if (ErrorListBase::IsTerminator(errors)) {
+		if (ErrorList::IsTerminator(errors)) {
 			array = new Array(m_type->GetElementTypeSpecifier(),
 					*execution_context->GetTypeTable());
 		}
@@ -90,7 +90,7 @@ const ErrorList ArrayDeclarationStatement::preprocess(
 			InsertResult insert_result = symbol_table->InsertSymbol(*name,
 					symbol);
 			if (insert_result == SYMBOL_EXISTS) {
-				errors = ErrorListBase::From(
+				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUSLY_DECLARED_VARIABLE,
 								m_name_position.begin.line,
@@ -105,20 +105,20 @@ const ErrorList ArrayDeclarationStatement::preprocess(
 ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 }
 
-const ErrorList ArrayDeclarationStatement::execute(
+const ErrorListRef ArrayDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 	if (m_initializer_expression) {
 		const_shared_ptr<Result> initializer_result =
 				m_initializer_expression->Evaluate(execution_context);
 		errors = initializer_result->GetErrors();
 
-		if (ErrorListBase::IsTerminator(errors)) {
+		if (ErrorList::IsTerminator(errors)) {
 			auto array = static_pointer_cast<const Array>(
 					initializer_result->GetData());
 			auto symbol_context = execution_context->GetSymbolContext();
 			SetResult result = symbol_context->SetSymbol(*m_name, array);
-			errors = ToErrorList(result,
+			errors = ToErrorListRef(result,
 					m_initializer_expression->GetPosition(), m_name,
 					symbol_context->GetSymbol(m_name, SHALLOW)->GetType(),
 					array->GetTypeSpecifier());

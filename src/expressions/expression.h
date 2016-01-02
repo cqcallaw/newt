@@ -52,14 +52,14 @@ public:
 
 	virtual const bool IsConstant() const = 0;
 
-	virtual const ErrorList Validate(
+	virtual const ErrorListRef Validate(
 			const_shared_ptr<ExecutionContext> execution_context) const = 0;
 
 private:
 	const yy::location m_position;
 };
 
-typedef const LinkedList<const Expression, NO_DUPLICATES> ArgumentListBase;
-typedef shared_ptr<ArgumentListBase> ArgumentList;
+typedef const LinkedList<const Expression, NO_DUPLICATES> ArgumentList;
+typedef shared_ptr<ArgumentList> ArgumentListRef;
 
 #endif /* EXPRESSION_H_ */

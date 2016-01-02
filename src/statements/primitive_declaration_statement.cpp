@@ -27,9 +27,9 @@ PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
 }
 
-const ErrorList PrimitiveDeclarationStatement::preprocess(
+const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 	auto symbol = Symbol::GetDefaultSymbol();
 	const_shared_ptr<Expression> expression = m_initializer_expression;
 
@@ -51,7 +51,7 @@ const ErrorList PrimitiveDeclarationStatement::preprocess(
 				errors = as_variable->Validate(execution_context);
 			}
 
-			if (ErrorListBase::IsTerminator(errors)) {
+			if (ErrorList::IsTerminator(errors)) {
 				const_shared_ptr<TypeSpecifier> expression_type_specifier =
 						expression->GetType(execution_context);
 
@@ -63,7 +63,7 @@ const ErrorList PrimitiveDeclarationStatement::preprocess(
 						|| !expression_as_primitive->IsAssignableTo(
 								as_primitive)) {
 					errors =
-							ErrorListBase::From(
+							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::INVALID_INITIALIZER_TYPE,
 											m_initializer_expression->GetPosition().begin.line,
@@ -113,7 +113,7 @@ const ErrorList PrimitiveDeclarationStatement::preprocess(
 		InsertResult insert_result = symbol_table->InsertSymbol(*m_name,
 				symbol);
 		if (insert_result == SYMBOL_EXISTS) {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::PREVIOUSLY_DECLARED_VARIABLE,
 							m_name_position.begin.line,
@@ -124,7 +124,7 @@ const ErrorList PrimitiveDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorList PrimitiveDeclarationStatement::execute(
+const ErrorListRef PrimitiveDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	if (m_initializer_expression != nullptr) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_position);
@@ -134,7 +134,7 @@ const ErrorList PrimitiveDeclarationStatement::execute(
 
 		return errors;
 	} else {
-		return ErrorListBase::GetTerminator();
+		return ErrorList::GetTerminator();
 	}
 }
 

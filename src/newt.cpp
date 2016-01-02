@@ -88,19 +88,19 @@ int main(int argc, char *argv[]) {
 		auto main_statement_block = driver.GetStatementBlock();
 		shared_ptr<ExecutionContext> root_context =
 				make_shared<ExecutionContext>();
-		ErrorList semantic_errors = main_statement_block->preprocess(
+		ErrorListRef semantic_errors = main_statement_block->preprocess(
 				root_context);
 
-		if (ErrorListBase::IsTerminator(semantic_errors)) {
+		if (ErrorList::IsTerminator(semantic_errors)) {
 			if (debug) {
 				cout << "Parsed file " << filename << "." << endl;
 			}
 
-			ErrorList execution_errors = main_statement_block->execute(
+			ErrorListRef execution_errors = main_statement_block->execute(
 					root_context);
 
 			bool has_execution_errors = false;
-			while (!ErrorListBase::IsTerminator(execution_errors)) {
+			while (!ErrorList::IsTerminator(execution_errors)) {
 				has_execution_errors = true;
 				cerr << execution_errors->GetData()->ToString() << endl;
 				execution_errors = execution_errors->GetNext();
@@ -125,11 +125,11 @@ int main(int argc, char *argv[]) {
 					has_execution_errors ? EXIT_FAILURE : exit_code);
 		} else {
 			//reverse linked list of errors, which comes to us in reverse order
-			semantic_errors = ErrorListBase::Reverse(semantic_errors);
+			semantic_errors = ErrorList::Reverse(semantic_errors);
 
 			int semantic_error_count = 0;
-			ErrorList error = semantic_errors;
-			while (!ErrorListBase::IsTerminator(error)) {
+			ErrorListRef error = semantic_errors;
+			while (!ErrorList::IsTerminator(error)) {
 				semantic_error_count++;
 				cerr << *(error->GetData()) << endl;
 				error = error->GetNext();

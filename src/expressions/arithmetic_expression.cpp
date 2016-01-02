@@ -41,7 +41,7 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const bool& left,
 const_shared_ptr<Result> ArithmeticExpression::compute(const int& left,
 		const int& right, yy::location left_position,
 		yy::location right_position) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	int* result = new int;
 	switch (GetOperator()) {
@@ -53,7 +53,7 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const int& left,
 		break;
 	case DIVIDE:
 		if (right == 0) {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
 							right_position.begin.line,
 							right_position.begin.column), errors);
@@ -67,7 +67,7 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const int& left,
 		break;
 	case MOD:
 		if (right == 0) {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::MOD_BY_ZERO,
 							right_position.begin.line,
 							right_position.begin.column), errors);
@@ -86,7 +86,7 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const int& left,
 const_shared_ptr<Result> ArithmeticExpression::compute(const double& left,
 		const double& right, yy::location left_position,
 		yy::location right_position) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	double* result = new double;
 	switch (GetOperator()) {
@@ -98,7 +98,7 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const double& left,
 		break;
 	case DIVIDE:
 		if (right == 0.0) {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
 							right_position.begin.line,
 							right_position.begin.column), errors);
@@ -127,10 +127,10 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const string& left,
 	const string buffer_string = buffer.str();
 	const string* result = new string(buffer_string);
 	return make_shared<Result>(const_shared_ptr<const void>(result),
-			ErrorListBase::GetTerminator());
+			ErrorList::GetTerminator());
 }
 
-const ErrorList ArithmeticExpression::Validate(
+const ErrorListRef ArithmeticExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	if (GetOperator() == PLUS) {
 		//Allow STRING types because PLUS doubles as a concatenation operator

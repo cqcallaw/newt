@@ -44,9 +44,9 @@ IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 IfStatement::~IfStatement() {
 }
 
-const ErrorList IfStatement::preprocess(
+const ErrorListRef IfStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_expression != nullptr) {
 		if (m_expression->GetType(execution_context)->IsAssignableTo(
@@ -54,7 +54,7 @@ const ErrorList IfStatement::preprocess(
 
 			volatile_shared_ptr<SymbolContext> symbol_context =
 					execution_context->GetSymbolContext();
-			SymbolContextList new_parent = SymbolContextListBase::From(
+			SymbolContextListRef new_parent = SymbolContextList::From(
 					symbol_context, symbol_context->GetParent());
 			volatile_shared_ptr<SymbolTable> tmp_table =
 					make_shared<SymbolTable>(
@@ -67,7 +67,7 @@ const ErrorList IfStatement::preprocess(
 
 			if (m_else_block != nullptr) {
 				//pre-process else block
-				new_parent = SymbolContextListBase::From(symbol_context,
+				new_parent = SymbolContextList::From(symbol_context,
 						symbol_context->GetParent());
 				tmp_table = make_shared<SymbolTable>(
 						m_else_block_table->GetModifiers(), new_parent,
@@ -80,7 +80,7 @@ const ErrorList IfStatement::preprocess(
 
 		} else {
 			yy::location position = m_expression->GetPosition();
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
 							position.begin.line, position.begin.column),
@@ -93,9 +93,9 @@ const ErrorList IfStatement::preprocess(
 	return errors;
 }
 
-const ErrorList IfStatement::execute(
+const ErrorListRef IfStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
 			execution_context);
@@ -105,7 +105,7 @@ const ErrorList IfStatement::execute(
 	if (test) {
 		volatile_shared_ptr<SymbolContext> symbol_context =
 				execution_context->GetSymbolContext();
-		SymbolContextList new_parent = SymbolContextListBase::From(
+		SymbolContextListRef new_parent = SymbolContextList::From(
 				symbol_context, symbol_context->GetParent());
 		volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
 				m_block_table->GetModifiers(), new_parent,
@@ -117,7 +117,7 @@ const ErrorList IfStatement::execute(
 	} else if (m_else_block != nullptr) {
 		volatile_shared_ptr<SymbolContext> symbol_context =
 				execution_context->GetSymbolContext();
-		SymbolContextList new_parent = SymbolContextListBase::From(
+		SymbolContextListRef new_parent = SymbolContextList::From(
 				symbol_context, symbol_context->GetParent());
 		volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
 				m_else_block_table->GetModifiers(), new_parent,

@@ -28,12 +28,12 @@
 
 using namespace std;
 
-SymbolTable::SymbolTable(SymbolContextList parent) :
+SymbolTable::SymbolTable(SymbolContextListRef parent) :
 		SymbolContext(Modifier::NONE, parent) {
 }
 
 SymbolTable::SymbolTable(const Modifier::Type modifiers,
-		const SymbolContextList parent_context,
+		const SymbolContextListRef parent_context,
 		const shared_ptr<symbol_map> values) :
 		SymbolContext(modifiers, parent_context, values) {
 }

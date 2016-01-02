@@ -48,7 +48,7 @@ const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 			CompoundTypeInstance(type_specifier,
 					make_shared<SymbolContext>(
 							SymbolContext(type->GetModifiers(),
-									SymbolContextListBase::GetTerminator(),
+									SymbolContextList::GetTerminator(),
 									symbol_mapping))));
 }
 

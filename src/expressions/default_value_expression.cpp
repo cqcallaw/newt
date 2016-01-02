@@ -44,7 +44,7 @@ const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetType(
 
 const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> return_value;
 
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
@@ -54,7 +54,7 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 			return_value = as_primitive->DefaultValue(
 					*execution_context->GetTypeTable());
 		} else {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::INVALID_RIGHT_OPERAND_TYPE,
 							m_type_position.begin.line,
@@ -73,7 +73,7 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 			return_value = m_type->DefaultValue(
 					*execution_context->GetTypeTable());
 		} else {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_type_position.begin.line,
 							m_type_position.begin.column, type_name), errors);
@@ -83,15 +83,15 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 	return make_shared<Result>(return_value, errors);
 }
 
-const ErrorList DefaultValueExpression::Validate(
+const ErrorListRef DefaultValueExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(m_type);
 	if (as_primitive != nullptr) {
 		if (as_primitive == PrimitiveTypeSpecifier::GetNone()) {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::INVALID_RIGHT_OPERAND_TYPE,
 							m_type_position.begin.line,
@@ -107,7 +107,7 @@ const ErrorList DefaultValueExpression::Validate(
 				execution_context->GetTypeTable()->GetType(type_name);
 
 		if (type == CompoundType::GetDefaultCompoundType()) {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_type_position.begin.line,
 							m_type_position.begin.column, type_name), errors);

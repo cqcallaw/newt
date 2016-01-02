@@ -34,9 +34,9 @@ ExitStatement::ExitStatement(const_shared_ptr<Expression> exit_expression) :
 ExitStatement::~ExitStatement() {
 }
 
-const ErrorList ExitStatement::preprocess(
+const ErrorListRef ExitStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_exit_expression != nullptr) {
 		const_shared_ptr<TypeSpecifier> expression_type_specifier =
@@ -50,7 +50,7 @@ const ErrorList ExitStatement::preprocess(
 						PrimitiveTypeSpecifier::GetInt()))) {
 			yy::location position = m_exit_expression->GetPosition();
 			errors =
-					ErrorListBase::From(
+					ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
 									position.begin.line, position.begin.column,
@@ -63,14 +63,14 @@ const ErrorList ExitStatement::preprocess(
 	return errors;
 }
 
-const ErrorList ExitStatement::execute(
+const ErrorListRef ExitStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	plain_shared_ptr<int> exit_code = make_shared<int>(0);
 	if (m_exit_expression) {
 		const_shared_ptr<Result> evaluation = m_exit_expression->Evaluate(
 				execution_context);
 
-		if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
+		if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 			return evaluation->GetErrors();
 		} else {
 			exit_code = static_pointer_cast<const int>(evaluation->GetData());
@@ -78,5 +78,5 @@ const ErrorList ExitStatement::execute(
 	}
 
 	execution_context->SetExitCode(exit_code);
-	return ErrorListBase::GetTerminator();
+	return ErrorList::GetTerminator();
 }

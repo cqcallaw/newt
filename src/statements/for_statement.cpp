@@ -42,22 +42,22 @@ ForStatement::ForStatement(const_shared_ptr<AssignmentStatement> initial,
 ForStatement::~ForStatement() {
 }
 
-const ErrorList ForStatement::preprocess(
+const ErrorListRef ForStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors;
+	ErrorListRef errors;
 
 	if (m_loop_expression != nullptr
 			&& !(m_loop_expression->GetType(execution_context)->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt()))) {
 		yy::location position = m_loop_expression->GetPosition();
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
 						position.begin.line, position.begin.column), errors);
 	} else {
 		volatile_shared_ptr<SymbolContext> symbol_context =
 				execution_context->GetSymbolContext();
-		const auto new_parent = SymbolContextListBase::From(symbol_context,
+		const auto new_parent = SymbolContextList::From(symbol_context,
 				symbol_context->GetParent());
 		volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
 				m_block_table->GetModifiers(), new_parent,
@@ -70,13 +70,13 @@ const ErrorList ForStatement::preprocess(
 	return errors;
 }
 
-const ErrorList ForStatement::execute(
+const ErrorListRef ForStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList initialization_errors;
+	ErrorListRef initialization_errors;
 
 	volatile_shared_ptr<SymbolContext> symbol_context =
 			execution_context->GetSymbolContext();
-	const auto new_parent = SymbolContextListBase::From(symbol_context,
+	const auto new_parent = SymbolContextList::From(symbol_context,
 			symbol_context->GetParent());
 	volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
 			m_block_table->GetModifiers(), new_parent,
@@ -87,42 +87,42 @@ const ErrorList ForStatement::execute(
 
 	if (m_initial != nullptr) {
 		initialization_errors = m_initial->execute(new_execution_context);
-		if (!ErrorListBase::IsTerminator(initialization_errors)) {
+		if (!ErrorList::IsTerminator(initialization_errors)) {
 			return initialization_errors;
 		}
 	}
 	plain_shared_ptr<Result> evaluation = m_loop_expression->Evaluate(
 			new_execution_context);
 
-	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
+	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 
 		return evaluation->GetErrors();
 	}
 
 	while (*(static_pointer_cast<const bool>(evaluation->GetData()))) {
-		ErrorList iteration_errors = ErrorListBase::GetTerminator();
+		ErrorListRef iteration_errors = ErrorList::GetTerminator();
 		if (m_statement_block != nullptr) {
 			iteration_errors = m_statement_block->execute(
 					new_execution_context);
 		}
-		if (!ErrorListBase::IsTerminator(iteration_errors)) {
+		if (!ErrorList::IsTerminator(iteration_errors)) {
 			return iteration_errors;
 		}
 
-		ErrorList assignment_errors;
+		ErrorListRef assignment_errors;
 		assignment_errors = m_loop_assignment->execute(new_execution_context);
-		if (!ErrorListBase::IsTerminator(assignment_errors)) {
+		if (!ErrorList::IsTerminator(assignment_errors)) {
 			return assignment_errors;
 		}
 
 		evaluation = m_loop_expression->Evaluate(new_execution_context);
 
-		if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
+		if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 			return evaluation->GetErrors();
 		}
 	}
 
-	return ErrorListBase::GetTerminator();
+	return ErrorList::GetTerminator();
 }
 
 const AnalysisResult ForStatement::Returns(

@@ -32,7 +32,7 @@
 #include <execution_context.h>
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
-		TypeSpecifierList parameter_type_list,
+		TypeSpecifierListRef parameter_type_list,
 		const_shared_ptr<TypeSpecifier> return_type) :
 		m_parameter_type_list(parameter_type_list), m_return_type(return_type) {
 }
@@ -48,13 +48,13 @@ FunctionTypeSpecifier::~FunctionTypeSpecifier() {
 const string FunctionTypeSpecifier::ToString() const {
 	ostringstream buffer;
 	buffer << "(";
-	TypeSpecifierList subject = m_parameter_type_list;
-	while (!TypeSpecifierListBase::IsTerminator(subject)) {
+	TypeSpecifierListRef subject = m_parameter_type_list;
+	while (!TypeSpecifierList::IsTerminator(subject)) {
 		const_shared_ptr<TypeSpecifier> type = subject->GetData();
 		buffer << type->ToString();
 		subject = subject->GetNext();
 
-		if (!TypeSpecifierListBase::IsTerminator(subject)) {
+		if (!TypeSpecifierList::IsTerminator(subject)) {
 			//add separator
 			buffer << ", ";
 		}
@@ -80,10 +80,10 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 		const FunctionTypeSpecifier& as_function =
 				dynamic_cast<const FunctionTypeSpecifier&>(other);
 		if (*m_return_type == *as_function.GetReturnType()) {
-			TypeSpecifierList subject = m_parameter_type_list;
-			TypeSpecifierList other_subject =
+			TypeSpecifierListRef subject = m_parameter_type_list;
+			TypeSpecifierListRef other_subject =
 					as_function.GetParameterTypeList();
-			while (!TypeSpecifierListBase::IsTerminator(subject)) {
+			while (!TypeSpecifierList::IsTerminator(subject)) {
 				const_shared_ptr<TypeSpecifier> type = subject->GetData();
 				const_shared_ptr<TypeSpecifier> other_type =
 						other_subject->GetData();
@@ -132,8 +132,8 @@ const_shared_ptr<StatementBlock> FunctionTypeSpecifier::GetDefaultStatementBlock
 			ConstantExpression::GetDefaultExpression(return_type, type_table);
 	const_shared_ptr<ReturnStatement> default_return_statement = make_shared<
 			ReturnStatement>(return_expression);
-	const StatementList default_list = StatementListBase::From(
-			default_return_statement, StatementListBase::GetTerminator());
+	const StatementListRef default_list = StatementList::From(
+			default_return_statement, StatementList::GetTerminator());
 
 	const_shared_ptr<StatementBlock> statement_block = make_shared<
 			StatementBlock>(default_list);

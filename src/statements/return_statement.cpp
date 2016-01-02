@@ -28,18 +28,18 @@ ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 ReturnStatement::~ReturnStatement() {
 }
 
-const ErrorList ReturnStatement::preprocess(
+const ErrorListRef ReturnStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	return m_expression->Validate(execution_context);
 }
 
-const ErrorList ReturnStatement::execute(
+const ErrorListRef ReturnStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors(ErrorListBase::GetTerminator());
+	ErrorListRef errors(ErrorList::GetTerminator());
 	auto result = m_expression->Evaluate(execution_context);
 
 	errors = result->GetErrors();
-	if (ErrorListBase::IsTerminator(errors)) {
+	if (ErrorList::IsTerminator(errors)) {
 		execution_context->SetReturnValue(result->GetData());
 	}
 

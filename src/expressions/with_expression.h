@@ -26,7 +26,7 @@
 class WithExpression: public Expression {
 public:
 	WithExpression(const yy::location position, const_shared_ptr<Expression> source_expression,
-			MemberInstantiationList member_instantiation_list,
+			MemberInstantiationListRef member_instantiation_list,
 			const yy::location member_instantiation_list_position);
 	virtual ~WithExpression();
 
@@ -38,14 +38,14 @@ public:
 
 	virtual const bool IsConstant() const;
 
-	virtual const ErrorList Validate(
+	virtual const ErrorListRef Validate(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	MemberInstantiationList GetMemberInstantiationList() const {
+	MemberInstantiationListRef GetMemberInstantiationListRef() const {
 		return m_member_instantiation_list;
 	}
 
-	const yy::location GetMemberInstantiationListPosition() const {
+	const yy::location GetMemberInstantiationListRefPosition() const {
 		return m_member_instantiation_list_position;
 	}
 
@@ -55,7 +55,7 @@ public:
 
 private:
 	const_shared_ptr<Expression> m_source_expression;
-	MemberInstantiationList m_member_instantiation_list;
+	MemberInstantiationListRef m_member_instantiation_list;
 	const yy::location m_member_instantiation_list_position;
 };
 

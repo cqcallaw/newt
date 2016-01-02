@@ -48,23 +48,23 @@ const_shared_ptr<TypeSpecifier> UnaryExpression::GetType(
 			m_operator);
 }
 
-const ErrorList UnaryExpression::Validate(
+const ErrorListRef UnaryExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList result = ErrorListBase::GetTerminator();
+	ErrorListRef result = ErrorList::GetTerminator();
 
 	const OperatorType op = m_operator;
 	const_shared_ptr<Expression> expression = m_expression;
 
-	ErrorList expression_errors = expression->Validate(execution_context);
-	if (!ErrorListBase::IsTerminator(expression_errors)) {
-		result = ErrorListBase::Concatenate(result, expression_errors);
+	ErrorListRef expression_errors = expression->Validate(execution_context);
+	if (!ErrorList::IsTerminator(expression_errors)) {
+		result = ErrorList::Concatenate(result, expression_errors);
 		return result;
 	}
 
 	const_shared_ptr<TypeSpecifier> expression_type = expression->GetType(
 			execution_context);
 	if (!(expression_type->IsAssignableTo(PrimitiveTypeSpecifier::GetDouble()))) {
-		result = ErrorListBase::From(
+		result = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_RIGHT_OPERAND_TYPE,
 						expression->GetPosition().begin.line,
@@ -77,16 +77,16 @@ const ErrorList UnaryExpression::Validate(
 
 const_shared_ptr<Result> UnaryExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 	void* result = nullptr;
 
 	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
 			execution_context);
 	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
 			execution_context);
-	ErrorList evaluation_errors = evaluation->GetErrors();
+	ErrorListRef evaluation_errors = evaluation->GetErrors();
 
-	if (!ErrorListBase::IsTerminator(evaluation_errors)) {
+	if (!ErrorList::IsTerminator(evaluation_errors)) {
 		errors = evaluation_errors;
 	} else {
 		auto data = evaluation->GetData();

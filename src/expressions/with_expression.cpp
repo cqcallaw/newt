@@ -26,7 +26,7 @@
 
 WithExpression::WithExpression(const yy::location position,
 		const_shared_ptr<Expression> source_expression,
-		MemberInstantiationList member_instantiation_list,
+		MemberInstantiationListRef member_instantiation_list,
 		const yy::location member_instantiation_list_position) :
 		Expression(position), m_source_expression(source_expression), m_member_instantiation_list(
 				member_instantiation_list), m_member_instantiation_list_position(
@@ -43,12 +43,12 @@ const_shared_ptr<TypeSpecifier> WithExpression::GetType(
 
 const_shared_ptr<Result> WithExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors(ErrorListBase::GetTerminator());
+	ErrorListRef errors(ErrorList::GetTerminator());
 	const_shared_ptr<Result> source_result = m_source_expression->Evaluate(
 			execution_context);
 
 	errors = source_result->GetErrors();
-	if (errors == ErrorListBase::GetTerminator()) {
+	if (errors == ErrorList::GetTerminator()) {
 		plain_shared_ptr<void> new_value;
 		const_shared_ptr<TypeSpecifier> type_specifier =
 				m_source_expression->GetType(execution_context);
@@ -72,8 +72,8 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 						existing_context->GetTable()->begin(),
 						existing_context->GetTable()->end());
 
-				MemberInstantiationList subject = m_member_instantiation_list;
-				while (!MemberInstantiationListBase::IsTerminator(subject)) {
+				MemberInstantiationListRef subject = m_member_instantiation_list;
+				while (!MemberInstantiationList::IsTerminator(subject)) {
 					const_shared_ptr<MemberInstantiation> instantiation =
 							subject->GetData();
 					auto member_name = instantiation->GetName();
@@ -95,7 +95,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 											execution_context);
 
 							if (evaluation_result->GetErrors()
-									== ErrorListBase::GetTerminator()) {
+									== ErrorList::GetTerminator()) {
 								auto void_value = evaluation_result->GetData();
 
 								/*SetResult result = NO_SET_RESULT;*/
@@ -144,13 +144,13 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 									assert(false);
 								}
 							} else {
-								errors = ErrorListBase::Concatenate(errors,
+								errors = ErrorList::Concatenate(errors,
 										evaluation_result->GetErrors());
 							}
 						} else {
 							//undefined member
 							errors =
-									ErrorListBase::From(
+									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
 													instantiation->GetExpressionPosition().begin.line,
@@ -162,7 +162,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 					} else {
 						//undefined member
 						errors =
-								ErrorListBase::From(
+								ErrorList::From(
 										std::make_shared<Error>(Error::SEMANTIC,
 												Error::UNDECLARED_MEMBER,
 												instantiation->GetNamePosition().begin.line,
@@ -185,7 +185,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 				new_value = std::make_shared<CompoundTypeInstance>(
 						as_compound->GetTypeSpecifier(), new_symbol_context);
 			} else {
-				errors = ErrorListBase::From(
+				errors = ErrorList::From(
 						std::make_shared<Error>(Error::SEMANTIC,
 								Error::UNDECLARED_TYPE,
 								m_source_expression->GetPosition().begin.line,
@@ -193,7 +193,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 								type_name), errors);
 			}
 		} else {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					std::make_shared<Error>(Error::SEMANTIC,
 							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
 							m_source_expression->GetPosition().begin.line,
@@ -209,8 +209,8 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 
 const bool WithExpression::IsConstant() const {
 	if (m_source_expression->IsConstant()) {
-		MemberInstantiationList subject = m_member_instantiation_list;
-		while (!MemberInstantiationListBase::IsTerminator(subject)) {
+		MemberInstantiationListRef subject = m_member_instantiation_list;
+		while (!MemberInstantiationList::IsTerminator(subject)) {
 			auto data = subject->GetData();
 			if (!data->GetExpression()->IsConstant())
 				return false;
@@ -223,11 +223,11 @@ const bool WithExpression::IsConstant() const {
 	}
 }
 
-const ErrorList WithExpression::Validate(
+const ErrorListRef WithExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = m_source_expression->Validate(execution_context);
+	ErrorListRef errors = m_source_expression->Validate(execution_context);
 
-	if (errors == ErrorListBase::GetTerminator()) {
+	if (errors == ErrorList::GetTerminator()) {
 		const_shared_ptr<TypeSpecifier> type_specifier =
 				m_source_expression->GetType(execution_context);
 
@@ -240,9 +240,9 @@ const ErrorList WithExpression::Validate(
 					execution_context->GetTypeTable()->GetType(type_name);
 
 			if (type != CompoundType::GetDefaultCompoundType()) {
-				MemberInstantiationList instantiation_list =
+				MemberInstantiationListRef instantiation_list =
 						m_member_instantiation_list;
-				while (!MemberInstantiationListBase::IsTerminator(
+				while (!MemberInstantiationList::IsTerminator(
 						instantiation_list)) {
 					const_shared_ptr<MemberInstantiation> instantiation =
 							instantiation_list->GetData();
@@ -260,7 +260,7 @@ const ErrorList WithExpression::Validate(
 						if (!expression_type->IsAssignableTo(member_type)) {
 							//undefined member
 							errors =
-									ErrorListBase::From(
+									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
 													instantiation->GetExpressionPosition().begin.line,
@@ -272,7 +272,7 @@ const ErrorList WithExpression::Validate(
 					} else {
 						//undefined member
 						errors =
-								ErrorListBase::From(
+								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::UNDECLARED_MEMBER,
 												instantiation->GetNamePosition().begin.line,
@@ -286,7 +286,7 @@ const ErrorList WithExpression::Validate(
 					instantiation_list = instantiation_list->GetNext();
 				}
 			} else {
-				errors = ErrorListBase::From(
+				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::UNDECLARED_TYPE,
 								m_source_expression->GetPosition().begin.line,
@@ -294,7 +294,7 @@ const ErrorList WithExpression::Validate(
 								type_name), errors);
 			}
 		} else {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
 							m_source_expression->GetPosition().begin.line,

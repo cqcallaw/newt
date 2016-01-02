@@ -29,7 +29,7 @@ class Function;
 
 class FunctionTypeSpecifier: public TypeSpecifier {
 public:
-	FunctionTypeSpecifier(TypeSpecifierList parameter_type_list,
+	FunctionTypeSpecifier(TypeSpecifierListRef parameter_type_list,
 			const_shared_ptr<TypeSpecifier> return_type);
 	FunctionTypeSpecifier(const FunctionTypeSpecifier& other);
 	virtual ~FunctionTypeSpecifier();
@@ -52,7 +52,7 @@ public:
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const;
 
-	TypeSpecifierList GetParameterTypeList() const {
+	TypeSpecifierListRef GetParameterTypeList() const {
 		return m_parameter_type_list;
 	}
 
@@ -69,7 +69,7 @@ protected:
 			const TypeTable& type_table);
 
 private:
-	TypeSpecifierList m_parameter_type_list;
+	TypeSpecifierListRef m_parameter_type_list;
 	const_shared_ptr<TypeSpecifier> m_return_type;
 };
 

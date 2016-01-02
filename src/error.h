@@ -105,7 +105,7 @@ private:
 
 std::ostream &operator<<(std::ostream &os, const Error &error);
 
-typedef const LinkedList<Error, NO_DUPLICATES> ErrorListBase;
-typedef shared_ptr<ErrorListBase> ErrorList;
+typedef const LinkedList<Error, NO_DUPLICATES> ErrorList;
+typedef shared_ptr<ErrorList> ErrorListRef;
 
 #endif // #ifndef ERROR_H

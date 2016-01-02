@@ -32,7 +32,7 @@ const_shared_ptr<TypeSpecifier> LogicExpression::GetType(
 	return PrimitiveTypeSpecifier::GetBoolean();
 }
 
-const ErrorList LogicExpression::Validate(
+const ErrorListRef LogicExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	return BinaryExpression::Validate(execution_context,
 			PrimitiveTypeSpecifier::GetDouble(),
@@ -46,11 +46,11 @@ const_shared_ptr<Result> LogicExpression::compute(const bool& left,
 	case OR:
 		return make_shared<Result>(
 				const_shared_ptr<void>(new bool(left || right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case AND:
 		return make_shared<Result>(
 				const_shared_ptr<void>(new bool(left && right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	default:
 		assert(false);
 		return NULL;
@@ -64,12 +64,12 @@ const_shared_ptr<Result> LogicExpression::compute(const int& left,
 	case OR: {
 		bool result = left || right;
 		return make_shared<Result>(const_shared_ptr<void>(new bool(result)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	}
 	case AND: {
 		bool result = left && right;
 		return make_shared<Result>(const_shared_ptr<void>(new bool(result)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	}
 	default:
 		assert(false);
@@ -84,11 +84,11 @@ const_shared_ptr<Result> LogicExpression::compute(const double& left,
 	case OR:
 		return make_shared<Result>(
 				const_shared_ptr<void>(new bool(left || right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case AND:
 		return make_shared<Result>(
 				const_shared_ptr<void>(new bool(left && right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	default:
 		assert(false);
 		return NULL;

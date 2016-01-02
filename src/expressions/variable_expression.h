@@ -37,7 +37,7 @@ public:
 		return false;
 	}
 
-	virtual const ErrorList Validate(const_shared_ptr<ExecutionContext> execution_context) const;
+	virtual const ErrorListRef Validate(const_shared_ptr<ExecutionContext> execution_context) const;
 
 	const_shared_ptr<Variable> GetVariable() const {
 		return m_variable;

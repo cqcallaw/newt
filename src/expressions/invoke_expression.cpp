@@ -26,7 +26,7 @@
 #include <defaults.h>
 
 InvokeExpression::InvokeExpression(const yy::location position,
-		const_shared_ptr<Expression> expression, ArgumentList argument_list,
+		const_shared_ptr<Expression> expression, ArgumentListRef argument_list,
 		const yy::location argument_list_position) :
 		Expression(position), m_expression(expression), m_argument_list(
 				argument_list), m_argument_list_position(argument_list_position) {
@@ -52,7 +52,7 @@ const_shared_ptr<TypeSpecifier> InvokeExpression::GetType(
 
 const_shared_ptr<Result> InvokeExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> value;
 
 	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
@@ -66,7 +66,7 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 				execution_context);
 
 		errors = expression_result->GetErrors();
-		if (ErrorListBase::IsTerminator(errors)) {
+		if (ErrorList::IsTerminator(errors)) {
 			auto function = static_pointer_cast<const Function>(
 					expression_result->GetData());
 
@@ -74,12 +74,12 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 					m_argument_list, execution_context);
 
 			errors = eval_result->GetErrors();
-			if (ErrorListBase::IsTerminator(errors)) {
+			if (ErrorList::IsTerminator(errors)) {
 				value = eval_result->GetData();
 			}
 		}
 	} else {
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::NOT_A_FUNCTION,
 						m_expression->GetPosition().begin.line,
 						m_expression->GetPosition().begin.column), errors);
@@ -99,20 +99,20 @@ const_shared_ptr<Result> InvokeExpression::ToString(
 				<< *(static_pointer_cast<const string>(
 						expression_result->GetData()));
 		buf << "(";
-		ErrorList errors =
+		ErrorListRef errors =
 
-		ErrorListBase::GetTerminator();
-		ArgumentList argument = m_argument_list;
-		while (!ArgumentListBase::IsTerminator(argument)) {
+		ErrorList::GetTerminator();
+		ArgumentListRef argument = m_argument_list;
+		while (!ArgumentList::IsTerminator(argument)) {
 			const_shared_ptr<Result> argument_result =
 					argument->GetData()->ToString(execution_context);
-			errors = ErrorListBase::Concatenate(errors,
+			errors = ErrorList::Concatenate(errors,
 					argument_result->GetErrors());
-			if (ErrorListBase::IsTerminator(errors)) {
+			if (ErrorList::IsTerminator(errors)) {
 				buf
 						<< *(static_pointer_cast<const string>(
 								argument_result->GetData()));
-				if (!ArgumentListBase::IsTerminator(argument->GetNext())) {
+				if (!ArgumentList::IsTerminator(argument->GetNext())) {
 					buf << ",";
 				}
 			}
@@ -125,16 +125,16 @@ const_shared_ptr<Result> InvokeExpression::ToString(
 	}
 }
 
-const ErrorList InvokeExpression::Validate(
+const ErrorListRef InvokeExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors(ErrorListBase::GetTerminator());
+	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
 			execution_context);
 
 	errors = m_expression->Validate(execution_context);
 
-	if (ErrorListBase::IsTerminator(errors)) {
+	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<FunctionTypeSpecifier> as_function =
 				std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 						type_specifier);
@@ -142,7 +142,7 @@ const ErrorList InvokeExpression::Validate(
 		if (as_function) {
 			//generate a temporary context for validation
 			auto parent = execution_context->GetSymbolContext()->GetParent();
-			auto new_parent = SymbolContextListBase::From(
+			auto new_parent = SymbolContextList::From(
 					execution_context->GetSymbolContext(), parent);
 			auto tmp_map = make_shared<symbol_map>();
 			volatile_shared_ptr<SymbolTable> tmp_table = std::make_shared<
@@ -150,20 +150,20 @@ const ErrorList InvokeExpression::Validate(
 			const_shared_ptr<ExecutionContext> tmp_context =
 					execution_context->WithSymbolContext(tmp_table);
 
-			ArgumentList argument = m_argument_list;
+			ArgumentListRef argument = m_argument_list;
 
 			const_shared_ptr<FunctionDeclaration> as_function_declaration =
 					std::dynamic_pointer_cast<const FunctionDeclaration>(
 							type_specifier);
 
 			if (as_function_declaration) {
-				DeclarationList parameter =
+				DeclarationListRef parameter =
 						as_function_declaration->GetParameterList();
 
-				while (!ArgumentListBase::IsTerminator(argument)) {
+				while (!ArgumentList::IsTerminator(argument)) {
 					const_shared_ptr<Expression> argument_expression =
 							argument->GetData();
-					if (!DeclarationListBase::IsTerminator(parameter)) {
+					if (!DeclarationList::IsTerminator(parameter)) {
 						const_shared_ptr<DeclarationStatement> declaration =
 								parameter->GetData();
 
@@ -173,7 +173,7 @@ const ErrorList InvokeExpression::Validate(
 								argument_expression->GetType(execution_context);
 						if (!argument_type->IsAssignableTo(parameter_type)) {
 							errors =
-									ErrorListBase::From(
+									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::FUNCTION_PARAMETER_TYPE_MISMATCH,
 													argument_expression->GetPosition().begin.line,
@@ -188,7 +188,7 @@ const ErrorList InvokeExpression::Validate(
 					} else {
 						//argument list is longer than parameter list
 						errors =
-								ErrorListBase::From(
+								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::TOO_MANY_ARGUMENTS,
 												argument_expression->GetPosition().begin.line,
@@ -200,15 +200,15 @@ const ErrorList InvokeExpression::Validate(
 				}
 
 				//handle any remaining parameter declarations. if any parameter declarations don't have default values, generate an error
-				while (!DeclarationListBase::IsTerminator(parameter)) {
+				while (!DeclarationList::IsTerminator(parameter)) {
 					const_shared_ptr<DeclarationStatement> declaration =
 							parameter->GetData();
 
 					if (declaration->GetInitializerExpression() != nullptr) {
-						errors = ErrorListBase::Concatenate(
+						errors = ErrorList::Concatenate(
 								declaration->preprocess(tmp_context), errors);
 					} else {
-						errors = ErrorListBase::From(
+						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::NO_PARAMETER_DEFAULT,
 										m_argument_list_position.end.line,
@@ -219,13 +219,13 @@ const ErrorList InvokeExpression::Validate(
 					parameter = parameter->GetNext();
 				}
 			} else {
-				TypeSpecifierList type_parameter_list =
+				TypeSpecifierListRef type_parameter_list =
 						as_function->GetParameterTypeList();
 
-				while (!ArgumentListBase::IsTerminator(argument)) {
+				while (!ArgumentList::IsTerminator(argument)) {
 					const_shared_ptr<Expression> argument_expression =
 							argument->GetData();
-					if (!TypeSpecifierListBase::IsTerminator(
+					if (!TypeSpecifierList::IsTerminator(
 							type_parameter_list)) {
 						const_shared_ptr<TypeSpecifier> parameter_type =
 								type_parameter_list->GetData();
@@ -234,7 +234,7 @@ const ErrorList InvokeExpression::Validate(
 
 						if (!argument_type->IsAssignableTo(parameter_type)) {
 							errors =
-									ErrorListBase::From(
+									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::FUNCTION_PARAMETER_TYPE_MISMATCH,
 													argument_expression->GetPosition().begin.line,
@@ -249,7 +249,7 @@ const ErrorList InvokeExpression::Validate(
 					} else {
 						//argument list is longer than parameter list
 						errors =
-								ErrorListBase::From(
+								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::TOO_MANY_ARGUMENTS,
 												argument_expression->GetPosition().begin.line,
@@ -261,7 +261,7 @@ const ErrorList InvokeExpression::Validate(
 				}
 			}
 		} else {
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::NOT_A_FUNCTION,
 							m_expression->GetPosition().begin.line,
 							m_expression->GetPosition().begin.column), errors);

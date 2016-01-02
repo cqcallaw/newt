@@ -48,9 +48,9 @@ const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetType() const {
 	return PrimitiveTypeSpecifier::GetNone();
 }
 
-const ErrorList InferredDeclarationStatement::preprocess(
+const ErrorListRef InferredDeclarationStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors(ErrorListBase::GetTerminator());
+	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> expression_type =
 			m_initializer_expression->GetType(execution_context);
@@ -63,9 +63,9 @@ const ErrorList InferredDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorList InferredDeclarationStatement::execute(
+const ErrorListRef InferredDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors(ErrorListBase::GetTerminator());
+	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> expression_type =
 			m_initializer_expression->GetType(execution_context);

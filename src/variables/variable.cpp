@@ -34,9 +34,9 @@ Variable::Variable(const_shared_ptr<string> name, yy::location location) :
 Variable::~Variable() {
 }
 
-const ErrorList Variable::ToErrorList(SetResult result,
+const ErrorListRef Variable::ToErrorListRef(SetResult result,
 		const_shared_ptr<TypeSpecifier> symbol_type,
 		const_shared_ptr<TypeSpecifier> expression_type) const {
-	return ::ToErrorList(result, GetLocation(), GetName(), symbol_type,
+	return ::ToErrorListRef(result, GetLocation(), GetName(), symbol_type,
 			expression_type);
 }

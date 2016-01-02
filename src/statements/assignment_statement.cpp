@@ -40,9 +40,9 @@ AssignmentStatement::AssignmentStatement(const_shared_ptr<Variable> variable,
 AssignmentStatement::~AssignmentStatement() {
 }
 
-const ErrorList AssignmentStatement::preprocess(
+const ErrorListRef AssignmentStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	shared_ptr<SymbolTable> symbol_table = static_pointer_cast<SymbolTable>(
 			execution_context->GetSymbolContext());
@@ -64,11 +64,11 @@ const ErrorList AssignmentStatement::preprocess(
 					m_expression->GetType(execution_context);
 			if (as_primitive != nullptr) {
 				if (expression_type->IsAssignableTo(symbol_type)) {
-					errors = ErrorListBase::GetTerminator();
+					errors = ErrorList::GetTerminator();
 				} else {
 					const yy::location variable_location =
 							m_variable->GetLocation();
-					errors = ErrorListBase::From(
+					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
 									variable_location.begin.line,
@@ -85,7 +85,7 @@ const ErrorList AssignmentStatement::preprocess(
 				if (!expression_type->IsAssignableTo(symbol_type)) {
 					yy::location expression_position =
 							m_expression->GetPosition();
-					errors = ErrorListBase::From(
+					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
 									expression_position.begin.line,
@@ -104,7 +104,7 @@ const ErrorList AssignmentStatement::preprocess(
 					yy::location expression_position =
 							m_expression->GetPosition();
 					const string struct_type_name = as_compound->GetTypeName();
-					errors = ErrorListBase::From(
+					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
 									expression_position.begin.line,
@@ -126,7 +126,7 @@ const ErrorList AssignmentStatement::preprocess(
 					array_variable->GetInnerMostElementType(execution_context);
 			if (!expression_type->IsAssignableTo(innermost_element_type)) {
 				yy::location expression_position = m_expression->GetPosition();
-				errors = ErrorListBase::From(
+				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::ASSIGNMENT_TYPE_ERROR,
 								expression_position.begin.line,
@@ -161,7 +161,7 @@ const ErrorList AssignmentStatement::preprocess(
 						if (!expression_type->IsAssignableTo(
 								member_variable_type)) {
 							errors =
-									ErrorListBase::From(
+									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
 													member_variable->GetContainer()->GetLocation().begin.line,
@@ -172,7 +172,7 @@ const ErrorList AssignmentStatement::preprocess(
 						}
 					} else {
 						errors =
-								ErrorListBase::From(
+								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::UNDECLARED_MEMBER,
 												member_variable->GetMemberVariable()->GetLocation().begin.line,
@@ -184,7 +184,7 @@ const ErrorList AssignmentStatement::preprocess(
 					}
 				} else {
 					errors =
-							ErrorListBase::From(
+							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::READONLY,
 											member_variable->GetContainer()->GetLocation().begin.line,
@@ -193,7 +193,7 @@ const ErrorList AssignmentStatement::preprocess(
 				}
 			} else {
 				errors =
-						ErrorListBase::From(
+						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::VARIABLE_NOT_A_COMPOUND_TYPE,
 										member_variable->GetContainer()->GetLocation().begin.line,
@@ -202,7 +202,7 @@ const ErrorList AssignmentStatement::preprocess(
 			}
 		}
 	} else {
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						variable_line, variable_column, *variable_name),
 				errors);
@@ -211,18 +211,18 @@ const ErrorList AssignmentStatement::preprocess(
 	return errors;
 }
 
-const ErrorList AssignmentStatement::do_op(
+const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const bool old_value,
 		const bool expression_value, const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context, bool &out) {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 	switch (op) {
 	case ASSIGN:
 		out = expression_value;
 		break;
 	default:
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
 						variable_column, *variable_name,
@@ -233,12 +233,12 @@ const ErrorList AssignmentStatement::do_op(
 	return errors;
 }
 
-const ErrorList AssignmentStatement::do_op(
+const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const int old_value,
 		const int expression_value, const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context, int& out) {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	switch (op) {
 	case PLUS_ASSIGN:
@@ -251,7 +251,7 @@ const ErrorList AssignmentStatement::do_op(
 		out = expression_value;
 		break;
 	default:
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
 						variable_column, *variable_name,
@@ -262,12 +262,12 @@ const ErrorList AssignmentStatement::do_op(
 	return errors;
 }
 
-const ErrorList AssignmentStatement::do_op(
+const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const double old_value,
 		const double expression_value, const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context, double &out) {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	switch (op) {
 	case PLUS_ASSIGN:
@@ -280,7 +280,7 @@ const ErrorList AssignmentStatement::do_op(
 		out = expression_value;
 		break;
 	default:
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
 						variable_column, *variable_name,
@@ -291,7 +291,7 @@ const ErrorList AssignmentStatement::do_op(
 	return errors;
 }
 
-const ErrorList AssignmentStatement::do_op(
+const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column,
 		const_shared_ptr<string> old_value, const bool expression_value,
@@ -301,7 +301,7 @@ const ErrorList AssignmentStatement::do_op(
 			old_value, AsString(expression_value), op, execution_context, out);
 }
 
-const ErrorList AssignmentStatement::do_op(
+const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column,
 		const_shared_ptr<string> old_value, const int expression_value,
@@ -311,7 +311,7 @@ const ErrorList AssignmentStatement::do_op(
 			old_value, AsString(expression_value), op, execution_context, out);
 }
 
-const ErrorList AssignmentStatement::do_op(
+const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column,
 		const_shared_ptr<string> old_value, const double expression_value,
@@ -321,13 +321,13 @@ const ErrorList AssignmentStatement::do_op(
 			old_value, AsString(expression_value), op, execution_context, out);
 }
 
-const ErrorList AssignmentStatement::do_op(
+const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column,
 		const_shared_ptr<string> old_value,
 		const_shared_ptr<string> expression_value, const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	ostringstream buffer;
 	switch (op) {
@@ -342,7 +342,7 @@ const ErrorList AssignmentStatement::do_op(
 		break;
 	case MINUS_ASSIGN:
 	default:
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
 						variable_column, *(variable_name),
@@ -356,12 +356,12 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		int variable_line, int variable_column, const int value,
 		const_shared_ptr<Expression> expression, const AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context) {
-	ErrorList errors;
+	ErrorListRef errors;
 
 	int new_value = 0;
 	const_shared_ptr<Result> evaluation = expression->Evaluate(
 			execution_context);
-	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
+	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
 
@@ -391,14 +391,14 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			break;
 		}
 		default:
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 							variable_column, type_to_string(INT),
 							expression_type_specifier->ToString()), errors);
 		}
 	} else {
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 						variable_column, type_to_string(INT),
@@ -414,12 +414,12 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		int variable_line, int variable_column, const double value,
 		const_shared_ptr<Expression> expression, AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context) {
-	ErrorList errors;
+	ErrorListRef errors;
 
 	double new_value = 0;
 	const_shared_ptr<Result> evaluation = expression->Evaluate(
 			execution_context);
-	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
+	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
 
@@ -455,14 +455,14 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			break;
 		}
 		default:
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 							variable_column, type_to_string(DOUBLE),
 							expression_type_specifier->ToString()), errors);
 		}
 	} else {
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 						variable_column, type_to_string(DOUBLE),
@@ -478,12 +478,12 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		int variable_line, int variable_column, const_shared_ptr<string> value,
 		const_shared_ptr<Expression> expression, AssignmentType op,
 		const_shared_ptr<ExecutionContext> execution_context) {
-	ErrorList errors;
+	ErrorListRef errors;
 
 	string* new_value = nullptr;
 	const_shared_ptr<Result> evaluation = expression->Evaluate(
 			execution_context);
-	if (!ErrorListBase::IsTerminator(evaluation->GetErrors())) {
+	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
 
@@ -526,14 +526,14 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			break;
 		}
 		default:
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 							variable_column, type_to_string(STRING),
 							expression_type_specifier->ToString()), errors);
 		}
 	} else {
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 						variable_column, type_to_string(STRING),
@@ -544,9 +544,9 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 	return make_shared<Result>(wrapper, errors);
 }
 
-const ErrorList AssignmentStatement::execute(
+const ErrorListRef AssignmentStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_variable == nullptr || m_expression == nullptr) {
 		assert(false);
@@ -562,7 +562,7 @@ const ErrorList AssignmentStatement::execute(
 	auto symbol = symbol_table->GetSymbol(variable_name, DEEP);
 
 	if (symbol == NULL || symbol == Symbol::GetDefaultSymbol()) {
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						variable_line, variable_column, *(variable_name)),
 				errors);

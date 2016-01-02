@@ -56,7 +56,7 @@ private:
 	const yy::location m_expression_position;
 };
 
-typedef const LinkedList<const MemberInstantiation, NO_DUPLICATES> MemberInstantiationListBase;
-typedef shared_ptr<MemberInstantiationListBase> MemberInstantiationList;
+typedef const LinkedList<const MemberInstantiation, NO_DUPLICATES> MemberInstantiationList;
+typedef shared_ptr<MemberInstantiationList> MemberInstantiationListRef;
 
 #endif /* MEMBER_INSTANTIATION_H_ */

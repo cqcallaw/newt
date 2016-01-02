@@ -31,7 +31,7 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const ErrorList Validate(
+	virtual const ErrorListRef Validate(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 protected:

@@ -42,7 +42,7 @@ const_shared_ptr<TypeSpecifier> FunctionExpression::GetType(
 
 const_shared_ptr<Result> FunctionExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 	return make_shared<Result>(
 			make_shared<Function>(m_declaration, m_body, execution_context),
 			errors);
@@ -52,13 +52,13 @@ const bool FunctionExpression::IsConstant() const {
 	return true;
 }
 
-const ErrorList FunctionExpression::Validate(
+const ErrorListRef FunctionExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	//generate a temporary context for validation
 	auto parent = execution_context->GetSymbolContext()->GetParent();
-	auto new_parent = SymbolContextListBase::From(
+	auto new_parent = SymbolContextList::From(
 			execution_context->GetSymbolContext(), parent);
 	auto tmp_map = make_shared<symbol_map>();
 	volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
@@ -66,17 +66,17 @@ const ErrorList FunctionExpression::Validate(
 	shared_ptr<ExecutionContext> tmp_context =
 			execution_context->WithSymbolContext(tmp_table);
 
-	DeclarationList declaration = m_declaration->GetParameterList();
-	while (!DeclarationListBase::IsTerminator(declaration)) {
+	DeclarationListRef declaration = m_declaration->GetParameterList();
+	while (!DeclarationList::IsTerminator(declaration)) {
 		auto declaration_statement = declaration->GetData();
-		auto preprocessing_errors = ErrorListBase::Concatenate(errors,
+		auto preprocessing_errors = ErrorList::Concatenate(errors,
 				declaration_statement->preprocess(tmp_context));
 
-		if (ErrorListBase::IsTerminator(preprocessing_errors)) {
-			errors = ErrorListBase::Concatenate(errors,
+		if (ErrorList::IsTerminator(preprocessing_errors)) {
+			errors = ErrorList::Concatenate(errors,
 					declaration_statement->execute(tmp_context));
 		} else {
-			errors = ErrorListBase::Concatenate(errors, preprocessing_errors);
+			errors = ErrorList::Concatenate(errors, preprocessing_errors);
 		}
 
 		declaration = declaration->GetNext();
@@ -87,7 +87,7 @@ const ErrorList FunctionExpression::Validate(
 	AnalysisResult returns = m_body->Returns(m_declaration->GetReturnType(),
 			tmp_context);
 	if (returns == AnalysisResult::NO) {
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::FUNCTION_RETURN_MISMATCH,
 						GetPosition().begin.line, GetPosition().begin.column),

@@ -54,7 +54,7 @@ private:
 
 };
 
-typedef const LinkedList<const DeclarationStatement, NO_DUPLICATES> DeclarationListBase;
-typedef shared_ptr<DeclarationListBase> DeclarationList;
+typedef const LinkedList<const DeclarationStatement, NO_DUPLICATES> DeclarationList;
+typedef shared_ptr<DeclarationList> DeclarationListRef;
 
 #endif /* STATEMENTS_DECLARATION_STATEMENT_H_ */

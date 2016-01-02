@@ -74,17 +74,17 @@ const_shared_ptr<TypeSpecifier> BinaryExpression::ComputeResultType(
 
 const_shared_ptr<Result> BinaryExpression::Evaluate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 	const_shared_ptr<Expression> left = GetLeft();
 	const_shared_ptr<Expression> right = GetRight();
 
 	const_shared_ptr<Result> left_result = left->Evaluate(execution_context);
-	if (!ErrorListBase::IsTerminator(left_result->GetErrors())) {
+	if (!ErrorList::IsTerminator(left_result->GetErrors())) {
 		return left_result;
 	}
 
 	const_shared_ptr<Result> right_result = right->Evaluate(execution_context);
-	if (!ErrorListBase::IsTerminator(right_result->GetErrors())) {
+	if (!ErrorList::IsTerminator(right_result->GetErrors())) {
 		return right_result;
 	}
 
@@ -228,25 +228,25 @@ const_shared_ptr<TypeSpecifier> BinaryExpression::GetType(
 	return ComputeResultType(m_left, m_right, m_operator, execution_context);
 }
 
-const ErrorList BinaryExpression::Validate(
+const ErrorListRef BinaryExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<TypeSpecifier> valid_left,
 		const_shared_ptr<TypeSpecifier> valid_right) const {
-	ErrorList result = ErrorListBase::GetTerminator();
+	ErrorListRef result = ErrorList::GetTerminator();
 
 	const OperatorType op = GetOperator();
 	const_shared_ptr<Expression> left = GetLeft();
 
-	ErrorList left_errors = left->Validate(execution_context);
-	if (!ErrorListBase::IsTerminator(left_errors)) {
-		result = ErrorListBase::Concatenate(result, left_errors);
+	ErrorListRef left_errors = left->Validate(execution_context);
+	if (!ErrorList::IsTerminator(left_errors)) {
+		result = ErrorList::Concatenate(result, left_errors);
 		return result;
 	}
 
 	const_shared_ptr<TypeSpecifier> left_type = left->GetType(
 			execution_context);
 	if (!(left_type->IsAssignableTo(valid_left))) {
-		result = ErrorListBase::From(
+		result = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_LEFT_OPERAND_TYPE,
 						left->GetPosition().begin.line,
@@ -257,16 +257,16 @@ const ErrorList BinaryExpression::Validate(
 	const_shared_ptr<TypeSpecifier> right_type = GetRight()->GetType(
 			execution_context);
 
-	ErrorList right_errors = right->Validate(execution_context);
-	if (!ErrorListBase::IsTerminator(right_errors)) {
-		result = ErrorListBase::Concatenate(result, right_errors);
+	ErrorListRef right_errors = right->Validate(execution_context);
+	if (!ErrorList::IsTerminator(right_errors)) {
+		result = ErrorList::Concatenate(result, right_errors);
 		return result;
 	}
 
-	result = ErrorListBase::Concatenate(result,
+	result = ErrorList::Concatenate(result,
 			right->Validate(execution_context));
 	if (!(right_type->IsAssignableTo(valid_right))) {
-		result = ErrorListBase::From(
+		result = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_RIGHT_OPERAND_TYPE,
 						right->GetPosition().begin.line,
