@@ -22,6 +22,7 @@
 #include <defaults.h>
 #include <assert.h>
 #include <assignment_statement.h>
+#include <declaration_statement.h>
 #include "statement_block.h"
 #include <error.h>
 #include <symbol_table.h>
@@ -32,11 +33,16 @@ ForStatement::ForStatement(const_shared_ptr<AssignmentStatement> initial,
 		const_shared_ptr<Expression> loop_expression,
 		const_shared_ptr<AssignmentStatement> loop_assignment,
 		const_shared_ptr<StatementBlock> statement_block) :
-		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
-				loop_assignment), m_statement_block(statement_block), m_block_table(
-				make_shared<SymbolTable>()) {
-	assert(loop_expression);
-	assert(loop_assignment);
+		ForStatement(static_pointer_cast<const Statement>(initial),
+				loop_expression, loop_assignment, statement_block) {
+}
+
+ForStatement::ForStatement(const_shared_ptr<DeclarationStatement> initial,
+		const_shared_ptr<Expression> loop_expression,
+		const_shared_ptr<AssignmentStatement> loop_assignment,
+		const_shared_ptr<StatementBlock> statement_block) :
+		ForStatement(static_pointer_cast<const Statement>(initial),
+				loop_expression, loop_assignment, statement_block) {
 }
 
 ForStatement::~ForStatement() {
@@ -46,6 +52,24 @@ const ErrorListRef ForStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 
+	volatile_shared_ptr<SymbolContext> symbol_context =
+			execution_context->GetSymbolContext();
+	const auto new_parent = SymbolContextList::From(symbol_context,
+			symbol_context->GetParent());
+	volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
+			m_block_table->GetModifiers(), new_parent,
+			m_block_table->GetTable());
+	const_shared_ptr<ExecutionContext> new_execution_context =
+			execution_context->WithSymbolContext(tmp_table);
+
+	if (m_initial) {
+		errors = m_initial->preprocess(new_execution_context);
+		if (!ErrorList::IsTerminator(errors)) {
+			return errors;
+		}
+	}
+
+	//can't nest this loop because m_initial might be empty
 	if (m_loop_expression
 			&& !(m_loop_expression->GetType(execution_context)->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt()))) {
@@ -55,15 +79,6 @@ const ErrorListRef ForStatement::preprocess(
 						Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
 						position.begin.line, position.begin.column), errors);
 	} else {
-		volatile_shared_ptr<SymbolContext> symbol_context =
-				execution_context->GetSymbolContext();
-		const auto new_parent = SymbolContextList::From(symbol_context,
-				symbol_context->GetParent());
-		volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
-				m_block_table->GetModifiers(), new_parent,
-				m_block_table->GetTable());
-		const_shared_ptr<ExecutionContext> new_execution_context =
-				execution_context->WithSymbolContext(tmp_table);
 		errors = m_statement_block->preprocess(new_execution_context);
 	}
 
@@ -132,4 +147,15 @@ const AnalysisResult ForStatement::Returns(
 	//perform the semantic analysis that would determine whether or not
 	//this loop will execute, or how many times it will execute.
 	return AnalysisResult::NO;
+}
+
+ForStatement::ForStatement(const_shared_ptr<Statement> initial,
+		const_shared_ptr<Expression> loop_expression,
+		const_shared_ptr<AssignmentStatement> loop_assignment,
+		const_shared_ptr<StatementBlock> statement_block) :
+		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
+				loop_assignment), m_statement_block(statement_block), m_block_table(
+				make_shared<SymbolTable>()) {
+	assert(loop_expression);
+	assert(loop_assignment);
 }

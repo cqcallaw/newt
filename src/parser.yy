@@ -460,6 +460,11 @@ for_statement:
 	{
 		$$ = make_shared<ForStatement>($3, $5, $7, $9);
 	}
+	|
+	FOR LPAREN variable_declaration SEMICOLON expression SEMICOLON assign_statement RPAREN statement_block
+	{
+		$$ = make_shared<ForStatement>($3, $5, $7, $9);
+	}
 	;
 
 //---------------------------------------------------------------------
