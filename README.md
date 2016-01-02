@@ -84,7 +84,7 @@ a_lovely_var:int = @int
 The default value of a type is fixed and constant for the lifetime of a program's execution.
 
 ## Compound Types ("structs")
-newt supports compount types analagous to C's structs. Unlike C's structs, the data is not stored continguously in memory.
+newt supports compound types analagous to C's structs. Unlike C's structs, the data is not stored contiguously in memory.
 
 ```
 struct Person {
