@@ -1,0 +1,14 @@
+Parsing file ../tests/t3100.nwt...
+Parsed file ../tests/t3100.nwt.
+Semantic error on line 6, column 12: Undeclared variable 'blue'
+Root Symbol Table:
+----------------
+my_struct i:
+	int[] arr:
+end array
+
+
+Root Type Table:
+----------------
+my_struct: 
+	int[] arr ()
