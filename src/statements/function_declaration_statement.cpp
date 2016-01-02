@@ -88,7 +88,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::PREVIOUSLY_DECLARED_VARIABLE,
+						Error::PREVIOUS_DECLARATION,
 						m_name_location.begin.line,
 						m_name_location.begin.column, *(m_name)), errors);
 	}

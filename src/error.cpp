@@ -130,8 +130,9 @@ const string Error::get_error_message() const {
 		os << "Cannot += an expression of type '" << m_s2
 				<< "' to a variable of type '" << m_s1 << "'.";
 		break;
-	case PREVIOUSLY_DECLARED_VARIABLE:
-		os << "Variable '" << m_s1 << "'" << " previously declared.";
+	case PREVIOUS_DECLARATION:
+		os << "'" << m_s1 << "'"
+				<< " has been already been declared in the current scope.";
 		break;
 	case UNDECLARED_VARIABLE:
 		os << "Undeclared variable '" << m_s1 << "'";

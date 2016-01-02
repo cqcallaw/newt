@@ -120,7 +120,7 @@ const ErrorListRef StructInstantiationStatement::preprocess(
 			//symbol already exists
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::PREVIOUSLY_DECLARED_VARIABLE,
+							Error::PREVIOUS_DECLARATION,
 							m_type_name_position.begin.line,
 							m_type_name_position.begin.column, *m_name),
 					errors);

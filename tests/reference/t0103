@@ -1,5 +1,5 @@
 Parsing file ../tests/t0103.nwt...
-Semantic error on line 3, column 1: Variable 'a' previously declared.
-Semantic error on line 4, column 1: Variable 'a' previously declared.
+Semantic error on line 3, column 1: 'a' has been already been declared in the current scope.
+Semantic error on line 4, column 1: 'a' has been already been declared in the current scope.
 Parsed file ../tests/t0103.nwt.
 2 errors found; giving up.
