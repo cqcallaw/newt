@@ -1,0 +1,17 @@
+Parsing file ../tests/t5108.nwt...
+Parsed file ../tests/t5108.nwt.
+Root Symbol Table:
+----------------
+point p:
+	(int) -> int squared:
+	int x: 0
+	int y: 0
+
+int s: 9
+
+Root Type Table:
+----------------
+point: 
+	(int) -> int squared ()
+	int x (0)
+	int y (0)

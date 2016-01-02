@@ -98,51 +98,9 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 									== ErrorList::GetTerminator()) {
 								auto void_value = evaluation_result->GetData();
 
-								/*SetResult result = NO_SET_RESULT;*/
-								if (member_type->IsAssignableTo(
-										PrimitiveTypeSpecifier::GetBoolean())) {
-									new_values->at(*member_name) =
-											plain_shared_ptr<Symbol>(
-													new Symbol(
-															static_pointer_cast<
-																	const bool>(
-																	void_value)));
-								} else if (member_type->IsAssignableTo(
-										PrimitiveTypeSpecifier::GetInt())) {
-									new_values->at(*member_name) =
-											plain_shared_ptr<Symbol>(
-													new Symbol(
-															static_pointer_cast<
-																	const int>(
-																	void_value)));
-								} else if (member_type->IsAssignableTo(
-										PrimitiveTypeSpecifier::GetDouble())) {
-									new_values->at(*member_name) =
-											plain_shared_ptr<Symbol>(
-													new Symbol(
-															static_pointer_cast<
-																	const double>(
-																	void_value)));
-								} else if (member_type->IsAssignableTo(
-										PrimitiveTypeSpecifier::GetString())) {
-									new_values->at(*member_name) =
-											plain_shared_ptr<Symbol>(
-													new Symbol(
-															static_pointer_cast<
-																	const string>(
-																	void_value)));
-								} else if (std::dynamic_pointer_cast<
-										const CompoundTypeSpecifier>(
-										member_type)) {
-									new_values->at(*member_name) =
-											plain_shared_ptr<Symbol>(
-													new Symbol(
-															static_pointer_cast<
-																	const CompoundTypeInstance>(
-																	void_value)));
-								} else {
-									assert(false);
-								}
+								new_values->at(*member_name) =
+										CompoundTypeInstance::GetSymbol(
+												member_type, void_value);
 							} else {
 								errors = ErrorList::Concatenate(errors,
 										evaluation_result->GetErrors());

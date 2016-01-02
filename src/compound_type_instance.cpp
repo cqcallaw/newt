@@ -19,6 +19,7 @@
 
 #include <compound_type_instance.h>
 #include <member_definition.h>
+#include <function_type_specifier.h>
 
 const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 		const string& type_name, const_shared_ptr<CompoundType> type) {
@@ -56,29 +57,28 @@ const_shared_ptr<Symbol> CompoundTypeInstance::GetSymbol(
 		const_shared_ptr<TypeSpecifier> member_type,
 		const_shared_ptr<void> void_value) {
 	if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const bool>(void_value)));
+		return make_shared<Symbol>(static_pointer_cast<const bool>(void_value));
 	} else if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt())) {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const int>(void_value)));
+		return make_shared<Symbol>(static_pointer_cast<const int>(void_value));
 	} else if (member_type->IsAssignableTo(
 			PrimitiveTypeSpecifier::GetDouble())) {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const double>(void_value)));
+		return make_shared<Symbol>(
+				static_pointer_cast<const double>(void_value));
 	} else if (member_type->IsAssignableTo(
 			PrimitiveTypeSpecifier::GetString())) {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const string>(void_value)));
+		return make_shared<Symbol>(
+				static_pointer_cast<const string>(void_value));
 	} else if (std::dynamic_pointer_cast<const ArrayTypeSpecifier>(member_type)
 			!= nullptr) {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const Array>(void_value)));
+		return make_shared<Symbol>(static_pointer_cast<const Array>(void_value));
 	} else if (std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 			member_type)) {
-		return const_shared_ptr<Symbol>(
-				new Symbol(
-						static_pointer_cast<const CompoundTypeInstance>(
-								void_value)));
+		return make_shared<Symbol>(
+				static_pointer_cast<const CompoundTypeInstance>(void_value));
+	} else if (std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
+			member_type)) {
+		return make_shared<Symbol>(
+				static_pointer_cast<const Function>(void_value));
 	} else {
 		assert(false);
 		return nullptr;
