@@ -58,7 +58,7 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other) const {
 	const_shared_ptr<PrimitiveTypeSpecifier> other_as_primitive =
 			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(other);
-	if (other_as_primitive != nullptr) {
+	if (other_as_primitive) {
 		const BasicType other_type = other_as_primitive->GetBasicType();
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
 	}

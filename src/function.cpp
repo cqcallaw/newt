@@ -108,7 +108,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		const_shared_ptr<DeclarationStatement> declaration =
 				parameter->GetData();
 
-		if (declaration->GetInitializerExpression() != nullptr) {
+		if (declaration->GetInitializerExpression()) {
 			errors = ErrorList::Concatenate(errors,
 					declaration->preprocess(function_execution_context));
 			errors = ErrorList::Concatenate(errors,

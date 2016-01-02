@@ -62,7 +62,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 							symbol_type);
 			const_shared_ptr<TypeSpecifier> expression_type =
 					m_expression->GetType(execution_context);
-			if (as_primitive != nullptr) {
+			if (as_primitive) {
 				if (expression_type->IsAssignableTo(symbol_type)) {
 					errors = ErrorList::GetTerminator();
 				} else {
@@ -373,7 +373,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
 
-	if (as_primitive != nullptr) {
+	if (as_primitive) {
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case BOOLEAN: {
@@ -431,7 +431,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
 
-	if (as_primitive != nullptr) {
+	if (as_primitive) {
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case BOOLEAN:
@@ -495,7 +495,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
 
-	if (as_primitive != nullptr) {
+	if (as_primitive) {
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case BOOLEAN:
@@ -561,14 +561,14 @@ const ErrorListRef AssignmentStatement::execute(
 					execution_context->GetSymbolContext());
 	auto symbol = symbol_table->GetSymbol(variable_name, DEEP);
 
-	if (symbol == NULL || symbol == Symbol::GetDefaultSymbol()) {
+	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
+		errors = m_variable->AssignValue(execution_context, m_expression,
+				m_op_type);
+	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						variable_line, variable_column, *(variable_name)),
 				errors);
-	} else {
-		errors = m_variable->AssignValue(execution_context, m_expression,
-				m_op_type);
 	}
 
 	return errors;

@@ -71,7 +71,7 @@ Symbol::Symbol(const_shared_ptr<Function> value) :
 Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 		const_shared_ptr<void> value) :
 		m_type(type), m_value(value) {
-	assert(type != nullptr);
+	assert(type);
 }
 
 const_shared_ptr<Symbol> Symbol::WithValue(
@@ -89,14 +89,14 @@ const string Symbol::ToString(const TypeTable& type_table,
 	ostringstream buffer;
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(m_type);
-	if (as_primitive != nullptr) {
+	if (as_primitive) {
 		buffer << " ";
 		buffer << as_primitive->ToString(m_value);
 	}
 
 	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
 			const ArrayTypeSpecifier>(m_type);
-	if (as_array != nullptr) {
+	if (as_array) {
 		buffer << endl;
 		auto array = static_pointer_cast<const Array>(m_value);
 		buffer << array->ToString(type_table, indent);
@@ -104,7 +104,7 @@ const string Symbol::ToString(const TypeTable& type_table,
 
 	const_shared_ptr<CompoundTypeSpecifier> as_compound =
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(m_type);
-	if (as_compound != nullptr) {
+	if (as_compound) {
 		buffer << endl;
 		auto compound_type_instance = static_pointer_cast<
 				const CompoundTypeInstance>(m_value);

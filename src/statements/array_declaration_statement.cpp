@@ -38,7 +38,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 	const_shared_ptr<CompoundTypeSpecifier> element_type_as_compound =
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 					m_type->GetElementTypeSpecifier());
-	if (element_type_as_compound != nullptr) {
+	if (element_type_as_compound) {
 		//check that element type exists
 		const_shared_ptr<TypeTable> type_table =
 				execution_context->GetTypeTable();
@@ -84,7 +84,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 		volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
 				SymbolTable>(execution_context->GetSymbolContext());
 
-		if (array != nullptr) {
+		if (array) {
 			auto wrapper = const_shared_ptr<Array>(array);
 			auto symbol = const_shared_ptr<Symbol>(new Symbol(wrapper));
 			InsertResult insert_result = symbol_table->InsertSymbol(*name,

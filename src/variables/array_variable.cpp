@@ -35,7 +35,7 @@ ArrayVariable::ArrayVariable(const_shared_ptr<string> name,
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
 		const_shared_ptr<ExecutionContext> context) const {
 	auto symbol = context->GetSymbolContext()->GetSymbol(GetName(), DEEP);
-	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
+	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		auto array = std::static_pointer_cast<const Array>(symbol->GetValue());
 
 		//handle intermediate indices
@@ -99,7 +99,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 	yy::location index_location = GetDefaultLocation();
 	plain_shared_ptr<Array> array;
 
-	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
+	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		plain_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
 
 		//consume all intermediate indices and return the inner-most array and the index.
@@ -212,7 +212,7 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 				const_shared_ptr<ArrayTypeSpecifier> as_array =
 						std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 								element_type_specifier);
-				if (as_array != nullptr) {
+				if (as_array) {
 					//TODO
 					assert(false);
 				}
@@ -220,7 +220,7 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 				const_shared_ptr<CompoundTypeSpecifier> as_compound =
 						std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 								element_type_specifier);
-				if (as_compound != nullptr) {
+				if (as_compound) {
 					result_value = array->GetValue<CompoundTypeInstance>(index,
 							*type_table);
 				} else {
@@ -271,7 +271,7 @@ const ErrorListRef ArrayVariable::AssignValue(
 							element_type_specifier);
 
 			auto type_table = context->GetTypeTable();
-			if (element_as_primitive != nullptr) {
+			if (element_as_primitive) {
 				const BasicType element_type =
 						element_as_primitive->GetBasicType();
 
@@ -458,7 +458,7 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 			const_shared_ptr<ArrayTypeSpecifier> as_array =
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							element_type_specifier);
-			if (as_array != nullptr) {
+			if (as_array) {
 				new_array = array->WithValue<Array>(index,
 						static_pointer_cast<const Array>(value), *type_table);
 			}
@@ -466,7 +466,7 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 			const_shared_ptr<CompoundTypeSpecifier> as_compound =
 					std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 							element_type_specifier);
-			if (as_compound != nullptr) {
+			if (as_compound) {
 				new_array = array->WithValue<CompoundTypeInstance>(index,
 						static_pointer_cast<const CompoundTypeInstance>(value),
 						*type_table);
@@ -493,7 +493,7 @@ const ErrorListRef ArrayVariable::Validate(
 			context->GetSymbolContext();
 	auto symbol = symbol_context->GetSymbol(GetName(), DEEP);
 
-	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
+	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		plain_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
 
 		IndexListRef subject = m_index_list;
@@ -548,7 +548,7 @@ const_shared_ptr<TypeSpecifier> ArrayVariable::GetInnerMostElementType(
 	auto symbol = context->GetSymbolContext()->GetSymbol(GetName(), DEEP);
 	plain_shared_ptr<TypeSpecifier> type_specifier =
 			PrimitiveTypeSpecifier::GetNone();
-	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
+	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		type_specifier = symbol->GetType();
 		//const string str = type_specifier->ToString();
 

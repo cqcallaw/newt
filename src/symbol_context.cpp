@@ -188,7 +188,7 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 		} else {
 			return INCOMPATIBLE_TYPE;
 		}
-	} else if (m_parent != nullptr) {
+	} else if (m_parent) {
 		auto context = m_parent->GetData();
 		return context->SetSymbol(identifier, type, value);
 	} else {

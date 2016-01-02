@@ -98,7 +98,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 
 const ErrorListRef FunctionDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	if (m_initializer_expression != nullptr) {
+	if (m_initializer_expression) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_location);
 		auto errors = temp_variable->AssignValue(execution_context,
 				m_initializer_expression, AssignmentType::ASSIGN);

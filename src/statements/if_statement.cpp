@@ -48,7 +48,7 @@ const ErrorListRef IfStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	if (m_expression != nullptr) {
+	if (m_expression) {
 		if (m_expression->GetType(execution_context)->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt())) {
 
@@ -65,7 +65,7 @@ const ErrorListRef IfStatement::preprocess(
 
 			errors = m_block->preprocess(execution_context);
 
-			if (m_else_block != nullptr) {
+			if (m_else_block) {
 				//pre-process else block
 				new_parent = SymbolContextList::From(symbol_context,
 						symbol_context->GetParent());
@@ -114,7 +114,7 @@ const ErrorListRef IfStatement::execute(
 				execution_context->WithSymbolContext(tmp_table);
 
 		errors = m_block->execute(execution_context);
-	} else if (m_else_block != nullptr) {
+	} else if (m_else_block) {
 		volatile_shared_ptr<SymbolContext> symbol_context =
 				execution_context->GetSymbolContext();
 		SymbolContextListRef new_parent = SymbolContextList::From(

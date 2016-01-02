@@ -35,8 +35,8 @@ ForStatement::ForStatement(const_shared_ptr<AssignmentStatement> initial,
 		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
 				loop_assignment), m_statement_block(statement_block), m_block_table(
 				make_shared<SymbolTable>()) {
-	assert(loop_expression != nullptr);
-	assert(loop_assignment != nullptr);
+	assert(loop_expression);
+	assert(loop_assignment);
 }
 
 ForStatement::~ForStatement() {
@@ -46,7 +46,7 @@ const ErrorListRef ForStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 
-	if (m_loop_expression != nullptr
+	if (m_loop_expression
 			&& !(m_loop_expression->GetType(execution_context)->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt()))) {
 		yy::location position = m_loop_expression->GetPosition();
@@ -85,7 +85,7 @@ const ErrorListRef ForStatement::execute(
 	shared_ptr<ExecutionContext> new_execution_context =
 			execution_context->WithSymbolContext(tmp_table);
 
-	if (m_initial != nullptr) {
+	if (m_initial) {
 		initialization_errors = m_initial->execute(new_execution_context);
 		if (!ErrorList::IsTerminator(initialization_errors)) {
 			return initialization_errors;
@@ -101,7 +101,7 @@ const ErrorListRef ForStatement::execute(
 
 	while (*(static_pointer_cast<const bool>(evaluation->GetData()))) {
 		ErrorListRef iteration_errors = ErrorList::GetTerminator();
-		if (m_statement_block != nullptr) {
+		if (m_statement_block) {
 			iteration_errors = m_statement_block->execute(
 					new_execution_context);
 		}

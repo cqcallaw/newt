@@ -33,7 +33,7 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 	auto symbol = Symbol::GetDefaultSymbol();
 	const_shared_ptr<Expression> expression = m_initializer_expression;
 
-	if (expression != nullptr) {
+	if (expression) {
 		errors = expression->Validate(execution_context);
 	}
 
@@ -42,8 +42,8 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 	auto as_primitive = std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 			m_type);
 
-	if (as_primitive != nullptr) {
-		if (expression != nullptr) {
+	if (as_primitive) {
+		if (expression) {
 			const_shared_ptr<VariableExpression> as_variable =
 					dynamic_pointer_cast<const VariableExpression>(expression);
 
@@ -126,7 +126,7 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 
 const ErrorListRef PrimitiveDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	if (m_initializer_expression != nullptr) {
+	if (m_initializer_expression) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_position);
 		auto errors = temp_variable->AssignValue(execution_context,
 				m_initializer_expression, AssignmentType::ASSIGN);

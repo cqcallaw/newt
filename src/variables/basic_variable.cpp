@@ -59,7 +59,7 @@ const_shared_ptr<Result> BasicVariable::Evaluate(
 			DEEP);
 	auto result_symbol = Symbol::GetDefaultSymbol();
 
-	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
+	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		result_symbol = symbol;
 	} else {
 		errors = ErrorList::From(
@@ -92,7 +92,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(symbol_type);
-	if (as_primitive != nullptr) {
+	if (as_primitive) {
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case BOOLEAN: {
@@ -180,7 +180,7 @@ const ErrorListRef BasicVariable::AssignValue(
 //TODO: don't allow += or -= operations on compound type specifiers
 	const_shared_ptr<CompoundTypeSpecifier> as_compound =
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(symbol_type);
-	if (as_compound != nullptr) {
+	if (as_compound) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
@@ -197,7 +197,7 @@ const ErrorListRef BasicVariable::AssignValue(
 //TODO: don't allow += or -= operations on function type specifiers
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(symbol_type);
-	if (as_function != nullptr) {
+	if (as_function) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 

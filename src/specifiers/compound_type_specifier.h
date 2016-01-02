@@ -48,7 +48,7 @@ public:
 			const_shared_ptr<TypeSpecifier> other) const {
 		const_shared_ptr<CompoundTypeSpecifier> as_compound =
 				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(other);
-		return as_compound != nullptr
+		return as_compound
 				&& as_compound->GetTypeName().compare(m_type_name) == 0;
 	}
 

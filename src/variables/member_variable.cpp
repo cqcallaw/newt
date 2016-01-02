@@ -63,7 +63,7 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 					container_type);
 
 	if (container_type != PrimitiveTypeSpecifier::GetNone()) {
-		if (as_compound != nullptr) {
+		if (as_compound) {
 			const_shared_ptr<Result> container_result = m_container->Evaluate(
 					context);
 
@@ -116,7 +116,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 						container_type);
 
-		if (as_compound != nullptr) {
+		if (as_compound) {
 			auto instance = static_pointer_cast<const CompoundTypeInstance>(
 					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
@@ -150,7 +150,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 						container_type);
 
-		if (as_compound != nullptr) {
+		if (as_compound) {
 			auto instance = static_pointer_cast<const CompoundTypeInstance>(
 					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
@@ -184,7 +184,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 				dynamic_pointer_cast<const CompoundTypeSpecifier>(
 						container_type);
 
-		if (as_compound != nullptr) {
+		if (as_compound) {
 			auto instance = static_pointer_cast<const CompoundTypeInstance>(
 					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
@@ -218,7 +218,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 						container_type);
 
-		if (as_compound != nullptr) {
+		if (as_compound) {
 			auto instance = static_pointer_cast<const CompoundTypeInstance>(
 					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
@@ -286,7 +286,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 						container_type);
 
-		if (as_compound != nullptr) {
+		if (as_compound) {
 			auto instance = static_pointer_cast<const CompoundTypeInstance>(
 					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
@@ -320,7 +320,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 						container_type);
 
-		if (as_compound != nullptr) {
+		if (as_compound) {
 			auto instance = static_pointer_cast<const CompoundTypeInstance>(
 					container_result->GetData());
 			const string member_name = *(m_member_variable->GetName());
@@ -345,14 +345,14 @@ const ErrorListRef MemberVariable::Validate(
 			context->GetSymbolContext();
 	auto symbol = symbol_context->GetSymbol(m_container->GetName(), DEEP);
 
-	if (symbol != nullptr && symbol != Symbol::GetDefaultSymbol()) {
+	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
 		const_shared_ptr<CompoundTypeSpecifier> as_compound =
 				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 						container_type);
 
-		if (as_compound != nullptr) {
+		if (as_compound) {
 			const_shared_ptr<TypeSpecifier> variable_type = GetType(context);
 
 			if (variable_type == PrimitiveTypeSpecifier::GetNone()) {

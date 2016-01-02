@@ -80,7 +80,7 @@ const ErrorListRef StructDeclarationStatement::preprocess(
 
 		const_shared_ptr<Expression> initializer_expression =
 				declaration->GetInitializerExpression();
-		if (initializer_expression != nullptr
+		if (initializer_expression
 				&& !initializer_expression->IsConstant()) {
 			//if we have a non-constant initializer expression, generate an error
 			yy::location position = initializer_expression->GetPosition();

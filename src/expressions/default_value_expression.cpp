@@ -49,7 +49,7 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(m_type);
-	if (as_primitive != nullptr) {
+	if (as_primitive) {
 		if (as_primitive != PrimitiveTypeSpecifier::GetNone()) {
 			return_value = as_primitive->DefaultValue(
 					*execution_context->GetTypeTable());
@@ -89,7 +89,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(m_type);
-	if (as_primitive != nullptr) {
+	if (as_primitive) {
 		if (as_primitive == PrimitiveTypeSpecifier::GetNone()) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,

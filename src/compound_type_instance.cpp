@@ -74,7 +74,7 @@ const_shared_ptr<Symbol> CompoundTypeInstance::GetSymbol(
 		return const_shared_ptr<Symbol>(
 				new Symbol(static_pointer_cast<const Array>(void_value)));
 	} else if (std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
-			member_type) != nullptr) {
+			member_type)) {
 		return const_shared_ptr<Symbol>(
 				new Symbol(
 						static_pointer_cast<const CompoundTypeInstance>(

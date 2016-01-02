@@ -204,7 +204,7 @@ const ErrorListRef InvokeExpression::Validate(
 					const_shared_ptr<DeclarationStatement> declaration =
 							parameter->GetData();
 
-					if (declaration->GetInitializerExpression() != nullptr) {
+					if (declaration->GetInitializerExpression()) {
 						errors = ErrorList::Concatenate(
 								declaration->preprocess(tmp_context), errors);
 					} else {

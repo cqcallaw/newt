@@ -133,7 +133,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 																	void_value)));
 								} else if (std::dynamic_pointer_cast<
 										const CompoundTypeSpecifier>(
-										member_type) != nullptr) {
+										member_type)) {
 									new_values->at(*member_name) =
 											plain_shared_ptr<Symbol>(
 													new Symbol(

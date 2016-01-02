@@ -38,7 +38,7 @@ const ErrorListRef ExitStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	if (m_exit_expression != nullptr) {
+	if (m_exit_expression) {
 		const_shared_ptr<TypeSpecifier> expression_type_specifier =
 				m_exit_expression->GetType(execution_context);
 		const_shared_ptr<PrimitiveTypeSpecifier> expression_as_primitive =
