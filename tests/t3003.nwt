@@ -1,0 +1,9 @@
+//test that the default value of structs aren't modifiable
+struct point {
+	x: int = 1
+	y: int
+}
+
+a:point = @point
+a.x = 2
+b:point = @point //b.x should be 1
