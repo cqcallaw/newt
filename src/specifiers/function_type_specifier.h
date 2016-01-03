@@ -64,7 +64,7 @@ protected:
 			const_shared_ptr<TypeSpecifier> return_type,
 			const TypeTable& type_table);
 
-	static const Function* GetDefaultFunction(
+	static const_shared_ptr<Function> GetDefaultFunction(
 			const FunctionTypeSpecifier& type_specifier,
 			const TypeTable& type_table);
 
