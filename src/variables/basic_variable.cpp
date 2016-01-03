@@ -79,6 +79,7 @@ const ErrorListRef BasicVariable::AssignValue(
 		const AssignmentType op) const {
 	return AssignValue(context, expression, context, op);
 }
+
 const ErrorListRef BasicVariable::AssignValue(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,

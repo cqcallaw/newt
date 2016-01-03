@@ -1,0 +1,27 @@
+//test closure over function local variables 
+f:= (a:int) -> () -> int {
+	inner:int = a
+	return () -> int {
+		inner += 1
+		return inner
+	}
+}
+
+g := f(2)
+print("g invocation 1: " + g())
+print("g invocation 2: " + g())
+print("g invocation 3: " + g())
+
+print("-----")
+
+h := f(8)
+print("h invocation 1: " + h())
+print("h invocation 2: " + h())
+print("h invocation 3: " + h())
+
+print("-----")
+
+print("g invocation 4: " + g())
+print("g invocation 5: " + g())
+print("g invocation 6: " + g())
+

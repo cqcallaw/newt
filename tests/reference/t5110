@@ -1,0 +1,21 @@
+Parsing file ../tests/t5110.nwt...
+Parsed file ../tests/t5110.nwt.
+g invocation 1: 3
+g invocation 2: 4
+g invocation 3: 5
+-----
+h invocation 1: 9
+h invocation 2: 10
+h invocation 3: 11
+-----
+g invocation 4: 6
+g invocation 5: 7
+g invocation 6: 8
+Root Symbol Table:
+----------------
+(int) -> () -> int f:
+() -> int g:
+() -> int h:
+
+Root Type Table:
+----------------

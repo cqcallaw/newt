@@ -139,9 +139,18 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				shared_ptr<ExecutionContext>(
 						new ExecutionContext(final_symbol_context,
 								m_closure->GetTypeTable()));
-		errors = ErrorList::Concatenate(errors, m_body->execute(child_context));
-
-		return make_shared<Result>(child_context->GetReturnValue(), errors);
+		//performing preprocessing here duplicates work with the function express processing,
+		//but the context setup in the function preprocessing is currently discarded.
+		//TODO: consider cloning function expression preprocess context instead of discarding it
+		errors = ErrorList::Concatenate(errors,
+				m_body->preprocess(child_context));
+		if (ErrorList::IsTerminator(errors)) {
+			errors = ErrorList::Concatenate(errors,
+					m_body->execute(child_context));
+			return make_shared<Result>(child_context->GetReturnValue(), errors);
+		} else {
+			return make_shared<Result>(nullptr, errors);
+		}
 	} else {
 		return make_shared<Result>(nullptr, errors);
 	}
