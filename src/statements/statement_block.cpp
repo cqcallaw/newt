@@ -26,8 +26,9 @@
 
 using namespace std;
 
-StatementBlock::StatementBlock(StatementListRef statements) :
-		m_statements(statements) {
+StatementBlock::StatementBlock(StatementListRef statements,
+		const yy::location location) :
+		m_statements(statements), m_location(location) {
 }
 
 const ErrorListRef StatementBlock::preprocess(
@@ -37,7 +38,8 @@ const ErrorListRef StatementBlock::preprocess(
 	while (!StatementList::IsTerminator(subject)) {
 		const_shared_ptr<Statement> statement = subject->GetData();
 		//TODO: handle nested statement blocks
-		ErrorListRef statement_errors = statement->preprocess(execution_context);
+		ErrorListRef statement_errors = statement->preprocess(
+				execution_context);
 		errors = ErrorList::Concatenate(errors, statement_errors);
 
 		subject = subject->GetNext();

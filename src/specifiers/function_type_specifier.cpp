@@ -136,7 +136,7 @@ const_shared_ptr<StatementBlock> FunctionTypeSpecifier::GetDefaultStatementBlock
 			default_return_statement, StatementList::GetTerminator());
 
 	const_shared_ptr<StatementBlock> statement_block = make_shared<
-			StatementBlock>(default_list);
+			StatementBlock>(default_list, GetDefaultLocation());
 
 	return statement_block;
 }
