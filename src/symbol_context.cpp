@@ -29,8 +29,8 @@
 #include "type.h"
 #include "utils.h"
 
-const ErrorListRef ToErrorListRef(const SetResult result, const yy::location location,
-		const_shared_ptr<string> name,
+const ErrorListRef ToErrorListRef(const SetResult result,
+		const yy::location location, const_shared_ptr<string> name,
 		const_shared_ptr<TypeSpecifier> symbol_type,
 		const_shared_ptr<TypeSpecifier> value_type) {
 	ErrorListRef errors = ErrorList::GetTerminator();
@@ -116,7 +116,7 @@ const void SymbolContext::print(ostream &os, const TypeTable& type_table,
 
 	if (search_type == DEEP && m_parent) {
 		os << indent + 1 << "-->" << m_parent << endl;
-		m_parent->GetData()->print(os, type_table, indent + 1);
+		m_parent->GetData()->print(os, type_table, indent + 1, search_type);
 	}
 }
 
