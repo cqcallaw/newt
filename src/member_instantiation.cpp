@@ -21,10 +21,8 @@
 
 MemberInstantiation::MemberInstantiation(const_shared_ptr<string> name,
 		const yy::location name_position,
-		const_shared_ptr<Expression> expression,
-		const yy::location expression_position) :
-		m_name(name), m_name_position(name_position), m_expression(expression), m_expression_position(
-				expression_position) {
+		const_shared_ptr<Expression> expression) :
+		m_name(name), m_name_position(name_position), m_expression(expression) {
 }
 
 MemberInstantiation::~MemberInstantiation() {

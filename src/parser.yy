@@ -833,7 +833,7 @@ member_instantiation_list:
 member_instantiation:
 	IDENTIFIER EQUALS expression
 	{
-		$$ = make_shared<MemberInstantiation>(MemberInstantiation($1, @1, $3, @3));
+		$$ = make_shared<MemberInstantiation>(MemberInstantiation($1, @1, $3));
 	}
 	;
 

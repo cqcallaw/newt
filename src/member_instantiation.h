@@ -29,16 +29,11 @@ class MemberInstantiation {
 public:
 	MemberInstantiation(const_shared_ptr<string> name,
 			const yy::location name_position,
-			const_shared_ptr<Expression> expression,
-			const yy::location expression_position);
+			const_shared_ptr<Expression> expression);
 	virtual ~MemberInstantiation();
 
 	const_shared_ptr<Expression> GetExpression() const {
 		return m_expression;
-	}
-
-	const yy::location GetExpressionPosition() const {
-		return m_expression_position;
 	}
 
 	const_shared_ptr<string> GetName() const {
@@ -53,7 +48,6 @@ private:
 	const_shared_ptr<string> m_name;
 	const yy::location m_name_position;
 	const_shared_ptr<Expression> m_expression;
-	const yy::location m_expression_position;
 };
 
 typedef const LinkedList<const MemberInstantiation, NO_DUPLICATES> MemberInstantiationList;
