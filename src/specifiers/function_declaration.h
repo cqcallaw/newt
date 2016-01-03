@@ -25,7 +25,7 @@
 
 class FunctionDeclaration: public FunctionTypeSpecifier {
 public:
-	FunctionDeclaration(DeclarationList parameter_list,
+	FunctionDeclaration(DeclarationListRef parameter_list,
 			const_shared_ptr<TypeSpecifier> return_type);
 	FunctionDeclaration(const FunctionDeclaration& other);
 	virtual ~FunctionDeclaration();
@@ -42,19 +42,19 @@ public:
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const;
 
-	DeclarationList GetParameterList() const {
+	DeclarationListRef GetParameterList() const {
 		return m_parameter_list;
 	}
 
-	static TypeSpecifierList GetTypeList(
-			DeclarationList parameter_list);
+	static TypeSpecifierListRef GetTypeList(
+			DeclarationListRef parameter_list);
 protected:
 	static const Function* GetDefaultFunctionDeclaration(
 			const FunctionDeclaration& function_declaration,
 			const TypeTable& type_table);
 
 private:
-	DeclarationList m_parameter_list;
+	DeclarationListRef m_parameter_list;
 };
 
 #endif /* SPECIFIERS_FUNCTION_DECLARATION_H_ */

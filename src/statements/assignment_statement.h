@@ -52,10 +52,10 @@ public:
 		return m_variable;
 	}
 
-	virtual const ErrorList preprocess(
+	virtual const ErrorListRef preprocess(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const ErrorList execute(
+	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const AnalysisResult Returns(
@@ -64,37 +64,37 @@ public:
 		return AnalysisResult::NO;
 	}
 
-	static const ErrorList do_op(const_shared_ptr<string> variable_name,
+	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
 			int variable_column, const bool old_value,
 			const bool expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, bool& out);
-	static const ErrorList do_op(const_shared_ptr<string> variable_name,
+	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
 			int variable_column, const int old_value,
 			const int expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, int& out);
-	static const ErrorList do_op(const_shared_ptr<string> variable_name,
+	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
 			int variable_column, const double old_value,
 			const double expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, double& out);
-	static const ErrorList do_op(const_shared_ptr<string> variable_name,
+	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
 			int variable_column, const_shared_ptr<string> old_value,
 			const bool expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, string* &out);
-	static const ErrorList do_op(const_shared_ptr<string> variable_name,
+	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
 			int variable_column, const_shared_ptr<string> old_value,
 			const int expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, string* &out);
-	static const ErrorList do_op(const_shared_ptr<string> variable_name,
+	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
 			int variable_column, const_shared_ptr<string> old_value,
 			const double expression_value, const AssignmentType op,
 			const_shared_ptr<ExecutionContext> execution_context, string* &out);
-	static const ErrorList do_op(const_shared_ptr<string> variable_name,
+	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
 			const BasicType variable_type, int variable_line,
 			int variable_column, const_shared_ptr<string> old_value,
 			const_shared_ptr<string> expression_value, const AssignmentType op,

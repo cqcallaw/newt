@@ -1,0 +1,26 @@
+Parsing file ../tests/t5109.nwt...
+Parsed file ../tests/t5109.nwt.
+Root Symbol Table:
+----------------
+point p:
+	(int, int) -> point translate:
+	int x: 0
+	int y: 0
+
+point t:
+	(int, int) -> point translate:
+	int x: 3
+	int y: 3
+
+point t2:
+	(int, int) -> point translate:
+	int x: 10
+	int y: 10
+
+
+Root Type Table:
+----------------
+point: 
+	(int, int) -> point translate ()
+	int x (0)
+	int y (0)

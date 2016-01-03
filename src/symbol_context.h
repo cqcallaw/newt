@@ -43,8 +43,8 @@ enum SearchType {
 	SHALLOW = 0, DEEP = 1
 };
 
-const ErrorList ToErrorList(const SetResult result, const yy::location location,
-		const_shared_ptr<string> name,
+const ErrorListRef ToErrorListRef(const SetResult result,
+		const yy::location location, const_shared_ptr<string> name,
 		const_shared_ptr<TypeSpecifier> symbol_type,
 		const_shared_ptr<TypeSpecifier> value_type);
 
@@ -55,16 +55,16 @@ struct comparator {
 };
 
 typedef map<const string, plain_shared_ptr<Symbol>, comparator> symbol_map;
-typedef const LinkedList<SymbolContext, NO_DUPLICATES> SymbolContextListBase;
-typedef shared_ptr<SymbolContextListBase> SymbolContextList;
+typedef const LinkedList<SymbolContext, NO_DUPLICATES> SymbolContextList;
+typedef shared_ptr<SymbolContextList> SymbolContextListRef;
 
 class SymbolContext {
 public:
 	SymbolContext(const Modifier::Type modifiers,
-			const SymbolContextList parent =
-					SymbolContextListBase::GetTerminator());
+			const SymbolContextListRef parent =
+					SymbolContextList::GetTerminator());
 	SymbolContext(const Modifier::Type modifiers,
-			const SymbolContextList parent_context,
+			const SymbolContextListRef parent_context,
 			const shared_ptr<symbol_map> values);
 	virtual ~SymbolContext();
 
@@ -72,12 +72,18 @@ public:
 		return m_modifiers;
 	}
 
-	const SymbolContextList GetParent() const {
+	virtual volatile_shared_ptr<SymbolContext> WithModifiers(
+			const Modifier::Type modifiers) const {
+		return make_shared<SymbolContext>(
+				SymbolContext(modifiers, m_parent, m_table));
+	}
+
+	const SymbolContextListRef GetParent() const {
 		return m_parent;
 	}
 
 	virtual volatile_shared_ptr<SymbolContext> WithParent(
-			const SymbolContextList parent_context) const {
+			const SymbolContextListRef parent_context) const {
 		return make_shared<SymbolContext>(
 				SymbolContext(m_modifiers, parent_context, m_table));
 	}
@@ -115,7 +121,7 @@ public:
 
 private:
 	const Modifier::Type m_modifiers;
-	const SymbolContextList m_parent;
+	const SymbolContextListRef m_parent;
 	const shared_ptr<symbol_map> m_table;
 
 	SetResult SetSymbol(const string& identifier,

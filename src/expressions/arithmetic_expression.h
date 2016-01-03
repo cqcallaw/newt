@@ -28,7 +28,7 @@ public:
 			const_shared_ptr<Expression> left,
 			const_shared_ptr<Expression> right);
 
-	virtual const ErrorList Validate(
+	virtual const ErrorListRef Validate(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 protected:

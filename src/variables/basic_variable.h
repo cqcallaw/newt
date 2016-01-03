@@ -36,43 +36,48 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const_shared_ptr<ExecutionContext> context) const;
 
-	virtual const ErrorList Validate(
+	virtual const ErrorListRef Validate(
 			const_shared_ptr<ExecutionContext> context) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
 			const_shared_ptr<ExecutionContext> context) const;
 
-	virtual const ErrorList AssignValue(
+	virtual const ErrorListRef AssignValue(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Expression> expression,
 			const AssignmentType op) const;
 
+	const ErrorListRef AssignValue(const_shared_ptr<ExecutionContext> context,
+			const_shared_ptr<Expression> expression,
+			const_shared_ptr<ExecutionContext> output_context,
+			const AssignmentType op) const;
+
 protected:
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<bool> value) const;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<int> value) const;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<double> value) const;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<string> value) const;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Array> value) const;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<CompoundTypeInstance> value) const;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Function> value) const;
 

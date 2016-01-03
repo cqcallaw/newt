@@ -29,15 +29,15 @@ PrintStatement::PrintStatement(const int line_number,
 PrintStatement::~PrintStatement() {
 }
 
-const ErrorList PrintStatement::execute(
+const ErrorListRef PrintStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors(ErrorListBase::GetTerminator());
+	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<Result> string_result = m_expression->ToString(
 			execution_context);
 	errors = string_result->GetErrors();
 
-	if (ErrorListBase::IsTerminator(errors)) {
+	if (ErrorList::IsTerminator(errors)) {
 		std::cout
 				<< *(static_pointer_cast<const string>(string_result->GetData()))
 				<< "\n";

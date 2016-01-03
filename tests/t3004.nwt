@@ -1,0 +1,7 @@
+//test widening conversions of `with` clauses
+struct point {
+	x: double = 1
+	y: double
+}
+
+a:point = @point with { y = 1 }

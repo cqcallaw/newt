@@ -27,14 +27,14 @@ class Variable;
 
 class InvokeStatement: public Statement {
 public:
-	InvokeStatement(const_shared_ptr<Variable> variable, ArgumentList argument_list,
+	InvokeStatement(const_shared_ptr<Variable> variable, ArgumentListRef argument_list,
 			const yy::location argument_list_position);
 	virtual ~InvokeStatement();
 
-	virtual const ErrorList preprocess(
+	virtual const ErrorListRef preprocess(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const ErrorList execute(
+	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
@@ -43,7 +43,7 @@ public:
 	}
 private:
 	const_shared_ptr<Variable> m_variable;
-	ArgumentList m_argument_list;
+	ArgumentListRef m_argument_list;
 	const yy::location m_argument_list_position;
 };
 

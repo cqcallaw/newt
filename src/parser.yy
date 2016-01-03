@@ -217,7 +217,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<Variable>> variable_reference
 
 %type <plain_shared_ptr<Statement>> statement
-%type <StatementList> statement_list
+%type <StatementListRef> statement_list
 %type <plain_shared_ptr<DeclarationStatement>> variable_declaration
 %type <plain_shared_ptr<StatementBlock>> if_block
 %type <plain_shared_ptr<StatementBlock>> statement_block
@@ -228,27 +228,27 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<Statement>> exit_statement
 %type <plain_shared_ptr<Statement>> struct_declaration_statement
 %type <plain_shared_ptr<Statement>> return_statement
-%type <DeclarationList> parameter_list
-%type <DeclarationList> optional_parameter_list
-%type <TypeSpecifierList> anonymous_parameter_list
-%type <TypeSpecifierList> optional_anonymous_parameter_list
-%type <ArgumentList> argument_list
-%type <ArgumentList> optional_argument_list
+%type <DeclarationListRef> parameter_list
+%type <DeclarationListRef> optional_parameter_list
+%type <TypeSpecifierListRef> anonymous_parameter_list
+%type <TypeSpecifierListRef> optional_anonymous_parameter_list
+%type <ArgumentListRef> argument_list
+%type <ArgumentListRef> optional_argument_list
 
 %type <plain_shared_ptr<Modifier>> modifier
-%type <ModifierList> modifier_list
+%type <ModifierListRef> modifier_list
 
-%type <DeclarationList> declaration_list
+%type <DeclarationListRef> declaration_list
 %type <plain_shared_ptr<MemberInstantiation>> member_instantiation
-%type <MemberInstantiationList> member_instantiation_list
-%type <MemberInstantiationList> optional_member_instantiation_list
-%type <MemberInstantiationList> member_instantiation_block
+%type <MemberInstantiationListRef> member_instantiation_list
+%type <MemberInstantiationListRef> optional_member_instantiation_list
+%type <MemberInstantiationListRef> member_instantiation_block
 
 %type <plain_shared_ptr<Index>> index
-%type <IndexList> indices
+%type <IndexListRef> indices
 
 %type <plain_shared_ptr<Dimension>> dimension
-%type <DimensionList> dimensions
+%type <DimensionListRef> dimensions
 
 %printer { yyoutput << $$; } <*>;
 
@@ -259,8 +259,8 @@ program:
 	statement_list
 	{
 		//statement list comes in reverse order
-		//wrap in StatementList because Reverse is a LinkedList<T> function
-		plain_shared_ptr<StatementBlock> main_statement_block = make_shared<const StatementBlock>(StatementListBase::Reverse($1));
+		//wrap in StatementListRef because Reverse is a LinkedList<T> function
+		plain_shared_ptr<StatementBlock> main_statement_block = make_shared<const StatementBlock>(StatementList::Reverse($1));
 		driver.SetStatementBlock(main_statement_block);
 	}
 	;
@@ -275,8 +275,8 @@ variable_declaration:
 	{
 		plain_shared_ptr<TypeSpecifier> type_specifier = $3;
 		//add dimensions to type specifier
-		DimensionList dimension = $4;
-		while (!DimensionListBase::IsTerminator(dimension)) {
+		DimensionListRef dimension = $4;
+		while (!DimensionList::IsTerminator(dimension)) {
 			type_specifier = make_shared<ArrayTypeSpecifier>(type_specifier);
 			dimension = dimension->GetNext();
 		}
@@ -288,8 +288,8 @@ variable_declaration:
 	{
 		plain_shared_ptr<TypeSpecifier> type_specifier = make_shared<CompoundTypeSpecifier>(*$3, @3);
 		//add dimensions to type specifier
-		DimensionList dimension = $4;
-		while (!DimensionListBase::IsTerminator(dimension)) {
+		DimensionListRef dimension = $4;
+		while (!DimensionList::IsTerminator(dimension)) {
 			type_specifier = make_shared<ArrayTypeSpecifier>(type_specifier);
 			dimension = dimension->GetNext();
 		}
@@ -350,7 +350,7 @@ primitive_type_specifier:
 function_type_specifier:
 	LPAREN optional_anonymous_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
-		const TypeSpecifierList type_list = TypeSpecifierListBase::Reverse($2);
+		const TypeSpecifierListRef type_list = TypeSpecifierList::Reverse($2);
 		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5);
 	}
 
@@ -373,7 +373,7 @@ type_specifier:
 statement_block:
 	LBRACE statement_list RBRACE
 	{
-		$$ = make_shared<StatementBlock>(StatementListBase::Reverse($2)); //statement list comes in reverse order
+		$$ = make_shared<StatementBlock>(StatementList::Reverse($2)); //statement list comes in reverse order
 	}
 	;
 
@@ -381,11 +381,11 @@ statement_block:
 statement_list:
 	statement_list statement
 	{
-		$$ = StatementListBase::From($2, $1);
+		$$ = StatementList::From($2, $1);
 	}
 	| empty
 	{
-		$$ = StatementListBase::GetTerminator();
+		$$ = StatementList::GetTerminator();
 	}
 	;
 
@@ -425,7 +425,7 @@ statement:
 	}
 	| variable_reference LPAREN optional_argument_list RPAREN
 	{
-		const ArgumentList argument_list = ArgumentListBase::Reverse($3);
+		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
 		$$ = make_shared<InvokeStatement>($1, argument_list, @3);
 	}
 	;
@@ -434,7 +434,7 @@ statement:
 if_block:
 	statement
 	{
-		$$ = make_shared<StatementBlock>(StatementListBase::From($1, StatementListBase::GetTerminator()));
+		$$ = make_shared<StatementBlock>(StatementList::From($1, StatementList::GetTerminator()));
 	}
 	| statement_block
 	{
@@ -457,6 +457,11 @@ if_statement:
 //---------------------------------------------------------------------
 for_statement:
 	FOR LPAREN assign_statement SEMICOLON expression SEMICOLON assign_statement RPAREN statement_block
+	{
+		$$ = make_shared<ForStatement>($3, $5, $7, $9);
+	}
+	|
+	FOR LPAREN variable_declaration SEMICOLON expression SEMICOLON assign_statement RPAREN statement_block
 	{
 		$$ = make_shared<ForStatement>($3, $5, $7, $9);
 	}
@@ -514,7 +519,7 @@ variable_reference:
 	}
 	| IDENTIFIER indices
 	{
-		$$ = make_shared<ArrayVariable>($1, @1, IndexListBase::Reverse($2), @2);
+		$$ = make_shared<ArrayVariable>($1, @1, IndexList::Reverse($2), @2);
 	}
 	| variable_reference PERIOD variable_reference
 	{
@@ -645,17 +650,17 @@ variable_expression:
 invoke_expression:
 	variable_expression LPAREN optional_argument_list RPAREN
 	{
-		const ArgumentList argument_list = ArgumentListBase::Reverse($3);
+		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
 		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
 	}
 	| invoke_expression LPAREN optional_argument_list RPAREN
 	{
-		const ArgumentList argument_list = ArgumentListBase::Reverse($3);
+		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
 		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
 	}
 	| function_expression LPAREN optional_argument_list RPAREN
 	{
-		const ArgumentList argument_list = ArgumentListBase::Reverse($3);
+		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
 		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
 	}
 	;
@@ -664,7 +669,7 @@ invoke_expression:
 function_declaration:
 	LPAREN optional_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
-		const DeclarationList parameter_list = DeclarationListBase::Reverse($2);
+		const DeclarationListRef parameter_list = DeclarationList::Reverse($2);
 		$$ = make_shared<FunctionDeclaration>(parameter_list, $5);
 	}
 	;
@@ -685,7 +690,7 @@ optional_parameter_list:
 	}
 	| empty
 	{
-		$$ = DeclarationListBase::GetTerminator();
+		$$ = DeclarationList::GetTerminator();
 	}
 	;
 
@@ -693,11 +698,11 @@ optional_parameter_list:
 parameter_list:
 	parameter_list COMMA variable_declaration
 	{
-		$$ = DeclarationListBase::From($3, $1);
+		$$ = DeclarationList::From($3, $1);
 	}
 	| variable_declaration
 	{
-		$$ = DeclarationListBase::From($1, DeclarationListBase::GetTerminator());
+		$$ = DeclarationList::From($1, DeclarationList::GetTerminator());
 	}
 	;
 
@@ -709,7 +714,7 @@ optional_anonymous_parameter_list:
 	}
 	| empty
 	{
-		$$ = TypeSpecifierListBase::GetTerminator();
+		$$ = TypeSpecifierList::GetTerminator();
 	}
 	;
 
@@ -717,11 +722,11 @@ optional_anonymous_parameter_list:
 anonymous_parameter_list:
 	anonymous_parameter_list COMMA type_specifier
 	{
-		$$ = TypeSpecifierListBase::From($3, $1);
+		$$ = TypeSpecifierList::From($3, $1);
 	}
 	| type_specifier
 	{
-		$$ = TypeSpecifierListBase::From($1, TypeSpecifierListBase::GetTerminator());
+		$$ = TypeSpecifierList::From($1, TypeSpecifierList::GetTerminator());
 	}
 	;
 
@@ -733,7 +738,7 @@ optional_argument_list:
 	}
 	| empty
 	{
-		$$ = ArgumentListBase::GetTerminator();
+		$$ = ArgumentList::GetTerminator();
 	}
 	;
 
@@ -741,11 +746,11 @@ optional_argument_list:
 argument_list:
 	argument_list COMMA expression
 	{
-		$$ = ArgumentListBase::From($3, $1);
+		$$ = ArgumentList::From($3, $1);
 	}
 	| expression
 	{
-		$$ = ArgumentListBase::From($1, ArgumentListBase::GetTerminator());
+		$$ = ArgumentList::From($1, ArgumentList::GetTerminator());
 	}
 	;
 
@@ -753,11 +758,11 @@ argument_list:
 modifier_list:
 	modifier_list modifier
 	{
-		$$ = ModifierListBase::From($2, $1);
+		$$ = ModifierList::From($2, $1);
 	}
 	| modifier
 	{
-		$$ = ModifierListBase::From($1, ModifierListBase::GetTerminator());
+		$$ = ModifierList::From($1, ModifierList::GetTerminator());
 	}
 
 modifier:
@@ -770,14 +775,14 @@ modifier:
 struct_declaration_statement:
 	modifier_list STRUCT IDENTIFIER LBRACE declaration_list RBRACE
 	{
-		const DeclarationList member_declaration_list = DeclarationListBase::Reverse($5);
-		ModifierList modifier_list = ModifierListBase::From(ModifierListBase::Reverse($1));
+		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($5);
+		ModifierListRef modifier_list = ModifierList::From(ModifierList::Reverse($1));
 		$$ = make_shared<StructDeclarationStatement>(@$, $3, @3, member_declaration_list, @5, modifier_list, @1);
 	}
 	| STRUCT IDENTIFIER LBRACE declaration_list RBRACE
 	{
-		const DeclarationList member_declaration_list = DeclarationListBase::Reverse($4);
-		$$ = make_shared<StructDeclarationStatement>(@$, $2, @2, member_declaration_list, @4, ModifierListBase::GetTerminator(), GetDefaultLocation());
+		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
+		$$ = make_shared<StructDeclarationStatement>(@$, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 	;
 
@@ -785,11 +790,11 @@ struct_declaration_statement:
 declaration_list:
 	declaration_list variable_declaration
 	{
-		$$ = DeclarationListBase::From($2, $1);
+		$$ = DeclarationList::From($2, $1);
 	}
 	| empty
 	{
-		$$ = DeclarationListBase::GetTerminator();
+		$$ = DeclarationList::GetTerminator();
 	}
 	;
 
@@ -809,7 +814,7 @@ optional_member_instantiation_list:
 	}
 	| empty
 	{
-		$$ = MemberInstantiationListBase::GetTerminator();
+		$$ = MemberInstantiationList::GetTerminator();
 	}
 	;
 
@@ -817,18 +822,18 @@ optional_member_instantiation_list:
 member_instantiation_list:
 	member_instantiation_list COMMA member_instantiation
 	{
-		$$ = MemberInstantiationListBase::From($3, $1);
+		$$ = MemberInstantiationList::From($3, $1);
 	}
 	| member_instantiation
 	{
-		$$ = MemberInstantiationListBase::From($1, MemberInstantiationListBase::GetTerminator());
+		$$ = MemberInstantiationList::From($1, MemberInstantiationList::GetTerminator());
 	}
 
 //---------------------------------------------------------------------
 member_instantiation:
 	IDENTIFIER EQUALS expression
 	{
-		$$ = make_shared<MemberInstantiation>(MemberInstantiation($1, @1, $3, @3));
+		$$ = make_shared<MemberInstantiation>(MemberInstantiation($1, @1, $3));
 	}
 	;
 
@@ -836,11 +841,11 @@ member_instantiation:
 indices:
 	indices index
 	{
-		$$ = IndexListBase::From($2, $1);
+		$$ = IndexList::From($2, $1);
 	}
 	| index
 	{
-		$$ = IndexListBase::From($1, IndexListBase::GetTerminator());
+		$$ = IndexList::From($1, IndexList::GetTerminator());
 	}
 	;
 
@@ -856,11 +861,11 @@ index:
 dimensions:
 	dimensions dimension
 	{
-		$$ = DimensionListBase::From($2, $1);
+		$$ = DimensionList::From($2, $1);
 	}
 	| dimension
 	{
-		$$ = DimensionListBase::From($1, DimensionListBase::GetTerminator());
+		$$ = DimensionList::From($1, DimensionList::GetTerminator());
 	}
 	;
 

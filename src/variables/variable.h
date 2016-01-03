@@ -49,43 +49,43 @@ public:
 		return m_location;
 	}
 
-	virtual const ErrorList Validate(
+	virtual const ErrorListRef Validate(
 			const_shared_ptr<ExecutionContext> context) const = 0;
 
 	virtual const_shared_ptr<Result> Evaluate(
 			const_shared_ptr<ExecutionContext> context) const = 0;
 
-	virtual const ErrorList AssignValue(
+	virtual const ErrorListRef AssignValue(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Expression> expression,
 			const AssignmentType op) const = 0;
 
 protected:
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<bool> value) const = 0;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<int> value) const = 0;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<double> value) const = 0;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<string> value) const = 0;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Array> value) const = 0;
 
-	virtual const ErrorList SetSymbol(
+	virtual const ErrorListRef SetSymbol(
 			const_shared_ptr<ExecutionContext> context,
 			const_shared_ptr<CompoundTypeInstance> value) const = 0;
 
-	const ErrorList ToErrorList(SetResult result,
+	const ErrorListRef ToErrorListRef(SetResult result,
 			const_shared_ptr<TypeSpecifier> symbol_type,
 			const_shared_ptr<TypeSpecifier> expression_type) const;
 

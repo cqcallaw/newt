@@ -29,34 +29,34 @@
 #include "type.h"
 #include "utils.h"
 
-const ErrorList ToErrorList(const SetResult result, const yy::location location,
-		const_shared_ptr<string> name,
+const ErrorListRef ToErrorListRef(const SetResult result,
+		const yy::location location, const_shared_ptr<string> name,
 		const_shared_ptr<TypeSpecifier> symbol_type,
 		const_shared_ptr<TypeSpecifier> value_type) {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	switch (result) {
 	case NO_SET_RESULT:
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::DEFAULT_ERROR_CODE,
 						location.begin.line, location.begin.column, *name),
 				errors);
 		break;
 	case UNDEFINED_SYMBOL:
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						location.begin.line, location.begin.column, *name),
 				errors);
 		break;
 	case INCOMPATIBLE_TYPE:
-		ErrorListBase::From(
+		ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR, location.begin.line,
 						location.begin.column, symbol_type->ToString(),
 						value_type->ToString()), errors);
 		break;
 	case MUTATION_DISALLOWED:
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::READONLY,
 						location.begin.line, location.begin.column, *name),
 				errors);
@@ -70,12 +70,12 @@ const ErrorList ToErrorList(const SetResult result, const yy::location location,
 }
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const SymbolContextList parent) :
+		const SymbolContextListRef parent) :
 		SymbolContext(modifiers, parent, make_shared<symbol_map>()) {
 }
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const SymbolContextList parent_context,
+		const SymbolContextListRef parent_context,
 		const shared_ptr<symbol_map> values) :
 		m_modifiers(modifiers), m_parent(parent_context), m_table(values) {
 }
@@ -116,7 +116,7 @@ const void SymbolContext::print(ostream &os, const TypeTable& type_table,
 
 	if (search_type == DEEP && m_parent) {
 		os << indent + 1 << "-->" << m_parent << endl;
-		m_parent->GetData()->print(os, type_table, indent + 1);
+		m_parent->GetData()->print(os, type_table, indent + 1, search_type);
 	}
 }
 
@@ -188,7 +188,7 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 		} else {
 			return INCOMPATIBLE_TYPE;
 		}
-	} else if (m_parent != nullptr) {
+	} else if (m_parent) {
 		auto context = m_parent->GetData();
 		return context->SetSymbol(identifier, type, value);
 	} else {

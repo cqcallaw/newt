@@ -38,7 +38,7 @@ const_shared_ptr<TypeSpecifier> ComparisonExpression::GetType(
 	return PrimitiveTypeSpecifier::GetBoolean();
 }
 
-const ErrorList ComparisonExpression::Validate(
+const ErrorListRef ComparisonExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
 	return BinaryExpression::Validate(execution_context,
 			PrimitiveTypeSpecifier::GetString(),
@@ -52,12 +52,12 @@ const_shared_ptr<Result> ComparisonExpression::compute(const bool& left,
 	case EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left == right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 		break;
 	case NOT_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left != right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 		break;
 	case LESS_THAN:
 	case LESS_THAN_EQUAL:
@@ -81,28 +81,28 @@ const_shared_ptr<Result> ComparisonExpression::compute(const int& left,
 	case EQUAL: {
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left == right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	}
 	case NOT_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left != right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case LESS_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left < right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case LESS_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left <= right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case GREATER_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left > right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case GREATER_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left >= right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	default:
 		assert(false);
 		return NULL;
@@ -118,27 +118,27 @@ const_shared_ptr<Result> ComparisonExpression::compute(const double& left,
 	case EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left == right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case NOT_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left != right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case LESS_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left < right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case LESS_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left <= right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case GREATER_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left > right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case GREATER_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left >= right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	default:
 		assert(false);
 		return NULL;
@@ -154,27 +154,27 @@ const_shared_ptr<Result> ComparisonExpression::compute(const string& left,
 	case EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left == right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case NOT_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left != right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case LESS_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left < right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case LESS_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left <= right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case GREATER_THAN:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left > right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	case GREATER_THAN_EQUAL:
 		return make_shared<Result>(
 				const_shared_ptr<const void>(new bool(left >= right)),
-				ErrorListBase::GetTerminator());
+				ErrorList::GetTerminator());
 	default:
 		assert(false);
 		return NULL;

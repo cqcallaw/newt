@@ -1,0 +1,18 @@
+Parsing file ../tests/t3003.nwt...
+Parsed file ../tests/t3003.nwt.
+Root Symbol Table:
+----------------
+point a:
+	int x: 2
+	int y: 0
+
+point b:
+	int x: 1
+	int y: 0
+
+
+Root Type Table:
+----------------
+point: 
+	int x (1)
+	int y (0)

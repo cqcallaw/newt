@@ -19,15 +19,14 @@
 
 #include <driver.h>
 
-int Driver::parse(const std::string& file_name, const bool trace_scanning,
-		const bool trace_parsing) {
-	int scan_begin_result = scan_begin(file_name, trace_scanning);
+int Driver::parse(const std::string& file_name, const TRACE trace_level) {
+	int scan_begin_result = scan_begin(file_name, (trace_level & SCANNING));
 
 	if (scan_begin_result != EXIT_SUCCESS)
 		return scan_begin_result;
 
 	yy::newt_parser parser(*this);
-	parser.set_debug_level(trace_parsing);
+	parser.set_debug_level((trace_level & PARSING));
 	int res = parser.parse();
 	scan_end();
 	return res;
@@ -35,20 +34,27 @@ int Driver::parse(const std::string& file_name, const bool trace_scanning,
 
 void Driver::error(const std::string& message) {
 	std::cerr << message;
+	m_error_count++;
 }
 
 void Driver::lexer_error(const yy::location& location,
 		const std::string& message) {
-	std::cerr << location << " Syntax error: " << message << std::endl;
+	std::cerr << "Lex error on line " << location.begin.line << ", column "
+			<< location.begin.column << ": " << message << std::endl;
+	m_error_count++;
 }
 
 void Driver::invalid_token(const yy::location& location,
-		const std::string& message) {
-	std::cerr << location << " Syntax error: '" << message << "'"
+		const std::string& token_name) {
+	std::cerr << "Lex error on line " << location.begin.line << ", column "
+			<< location.begin.column << ": '" << token_name << "'"
 			<< " is not a legal token." << std::endl;
+	m_error_count++;
 }
 
 void Driver::parser_error(const yy::location& location,
 		const std::string& message) {
-	Error::parse_error(location.begin.line, location.begin.column, message);
+	std::cerr << "Parse error on line " << location.begin.line << ", column "
+			<< location.begin.column << ": " << message << "." << std::endl;
+	m_error_count++;
 }

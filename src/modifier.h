@@ -34,7 +34,7 @@ private:
 	const yy::location m_type_position;
 };
 
-typedef const LinkedList<const Modifier, NO_DUPLICATES> ModifierListBase;
-typedef shared_ptr<ModifierListBase> ModifierList;
+typedef const LinkedList<const Modifier, NO_DUPLICATES> ModifierList;
+typedef shared_ptr<ModifierList> ModifierListRef;
 
 #endif /* MODIFIER_H_ */

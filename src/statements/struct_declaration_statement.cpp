@@ -32,9 +32,9 @@
 StructDeclarationStatement::StructDeclarationStatement(
 		const yy::location position, const_shared_ptr<string> name,
 		const yy::location name_position,
-		DeclarationList member_declaration_list,
+		DeclarationListRef member_declaration_list,
 		const yy::location member_declaration_list_position,
-		ModifierList modifier_list, const yy::location modifiers_location) :
+		ModifierListRef modifier_list, const yy::location modifiers_location) :
 		DeclarationStatement(position), m_name(name), m_name_position(
 				name_position), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_position(
@@ -51,15 +51,15 @@ StructDeclarationStatement::StructDeclarationStatement(
 StructDeclarationStatement::~StructDeclarationStatement() {
 }
 
-const ErrorList StructDeclarationStatement::preprocess(
+const ErrorListRef StructDeclarationStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = execution_context->GetTypeTable();
 
 	Modifier::Type modifiers = Modifier::NONE;
-	ModifierList modifier_list = m_modifier_list;
-	while (!ModifierListBase::IsTerminator(modifier_list)) {
+	ModifierListRef modifier_list = m_modifier_list;
+	while (!ModifierList::IsTerminator(modifier_list)) {
 		//TODO: check invalid modifiers
 		Modifier::Type new_modifier = modifier_list->GetData()->GetType();
 		modifiers = Modifier::Type(modifiers | new_modifier);
@@ -70,34 +70,34 @@ const ErrorList StructDeclarationStatement::preprocess(
 	//of the member declaration statements
 	const shared_ptr<symbol_map> values = make_shared<symbol_map>();
 	volatile_shared_ptr<SymbolTable> member_buffer = make_shared<SymbolTable>(
-			Modifier::NONE, SymbolContextListBase::GetTerminator(), values);
+			Modifier::NONE, SymbolContextList::GetTerminator(), values);
 	shared_ptr<ExecutionContext> struct_context =
 			execution_context->WithSymbolContext(member_buffer);
 
-	DeclarationList subject = m_member_declaration_list;
-	while (!DeclarationListBase::IsTerminator(subject)) {
+	DeclarationListRef subject = m_member_declaration_list;
+	while (!DeclarationList::IsTerminator(subject)) {
 		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
 
 		const_shared_ptr<Expression> initializer_expression =
 				declaration->GetInitializerExpression();
-		if (initializer_expression != nullptr
+		if (initializer_expression
 				&& !initializer_expression->IsConstant()) {
 			//if we have a non-constant initializer expression, generate an error
 			yy::location position = initializer_expression->GetPosition();
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
 							position.begin.line, position.begin.column),
 					errors);
 		} else {
 			//otherwise (no initializer expression OR a valid initializer expression), preprocess
-			errors = ErrorListBase::Concatenate(errors,
+			errors = ErrorList::Concatenate(errors,
 					declaration->preprocess(struct_context));
 		}
 
-		if (ErrorListBase::IsTerminator(errors)) {
+		if (ErrorList::IsTerminator(errors)) {
 			//we've pre-processed this statement without issue
-			errors = ErrorListBase::Concatenate(errors,
+			errors = ErrorList::Concatenate(errors,
 					declaration->execute(struct_context));
 		}
 
@@ -106,7 +106,7 @@ const ErrorList StructDeclarationStatement::preprocess(
 
 	volatile_shared_ptr<definition_map> mapping = make_shared<definition_map>();
 	symbol_map::iterator iter;
-	if (ErrorListBase::IsTerminator(errors)) {
+	if (ErrorList::IsTerminator(errors)) {
 		//we've evaluated everything without issue
 		//extract member declaration information into immutable MemberDefinition
 		for (iter = values->begin(); iter != values->end(); ++iter) {
@@ -127,9 +127,9 @@ const ErrorList StructDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorList StructDeclarationStatement::execute(
+const ErrorListRef StructDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	return ErrorListBase::GetTerminator();
+	return ErrorList::GetTerminator();
 }
 
 const DeclarationStatement* StructDeclarationStatement::WithInitializerExpression(

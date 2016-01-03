@@ -41,9 +41,9 @@ FunctionDeclarationStatement::FunctionDeclarationStatement(
 FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 }
 
-const ErrorList FunctionDeclarationStatement::preprocess(
+const ErrorListRef FunctionDeclarationStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = execution_context->GetTypeTable();
 
@@ -62,7 +62,7 @@ const ErrorList FunctionDeclarationStatement::preprocess(
 				errors = m_initializer_expression->Validate(execution_context);
 			} else {
 				errors =
-						ErrorListBase::From(
+						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::NOT_A_FUNCTION,
 										m_initializer_expression->GetPosition().begin.line,
@@ -71,7 +71,7 @@ const ErrorList FunctionDeclarationStatement::preprocess(
 			}
 		}
 
-		if (ErrorListBase::IsTerminator(errors)) {
+		if (ErrorList::IsTerminator(errors)) {
 			auto value = m_type->DefaultValue(*type_table);
 			auto symbol = const_shared_ptr<Symbol>(
 					new Symbol(static_pointer_cast<const Function>(value)));
@@ -86,9 +86,9 @@ const ErrorList FunctionDeclarationStatement::preprocess(
 			}
 		}
 	} else {
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::PREVIOUSLY_DECLARED_VARIABLE,
+						Error::PREVIOUS_DECLARATION,
 						m_name_location.begin.line,
 						m_name_location.begin.column, *(m_name)), errors);
 	}
@@ -96,9 +96,9 @@ const ErrorList FunctionDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorList FunctionDeclarationStatement::execute(
+const ErrorListRef FunctionDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	if (m_initializer_expression != nullptr) {
+	if (m_initializer_expression) {
 		Variable* temp_variable = new BasicVariable(m_name, m_name_location);
 		auto errors = temp_variable->AssignValue(execution_context,
 				m_initializer_expression, AssignmentType::ASSIGN);
@@ -106,7 +106,7 @@ const ErrorList FunctionDeclarationStatement::execute(
 
 		return errors;
 	} else {
-		return ErrorListBase::GetTerminator();
+		return ErrorList::GetTerminator();
 	}
 }
 

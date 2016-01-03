@@ -43,9 +43,9 @@ StructInstantiationStatement::StructInstantiationStatement(
 StructInstantiationStatement::~StructInstantiationStatement() {
 }
 
-const ErrorList StructInstantiationStatement::preprocess(
+const ErrorListRef StructInstantiationStatement::preprocess(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 	//TODO: validate that all members are initialized for readonly structs (?)
 
 	const_shared_ptr<CompoundType> type =
@@ -64,7 +64,7 @@ const ErrorList StructInstantiationStatement::preprocess(
 						m_initializer_expression->GetType(execution_context);
 				errors = m_initializer_expression->Validate(execution_context);
 
-				if (ErrorListBase::IsTerminator(errors)) {
+				if (ErrorList::IsTerminator(errors)) {
 					const_shared_ptr<CompoundTypeSpecifier> as_compound_specifier =
 							std::dynamic_pointer_cast<
 									const CompoundTypeSpecifier>(
@@ -79,7 +79,7 @@ const ErrorList StructInstantiationStatement::preprocess(
 									m_initializer_expression->Evaluate(
 											execution_context);
 							errors = result->GetErrors();
-							if (ErrorListBase::IsTerminator(errors)) {
+							if (ErrorList::IsTerminator(errors)) {
 								instance = static_pointer_cast<
 										const CompoundTypeInstance>(
 										result->GetData());
@@ -91,7 +91,7 @@ const ErrorList StructInstantiationStatement::preprocess(
 						}
 					} else {
 						errors =
-								ErrorListBase::From(
+								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::ASSIGNMENT_TYPE_ERROR,
 												m_initializer_expression->GetPosition().begin.line,
@@ -106,7 +106,7 @@ const ErrorList StructInstantiationStatement::preprocess(
 						m_type_specifier->GetTypeName(), type);
 			}
 
-			if (ErrorListBase::IsTerminator(errors)) {
+			if (ErrorList::IsTerminator(errors)) {
 				//we've been able to get a good initial value (that is, no errors have occurred)
 				auto symbol = const_shared_ptr<Symbol>(new Symbol(instance));
 				const InsertResult insert_result = symbol_table->InsertSymbol(
@@ -118,16 +118,16 @@ const ErrorList StructInstantiationStatement::preprocess(
 			}
 		} else {
 			//symbol already exists
-			errors = ErrorListBase::From(
+			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::PREVIOUSLY_DECLARED_VARIABLE,
+							Error::PREVIOUS_DECLARATION,
 							m_type_name_position.begin.line,
 							m_type_name_position.begin.column, *m_name),
 					errors);
 		}
 	} else {
 		//type does not exist
-		errors = ErrorListBase::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 						m_type_name_position.begin.line,
 						m_type_name_position.begin.column,
@@ -141,9 +141,9 @@ const_shared_ptr<TypeSpecifier> StructInstantiationStatement::GetType() const {
 	return m_type_specifier;
 }
 
-const ErrorList StructInstantiationStatement::execute(
+const ErrorListRef StructInstantiationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = ErrorListBase::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_initializer_expression) {
 		const_shared_ptr<Result> evaluation = m_initializer_expression->Evaluate(
@@ -151,7 +151,7 @@ const ErrorList StructInstantiationStatement::execute(
 
 		errors = evaluation->GetErrors();
 
-		if (ErrorListBase::IsTerminator(errors)) {
+		if (ErrorList::IsTerminator(errors)) {
 			auto void_value = evaluation->GetData();
 			const_shared_ptr<const CompoundTypeInstance> instance =
 					static_pointer_cast<const CompoundTypeInstance>(void_value);

@@ -1,0 +1,19 @@
+struct point {
+	x:int
+	y:int
+	translate:(int, int) -> point
+}
+
+p:point = @point with {
+	translate = (x:int, y:int) -> point {
+		return p with {
+			#N.B. the 'x' on the right-hand side references the function
+			#parameter, _not_ the struct member
+			x = p.x + x, 
+			y = p.y + y
+		}
+	}
+}
+
+t:= p.translate(3, 3)
+t2:= p.translate(10, 10)

@@ -1,0 +1,14 @@
+Parsing file ../tests/t3004.nwt...
+Parsed file ../tests/t3004.nwt.
+Root Symbol Table:
+----------------
+point a:
+	double x: 1
+	double y: 1
+
+
+Root Type Table:
+----------------
+point: 
+	double x (1)
+	double y (0)

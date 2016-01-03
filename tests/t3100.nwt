@@ -1,0 +1,6 @@
+struct my_struct {
+	arr: int[]
+}
+
+i:my_struct = @my_struct
+i.arr[0] = blue //invalid assignment to undeclared variable

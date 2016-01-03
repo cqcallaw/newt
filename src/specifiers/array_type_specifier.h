@@ -41,7 +41,7 @@ public:
 			const_shared_ptr<TypeSpecifier> other) const {
 		const_shared_ptr<ArrayTypeSpecifier> as_array =
 				std::dynamic_pointer_cast<const ArrayTypeSpecifier>(other);
-		return as_array != nullptr
+		return as_array
 				&& m_element_type_specifier->IsAssignableTo(
 						as_array->GetElementTypeSpecifier());
 	}

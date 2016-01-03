@@ -64,7 +64,7 @@ public:
 		LHS_OF_PERIOD_MUST_BE_OBJECT,
 		MINUS_ASSIGNMENT_TYPE_ERROR,
 		PLUS_ASSIGNMENT_TYPE_ERROR,
-		PREVIOUSLY_DECLARED_VARIABLE,
+		PREVIOUS_DECLARATION,
 		UNDECLARED_VARIABLE,
 		VARIABLE_NOT_AN_ARRAY,
 		VARIABLE_NOT_A_COMPOUND_TYPE,
@@ -82,25 +82,14 @@ public:
 		NOT_A_FUNCTION
 	};
 
-	Error();
 	Error(ErrorClass error_class, ErrorCode code, int line_number,
 			int column_number, string s1 = "", string s2 = "", string s3 = "");
-
-	static void lex_error(int line_number, string s1);
-
-	static void parse_error(int line_number, int column_number, string s1);
-
-	static int num_errors() {
-		return m_num_errors;
-	}
 
 	const string ToString() const;
 
 protected:
 	static void error_core(ostream &os, ErrorCode code, string s1 = "",
 			string s2 = "", string s3 = "");
-
-	static int m_num_errors;
 
 	const string get_error_message() const;
 
@@ -116,7 +105,7 @@ private:
 
 std::ostream &operator<<(std::ostream &os, const Error &error);
 
-typedef const LinkedList<Error, NO_DUPLICATES> ErrorListBase;
-typedef shared_ptr<ErrorListBase> ErrorList;
+typedef const LinkedList<Error, NO_DUPLICATES> ErrorList;
+typedef shared_ptr<ErrorList> ErrorListRef;
 
 #endif // #ifndef ERROR_H

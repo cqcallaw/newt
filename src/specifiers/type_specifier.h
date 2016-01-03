@@ -50,7 +50,7 @@ public:
 	virtual bool operator!=(const TypeSpecifier &other) const = 0;
 };
 
-typedef const LinkedList<const TypeSpecifier, ALLOW_DUPLICATES> TypeSpecifierListBase;
-typedef shared_ptr<TypeSpecifierListBase> TypeSpecifierList;
+typedef const LinkedList<const TypeSpecifier, ALLOW_DUPLICATES> TypeSpecifierList;
+typedef shared_ptr<TypeSpecifierList> TypeSpecifierListRef;
 
 #endif /* SPECIFIERS_TYPE_SPECIFIER_H_ */

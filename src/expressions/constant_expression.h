@@ -48,7 +48,7 @@ public:
 		return true;
 	}
 
-	virtual const ErrorList Validate(
+	virtual const ErrorListRef Validate(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 	static const_shared_ptr<Result> GetConstantExpression(

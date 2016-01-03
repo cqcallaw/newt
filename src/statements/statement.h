@@ -38,10 +38,10 @@ public:
 	/**
 	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
 	 */
-	virtual const ErrorList preprocess(
+	virtual const ErrorListRef preprocess(
 			const_shared_ptr<ExecutionContext> execution_context) const = 0;
 
-	virtual const ErrorList execute(
+	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const = 0;
 
 	virtual const AnalysisResult Returns(
@@ -49,7 +49,7 @@ public:
 			const_shared_ptr<ExecutionContext> execution_context) const = 0;
 };
 
-typedef const LinkedList<const Statement, NO_DUPLICATES> StatementListBase;
-typedef shared_ptr<StatementListBase> StatementList;
+typedef const LinkedList<const Statement, NO_DUPLICATES> StatementList;
+typedef shared_ptr<StatementList> StatementListRef;
 
 #endif /* STATEMENT_H_ */

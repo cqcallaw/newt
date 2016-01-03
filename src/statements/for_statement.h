@@ -23,6 +23,7 @@
 #include "statement.h"
 
 class AssignmentStatement;
+class DeclarationStatement;
 class Expression;
 class StatementBlock;
 class SymbolTable;
@@ -34,12 +35,16 @@ public:
 			const_shared_ptr<Expression> loop_expression,
 			const_shared_ptr<AssignmentStatement> loop_assignment,
 			const_shared_ptr<StatementBlock> statement_block);
+	ForStatement(const_shared_ptr<DeclarationStatement> initial,
+			const_shared_ptr<Expression> loop_expression,
+			const_shared_ptr<AssignmentStatement> loop_assignment,
+			const_shared_ptr<StatementBlock> statement_block);
 	virtual ~ForStatement();
 
-	virtual const ErrorList preprocess(
+	virtual const ErrorListRef preprocess(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const ErrorList execute(
+	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const AnalysisResult Returns(
@@ -47,7 +52,12 @@ public:
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
 private:
-	const_shared_ptr<AssignmentStatement> m_initial;
+	ForStatement(const_shared_ptr<Statement> initial,
+			const_shared_ptr<Expression> loop_expression,
+			const_shared_ptr<AssignmentStatement> loop_assignment,
+			const_shared_ptr<StatementBlock> statement_block);
+
+	const_shared_ptr<Statement> m_initial;
 	const_shared_ptr<Expression> m_loop_expression;
 	const_shared_ptr<AssignmentStatement> m_loop_assignment;
 	const_shared_ptr<StatementBlock> m_statement_block;

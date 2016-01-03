@@ -42,9 +42,9 @@ const_shared_ptr<Result> VariableExpression::Evaluate(
 	return m_variable->Evaluate(execution_context);
 }
 
-const ErrorList VariableExpression::Validate(
+const ErrorListRef VariableExpression::Validate(
 		const_shared_ptr<ExecutionContext> execution_context) const {
-	ErrorList errors = m_variable->Validate(execution_context);
+	ErrorListRef errors = m_variable->Validate(execution_context);
 
 	return errors;
 }

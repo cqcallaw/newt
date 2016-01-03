@@ -29,19 +29,19 @@ class StructDeclarationStatement: public DeclarationStatement {
 public:
 	StructDeclarationStatement(const yy::location position, const_shared_ptr<string> name,
 			const yy::location name_position,
-			DeclarationList member_declaration_list,
+			DeclarationListRef member_declaration_list,
 			const yy::location member_declaration_list_position,
-			ModifierList modifier_list,
+			ModifierListRef modifier_list,
 			const yy::location modifiers_location);
 	virtual ~StructDeclarationStatement();
 
-	virtual const ErrorList preprocess(
+	virtual const ErrorListRef preprocess(
 			const_shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const ErrorList execute(
+	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	DeclarationList GetMemberDeclarationList() const {
+	DeclarationListRef GetMemberDeclarationListRef() const {
 		return m_member_declaration_list;
 	}
 
@@ -60,11 +60,11 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
 
-	const yy::location GetMemberDeclarationListPosition() const {
+	const yy::location GetMemberDeclarationListRefPosition() const {
 		return m_member_declaration_list_position;
 	}
 
-	ModifierList GetModifierList() const {
+	ModifierListRef GetModifierListRef() const {
 		return m_modifier_list;
 	}
 
@@ -79,9 +79,9 @@ public:
 private:
 	const_shared_ptr<string> m_name;
 	const yy::location m_name_position;
-	DeclarationList m_member_declaration_list;
+	DeclarationListRef m_member_declaration_list;
 	const yy::location m_member_declaration_list_position;
-	ModifierList m_modifier_list;
+	ModifierListRef m_modifier_list;
 	const yy::location m_modifiers_location;
 
 	const_shared_ptr<TypeSpecifier> m_type_specifier;

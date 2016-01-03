@@ -31,7 +31,7 @@ const string Array::ToString(const TypeTable& type_table,
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					element_type);
-	if (as_primitive != nullptr) {
+	if (as_primitive) {
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case INT: {
@@ -75,7 +75,7 @@ const string Array::ToString(const TypeTable& type_table,
 	const_shared_ptr<CompoundTypeSpecifier> as_compound =
 			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
 					element_type);
-	if (as_compound != nullptr) {
+	if (as_compound) {
 		for (int i = 0; i < size; i++) {
 			auto instance = static_pointer_cast<const CompoundTypeInstance>(
 					GetValue<CompoundTypeInstance>(i, type_table));
