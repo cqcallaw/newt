@@ -139,8 +139,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				shared_ptr<ExecutionContext>(
 						new ExecutionContext(final_symbol_context,
 								m_closure->GetTypeTable()));
-		errors = ErrorList::Concatenate(errors,
-				m_body->execute(child_context));
+		errors = ErrorList::Concatenate(errors, m_body->execute(child_context));
 
 		return make_shared<Result>(child_context->GetReturnValue(), errors);
 	} else {

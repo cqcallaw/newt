@@ -77,6 +77,13 @@ const ErrorListRef BasicVariable::AssignValue(
 		const_shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
+	return AssignValue(context, expression, context, op);
+}
+const ErrorListRef BasicVariable::AssignValue(
+		const_shared_ptr<ExecutionContext> context,
+		const_shared_ptr<Expression> expression,
+		const_shared_ptr<ExecutionContext> output_context,
+		const AssignmentType op) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto variable_name = GetName();
@@ -84,7 +91,7 @@ const ErrorListRef BasicVariable::AssignValue(
 	const int variable_column = GetLocation().begin.column;
 
 	shared_ptr<SymbolTable> symbol_table = static_pointer_cast<SymbolTable>(
-			context->GetSymbolContext());
+			output_context->GetSymbolContext());
 	const_shared_ptr<Symbol> symbol = symbol_table->GetSymbol(variable_name,
 			DEEP);
 	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
@@ -103,7 +110,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(context,
+				errors = SetSymbol(output_context,
 						static_pointer_cast<const bool>(result->GetData()));
 			}
 			break;
@@ -116,7 +123,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(context,
+				errors = SetSymbol(output_context,
 						static_pointer_cast<const int>(result->GetData()));
 			}
 			break;
@@ -129,7 +136,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(context,
+				errors = SetSymbol(output_context,
 						static_pointer_cast<const double>(result->GetData()));
 			}
 			break;
@@ -141,7 +148,7 @@ const ErrorListRef BasicVariable::AssignValue(
 					op, context);
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(context,
+				errors = SetSymbol(output_context,
 						static_pointer_cast<const string>(result->GetData()));
 			}
 			break;
@@ -165,7 +172,7 @@ const ErrorListRef BasicVariable::AssignValue(
 					expression_evaluation->GetData());
 
 			if (result_as_array) {
-				errors = SetSymbol(context, result_as_array);
+				errors = SetSymbol(output_context, result_as_array);
 			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
@@ -190,7 +197,7 @@ const ErrorListRef BasicVariable::AssignValue(
 					expression_evaluation->GetData());
 
 			//we're assigning a struct reference
-			errors = SetSymbol(context, new_instance);
+			errors = SetSymbol(output_context, new_instance);
 		}
 	}
 
@@ -206,7 +213,7 @@ const ErrorListRef BasicVariable::AssignValue(
 			auto function = static_pointer_cast<const Function>(
 					expression_evaluation->GetData());
 
-			errors = SetSymbol(context, function);
+			errors = SetSymbol(output_context, function);
 		}
 	}
 

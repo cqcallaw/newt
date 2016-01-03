@@ -23,6 +23,8 @@
 #include <member_definition.h>
 #include <member_instantiation.h>
 #include <compound_type_specifier.h>
+#include <assignment_statement.h>
+#include <basic_variable.h>
 
 WithExpression::WithExpression(const yy::location position,
 		const_shared_ptr<Expression> source_expression,
@@ -71,77 +73,41 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 				auto new_values = make_shared<symbol_map>(
 						existing_context->GetTable()->begin(),
 						existing_context->GetTable()->end());
+				//create a new symbol context that isn't read-only
+				volatile_shared_ptr<SymbolContext> new_symbol_context =
+						std::make_shared<SymbolContext>(
+								SymbolContext(
+										Modifier::Type(
+												existing_context->GetModifiers()
+														& ~(Modifier::Type::READONLY)),
+										SymbolContextList::GetTerminator(),
+										new_values));
+				volatile_shared_ptr<ExecutionContext> temp_execution_context =
+						make_shared<ExecutionContext>(new_symbol_context,
+								execution_context->GetTypeTable());
 
 				MemberInstantiationListRef subject = m_member_instantiation_list;
 				while (!MemberInstantiationList::IsTerminator(subject)) {
 					const_shared_ptr<MemberInstantiation> instantiation =
 							subject->GetData();
-					auto member_name = instantiation->GetName();
-					const_shared_ptr<MemberDefinition> member_definition =
-							type->GetMember(*member_name);
 
-					if (member_definition
-							!= MemberDefinition::GetDefaultMemberDefinition()) {
-						const_shared_ptr<TypeSpecifier> member_type =
-								member_definition->GetType();
-						const_shared_ptr<TypeSpecifier> expression_type =
-								instantiation->GetExpression()->GetType(
-										execution_context);
-						if (expression_type->IsAssignableTo(member_type)) {
-							const_shared_ptr<MemberInstantiation> memberInstantiation =
-									subject->GetData();
-							const_shared_ptr<Result> evaluation_result =
-									memberInstantiation->GetExpression()->Evaluate(
-											execution_context);
-
-							if (evaluation_result->GetErrors()
-									== ErrorList::GetTerminator()) {
-								auto void_value = evaluation_result->GetData();
-
-								new_values->at(*member_name) =
-										CompoundTypeInstance::GetSymbol(
-												member_type, void_value);
-							} else {
-								errors = ErrorList::Concatenate(errors,
-										evaluation_result->GetErrors());
-							}
-						} else {
-							//undefined member
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::ASSIGNMENT_TYPE_ERROR,
-													instantiation->GetExpressionPosition().begin.line,
-													instantiation->GetExpressionPosition().begin.column,
-													member_type->ToString(),
-													expression_type->ToString()),
-											errors);
-						}
-					} else {
-						//undefined member
-						errors =
-								ErrorList::From(
-										std::make_shared<Error>(Error::SEMANTIC,
-												Error::UNDECLARED_MEMBER,
-												instantiation->GetNamePosition().begin.line,
-												instantiation->GetNamePosition().begin.column,
-												*member_name,
-												member_definition->GetType()->ToString()),
-										errors);
-
-					}
+					auto variable = make_shared<BasicVariable>(
+							instantiation->GetName(),
+							instantiation->GetNamePosition());
+					errors = ErrorList::Concatenate(errors,
+							variable->AssignValue(execution_context,
+									instantiation->GetExpression(),
+									temp_execution_context, ASSIGN));
 
 					subject = subject->GetNext();
 				}
 
-				volatile_shared_ptr<SymbolContext> new_symbol_context =
-						std::make_shared<SymbolContext>(
-								SymbolContext(existing_context->GetModifiers(),
-										execution_context->GetSymbolContext()->GetParent(),
-										new_values));
+				new_symbol_context = new_symbol_context->WithModifiers(
+						existing_context->GetModifiers());
 
 				new_value = std::make_shared<CompoundTypeInstance>(
 						as_compound->GetTypeSpecifier(), new_symbol_context);
+
 			} else {
 				errors = ErrorList::From(
 						std::make_shared<Error>(Error::SEMANTIC,
@@ -221,8 +187,8 @@ const ErrorListRef WithExpression::Validate(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
-													instantiation->GetExpressionPosition().begin.line,
-													instantiation->GetExpressionPosition().begin.column,
+													instantiation->GetExpression()->GetPosition().begin.line,
+													instantiation->GetExpression()->GetPosition().begin.column,
 													member_type->ToString(),
 													expression_type->ToString()),
 											errors);

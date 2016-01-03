@@ -7,7 +7,9 @@ struct point {
 p:point = @point with {
 	translate = (x:int, y:int) -> point {
 		return p with {
-			x = p.x + x,
+			#N.B. the 'x' on the right-hand side references the function
+			#parameter, _not_ the struct member
+			x = p.x + x, 
 			y = p.y + y
 		}
 	}

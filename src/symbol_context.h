@@ -43,8 +43,8 @@ enum SearchType {
 	SHALLOW = 0, DEEP = 1
 };
 
-const ErrorListRef ToErrorListRef(const SetResult result, const yy::location location,
-		const_shared_ptr<string> name,
+const ErrorListRef ToErrorListRef(const SetResult result,
+		const yy::location location, const_shared_ptr<string> name,
 		const_shared_ptr<TypeSpecifier> symbol_type,
 		const_shared_ptr<TypeSpecifier> value_type);
 
@@ -70,6 +70,12 @@ public:
 
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;
+	}
+
+	virtual volatile_shared_ptr<SymbolContext> WithModifiers(
+			const Modifier::Type modifiers) const {
+		return make_shared<SymbolContext>(
+				SymbolContext(modifiers, m_parent, m_table));
 	}
 
 	const SymbolContextListRef GetParent() const {
