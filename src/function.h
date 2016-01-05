@@ -30,7 +30,8 @@ class ExecutionContext;
 class Function {
 public:
 	Function(const_shared_ptr<FunctionDeclaration> declaration,
-			const_shared_ptr<StatementBlock> body, const_shared_ptr<ExecutionContext> closure);
+			const_shared_ptr<StatementBlock> body,
+			const_shared_ptr<ExecutionContext> closure);
 	virtual ~Function();
 
 	const_shared_ptr<FunctionDeclaration> GetType() const {

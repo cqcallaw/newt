@@ -70,9 +70,7 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 
 const_shared_ptr<void> FunctionDeclaration::DefaultValue(
 		const TypeTable& type_table) const {
-	const Function* default_value = GetDefaultFunctionDeclaration(*this,
-			type_table);
-	return const_shared_ptr<void>(default_value);
+	return GetDefaultFunctionDeclaration(*this, type_table);
 }
 
 const_shared_ptr<DeclarationStatement> FunctionDeclaration::GetDeclarationStatement(
@@ -85,15 +83,14 @@ const_shared_ptr<DeclarationStatement> FunctionDeclaration::GetDeclarationStatem
 			type_position, name, name_position, initializer_expression);
 }
 
-const Function* FunctionDeclaration::GetDefaultFunctionDeclaration(
+const_shared_ptr<Function> FunctionDeclaration::GetDefaultFunctionDeclaration(
 		const FunctionDeclaration& function_declaration,
 		const TypeTable& type_table) {
 	auto statement_block = GetDefaultStatementBlock(
 			function_declaration.GetReturnType(), type_table);
 
-	return new Function(
-			const_shared_ptr<FunctionDeclaration>(
-					new FunctionDeclaration(function_declaration)),
+	return make_shared<const Function>(
+			make_shared<FunctionDeclaration>(function_declaration),
 			statement_block, ExecutionContext::GetDefault());
 }
 

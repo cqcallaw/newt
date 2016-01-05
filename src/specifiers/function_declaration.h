@@ -46,10 +46,9 @@ public:
 		return m_parameter_list;
 	}
 
-	static TypeSpecifierListRef GetTypeList(
-			DeclarationListRef parameter_list);
+	static TypeSpecifierListRef GetTypeList(DeclarationListRef parameter_list);
 protected:
-	static const Function* GetDefaultFunctionDeclaration(
+	static const_shared_ptr<Function> GetDefaultFunctionDeclaration(
 			const FunctionDeclaration& function_declaration,
 			const TypeTable& type_table);
 
