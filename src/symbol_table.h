@@ -42,8 +42,8 @@ public:
 
 	virtual volatile_shared_ptr<SymbolContext> WithParent(
 			SymbolContextListRef parent_context) const {
-		return make_shared<SymbolTable>(
-				SymbolTable(GetModifiers(), parent_context, GetTable()));
+		return make_shared<SymbolTable>(GetModifiers(), parent_context,
+				GetTable());
 	}
 };
 
