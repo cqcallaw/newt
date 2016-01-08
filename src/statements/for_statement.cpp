@@ -54,7 +54,7 @@ const ErrorListRef ForStatement::preprocess(
 
 	volatile_shared_ptr<SymbolContext> symbol_context =
 			execution_context->GetSymbolContext();
-	const auto new_parent = SymbolContextList::From(symbol_context,
+	const auto new_parent = SymbolContextList::From(execution_context,
 			symbol_context->GetParent());
 	volatile_shared_ptr<SymbolContext> tmp_table = m_block_table->WithParent(
 			new_parent);
@@ -90,7 +90,7 @@ const ErrorListRef ForStatement::execute(
 
 	volatile_shared_ptr<SymbolContext> symbol_context =
 			execution_context->GetSymbolContext();
-	const auto new_parent = SymbolContextList::From(symbol_context,
+	const auto new_parent = SymbolContextList::From(execution_context,
 			symbol_context->GetParent());
 	volatile_shared_ptr<SymbolContext> tmp_table = m_block_table->WithParent(
 			new_parent);

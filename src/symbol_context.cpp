@@ -115,7 +115,9 @@ const void SymbolContext::print(ostream &os, const TypeTable& type_table,
 	}
 
 	if (search_type == DEEP && m_parent) {
-		os << indent + 1 << "-->" << m_parent->GetData() << endl;
+		os << indent + 1 << "-->" << m_parent->GetData() << "("
+				<< (m_parent->IsWeak() ? string("weak") : string("strong"))
+				<< ")" << endl;
 		m_parent->GetData()->print(os, type_table, indent + 1, search_type);
 	}
 }

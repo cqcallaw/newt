@@ -25,11 +25,16 @@
 class SymbolContext;
 class TypeTable;
 
+enum LifeTime {
+	PERSISTENT, EPHEMERAL
+};
+
 class ExecutionContext {
 public:
 	ExecutionContext();
 	ExecutionContext(volatile_shared_ptr<SymbolContext> symbol_context,
-			volatile_shared_ptr<TypeTable> type_table);
+			volatile_shared_ptr<TypeTable> type_table,
+			const LifeTime life_time);
 	virtual ~ExecutionContext();
 
 	volatile_shared_ptr<SymbolContext> GetSymbolContext() const {
@@ -42,8 +47,8 @@ public:
 
 	volatile_shared_ptr<ExecutionContext> WithSymbolContext(
 			volatile_shared_ptr<SymbolContext> symbol_context) const {
-		return std::shared_ptr<ExecutionContext>(
-				new ExecutionContext(symbol_context, m_type_table));
+		return std::make_shared<ExecutionContext>(symbol_context, m_type_table,
+				m_life_time);
 	}
 
 	plain_shared_ptr<void> GetReturnValue() const {
@@ -64,16 +69,21 @@ public:
 
 	static const_shared_ptr<ExecutionContext> GetDefault();
 
+	const LifeTime GetLifeTime() const {
+		return m_life_time;
+	}
+
 private:
 	ExecutionContext(volatile_shared_ptr<SymbolContext> symbol_context,
 			volatile_shared_ptr<TypeTable> type_table,
 			plain_shared_ptr<void> m_return_value,
-			plain_shared_ptr<int> exit_code);
+			plain_shared_ptr<int> exit_code, const LifeTime life_time);
 
 	volatile_shared_ptr<SymbolContext> m_symbol_context;
 	volatile_shared_ptr<TypeTable> m_type_table;
 	plain_shared_ptr<void> m_return_value;
 	plain_shared_ptr<int> m_exit_code;
+	const LifeTime m_life_time;
 };
 
 #endif /* EXECUTION_CONTEXT_H_ */

@@ -55,7 +55,7 @@ const ErrorListRef IfStatement::preprocess(
 			volatile_shared_ptr<SymbolContext> symbol_context =
 					execution_context->GetSymbolContext();
 			SymbolContextListRef new_parent = SymbolContextList::From(
-					symbol_context, symbol_context->GetParent());
+					execution_context, symbol_context->GetParent());
 			volatile_shared_ptr<SymbolContext> tmp_table =
 					m_block_table->WithParent(new_parent);
 			shared_ptr<ExecutionContext> new_execution_context =
@@ -65,7 +65,7 @@ const ErrorListRef IfStatement::preprocess(
 
 			if (m_else_block) {
 				//pre-process else block
-				new_parent = SymbolContextList::From(symbol_context,
+				new_parent = SymbolContextList::From(execution_context,
 						symbol_context->GetParent());
 				tmp_table = m_else_block_table->WithParent(new_parent);
 				new_execution_context = execution_context->WithSymbolContext(
@@ -102,7 +102,7 @@ const ErrorListRef IfStatement::execute(
 		volatile_shared_ptr<SymbolContext> symbol_context =
 				execution_context->GetSymbolContext();
 		SymbolContextListRef new_parent = SymbolContextList::From(
-				symbol_context, symbol_context->GetParent());
+				execution_context, symbol_context->GetParent());
 		volatile_shared_ptr<SymbolContext> tmp_table =
 				m_block_table->WithParent(new_parent);
 		shared_ptr<ExecutionContext> new_execution_context =
@@ -113,7 +113,7 @@ const ErrorListRef IfStatement::execute(
 		volatile_shared_ptr<SymbolContext> symbol_context =
 				execution_context->GetSymbolContext();
 		SymbolContextListRef new_parent = SymbolContextList::From(
-				symbol_context, symbol_context->GetParent());
+				execution_context, symbol_context->GetParent());
 		volatile_shared_ptr<SymbolContext> tmp_table =
 				m_else_block_table->WithParent(new_parent);
 		shared_ptr<ExecutionContext> new_execution_context =

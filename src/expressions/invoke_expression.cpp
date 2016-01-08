@@ -142,8 +142,8 @@ const ErrorListRef InvokeExpression::Validate(
 		if (as_function) {
 			//generate a temporary context for validation
 			auto parent = execution_context->GetSymbolContext()->GetParent();
-			auto new_parent = SymbolContextList::From(
-					execution_context->GetSymbolContext(), parent);
+			auto new_parent = SymbolContextList::From(execution_context,
+					parent);
 			auto tmp_map = make_shared<symbol_map>();
 			volatile_shared_ptr<SymbolTable> tmp_table = std::make_shared<
 					SymbolTable>(Modifier::Type::NONE, new_parent, tmp_map);
@@ -225,8 +225,7 @@ const ErrorListRef InvokeExpression::Validate(
 				while (!ArgumentList::IsTerminator(argument)) {
 					const_shared_ptr<Expression> argument_expression =
 							argument->GetData();
-					if (!TypeSpecifierList::IsTerminator(
-							type_parameter_list)) {
+					if (!TypeSpecifierList::IsTerminator(type_parameter_list)) {
 						const_shared_ptr<TypeSpecifier> parameter_type =
 								type_parameter_list->GetData();
 						const_shared_ptr<TypeSpecifier> argument_type =

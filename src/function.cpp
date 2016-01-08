@@ -42,12 +42,11 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 
 	auto invocation_symbol_context = invocation_context->GetSymbolContext();
 	auto invocation_context_parent = invocation_symbol_context->GetParent();
-	auto parent_context = SymbolContextList::From(invocation_symbol_context,
+	auto parent_context = SymbolContextList::From(invocation_context,
 			invocation_context_parent);
 	auto table = make_shared<SymbolTable>(parent_context);
-	shared_ptr<ExecutionContext> function_execution_context = shared_ptr<
-			ExecutionContext>(
-			new ExecutionContext(table, m_closure->GetTypeTable()));
+	shared_ptr<ExecutionContext> function_execution_context = make_shared<
+			ExecutionContext>(table, m_closure->GetTypeTable(), EPHEMERAL);
 
 	//populate evaluation context with results of argument evaluation
 	ArgumentListRef argument = argument_list;
@@ -128,17 +127,15 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	//juggle the references so the evaluation context is a child of the closure context
 	auto closure_symbol_context = m_closure->GetSymbolContext();
 	auto closure_symbol_context_parent = closure_symbol_context->GetParent();
-	parent_context = SymbolContextList::From(closure_symbol_context,
+	parent_context = SymbolContextList::From(m_closure,
 			closure_symbol_context_parent);
 	auto final_symbol_context = table->WithParent(parent_context);
 
 	//TODO: determine if it is necessary to merge type tables
 
 	if (ErrorList::IsTerminator(errors)) {
-		shared_ptr<ExecutionContext> child_context =
-				shared_ptr<ExecutionContext>(
-						new ExecutionContext(final_symbol_context,
-								m_closure->GetTypeTable()));
+		auto child_context = make_shared<ExecutionContext>(final_symbol_context,
+				m_closure->GetTypeTable(), EPHEMERAL);
 		//performing preprocessing here duplicates work with the function express processing,
 		//but the context setup in the function preprocessing is currently discarded.
 		//TODO: consider cloning function expression preprocess context instead of discarding it

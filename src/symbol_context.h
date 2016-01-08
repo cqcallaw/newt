@@ -55,7 +55,7 @@ struct comparator {
 };
 
 typedef map<const string, plain_shared_ptr<Symbol>, comparator> symbol_map;
-typedef const LinkedList<SymbolContext, NO_DUPLICATES> SymbolContextList;
+#include <symbol_context_list.h>
 typedef shared_ptr<SymbolContextList> SymbolContextListRef;
 
 class SymbolContext {
