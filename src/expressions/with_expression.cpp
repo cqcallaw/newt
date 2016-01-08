@@ -70,21 +70,17 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 				const_shared_ptr<SymbolContext> existing_context =
 						as_compound->GetDefinition();
 
-				auto new_values = make_shared<symbol_map>(
-						existing_context->GetTable()->begin(),
-						existing_context->GetTable()->end());
-				//create a new symbol context that isn't read-only
+				//create a new symbol context that isn't read-only, and has no parent context
 				volatile_shared_ptr<SymbolContext> new_symbol_context =
-						std::make_shared<SymbolContext>(
-								SymbolContext(
-										Modifier::Type(
-												existing_context->GetModifiers()
-														& ~(Modifier::Type::READONLY)),
-										SymbolContextList::GetTerminator(),
-										new_values));
+						existing_context->Clone()->WithModifiers(
+								Modifier::Type(
+										existing_context->GetModifiers()
+												& ~(Modifier::Type::READONLY)))->WithParent(
+								SymbolContextList::GetTerminator());
+
 				volatile_shared_ptr<ExecutionContext> temp_execution_context =
-						make_shared<ExecutionContext>(new_symbol_context,
-								execution_context->GetTypeTable());
+						execution_context->WithSymbolContext(
+								new_symbol_context);
 
 				MemberInstantiationListRef subject = m_member_instantiation_list;
 				while (!MemberInstantiationList::IsTerminator(subject)) {

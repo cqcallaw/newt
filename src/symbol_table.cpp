@@ -33,6 +33,11 @@ SymbolTable::SymbolTable(SymbolContextListRef parent) :
 }
 
 SymbolTable::SymbolTable(const Modifier::Type modifiers,
+		const SymbolContextListRef parent_context) :
+		SymbolContext(modifiers, parent_context) {
+}
+
+SymbolTable::SymbolTable(const Modifier::Type modifiers,
 		const SymbolContextListRef parent_context,
 		const shared_ptr<symbol_map> values) :
 		SymbolContext(modifiers, parent_context, values) {

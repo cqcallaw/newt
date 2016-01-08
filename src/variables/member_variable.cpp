@@ -253,12 +253,10 @@ const ErrorListRef MemberVariable::AssignValue(
 		volatile_shared_ptr<SymbolContext> symbol_context =
 				context->GetSymbolContext();
 		const auto parent_context = symbol_context->GetParent();
-		const auto new_parent_context = SymbolContextList::From(
-				symbol_context, parent_context);
+		const auto new_parent_context = SymbolContextList::From(symbol_context,
+				parent_context);
 
-		auto new_definition = make_shared<SymbolContext>(
-				definition->GetModifiers(), new_parent_context,
-				definition->GetTable());
+		auto new_definition = definition->WithParent(new_parent_context);
 
 		auto new_context = context->WithSymbolContext(new_definition);
 		const_shared_ptr<Variable> new_variable = GetMemberVariable();

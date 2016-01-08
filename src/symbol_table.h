@@ -34,6 +34,9 @@ public:
 			SymbolContextList::GetTerminator());
 
 	SymbolTable(const Modifier::Type modifiers,
+			const SymbolContextListRef parent_context);
+
+	SymbolTable(const Modifier::Type modifiers,
 			const SymbolContextListRef parent_context,
 			const shared_ptr<symbol_map> values);
 

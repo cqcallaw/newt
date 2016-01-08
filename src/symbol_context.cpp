@@ -195,3 +195,9 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 		return UNDEFINED_SYMBOL;
 	}
 }
+
+volatile_shared_ptr<SymbolContext> SymbolContext::Clone() const {
+	return volatile_shared_ptr<SymbolContext>(
+			new SymbolContext(m_modifiers, m_parent,
+					make_shared<symbol_map>(m_table->begin(), m_table->end())));
+}

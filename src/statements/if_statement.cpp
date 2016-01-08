@@ -56,10 +56,8 @@ const ErrorListRef IfStatement::preprocess(
 					execution_context->GetSymbolContext();
 			SymbolContextListRef new_parent = SymbolContextList::From(
 					symbol_context, symbol_context->GetParent());
-			volatile_shared_ptr<SymbolTable> tmp_table =
-					make_shared<SymbolTable>(
-							SymbolTable(m_block_table->GetModifiers(),
-									new_parent, m_block_table->GetTable()));
+			volatile_shared_ptr<SymbolContext> tmp_table =
+					m_block_table->WithParent(new_parent);
 			shared_ptr<ExecutionContext> new_execution_context =
 					execution_context->WithSymbolContext(tmp_table);
 
@@ -69,9 +67,7 @@ const ErrorListRef IfStatement::preprocess(
 				//pre-process else block
 				new_parent = SymbolContextList::From(symbol_context,
 						symbol_context->GetParent());
-				tmp_table = make_shared<SymbolTable>(
-						m_else_block_table->GetModifiers(), new_parent,
-						m_else_block_table->GetTable());
+				tmp_table = m_else_block_table->WithParent(new_parent);
 				new_execution_context = execution_context->WithSymbolContext(
 						tmp_table);
 
@@ -107,9 +103,8 @@ const ErrorListRef IfStatement::execute(
 				execution_context->GetSymbolContext();
 		SymbolContextListRef new_parent = SymbolContextList::From(
 				symbol_context, symbol_context->GetParent());
-		volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
-				m_block_table->GetModifiers(), new_parent,
-				m_block_table->GetTable());
+		volatile_shared_ptr<SymbolContext> tmp_table =
+				m_block_table->WithParent(new_parent);
 		shared_ptr<ExecutionContext> new_execution_context =
 				execution_context->WithSymbolContext(tmp_table);
 
@@ -119,9 +114,8 @@ const ErrorListRef IfStatement::execute(
 				execution_context->GetSymbolContext();
 		SymbolContextListRef new_parent = SymbolContextList::From(
 				symbol_context, symbol_context->GetParent());
-		volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
-				m_else_block_table->GetModifiers(), new_parent,
-				m_else_block_table->GetTable());
+		volatile_shared_ptr<SymbolContext> tmp_table =
+				m_else_block_table->WithParent(new_parent);
 		shared_ptr<ExecutionContext> new_execution_context =
 				execution_context->WithSymbolContext(tmp_table);
 

@@ -63,10 +63,12 @@ public:
 	SymbolContext(const Modifier::Type modifiers,
 			const SymbolContextListRef parent =
 					SymbolContextList::GetTerminator());
-	SymbolContext(const Modifier::Type modifiers,
-			const SymbolContextListRef parent_context,
-			const shared_ptr<symbol_map> values);
 	virtual ~SymbolContext();
+
+	/**
+	 * Clone the context. N.B. that the parent contexts are not cloned.
+	 */
+	volatile_shared_ptr<SymbolContext> Clone() const;
 
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;
@@ -86,10 +88,6 @@ public:
 			const SymbolContextListRef parent_context) const {
 		return make_shared<SymbolContext>(
 				SymbolContext(m_modifiers, parent_context, m_table));
-	}
-
-	const shared_ptr<symbol_map> GetTable() const {
-		return m_table;
 	}
 
 	const bool IsMutable() const {
@@ -118,6 +116,15 @@ public:
 			const_shared_ptr<Function> value);
 
 	static volatile_shared_ptr<SymbolContext> GetDefault();
+
+protected:
+	const shared_ptr<symbol_map> GetTable() const {
+		return m_table;
+	}
+
+	SymbolContext(const Modifier::Type modifiers,
+			const SymbolContextListRef parent_context,
+			const shared_ptr<symbol_map> values);
 
 private:
 	const Modifier::Type m_modifiers;
