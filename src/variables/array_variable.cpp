@@ -91,8 +91,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<SymbolContext> symbol_context = context;
-	auto symbol = symbol_context->GetSymbol(GetName(), DEEP);
+	auto symbol = context->GetSymbol(GetName(), DEEP);
 	auto type_table = context->GetTypeTable();
 	int array_index = -1;
 	yy::location index_location = GetDefaultLocation();
@@ -435,7 +434,7 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 		auto type_table = context->GetTypeTable();
 		const_shared_ptr<TypeSpecifier> element_type_specifier =
 				array->GetElementType();
-		plain_shared_ptr<Array> new_array = nullptr;
+		shared_ptr<const Array> new_array = nullptr;
 
 		if (element_type_specifier->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetBoolean())) {
@@ -486,8 +485,7 @@ const ErrorListRef ArrayVariable::Validate(
 		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<SymbolContext> symbol_context = context;
-	auto symbol = symbol_context->GetSymbol(GetName(), DEEP);
+	auto symbol = context->GetSymbol(GetName(), DEEP);
 
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		plain_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();

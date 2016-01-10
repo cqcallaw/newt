@@ -70,42 +70,37 @@ const ErrorListRef ToErrorListRef(const SetResult result,
 	return errors;
 }
 
-SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const SymbolContextListRef parent) :
-		SymbolContext(modifiers, parent, make_shared<symbol_map>()) {
+SymbolContext::SymbolContext(const Modifier::Type modifiers) :
+		SymbolContext(modifiers, make_shared<symbol_map>()) {
 }
 
 SymbolContext::SymbolContext(const Modifier::Type modifiers,
-		const SymbolContextListRef parent_context,
 		const shared_ptr<symbol_map> values) :
-		m_modifiers(modifiers), m_parent(parent_context), m_table(values) {
+		m_modifiers(modifiers), m_table(values) {
 }
 
 SymbolContext::~SymbolContext() {
 }
 
-const_shared_ptr<Symbol> SymbolContext::GetSymbol(const string& identifier,
-		const SearchType search_type) const {
+const_shared_ptr<Symbol> SymbolContext::GetSymbol(
+		const string& identifier) const {
 	auto result = m_table->find(identifier);
 
 	if (result != m_table->end()) {
 		return result->second;
-	} else if (m_parent && search_type == DEEP) {
-		return m_parent->GetData()->GetSymbol(identifier, search_type);
 	} else {
 		return Symbol::GetDefaultSymbol();
 	}
 }
 
 const_shared_ptr<Symbol> SymbolContext::GetSymbol(
-		const_shared_ptr<string> identifier,
-		const SearchType search_type) const {
-	const_shared_ptr<Symbol> result = GetSymbol(*identifier, search_type);
+		const_shared_ptr<string> identifier) const {
+	const_shared_ptr<Symbol> result = GetSymbol(*identifier);
 	return result;
 }
 
 const void SymbolContext::print(ostream &os, const TypeTable& type_table,
-		const Indent& indent, const SearchType search_type) const {
+		const Indent& indent) const {
 	symbol_map::iterator iter;
 	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
 		const string name = iter->first;
@@ -113,13 +108,6 @@ const void SymbolContext::print(ostream &os, const TypeTable& type_table,
 		os << indent << symbol->GetType()->ToString() << " " << name << ":";
 		os << symbol->ToString(type_table, indent);
 		os << endl;
-	}
-
-	if (search_type == DEEP && m_parent) {
-		os << indent + 1 << "-->" << m_parent->GetData() << "("
-				<< (m_parent->IsWeak() ? string("weak") : string("strong"))
-				<< ")" << endl;
-		m_parent->GetData()->print(os, type_table, indent + 1, search_type);
 	}
 }
 
@@ -191,9 +179,6 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 		} else {
 			return INCOMPATIBLE_TYPE;
 		}
-	} else if (m_parent) {
-		auto context = m_parent->GetData();
-		return context->SetSymbol(identifier, type, value);
 	} else {
 		return UNDEFINED_SYMBOL;
 	}
@@ -201,6 +186,10 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 
 volatile_shared_ptr<SymbolContext> SymbolContext::Clone() const {
 	return volatile_shared_ptr<SymbolContext>(
-			new SymbolContext(m_modifiers, m_parent,
+			new SymbolContext(m_modifiers,
 					make_shared<symbol_map>(m_table->begin(), m_table->end())));
+}
+
+SymbolContext::SymbolContext(const SymbolContext& other) :
+		m_modifiers(other.m_modifiers), m_table(other.m_table) {
 }

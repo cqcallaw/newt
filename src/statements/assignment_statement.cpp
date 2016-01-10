@@ -44,10 +44,8 @@ const ErrorListRef AssignmentStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	shared_ptr<SymbolTable> symbol_table = static_pointer_cast<SymbolTable>(
-			execution_context);
 	const_shared_ptr<string> variable_name = m_variable->GetName();
-	auto symbol = symbol_table->GetSymbol(variable_name, DEEP);
+	auto symbol = execution_context->GetSymbol(variable_name, DEEP);
 	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
 
 	int variable_line = m_variable->GetLocation().begin.line;
@@ -556,10 +554,7 @@ const ErrorListRef AssignmentStatement::execute(
 	int variable_line = m_variable->GetLocation().begin.line;
 	int variable_column = m_variable->GetLocation().begin.column;
 
-	const_shared_ptr<SymbolTable> symbol_table =
-			static_pointer_cast<SymbolTable>(
-					execution_context);
-	auto symbol = symbol_table->GetSymbol(variable_name, DEEP);
+	auto symbol = execution_context->GetSymbol(variable_name, DEEP);
 
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		errors = m_variable->AssignValue(execution_context, m_expression,

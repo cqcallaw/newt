@@ -30,8 +30,18 @@ enum LifeTime {
 	PERSISTENT, EPHEMERAL
 };
 
+enum SearchType {
+	SHALLOW = 0, DEEP = 1
+};
+
+#include <symbol_context_list.h>
+typedef shared_ptr<SymbolContextList> SymbolContextListRef;
+
 class ExecutionContext: public SymbolTable {
 public:
+	using SymbolContext::GetSymbol;
+	using SymbolContext::SetSymbol;
+
 	ExecutionContext();
 	ExecutionContext(const shared_ptr<SymbolContext> existing,
 			volatile_shared_ptr<TypeTable> type_table,
@@ -45,8 +55,18 @@ public:
 	const shared_ptr<ExecutionContext> WithContents(
 			const shared_ptr<SymbolContext> contents) const {
 		return shared_ptr<ExecutionContext>(
-				new ExecutionContext(contents->GetModifiers(),
-						contents->GetTable(), contents->GetParent(),
+				new ExecutionContext(contents, m_parent, m_type_table,
+						m_return_value, m_exit_code, m_life_time));
+	}
+
+	const SymbolContextListRef GetParent() const {
+		return m_parent;
+	}
+
+	virtual const shared_ptr<ExecutionContext> WithParent(
+			const SymbolContextListRef parent_context) const {
+		return shared_ptr<ExecutionContext>(
+				new ExecutionContext(GetModifiers(), GetTable(), parent_context,
 						m_type_table, m_return_value, m_exit_code, m_life_time));
 	}
 
@@ -76,14 +96,33 @@ public:
 		return m_life_time;
 	}
 
+	const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<string> identifier,
+			const SearchType search_type) const;
+	const_shared_ptr<Symbol> GetSymbol(const string& identifier,
+			const SearchType search_type) const;
+
+	const void print(ostream &os, const TypeTable& type_table,
+			const Indent& indent, const SearchType search_type = SHALLOW) const;
+
+protected:
+	virtual SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
+
 private:
 	ExecutionContext(const Modifier::Type modifiers,
 			const shared_ptr<symbol_map>,
 			const SymbolContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table,
-			plain_shared_ptr<void> m_return_value,
+			plain_shared_ptr<void> return_value,
 			plain_shared_ptr<int> exit_code, const LifeTime life_time);
 
+	ExecutionContext(const shared_ptr<SymbolContext> context,
+			const SymbolContextListRef parent_context,
+			volatile_shared_ptr<TypeTable> type_table,
+			plain_shared_ptr<void> return_value,
+			plain_shared_ptr<int> exit_code, const LifeTime life_time);
+
+	const SymbolContextListRef m_parent;
 	volatile_shared_ptr<TypeTable> m_type_table;
 	plain_shared_ptr<void> m_return_value;
 	plain_shared_ptr<int> m_exit_code;

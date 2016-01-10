@@ -248,15 +248,12 @@ const ErrorListRef MemberVariable::AssignValue(
 				container_evaluation->GetData());
 		shared_ptr<SymbolContext> definition = struct_value->GetDefinition();
 
-		volatile_shared_ptr<SymbolContext> symbol_context = context;
-		const auto parent_context = symbol_context->GetParent();
 		const auto new_parent_context = SymbolContextList::From(context,
-				parent_context);
-		auto new_definition = definition->WithParent(new_parent_context);
+				context->GetParent());
+		auto new_context = context->WithContents(definition)->WithParent(
+				new_parent_context);
 
-		auto new_context = context->WithContents(new_definition);
 		const_shared_ptr<Variable> new_variable = GetMemberVariable();
-
 		errors = new_variable->AssignValue(new_context, expression, op);
 	}
 
@@ -335,8 +332,7 @@ const ErrorListRef MemberVariable::Validate(
 		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<SymbolContext> symbol_context = context;
-	auto symbol = symbol_context->GetSymbol(m_container->GetName(), DEEP);
+	auto symbol = context->GetSymbol(m_container->GetName(), DEEP);
 
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(

@@ -47,8 +47,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 
 	auto type_table = execution_context->GetTypeTable();
 
-	auto existing = execution_context->GetSymbol(m_name,
-			SHALLOW);
+	auto existing = execution_context->GetSymbol(m_name, SHALLOW);
 
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (m_initializer_expression) {
@@ -87,8 +86,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 		}
 	} else {
 		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::PREVIOUS_DECLARATION,
+				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
 						m_name_location.begin.line,
 						m_name_location.begin.column, *(m_name)), errors);
 	}

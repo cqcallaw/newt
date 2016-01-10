@@ -52,14 +52,11 @@ const ErrorListRef ForStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 
-	volatile_shared_ptr<SymbolContext> symbol_context =
-			execution_context;
 	const auto new_parent = SymbolContextList::From(execution_context,
-			symbol_context->GetParent());
-	volatile_shared_ptr<SymbolContext> tmp_table = m_block_table->WithParent(
-			new_parent);
+			execution_context->GetParent());
 	const shared_ptr<ExecutionContext> new_execution_context =
-			execution_context->WithContents(tmp_table);
+			execution_context->WithContents(m_block_context)->WithParent(
+					new_parent);
 
 	if (m_initial) {
 		errors = m_initial->preprocess(new_execution_context);
@@ -88,15 +85,11 @@ const ErrorListRef ForStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef initialization_errors;
 
-	volatile_shared_ptr<SymbolContext> symbol_context =
-			execution_context;
 	const auto new_parent = SymbolContextList::From(execution_context,
-			symbol_context->GetParent());
-	volatile_shared_ptr<SymbolContext> tmp_table = m_block_table->WithParent(
-			new_parent);
-
-	shared_ptr<ExecutionContext> new_execution_context =
-			execution_context->WithContents(tmp_table);
+			execution_context->GetParent());
+	const shared_ptr<ExecutionContext> new_execution_context =
+			execution_context->WithContents(m_block_context)->WithParent(
+					new_parent);
 
 	if (m_initial) {
 		initialization_errors = m_initial->execute(new_execution_context);
@@ -152,8 +145,8 @@ ForStatement::ForStatement(const_shared_ptr<Statement> initial,
 		const_shared_ptr<AssignmentStatement> loop_assignment,
 		const_shared_ptr<StatementBlock> statement_block) :
 		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
-				loop_assignment), m_statement_block(statement_block), m_block_table(
-				make_shared<SymbolTable>()) {
+				loop_assignment), m_statement_block(statement_block), m_block_context(
+				make_shared<ExecutionContext>()) {
 	assert(loop_expression);
 	assert(loop_assignment);
 }

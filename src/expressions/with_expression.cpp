@@ -67,20 +67,18 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 				auto raw_result = source_result->GetData();
 				auto as_compound = static_pointer_cast<
 						const CompoundTypeInstance>(raw_result);
-				const_shared_ptr<SymbolContext> existing_context =
+				const_shared_ptr<SymbolContext> definition =
 						as_compound->GetDefinition();
 
-				//create a new symbol context that isn't read-only, and has no parent context
+				//create a new context that isn't read-only and has no parent
 				volatile_shared_ptr<SymbolContext> new_symbol_context =
-						existing_context->Clone()->WithModifiers(
+						definition->Clone()->WithModifiers(
 								Modifier::Type(
-										existing_context->GetModifiers()
-												& ~(Modifier::Type::READONLY)))->WithParent(
-								SymbolContextList::GetTerminator());
+										definition->GetModifiers()
+												& ~(Modifier::Type::READONLY)));
 
 				volatile_shared_ptr<ExecutionContext> temp_execution_context =
-						execution_context->WithContents(
-								new_symbol_context);
+						execution_context->WithContents(new_symbol_context);
 
 				MemberInstantiationListRef subject = m_member_instantiation_list;
 				while (!MemberInstantiationList::IsTerminator(subject)) {
@@ -99,7 +97,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 				}
 
 				new_symbol_context = new_symbol_context->WithModifiers(
-						existing_context->GetModifiers());
+						definition->GetModifiers());
 
 				new_value = std::make_shared<CompoundTypeInstance>(
 						as_compound->GetTypeSpecifier(), new_symbol_context);

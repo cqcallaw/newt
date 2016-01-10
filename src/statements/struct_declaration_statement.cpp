@@ -70,7 +70,7 @@ const ErrorListRef StructDeclarationStatement::preprocess(
 	//of the member declaration statements
 	const shared_ptr<symbol_map> values = make_shared<symbol_map>();
 	volatile_shared_ptr<SymbolTable> member_buffer = make_shared<SymbolTable>(
-			Modifier::NONE, SymbolContextList::GetTerminator(), values);
+			Modifier::NONE, values);
 	shared_ptr<ExecutionContext> struct_context =
 			execution_context->WithContents(member_buffer);
 

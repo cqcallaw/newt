@@ -29,8 +29,7 @@ const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 	plain_shared_ptr<definition_map> type_definition = type->GetDefinition();
 	definition_map::const_iterator iter;
 
-	auto symbol_table = make_shared<SymbolTable>(type->GetModifiers(),
-			SymbolContextList::GetTerminator());
+	auto symbol_table = make_shared<SymbolTable>(type->GetModifiers());
 
 	for (iter = type_definition->begin(); iter != type_definition->end();
 			++iter) {

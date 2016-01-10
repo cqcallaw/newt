@@ -20,9 +20,6 @@
 #ifndef SYMBOL_CONTEXT_H_
 #define SYMBOL_CONTEXT_H_
 
-#include <symbol_context_list.h>
-typedef shared_ptr<SymbolContextList> SymbolContextListRef;
-
 #include <array.h>
 #include <iostream>
 #include <map>
@@ -42,10 +39,6 @@ enum SetResult {
 	MUTATION_DISALLOWED = 4
 };
 
-enum SearchType {
-	SHALLOW = 0, DEEP = 1
-};
-
 const ErrorListRef ToErrorListRef(const SetResult result,
 		const yy::location location, const_shared_ptr<string> name,
 		const_shared_ptr<TypeSpecifier> symbol_type,
@@ -60,11 +53,9 @@ struct comparator {
 typedef map<const string, plain_shared_ptr<Symbol>, comparator> symbol_map;
 
 class SymbolContext {
-	friend class ExecutionContext;
 public:
-	SymbolContext(const Modifier::Type modifiers,
-			const SymbolContextListRef parent =
-					SymbolContextList::GetTerminator());
+	SymbolContext(const Modifier::Type modifiers);
+	SymbolContext(const SymbolContext&);
 	virtual ~SymbolContext();
 
 	/**
@@ -78,18 +69,7 @@ public:
 
 	virtual volatile_shared_ptr<SymbolContext> WithModifiers(
 			const Modifier::Type modifiers) const {
-		return make_shared<SymbolContext>(
-				SymbolContext(modifiers, m_parent, m_table));
-	}
-
-	const SymbolContextListRef GetParent() const {
-		return m_parent;
-	}
-
-	virtual volatile_shared_ptr<SymbolContext> WithParent(
-			const SymbolContextListRef parent_context) const {
-		return make_shared<SymbolContext>(
-				SymbolContext(m_modifiers, parent_context, m_table));
+		return make_shared<SymbolContext>(SymbolContext(modifiers, m_table));
 	}
 
 	const bool IsMutable() const {
@@ -97,12 +77,11 @@ public:
 	}
 
 	const void print(ostream &os, const TypeTable& type_table,
-			const Indent& indent, const SearchType search_type = SHALLOW) const;
+			const Indent& indent) const;
 
-	const_shared_ptr<Symbol> GetSymbol(const string& identifier,
-			const SearchType search_type) const;
-	const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<string> identifier,
-			const SearchType search_type) const;
+	const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<string> identifier) const;
+	const_shared_ptr<Symbol> GetSymbol(const string& identifier) const;
 
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<bool> value);
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<int> value);
@@ -125,16 +104,13 @@ protected:
 	}
 
 	SymbolContext(const Modifier::Type modifiers,
-			const SymbolContextListRef parent_context,
 			const shared_ptr<symbol_map> values);
 
+	virtual SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
 private:
 	const Modifier::Type m_modifiers;
-	const SymbolContextListRef m_parent;
 	const shared_ptr<symbol_map> m_table;
-
-	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
 };
 
 #endif /* SYMBOL_CONTEXT_H_ */

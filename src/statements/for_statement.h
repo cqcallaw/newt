@@ -61,7 +61,7 @@ private:
 	const_shared_ptr<Expression> m_loop_expression;
 	const_shared_ptr<AssignmentStatement> m_loop_assignment;
 	const_shared_ptr<StatementBlock> m_statement_block;
-	shared_ptr<SymbolTable> m_block_table;
+	shared_ptr<ExecutionContext> m_block_context;
 };
 
 #endif /* FOR_STATEMENT_H_ */

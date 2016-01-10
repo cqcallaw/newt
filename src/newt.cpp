@@ -109,8 +109,8 @@ int main(int argc, char *argv[]) {
 			if (debug) {
 				cout << "Root Symbol Table:" << endl;
 				cout << "----------------" << endl;
-				root_context->print(cout,
-						*root_context->GetTypeTable(), Indent(0));
+				root_context->print(cout, *root_context->GetTypeTable(),
+						Indent(0));
 				cout << endl;
 				cout << "Root Type Table:" << endl;
 				cout << "----------------" << endl;

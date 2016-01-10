@@ -40,13 +40,11 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		const shared_ptr<ExecutionContext> invocation_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto invocation_symbol_context = invocation_context;
-	auto invocation_context_parent = invocation_symbol_context->GetParent();
 	auto parent_context = SymbolContextList::From(invocation_context,
-			invocation_context_parent);
-	auto table = make_shared<SymbolTable>(parent_context);
+			invocation_context->GetParent());
 	shared_ptr<ExecutionContext> function_execution_context = make_shared<
-			ExecutionContext>(table, m_closure->GetTypeTable(), EPHEMERAL);
+			ExecutionContext>(Modifier::NONE, parent_context,
+			m_closure->GetTypeTable(), EPHEMERAL);
 
 	//populate evaluation context with results of argument evaluation
 	ArgumentListRef argument = argument_list;
@@ -125,26 +123,23 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	}
 
 	//juggle the references so the evaluation context is a child of the closure context
-	auto closure_symbol_context = m_closure;
-	auto closure_symbol_context_parent = closure_symbol_context->GetParent();
-	parent_context = SymbolContextList::From(m_closure,
-			closure_symbol_context_parent);
-	auto final_symbol_context = table->WithParent(parent_context);
+	parent_context = SymbolContextList::From(m_closure, m_closure->GetParent());
+	auto final_symbol_context = function_execution_context->WithParent(
+			parent_context);
 
 	//TODO: determine if it is necessary to merge type tables
 
 	if (ErrorList::IsTerminator(errors)) {
-		auto child_context = make_shared<ExecutionContext>(final_symbol_context,
-				m_closure->GetTypeTable(), EPHEMERAL);
 		//performing preprocessing here duplicates work with the function express processing,
 		//but the context setup in the function preprocessing is currently discarded.
 		//TODO: consider cloning function expression preprocess context instead of discarding it
 		errors = ErrorList::Concatenate(errors,
-				m_body->preprocess(child_context));
+				m_body->preprocess(final_symbol_context));
 		if (ErrorList::IsTerminator(errors)) {
 			errors = ErrorList::Concatenate(errors,
-					m_body->execute(child_context));
-			return make_shared<Result>(child_context->GetReturnValue(), errors);
+					m_body->execute(final_symbol_context));
+			return make_shared<Result>(final_symbol_context->GetReturnValue(),
+					errors);
 		} else {
 			return make_shared<Result>(nullptr, errors);
 		}

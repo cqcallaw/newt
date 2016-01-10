@@ -141,14 +141,12 @@ const ErrorListRef InvokeExpression::Validate(
 
 		if (as_function) {
 			//generate a temporary context for validation
-			auto parent = execution_context->GetParent();
 			auto new_parent = SymbolContextList::From(execution_context,
-					parent);
-			auto tmp_map = make_shared<symbol_map>();
-			volatile_shared_ptr<SymbolTable> tmp_table = std::make_shared<
-					SymbolTable>(Modifier::Type::NONE, new_parent, tmp_map);
-			const shared_ptr<ExecutionContext> tmp_context =
-					execution_context->WithContents(tmp_table);
+					execution_context->GetParent());
+			shared_ptr<ExecutionContext> tmp_context = make_shared<
+					ExecutionContext>(Modifier::Type::NONE, new_parent,
+					execution_context->GetTypeTable(),
+					execution_context->GetLifeTime());
 
 			ArgumentListRef argument = m_argument_list;
 

@@ -25,7 +25,6 @@
 #include <assert.h>
 #include <type.h>
 #include <error.h>
-#include <symbol_table.h>
 #include <execution_context.h>
 
 IfStatement::IfStatement(const_shared_ptr<Expression> expression,
@@ -36,9 +35,9 @@ IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block,
 		const_shared_ptr<StatementBlock> else_block) :
-		m_expression(expression), m_block(block), m_else_block(else_block), m_block_table(
-				make_shared<SymbolTable>()), m_else_block_table(
-				make_shared<SymbolTable>()) {
+		m_expression(expression), m_block(block), m_else_block(else_block), m_block_context(
+				make_shared<ExecutionContext>()), m_else_block_context(
+				make_shared<ExecutionContext>()) {
 }
 
 IfStatement::~IfStatement() {
@@ -52,24 +51,21 @@ const ErrorListRef IfStatement::preprocess(
 		if (m_expression->GetType(execution_context)->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt())) {
 
-			volatile_shared_ptr<SymbolContext> symbol_context =
-					execution_context;
 			SymbolContextListRef new_parent = SymbolContextList::From(
-					execution_context, symbol_context->GetParent());
-			volatile_shared_ptr<SymbolContext> tmp_table =
-					m_block_table->WithParent(new_parent);
-			shared_ptr<ExecutionContext> new_execution_context =
-					execution_context->WithContents(tmp_table);
+					execution_context, execution_context->GetParent());
+			const shared_ptr<ExecutionContext> new_execution_context =
+					execution_context->WithContents(m_block_context)->WithParent(
+							new_parent);
 
 			errors = m_block->preprocess(execution_context);
 
 			if (m_else_block) {
 				//pre-process else block
 				new_parent = SymbolContextList::From(execution_context,
-						symbol_context->GetParent());
-				tmp_table = m_else_block_table->WithParent(new_parent);
-				new_execution_context = execution_context->WithContents(
-						tmp_table);
+						execution_context->GetParent());
+				const shared_ptr<ExecutionContext> new_execution_context =
+						execution_context->WithContents(m_else_block_context)->WithParent(
+								new_parent);
 
 				errors = m_else_block->preprocess(execution_context);
 			}
@@ -99,25 +95,17 @@ const ErrorListRef IfStatement::execute(
 	bool test = *(static_pointer_cast<const bool>(evaluation->GetData()));
 
 	if (test) {
-		volatile_shared_ptr<SymbolContext> symbol_context =
-				execution_context;
 		SymbolContextListRef new_parent = SymbolContextList::From(
-				execution_context, symbol_context->GetParent());
-		volatile_shared_ptr<SymbolContext> tmp_table =
-				m_block_table->WithParent(new_parent);
+				execution_context, execution_context->GetParent());
 		shared_ptr<ExecutionContext> new_execution_context =
-				execution_context->WithContents(tmp_table);
+				m_block_context->WithParent(new_parent);
 
 		errors = m_block->execute(execution_context);
 	} else if (m_else_block) {
-		volatile_shared_ptr<SymbolContext> symbol_context =
-				execution_context;
 		SymbolContextListRef new_parent = SymbolContextList::From(
-				execution_context, symbol_context->GetParent());
-		volatile_shared_ptr<SymbolContext> tmp_table =
-				m_else_block_table->WithParent(new_parent);
+				execution_context, execution_context->GetParent());
 		shared_ptr<ExecutionContext> new_execution_context =
-				execution_context->WithContents(tmp_table);
+				m_else_block_context->WithParent(new_parent);
 
 		errors = m_else_block->execute(execution_context);
 	}
