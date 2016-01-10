@@ -43,9 +43,16 @@ const_shared_ptr<TypeSpecifier> FunctionExpression::GetType(
 const_shared_ptr<Result> FunctionExpression::Evaluate(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	return make_shared<Result>(
-			make_shared<Function>(m_declaration, m_body, execution_context),
-			errors);
+	shared_ptr<const Function> function;
+	if (execution_context->GetLifeTime() == PERSISTENT) {
+		function = make_shared<Function>(m_declaration, m_body,
+				weak_ptr<ExecutionContext>(execution_context));
+	} else {
+		function = make_shared<Function>(m_declaration, m_body,
+				execution_context);
+	}
+
+	return make_shared<Result>(function, errors);
 }
 
 const bool FunctionExpression::IsConstant() const {

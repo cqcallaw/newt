@@ -30,7 +30,15 @@
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
 		const shared_ptr<ExecutionContext> closure) :
-		m_declaration(declaration), m_body(body), m_closure(closure) {
+		m_declaration(declaration), m_body(body), m_closure(closure), m_weak_closure(
+				shared_ptr<ExecutionContext>(nullptr)) {
+}
+
+Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
+		const_shared_ptr<StatementBlock> body,
+		const weak_ptr<ExecutionContext> weak_closure) :
+		m_declaration(declaration), m_body(body), m_closure(nullptr), m_weak_closure(
+				weak_closure) {
 }
 
 Function::~Function() {
@@ -40,11 +48,13 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		const shared_ptr<ExecutionContext> invocation_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
+	auto closure_reference = GetClosureReference();
+
 	auto parent_context = SymbolContextList::From(invocation_context,
 			invocation_context->GetParent());
 	shared_ptr<ExecutionContext> function_execution_context = make_shared<
 			ExecutionContext>(Modifier::NONE, parent_context,
-			m_closure->GetTypeTable(), EPHEMERAL);
+			closure_reference->GetTypeTable(), EPHEMERAL);
 
 	//populate evaluation context with results of argument evaluation
 	ArgumentListRef argument = argument_list;
@@ -123,7 +133,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	}
 
 	//juggle the references so the evaluation context is a child of the closure context
-	parent_context = SymbolContextList::From(m_closure, m_closure->GetParent());
+	parent_context = SymbolContextList::From(closure_reference,
+			closure_reference->GetParent());
 	auto final_symbol_context = function_execution_context->WithParent(
 			parent_context);
 
@@ -158,4 +169,12 @@ const string Function::ToString(const TypeTable& type_table,
 //	buffer << indent << "Referenced closure address: " << m_closure.get() << endl;
 
 	return buffer.str();
+}
+
+const shared_ptr<ExecutionContext> Function::GetClosureReference() const {
+	if (m_closure) {
+		return m_closure;
+	} else {
+		return m_weak_closure.lock();
+	}
 }

@@ -32,6 +32,11 @@ public:
 	Function(const_shared_ptr<FunctionDeclaration> declaration,
 			const_shared_ptr<StatementBlock> body,
 			const shared_ptr<ExecutionContext> closure);
+
+	Function(const_shared_ptr<FunctionDeclaration> declaration,
+			const_shared_ptr<StatementBlock> body,
+			const weak_ptr<ExecutionContext> weak_closure);
+
 	virtual ~Function();
 
 	const_shared_ptr<FunctionDeclaration> GetType() const {
@@ -45,9 +50,12 @@ public:
 			const Indent indent) const;
 
 private:
+	const shared_ptr<ExecutionContext> GetClosureReference() const;
+
 	const_shared_ptr<FunctionDeclaration> m_declaration;
 	const_shared_ptr<StatementBlock> m_body;
 	const shared_ptr<ExecutionContext> m_closure;
+	const weak_ptr<ExecutionContext> m_weak_closure;
 };
 
 #endif /* FUNCTION_H_ */
