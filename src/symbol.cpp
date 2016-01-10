@@ -111,6 +111,14 @@ const string Symbol::ToString(const TypeTable& type_table,
 		buffer << compound_type_instance->ToString(type_table, indent + 1);
 	}
 
+	const_shared_ptr<FunctionTypeSpecifier> as_function =
+			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(m_type);
+	if (as_function) {
+		buffer << endl;
+		auto function = static_pointer_cast<const Function>(m_value);
+		buffer << function->ToString(type_table, indent + 1);
+	}
+
 	return buffer.str();
 
 }

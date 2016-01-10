@@ -4,6 +4,8 @@ Root Symbol Table:
 ----------------
 int a: 5
 (int, int) -> int add:
+	Body Location: 1.33-2.13
+
 
 Root Type Table:
 ----------------

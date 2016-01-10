@@ -14,8 +14,14 @@ g invocation 6: 8
 Root Symbol Table:
 ----------------
 (int) -> () -> int f:
+	Body Location: 2.27-7.2
+
 () -> int g:
+	Body Location: 4.20-6.14
+
 () -> int h:
+	Body Location: 4.20-6.14
+
 
 Root Type Table:
 ----------------

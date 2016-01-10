@@ -41,6 +41,9 @@ public:
 	const_shared_ptr<Result> Evaluate(ArgumentListRef argument_list,
 			const shared_ptr<ExecutionContext> invocation_context) const;
 
+	const string ToString(const TypeTable& type_table,
+			const Indent indent) const;
+
 private:
 	const_shared_ptr<FunctionDeclaration> m_declaration;
 	const_shared_ptr<StatementBlock> m_body;

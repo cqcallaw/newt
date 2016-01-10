@@ -147,3 +147,15 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		return make_shared<Result>(nullptr, errors);
 	}
 }
+
+const string Function::ToString(const TypeTable& type_table,
+		const Indent indent) const {
+	ostringstream buffer;
+	if (m_body->GetLocation() != GetDefaultLocation()) {
+		buffer << indent << "Body Location: " << m_body->GetLocation() << endl;
+	}
+//	buffer << indent << "Address: " << this << endl;
+//	buffer << indent << "Referenced closure address: " << m_closure.get() << endl;
+
+	return buffer.str();
+}
