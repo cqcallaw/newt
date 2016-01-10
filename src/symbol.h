@@ -38,13 +38,13 @@ class Function;
 class Symbol {
 	friend class SymbolContext;
 public:
-	Symbol(const_shared_ptr<const bool> value);
-	Symbol(const_shared_ptr<const int> value);
-	Symbol(const_shared_ptr<const double> value);
-	Symbol(const_shared_ptr<const string> value);
-	Symbol(const_shared_ptr<const Array> value);
-	Symbol(const_shared_ptr<const CompoundTypeInstance> value);
-	Symbol(const_shared_ptr<const Function> value);
+	Symbol(const_shared_ptr<bool> value);
+	Symbol(const_shared_ptr<int> value);
+	Symbol(const_shared_ptr<double> value);
+	Symbol(const_shared_ptr<string> value);
+	Symbol(const_shared_ptr<Array> value);
+	Symbol(const_shared_ptr<CompoundTypeInstance> value);
+	Symbol(const_shared_ptr<Function> value);
 
 	virtual ~Symbol();
 
