@@ -32,7 +32,7 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(
 }
 
 const ErrorListRef ArrayDeclarationStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<CompoundTypeSpecifier> element_type_as_compound =
@@ -82,7 +82,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 		}
 
 		volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
-				SymbolTable>(execution_context->GetSymbolContext());
+				SymbolTable>(execution_context);
 
 		if (array) {
 			auto wrapper = const_shared_ptr<Array>(array);
@@ -116,7 +116,7 @@ const ErrorListRef ArrayDeclarationStatement::execute(
 		if (ErrorList::IsTerminator(errors)) {
 			auto array = static_pointer_cast<const Array>(
 					initializer_result->GetData());
-			auto symbol_context = execution_context->GetSymbolContext();
+			auto symbol_context = execution_context;
 			SetResult result = symbol_context->SetSymbol(*m_name, array);
 			errors = ToErrorListRef(result,
 					m_initializer_expression->GetPosition(), m_name,

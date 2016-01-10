@@ -20,6 +20,9 @@
 #ifndef SYMBOL_CONTEXT_H_
 #define SYMBOL_CONTEXT_H_
 
+#include <symbol_context_list.h>
+typedef shared_ptr<SymbolContextList> SymbolContextListRef;
+
 #include <array.h>
 #include <iostream>
 #include <map>
@@ -55,10 +58,9 @@ struct comparator {
 };
 
 typedef map<const string, plain_shared_ptr<Symbol>, comparator> symbol_map;
-#include <symbol_context_list.h>
-typedef shared_ptr<SymbolContextList> SymbolContextListRef;
 
 class SymbolContext {
+	friend class ExecutionContext;
 public:
 	SymbolContext(const Modifier::Type modifiers,
 			const SymbolContextListRef parent =

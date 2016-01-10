@@ -32,12 +32,12 @@ public:
 	virtual ~StatementBlock();
 
 	const ErrorListRef preprocess(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 	const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	const yy::location GetLocation() const {
 		return m_location;

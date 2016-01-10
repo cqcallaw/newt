@@ -29,7 +29,7 @@
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
-		const_shared_ptr<ExecutionContext> closure) :
+		const shared_ptr<ExecutionContext> closure) :
 		m_declaration(declaration), m_body(body), m_closure(closure) {
 }
 
@@ -37,10 +37,10 @@ Function::~Function() {
 }
 
 const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
-		const_shared_ptr<ExecutionContext> invocation_context) const {
+		const shared_ptr<ExecutionContext> invocation_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto invocation_symbol_context = invocation_context->GetSymbolContext();
+	auto invocation_symbol_context = invocation_context;
 	auto invocation_context_parent = invocation_symbol_context->GetParent();
 	auto parent_context = SymbolContextList::From(invocation_context,
 			invocation_context_parent);
@@ -125,7 +125,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	}
 
 	//juggle the references so the evaluation context is a child of the closure context
-	auto closure_symbol_context = m_closure->GetSymbolContext();
+	auto closure_symbol_context = m_closure;
 	auto closure_symbol_context_parent = closure_symbol_context->GetParent();
 	parent_context = SymbolContextList::From(m_closure,
 			closure_symbol_context_parent);

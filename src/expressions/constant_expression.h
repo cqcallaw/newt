@@ -39,21 +39,21 @@ public:
 			const_shared_ptr<TypeSpecifier> type, const TypeTable& type_table);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return true;
 	}
 
 	virtual const ErrorListRef Validate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	static const_shared_ptr<Result> GetConstantExpression(
 			const_shared_ptr<Expression> expression,
-			const_shared_ptr<ExecutionContext> execution_context);
+			const shared_ptr<ExecutionContext> execution_context);
 
 private:
 	ConstantExpression(const yy::location position,

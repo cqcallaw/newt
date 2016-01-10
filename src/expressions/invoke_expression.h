@@ -24,25 +24,27 @@
 
 class InvokeExpression: public Expression {
 public:
-	InvokeExpression(const yy::location position, const_shared_ptr<Expression> expression,
+	InvokeExpression(const yy::location position,
+			const_shared_ptr<Expression> expression,
 			ArgumentListRef argument_list,
 			const yy::location argument_list_position);
 	virtual ~InvokeExpression();
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
-	const_shared_ptr<Result> ToString(const_shared_ptr<ExecutionContext> execution_context) const;
+	const_shared_ptr<Result> ToString(
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return false;
 	}
 
 	virtual const ErrorListRef Validate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	const_shared_ptr<Expression> GetExpression() const {
 		return m_expression;

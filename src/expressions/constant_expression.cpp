@@ -51,12 +51,12 @@ ConstantExpression::~ConstantExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> ConstantExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return m_type;
 }
 
 const_shared_ptr<Result> ConstantExpression::Evaluate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return make_shared<Result>(m_value, ErrorList::GetTerminator());
 }
 
@@ -69,7 +69,7 @@ const_shared_ptr<ConstantExpression> ConstantExpression::GetDefaultExpression(
 
 const_shared_ptr<Result> ConstantExpression::GetConstantExpression(
 		const_shared_ptr<Expression> expression,
-		const_shared_ptr<ExecutionContext> execution_context) {
+		const shared_ptr<ExecutionContext> execution_context) {
 	const_shared_ptr<Result> evaluation = expression->Evaluate(execution_context);
 	plain_shared_ptr<void> result;
 
@@ -90,6 +90,6 @@ ConstantExpression::ConstantExpression(const yy::location position,
 }
 
 const ErrorListRef ConstantExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return ErrorList::GetTerminator();
 }

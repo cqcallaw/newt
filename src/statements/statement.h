@@ -39,14 +39,14 @@ public:
 	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
 	 */
 	virtual const ErrorListRef preprocess(
-			const_shared_ptr<ExecutionContext> execution_context) const = 0;
+			const shared_ptr<ExecutionContext> execution_context) const = 0;
 
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const = 0;
 
 	virtual const AnalysisResult Returns(
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<ExecutionContext> execution_context) const = 0;
+			const shared_ptr<ExecutionContext> execution_context) const = 0;
 };
 
 typedef const LinkedList<const Statement, NO_DUPLICATES> StatementList;

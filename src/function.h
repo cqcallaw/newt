@@ -31,7 +31,7 @@ class Function {
 public:
 	Function(const_shared_ptr<FunctionDeclaration> declaration,
 			const_shared_ptr<StatementBlock> body,
-			const_shared_ptr<ExecutionContext> closure);
+			const shared_ptr<ExecutionContext> closure);
 	virtual ~Function();
 
 	const_shared_ptr<FunctionDeclaration> GetType() const {
@@ -39,12 +39,12 @@ public:
 	}
 
 	const_shared_ptr<Result> Evaluate(ArgumentListRef argument_list,
-			const_shared_ptr<ExecutionContext> invocation_context) const;
+			const shared_ptr<ExecutionContext> invocation_context) const;
 
 private:
 	const_shared_ptr<FunctionDeclaration> m_declaration;
 	const_shared_ptr<StatementBlock> m_body;
-	const_shared_ptr<ExecutionContext> m_closure;
+	const shared_ptr<ExecutionContext> m_closure;
 };
 
 #endif /* FUNCTION_H_ */

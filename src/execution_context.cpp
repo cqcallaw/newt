@@ -22,35 +22,47 @@
 #include <type_table.h>
 #include <memory>
 
-ExecutionContext::ExecutionContext(
-		volatile_shared_ptr<SymbolContext> symbol_context,
-		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
-		ExecutionContext(symbol_context, type_table,
-				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr),
-				life_time) {
-}
-
 ExecutionContext::ExecutionContext() :
-		ExecutionContext(make_shared<SymbolTable>(), make_shared<TypeTable>(),
+		ExecutionContext(Modifier::Type::NONE, make_shared<symbol_map>(),
+				SymbolContextList::GetTerminator(), make_shared<TypeTable>(),
 				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr),
 				PERSISTENT) {
 }
 
-ExecutionContext::ExecutionContext(
-		volatile_shared_ptr<SymbolContext> symbol_context,
+ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> existing,
+		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
+		ExecutionContext(existing->GetModifiers(), existing->GetTable(),
+				existing->GetParent(), type_table,
+				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr),
+				life_time) {
+}
+
+ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
+		const SymbolContextListRef parent_context,
+		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
+		ExecutionContext(modifiers, make_shared<symbol_map>(), parent_context,
+				type_table, plain_shared_ptr<void>(nullptr),
+				plain_shared_ptr<int>(nullptr), life_time) {
+}
+
+ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
+		const shared_ptr<symbol_map> symbol_map,
+		const SymbolContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table,
 		plain_shared_ptr<void> m_return_value, plain_shared_ptr<int> exit_code,
 		const LifeTime life_time) :
-		m_symbol_context(symbol_context), m_type_table(type_table), m_return_value(
-				m_return_value), m_exit_code(exit_code), m_life_time(life_time) {
+		SymbolTable(modifiers, parent_context, symbol_map), m_type_table(
+				type_table), m_return_value(m_return_value), m_exit_code(
+				exit_code), m_life_time(life_time) {
 }
 
 ExecutionContext::~ExecutionContext() {
 }
 
-const_shared_ptr<ExecutionContext> ExecutionContext::GetDefault() {
-	const static const_shared_ptr<ExecutionContext> instance = make_shared<
-			ExecutionContext>(SymbolContext::GetDefault(),
-			TypeTable::GetDefault(), PERSISTENT);
+const shared_ptr<ExecutionContext> ExecutionContext::GetDefault() {
+	static const shared_ptr<ExecutionContext> instance = make_shared<
+			ExecutionContext>(Modifier::READONLY,
+			SymbolContextList::GetTerminator(), TypeTable::GetDefault(),
+			PERSISTENT);
 	return instance;
 }

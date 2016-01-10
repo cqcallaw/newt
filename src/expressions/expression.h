@@ -42,18 +42,18 @@ public:
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const_shared_ptr<ExecutionContext> execution_context) const = 0;
+			const shared_ptr<ExecutionContext> execution_context) const = 0;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const_shared_ptr<ExecutionContext> execution_context) const = 0;
+			const shared_ptr<ExecutionContext> execution_context) const = 0;
 
 	const_shared_ptr<Result> ToString(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const = 0;
 
 	virtual const ErrorListRef Validate(
-			const_shared_ptr<ExecutionContext> execution_context) const = 0;
+			const shared_ptr<ExecutionContext> execution_context) const = 0;
 
 private:
 	const yy::location m_position;

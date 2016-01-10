@@ -38,12 +38,12 @@ DefaultValueExpression::~DefaultValueExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return m_type;
 }
 
 const_shared_ptr<Result> DefaultValueExpression::Evaluate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> return_value;
 
@@ -84,7 +84,7 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 }
 
 const ErrorListRef DefaultValueExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =

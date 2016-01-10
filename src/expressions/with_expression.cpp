@@ -39,12 +39,12 @@ WithExpression::~WithExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> WithExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return m_source_expression->GetType(execution_context);
 }
 
 const_shared_ptr<Result> WithExpression::Evaluate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 	const_shared_ptr<Result> source_result = m_source_expression->Evaluate(
 			execution_context);
@@ -79,7 +79,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 								SymbolContextList::GetTerminator());
 
 				volatile_shared_ptr<ExecutionContext> temp_execution_context =
-						execution_context->WithSymbolContext(
+						execution_context->WithContents(
 								new_symbol_context);
 
 				MemberInstantiationListRef subject = m_member_instantiation_list;
@@ -144,7 +144,7 @@ const bool WithExpression::IsConstant() const {
 }
 
 const ErrorListRef WithExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = m_source_expression->Validate(execution_context);
 
 	if (errors == ErrorList::GetTerminator()) {

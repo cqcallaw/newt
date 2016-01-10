@@ -49,17 +49,17 @@ ForStatement::~ForStatement() {
 }
 
 const ErrorListRef ForStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 
 	volatile_shared_ptr<SymbolContext> symbol_context =
-			execution_context->GetSymbolContext();
+			execution_context;
 	const auto new_parent = SymbolContextList::From(execution_context,
 			symbol_context->GetParent());
 	volatile_shared_ptr<SymbolContext> tmp_table = m_block_table->WithParent(
 			new_parent);
-	const_shared_ptr<ExecutionContext> new_execution_context =
-			execution_context->WithSymbolContext(tmp_table);
+	const shared_ptr<ExecutionContext> new_execution_context =
+			execution_context->WithContents(tmp_table);
 
 	if (m_initial) {
 		errors = m_initial->preprocess(new_execution_context);
@@ -89,14 +89,14 @@ const ErrorListRef ForStatement::execute(
 	ErrorListRef initialization_errors;
 
 	volatile_shared_ptr<SymbolContext> symbol_context =
-			execution_context->GetSymbolContext();
+			execution_context;
 	const auto new_parent = SymbolContextList::From(execution_context,
 			symbol_context->GetParent());
 	volatile_shared_ptr<SymbolContext> tmp_table = m_block_table->WithParent(
 			new_parent);
 
 	shared_ptr<ExecutionContext> new_execution_context =
-			execution_context->WithSymbolContext(tmp_table);
+			execution_context->WithContents(tmp_table);
 
 	if (m_initial) {
 		initialization_errors = m_initial->execute(new_execution_context);
@@ -140,7 +140,7 @@ const ErrorListRef ForStatement::execute(
 
 const AnalysisResult ForStatement::Returns(
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	//as of this writing, it is deemed prohibitively complicated to
 	//perform the semantic analysis that would determine whether or not
 	//this loop will execute, or how many times it will execute.

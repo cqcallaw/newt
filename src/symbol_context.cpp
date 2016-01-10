@@ -25,6 +25,7 @@
 #include <defaults.h>
 #include <symbol_context.h>
 #include "symbol_table.h"
+#include <execution_context.h>
 
 #include "type.h"
 #include "utils.h"

@@ -33,17 +33,17 @@ public:
 	virtual ~DefaultValueExpression();
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return true;
 	}
 
 	virtual const ErrorListRef Validate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_type;

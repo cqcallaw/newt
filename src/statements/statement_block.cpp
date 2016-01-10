@@ -32,7 +32,7 @@ StatementBlock::StatementBlock(StatementListRef statements,
 }
 
 const ErrorListRef StatementBlock::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto subject = m_statements;
 	while (!StatementList::IsTerminator(subject)) {
@@ -69,7 +69,7 @@ const ErrorListRef StatementBlock::execute(
 
 const AnalysisResult StatementBlock::Returns(
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	AnalysisResult result = AnalysisResult::NO;
 	auto subject = m_statements;
 	while (!StatementList::IsTerminator(subject)) {

@@ -131,7 +131,7 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const string& left,
 }
 
 const ErrorListRef ArithmeticExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	if (GetOperator() == PLUS) {
 		//Allow STRING types because PLUS doubles as a concatenation operator
 		return BinaryExpression::Validate(execution_context,

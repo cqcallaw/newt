@@ -36,12 +36,12 @@ FunctionExpression::~FunctionExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> FunctionExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return m_declaration;
 }
 
 const_shared_ptr<Result> FunctionExpression::Evaluate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	return make_shared<Result>(
 			make_shared<Function>(m_declaration, m_body, execution_context),
@@ -53,18 +53,17 @@ const bool FunctionExpression::IsConstant() const {
 }
 
 const ErrorListRef FunctionExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	//generate a temporary context for validation
-	auto parent = execution_context->GetSymbolContext()->GetParent();
-	auto new_parent = SymbolContextList::From(
-			execution_context, parent);
+	auto parent = execution_context->GetParent();
+	auto new_parent = SymbolContextList::From(execution_context, parent);
 	auto tmp_map = make_shared<symbol_map>();
 	volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
 			Modifier::Type::NONE, new_parent, tmp_map);
-	shared_ptr<ExecutionContext> tmp_context =
-			execution_context->WithSymbolContext(tmp_table);
+	shared_ptr<ExecutionContext> tmp_context = execution_context->WithContents(
+			tmp_table);
 
 	DeclarationListRef declaration = m_declaration->GetParameterList();
 	while (!DeclarationList::IsTerminator(declaration)) {

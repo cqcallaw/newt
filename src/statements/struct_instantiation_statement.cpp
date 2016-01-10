@@ -44,7 +44,7 @@ StructInstantiationStatement::~StructInstantiationStatement() {
 }
 
 const ErrorListRef StructInstantiationStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	//TODO: validate that all members are initialized for readonly structs (?)
 
@@ -54,7 +54,7 @@ const ErrorListRef StructInstantiationStatement::preprocess(
 
 	if (type != CompoundType::GetDefaultCompoundType()) {
 		shared_ptr<SymbolTable> symbol_table = static_pointer_cast<SymbolTable>(
-				execution_context->GetSymbolContext());
+				execution_context);
 
 		auto existing = symbol_table->GetSymbol(m_name, SHALLOW);
 		if (existing == Symbol::GetDefaultSymbol()) {
@@ -155,7 +155,7 @@ const ErrorListRef StructInstantiationStatement::execute(
 			auto void_value = evaluation->GetData();
 			const_shared_ptr<const CompoundTypeInstance> instance =
 					static_pointer_cast<const CompoundTypeInstance>(void_value);
-			execution_context->GetSymbolContext()->SetSymbol(*m_name, instance);
+			execution_context->SetSymbol(*m_name, instance);
 		}
 	}
 

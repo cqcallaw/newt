@@ -36,10 +36,10 @@ public:
 	virtual ~Variable();
 
 	virtual const string* ToString(
-			const_shared_ptr<ExecutionContext> context) const = 0;
+			const shared_ptr<ExecutionContext> context) const = 0;
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const_shared_ptr<ExecutionContext> context) const = 0;
+			const shared_ptr<ExecutionContext> context) const = 0;
 
 	const_shared_ptr<string> GetName() const {
 		return m_name;
@@ -50,39 +50,39 @@ public:
 	}
 
 	virtual const ErrorListRef Validate(
-			const_shared_ptr<ExecutionContext> context) const = 0;
+			const shared_ptr<ExecutionContext> context) const = 0;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const_shared_ptr<ExecutionContext> context) const = 0;
+			const shared_ptr<ExecutionContext> context) const = 0;
 
 	virtual const ErrorListRef AssignValue(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Expression> expression,
 			const AssignmentType op) const = 0;
 
 protected:
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<bool> value) const = 0;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<int> value) const = 0;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<double> value) const = 0;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<string> value) const = 0;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Array> value) const = 0;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<CompoundTypeInstance> value) const = 0;
 
 	const ErrorListRef ToErrorListRef(SetResult result,

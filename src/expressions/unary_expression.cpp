@@ -43,13 +43,13 @@ const_shared_ptr<TypeSpecifier> UnaryExpression::compute_result_type(
 }
 
 const_shared_ptr<TypeSpecifier> UnaryExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return compute_result_type(m_expression->GetType(execution_context),
 			m_operator);
 }
 
 const ErrorListRef UnaryExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef result = ErrorList::GetTerminator();
 
 	const OperatorType op = m_operator;
@@ -76,7 +76,7 @@ const ErrorListRef UnaryExpression::Validate(
 }
 
 const_shared_ptr<Result> UnaryExpression::Evaluate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	void* result = nullptr;
 

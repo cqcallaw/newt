@@ -31,7 +31,7 @@ BinaryExpression::BinaryExpression(const yy::location position,
 const_shared_ptr<TypeSpecifier> BinaryExpression::ComputeResultType(
 		const_shared_ptr<Expression> left, const_shared_ptr<Expression> right,
 		const OperatorType op,
-		const_shared_ptr<ExecutionContext> execution_context) {
+		const shared_ptr<ExecutionContext> execution_context) {
 	const_shared_ptr<TypeSpecifier> left_type = left->GetType(
 			execution_context);
 	const_shared_ptr<TypeSpecifier> right_type = right->GetType(
@@ -73,7 +73,7 @@ const_shared_ptr<TypeSpecifier> BinaryExpression::ComputeResultType(
 }
 
 const_shared_ptr<Result> BinaryExpression::Evaluate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	const_shared_ptr<Expression> left = GetLeft();
 	const_shared_ptr<Expression> right = GetRight();
@@ -224,12 +224,12 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 }
 
 const_shared_ptr<TypeSpecifier> BinaryExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return ComputeResultType(m_left, m_right, m_operator, execution_context);
 }
 
 const ErrorListRef BinaryExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context,
+		const shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<TypeSpecifier> valid_left,
 		const_shared_ptr<TypeSpecifier> valid_right) const {
 	ErrorListRef result = ErrorList::GetTerminator();

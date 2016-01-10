@@ -23,15 +23,18 @@
 using namespace std;
 
 #include <assert.h>
-#include <execution_context.h>
+#include <memory>
+
+using namespace std;
+
+class ExecutionContext;
 
 class SymbolContextList {
 public:
-
 	virtual ~SymbolContextList() {
 	}
 
-	shared_ptr<SymbolContext> GetData() const {
+	shared_ptr<ExecutionContext> GetData() const {
 		if (m_data) {
 			return m_data;
 		} else {
@@ -48,20 +51,8 @@ public:
 	}
 
 	static shared_ptr<SymbolContextList> From(
-			const_shared_ptr<ExecutionContext> context,
-			const shared_ptr<SymbolContextList> context_parent) {
-		shared_ptr<SymbolContext> symbol_context = context->GetSymbolContext();
-
-		if (context->GetLifeTime() == PERSISTENT) {
-			weak_ptr<SymbolContext> weak = symbol_context;
-			return shared_ptr<SymbolContextList>(
-					new SymbolContextList(weak, context_parent));
-		} else {
-			return shared_ptr<SymbolContextList>(
-					new SymbolContextList(symbol_context, context_parent));
-		}
-	}
-
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<SymbolContextList> context_parent);
 
 	static const bool IsTerminator(shared_ptr<SymbolContextList> subject) {
 		return subject == GetTerminator();
@@ -73,24 +64,24 @@ public:
 	}
 
 private:
-	SymbolContextList(const shared_ptr<SymbolContext> data) :
+	SymbolContextList(const shared_ptr<ExecutionContext> data) :
 			SymbolContextList(data, GetTerminator()) {
 	}
 
-	SymbolContextList(const shared_ptr<SymbolContext> data,
+	SymbolContextList(const shared_ptr<ExecutionContext> data,
 			const shared_ptr<SymbolContextList> next) :
-			m_data(data), m_weak_data(shared_ptr<SymbolContext>(nullptr)), m_next(
+			m_data(data), m_weak_data(shared_ptr<ExecutionContext>(nullptr)), m_next(
 					next) {
 		if (m_next) {
 			assert(m_data != m_next->GetData());
 		}
 	}
 
-	SymbolContextList(const weak_ptr<SymbolContext> data) :
+	SymbolContextList(const weak_ptr<ExecutionContext> data) :
 			SymbolContextList(data, GetTerminator()) {
 	}
 
-	SymbolContextList(const weak_ptr<SymbolContext> data,
+	SymbolContextList(const weak_ptr<ExecutionContext> data,
 			const shared_ptr<SymbolContextList> next) :
 			m_data(nullptr), m_weak_data(data), m_next(next) {
 		if (m_next) {
@@ -98,8 +89,8 @@ private:
 		}
 	}
 
-	shared_ptr<SymbolContext> m_data;
-	weak_ptr<SymbolContext> m_weak_data;
+	shared_ptr<ExecutionContext> m_data;
+	weak_ptr<ExecutionContext> m_weak_data;
 	shared_ptr<SymbolContextList> m_next;
 };
 
