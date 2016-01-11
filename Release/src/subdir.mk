@@ -20,6 +20,7 @@ CPP_SRCS += \
 ../src/newt.cpp \
 ../src/symbol.cpp \
 ../src/symbol_context.cpp \
+../src/symbol_context_list.cpp \
 ../src/symbol_table.cpp \
 ../src/type.cpp \
 ../src/type_table.cpp \
@@ -42,6 +43,7 @@ OBJS += \
 ./src/newt.o \
 ./src/symbol.o \
 ./src/symbol_context.o \
+./src/symbol_context_list.o \
 ./src/symbol_table.o \
 ./src/type.o \
 ./src/type_table.o \
@@ -64,6 +66,7 @@ CPP_DEPS += \
 ./src/newt.d \
 ./src/symbol.d \
 ./src/symbol_context.d \
+./src/symbol_context_list.d \
 ./src/symbol_table.d \
 ./src/type.d \
 ./src/type_table.d \
