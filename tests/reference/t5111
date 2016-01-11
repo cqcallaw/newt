@@ -1,0 +1,12 @@
+Parsing file ../tests/t5111.nwt...
+Parsed file ../tests/t5111.nwt.
+Root Symbol Table:
+----------------
+(int) -> int f:
+	Body Location: 2.21-3.9
+
+int x: 2
+int y: 5
+
+Root Type Table:
+----------------

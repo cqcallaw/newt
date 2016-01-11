@@ -169,6 +169,9 @@ const string Error::get_error_message() const {
 		os << "Parameter type mismatch: can't assign '" << m_s1 << "' to '"
 				<< m_s2 << "'";
 		break;
+	case FUNCTION_PARAMETER_DEFAULT_MUST_BE_CONSTANT:
+		os << "Parameter default must be constant.";
+		break;
 	case TOO_MANY_ARGUMENTS:
 		os << "Too many arguments for function of type '" << m_s1 << "'.";
 		break;
@@ -177,6 +180,9 @@ const string Error::get_error_message() const {
 		break;
 	case NOT_A_FUNCTION:
 		os << "The given expression does not reference a valid function.";
+		break;
+	case INFERRED_DECLARATION_FAILED:
+		os << "Inferred declaration failure.";
 		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";

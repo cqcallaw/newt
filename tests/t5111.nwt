@@ -1,0 +1,7 @@
+//test inferred parameter types 
+f:= (a:= 2) -> int {
+	return a
+}
+
+x := f()
+y := f(5)

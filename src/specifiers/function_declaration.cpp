@@ -63,9 +63,8 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 
 	DeclarationListRef declaration_list = DeclarationList::Reverse(result);
 
-	return const_shared_ptr<FunctionDeclaration>(
-			new FunctionDeclaration(declaration_list,
-					type_specifier.GetReturnType()));
+	return make_shared<FunctionDeclaration>(declaration_list,
+			type_specifier.GetReturnType());
 }
 
 const_shared_ptr<void> FunctionDeclaration::DefaultValue(
