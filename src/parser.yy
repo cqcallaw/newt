@@ -188,6 +188,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %token <plain_shared_ptr<std::string>> STRING_CONSTANT "string constant"
 
 %left PERIOD
+%left LBRACKET
 %left OR
 %left AND
 %left EQUAL NOT_EQUAL
@@ -243,9 +244,6 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <MemberInstantiationListRef> member_instantiation_list
 %type <MemberInstantiationListRef> optional_member_instantiation_list
 %type <MemberInstantiationListRef> member_instantiation_block
-
-%type <plain_shared_ptr<Index>> index
-%type <IndexListRef> indices
 
 %type <plain_shared_ptr<Dimension>> dimension
 %type <DimensionListRef> dimensions
@@ -517,9 +515,9 @@ variable_reference:
 	{
 		$$ = make_shared<BasicVariable>($1, @1);
 	}
-	| IDENTIFIER indices
+	| variable_reference LBRACKET expression RBRACKET
 	{
-		$$ = make_shared<ArrayVariable>($1, @1, IndexList::Reverse($2), @2);
+		$$ = make_shared<ArrayVariable>($1, $3);
 	}
 	| variable_reference PERIOD variable_reference
 	{
@@ -834,26 +832,6 @@ member_instantiation:
 	IDENTIFIER EQUALS expression
 	{
 		$$ = make_shared<MemberInstantiation>(MemberInstantiation($1, @1, $3));
-	}
-	;
-
-//---------------------------------------------------------------------
-indices:
-	indices index
-	{
-		$$ = IndexList::From($2, $1);
-	}
-	| index
-	{
-		$$ = IndexList::From($1, IndexList::GetTerminator());
-	}
-	;
-
-//---------------------------------------------------------------------
-index:
-	LBRACKET expression RBRACKET
-	{
-		$$ = make_shared<Index>(Index(@$, $2));
 	}
 	;
 

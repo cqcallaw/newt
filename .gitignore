@@ -8,3 +8,4 @@ newt
 tests/output
 .settings
 stack.hh
+*.orig

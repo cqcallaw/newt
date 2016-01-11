@@ -39,7 +39,7 @@ BasicVariable::~BasicVariable() {
 const string* BasicVariable::ToString(
 		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
-	buffer << "<" << *GetName() << ">";
+	buffer << *GetName();
 	return new string(buffer.str());
 }
 

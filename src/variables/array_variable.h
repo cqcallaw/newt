@@ -30,13 +30,9 @@ class ExecutionContext;
 
 class ArrayVariable: public Variable {
 public:
-	ArrayVariable(const_shared_ptr<string> name, yy::location location,
-			IndexListRef index_list, yy::location expression_location);
+	ArrayVariable(const_shared_ptr<Variable> base_variable,
+			const_shared_ptr<Expression> expression);
 	virtual ~ArrayVariable();
-
-	IndexListRef GetIndexListRef() const {
-		return m_index_list;
-	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const shared_ptr<ExecutionContext> context) const;
@@ -44,15 +40,14 @@ public:
 	virtual const std::string* ToString(
 			const shared_ptr<ExecutionContext> context) const;
 
-	const yy::location GetIndexListRefLocation() const {
-		return m_index_list_location;
-	}
-
 	virtual const bool IsBasicReference() const {
 		return false;
 	}
 
-	virtual const_shared_ptr<TypeSpecifier> GetInnerMostElementType(
+//	virtual const_shared_ptr<TypeSpecifier> GetInnerMostElementType(
+//			const shared_ptr<ExecutionContext> context) const;
+
+	virtual const_shared_ptr<TypeSpecifier> GetElementType(
 			const shared_ptr<ExecutionContext> context) const;
 
 	virtual const ErrorListRef Validate(
@@ -123,8 +118,8 @@ protected:
 	};
 
 private:
-	IndexListRef m_index_list;
-	const yy::location m_index_list_location;
+	const_shared_ptr<Variable> m_base_variable;
+	const_shared_ptr<Expression> m_expression;
 
 	const_shared_ptr<ArrayVariable::ValidationResult> ValidateOperation(
 			const shared_ptr<ExecutionContext> context) const;

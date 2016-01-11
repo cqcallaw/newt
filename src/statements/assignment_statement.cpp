@@ -118,19 +118,22 @@ const ErrorListRef AssignmentStatement::preprocess(
 		if (array_variable) {
 			errors = array_variable->Validate(execution_context);
 
-			const_shared_ptr<TypeSpecifier> expression_type =
-					m_expression->GetType(execution_context);
-			const_shared_ptr<TypeSpecifier> innermost_element_type =
-					array_variable->GetInnerMostElementType(execution_context);
-			if (!expression_type->IsAssignableTo(innermost_element_type)) {
-				yy::location expression_position = m_expression->GetPosition();
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::ASSIGNMENT_TYPE_ERROR,
-								expression_position.begin.line,
-								expression_position.begin.column,
-								innermost_element_type->ToString(),
-								expression_type->ToString()), errors);
+			if (ErrorList::IsTerminator(errors)) {
+				const_shared_ptr<TypeSpecifier> expression_type =
+						m_expression->GetType(execution_context);
+				const_shared_ptr<TypeSpecifier> element_type =
+						array_variable->GetElementType(execution_context);
+				if (!expression_type->IsAssignableTo(element_type)) {
+					yy::location expression_position =
+							m_expression->GetPosition();
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									expression_position.begin.line,
+									expression_position.begin.column,
+									element_type->ToString(),
+									expression_type->ToString()), errors);
+				}
 			}
 		}
 
