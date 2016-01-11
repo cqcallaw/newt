@@ -74,15 +74,15 @@ public:
 		return m_type_table;
 	}
 
-	plain_shared_ptr<void> GetReturnValue() const {
+	const_shared_ptr<void> GetReturnValue() const {
 		return m_return_value;
 	}
 
-	void SetReturnValue(plain_shared_ptr<void> return_value) {
+	void SetReturnValue(const_shared_ptr<void> return_value) {
 		m_return_value = return_value;
 	}
 
-	plain_shared_ptr<int> GetExitCode() const {
+	const_shared_ptr<int> GetExitCode() const {
 		return m_exit_code;
 	}
 
@@ -113,14 +113,14 @@ private:
 			const shared_ptr<symbol_map>,
 			const SymbolContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table,
-			plain_shared_ptr<void> return_value,
-			plain_shared_ptr<int> exit_code, const LifeTime life_time);
+			const_shared_ptr<void> return_value,
+			const_shared_ptr<int> exit_code, const LifeTime life_time);
 
 	ExecutionContext(const shared_ptr<SymbolContext> context,
 			const SymbolContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table,
-			plain_shared_ptr<void> return_value,
-			plain_shared_ptr<int> exit_code, const LifeTime life_time);
+			const_shared_ptr<void> return_value,
+			const_shared_ptr<int> exit_code, const LifeTime life_time);
 
 	const SymbolContextListRef m_parent;
 	volatile_shared_ptr<TypeTable> m_type_table;

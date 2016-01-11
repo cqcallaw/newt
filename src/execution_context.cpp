@@ -89,7 +89,7 @@ const_shared_ptr<Symbol> ExecutionContext::GetSymbol(
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> context,
 		const SymbolContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table,
-		plain_shared_ptr<void> return_value, plain_shared_ptr<int> exit_code,
+		const_shared_ptr<void> return_value, const_shared_ptr<int> exit_code,
 		const LifeTime life_time) :
 		SymbolTable(*context), m_parent(parent_context), m_type_table(
 				type_table), m_return_value(return_value), m_exit_code(
@@ -100,7 +100,7 @@ ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
 		const shared_ptr<symbol_map> symbol_map,
 		const SymbolContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table,
-		plain_shared_ptr<void> return_value, plain_shared_ptr<int> exit_code,
+		const_shared_ptr<void> return_value, const_shared_ptr<int> exit_code,
 		const LifeTime life_time) :
 		SymbolTable(modifiers, symbol_map), m_parent(parent_context), m_type_table(
 				type_table), m_return_value(return_value), m_exit_code(
