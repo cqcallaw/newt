@@ -24,6 +24,7 @@
 #include <execution_context.h>
 #include <function_type_specifier.h>
 #include <declaration_statement.h>
+#include <inferred_declaration_statement.h>
 #include <symbol_table.h>
 
 FunctionExpression::FunctionExpression(const yy::location position,
@@ -73,30 +74,60 @@ const ErrorListRef FunctionExpression::Validate(
 	DeclarationListRef declaration = m_declaration->GetParameterList();
 	while (!DeclarationList::IsTerminator(declaration)) {
 		auto declaration_statement = declaration->GetData();
-		auto preprocess_errors = declaration_statement->preprocess(tmp_context);
 
-		if (ErrorList::IsTerminator(preprocess_errors)) {
-			auto execution_errors = declaration_statement->execute(tmp_context);
-			if (!ErrorList::IsTerminator(execution_errors)) {
-				errors = ErrorList::Concatenate(errors, execution_errors);
+		ErrorListRef parameter_errors = ErrorList::GetTerminator();
+		//validate the constancy of parameter declarations of an inferred type
+		const_shared_ptr<InferredDeclarationStatement> as_inferred =
+				dynamic_pointer_cast<const InferredDeclarationStatement>(
+						declaration_statement);
+		if (as_inferred) {
+			auto init_expression = as_inferred->GetInitializerExpression();
+			if (!init_expression->IsConstant()) {
+				parameter_errors =
+						ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::FUNCTION_PARAMETER_DEFAULT_MUST_BE_CONSTANT,
+										init_expression->GetPosition().begin.line,
+										init_expression->GetPosition().begin.column),
+								parameter_errors);
+			}
+		}
+
+		if (ErrorList::IsTerminator(parameter_errors)) {
+			auto preprocess_errors = declaration_statement->preprocess(
+					tmp_context);
+
+			if (ErrorList::IsTerminator(preprocess_errors)) {
+				auto execution_errors = declaration_statement->execute(
+						tmp_context);
+				if (!ErrorList::IsTerminator(execution_errors)) {
+					parameter_errors = ErrorList::Concatenate(parameter_errors,
+							execution_errors);
+				}
+			} else {
+				parameter_errors = ErrorList::Concatenate(parameter_errors,
+						preprocess_errors);
 			}
 		} else {
-			errors = ErrorList::Concatenate(errors, preprocess_errors);
+			errors = ErrorList::Concatenate(errors, parameter_errors);
 		}
 
 		declaration = declaration->GetNext();
 	}
 
-	errors = m_body->preprocess(tmp_context);
+	if (ErrorList::IsTerminator(errors)) {
+		errors = ErrorList::Concatenate(errors,
+				m_body->preprocess(tmp_context));
 
-	AnalysisResult returns = m_body->Returns(m_declaration->GetReturnType(),
-			tmp_context);
-	if (returns == AnalysisResult::NO) {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::FUNCTION_RETURN_MISMATCH,
-						GetPosition().begin.line, GetPosition().begin.column),
-				errors);
+		AnalysisResult returns = m_body->Returns(m_declaration->GetReturnType(),
+				tmp_context);
+		if (returns == AnalysisResult::NO) {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::FUNCTION_RETURN_MISMATCH,
+							GetPosition().begin.line,
+							GetPosition().begin.column), errors);
+		}
 	}
 
 	return errors;

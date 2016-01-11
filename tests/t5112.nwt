@@ -1,0 +1,6 @@
+//test invalid inferred parameter types 
+f:= (a:= undef) -> int {
+	return a
+}
+
+x := f()

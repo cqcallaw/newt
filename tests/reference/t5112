@@ -1,0 +1,5 @@
+Parsing file ../tests/t5112.nwt...
+Semantic error on line 2, column 10: Parameter default must be constant.
+Semantic error on line 6, column 1: Inferred declaration failure.
+Parsed file ../tests/t5112.nwt.
+2 errors found; giving up.
