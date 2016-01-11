@@ -41,7 +41,7 @@ public:
 
 	virtual const AnalysisResult Returns(
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<ExecutionContext> execution_context) const {
+			const shared_ptr<ExecutionContext> execution_context) const {
 		return AnalysisResult::NO;
 	}
 

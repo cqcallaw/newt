@@ -260,7 +260,7 @@ program:
 	{
 		//statement list comes in reverse order
 		//wrap in StatementListRef because Reverse is a LinkedList<T> function
-		plain_shared_ptr<StatementBlock> main_statement_block = make_shared<const StatementBlock>(StatementList::Reverse($1));
+		plain_shared_ptr<StatementBlock> main_statement_block = make_shared<const StatementBlock>(StatementList::Reverse($1), @1);
 		driver.SetStatementBlock(main_statement_block);
 	}
 	;
@@ -373,7 +373,7 @@ type_specifier:
 statement_block:
 	LBRACE statement_list RBRACE
 	{
-		$$ = make_shared<StatementBlock>(StatementList::Reverse($2)); //statement list comes in reverse order
+		$$ = make_shared<StatementBlock>(StatementList::Reverse($2), @2); //statement list comes in reverse order
 	}
 	;
 
@@ -434,7 +434,7 @@ statement:
 if_block:
 	statement
 	{
-		$$ = make_shared<StatementBlock>(StatementList::From($1, StatementList::GetTerminator()));
+		$$ = make_shared<StatementBlock>(StatementList::From($1, StatementList::GetTerminator()), @1);
 	}
 	| statement_block
 	{

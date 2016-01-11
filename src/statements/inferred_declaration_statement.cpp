@@ -49,7 +49,7 @@ const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetType() const {
 }
 
 const ErrorListRef InferredDeclarationStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> expression_type =

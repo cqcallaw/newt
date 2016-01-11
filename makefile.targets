@@ -5,7 +5,6 @@ TEST_FILES = $(wildcard $(TEST_PATH)*.nwt)
 TESTS = $(patsubst $(TEST_PATH)%.nwt,%,$(TEST_FILES))
 WTESTS = $(patsubst $(TEST_PATH)%.nwt,w%,$(TEST_FILES))
 MTESTS = $(patsubst $(TEST_PATH)%.nwt,m%,$(TEST_FILES))
-MQTESTS = $(patsubst $(TEST_PATH)%.nwt,mq%,$(TEST_FILES))
 
 INCLUDE_DIRS = -I"../src/expressions" -I"../src/specifiers" -I"../src/statements" -I"../src/variables" -I"../src" -I"./"
 
@@ -41,11 +40,6 @@ m%: newt $(TEST_PATH)%.nwt
 	-@echo ' '
 	-@echo 'Memory test for ' $(word 2,$^)
 	@valgrind --leak-check=full --show-leak-kinds=all -v --error-exitcode=1 ./newt --debug $(word 2,$^)
-
-mqtest: newt $(MQTESTS)
-
-mq%: newt $(TEST_PATH)%.nwt
-	@valgrind --error-exitcode=1 ./newt --debug $(word 2,$^)
 
 #compare test w/ reference output (requires kdiff)
 d%: $(TEST_PATH)%.nwt $(TEST_PATH)reference

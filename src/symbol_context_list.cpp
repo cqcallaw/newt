@@ -17,27 +17,19 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SYMBOL_TABLE_H_
-#define SYMBOL_TABLE_H_
+#include <symbol_context_list.h>
+#include <execution_context.h>
 
-#include <symbol_context.h>
+shared_ptr<SymbolContextList> SymbolContextList::From(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<SymbolContextList> context_parent) {
+	if (context->GetLifeTime() == PERSISTENT) {
+		weak_ptr<ExecutionContext> weak = context;
+		return shared_ptr<SymbolContextList>(
+				new SymbolContextList(weak, context_parent));
+	} else {
+		return shared_ptr<SymbolContextList>(
+				new SymbolContextList(context, context_parent));
+	}
 
-using namespace std;
-
-enum InsertResult {
-	NO_INSERT_RESULT = 0, INSERT_SUCCESS = 1, SYMBOL_EXISTS = 2
-};
-
-class SymbolTable: public SymbolContext {
-public:
-	SymbolTable();
-	SymbolTable(const Modifier::Type modifiers);
-	SymbolTable(const Modifier::Type modifiers,
-			const shared_ptr<symbol_map> values);
-	SymbolTable(const SymbolContext& other);
-
-	InsertResult InsertSymbol(const string& name,
-			const_shared_ptr<Symbol> symbol);
-};
-
-#endif /* SYMBOL_TABLE_H_ */
+}

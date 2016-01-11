@@ -29,7 +29,7 @@ ReturnStatement::~ReturnStatement() {
 }
 
 const ErrorListRef ReturnStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return m_expression->Validate(execution_context);
 }
 
@@ -48,7 +48,7 @@ const ErrorListRef ReturnStatement::execute(
 
 const AnalysisResult ReturnStatement::Returns(
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			m_expression->GetType(execution_context);
 	if (*expression_type_specifier == *type_specifier) {

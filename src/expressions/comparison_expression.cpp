@@ -34,12 +34,12 @@ ComparisonExpression::ComparisonExpression(const yy::location position,
 }
 
 const_shared_ptr<TypeSpecifier> ComparisonExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return PrimitiveTypeSpecifier::GetBoolean();
 }
 
 const ErrorListRef ComparisonExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return BinaryExpression::Validate(execution_context,
 			PrimitiveTypeSpecifier::GetString(),
 			PrimitiveTypeSpecifier::GetString());

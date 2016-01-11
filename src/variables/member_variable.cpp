@@ -23,7 +23,7 @@ MemberVariable::~MemberVariable() {
 }
 
 const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	const_shared_ptr<TypeSpecifier> container_type_specifier =
 			m_container->GetType(context);
 	const_shared_ptr<CompoundTypeSpecifier> as_compound_type =
@@ -34,8 +34,7 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
 				std::static_pointer_cast<const CompoundTypeInstance>(
 						as_compound_type->DefaultValue(
 								*context->GetTypeTable()));
-		auto new_context = context->WithSymbolContext(
-				instance->GetDefinition());
+		auto new_context = context->WithContents(instance->GetDefinition());
 		const_shared_ptr<TypeSpecifier> result = m_member_variable->GetType(
 				new_context);
 		return result;
@@ -45,7 +44,7 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
 }
 
 const std::string* MemberVariable::ToString(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
 	buffer << "<" << *GetName() << "." << *m_member_variable->ToString(context)
 			<< ">";
@@ -53,7 +52,7 @@ const std::string* MemberVariable::ToString(
 }
 
 const_shared_ptr<Result> MemberVariable::Evaluate(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
@@ -73,8 +72,7 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 						container_result->GetData());
 				volatile_shared_ptr<SymbolContext> new_symbol_context =
 						instance->GetDefinition();
-				auto new_context = context->WithSymbolContext(
-						new_symbol_context);
+				auto new_context = context->WithContents(new_symbol_context);
 				const_shared_ptr<Result> member_result =
 						m_member_variable->Evaluate(new_context);
 				return member_result;
@@ -101,7 +99,7 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<bool> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
@@ -134,7 +132,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<int> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
@@ -168,7 +166,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<double> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
@@ -202,7 +200,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<string> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
@@ -236,7 +234,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 }
 
 const ErrorListRef MemberVariable::AssignValue(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
@@ -250,19 +248,12 @@ const ErrorListRef MemberVariable::AssignValue(
 				container_evaluation->GetData());
 		shared_ptr<SymbolContext> definition = struct_value->GetDefinition();
 
-		volatile_shared_ptr<SymbolContext> symbol_context =
-				context->GetSymbolContext();
-		const auto parent_context = symbol_context->GetParent();
-		const auto new_parent_context = SymbolContextList::From(
-				symbol_context, parent_context);
+		const auto new_parent_context = SymbolContextList::From(context,
+				context->GetParent());
+		auto new_context = context->WithContents(definition)->WithParent(
+				new_parent_context);
 
-		auto new_definition = make_shared<SymbolContext>(
-				definition->GetModifiers(), new_parent_context,
-				definition->GetTable());
-
-		auto new_context = context->WithSymbolContext(new_definition);
 		const_shared_ptr<Variable> new_variable = GetMemberVariable();
-
 		errors = new_variable->AssignValue(new_context, expression, op);
 	}
 
@@ -270,7 +261,7 @@ const ErrorListRef MemberVariable::AssignValue(
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<CompoundTypeInstance> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
@@ -304,7 +295,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Array> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
@@ -338,12 +329,10 @@ const ErrorListRef MemberVariable::SetSymbol(
 }
 
 const ErrorListRef MemberVariable::Validate(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<SymbolContext> symbol_context =
-			context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(m_container->GetName(), DEEP);
+	auto symbol = context->GetSymbol(m_container->GetName(), DEEP);
 
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(

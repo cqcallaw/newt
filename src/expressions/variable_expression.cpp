@@ -33,17 +33,17 @@ VariableExpression::VariableExpression(const yy::location position,
 }
 
 const_shared_ptr<TypeSpecifier> VariableExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return m_variable->GetType(execution_context);
 }
 
 const_shared_ptr<Result> VariableExpression::Evaluate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return m_variable->Evaluate(execution_context);
 }
 
 const ErrorListRef VariableExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = m_variable->Validate(execution_context);
 
 	return errors;

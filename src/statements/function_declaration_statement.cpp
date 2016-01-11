@@ -42,13 +42,12 @@ FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 }
 
 const ErrorListRef FunctionDeclarationStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = execution_context->GetTypeTable();
 
-	auto existing = execution_context->GetSymbolContext()->GetSymbol(m_name,
-			SHALLOW);
+	auto existing = execution_context->GetSymbol(m_name, SHALLOW);
 
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (m_initializer_expression) {
@@ -77,7 +76,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 					new Symbol(static_pointer_cast<const Function>(value)));
 
 			volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
-					SymbolTable>(execution_context->GetSymbolContext());
+					SymbolTable>(execution_context);
 			InsertResult insert_result = symbol_table->InsertSymbol(*m_name,
 					symbol);
 
@@ -87,8 +86,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 		}
 	} else {
 		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::PREVIOUS_DECLARATION,
+				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
 						m_name_location.begin.line,
 						m_name_location.begin.column, *(m_name)), errors);
 	}

@@ -42,14 +42,14 @@ public:
 	virtual ~ForStatement();
 
 	virtual const ErrorListRef preprocess(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const AnalysisResult Returns(
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 private:
 	ForStatement(const_shared_ptr<Statement> initial,
@@ -61,7 +61,7 @@ private:
 	const_shared_ptr<Expression> m_loop_expression;
 	const_shared_ptr<AssignmentStatement> m_loop_assignment;
 	const_shared_ptr<StatementBlock> m_statement_block;
-	shared_ptr<SymbolTable> m_block_table;
+	shared_ptr<ExecutionContext> m_block_context;
 };
 
 #endif /* FOR_STATEMENT_H_ */

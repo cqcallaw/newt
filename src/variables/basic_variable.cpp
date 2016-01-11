@@ -37,26 +37,23 @@ BasicVariable::~BasicVariable() {
 }
 
 const string* BasicVariable::ToString(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
 	buffer << "<" << *GetName() << ">";
 	return new string(buffer.str());
 }
 
 const_shared_ptr<TypeSpecifier> BasicVariable::GetType(
-		const_shared_ptr<ExecutionContext> context) const {
-	auto symbol = context->GetSymbolContext()->GetSymbol(GetName(), DEEP);
+		const shared_ptr<ExecutionContext> context) const {
+	auto symbol = context->GetSymbol(GetName(), DEEP);
 	return symbol->GetType();
 }
 
 const_shared_ptr<Result> BasicVariable::Evaluate(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<SymbolContext> symbol_context =
-			context->GetSymbolContext();
-	const_shared_ptr<Symbol> symbol = symbol_context->GetSymbol(GetName(),
-			DEEP);
+	const_shared_ptr<Symbol> symbol = context->GetSymbol(GetName(), DEEP);
 	auto result_symbol = Symbol::GetDefaultSymbol();
 
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
@@ -74,15 +71,16 @@ const_shared_ptr<Result> BasicVariable::Evaluate(
 }
 
 const ErrorListRef BasicVariable::AssignValue(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
 	return AssignValue(context, expression, context, op);
 }
+
 const ErrorListRef BasicVariable::AssignValue(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,
-		const_shared_ptr<ExecutionContext> output_context,
+		const shared_ptr<ExecutionContext> output_context,
 		const AssignmentType op) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -90,9 +88,7 @@ const ErrorListRef BasicVariable::AssignValue(
 	const int variable_line = GetLocation().begin.line;
 	const int variable_column = GetLocation().begin.column;
 
-	shared_ptr<SymbolTable> symbol_table = static_pointer_cast<SymbolTable>(
-			output_context->GetSymbolContext());
-	const_shared_ptr<Symbol> symbol = symbol_table->GetSymbol(variable_name,
+	const_shared_ptr<Symbol> symbol = output_context->GetSymbol(variable_name,
 			DEEP);
 	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
 	auto symbol_value = symbol->GetValue();
@@ -221,65 +217,58 @@ const ErrorListRef BasicVariable::AssignValue(
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<bool> value) const {
-	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(symbol_context->SetSymbol(*GetName(), value),
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(context->SetSymbol(*GetName(), value),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetBoolean());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<int> value) const {
-	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(symbol_context->SetSymbol(*GetName(), value),
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(context->SetSymbol(*GetName(), value),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetInt());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<double> value) const {
-	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(symbol_context->SetSymbol(*GetName(), value),
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(context->SetSymbol(*GetName(), value),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetDouble());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<string> value) const {
-	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(symbol_context->SetSymbol(*GetName(), value),
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(context->SetSymbol(*GetName(), value),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetString());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Array> value) const {
-	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(symbol_context->SetSymbol(*GetName(), value),
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(context->SetSymbol(*GetName(), value),
 			symbol->GetType(), value->GetTypeSpecifier());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<CompoundTypeInstance> value) const {
-	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(symbol_context->SetSymbol(*GetName(), value),
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(context->SetSymbol(*GetName(), value),
 			symbol->GetType(), value->GetTypeSpecifier());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Function> value) const {
-	auto symbol_context = context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(symbol_context->SetSymbol(*GetName(), value),
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(context->SetSymbol(*GetName(), value),
 			symbol->GetType(), value->GetType());
 }
 
@@ -293,12 +282,10 @@ const_shared_ptr<Variable> BasicVariable::GetDefaultVariable() {
 }
 
 const ErrorListRef BasicVariable::Validate(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<SymbolContext> symbol_context =
-			context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(GetName(), DEEP);
+	auto symbol = context->GetSymbol(GetName(), DEEP);
 
 	if (symbol == nullptr || symbol == Symbol::GetDefaultSymbol()) {
 		errors = ErrorList::From(

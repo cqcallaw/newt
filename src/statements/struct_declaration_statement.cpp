@@ -52,7 +52,7 @@ StructDeclarationStatement::~StructDeclarationStatement() {
 }
 
 const ErrorListRef StructDeclarationStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = execution_context->GetTypeTable();
@@ -70,9 +70,9 @@ const ErrorListRef StructDeclarationStatement::preprocess(
 	//of the member declaration statements
 	const shared_ptr<symbol_map> values = make_shared<symbol_map>();
 	volatile_shared_ptr<SymbolTable> member_buffer = make_shared<SymbolTable>(
-			Modifier::NONE, SymbolContextList::GetTerminator(), values);
+			Modifier::NONE, values);
 	shared_ptr<ExecutionContext> struct_context =
-			execution_context->WithSymbolContext(member_buffer);
+			execution_context->WithContents(member_buffer);
 
 	DeclarationListRef subject = m_member_declaration_list;
 	while (!DeclarationList::IsTerminator(subject)) {
@@ -80,8 +80,7 @@ const ErrorListRef StructDeclarationStatement::preprocess(
 
 		const_shared_ptr<Expression> initializer_expression =
 				declaration->GetInitializerExpression();
-		if (initializer_expression
-				&& !initializer_expression->IsConstant()) {
+		if (initializer_expression && !initializer_expression->IsConstant()) {
 			//if we have a non-constant initializer expression, generate an error
 			yy::location position = initializer_expression->GetPosition();
 			errors = ErrorList::From(

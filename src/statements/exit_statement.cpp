@@ -35,7 +35,7 @@ ExitStatement::~ExitStatement() {
 }
 
 const ErrorListRef ExitStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_exit_expression) {

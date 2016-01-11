@@ -39,10 +39,10 @@ public:
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const_shared_ptr<ExecutionContext> context) const;
+			const shared_ptr<ExecutionContext> context) const;
 
 	virtual const std::string* ToString(
-			const_shared_ptr<ExecutionContext> context) const;
+			const shared_ptr<ExecutionContext> context) const;
 
 	const yy::location GetIndexListRefLocation() const {
 		return m_index_list_location;
@@ -53,42 +53,42 @@ public:
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetInnerMostElementType(
-			const_shared_ptr<ExecutionContext> context) const;
+			const shared_ptr<ExecutionContext> context) const;
 
 	virtual const ErrorListRef Validate(
-			const_shared_ptr<ExecutionContext> context) const;
+			const shared_ptr<ExecutionContext> context) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const_shared_ptr<ExecutionContext> context) const;
+			const shared_ptr<ExecutionContext> context) const;
 
 	virtual const ErrorListRef AssignValue(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Expression> expression,
 			const AssignmentType op) const;
 
 protected:
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<bool> value) const;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<int> value) const;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<double> value) const;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<string> value) const;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Array> value) const;
 
 	virtual const ErrorListRef SetSymbol(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<CompoundTypeInstance> value) const;
 
 	class ValidationResult {
@@ -127,9 +127,9 @@ private:
 	const yy::location m_index_list_location;
 
 	const_shared_ptr<ArrayVariable::ValidationResult> ValidateOperation(
-			const_shared_ptr<ExecutionContext> context) const;
+			const shared_ptr<ExecutionContext> context) const;
 
-	const ErrorListRef SetSymbolCore(const_shared_ptr<ExecutionContext> context,
+	const ErrorListRef SetSymbolCore(const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<void> value) const;
 };
 

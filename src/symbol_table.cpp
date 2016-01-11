@@ -28,14 +28,17 @@
 
 using namespace std;
 
-SymbolTable::SymbolTable(SymbolContextListRef parent) :
-		SymbolContext(Modifier::NONE, parent) {
+SymbolTable::SymbolTable() :
+		SymbolContext(Modifier::NONE) {
+}
+
+SymbolTable::SymbolTable(const Modifier::Type modifiers) :
+		SymbolContext(modifiers) {
 }
 
 SymbolTable::SymbolTable(const Modifier::Type modifiers,
-		const SymbolContextListRef parent_context,
 		const shared_ptr<symbol_map> values) :
-		SymbolContext(modifiers, parent_context, values) {
+		SymbolContext(modifiers, values) {
 }
 
 InsertResult SymbolTable::InsertSymbol(const string& name,
@@ -54,4 +57,8 @@ InsertResult SymbolTable::InsertSymbol(const string& name,
 
 		return INSERT_SUCCESS;
 	}
+}
+
+SymbolTable::SymbolTable(const SymbolContext& other) :
+		SymbolContext(other) {
 }

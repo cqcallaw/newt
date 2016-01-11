@@ -34,32 +34,32 @@
 #include <primitive_type_specifier.h>
 #include <memory>
 
-Symbol::Symbol(const_shared_ptr<const bool> value) :
+Symbol::Symbol(const_shared_ptr<bool> value) :
 		Symbol(PrimitiveTypeSpecifier::GetBoolean(),
 				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<const int> value) :
+Symbol::Symbol(const_shared_ptr<int> value) :
 		Symbol(PrimitiveTypeSpecifier::GetInt(),
 				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<const double> value) :
+Symbol::Symbol(const_shared_ptr<double> value) :
 		Symbol(PrimitiveTypeSpecifier::GetDouble(),
 				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<const string> value) :
+Symbol::Symbol(const_shared_ptr<string> value) :
 		Symbol(PrimitiveTypeSpecifier::GetString(),
 				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<const Array> value) :
+Symbol::Symbol(const_shared_ptr<Array> value) :
 		Symbol(value->GetTypeSpecifier(),
 				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<const CompoundTypeInstance> value) :
+Symbol::Symbol(const_shared_ptr<CompoundTypeInstance> value) :
 		Symbol(value->GetTypeSpecifier(),
 				static_pointer_cast<const void>(value)) {
 }
@@ -75,8 +75,8 @@ Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 }
 
 const_shared_ptr<Symbol> Symbol::WithValue(
-		const_shared_ptr<const TypeSpecifier> type,
-		const_shared_ptr<const void> value) const {
+		const_shared_ptr<TypeSpecifier> type,
+		const_shared_ptr<void> value) const {
 	if (!type->IsAssignableTo(this->m_type)) {
 		return GetDefaultSymbol();
 	}
@@ -109,6 +109,14 @@ const string Symbol::ToString(const TypeTable& type_table,
 		auto compound_type_instance = static_pointer_cast<
 				const CompoundTypeInstance>(m_value);
 		buffer << compound_type_instance->ToString(type_table, indent + 1);
+	}
+
+	const_shared_ptr<FunctionTypeSpecifier> as_function =
+			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(m_type);
+	if (as_function) {
+		buffer << endl;
+		auto function = static_pointer_cast<const Function>(m_value);
+		buffer << function->ToString(type_table, indent + 1);
 	}
 
 	return buffer.str();

@@ -70,8 +70,8 @@ const bool FunctionTypeSpecifier::IsAssignableTo(
 
 const_shared_ptr<void> FunctionTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
-	const static const_shared_ptr<void> default_value = const_shared_ptr<void>(
-			GetDefaultFunction(*this, type_table));
+	const static const_shared_ptr<void> default_value = GetDefaultFunction(
+			*this, type_table);
 	return default_value;
 }
 
@@ -114,13 +114,13 @@ const_shared_ptr<DeclarationStatement> FunctionTypeSpecifier::GetDeclarationStat
 			type_position, name, name_position, initializer_expression);
 }
 
-const Function* FunctionTypeSpecifier::GetDefaultFunction(
+const_shared_ptr<Function> FunctionTypeSpecifier::GetDefaultFunction(
 		const FunctionTypeSpecifier& type_specifier,
 		const TypeTable& type_table) {
 	auto statement_block = GetDefaultStatementBlock(
 			type_specifier.m_return_type, type_table);
 	auto declaration = FunctionDeclaration::FromTypeSpecifier(type_specifier);
-	return new Function(declaration, statement_block,
+	return make_shared<Function>(declaration, statement_block,
 			ExecutionContext::GetDefault());
 }
 
@@ -136,7 +136,7 @@ const_shared_ptr<StatementBlock> FunctionTypeSpecifier::GetDefaultStatementBlock
 			default_return_statement, StatementList::GetTerminator());
 
 	const_shared_ptr<StatementBlock> statement_block = make_shared<
-			StatementBlock>(default_list);
+			StatementBlock>(default_list, GetDefaultLocation());
 
 	return statement_block;
 }

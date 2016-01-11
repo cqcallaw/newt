@@ -28,7 +28,7 @@ PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
 }
 
 const ErrorListRef PrimitiveDeclarationStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto symbol = Symbol::GetDefaultSymbol();
 	const_shared_ptr<Expression> expression = m_initializer_expression;
@@ -108,7 +108,7 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 
 	if (symbol != Symbol::GetDefaultSymbol()) {
 		volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
-				SymbolTable>(execution_context->GetSymbolContext());
+				SymbolTable>(execution_context);
 
 		InsertResult insert_result = symbol_table->InsertSymbol(*m_name,
 				symbol);

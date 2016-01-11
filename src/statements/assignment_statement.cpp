@@ -41,13 +41,11 @@ AssignmentStatement::~AssignmentStatement() {
 }
 
 const ErrorListRef AssignmentStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	shared_ptr<SymbolTable> symbol_table = static_pointer_cast<SymbolTable>(
-			execution_context->GetSymbolContext());
 	const_shared_ptr<string> variable_name = m_variable->GetName();
-	auto symbol = symbol_table->GetSymbol(variable_name, DEEP);
+	auto symbol = execution_context->GetSymbol(variable_name, DEEP);
 	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
 
 	int variable_line = m_variable->GetLocation().begin.line;
@@ -215,7 +213,7 @@ const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const bool old_value,
 		const bool expression_value, const AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context, bool &out) {
+		const shared_ptr<ExecutionContext> execution_context, bool &out) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	switch (op) {
 	case ASSIGN:
@@ -237,7 +235,7 @@ const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const int old_value,
 		const int expression_value, const AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context, int& out) {
+		const shared_ptr<ExecutionContext> execution_context, int& out) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	switch (op) {
@@ -266,7 +264,7 @@ const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const double old_value,
 		const double expression_value, const AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context, double &out) {
+		const shared_ptr<ExecutionContext> execution_context, double &out) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	switch (op) {
@@ -296,7 +294,7 @@ const ErrorListRef AssignmentStatement::do_op(
 		int variable_line, int variable_column,
 		const_shared_ptr<string> old_value, const bool expression_value,
 		const AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
+		const shared_ptr<ExecutionContext> execution_context, string* &out) {
 	return do_op(variable_name, variable_type, variable_line, variable_column,
 			old_value, AsString(expression_value), op, execution_context, out);
 }
@@ -306,7 +304,7 @@ const ErrorListRef AssignmentStatement::do_op(
 		int variable_line, int variable_column,
 		const_shared_ptr<string> old_value, const int expression_value,
 		const AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
+		const shared_ptr<ExecutionContext> execution_context, string* &out) {
 	return do_op(variable_name, variable_type, variable_line, variable_column,
 			old_value, AsString(expression_value), op, execution_context, out);
 }
@@ -316,7 +314,7 @@ const ErrorListRef AssignmentStatement::do_op(
 		int variable_line, int variable_column,
 		const_shared_ptr<string> old_value, const double expression_value,
 		const AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
+		const shared_ptr<ExecutionContext> execution_context, string* &out) {
 	return do_op(variable_name, variable_type, variable_line, variable_column,
 			old_value, AsString(expression_value), op, execution_context, out);
 }
@@ -326,7 +324,7 @@ const ErrorListRef AssignmentStatement::do_op(
 		int variable_line, int variable_column,
 		const_shared_ptr<string> old_value,
 		const_shared_ptr<string> expression_value, const AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context, string* &out) {
+		const shared_ptr<ExecutionContext> execution_context, string* &out) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	ostringstream buffer;
@@ -355,7 +353,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const int value,
 		const_shared_ptr<Expression> expression, const AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context) {
+		const shared_ptr<ExecutionContext> execution_context) {
 	ErrorListRef errors;
 
 	int new_value = 0;
@@ -413,7 +411,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const double value,
 		const_shared_ptr<Expression> expression, AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context) {
+		const shared_ptr<ExecutionContext> execution_context) {
 	ErrorListRef errors;
 
 	double new_value = 0;
@@ -477,7 +475,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const_shared_ptr<string> value,
 		const_shared_ptr<Expression> expression, AssignmentType op,
-		const_shared_ptr<ExecutionContext> execution_context) {
+		const shared_ptr<ExecutionContext> execution_context) {
 	ErrorListRef errors;
 
 	string* new_value = nullptr;
@@ -556,10 +554,7 @@ const ErrorListRef AssignmentStatement::execute(
 	int variable_line = m_variable->GetLocation().begin.line;
 	int variable_column = m_variable->GetLocation().begin.column;
 
-	const_shared_ptr<SymbolTable> symbol_table =
-			static_pointer_cast<SymbolTable>(
-					execution_context->GetSymbolContext());
-	auto symbol = symbol_table->GetSymbol(variable_name, DEEP);
+	auto symbol = execution_context->GetSymbol(variable_name, DEEP);
 
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		errors = m_variable->AssignValue(execution_context, m_expression,

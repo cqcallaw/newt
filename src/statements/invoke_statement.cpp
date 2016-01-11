@@ -33,7 +33,7 @@ InvokeStatement::~InvokeStatement() {
 }
 
 const ErrorListRef InvokeStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	//variable reference must be a reference to a function
 	//argument list length and types must match
 	const_shared_ptr<VariableExpression> variable_expression = make_shared<

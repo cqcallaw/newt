@@ -28,16 +28,16 @@ class VariableExpression: public Expression {
 public:
 	VariableExpression(const yy::location position, const_shared_ptr<Variable> variable);
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(const_shared_ptr<ExecutionContext> execution_context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetType(const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return false;
 	}
 
-	virtual const ErrorListRef Validate(const_shared_ptr<ExecutionContext> execution_context) const;
+	virtual const ErrorListRef Validate(const shared_ptr<ExecutionContext> execution_context) const;
 
 	const_shared_ptr<Variable> GetVariable() const {
 		return m_variable;

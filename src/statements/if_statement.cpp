@@ -25,7 +25,6 @@
 #include <assert.h>
 #include <type.h>
 #include <error.h>
-#include <symbol_table.h>
 #include <execution_context.h>
 
 IfStatement::IfStatement(const_shared_ptr<Expression> expression,
@@ -36,44 +35,37 @@ IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block,
 		const_shared_ptr<StatementBlock> else_block) :
-		m_expression(expression), m_block(block), m_else_block(else_block), m_block_table(
-				make_shared<SymbolTable>()), m_else_block_table(
-				make_shared<SymbolTable>()) {
+		m_expression(expression), m_block(block), m_else_block(else_block), m_block_context(
+				make_shared<ExecutionContext>()), m_else_block_context(
+				make_shared<ExecutionContext>()) {
 }
 
 IfStatement::~IfStatement() {
 }
 
 const ErrorListRef IfStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_expression) {
 		if (m_expression->GetType(execution_context)->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt())) {
 
-			volatile_shared_ptr<SymbolContext> symbol_context =
-					execution_context->GetSymbolContext();
 			SymbolContextListRef new_parent = SymbolContextList::From(
-					symbol_context, symbol_context->GetParent());
-			volatile_shared_ptr<SymbolTable> tmp_table =
-					make_shared<SymbolTable>(
-							SymbolTable(m_block_table->GetModifiers(),
-									new_parent, m_block_table->GetTable()));
-			shared_ptr<ExecutionContext> new_execution_context =
-					execution_context->WithSymbolContext(tmp_table);
+					execution_context, execution_context->GetParent());
+			const shared_ptr<ExecutionContext> new_execution_context =
+					execution_context->WithContents(m_block_context)->WithParent(
+							new_parent);
 
 			errors = m_block->preprocess(execution_context);
 
 			if (m_else_block) {
 				//pre-process else block
-				new_parent = SymbolContextList::From(symbol_context,
-						symbol_context->GetParent());
-				tmp_table = make_shared<SymbolTable>(
-						m_else_block_table->GetModifiers(), new_parent,
-						m_else_block_table->GetTable());
-				new_execution_context = execution_context->WithSymbolContext(
-						tmp_table);
+				new_parent = SymbolContextList::From(execution_context,
+						execution_context->GetParent());
+				const shared_ptr<ExecutionContext> new_execution_context =
+						execution_context->WithContents(m_else_block_context)->WithParent(
+								new_parent);
 
 				errors = m_else_block->preprocess(execution_context);
 			}
@@ -103,27 +95,17 @@ const ErrorListRef IfStatement::execute(
 	bool test = *(static_pointer_cast<const bool>(evaluation->GetData()));
 
 	if (test) {
-		volatile_shared_ptr<SymbolContext> symbol_context =
-				execution_context->GetSymbolContext();
 		SymbolContextListRef new_parent = SymbolContextList::From(
-				symbol_context, symbol_context->GetParent());
-		volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
-				m_block_table->GetModifiers(), new_parent,
-				m_block_table->GetTable());
+				execution_context, execution_context->GetParent());
 		shared_ptr<ExecutionContext> new_execution_context =
-				execution_context->WithSymbolContext(tmp_table);
+				m_block_context->WithParent(new_parent);
 
 		errors = m_block->execute(execution_context);
 	} else if (m_else_block) {
-		volatile_shared_ptr<SymbolContext> symbol_context =
-				execution_context->GetSymbolContext();
 		SymbolContextListRef new_parent = SymbolContextList::From(
-				symbol_context, symbol_context->GetParent());
-		volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
-				m_else_block_table->GetModifiers(), new_parent,
-				m_else_block_table->GetTable());
+				execution_context, execution_context->GetParent());
 		shared_ptr<ExecutionContext> new_execution_context =
-				execution_context->WithSymbolContext(tmp_table);
+				m_else_block_context->WithParent(new_parent);
 
 		errors = m_else_block->execute(execution_context);
 	}
@@ -133,7 +115,7 @@ const ErrorListRef IfStatement::execute(
 
 const AnalysisResult IfStatement::Returns(
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	AnalysisResult result = m_block->Returns(type_specifier, execution_context);
 
 	if (m_else_block) {

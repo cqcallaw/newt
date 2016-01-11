@@ -36,7 +36,7 @@ InvokeExpression::~InvokeExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> InvokeExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
 			execution_context);
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
@@ -51,7 +51,7 @@ const_shared_ptr<TypeSpecifier> InvokeExpression::GetType(
 }
 
 const_shared_ptr<Result> InvokeExpression::Evaluate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> value;
 
@@ -89,7 +89,7 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 }
 
 const_shared_ptr<Result> InvokeExpression::ToString(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buf;
 	const_shared_ptr<Result> expression_result = m_expression->ToString(
 			execution_context);
@@ -126,7 +126,7 @@ const_shared_ptr<Result> InvokeExpression::ToString(
 }
 
 const ErrorListRef InvokeExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
@@ -141,14 +141,12 @@ const ErrorListRef InvokeExpression::Validate(
 
 		if (as_function) {
 			//generate a temporary context for validation
-			auto parent = execution_context->GetSymbolContext()->GetParent();
-			auto new_parent = SymbolContextList::From(
-					execution_context->GetSymbolContext(), parent);
-			auto tmp_map = make_shared<symbol_map>();
-			volatile_shared_ptr<SymbolTable> tmp_table = std::make_shared<
-					SymbolTable>(Modifier::Type::NONE, new_parent, tmp_map);
-			const_shared_ptr<ExecutionContext> tmp_context =
-					execution_context->WithSymbolContext(tmp_table);
+			auto new_parent = SymbolContextList::From(execution_context,
+					execution_context->GetParent());
+			shared_ptr<ExecutionContext> tmp_context = make_shared<
+					ExecutionContext>(Modifier::Type::NONE, new_parent,
+					execution_context->GetTypeTable(),
+					execution_context->GetLifeTime());
 
 			ArgumentListRef argument = m_argument_list;
 
@@ -225,8 +223,7 @@ const ErrorListRef InvokeExpression::Validate(
 				while (!ArgumentList::IsTerminator(argument)) {
 					const_shared_ptr<Expression> argument_expression =
 							argument->GetData();
-					if (!TypeSpecifierList::IsTerminator(
-							type_parameter_list)) {
+					if (!TypeSpecifierList::IsTerminator(type_parameter_list)) {
 						const_shared_ptr<TypeSpecifier> parameter_type =
 								type_parameter_list->GetData();
 						const_shared_ptr<TypeSpecifier> argument_type =

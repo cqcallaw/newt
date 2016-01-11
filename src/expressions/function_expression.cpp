@@ -36,16 +36,23 @@ FunctionExpression::~FunctionExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> FunctionExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return m_declaration;
 }
 
 const_shared_ptr<Result> FunctionExpression::Evaluate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	return make_shared<Result>(
-			make_shared<Function>(m_declaration, m_body, execution_context),
-			errors);
+	shared_ptr<const Function> function;
+	if (execution_context->GetLifeTime() == PERSISTENT) {
+		function = make_shared<Function>(m_declaration, m_body,
+				weak_ptr<ExecutionContext>(execution_context));
+	} else {
+		function = make_shared<Function>(m_declaration, m_body,
+				execution_context);
+	}
+
+	return make_shared<Result>(function, errors);
 }
 
 const bool FunctionExpression::IsConstant() const {
@@ -53,30 +60,28 @@ const bool FunctionExpression::IsConstant() const {
 }
 
 const ErrorListRef FunctionExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	//generate a temporary context for validation
-	auto parent = execution_context->GetSymbolContext()->GetParent();
-	auto new_parent = SymbolContextList::From(
-			execution_context->GetSymbolContext(), parent);
-	auto tmp_map = make_shared<symbol_map>();
-	volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
-			Modifier::Type::NONE, new_parent, tmp_map);
-	shared_ptr<ExecutionContext> tmp_context =
-			execution_context->WithSymbolContext(tmp_table);
+	auto new_parent = SymbolContextList::From(execution_context,
+			execution_context->GetParent());
+	shared_ptr<ExecutionContext> tmp_context = make_shared<ExecutionContext>(
+			Modifier::Type::NONE, new_parent, execution_context->GetTypeTable(),
+			execution_context->GetLifeTime());
 
 	DeclarationListRef declaration = m_declaration->GetParameterList();
 	while (!DeclarationList::IsTerminator(declaration)) {
 		auto declaration_statement = declaration->GetData();
-		auto preprocessing_errors = ErrorList::Concatenate(errors,
-				declaration_statement->preprocess(tmp_context));
+		auto preprocess_errors = declaration_statement->preprocess(tmp_context);
 
-		if (ErrorList::IsTerminator(preprocessing_errors)) {
-			errors = ErrorList::Concatenate(errors,
-					declaration_statement->execute(tmp_context));
+		if (ErrorList::IsTerminator(preprocess_errors)) {
+			auto execution_errors = declaration_statement->execute(tmp_context);
+			if (!ErrorList::IsTerminator(execution_errors)) {
+				errors = ErrorList::Concatenate(errors, execution_errors);
+			}
 		} else {
-			errors = ErrorList::Concatenate(errors, preprocessing_errors);
+			errors = ErrorList::Concatenate(errors, preprocess_errors);
 		}
 
 		declaration = declaration->GetNext();

@@ -29,25 +29,34 @@
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
-		const_shared_ptr<ExecutionContext> closure) :
-		m_declaration(declaration), m_body(body), m_closure(closure) {
+		const shared_ptr<ExecutionContext> closure) :
+		m_declaration(declaration), m_body(body), m_closure(closure), m_weak_closure(
+				shared_ptr<ExecutionContext>(nullptr)) {
+}
+
+Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
+		const_shared_ptr<StatementBlock> body,
+		const weak_ptr<ExecutionContext> weak_closure) :
+		m_declaration(declaration), m_body(body), m_closure(nullptr), m_weak_closure(
+				weak_closure) {
 }
 
 Function::~Function() {
 }
 
 const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
-		const_shared_ptr<ExecutionContext> invocation_context) const {
+		const shared_ptr<ExecutionContext> invocation_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto invocation_symbol_context = invocation_context->GetSymbolContext();
-	auto invocation_context_parent = invocation_symbol_context->GetParent();
-	auto parent_context = SymbolContextList::From(invocation_symbol_context,
-			invocation_context_parent);
-	auto table = make_shared<SymbolTable>(parent_context);
-	shared_ptr<ExecutionContext> function_execution_context = shared_ptr<
-			ExecutionContext>(
-			new ExecutionContext(table, m_closure->GetTypeTable()));
+	auto closure_reference = GetClosureReference();
+
+	assert(closure_reference);
+
+	auto parent_context = SymbolContextList::From(invocation_context,
+			invocation_context->GetParent());
+	shared_ptr<ExecutionContext> function_execution_context = make_shared<
+			ExecutionContext>(Modifier::NONE, parent_context,
+			closure_reference->GetTypeTable(), EPHEMERAL);
 
 	//populate evaluation context with results of argument evaluation
 	ArgumentListRef argument = argument_list;
@@ -126,23 +135,55 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	}
 
 	//juggle the references so the evaluation context is a child of the closure context
-	auto closure_symbol_context = m_closure->GetSymbolContext();
-	auto closure_symbol_context_parent = closure_symbol_context->GetParent();
-	parent_context = SymbolContextList::From(closure_symbol_context,
-			closure_symbol_context_parent);
-	auto final_symbol_context = table->WithParent(parent_context);
+	parent_context = SymbolContextList::From(closure_reference,
+			closure_reference->GetParent());
+	auto final_execution_context = function_execution_context->WithParent(
+			parent_context);
 
 	//TODO: determine if it is necessary to merge type tables
 
 	if (ErrorList::IsTerminator(errors)) {
-		shared_ptr<ExecutionContext> child_context =
-				shared_ptr<ExecutionContext>(
-						new ExecutionContext(final_symbol_context,
-								m_closure->GetTypeTable()));
-		errors = ErrorList::Concatenate(errors, m_body->execute(child_context));
-
-		return make_shared<Result>(child_context->GetReturnValue(), errors);
+		//performing preprocessing here duplicates work with the function express processing,
+		//but the context setup in the function preprocessing is currently discarded.
+		//TODO: consider cloning function expression preprocess context instead of discarding it
+		errors = ErrorList::Concatenate(errors,
+				m_body->preprocess(final_execution_context));
+		if (ErrorList::IsTerminator(errors)) {
+			errors = ErrorList::Concatenate(errors,
+					m_body->execute(final_execution_context));
+			auto result = final_execution_context->GetReturnValue();
+			final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+			return make_shared<Result>(result, errors);
+		} else {
+			return make_shared<Result>(nullptr, errors);
+		}
 	} else {
 		return make_shared<Result>(nullptr, errors);
+	}
+}
+
+const string Function::ToString(const TypeTable& type_table,
+		const Indent indent) const {
+	ostringstream buffer;
+	if (m_body->GetLocation() != GetDefaultLocation()) {
+		buffer << indent << "Body Location: " << m_body->GetLocation() << endl;
+	}
+//	buffer << indent << "Address: " << this << endl;
+//	if (m_closure) {
+//		buffer << indent << "Strongly referenced closure address: "
+//				<< m_closure.get() << endl;
+//	} else {
+//		buffer << indent << "Weakly referenced closure address: "
+//				<< m_weak_closure.lock().get() << endl;
+//	}
+
+	return buffer.str();
+}
+
+const shared_ptr<ExecutionContext> Function::GetClosureReference() const {
+	if (m_closure) {
+		return m_closure;
+	} else {
+		return m_weak_closure.lock();
 	}
 }

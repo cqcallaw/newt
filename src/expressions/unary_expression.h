@@ -28,17 +28,17 @@ public:
 			const_shared_ptr<Expression> expression);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {
 		return m_operator == UNARY_MINUS && m_expression->IsConstant();
 	}
 
 	virtual const ErrorListRef Validate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 private:
 	static const_shared_ptr<TypeSpecifier> compute_result_type(

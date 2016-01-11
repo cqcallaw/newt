@@ -20,6 +20,7 @@
 #include <compound_type_instance.h>
 #include <member_definition.h>
 #include <function_type_specifier.h>
+#include <symbol_table.h>
 
 const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 		const string& type_name, const_shared_ptr<CompoundType> type) {
@@ -27,6 +28,8 @@ const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 
 	plain_shared_ptr<definition_map> type_definition = type->GetDefinition();
 	definition_map::const_iterator iter;
+
+	auto symbol_table = make_shared<SymbolTable>(type->GetModifiers());
 
 	for (iter = type_definition->begin(); iter != type_definition->end();
 			++iter) {
@@ -36,9 +39,7 @@ const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 
 		auto symbol = GetSymbol(member_type_information->GetType(),
 				member_type_information->GetDefaultValue());
-		symbol_mapping->insert(
-				std::pair<const string, const_shared_ptr<Symbol>>(member_name,
-						symbol));
+		symbol_table->InsertSymbol(member_name, symbol);
 	}
 
 	const_shared_ptr<CompoundTypeSpecifier> type_specifier = const_shared_ptr<
@@ -46,11 +47,7 @@ const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 			new CompoundTypeSpecifier(type_name, GetDefaultLocation()));
 
 	return make_shared<CompoundTypeInstance>(
-			CompoundTypeInstance(type_specifier,
-					make_shared<SymbolContext>(
-							SymbolContext(type->GetModifiers(),
-									SymbolContextList::GetTerminator(),
-									symbol_mapping))));
+			CompoundTypeInstance(type_specifier, symbol_table));
 }
 
 const_shared_ptr<Symbol> CompoundTypeInstance::GetSymbol(

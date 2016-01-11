@@ -44,7 +44,7 @@ StructInstantiationStatement::~StructInstantiationStatement() {
 }
 
 const ErrorListRef StructInstantiationStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	//TODO: validate that all members are initialized for readonly structs (?)
 
@@ -53,10 +53,7 @@ const ErrorListRef StructInstantiationStatement::preprocess(
 					m_type_specifier->GetTypeName());
 
 	if (type != CompoundType::GetDefaultCompoundType()) {
-		shared_ptr<SymbolTable> symbol_table = static_pointer_cast<SymbolTable>(
-				execution_context->GetSymbolContext());
-
-		auto existing = symbol_table->GetSymbol(m_name, SHALLOW);
+		auto existing = execution_context->GetSymbol(m_name, SHALLOW);
 		if (existing == Symbol::GetDefaultSymbol()) {
 			plain_shared_ptr<const CompoundTypeInstance> instance;
 			if (m_initializer_expression) {
@@ -109,8 +106,8 @@ const ErrorListRef StructInstantiationStatement::preprocess(
 			if (ErrorList::IsTerminator(errors)) {
 				//we've been able to get a good initial value (that is, no errors have occurred)
 				auto symbol = const_shared_ptr<Symbol>(new Symbol(instance));
-				const InsertResult insert_result = symbol_table->InsertSymbol(
-						*m_name, symbol);
+				const InsertResult insert_result =
+						execution_context->InsertSymbol(*m_name, symbol);
 
 				if (insert_result != INSERT_SUCCESS) {
 					assert(false);
@@ -146,8 +143,8 @@ const ErrorListRef StructInstantiationStatement::execute(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_initializer_expression) {
-		const_shared_ptr<Result> evaluation = m_initializer_expression->Evaluate(
-				execution_context);
+		const_shared_ptr<Result> evaluation =
+				m_initializer_expression->Evaluate(execution_context);
 
 		errors = evaluation->GetErrors();
 
@@ -155,7 +152,7 @@ const ErrorListRef StructInstantiationStatement::execute(
 			auto void_value = evaluation->GetData();
 			const_shared_ptr<const CompoundTypeInstance> instance =
 					static_pointer_cast<const CompoundTypeInstance>(void_value);
-			execution_context->GetSymbolContext()->SetSymbol(*m_name, instance);
+			execution_context->SetSymbol(*m_name, instance);
 		}
 	}
 

@@ -3,7 +3,11 @@ Parsed file ../tests/t5008.nwt.
 Root Symbol Table:
 ----------------
 ((int) -> int, int) -> int f:
+	Body Location: 1.38-2.12
+
 (int) -> int g:
+	Body Location: 5.22-6.9
+
 int x: 2
 
 Root Type Table:

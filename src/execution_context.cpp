@@ -22,33 +22,98 @@
 #include <type_table.h>
 #include <memory>
 
-ExecutionContext::ExecutionContext(
-		volatile_shared_ptr<SymbolContext> symbol_context,
-		volatile_shared_ptr<TypeTable> type_table) :
-		ExecutionContext(symbol_context, type_table,
-				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr)) {
-}
-
 ExecutionContext::ExecutionContext() :
-		ExecutionContext(make_shared<SymbolTable>(), make_shared<TypeTable>(),
-				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr)) {
+		ExecutionContext(Modifier::Type::NONE, make_shared<symbol_map>(),
+				SymbolContextList::GetTerminator(), make_shared<TypeTable>(),
+				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr),
+				PERSISTENT) {
 }
 
-ExecutionContext::ExecutionContext(
-		volatile_shared_ptr<SymbolContext> symbol_context,
+ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> existing,
+		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
+		ExecutionContext(existing, m_parent, type_table,
+				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr),
+				life_time) {
+}
+
+ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
+		const SymbolContextListRef parent_context,
+		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
+		ExecutionContext(modifiers, make_shared<symbol_map>(), parent_context,
+				type_table, plain_shared_ptr<void>(nullptr),
+				plain_shared_ptr<int>(nullptr), life_time) {
+}
+
+const_shared_ptr<Symbol> ExecutionContext::GetSymbol(const string& identifier,
+		const SearchType search_type) const {
+	auto result = SymbolContext::GetSymbol(identifier);
+
+	if (result == Symbol::GetDefaultSymbol() && m_parent
+			&& search_type == DEEP) {
+		return m_parent->GetData()->GetSymbol(identifier, search_type);
+	} else {
+		return result;
+	}
+}
+
+const void ExecutionContext::print(ostream& os, const TypeTable& type_table,
+		const Indent& indent, const SearchType search_type) const {
+	SymbolContext::print(os, type_table, indent);
+
+	if (search_type == DEEP && m_parent) {
+		os << indent + 1 << "-->" << m_parent->GetData() << "("
+				<< (m_parent->IsWeak() ? string("weak") : string("strong"))
+				<< ")" << endl;
+		m_parent->GetData()->print(os, type_table, indent + 1, search_type);
+	}
+}
+
+SetResult ExecutionContext::SetSymbol(const string& identifier,
+		const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value) {
+	auto result = SymbolContext::SetSymbol(identifier, type, value);
+
+	if (result == UNDEFINED_SYMBOL && m_parent) {
+		auto context = m_parent->GetData();
+		return context->SetSymbol(identifier, type, value);
+	} else {
+		return result;
+	}
+}
+
+const_shared_ptr<Symbol> ExecutionContext::GetSymbol(
+		const_shared_ptr<string> identifier,
+		const SearchType search_type) const {
+	return GetSymbol(*identifier, search_type);
+}
+
+ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> context,
+		const SymbolContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table,
-		plain_shared_ptr<void> m_return_value, plain_shared_ptr<int> exit_code) :
-		m_symbol_context(symbol_context), m_type_table(type_table), m_return_value(
-				m_return_value), m_exit_code(exit_code) {
+		const_shared_ptr<void> return_value, const_shared_ptr<int> exit_code,
+		const LifeTime life_time) :
+		SymbolTable(*context), m_parent(parent_context), m_type_table(
+				type_table), m_return_value(return_value), m_exit_code(
+				exit_code), m_life_time(life_time) {
+}
+
+ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
+		const shared_ptr<symbol_map> symbol_map,
+		const SymbolContextListRef parent_context,
+		volatile_shared_ptr<TypeTable> type_table,
+		const_shared_ptr<void> return_value, const_shared_ptr<int> exit_code,
+		const LifeTime life_time) :
+		SymbolTable(modifiers, symbol_map), m_parent(parent_context), m_type_table(
+				type_table), m_return_value(return_value), m_exit_code(
+				exit_code), m_life_time(life_time) {
 }
 
 ExecutionContext::~ExecutionContext() {
 }
 
-const_shared_ptr<ExecutionContext> ExecutionContext::GetDefault() {
-	const static const_shared_ptr<ExecutionContext> instance = const_shared_ptr<
-			ExecutionContext>(
-			new ExecutionContext(SymbolContext::GetDefault(),
-					TypeTable::GetDefault()));
+const shared_ptr<ExecutionContext> ExecutionContext::GetDefault() {
+	static const shared_ptr<ExecutionContext> instance = make_shared<
+			ExecutionContext>(Modifier::READONLY,
+			SymbolContextList::GetTerminator(), TypeTable::GetDefault(),
+			PERSISTENT);
 	return instance;
 }

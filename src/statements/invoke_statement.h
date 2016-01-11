@@ -32,13 +32,13 @@ public:
 	virtual ~InvokeStatement();
 
 	virtual const ErrorListRef preprocess(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<ExecutionContext> execution_context) const {
+			const shared_ptr<ExecutionContext> execution_context) const {
 		return AnalysisResult::NO;
 	}
 private:

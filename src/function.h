@@ -30,7 +30,13 @@ class ExecutionContext;
 class Function {
 public:
 	Function(const_shared_ptr<FunctionDeclaration> declaration,
-			const_shared_ptr<StatementBlock> body, const_shared_ptr<ExecutionContext> closure);
+			const_shared_ptr<StatementBlock> body,
+			const shared_ptr<ExecutionContext> closure);
+
+	Function(const_shared_ptr<FunctionDeclaration> declaration,
+			const_shared_ptr<StatementBlock> body,
+			const weak_ptr<ExecutionContext> weak_closure);
+
 	virtual ~Function();
 
 	const_shared_ptr<FunctionDeclaration> GetType() const {
@@ -38,12 +44,22 @@ public:
 	}
 
 	const_shared_ptr<Result> Evaluate(ArgumentListRef argument_list,
-			const_shared_ptr<ExecutionContext> invocation_context) const;
+			const shared_ptr<ExecutionContext> invocation_context) const;
+
+	const string ToString(const TypeTable& type_table,
+			const Indent indent) const;
+
+	const_shared_ptr<StatementBlock> GetBody() const {
+		return m_body;
+	}
 
 private:
+	const shared_ptr<ExecutionContext> GetClosureReference() const;
+
 	const_shared_ptr<FunctionDeclaration> m_declaration;
 	const_shared_ptr<StatementBlock> m_body;
-	const_shared_ptr<ExecutionContext> m_closure;
+	const shared_ptr<ExecutionContext> m_closure;
+	const weak_ptr<ExecutionContext> m_weak_closure;
 };
 
 #endif /* FUNCTION_H_ */

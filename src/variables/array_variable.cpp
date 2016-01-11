@@ -33,8 +33,8 @@ ArrayVariable::ArrayVariable(const_shared_ptr<string> name,
 }
 
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
-		const_shared_ptr<ExecutionContext> context) const {
-	auto symbol = context->GetSymbolContext()->GetSymbol(GetName(), DEEP);
+		const shared_ptr<ExecutionContext> context) const {
+	auto symbol = context->GetSymbol(GetName(), DEEP);
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		auto array = std::static_pointer_cast<const Array>(symbol->GetValue());
 
@@ -57,7 +57,7 @@ const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
 }
 
 const string* ArrayVariable::ToString(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
 	buffer << "<" << *GetName();
 	IndexListRef subject = m_index_list;
@@ -88,12 +88,10 @@ ArrayVariable::~ArrayVariable() {
 }
 
 const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperation(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<SymbolContext> symbol_context =
-			context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(GetName(), DEEP);
+	auto symbol = context->GetSymbol(GetName(), DEEP);
 	auto type_table = context->GetTypeTable();
 	int array_index = -1;
 	yy::location index_location = GetDefaultLocation();
@@ -181,7 +179,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 }
 
 const_shared_ptr<Result> ArrayVariable::Evaluate(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<ValidationResult> validation_result = ValidateOperation(
@@ -247,7 +245,7 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 }
 
 const ErrorListRef ArrayVariable::AssignValue(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
@@ -386,43 +384,43 @@ const ErrorListRef ArrayVariable::AssignValue(
 }
 
 const ErrorListRef ArrayVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<bool> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
 const ErrorListRef ArrayVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<int> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
 const ErrorListRef ArrayVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<double> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
 const ErrorListRef ArrayVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<string> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
 const ErrorListRef ArrayVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Array> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
 const ErrorListRef ArrayVariable::SetSymbol(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<CompoundTypeInstance> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
 const ErrorListRef ArrayVariable::SetSymbolCore(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<void> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
@@ -436,7 +434,7 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 		auto type_table = context->GetTypeTable();
 		const_shared_ptr<TypeSpecifier> element_type_specifier =
 				array->GetElementType();
-		plain_shared_ptr<Array> new_array = nullptr;
+		shared_ptr<const Array> new_array = nullptr;
 
 		if (element_type_specifier->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetBoolean())) {
@@ -473,12 +471,10 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 			}
 		}
 
-		auto symbol_context = context->GetSymbolContext();
-		const SetResult set_result = symbol_context->SetSymbol(*GetName(),
-				new_array);
+		const SetResult set_result = context->SetSymbol(*GetName(), new_array);
 
 		errors = ToErrorListRef(set_result,
-				symbol_context->GetSymbol(*GetName(), DEEP)->GetType(),
+				context->GetSymbol(*GetName(), DEEP)->GetType(),
 				array->GetTypeSpecifier());
 	}
 
@@ -486,12 +482,10 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 }
 
 const ErrorListRef ArrayVariable::Validate(
-		const_shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<SymbolContext> symbol_context =
-			context->GetSymbolContext();
-	auto symbol = symbol_context->GetSymbol(GetName(), DEEP);
+	auto symbol = context->GetSymbol(GetName(), DEEP);
 
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		plain_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
@@ -544,8 +538,8 @@ const ErrorListRef ArrayVariable::Validate(
 }
 
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetInnerMostElementType(
-		const_shared_ptr<ExecutionContext> context) const {
-	auto symbol = context->GetSymbolContext()->GetSymbol(GetName(), DEEP);
+		const shared_ptr<ExecutionContext> context) const {
+	auto symbol = context->GetSymbol(GetName(), DEEP);
 	plain_shared_ptr<TypeSpecifier> type_specifier =
 			PrimitiveTypeSpecifier::GetNone();
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {

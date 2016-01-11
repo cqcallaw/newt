@@ -28,12 +28,12 @@ LogicExpression::LogicExpression(const yy::location position,
 }
 
 const_shared_ptr<TypeSpecifier> LogicExpression::GetType(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return PrimitiveTypeSpecifier::GetBoolean();
 }
 
 const ErrorListRef LogicExpression::Validate(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	return BinaryExpression::Validate(execution_context,
 			PrimitiveTypeSpecifier::GetDouble(),
 			PrimitiveTypeSpecifier::GetDouble());

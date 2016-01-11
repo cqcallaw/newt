@@ -49,18 +49,14 @@ ForStatement::~ForStatement() {
 }
 
 const ErrorListRef ForStatement::preprocess(
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 
-	volatile_shared_ptr<SymbolContext> symbol_context =
-			execution_context->GetSymbolContext();
-	const auto new_parent = SymbolContextList::From(symbol_context,
-			symbol_context->GetParent());
-	volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
-			m_block_table->GetModifiers(), new_parent,
-			m_block_table->GetTable());
-	const_shared_ptr<ExecutionContext> new_execution_context =
-			execution_context->WithSymbolContext(tmp_table);
+	const auto new_parent = SymbolContextList::From(execution_context,
+			execution_context->GetParent());
+	const shared_ptr<ExecutionContext> new_execution_context =
+			execution_context->WithContents(m_block_context)->WithParent(
+					new_parent);
 
 	if (m_initial) {
 		errors = m_initial->preprocess(new_execution_context);
@@ -89,16 +85,11 @@ const ErrorListRef ForStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef initialization_errors;
 
-	volatile_shared_ptr<SymbolContext> symbol_context =
-			execution_context->GetSymbolContext();
-	const auto new_parent = SymbolContextList::From(symbol_context,
-			symbol_context->GetParent());
-	volatile_shared_ptr<SymbolTable> tmp_table = make_shared<SymbolTable>(
-			m_block_table->GetModifiers(), new_parent,
-			m_block_table->GetTable());
-
-	shared_ptr<ExecutionContext> new_execution_context =
-			execution_context->WithSymbolContext(tmp_table);
+	const auto new_parent = SymbolContextList::From(execution_context,
+			execution_context->GetParent());
+	const shared_ptr<ExecutionContext> new_execution_context =
+			execution_context->WithContents(m_block_context)->WithParent(
+					new_parent);
 
 	if (m_initial) {
 		initialization_errors = m_initial->execute(new_execution_context);
@@ -142,7 +133,7 @@ const ErrorListRef ForStatement::execute(
 
 const AnalysisResult ForStatement::Returns(
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context) const {
 	//as of this writing, it is deemed prohibitively complicated to
 	//perform the semantic analysis that would determine whether or not
 	//this loop will execute, or how many times it will execute.
@@ -154,8 +145,8 @@ ForStatement::ForStatement(const_shared_ptr<Statement> initial,
 		const_shared_ptr<AssignmentStatement> loop_assignment,
 		const_shared_ptr<StatementBlock> statement_block) :
 		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
-				loop_assignment), m_statement_block(statement_block), m_block_table(
-				make_shared<SymbolTable>()) {
+				loop_assignment), m_statement_block(statement_block), m_block_context(
+				make_shared<ExecutionContext>()) {
 	assert(loop_expression);
 	assert(loop_assignment);
 }

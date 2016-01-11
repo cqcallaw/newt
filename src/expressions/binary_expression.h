@@ -31,10 +31,10 @@ public:
 			const_shared_ptr<Expression> right);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	const_shared_ptr<Result> Evaluate(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	const_shared_ptr<Expression> GetLeft() const {
 		return m_left;
@@ -49,14 +49,14 @@ public:
 	static const_shared_ptr<TypeSpecifier> ComputeResultType(
 			const_shared_ptr<Expression> left,
 			const_shared_ptr<Expression> right, const OperatorType op,
-			const_shared_ptr<ExecutionContext> execution_context);
+			const shared_ptr<ExecutionContext> execution_context);
 
 	virtual const bool IsConstant() const {
 		return m_left->IsConstant() && m_right->IsConstant();
 	}
 
 	virtual const ErrorListRef Validate(
-			const_shared_ptr<ExecutionContext> execution_context,
+			const shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<TypeSpecifier> valid_left,
 			const_shared_ptr<TypeSpecifier> valid_right) const;
 

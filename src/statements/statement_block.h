@@ -28,19 +28,24 @@ class Statement;
 
 class StatementBlock {
 public:
-	StatementBlock(StatementListRef statements);
+	StatementBlock(StatementListRef statements, const yy::location location);
 	virtual ~StatementBlock();
 
 	const ErrorListRef preprocess(
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
 	const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context) const;
+
+	const yy::location GetLocation() const {
+		return m_location;
+	}
 
 private:
 	StatementListRef m_statements;
+	const yy::location m_location;
 };
 
 #endif // #ifndef STATEMENT_BLOCK_H
