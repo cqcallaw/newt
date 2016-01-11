@@ -50,6 +50,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 
 	auto closure_reference = GetClosureReference();
 
+	assert(closure_reference);
+
 	auto parent_context = SymbolContextList::From(invocation_context,
 			invocation_context->GetParent());
 	shared_ptr<ExecutionContext> function_execution_context = make_shared<
@@ -135,7 +137,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	//juggle the references so the evaluation context is a child of the closure context
 	parent_context = SymbolContextList::From(closure_reference,
 			closure_reference->GetParent());
-	auto final_symbol_context = function_execution_context->WithParent(
+	auto final_execution_context = function_execution_context->WithParent(
 			parent_context);
 
 	//TODO: determine if it is necessary to merge type tables
@@ -145,12 +147,13 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		//but the context setup in the function preprocessing is currently discarded.
 		//TODO: consider cloning function expression preprocess context instead of discarding it
 		errors = ErrorList::Concatenate(errors,
-				m_body->preprocess(final_symbol_context));
+				m_body->preprocess(final_execution_context));
 		if (ErrorList::IsTerminator(errors)) {
 			errors = ErrorList::Concatenate(errors,
-					m_body->execute(final_symbol_context));
-			return make_shared<Result>(final_symbol_context->GetReturnValue(),
-					errors);
+					m_body->execute(final_execution_context));
+			auto result = final_execution_context->GetReturnValue();
+			final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+			return make_shared<Result>(result, errors);
 		} else {
 			return make_shared<Result>(nullptr, errors);
 		}
@@ -166,7 +169,13 @@ const string Function::ToString(const TypeTable& type_table,
 		buffer << indent << "Body Location: " << m_body->GetLocation() << endl;
 	}
 //	buffer << indent << "Address: " << this << endl;
-//	buffer << indent << "Referenced closure address: " << m_closure.get() << endl;
+//	if (m_closure) {
+//		buffer << indent << "Strongly referenced closure address: "
+//				<< m_closure.get() << endl;
+//	} else {
+//		buffer << indent << "Weakly referenced closure address: "
+//				<< m_weak_closure.lock().get() << endl;
+//	}
 
 	return buffer.str();
 }
