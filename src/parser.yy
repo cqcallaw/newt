@@ -46,7 +46,6 @@
 #include <modifier.h>
 #include <member_declaration.h>
 #include <member_instantiation.h>
-#include <index.h>
 #include <dimension.h>
 
 #include <type.h>

@@ -23,7 +23,6 @@
 #include <string>
 #include "variable.h"
 #include <assignment_type.h>
-#include <index.h>
 
 class Expression;
 class ExecutionContext;
