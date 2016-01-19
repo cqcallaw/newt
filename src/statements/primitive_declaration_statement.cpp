@@ -31,21 +31,18 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto symbol = Symbol::GetDefaultSymbol();
-	const_shared_ptr<Expression> expression = m_initializer_expression;
 
-	if (expression) {
-		errors = expression->Validate(execution_context);
+	if (m_initializer_expression) {
+		errors = m_initializer_expression->Validate(execution_context);
 	}
-
-	auto type_table = execution_context->GetTypeTable();
 
 	auto as_primitive = std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 			m_type);
 
 	if (as_primitive) {
-		if (expression) {
+		if (m_initializer_expression) {
 			const_shared_ptr<TypeSpecifier> expression_type_specifier =
-					expression->GetType(execution_context);
+					m_initializer_expression->GetType(execution_context);
 
 			auto expression_as_primitive = std::dynamic_pointer_cast<
 					const PrimitiveTypeSpecifier>(expression_type_specifier);
@@ -64,7 +61,7 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 			}
 		}
 
-		auto value = m_type->DefaultValue(*type_table);
+		auto value = m_type->DefaultValue(*execution_context->GetTypeTable());
 		const BasicType basic_type = as_primitive->GetBasicType();
 		switch (basic_type) {
 		case BOOLEAN: {
