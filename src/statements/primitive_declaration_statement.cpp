@@ -44,34 +44,23 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 
 	if (as_primitive) {
 		if (expression) {
-			const_shared_ptr<VariableExpression> as_variable =
-					dynamic_pointer_cast<const VariableExpression>(expression);
+			const_shared_ptr<TypeSpecifier> expression_type_specifier =
+					expression->GetType(execution_context);
 
-			if (as_variable) {
-				errors = as_variable->Validate(execution_context);
-			}
+			auto expression_as_primitive = std::dynamic_pointer_cast<
+					const PrimitiveTypeSpecifier>(expression_type_specifier);
 
-			if (ErrorList::IsTerminator(errors)) {
-				const_shared_ptr<TypeSpecifier> expression_type_specifier =
-						expression->GetType(execution_context);
-
-				auto expression_as_primitive = std::dynamic_pointer_cast<
-						const PrimitiveTypeSpecifier>(
-						expression_type_specifier);
-
-				if (expression_as_primitive == nullptr
-						|| !expression_as_primitive->IsAssignableTo(
-								as_primitive)) {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::INVALID_INITIALIZER_TYPE,
-											m_initializer_expression->GetPosition().begin.line,
-											m_initializer_expression->GetPosition().begin.column,
-											*m_name, as_primitive->ToString(),
-											expression_type_specifier->ToString()),
-									errors);
-				}
+			if (expression_as_primitive == nullptr
+					|| !expression_as_primitive->IsAssignableTo(as_primitive)) {
+				errors =
+						ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::INVALID_INITIALIZER_TYPE,
+										m_initializer_expression->GetPosition().begin.line,
+										m_initializer_expression->GetPosition().begin.column,
+										*m_name, as_primitive->ToString(),
+										expression_type_specifier->ToString()),
+								errors);
 			}
 		}
 
