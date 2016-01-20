@@ -28,11 +28,11 @@
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 		const_shared_ptr<SumTypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_location,
+		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
-		DeclarationStatement(position), m_type(type), m_type_position(
-				type_position), m_name(name), m_name_location(name_location), m_initializer_expression(
-				initializer_expression) {
+		DeclarationStatement(position, name, name_position,
+				initializer_expression), m_type(type), m_type_position(
+				type_position) {
 
 }
 
@@ -44,11 +44,11 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	plain_shared_ptr<Symbol> symbol;
 
-	if (m_initializer_expression) {
-		errors = m_initializer_expression->Validate(execution_context);
+	if (GetInitializerExpression()) {
+		errors = GetInitializerExpression()->Validate(execution_context);
 
 		if (ErrorList::IsTerminator(errors)) {
-			auto expression_type = m_initializer_expression->GetType(
+			auto expression_type = GetInitializerExpression()->GetType(
 					execution_context);
 
 			if (expression_type->IsAssignableTo(m_type)) {
@@ -64,9 +64,9 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::INVALID_INITIALIZER_TYPE,
-										m_initializer_expression->GetPosition().begin.line,
-										m_initializer_expression->GetPosition().begin.column,
-										*m_name, m_type->ToString(),
+										GetInitializerExpression()->GetPosition().begin.line,
+										GetInitializerExpression()->GetPosition().begin.column,
+										*GetName(), m_type->ToString(),
 										expression_type->ToString()), errors);
 			}
 		}
@@ -77,13 +77,13 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 		symbol = make_shared<Symbol>(sum);
 	}
 
-	InsertResult insert_result = execution_context->InsertSymbol(*m_name,
+	InsertResult insert_result = execution_context->InsertSymbol(*GetName(),
 			symbol);
 	if (insert_result == SYMBOL_EXISTS) {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						m_name_location.begin.line,
-						m_name_location.begin.column, *m_name), errors);
+						GetNamePosition().begin.line,
+						GetNamePosition().begin.column, *GetName()), errors);
 	}
 
 	return errors;
@@ -92,10 +92,11 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 const ErrorListRef SumDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	if (m_initializer_expression) {
-		Variable* temp_variable = new BasicVariable(m_name, m_name_location);
+	if (GetInitializerExpression()) {
+		Variable* temp_variable = new BasicVariable(GetName(),
+				GetNamePosition());
 		auto errors = temp_variable->AssignValue(execution_context,
-				m_initializer_expression, AssignmentType::ASSIGN);
+				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 	}
 
@@ -105,7 +106,7 @@ const ErrorListRef SumDeclarationStatement::execute(
 const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	return new SumDeclarationStatement(GetPosition(), m_type, m_type_position,
-			m_name, m_name_location, expression);
+			GetName(), GetNamePosition(), expression);
 }
 
 const_shared_ptr<TypeSpecifier> SumDeclarationStatement::GetType() const {

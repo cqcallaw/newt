@@ -31,11 +31,11 @@ FunctionDeclarationStatement::FunctionDeclarationStatement(
 		const yy::location position,
 		const_shared_ptr<FunctionTypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_location,
+		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
-		DeclarationStatement(position), m_type(type), m_type_position(
-				type_position), m_name(name), m_name_location(name_location), m_initializer_expression(
-				initializer_expression) {
+		DeclarationStatement(position, name, name_position,
+				initializer_expression), m_type(type), m_type_position(
+				type_position) {
 }
 
 FunctionDeclarationStatement::~FunctionDeclarationStatement() {
@@ -47,25 +47,26 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 
 	auto type_table = execution_context->GetTypeTable();
 
-	auto existing = execution_context->GetSymbol(m_name, SHALLOW);
+	auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
-		if (m_initializer_expression) {
+		if (GetInitializerExpression()) {
 			const_shared_ptr<TypeSpecifier> expression_type =
-					m_initializer_expression->GetType(execution_context);
+					GetInitializerExpression()->GetType(execution_context);
 			const_shared_ptr<FunctionTypeSpecifier> as_function =
 					std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 							expression_type);
 
 			if (as_function) {
-				errors = m_initializer_expression->Validate(execution_context);
+				errors = GetInitializerExpression()->Validate(
+						execution_context);
 			} else {
 				errors =
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::NOT_A_FUNCTION,
-										m_initializer_expression->GetPosition().begin.line,
-										m_initializer_expression->GetPosition().begin.column),
+										GetInitializerExpression()->GetPosition().begin.line,
+										GetInitializerExpression()->GetPosition().begin.column),
 								errors);
 			}
 		}
@@ -77,7 +78,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 
 			volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
 					SymbolTable>(execution_context);
-			InsertResult insert_result = symbol_table->InsertSymbol(*m_name,
+			InsertResult insert_result = symbol_table->InsertSymbol(*GetName(),
 					symbol);
 
 			if (insert_result != INSERT_SUCCESS) {
@@ -87,8 +88,8 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						m_name_location.begin.line,
-						m_name_location.begin.column, *(m_name)), errors);
+						GetNamePosition().begin.line,
+						GetNamePosition().begin.column, *(GetName())), errors);
 	}
 
 	return errors;
@@ -96,10 +97,11 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 
 const ErrorListRef FunctionDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	if (m_initializer_expression) {
-		Variable* temp_variable = new BasicVariable(m_name, m_name_location);
+	if (GetInitializerExpression()) {
+		Variable* temp_variable = new BasicVariable(GetName(),
+				GetNamePosition());
 		auto errors = temp_variable->AssignValue(execution_context,
-				m_initializer_expression, AssignmentType::ASSIGN);
+				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 
 		return errors;
@@ -108,14 +110,10 @@ const ErrorListRef FunctionDeclarationStatement::execute(
 	}
 }
 
-const_shared_ptr<Expression> FunctionDeclarationStatement::GetInitializerExpression() const {
-	return m_initializer_expression;
-}
-
 const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	return new FunctionDeclarationStatement(GetPosition(), m_type,
-			expression->GetPosition(), m_name, m_name_location, expression);
+			expression->GetPosition(), GetName(), GetNamePosition(), expression);
 }
 
 const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetType() const {

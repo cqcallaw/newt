@@ -19,8 +19,11 @@
 
 #include <declaration_statement.h>
 
-DeclarationStatement::DeclarationStatement(const yy::location position) :
-		m_position(position) {
+DeclarationStatement::DeclarationStatement(const yy::location position,
+		const_shared_ptr<string> name, const yy::location name_position,
+		const_shared_ptr<Expression> initializer_expression) :
+		m_position(position), m_name(name), m_name_position(name_position), m_initializer_expression(
+				initializer_expression) {
 }
 
 DeclarationStatement::~DeclarationStatement() {

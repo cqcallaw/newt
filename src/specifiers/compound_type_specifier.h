@@ -30,8 +30,8 @@ class SymbolContext;
 
 class CompoundTypeSpecifier: public TypeSpecifier {
 public:
-	CompoundTypeSpecifier(const string& type_name, const yy::location location) :
-			m_type_name(type_name), m_location(location) {
+	CompoundTypeSpecifier(const string& type_name) :
+			m_type_name(type_name) {
 	}
 	virtual ~CompoundTypeSpecifier() {
 	}
@@ -60,13 +60,8 @@ public:
 
 	virtual bool operator==(const TypeSpecifier& other) const;
 
-	const yy::location GetLocation() const {
-		return m_location;
-	}
-
 private:
 	const string m_type_name;
-	const yy::location m_location;
 };
 
 #endif /* SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_ */

@@ -32,12 +32,12 @@
 StructInstantiationStatement::StructInstantiationStatement(
 		const yy::location position,
 		const_shared_ptr<CompoundTypeSpecifier> type_specifier,
-		const yy::location type_name_position, const_shared_ptr<string> name,
+		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
-		DeclarationStatement(position), m_type_specifier(type_specifier), m_type_name_position(
-				type_name_position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(initializer_expression) {
+		DeclarationStatement(position, name, name_position,
+				initializer_expression), m_type_specifier(type_specifier), m_type_position(
+				type_position) {
 }
 
 StructInstantiationStatement::~StructInstantiationStatement() {
@@ -53,13 +53,14 @@ const ErrorListRef StructInstantiationStatement::preprocess(
 					m_type_specifier->GetTypeName());
 
 	if (type != CompoundType::GetDefaultCompoundType()) {
-		auto existing = execution_context->GetSymbol(m_name, SHALLOW);
+		auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 		if (existing == Symbol::GetDefaultSymbol()) {
 			plain_shared_ptr<const CompoundTypeInstance> instance;
-			if (m_initializer_expression) {
+			if (GetInitializerExpression()) {
 				const_shared_ptr<TypeSpecifier> expression_type =
-						m_initializer_expression->GetType(execution_context);
-				errors = m_initializer_expression->Validate(execution_context);
+						GetInitializerExpression()->GetType(execution_context);
+				errors = GetInitializerExpression()->Validate(
+						execution_context);
 
 				if (ErrorList::IsTerminator(errors)) {
 					const_shared_ptr<CompoundTypeSpecifier> as_compound_specifier =
@@ -71,9 +72,9 @@ const ErrorListRef StructInstantiationStatement::preprocess(
 							&& m_type_specifier->GetTypeName().compare(
 									as_compound_specifier->GetTypeName())
 									== 0) {
-						if (m_initializer_expression->IsConstant()) {
+						if (GetInitializerExpression()->IsConstant()) {
 							const_shared_ptr<Result> result =
-									m_initializer_expression->Evaluate(
+									GetInitializerExpression()->Evaluate(
 											execution_context);
 							errors = result->GetErrors();
 							if (ErrorList::IsTerminator(errors)) {
@@ -91,8 +92,8 @@ const ErrorListRef StructInstantiationStatement::preprocess(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::ASSIGNMENT_TYPE_ERROR,
-												m_initializer_expression->GetPosition().begin.line,
-												m_initializer_expression->GetPosition().begin.column,
+												GetInitializerExpression()->GetPosition().begin.line,
+												GetInitializerExpression()->GetPosition().begin.column,
 												m_type_specifier->GetTypeName(),
 												expression_type->ToString()),
 										errors);
@@ -107,7 +108,7 @@ const ErrorListRef StructInstantiationStatement::preprocess(
 				//we've been able to get a good initial value (that is, no errors have occurred)
 				auto symbol = const_shared_ptr<Symbol>(new Symbol(instance));
 				const InsertResult insert_result =
-						execution_context->InsertSymbol(*m_name, symbol);
+						execution_context->InsertSymbol(*GetName(), symbol);
 
 				if (insert_result != INSERT_SUCCESS) {
 					assert(false);
@@ -118,16 +119,15 @@ const ErrorListRef StructInstantiationStatement::preprocess(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::PREVIOUS_DECLARATION,
-							m_type_name_position.begin.line,
-							m_type_name_position.begin.column, *m_name),
-					errors);
+							m_type_position.begin.line,
+							m_type_position.begin.column, *GetName()), errors);
 		}
 	} else {
 		//type does not exist
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						m_type_name_position.begin.line,
-						m_type_name_position.begin.column,
+						m_type_position.begin.line,
+						m_type_position.begin.column,
 						m_type_specifier->GetTypeName()), errors);
 	}
 
@@ -142,9 +142,9 @@ const ErrorListRef StructInstantiationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	if (m_initializer_expression) {
+	if (GetInitializerExpression()) {
 		const_shared_ptr<Result> evaluation =
-				m_initializer_expression->Evaluate(execution_context);
+				GetInitializerExpression()->Evaluate(execution_context);
 
 		errors = evaluation->GetErrors();
 
@@ -152,7 +152,7 @@ const ErrorListRef StructInstantiationStatement::execute(
 			auto void_value = evaluation->GetData();
 			const_shared_ptr<const CompoundTypeInstance> instance =
 					static_pointer_cast<const CompoundTypeInstance>(void_value);
-			execution_context->SetSymbol(*m_name, instance);
+			execution_context->SetSymbol(*GetName(), instance);
 		}
 	}
 
@@ -162,5 +162,5 @@ const ErrorListRef StructInstantiationStatement::execute(
 const DeclarationStatement* StructInstantiationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	return new StructInstantiationStatement(GetPosition(), m_type_specifier,
-			m_type_name_position, m_name, m_name_position, expression);
+			m_type_position, GetName(), GetNamePosition(), expression);
 }

@@ -40,18 +40,10 @@ public:
 			const_shared_ptr<Expression> initializer_expression = nullptr);
 	virtual ~StructInstantiationStatement();
 
-	virtual const_shared_ptr<string> GetName() const {
-		return m_name;
-	}
-
-	const yy::location GetNamePosition() const {
-		return m_name_position;
-	}
-
 	const_shared_ptr<TypeSpecifier> GetType() const;
 
-	const yy::location GetTypeNamePosition() const {
-		return m_type_name_position;
+	const yy::location GetTypePosition() const {
+		return m_type_position;
 	}
 
 	virtual const ErrorListRef preprocess(
@@ -59,10 +51,6 @@ public:
 
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
-
-	virtual const_shared_ptr<Expression> GetInitializerExpression() const {
-		return m_initializer_expression;
-	}
 
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
@@ -75,10 +63,7 @@ public:
 
 private:
 	const_shared_ptr<CompoundTypeSpecifier> m_type_specifier;
-	const yy::location m_type_name_position;
-	const_shared_ptr<string> m_name;
-	const yy::location m_name_position;
-	const_shared_ptr<Expression> m_initializer_expression;
+	const yy::location m_type_position;
 };
 
 #endif /* STATEMENTS_STRUCT_INSTANTIATION_STATEMENT_H_ */

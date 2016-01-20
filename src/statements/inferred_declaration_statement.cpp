@@ -32,21 +32,17 @@ InferredDeclarationStatement::InferredDeclarationStatement(
 		const yy::location position, const_shared_ptr<string> name,
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
-		DeclarationStatement(position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(initializer_expression) {
+		DeclarationStatement(position, name, name_position,
+				initializer_expression) {
 	assert(initializer_expression);
 }
 
 InferredDeclarationStatement::~InferredDeclarationStatement() {
 }
 
-const_shared_ptr<Expression> InferredDeclarationStatement::GetInitializerExpression() const {
-	return m_initializer_expression;
-}
-
 const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetType() const {
-	if (m_initializer_expression->IsConstant()) {
-		return m_initializer_expression->GetType(nullptr);
+	if (GetInitializerExpression()->IsConstant()) {
+		return GetInitializerExpression()->GetType(nullptr);
 	} else {
 		return PrimitiveTypeSpecifier::GetNone();
 	}
@@ -57,14 +53,14 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> expression_type =
-			m_initializer_expression->GetType(execution_context);
+			GetInitializerExpression()->GetType(execution_context);
 
 	if (expression_type != PrimitiveTypeSpecifier::GetNone()) {
 		const_shared_ptr<Statement> temp_statement =
 				expression_type->GetDeclarationStatement(GetPosition(),
 						expression_type,
-						m_initializer_expression->GetPosition(), m_name,
-						m_name_position, m_initializer_expression);
+						GetInitializerExpression()->GetPosition(), GetName(),
+						GetNamePosition(), GetInitializerExpression());
 		errors = temp_statement->preprocess(execution_context);
 	} else {
 		errors = ErrorList::From(
@@ -81,18 +77,18 @@ const ErrorListRef InferredDeclarationStatement::execute(
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> expression_type =
-			m_initializer_expression->GetType(execution_context);
+			GetInitializerExpression()->GetType(execution_context);
 
 	const_shared_ptr<Statement> temp_statement =
 			expression_type->GetDeclarationStatement(GetPosition(),
-					expression_type, m_initializer_expression->GetPosition(),
-					m_name, m_name_position, m_initializer_expression);
+					expression_type, GetInitializerExpression()->GetPosition(),
+					GetName(), GetNamePosition(), GetInitializerExpression());
 	errors = temp_statement->execute(execution_context);
 	return errors;
 }
 
 const DeclarationStatement* InferredDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new InferredDeclarationStatement(GetPosition(), m_name,
-			m_name_position, expression);
+	return new InferredDeclarationStatement(GetPosition(), GetName(),
+			GetNamePosition(), expression);
 }
