@@ -157,7 +157,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 					final_execution_context->GetReturnValue();
 			final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
-			plain_shared_ptr<void> result;
+			plain_shared_ptr<void> result = evaluation_result->GetValue();
 			auto as_sum = dynamic_pointer_cast<const SumTypeSpecifier>(
 					m_declaration->GetReturnType());
 			if (as_sum) {
