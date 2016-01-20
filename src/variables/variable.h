@@ -35,7 +35,7 @@ public:
 	Variable(const_shared_ptr<string> name, const yy::location location);
 	virtual ~Variable();
 
-	virtual const string* ToString(
+	virtual const_shared_ptr<string> ToString(
 			const shared_ptr<ExecutionContext> context) const = 0;
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(

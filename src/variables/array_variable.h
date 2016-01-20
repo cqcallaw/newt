@@ -36,7 +36,7 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const shared_ptr<ExecutionContext> context) const;
 
-	virtual const std::string* ToString(
+	virtual const_shared_ptr<string> ToString(
 			const shared_ptr<ExecutionContext> context) const;
 
 	virtual const bool IsBasicReference() const {

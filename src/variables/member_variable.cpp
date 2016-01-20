@@ -43,12 +43,12 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
 	return PrimitiveTypeSpecifier::GetNone();
 }
 
-const std::string* MemberVariable::ToString(
+const_shared_ptr<string> MemberVariable::ToString(
 		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
 	buffer << "<" << *GetName() << "." << *m_member_variable->ToString(context)
 			<< ">";
-	return new string(buffer.str());
+	return make_shared<string>(buffer.str());
 }
 
 const_shared_ptr<Result> MemberVariable::Evaluate(

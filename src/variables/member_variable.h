@@ -20,7 +20,7 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const shared_ptr<ExecutionContext> context) const;
 
-	virtual const string* ToString(
+	virtual const_shared_ptr<string> ToString(
 			const shared_ptr<ExecutionContext> context) const;
 
 	virtual const ErrorListRef Validate(

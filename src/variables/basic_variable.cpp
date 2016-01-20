@@ -38,11 +38,11 @@ BasicVariable::BasicVariable(const_shared_ptr<string> name,
 BasicVariable::~BasicVariable() {
 }
 
-const string* BasicVariable::ToString(
+const_shared_ptr<string> BasicVariable::ToString(
 		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
 	buffer << *GetName();
-	return new string(buffer.str());
+	return make_shared<string>(buffer.str());
 }
 
 const_shared_ptr<TypeSpecifier> BasicVariable::GetType(
