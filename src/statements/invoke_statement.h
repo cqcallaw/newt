@@ -27,7 +27,8 @@ class Variable;
 
 class InvokeStatement: public Statement {
 public:
-	InvokeStatement(const_shared_ptr<Variable> variable, ArgumentListRef argument_list,
+	InvokeStatement(const_shared_ptr<Variable> variable,
+			ArgumentListRef argument_list,
 			const yy::location argument_list_position);
 	virtual ~InvokeStatement();
 
@@ -37,10 +38,12 @@ public:
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
+	virtual const ErrorListRef GetReturnStatementErrors(
+			const_shared_ptr<TypeSpecifier> type_specifier,
 			const shared_ptr<ExecutionContext> execution_context) const {
-		return AnalysisResult::NO;
+		return ErrorList::GetTerminator();
 	}
+
 private:
 	const_shared_ptr<Variable> m_variable;
 	ArgumentListRef m_argument_list;

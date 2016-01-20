@@ -48,15 +48,14 @@ public:
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
-	virtual bool operator!=(const TypeSpecifier &other) const {
-		return !(*this == other);
-	}
-
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position, const_shared_ptr<string> name,
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const;
+
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<void> value) const;
 
 	const BasicType GetBasicType() const {
 		return m_basic_type;

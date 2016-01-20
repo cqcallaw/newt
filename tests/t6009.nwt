@@ -1,0 +1,4 @@
+//test inference
+t:(double|int) = 56 
+
+a:= t

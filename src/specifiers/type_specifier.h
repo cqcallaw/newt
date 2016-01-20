@@ -27,6 +27,7 @@
 class Expression;
 class DeclarationStatement;
 class TypeTable;
+class Symbol;
 
 using namespace std;
 class TypeSpecifier {
@@ -47,7 +48,9 @@ public:
 			const_shared_ptr<Expression> initializer_expression) const = 0;
 
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
-	virtual bool operator!=(const TypeSpecifier &other) const = 0;
+	virtual bool operator!=(const TypeSpecifier &other) const {
+		return !(*this == other);
+	}
 };
 
 typedef const LinkedList<const TypeSpecifier, ALLOW_DUPLICATES> TypeSpecifierList;

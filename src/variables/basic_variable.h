@@ -81,6 +81,10 @@ protected:
 			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Function> value) const;
 
+	virtual const ErrorListRef SetSymbol(
+			const shared_ptr<ExecutionContext> context,
+			const_shared_ptr<Sum> sum) const;
+
 };
 
 #endif /* VARIABLES_BASIC_VARIABLE_H_ */

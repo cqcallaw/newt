@@ -45,12 +45,7 @@ public:
 	}
 
 	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const {
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(other);
-		return as_compound
-				&& as_compound->GetTypeName().compare(m_type_name) == 0;
-	}
+			const_shared_ptr<TypeSpecifier> other) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
@@ -64,10 +59,6 @@ public:
 	}
 
 	virtual bool operator==(const TypeSpecifier& other) const;
-
-	virtual bool operator!=(const TypeSpecifier &other) const {
-		return !(*this == other);
-	}
 
 	const yy::location GetLocation() const {
 		return m_location;

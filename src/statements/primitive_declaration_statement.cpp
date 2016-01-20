@@ -62,41 +62,13 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 		}
 
 		auto value = m_type->DefaultValue(*execution_context->GetTypeTable());
-		const BasicType basic_type = as_primitive->GetBasicType();
-		switch (basic_type) {
-		case BOOLEAN: {
-			symbol = const_shared_ptr<Symbol>(
-					new Symbol(static_pointer_cast<const bool>(value)));
-			break;
-		}
-		case INT: {
-			symbol = const_shared_ptr<Symbol>(
-					new Symbol(static_pointer_cast<const int>(value)));
-			break;
-		}
-		case DOUBLE: {
-			symbol = const_shared_ptr<Symbol>(
-					new Symbol(static_pointer_cast<const double>(value)));
-			break;
-		}
-		case STRING: {
-			symbol = const_shared_ptr<Symbol>(
-					new Symbol(static_pointer_cast<const string>(value)));
-			break;
-		}
-		default:
-			assert(false);
-			break;
-		}
+		symbol = as_primitive->GetSymbol(value);
 	} else {
 		assert(false);
 	}
 
 	if (symbol != Symbol::GetDefaultSymbol()) {
-		volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
-				SymbolTable>(execution_context);
-
-		InsertResult insert_result = symbol_table->InsertSymbol(*m_name,
+		InsertResult insert_result = execution_context->InsertSymbol(*m_name,
 				symbol);
 		if (insert_result == SYMBOL_EXISTS) {
 			errors = ErrorList::From(

@@ -34,9 +34,11 @@ class ExecutionContext;
 class Array;
 class CompoundTypeInstance;
 class Function;
+class Sum;
 
 class Symbol {
 	friend class SymbolContext;
+	friend class ReturnStatement;
 public:
 	Symbol(const_shared_ptr<bool> value);
 	Symbol(const_shared_ptr<int> value);
@@ -45,6 +47,7 @@ public:
 	Symbol(const_shared_ptr<Array> value);
 	Symbol(const_shared_ptr<CompoundTypeInstance> value);
 	Symbol(const_shared_ptr<Function> value);
+	Symbol(const_shared_ptr<Sum> value);
 
 	virtual ~Symbol();
 
@@ -56,15 +59,20 @@ public:
 		return m_value;
 	}
 
+	static const_shared_ptr<Symbol> GetDefaultSymbol();
+
 	virtual const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
-	static const_shared_ptr<Symbol> GetDefaultSymbol();
+	static const string ToString(const_shared_ptr<TypeSpecifier> type,
+			const_shared_ptr<void> value, const TypeTable& type_table,
+			const Indent& indent);
 
 protected:
 	Symbol(const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
 
-	const_shared_ptr<Symbol> WithValue(const_shared_ptr<TypeSpecifier> type,
+	virtual const_shared_ptr<Symbol> WithValue(
+			const_shared_ptr<TypeSpecifier> type,
 			const_shared_ptr<void> value) const;
 
 private:

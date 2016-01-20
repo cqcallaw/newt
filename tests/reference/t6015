@@ -1,0 +1,18 @@
+Parsing file ../tests/t6015.nwt...
+Parsed file ../tests/t6015.nwt.
+Root Symbol Table:
+----------------
+(int) -> (int|error) f:
+	Body Location: 6.31-11.2
+
+(int|error) result: 1 {int}
+(int|error) second_result:
+	int code: 1
+	string message: "Failed to guess magic number."
+ {error}
+
+Root Type Table:
+----------------
+error: 
+	int code (0)
+	string message ("")

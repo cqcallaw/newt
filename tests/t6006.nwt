@@ -1,0 +1,5 @@
+t:(double|int|string)
+
+t = "things"
+t = 42
+t = 15.2

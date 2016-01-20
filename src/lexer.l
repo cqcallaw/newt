@@ -100,6 +100,7 @@ blank   [ \t\r]
 "!"             return yy::newt_parser::make_NOT(loc);
 "&&"            return yy::newt_parser::make_AND(loc);
 "||"            return yy::newt_parser::make_OR(loc);
+"|"             return yy::newt_parser::make_PIPE(loc);
 "struct"        return yy::newt_parser::make_STRUCT(loc);
 "readonly"      return yy::newt_parser::make_READONLY(loc);
 "with"          return yy::newt_parser::make_WITH(loc);

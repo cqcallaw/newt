@@ -30,6 +30,7 @@
 #include <function.h>
 #include <function_declaration.h>
 #include <execution_context.h>
+#include <sum_type_specifier.h>
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
 		TypeSpecifierListRef parameter_type_list,
@@ -65,6 +66,12 @@ const string FunctionTypeSpecifier::ToString() const {
 
 const bool FunctionTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other) const {
+	const_shared_ptr<SumTypeSpecifier> as_sum = dynamic_pointer_cast<
+			const SumTypeSpecifier>(other);
+	if (as_sum) {
+		return as_sum->ContainsType(*this, ALLOW_WIDENING);
+	}
+
 	return *this == *other;
 }
 

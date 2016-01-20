@@ -21,6 +21,7 @@
 #include <typeinfo>
 #include <primitive_declaration_statement.h>
 #include <expression.h>
+#include <sum_type_specifier.h>
 #include <memory>
 
 const string PrimitiveTypeSpecifier::ToString(
@@ -62,6 +63,13 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 		const BasicType other_type = other_as_primitive->GetBasicType();
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
 	}
+
+	const_shared_ptr<SumTypeSpecifier> as_sum = dynamic_pointer_cast<
+			const SumTypeSpecifier>(other);
+	if (as_sum) {
+		return as_sum->ContainsType(*this, ALLOW_WIDENING);
+	}
+
 	return false;
 }
 
@@ -159,4 +167,32 @@ const_shared_ptr<DeclarationStatement> PrimitiveTypeSpecifier::GetDeclarationSta
 		const_shared_ptr<Expression> initializer_expression) const {
 	return make_shared<PrimitiveDeclarationStatement>(position, type,
 			type_position, name, name_position, initializer_expression);
+}
+
+const_shared_ptr<Symbol> PrimitiveTypeSpecifier::GetSymbol(
+		const_shared_ptr<void> value) const {
+	const BasicType basic_type = GetBasicType();
+	switch (basic_type) {
+	case BOOLEAN: {
+		return const_shared_ptr<Symbol>(
+				new Symbol(static_pointer_cast<const bool>(value)));
+	}
+	case INT: {
+		return const_shared_ptr<Symbol>(
+				new Symbol(static_pointer_cast<const int>(value)));
+	}
+	case DOUBLE: {
+		return const_shared_ptr<Symbol>(
+				new Symbol(static_pointer_cast<const double>(value)));
+	}
+	case STRING: {
+		return const_shared_ptr<Symbol>(
+				new Symbol(static_pointer_cast<const string>(value)));
+	}
+	default:
+		assert(false);
+	}
+
+	assert(false);
+	return Symbol::GetDefaultSymbol();
 }

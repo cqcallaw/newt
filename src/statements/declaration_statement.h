@@ -39,10 +39,10 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetType() const = 0;
 	virtual const_shared_ptr<string> GetName() const = 0;
 
-	virtual const AnalysisResult Returns(
+	virtual const ErrorListRef GetReturnStatementErrors(
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const shared_ptr<ExecutionContext> execution_context) const {
-		return AnalysisResult::NO;
+		return ErrorList::GetTerminator();
 	}
 
 	const yy::location GetPosition() const {

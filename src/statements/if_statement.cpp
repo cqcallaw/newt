@@ -113,19 +113,15 @@ const ErrorListRef IfStatement::execute(
 	return errors;
 }
 
-const AnalysisResult IfStatement::Returns(
+const ErrorListRef IfStatement::GetReturnStatementErrors(
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const shared_ptr<ExecutionContext> execution_context) const {
-	AnalysisResult result = m_block->Returns(type_specifier, execution_context);
-
+	auto errors = m_block->GetReturnStatementErrors(type_specifier,
+			execution_context);
 	if (m_else_block) {
-		AnalysisResult else_result = m_else_block->Returns(type_specifier,
-				execution_context);
-
-		if (result == AnalysisResult::YES) {
-			result = else_result;
-		}
+		errors = ErrorList::Concatenate(errors,
+				m_else_block->GetReturnStatementErrors(type_specifier,
+						execution_context));
 	}
-
-	return result;
+	return errors;
 }

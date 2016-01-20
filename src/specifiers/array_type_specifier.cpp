@@ -22,6 +22,7 @@
 #include <typeinfo>
 #include <array_declaration_statement.h>
 #include <expression.h>
+#include <sum_type_specifier.h>
 
 const string ArrayTypeSpecifier::ToString() const {
 	ostringstream buffer;
@@ -55,4 +56,19 @@ const_shared_ptr<void> ArrayTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
 	return const_shared_ptr<void>(
 			new Array(m_element_type_specifier, type_table));
+}
+
+const bool ArrayTypeSpecifier::IsAssignableTo(
+		const_shared_ptr<TypeSpecifier> other) const {
+	const_shared_ptr<SumTypeSpecifier> as_sum = dynamic_pointer_cast<
+			const SumTypeSpecifier>(other);
+	if (as_sum) {
+		return as_sum->ContainsType(*this, ALLOW_WIDENING);
+	}
+
+	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
+			const ArrayTypeSpecifier>(other);
+	return as_array
+			&& m_element_type_specifier->IsAssignableTo(
+					as_array->GetElementTypeSpecifier());
 }

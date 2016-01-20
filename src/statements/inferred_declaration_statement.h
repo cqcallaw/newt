@@ -49,11 +49,6 @@ public:
 		return m_name;
 	}
 
-	virtual const AnalysisResult Returns(
-			const_shared_ptr<TypeSpecifier> type_specifier) const {
-		return AnalysisResult::NO;
-	}
-
 private:
 	const_shared_ptr<string> m_name;
 	const yy::location m_name_position;

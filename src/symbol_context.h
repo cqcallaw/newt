@@ -95,6 +95,7 @@ public:
 			const_shared_ptr<CompoundTypeInstance> value);
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<Function> value);
+	SetResult SetSymbol(const string& identifier, const_shared_ptr<Sum> value);
 
 	static volatile_shared_ptr<SymbolContext> GetDefault();
 

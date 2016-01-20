@@ -40,20 +40,28 @@ const ErrorListRef ReturnStatement::execute(
 
 	errors = result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		execution_context->SetReturnValue(result->GetData());
+		execution_context->SetReturnValue(
+				const_shared_ptr<Symbol>(
+						new Symbol(m_expression->GetType(execution_context),
+								result->GetData())));
 	}
 
 	return errors;
 }
 
-const AnalysisResult ReturnStatement::Returns(
+const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const shared_ptr<ExecutionContext> execution_context) const {
+	auto errors = ErrorList::GetTerminator();
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			m_expression->GetType(execution_context);
-	if (*expression_type_specifier == *type_specifier) {
-		return AnalysisResult::YES;
-	} else {
-		return AnalysisResult::NO;
+	if (!expression_type_specifier->IsAssignableTo(type_specifier)) {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::FUNCTION_RETURN_MISMATCH,
+						m_expression->GetPosition().begin.line,
+						m_expression->GetPosition().begin.column), errors);
 	}
+
+	return errors;
 }

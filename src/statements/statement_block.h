@@ -36,7 +36,8 @@ public:
 	const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	const AnalysisResult Returns(const_shared_ptr<TypeSpecifier> type_specifier,
+	virtual const ErrorListRef GetReturnStatementErrors(
+			const_shared_ptr<TypeSpecifier> type_specifier,
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 	const yy::location GetLocation() const {

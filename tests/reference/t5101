@@ -1,4 +1,4 @@
 Parsing file ../tests/t5101.nwt...
-Semantic error on line 2, column 12: Function does not return specified type.
+Semantic error on line 3, column 9: Return type does not match function return type.
 Parsed file ../tests/t5101.nwt.
 1 error found; giving up.
