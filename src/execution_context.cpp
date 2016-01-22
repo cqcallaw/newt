@@ -25,14 +25,14 @@
 ExecutionContext::ExecutionContext() :
 		ExecutionContext(Modifier::Type::NONE, make_shared<symbol_map>(),
 				SymbolContextList::GetTerminator(), make_shared<TypeTable>(),
-				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr),
+				Symbol::GetDefaultSymbol(), plain_shared_ptr<int>(nullptr),
 				PERSISTENT) {
 }
 
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> existing,
 		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
 		ExecutionContext(existing, m_parent, type_table,
-				plain_shared_ptr<void>(nullptr), plain_shared_ptr<int>(nullptr),
+				Symbol::GetDefaultSymbol(), plain_shared_ptr<int>(nullptr),
 				life_time) {
 }
 
@@ -40,7 +40,7 @@ ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
 		const SymbolContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
 		ExecutionContext(modifiers, make_shared<symbol_map>(), parent_context,
-				type_table, plain_shared_ptr<void>(nullptr),
+				type_table, Symbol::GetDefaultSymbol(),
 				plain_shared_ptr<int>(nullptr), life_time) {
 }
 
@@ -89,7 +89,7 @@ const_shared_ptr<Symbol> ExecutionContext::GetSymbol(
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> context,
 		const SymbolContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table,
-		const_shared_ptr<void> return_value, const_shared_ptr<int> exit_code,
+		const_shared_ptr<Symbol> return_value, const_shared_ptr<int> exit_code,
 		const LifeTime life_time) :
 		SymbolTable(*context), m_parent(parent_context), m_type_table(
 				type_table), m_return_value(return_value), m_exit_code(
@@ -100,7 +100,7 @@ ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
 		const shared_ptr<symbol_map> symbol_map,
 		const SymbolContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table,
-		const_shared_ptr<void> return_value, const_shared_ptr<int> exit_code,
+		const_shared_ptr<Symbol> return_value, const_shared_ptr<int> exit_code,
 		const LifeTime life_time) :
 		SymbolTable(modifiers, symbol_map), m_parent(parent_context), m_type_table(
 				type_table), m_return_value(return_value), m_exit_code(

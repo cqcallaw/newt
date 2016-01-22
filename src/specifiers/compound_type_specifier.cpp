@@ -21,6 +21,7 @@
 #include <typeinfo>
 #include <struct_instantiation_statement.h>
 #include <expression.h>
+#include <sum_type_specifier.h>
 
 bool CompoundTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
@@ -40,4 +41,17 @@ const_shared_ptr<DeclarationStatement> CompoundTypeSpecifier::GetDeclarationStat
 	return make_shared<StructInstantiationStatement>(position,
 			static_pointer_cast<const CompoundTypeSpecifier>(type),
 			type_position, name, name_position, initializer_expression);
+}
+
+const bool CompoundTypeSpecifier::IsAssignableTo(
+		const_shared_ptr<TypeSpecifier> other) const {
+	const_shared_ptr<SumTypeSpecifier> as_sum = dynamic_pointer_cast<
+			const SumTypeSpecifier>(other);
+	if (as_sum) {
+		return as_sum->ContainsType(*this, ALLOW_WIDENING);
+	}
+
+	const_shared_ptr<CompoundTypeSpecifier> as_compound =
+			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(other);
+	return as_compound && as_compound->GetTypeName().compare(m_type_name) == 0;
 }

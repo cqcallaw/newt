@@ -163,7 +163,7 @@ const string Error::get_error_message() const {
 		os << "\"" << m_s1 << "\" is read-only.";
 		break;
 	case FUNCTION_RETURN_MISMATCH:
-		os << "Function does not return specified type.";
+		os << "Return type does not match function return type.";
 		break;
 	case FUNCTION_PARAMETER_TYPE_MISMATCH:
 		os << "Parameter type mismatch: can't assign '" << m_s1 << "' to '"

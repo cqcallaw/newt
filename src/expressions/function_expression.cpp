@@ -119,15 +119,9 @@ const ErrorListRef FunctionExpression::Validate(
 		errors = ErrorList::Concatenate(errors,
 				m_body->preprocess(tmp_context));
 
-		AnalysisResult returns = m_body->Returns(m_declaration->GetReturnType(),
-				tmp_context);
-		if (returns == AnalysisResult::NO) {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::FUNCTION_RETURN_MISMATCH,
-							GetPosition().begin.line,
-							GetPosition().begin.column), errors);
-		}
+		errors = ErrorList::Concatenate(errors,
+				m_body->GetReturnStatementErrors(m_declaration->GetReturnType(),
+						tmp_context));
 	}
 
 	return errors;

@@ -24,11 +24,13 @@
 #include <modifier.h>
 #include <string>
 #include <declaration_statement.h>
+#include <compound_type_specifier.h>
 
 class StructDeclarationStatement: public DeclarationStatement {
 public:
-	StructDeclarationStatement(const yy::location position, const_shared_ptr<string> name,
-			const yy::location name_position,
+	StructDeclarationStatement(const yy::location position,
+			const_shared_ptr<CompoundTypeSpecifier> type,
+			const_shared_ptr<string> name, const yy::location name_position,
 			DeclarationListRef member_declaration_list,
 			const yy::location member_declaration_list_position,
 			ModifierListRef modifier_list,
@@ -46,15 +48,7 @@ public:
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetType() const {
-		return m_type_specifier;
-	}
-
-	virtual const_shared_ptr<string> GetName() const {
-		return m_name;
-	}
-
-	virtual const_shared_ptr<Expression> GetInitializerExpression() const {
-		return m_initializer_expression;
+		return m_type;
 	}
 
 	virtual const DeclarationStatement* WithInitializerExpression(
@@ -72,20 +66,13 @@ public:
 		return m_modifiers_location;
 	}
 
-	const yy::location GetNamePosition() const {
-		return m_name_position;
-	}
-
 private:
-	const_shared_ptr<string> m_name;
-	const yy::location m_name_position;
+	const yy::location m_type_position;
 	DeclarationListRef m_member_declaration_list;
 	const yy::location m_member_declaration_list_position;
 	ModifierListRef m_modifier_list;
 	const yy::location m_modifiers_location;
-
-	const_shared_ptr<TypeSpecifier> m_type_specifier;
-	const_shared_ptr<Expression> m_initializer_expression;
+	const_shared_ptr<CompoundTypeSpecifier> m_type;
 };
 
 #endif /* STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_ */

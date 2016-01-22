@@ -43,8 +43,7 @@ const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 	}
 
 	const_shared_ptr<CompoundTypeSpecifier> type_specifier = const_shared_ptr<
-			CompoundTypeSpecifier>(
-			new CompoundTypeSpecifier(type_name, GetDefaultLocation()));
+			CompoundTypeSpecifier>(new CompoundTypeSpecifier(type_name));
 
 	return make_shared<CompoundTypeInstance>(
 			CompoundTypeInstance(type_specifier, symbol_table));

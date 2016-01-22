@@ -1,0 +1,4 @@
+a:= 51
+t:(double|int|string)
+
+t = a

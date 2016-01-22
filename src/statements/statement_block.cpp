@@ -31,6 +31,9 @@ StatementBlock::StatementBlock(StatementListRef statements,
 		m_statements(statements), m_location(location) {
 }
 
+StatementBlock::~StatementBlock() {
+}
+
 const ErrorListRef StatementBlock::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
@@ -56,6 +59,7 @@ const ErrorListRef StatementBlock::execute(
 		auto errors = statement->execute(execution_context);
 		if (!ErrorList::IsTerminator(errors)
 				|| execution_context->GetReturnValue()
+						!= Symbol::GetDefaultSymbol()
 				|| execution_context->GetExitCode()) {
 			//we've either encountered an error, a return value has been set,
 			//or an exit code has been set
@@ -67,20 +71,18 @@ const ErrorListRef StatementBlock::execute(
 	return ErrorList::GetTerminator();
 }
 
-const AnalysisResult StatementBlock::Returns(
+const ErrorListRef StatementBlock::GetReturnStatementErrors(
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const shared_ptr<ExecutionContext> execution_context) const {
-	AnalysisResult result = AnalysisResult::NO;
+	auto errors = ErrorList::GetTerminator();
 	auto subject = m_statements;
 	while (!StatementList::IsTerminator(subject)) {
 		const_shared_ptr<Statement> statement = subject->GetData();
-		result = static_cast<AnalysisResult>(result
-				| statement->Returns(type_specifier, execution_context));
+		errors = ErrorList::Concatenate(errors,
+				statement->GetReturnStatementErrors(type_specifier,
+						execution_context));
 		subject = subject->GetNext();
 	}
 
-	return result;
-}
-
-StatementBlock::~StatementBlock() {
+	return errors;
 }

@@ -24,6 +24,8 @@
 #include <assignment_statement.h>
 #include <function_declaration.h>
 #include <function.h>
+#include <sum_type_specifier.h>
+#include <sum.h>
 
 #include "assert.h"
 #include "expression.h"
@@ -36,11 +38,11 @@ BasicVariable::BasicVariable(const_shared_ptr<string> name,
 BasicVariable::~BasicVariable() {
 }
 
-const string* BasicVariable::ToString(
+const_shared_ptr<string> BasicVariable::ToString(
 		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
 	buffer << *GetName();
-	return new string(buffer.str());
+	return make_shared<string>(buffer.str());
 }
 
 const_shared_ptr<TypeSpecifier> BasicVariable::GetType(
@@ -213,6 +215,33 @@ const ErrorListRef BasicVariable::AssignValue(
 		}
 	}
 
+	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
+			const SumTypeSpecifier>(symbol_type);
+	if (as_sum) {
+		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
+				context);
+
+		errors = expression_evaluation->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto sum = static_pointer_cast<const Sum>(symbol->GetValue());
+			auto expression_type = expression->GetType(context);
+
+			plain_shared_ptr<Sum> new_sum;
+			if (*symbol->GetType() == *expression_type) {
+				//we're re-assigning an entire sum
+				new_sum = static_pointer_cast<const Sum>(
+						expression_evaluation->GetData());
+			} else if (expression_type->IsAssignableTo(symbol_type)) {
+				new_sum = sum->WithValue(expression_type,
+						expression_evaluation->GetData());
+			} else {
+				assert(false);
+			}
+
+			errors = SetSymbol(output_context, new_sum);
+		}
+	}
+
 	return errors;
 }
 
@@ -270,6 +299,14 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(context->SetSymbol(*GetName(), value),
 			symbol->GetType(), value->GetType());
+}
+
+const ErrorListRef BasicVariable::SetSymbol(
+		const shared_ptr<ExecutionContext> context,
+		const_shared_ptr<Sum> sum) const {
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(context->SetSymbol(*GetName(), sum),
+			symbol->GetType(), sum->GetTag());
 }
 
 const_shared_ptr<Variable> BasicVariable::GetDefaultVariable() {

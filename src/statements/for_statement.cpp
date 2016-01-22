@@ -131,13 +131,11 @@ const ErrorListRef ForStatement::execute(
 	return ErrorList::GetTerminator();
 }
 
-const AnalysisResult ForStatement::Returns(
+const ErrorListRef ForStatement::GetReturnStatementErrors(
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const shared_ptr<ExecutionContext> execution_context) const {
-	//as of this writing, it is deemed prohibitively complicated to
-	//perform the semantic analysis that would determine whether or not
-	//this loop will execute, or how many times it will execute.
-	return AnalysisResult::NO;
+	return m_statement_block->GetReturnStatementErrors(type_specifier,
+			execution_context);
 }
 
 ForStatement::ForStatement(const_shared_ptr<Statement> initial,

@@ -1,0 +1,2 @@
+//test that order of member type specifiers does not matter
+t:(double|int)

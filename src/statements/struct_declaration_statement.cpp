@@ -30,22 +30,20 @@
 #include <defaults.h>
 
 StructDeclarationStatement::StructDeclarationStatement(
-		const yy::location position, const_shared_ptr<string> name,
-		const yy::location name_position,
+		const yy::location position,
+		const_shared_ptr<CompoundTypeSpecifier> type,
+		const_shared_ptr<string> name, const yy::location name_position,
 		DeclarationListRef member_declaration_list,
 		const yy::location member_declaration_list_position,
 		ModifierListRef modifier_list, const yy::location modifiers_location) :
-		DeclarationStatement(position), m_name(name), m_name_position(
-				name_position), m_member_declaration_list(
+		DeclarationStatement(position, name, name_position,
+				make_shared<DefaultValueExpression>(
+						DefaultValueExpression(GetDefaultLocation(), type,
+								member_declaration_list_position))), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_position(
 				member_declaration_list_position), m_modifier_list(
-				modifier_list), m_modifiers_location(modifiers_location), m_type_specifier(
-				const_shared_ptr<const CompoundTypeSpecifier>(
-						new CompoundTypeSpecifier(*name, name_position))), m_initializer_expression(
-				make_shared<DefaultValueExpression>(
-						DefaultValueExpression(GetDefaultLocation(),
-								m_type_specifier,
-								member_declaration_list_position))) {
+				modifier_list), m_modifiers_location(modifiers_location), m_type(
+				type) {
 }
 
 StructDeclarationStatement::~StructDeclarationStatement() {
@@ -122,7 +120,7 @@ const ErrorListRef StructDeclarationStatement::preprocess(
 	}
 
 	auto type = make_shared<CompoundType>(mapping, modifiers);
-	type_table->AddType(*m_name, type);
+	type_table->AddType(*GetName(), type);
 	return errors;
 }
 
@@ -134,8 +132,8 @@ const ErrorListRef StructDeclarationStatement::execute(
 const DeclarationStatement* StructDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	//no-op
-	return new StructDeclarationStatement(GetPosition(), m_name,
-			m_name_position, m_member_declaration_list,
+	return new StructDeclarationStatement(GetPosition(), m_type, GetName(),
+			GetNamePosition(), m_member_declaration_list,
 			m_member_declaration_list_position, m_modifier_list,
 			m_modifiers_location);
 }

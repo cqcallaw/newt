@@ -1,0 +1,7 @@
+struct error {
+	code:int
+	message:string
+}
+
+result: (double | error)
+result = @error with { code = 3, message = "Insufficient funds." }

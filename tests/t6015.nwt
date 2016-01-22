@@ -1,0 +1,15 @@
+struct error {
+	code:int
+	message:string
+}
+
+f:= (a:int) -> (int | error) {
+	if (a == 1) {
+		return a
+	} else {
+		return @error with { code = 1, message = "Failed to guess magic number." }
+	}
+}
+
+result := f(1)
+second_result := f(3)

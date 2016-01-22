@@ -39,25 +39,12 @@ public:
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const_shared_ptr<Expression> GetInitializerExpression() const;
-
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetType() const;
-	virtual const_shared_ptr<string> GetName() const {
-		return m_name;
-	}
-
-	virtual const AnalysisResult Returns(
-			const_shared_ptr<TypeSpecifier> type_specifier) const {
-		return AnalysisResult::NO;
-	}
 
 private:
-	const_shared_ptr<string> m_name;
-	const yy::location m_name_position;
-	const_shared_ptr<Expression> m_initializer_expression;
 };
 
 #endif /* STATEMENTS_INFERRED_DECLARATION_STATEMENT_H_ */

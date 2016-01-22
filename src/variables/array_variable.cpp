@@ -51,7 +51,7 @@ const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
 	}
 }
 
-const string* ArrayVariable::ToString(
+const_shared_ptr<string> ArrayVariable::ToString(
 		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
 	buffer << m_base_variable->ToString(context);
@@ -66,7 +66,7 @@ const string* ArrayVariable::ToString(
 		buffer << "EVALUATION ERROR";
 	}
 	buffer << "]";
-	return new string(buffer.str());
+	return make_shared<string>(buffer.str());
 }
 
 ArrayVariable::~ArrayVariable() {

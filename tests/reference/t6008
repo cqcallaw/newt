@@ -1,0 +1,14 @@
+Parsing file ../tests/t6008.nwt...
+Parsed file ../tests/t6008.nwt.
+Root Symbol Table:
+----------------
+(double|error) result:
+	int code: 3
+	string message: "Insufficient funds."
+ {error}
+
+Root Type Table:
+----------------
+error: 
+	int code (0)
+	string message ("")

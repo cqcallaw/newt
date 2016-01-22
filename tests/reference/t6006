@@ -1,0 +1,8 @@
+Parsing file ../tests/t6006.nwt...
+Parsed file ../tests/t6006.nwt.
+Root Symbol Table:
+----------------
+(double|int|string) t: 15.2 {double}
+
+Root Type Table:
+----------------

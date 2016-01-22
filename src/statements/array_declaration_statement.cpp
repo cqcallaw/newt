@@ -26,9 +26,9 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(
 		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
-		DeclarationStatement(position), m_type(type_specifier), m_type_position(
-				type_position), m_name(name), m_name_position(name_position), m_initializer_expression(
-				initializer_expression) {
+		DeclarationStatement(position, name, name_position,
+				initializer_expression), m_type(type_specifier), m_type_position(
+				type_position) {
 }
 
 const ErrorListRef ArrayDeclarationStatement::preprocess(
@@ -36,7 +36,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<CompoundTypeSpecifier> element_type_as_compound =
-			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+			dynamic_pointer_cast<const CompoundTypeSpecifier>(
 					m_type->GetElementTypeSpecifier());
 	if (element_type_as_compound) {
 		//check that element type exists
@@ -55,10 +55,11 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 
 	if (ErrorList::IsTerminator(errors)) {
 		const Array* array = nullptr;
-		auto name = m_name;
-		if (m_initializer_expression) {
+		auto name = GetName();
+		auto initializer_expression = GetInitializerExpression();
+		if (initializer_expression) {
 			const_shared_ptr<TypeSpecifier> initializer_expression_type =
-					m_initializer_expression->GetType(execution_context);
+					initializer_expression->GetType(execution_context);
 			const_shared_ptr<ArrayTypeSpecifier> as_array =
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							initializer_expression_type);
@@ -68,8 +69,8 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::ASSIGNMENT_TYPE_ERROR,
-										m_initializer_expression->GetPosition().begin.line,
-										m_initializer_expression->GetPosition().begin.column,
+										initializer_expression->GetPosition().begin.line,
+										initializer_expression->GetPosition().begin.column,
 										m_type->ToString(),
 										initializer_expression_type->ToString()),
 								errors);
@@ -93,8 +94,9 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								m_name_position.begin.line,
-								m_name_position.begin.column, *m_name), errors);
+								GetNamePosition().begin.line,
+								GetNamePosition().begin.column, *GetName()),
+						errors);
 			}
 		}
 	}
@@ -108,19 +110,19 @@ ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 const ErrorListRef ArrayDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	if (m_initializer_expression) {
+	if (GetInitializerExpression()) {
 		const_shared_ptr<Result> initializer_result =
-				m_initializer_expression->Evaluate(execution_context);
+				GetInitializerExpression()->Evaluate(execution_context);
 		errors = initializer_result->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {
 			auto array = static_pointer_cast<const Array>(
 					initializer_result->GetData());
 			auto symbol_context = execution_context;
-			SetResult result = symbol_context->SetSymbol(*m_name, array);
+			SetResult result = symbol_context->SetSymbol(*GetName(), array);
 			errors = ToErrorListRef(result,
-					m_initializer_expression->GetPosition(), m_name,
-					symbol_context->GetSymbol(m_name, SHALLOW)->GetType(),
+					GetInitializerExpression()->GetPosition(), GetName(),
+					symbol_context->GetSymbol(GetName(), SHALLOW)->GetType(),
 					array->GetTypeSpecifier());
 		}
 	}
@@ -135,5 +137,5 @@ const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetType() const {
 const DeclarationStatement* ArrayDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	return new ArrayDeclarationStatement(GetPosition(), m_type, m_type_position,
-			m_name, m_name_position, expression);
+			GetName(), GetNamePosition(), expression);
 }

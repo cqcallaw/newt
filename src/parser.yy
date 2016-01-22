@@ -46,13 +46,13 @@
 #include <modifier.h>
 #include <member_declaration.h>
 #include <member_instantiation.h>
-#include <index.h>
 #include <dimension.h>
 
 #include <type.h>
 #include <type_specifier.h>
 #include <function_type_specifier.h>
 #include <function_declaration.h>
+#include <sum_type_specifier.h>
 
 class Driver;
 
@@ -95,6 +95,7 @@ class Driver;
 #include <struct_instantiation_statement.h>
 #include <function_declaration_statement.h>
 #include <inferred_declaration_statement.h>
+#include <sum_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -141,7 +142,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	LBRACKET            "["
 	RBRACKET            "]"
 	COLON               ":"
-	SEMICOLON               ";"
+	SEMICOLON           ";"
 	COMMA               ","
 	PERIOD              "."
 	AT                  "@"
@@ -162,6 +163,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	GREATER_EQUAL       ">="
 	EQUAL               "=="
 	NOT_EQUAL           "!="
+
+	PIPE                 "|"
 
 	AND                 "&&"
 	OR                  "||"
@@ -209,6 +212,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<PrimitiveTypeSpecifier>> primitive_type_specifier
 %type <plain_shared_ptr<FunctionDeclaration>> function_declaration
 %type <plain_shared_ptr<FunctionTypeSpecifier>> function_type_specifier
+%type <plain_shared_ptr<SumTypeSpecifier>> sum_type_specifier
+%type <TypeSpecifierListRef> sum_type_specifier_list
 %type <plain_shared_ptr<Expression>> expression
 %type <plain_shared_ptr<Expression>> variable_expression
 %type <plain_shared_ptr<Expression>> function_expression
@@ -284,7 +289,7 @@ variable_declaration:
 	}
 	| IDENTIFIER COLON IDENTIFIER dimensions optional_initializer
 	{
-		plain_shared_ptr<TypeSpecifier> type_specifier = make_shared<CompoundTypeSpecifier>(*$3, @3);
+		plain_shared_ptr<TypeSpecifier> type_specifier = make_shared<CompoundTypeSpecifier>(*$3);
 		//add dimensions to type specifier
 		DimensionListRef dimension = $4;
 		while (!DimensionList::IsTerminator(dimension)) {
@@ -297,16 +302,16 @@ variable_declaration:
 	}
 	| IDENTIFIER COLON IDENTIFIER optional_initializer
 	{
-		auto type_specifier = make_shared<CompoundTypeSpecifier>(CompoundTypeSpecifier(*$3, @3));
+		auto type_specifier = make_shared<CompoundTypeSpecifier>(*$3);
 		$$ = make_shared<StructInstantiationStatement>(@$, type_specifier, @3, $1, @1, $4);
 	}
-	| IDENTIFIER COLON function_type_specifier
+	| IDENTIFIER COLON function_type_specifier optional_initializer
 	{
-		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, @3, $1, @1, nullptr);
+		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, @3, $1, @1, $4);
 	}
-	| IDENTIFIER COLON function_type_specifier EQUALS function_expression
+	| IDENTIFIER COLON sum_type_specifier optional_initializer
 	{
-		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, @3, $1, @1, $5);
+		$$ = make_shared<SumDeclarationStatement>(@$, $3, @3, $1, @1, $4);
 	}
 	| IDENTIFIER COLON EQUALS expression
 	{
@@ -353,6 +358,26 @@ function_type_specifier:
 	}
 
 //---------------------------------------------------------------------
+sum_type_specifier:
+	LPAREN sum_type_specifier_list RPAREN
+	{
+		$$ = make_shared<SumTypeSpecifier>(TypeSpecifierList::Reverse($2));
+	}
+
+//---------------------------------------------------------------------
+sum_type_specifier_list:
+	sum_type_specifier_list PIPE type_specifier
+	{
+		$$ = TypeSpecifierList::From($3, $1);
+	}
+	|
+	type_specifier PIPE type_specifier
+	{
+		$$ = TypeSpecifierList::From($3, 
+			TypeSpecifierList::From($1, TypeSpecifierList::GetTerminator()));
+	}
+
+//---------------------------------------------------------------------
 type_specifier:
 	primitive_type_specifier
 	{
@@ -360,9 +385,13 @@ type_specifier:
 	}
 	| IDENTIFIER
 	{
-		$$ = make_shared<CompoundTypeSpecifier>(*$1, @1);
+		$$ = make_shared<CompoundTypeSpecifier>(*$1);
 	}
 	| function_type_specifier
+	{
+		$$ = $1;
+	}
+	| sum_type_specifier
 	{
 		$$ = $1;
 	}
@@ -622,7 +651,7 @@ expression:
 	}
 	| AT IDENTIFIER
 	{
-		$$ = make_shared<const DefaultValueExpression>(@$, const_shared_ptr<TypeSpecifier>(new CompoundTypeSpecifier(*$2, @2)), @2);
+		$$ = make_shared<const DefaultValueExpression>(@$, make_shared<CompoundTypeSpecifier>(*$2), @2);
 	}
 	| expression WITH member_instantiation_block
 	{
@@ -775,12 +804,14 @@ struct_declaration_statement:
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($5);
 		ModifierListRef modifier_list = ModifierList::From(ModifierList::Reverse($1));
-		$$ = make_shared<StructDeclarationStatement>(@$, $3, @3, member_declaration_list, @5, modifier_list, @1);
+		const_shared_ptr<CompoundTypeSpecifier> type = make_shared<CompoundTypeSpecifier>(*$3);
+		$$ = make_shared<StructDeclarationStatement>(@$, type, $3, @3, member_declaration_list, @5, modifier_list, @1);
 	}
 	| STRUCT IDENTIFIER LBRACE declaration_list RBRACE
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
-		$$ = make_shared<StructDeclarationStatement>(@$, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
+		const_shared_ptr<CompoundTypeSpecifier> type = make_shared<CompoundTypeSpecifier>(*$2);
+		$$ = make_shared<StructDeclarationStatement>(@$, type, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 	;
 

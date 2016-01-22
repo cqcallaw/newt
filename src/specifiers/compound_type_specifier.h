@@ -30,8 +30,8 @@ class SymbolContext;
 
 class CompoundTypeSpecifier: public TypeSpecifier {
 public:
-	CompoundTypeSpecifier(const string& type_name, const yy::location location) :
-			m_type_name(type_name), m_location(location) {
+	CompoundTypeSpecifier(const string& type_name) :
+			m_type_name(type_name) {
 	}
 	virtual ~CompoundTypeSpecifier() {
 	}
@@ -45,12 +45,7 @@ public:
 	}
 
 	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const {
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(other);
-		return as_compound
-				&& as_compound->GetTypeName().compare(m_type_name) == 0;
-	}
+			const_shared_ptr<TypeSpecifier> other) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
@@ -65,17 +60,8 @@ public:
 
 	virtual bool operator==(const TypeSpecifier& other) const;
 
-	virtual bool operator!=(const TypeSpecifier &other) const {
-		return !(*this == other);
-	}
-
-	const yy::location GetLocation() const {
-		return m_location;
-	}
-
 private:
 	const string m_type_name;
-	const yy::location m_location;
 };
 
 #endif /* SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_ */

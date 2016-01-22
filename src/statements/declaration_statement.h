@@ -30,28 +30,43 @@ using namespace std;
 
 class DeclarationStatement: public Statement {
 public:
-	DeclarationStatement(const yy::location position);
+	DeclarationStatement(const yy::location position,
+			const_shared_ptr<string> name, const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression);
 	virtual ~DeclarationStatement();
 
-	virtual const_shared_ptr<Expression> GetInitializerExpression() const = 0;
+	virtual const_shared_ptr<TypeSpecifier> GetType() const = 0;
+
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const = 0;
-	virtual const_shared_ptr<TypeSpecifier> GetType() const = 0;
-	virtual const_shared_ptr<string> GetName() const = 0;
 
-	virtual const AnalysisResult Returns(
+	virtual const ErrorListRef GetReturnStatementErrors(
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const shared_ptr<ExecutionContext> execution_context) const {
-		return AnalysisResult::NO;
+		return ErrorList::GetTerminator();
 	}
 
 	const yy::location GetPosition() const {
 		return m_position;
 	}
 
+	const const_shared_ptr<string> GetName() const {
+		return m_name;
+	}
+
+	const yy::location GetNamePosition() const {
+		return m_name_position;
+	}
+
+	const_shared_ptr<Expression> GetInitializerExpression() const {
+		return m_initializer_expression;
+	}
+
 private:
 	const yy::location m_position;
-
+	const_shared_ptr<string> m_name;
+	const yy::location m_name_position;
+	const_shared_ptr<Expression> m_initializer_expression;
 };
 
 typedef const LinkedList<const DeclarationStatement, NO_DUPLICATES> DeclarationList;

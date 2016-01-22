@@ -38,22 +38,12 @@ public:
 	virtual const string ToString() const;
 
 	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const {
-		const_shared_ptr<ArrayTypeSpecifier> as_array =
-				std::dynamic_pointer_cast<const ArrayTypeSpecifier>(other);
-		return as_array
-				&& m_element_type_specifier->IsAssignableTo(
-						as_array->GetElementTypeSpecifier());
-	}
+			const_shared_ptr<TypeSpecifier> other) const;
 
 	virtual const_shared_ptr<void> DefaultValue(
 			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier& other) const;
-
-	virtual bool operator!=(const TypeSpecifier &other) const {
-		return !(*this == other);
-	}
 
 	const_shared_ptr<TypeSpecifier> GetElementTypeSpecifier() const {
 		return m_element_type_specifier;

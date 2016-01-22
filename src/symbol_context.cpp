@@ -26,6 +26,7 @@
 #include <symbol_context.h>
 #include "symbol_table.h"
 #include <execution_context.h>
+#include <sum.h>
 
 #include "type.h"
 #include "utils.h"
@@ -146,6 +147,12 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<Function> value) {
+	return SetSymbol(identifier, value->GetType(),
+			static_pointer_cast<const void>(value));
+}
+
+SetResult SymbolContext::SetSymbol(const string& identifier,
+		const_shared_ptr<Sum> value) {
 	return SetSymbol(identifier, value->GetType(),
 			static_pointer_cast<const void>(value));
 }

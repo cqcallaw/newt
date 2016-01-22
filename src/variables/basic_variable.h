@@ -28,7 +28,7 @@ public:
 	BasicVariable(const_shared_ptr<string> name, const yy::location location);
 	virtual ~BasicVariable();
 
-	virtual const string* ToString(
+	virtual const_shared_ptr<string> ToString(
 			const shared_ptr<ExecutionContext> context) const;
 
 	static const_shared_ptr<Variable> GetDefaultVariable();
@@ -80,6 +80,10 @@ protected:
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Function> value) const;
+
+	virtual const ErrorListRef SetSymbol(
+			const shared_ptr<ExecutionContext> context,
+			const_shared_ptr<Sum> sum) const;
 
 };
 

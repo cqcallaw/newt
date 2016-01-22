@@ -26,6 +26,8 @@
 #include <statement_block.h>
 #include <constant_expression.h>
 #include <defaults.h>
+#include <sum_type_specifier.h>
+#include <sum.h>
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
@@ -151,8 +153,22 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		if (ErrorList::IsTerminator(errors)) {
 			errors = ErrorList::Concatenate(errors,
 					m_body->execute(final_execution_context));
-			auto result = final_execution_context->GetReturnValue();
+			plain_shared_ptr<Symbol> evaluation_result =
+					final_execution_context->GetReturnValue();
 			final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+
+			plain_shared_ptr<void> result = evaluation_result->GetValue();
+			auto as_sum = dynamic_pointer_cast<const SumTypeSpecifier>(
+					m_declaration->GetReturnType());
+			if (as_sum) {
+				auto evaluation_result_type = evaluation_result->GetType();
+				if (as_sum != evaluation_result_type) {
+					//we're returning a narrower type than the return type; perform boxing
+					result = make_shared<Sum>(as_sum, evaluation_result_type,
+							evaluation_result->GetValue());
+				}
+			}
+
 			return make_shared<Result>(result, errors);
 		} else {
 			return make_shared<Result>(nullptr, errors);

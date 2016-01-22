@@ -47,7 +47,7 @@ public:
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const AnalysisResult Returns(
+	virtual const ErrorListRef GetReturnStatementErrors(
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const shared_ptr<ExecutionContext> execution_context) const;
 
