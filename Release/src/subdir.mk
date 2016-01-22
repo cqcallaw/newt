@@ -18,8 +18,10 @@ CPP_SRCS += \
 ../src/member_definition.cpp \
 ../src/member_instantiation.cpp \
 ../src/newt.cpp \
+../src/sum.cpp \
 ../src/symbol.cpp \
 ../src/symbol_context.cpp \
+../src/symbol_context_list.cpp \
 ../src/symbol_table.cpp \
 ../src/type.cpp \
 ../src/type_table.cpp \
@@ -40,8 +42,10 @@ OBJS += \
 ./src/member_definition.o \
 ./src/member_instantiation.o \
 ./src/newt.o \
+./src/sum.o \
 ./src/symbol.o \
 ./src/symbol_context.o \
+./src/symbol_context_list.o \
 ./src/symbol_table.o \
 ./src/type.o \
 ./src/type_table.o \
@@ -62,8 +66,10 @@ CPP_DEPS += \
 ./src/member_definition.d \
 ./src/member_instantiation.d \
 ./src/newt.d \
+./src/sum.d \
 ./src/symbol.d \
 ./src/symbol_context.d \
+./src/symbol_context_list.d \
 ./src/symbol_table.d \
 ./src/type.d \
 ./src/type_table.d \
