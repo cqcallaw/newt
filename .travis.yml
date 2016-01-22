@@ -3,5 +3,6 @@ dist: trusty
 language: cpp
 
 script:
-  - make -C Release all test
+  - make -C Release all
+  - make -C Release test
 
