@@ -2,6 +2,10 @@ sudo: required
 dist: trusty
 language: cpp
 
+branches:
+  except:
+    - dev
+
 script:
   - make -C Release all
   - make -C Release test
