@@ -1,5 +1,7 @@
 # newt
 
+[![Join the chat at https://gitter.im/cqcallaw/newt](https://badges.gitter.im/cqcallaw/newt.svg)](https://gitter.im/cqcallaw/newt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/cqcallaw/newt.svg?branch=master)](https://travis-ci.org/cqcallaw/newt)
 
 newt is an exploration of type safety and immutability, aiming to combine the succinctness and expressiveness of languages such as Python and Ruby with the type safety and semantic analysis found in other languages such as C and C++.
