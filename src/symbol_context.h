@@ -58,9 +58,6 @@ public:
 	SymbolContext(const SymbolContext&);
 	virtual ~SymbolContext();
 
-	/**
-	 * Clone the context. N.B. that the parent contexts are not cloned.
-	 */
 	volatile_shared_ptr<SymbolContext> Clone() const;
 
 	const Modifier::Type GetModifiers() const {
