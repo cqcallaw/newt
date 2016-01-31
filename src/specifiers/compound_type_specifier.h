@@ -21,6 +21,7 @@
 #define SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_
 
 #include <compound_type_instance.h>
+#include <namespace_qualifier.h>
 #include <type_specifier.h>
 #include <type_table.h>
 
@@ -31,8 +32,15 @@ class SymbolContext;
 class CompoundTypeSpecifier: public TypeSpecifier {
 public:
 	CompoundTypeSpecifier(const string& type_name) :
-			m_type_name(type_name) {
+			CompoundTypeSpecifier(type_name,
+					NamespaceQualifierList::GetTerminator()) {
 	}
+
+	CompoundTypeSpecifier(const string& type_name,
+			const NamespaceQualifierListRef space) :
+			m_type_name(type_name), m_space(space) {
+	}
+
 	virtual ~CompoundTypeSpecifier() {
 	}
 
@@ -62,6 +70,7 @@ public:
 
 private:
 	const string m_type_name;
+	const NamespaceQualifierListRef m_space;
 };
 
 #endif /* SPECIFIERS_COMPOUND_TYPE_SPECIFIER_H_ */

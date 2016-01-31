@@ -42,8 +42,8 @@ const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 		symbol_table->InsertSymbol(member_name, symbol);
 	}
 
-	const_shared_ptr<CompoundTypeSpecifier> type_specifier = const_shared_ptr<
-			CompoundTypeSpecifier>(new CompoundTypeSpecifier(type_name));
+	const_shared_ptr<CompoundTypeSpecifier> type_specifier = make_shared<
+			CompoundTypeSpecifier>(type_name);
 
 	return make_shared<CompoundTypeInstance>(
 			CompoundTypeInstance(type_specifier, symbol_table));

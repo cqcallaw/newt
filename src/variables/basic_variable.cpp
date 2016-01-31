@@ -32,7 +32,12 @@
 
 BasicVariable::BasicVariable(const_shared_ptr<string> name,
 		const yy::location location) :
-		Variable(name, location) {
+		BasicVariable(name, location, NamespaceQualifierList::GetTerminator()) {
+}
+
+BasicVariable::BasicVariable(const_shared_ptr<string> name,
+		const yy::location location, const NamespaceQualifierListRef space) :
+		Variable(name, location), m_space(space) {
 }
 
 BasicVariable::~BasicVariable() {
@@ -313,7 +318,8 @@ const_shared_ptr<Variable> BasicVariable::GetDefaultVariable() {
 	static const_shared_ptr<string> name = const_shared_ptr<string>(
 			new string("!!!!!DefaultVariable!!!!!"));
 	static const const_shared_ptr<Variable> instance =
-			make_shared<BasicVariable>(name, GetDefaultLocation());
+			make_shared<BasicVariable>(name, GetDefaultLocation(),
+					NamespaceQualifierList::GetTerminator());
 
 	return instance;
 }

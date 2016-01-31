@@ -53,6 +53,7 @@
 #include <function_type_specifier.h>
 #include <function_declaration.h>
 #include <sum_type_specifier.h>
+#include <namespace_qualifier.h>
 
 class Driver;
 
@@ -142,6 +143,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	LBRACKET            "["
 	RBRACKET            "]"
 	COLON               ":"
+	DOUBLE_COLON        "::"
 	SEMICOLON           ";"
 	COMMA               ","
 	PERIOD              "."
@@ -213,6 +215,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<FunctionDeclaration>> function_declaration
 %type <plain_shared_ptr<FunctionTypeSpecifier>> function_type_specifier
 %type <plain_shared_ptr<SumTypeSpecifier>> sum_type_specifier
+%type <plain_shared_ptr<CompoundTypeSpecifier>> compound_type_specifier
 %type <TypeSpecifierListRef> sum_type_specifier_list
 %type <plain_shared_ptr<Expression>> expression
 %type <plain_shared_ptr<Expression>> variable_expression
@@ -253,6 +256,9 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<Dimension>> dimension
 %type <DimensionListRef> dimensions
 
+%type <plain_shared_ptr<NamespaceQualifier>> namespace_qualifier
+%type <NamespaceQualifierListRef> namespace_qualifier_list
+
 %printer { yyoutput << $$; } <*>;
 
 %% // begin rules
@@ -287,7 +293,7 @@ variable_declaration:
 		const_shared_ptr<ArrayTypeSpecifier> array_type_specifier = std::dynamic_pointer_cast<const ArrayTypeSpecifier>(type_specifier);
 		$$ = make_shared<ArrayDeclarationStatement>(@$, array_type_specifier, @3, $1, @1, $5);
 	}
-	| IDENTIFIER COLON IDENTIFIER optional_initializer
+	| IDENTIFIER COLON compound_type_specifier optional_initializer
 	{
 		auto type_specifier = make_shared<CompoundTypeSpecifier>(*$3);
 		$$ = make_shared<StructInstantiationStatement>(@$, type_specifier, @3, $1, @1, $4);
@@ -365,14 +371,27 @@ sum_type_specifier_list:
 	}
 
 //---------------------------------------------------------------------
+compound_type_specifier:
+	IDENTIFIER
+	{
+		$$ = make_shared<CompoundTypeSpecifier>(*$1, NamespaceQualifierList::GetTerminator());
+	}
+	| namespace_qualifier_list IDENTIFIER
+	{
+		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
+		$$ = make_shared<CompoundTypeSpecifier>(*$2, namespace_qualifier_list);
+	}
+	;
+
+//---------------------------------------------------------------------
 type_specifier:
 	primitive_type_specifier
 	{
 		$$ = $1;
 	}
-	| IDENTIFIER
+	| compound_type_specifier
 	{
-		$$ = make_shared<CompoundTypeSpecifier>(*$1);
+		$$ = $1;
 	}
 	| function_type_specifier
 	{
@@ -531,6 +550,11 @@ variable_reference:
 	{
 		$$ = make_shared<BasicVariable>($1, @1);
 	}
+	| namespace_qualifier_list IDENTIFIER
+	{
+		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
+		$$ = make_shared<BasicVariable>($2, @2, namespace_qualifier_list);
+	}
 	| variable_reference LBRACKET expression RBRACKET
 	{
 		$$ = make_shared<ArrayVariable>($1, $3);
@@ -636,9 +660,9 @@ expression:
 	{
 		$$ = make_shared<const DefaultValueExpression>(@$, const_shared_ptr<TypeSpecifier>($2), @2);
 	}
-	| AT IDENTIFIER
+	| AT compound_type_specifier
 	{
-		$$ = make_shared<const DefaultValueExpression>(@$, make_shared<CompoundTypeSpecifier>(*$2), @2);
+		$$ = make_shared<const DefaultValueExpression>(@$, $2, @2);
 	}
 	| expression WITH member_instantiation_block
 	{
@@ -870,6 +894,26 @@ dimension:
 	LBRACKET RBRACKET
 	{
 		$$ = make_shared<Dimension>(Dimension(@$));
+	}
+	;
+
+//---------------------------------------------------------------------
+namespace_qualifier_list:
+	namespace_qualifier_list namespace_qualifier
+	{
+		$$ = NamespaceQualifierList::From($2, $1);
+	}
+	| namespace_qualifier
+	{
+		$$ = NamespaceQualifierList::From($1, NamespaceQualifierList::GetTerminator());
+	}
+	;
+
+//---------------------------------------------------------------------
+namespace_qualifier:
+	IDENTIFIER DOUBLE_COLON
+	{
+		$$ = make_shared<NamespaceQualifier>($1);
 	}
 	;
 

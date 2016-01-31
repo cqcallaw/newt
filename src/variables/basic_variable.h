@@ -26,6 +26,8 @@
 class BasicVariable: public Variable {
 public:
 	BasicVariable(const_shared_ptr<string> name, const yy::location location);
+	BasicVariable(const_shared_ptr<string> name, const yy::location location,
+			const NamespaceQualifierListRef space);
 	virtual ~BasicVariable();
 
 	virtual const_shared_ptr<string> ToString(
@@ -51,6 +53,10 @@ public:
 			const_shared_ptr<Expression> expression,
 			const shared_ptr<ExecutionContext> output_context,
 			const AssignmentType op) const;
+
+	const NamespaceQualifierListRef GetSpace() const {
+		return m_space;
+	}
 
 protected:
 	virtual const ErrorListRef SetSymbol(
@@ -85,6 +91,8 @@ protected:
 			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Sum> sum) const;
 
+private:
+	const NamespaceQualifierListRef m_space;
 };
 
 #endif /* VARIABLES_BASIC_VARIABLE_H_ */

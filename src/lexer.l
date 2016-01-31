@@ -72,6 +72,7 @@ blank   [ \t\r]
 "="             return yy::newt_parser::make_EQUALS(loc);
 "{"             return yy::newt_parser::make_LBRACE(loc);
 "}"             return yy::newt_parser::make_RBRACE(loc);
+"::"            return yy::newt_parser::make_DOUBLE_COLON(loc);
 ":"             return yy::newt_parser::make_COLON(loc);
 ";"             return yy::newt_parser::make_SEMICOLON(loc);
 ","             return yy::newt_parser::make_COMMA(loc);
