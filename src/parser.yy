@@ -274,22 +274,9 @@ variable_declaration:
 	{
 		$$ = make_shared<PrimitiveDeclarationStatement>(@$, $3, @3, $1, @1, $4);
 	}
-	| IDENTIFIER COLON primitive_type_specifier dimensions optional_initializer
+	| IDENTIFIER COLON type_specifier dimensions optional_initializer
 	{
 		plain_shared_ptr<TypeSpecifier> type_specifier = $3;
-		//add dimensions to type specifier
-		DimensionListRef dimension = $4;
-		while (!DimensionList::IsTerminator(dimension)) {
-			type_specifier = make_shared<ArrayTypeSpecifier>(type_specifier);
-			dimension = dimension->GetNext();
-		}
-
-		const_shared_ptr<ArrayTypeSpecifier> array_type_specifier = std::dynamic_pointer_cast<const ArrayTypeSpecifier>(type_specifier);
-		$$ = make_shared<ArrayDeclarationStatement>(@$, array_type_specifier, @3, $1, @1, $5);
-	}
-	| IDENTIFIER COLON IDENTIFIER dimensions optional_initializer
-	{
-		plain_shared_ptr<TypeSpecifier> type_specifier = make_shared<CompoundTypeSpecifier>(*$3);
 		//add dimensions to type specifier
 		DimensionListRef dimension = $4;
 		while (!DimensionList::IsTerminator(dimension)) {
