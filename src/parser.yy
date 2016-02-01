@@ -295,8 +295,7 @@ variable_declaration:
 	}
 	| IDENTIFIER COLON compound_type_specifier optional_initializer
 	{
-		auto type_specifier = make_shared<CompoundTypeSpecifier>(*$3);
-		$$ = make_shared<StructInstantiationStatement>(@$, type_specifier, @3, $1, @1, $4);
+		$$ = make_shared<StructInstantiationStatement>(@$, $3, @3, $1, @1, $4);
 	}
 	| IDENTIFIER COLON function_type_specifier optional_initializer
 	{
