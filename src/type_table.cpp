@@ -18,7 +18,7 @@
  */
 
 #include <type_table.h>
-#include <compound_type.h>
+#include <record_type.h>
 
 TypeTable::TypeTable() :
 		table(make_shared<type_map>()) {
@@ -27,39 +27,20 @@ TypeTable::TypeTable() :
 TypeTable::~TypeTable() {
 }
 
-void TypeTable::AddType(const string& name,
-		const_shared_ptr<CompoundType> definition) {
+void TypeTable::AddType(const std::string& name,
+		const_shared_ptr<TypeDefinition> definition) {
 	table->insert(
-			pair<const string, const_shared_ptr<CompoundType>>(name,
+			pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
 					definition));
 }
 
-const_shared_ptr<CompoundType> TypeTable::GetType(const string& name) const {
-	auto result = table->find(name);
-
-	if (result != table->end()) {
-		return result->second;
-	}
-
-	return CompoundType::GetDefaultCompoundType();
-}
-
-const_shared_ptr<void> TypeTable::GetDefaultValue(
-		const string& type_name) const {
-	const_shared_ptr<CompoundType> type = GetType(type_name);
-	if (type != CompoundType::GetDefaultCompoundType()) {
-		return CompoundTypeInstance::GetDefaultInstance(type_name, type);
-	} else {
-		return nullptr;
-	}
-}
-
-const void TypeTable::print(ostream& os) const {
+const void TypeTable::print(ostream& os, const Indent& indent) const {
 	type_map::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {
+		os << indent;
 		os << iter->first << ": " << endl;
-		const_shared_ptr<CompoundType> type = iter->second;
-		os << type->ToString(*this, Indent(0));
+		const_shared_ptr<TypeDefinition> type = iter->second;
+		os << type->ToString(*this, indent);
 	}
 }
 

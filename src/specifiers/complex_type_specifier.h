@@ -17,16 +17,16 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <declaration_statement.h>
+#ifndef SPECIFIERS_COMPLEX_TYPE_SPECIFIER_H_
+#define SPECIFIERS_COMPLEX_TYPE_SPECIFIER_H_
 
-DeclarationStatement::DeclarationStatement(const yy::location position,
-		const_shared_ptr<string> name, const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression,
-		ModifierListRef modifier_list, const yy::location modifier_list_location) :
-		m_position(position), m_name(name), m_name_position(name_position), m_initializer_expression(
-				initializer_expression), m_modifier_list(modifier_list), m_modifier_list_location(
-				modifier_list_location) {
-}
+#include <type_specifier.h>
+#include <namespace_qualifier.h>
 
-DeclarationStatement::~DeclarationStatement() {
-}
+class ComplexTypeSpecifier: public TypeSpecifier {
+public:
+	virtual const std::string GetTypeName() const = 0;
+	virtual const NamespaceQualifierListRef GetNamespace() const = 0;
+};
+
+#endif /* SPECIFIERS_COMPLEX_TYPE_SPECIFIER_H_ */

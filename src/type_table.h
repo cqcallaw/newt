@@ -24,24 +24,36 @@
 #include <type.h>
 #include <map>
 
-class CompoundType;
+class TypeDefinition;
+class RecordType;
 
-using namespace std;
+typedef map<const string, const_shared_ptr<TypeDefinition>> type_map;
 
-typedef map<const string, const_shared_ptr<CompoundType>> type_map;
+class Indent;
 
 class TypeTable {
 public:
 	TypeTable();
 	virtual ~TypeTable();
 
-	void AddType(const string& name, const_shared_ptr<CompoundType> definition);
+	void AddType(const string& name,
+			const_shared_ptr<TypeDefinition> definition);
 
-	const_shared_ptr<CompoundType> GetType(const string& name) const;
+	template<class T> const shared_ptr<const T> GetType(
+			const std::string& name) const {
+		auto result = table->find(name);
 
-	const_shared_ptr<void> GetDefaultValue(const string& type_name) const;
+		if (result != table->end()) {
+			auto cast = dynamic_pointer_cast<const T>(result->second);
+			if (cast) {
+				return cast;
+			}
+		}
 
-	const void print(ostream &os) const;
+		return shared_ptr<const T>();
+	}
+
+	const void print(ostream &os, const Indent& indent) const;
 
 	const static string DefaultTypeName;
 

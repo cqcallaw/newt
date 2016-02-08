@@ -17,23 +17,20 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_SUM_DECLARATION_STATEMENT_H_
-#define STATEMENTS_SUM_DECLARATION_STATEMENT_H_
+#ifndef STATEMENTS_NESTED_DECLARATION_STATEMENT_H_
+#define STATEMENTS_NESTED_DECLARATION_STATEMENT_H_
 
 #include <declaration_statement.h>
-#include <complex_type_specifier.h>
+#include <nested_type_specifier.h>
 
-class SumTypeSpecifier;
-class Symbol;
-
-class SumDeclarationStatement: public DeclarationStatement {
+class NestedDeclarationStatement: public DeclarationStatement {
 public:
-	SumDeclarationStatement(const yy::location position,
-			const_shared_ptr<ComplexTypeSpecifier> type,
-			const_shared_ptr<string> name, const yy::location name_location,
-			const DeclarationListRef variant_list,
-			const yy::location variant_list_location);
-	virtual ~SumDeclarationStatement();
+	NestedDeclarationStatement(const yy::location position,
+			const_shared_ptr<NestedTypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression = nullptr);
+	virtual ~NestedDeclarationStatement();
 
 	virtual const ErrorListRef preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const;
@@ -44,12 +41,17 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
 
-	virtual const_shared_ptr<TypeSpecifier> GetType() const;
+	const const_shared_ptr<TypeSpecifier> GetType() const {
+		return m_type;
+	}
+
+	const yy::location GetTypePosition() const {
+		return m_type_position;
+	}
 
 private:
-	DeclarationListRef m_variant_list;
-	const yy::location m_variant_list_location;
-	const_shared_ptr<SumTypeSpecifier> m_type;
+	const_shared_ptr<NestedTypeSpecifier> m_type;
+	const yy::location m_type_position;
 };
 
-#endif /* STATEMENTS_SUM_DECLARATION_STATEMENT_H_ */
+#endif /* STATEMENTS_NESTED_DECLARATION_STATEMENT_H_ */

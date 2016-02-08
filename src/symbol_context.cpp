@@ -17,7 +17,6 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <compound_type_instance.h>
 #include <function.h>
 #include <function_declaration.h>
 #include <iostream>
@@ -26,6 +25,7 @@
 #include <symbol_context.h>
 #include "symbol_table.h"
 #include <execution_context.h>
+#include <record.h>
 #include <sum.h>
 
 #include "type.h"
@@ -134,7 +134,7 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<CompoundTypeInstance> value) {
+		const_shared_ptr<Record> value) {
 	return SetSymbol(identifier, value->GetTypeSpecifier(),
 			static_pointer_cast<const void>(value));
 }

@@ -34,7 +34,8 @@ FunctionDeclarationStatement::FunctionDeclarationStatement(
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position, name, name_position,
-				initializer_expression), m_type(type), m_type_position(
+				initializer_expression, ModifierList::GetTerminator(),
+				GetDefaultLocation()), m_type(type), m_type_position(
 				type_position) {
 }
 
@@ -73,8 +74,8 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 
 		if (ErrorList::IsTerminator(errors)) {
 			auto value = m_type->DefaultValue(*type_table);
-			auto symbol = const_shared_ptr<Symbol>(
-					new Symbol(static_pointer_cast<const Function>(value)));
+			auto symbol = make_shared<Symbol>(
+					static_pointer_cast<const Function>(value));
 
 			volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
 					SymbolTable>(execution_context);

@@ -22,7 +22,7 @@
 #include <expression.h>
 #include <primitive_declaration_statement.h>
 #include <array_declaration_statement.h>
-#include <struct_instantiation_statement.h>
+#include <complex_instantiation_statement.h>
 #include <function_declaration_statement.h>
 #include <function_type_specifier.h>
 #include <function_expression.h>
@@ -33,7 +33,8 @@ InferredDeclarationStatement::InferredDeclarationStatement(
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position, name, name_position,
-				initializer_expression) {
+				initializer_expression, ModifierList::GetTerminator(),
+				GetDefaultLocation()) {
 	assert(initializer_expression);
 }
 

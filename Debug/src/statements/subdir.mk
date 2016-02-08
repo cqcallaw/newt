@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../src/statements/array_declaration_statement.cpp \
 ../src/statements/assignment_statement.cpp \
+../src/statements/complex_instantiation_statement.cpp \
 ../src/statements/declaration_statement.cpp \
 ../src/statements/exit_statement.cpp \
 ../src/statements/for_statement.cpp \
@@ -13,17 +14,18 @@ CPP_SRCS += \
 ../src/statements/if_statement.cpp \
 ../src/statements/inferred_declaration_statement.cpp \
 ../src/statements/invoke_statement.cpp \
+../src/statements/nested_declaration_statement.cpp \
 ../src/statements/primitive_declaration_statement.cpp \
 ../src/statements/print_statement.cpp \
+../src/statements/record_declaration_statement.cpp \
 ../src/statements/return_statement.cpp \
 ../src/statements/statement_block.cpp \
-../src/statements/struct_declaration_statement.cpp \
-../src/statements/struct_instantiation_statement.cpp \
 ../src/statements/sum_declaration_statement.cpp 
 
 OBJS += \
 ./src/statements/array_declaration_statement.o \
 ./src/statements/assignment_statement.o \
+./src/statements/complex_instantiation_statement.o \
 ./src/statements/declaration_statement.o \
 ./src/statements/exit_statement.o \
 ./src/statements/for_statement.o \
@@ -31,17 +33,18 @@ OBJS += \
 ./src/statements/if_statement.o \
 ./src/statements/inferred_declaration_statement.o \
 ./src/statements/invoke_statement.o \
+./src/statements/nested_declaration_statement.o \
 ./src/statements/primitive_declaration_statement.o \
 ./src/statements/print_statement.o \
+./src/statements/record_declaration_statement.o \
 ./src/statements/return_statement.o \
 ./src/statements/statement_block.o \
-./src/statements/struct_declaration_statement.o \
-./src/statements/struct_instantiation_statement.o \
 ./src/statements/sum_declaration_statement.o 
 
 CPP_DEPS += \
 ./src/statements/array_declaration_statement.d \
 ./src/statements/assignment_statement.d \
+./src/statements/complex_instantiation_statement.d \
 ./src/statements/declaration_statement.d \
 ./src/statements/exit_statement.d \
 ./src/statements/for_statement.d \
@@ -49,12 +52,12 @@ CPP_DEPS += \
 ./src/statements/if_statement.d \
 ./src/statements/inferred_declaration_statement.d \
 ./src/statements/invoke_statement.d \
+./src/statements/nested_declaration_statement.d \
 ./src/statements/primitive_declaration_statement.d \
 ./src/statements/print_statement.d \
+./src/statements/record_declaration_statement.d \
 ./src/statements/return_statement.d \
 ./src/statements/statement_block.d \
-./src/statements/struct_declaration_statement.d \
-./src/statements/struct_instantiation_statement.d \
 ./src/statements/sum_declaration_statement.d 
 
 

@@ -106,6 +106,7 @@ blank   [ \t\r]
 "readonly"      return yy::newt_parser::make_READONLY(loc);
 "with"          return yy::newt_parser::make_WITH(loc);
 "return"        return yy::newt_parser::make_RETURN(loc);
+"sum"           return yy::newt_parser::make_SUM(loc);
 
 "true"          return yy::newt_parser::make_TRUE(true, loc);
 "false"         return yy::newt_parser::make_FALSE(false, loc);

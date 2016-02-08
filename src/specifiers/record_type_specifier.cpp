@@ -17,57 +17,56 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <array_type_specifier.h>
-#include <array.h>
+#include <complex_instantiation_statement.h>
 #include <typeinfo>
-#include <array_declaration_statement.h>
 #include <expression.h>
+#include <record_type.h>
+#include <record.h>
+#include <record_type_specifier.h>
+#include <sum_type_specifier.h>
 
-const string ArrayTypeSpecifier::ToString() const {
-	ostringstream buffer;
-
-	buffer << m_element_type_specifier->ToString();
-	buffer << "[]";
-	return buffer.str();
-}
-
-bool ArrayTypeSpecifier::operator ==(const TypeSpecifier& other) const {
+bool RecordTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
-		const ArrayTypeSpecifier& as_array =
-				dynamic_cast<const ArrayTypeSpecifier&>(other);
-		return *GetElementTypeSpecifier() == *as_array.GetElementTypeSpecifier();
+		const RecordTypeSpecifier& as_record =
+				dynamic_cast<const RecordTypeSpecifier&>(other);
+		return GetTypeName() == as_record.GetTypeName();
 	} catch (std::bad_cast& e) {
 		return false;
 	}
 }
 
-const_shared_ptr<DeclarationStatement> ArrayTypeSpecifier::GetDeclarationStatement(
+const_shared_ptr<DeclarationStatement> RecordTypeSpecifier::GetDeclarationStatement(
 		const yy::location position, const_shared_ptr<TypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<ArrayDeclarationStatement>(position,
-			static_pointer_cast<const ArrayTypeSpecifier>(type), type_position,
-			name, name_position, initializer_expression);
+	return make_shared<ComplexInstantiationStatement>(position,
+			static_pointer_cast<const RecordTypeSpecifier>(type),
+			type_position, name, name_position, initializer_expression);
 }
 
-const_shared_ptr<void> ArrayTypeSpecifier::DefaultValue(
-		const TypeTable& type_table) const {
-	return const_shared_ptr<void>(
-			new Array(m_element_type_specifier, type_table));
-}
-
-const bool ArrayTypeSpecifier::IsAssignableTo(
+const bool RecordTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other) const {
 //	const_shared_ptr<StructuralSumTypeSpecifier> as_sum = dynamic_pointer_cast<
 //			const StructuralSumTypeSpecifier>(other);
 //	if (as_sum) {
 //		return as_sum->ContainsType(*this, ALLOW_WIDENING);
 //	}
-//
-	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
-			const ArrayTypeSpecifier>(other);
-	return as_array
-			&& m_element_type_specifier->IsAssignableTo(
-					as_array->GetElementTypeSpecifier());
+
+	const_shared_ptr<RecordTypeSpecifier> as_record =
+			std::dynamic_pointer_cast<const RecordTypeSpecifier>(other);
+	return as_record && as_record->GetTypeName().compare(m_type_name) == 0;
+}
+
+const_shared_ptr<void> RecordTypeSpecifier::DefaultValue(
+		const TypeTable& type_table) const {
+	const_shared_ptr<RecordType> type = type_table.GetType<RecordType>(
+			m_type_name);
+
+	//this result cannot be cached because the type table is mutable
+	if (type) {
+		return Record::GetDefaultInstance(m_type_name, type);
+	} else {
+		return const_shared_ptr<RecordType>(); //ugh, nulls
+	}
 }

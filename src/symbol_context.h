@@ -26,7 +26,7 @@
 #include <modifier.h>
 #include <symbol.h>
 
-class CompoundTypeInstance;
+class Record;
 class Function;
 
 using namespace std;
@@ -89,7 +89,7 @@ public:
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<Array> value);
 	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<CompoundTypeInstance> value);
+			const_shared_ptr<Record> value);
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<Function> value);
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<Sum> value);

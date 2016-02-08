@@ -17,13 +17,13 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <compound_type_instance.h>
 #include <member_definition.h>
 #include <function_type_specifier.h>
+#include <record.h>
 #include <symbol_table.h>
 
-const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
-		const string& type_name, const_shared_ptr<CompoundType> type) {
+const_shared_ptr<Record> Record::GetDefaultInstance(
+		const string& type_name, const_shared_ptr<RecordType> type) {
 	auto symbol_mapping = make_shared<symbol_map>();
 
 	plain_shared_ptr<definition_map> type_definition = type->GetDefinition();
@@ -42,14 +42,14 @@ const_shared_ptr<CompoundTypeInstance> CompoundTypeInstance::GetDefaultInstance(
 		symbol_table->InsertSymbol(member_name, symbol);
 	}
 
-	const_shared_ptr<CompoundTypeSpecifier> type_specifier = make_shared<
-			CompoundTypeSpecifier>(type_name);
+	const_shared_ptr<RecordTypeSpecifier> type_specifier = make_shared<
+			RecordTypeSpecifier>(type_name);
 
-	return make_shared<CompoundTypeInstance>(
-			CompoundTypeInstance(type_specifier, symbol_table));
+	return make_shared<Record>(
+			Record(type_specifier, symbol_table));
 }
 
-const_shared_ptr<Symbol> CompoundTypeInstance::GetSymbol(
+const_shared_ptr<Symbol> Record::GetSymbol(
 		const_shared_ptr<TypeSpecifier> member_type,
 		const_shared_ptr<void> void_value) {
 	if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
@@ -67,10 +67,10 @@ const_shared_ptr<Symbol> CompoundTypeInstance::GetSymbol(
 	} else if (std::dynamic_pointer_cast<const ArrayTypeSpecifier>(member_type)
 			!= nullptr) {
 		return make_shared<Symbol>(static_pointer_cast<const Array>(void_value));
-	} else if (std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+	} else if (std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 			member_type)) {
 		return make_shared<Symbol>(
-				static_pointer_cast<const CompoundTypeInstance>(void_value));
+				static_pointer_cast<const Record>(void_value));
 	} else if (std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 			member_type)) {
 		return make_shared<Symbol>(
@@ -81,7 +81,7 @@ const_shared_ptr<Symbol> CompoundTypeInstance::GetSymbol(
 	}
 }
 
-const string CompoundTypeInstance::ToString(const TypeTable& type_table,
+const string Record::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
 	m_definition->print(buffer, type_table, indent);

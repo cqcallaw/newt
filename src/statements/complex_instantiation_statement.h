@@ -17,8 +17,8 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_STRUCT_INSTANTIATION_STATEMENT_H_
-#define STATEMENTS_STRUCT_INSTANTIATION_STATEMENT_H_
+#ifndef STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_
+#define STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_
 
 #include <statement.h>
 #include <string>
@@ -27,18 +27,18 @@
 
 class Symbol;
 class Expression;
-class CompoundTypeSpecifier;
+class ComplexTypeSpecifier;
 
 using namespace std;
 
-class StructInstantiationStatement: public DeclarationStatement {
+class ComplexInstantiationStatement: public DeclarationStatement {
 public:
-	StructInstantiationStatement(const yy::location position,
-			const_shared_ptr<CompoundTypeSpecifier> type_specifier,
+	ComplexInstantiationStatement(const yy::location position,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const yy::location type_name_position,
 			const_shared_ptr<string> name, const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression = nullptr);
-	virtual ~StructInstantiationStatement();
+	virtual ~ComplexInstantiationStatement();
 
 	const_shared_ptr<TypeSpecifier> GetType() const;
 
@@ -62,8 +62,8 @@ public:
 	}
 
 private:
-	const_shared_ptr<CompoundTypeSpecifier> m_type_specifier;
+	const_shared_ptr<ComplexTypeSpecifier> m_type_specifier;
 	const yy::location m_type_position;
 };
 
-#endif /* STATEMENTS_STRUCT_INSTANTIATION_STATEMENT_H_ */
+#endif /* STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_ */

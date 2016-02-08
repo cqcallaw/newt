@@ -1,0 +1,11 @@
+Parsing file ../tests/t6025.nwt...
+Parsed file ../tests/t6025.nwt.
+Root Symbol Table:
+----------------
+int t: 0
+
+Root Type Table:
+----------------
+test: 
+	double d (0)
+	int i (0)

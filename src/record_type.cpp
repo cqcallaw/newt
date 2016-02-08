@@ -17,62 +17,70 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <struct_declaration_statement.h>
-#include <error.h>
-#include <expression.h>
-#include <member_declaration.h>
-#include <type_table.h>
-#include <execution_context.h>
-#include <map>
+#include <record_type.h>
 #include <member_definition.h>
-#include <compound_type.h>
-#include <default_value_expression.h>
-#include <defaults.h>
+#include <sstream>
+#include <assert.h>
+#include <type_specifier.h>
+#include <memory>
+#include <symbol_table.h>
+#include <execution_context.h>
+#include <expression.h>
 
-StructDeclarationStatement::StructDeclarationStatement(
-		const yy::location position,
-		const_shared_ptr<CompoundTypeSpecifier> type,
-		const_shared_ptr<string> name, const yy::location name_position,
-		DeclarationListRef member_declaration_list,
-		const yy::location member_declaration_list_position,
-		ModifierListRef modifier_list, const yy::location modifiers_location) :
-		DeclarationStatement(position, name, name_position,
-				make_shared<DefaultValueExpression>(
-						DefaultValueExpression(GetDefaultLocation(), type,
-								member_declaration_list_position))), m_member_declaration_list(
-				member_declaration_list), m_member_declaration_list_position(
-				member_declaration_list_position), m_modifier_list(
-				modifier_list), m_modifiers_location(modifiers_location), m_type(
-				type) {
+RecordType::RecordType(const_shared_ptr<definition_map> definition,
+		const Modifier::Type modifiers) :
+		m_definition(definition), m_modifiers(modifiers) {
 }
 
-StructDeclarationStatement::~StructDeclarationStatement() {
-}
-
-const ErrorListRef StructDeclarationStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
-	auto type_table = execution_context->GetTypeTable();
-
-	Modifier::Type modifiers = Modifier::NONE;
-	ModifierListRef modifier_list = m_modifier_list;
-	while (!ModifierList::IsTerminator(modifier_list)) {
-		//TODO: check invalid modifiers
-		Modifier::Type new_modifier = modifier_list->GetData()->GetType();
-		modifiers = Modifier::Type(modifiers | new_modifier);
-		modifier_list = modifier_list->GetNext();
+const_shared_ptr<MemberDefinition> RecordType::GetMember(
+		const std::string& name) const {
+	auto result = m_definition->find(name);
+	if (result != m_definition->end()) {
+		return result->second;
+	} else {
+		return MemberDefinition::GetDefaultMemberDefinition();
 	}
+}
+
+RecordType::~RecordType() {
+}
+
+const string RecordType::ToString(const TypeTable& type_table,
+		const Indent& indent) const {
+	ostringstream os;
+	Indent child_indent = indent + 1;
+	definition_map::const_iterator type_iter;
+	for (type_iter = m_definition->begin(); type_iter != m_definition->end();
+			++type_iter) {
+		const string member_name = type_iter->first;
+		const_shared_ptr<MemberDefinition> member_definition = type_iter->second;
+		const_shared_ptr<TypeSpecifier> member_type =
+				member_definition->GetType();
+
+		os << child_indent << member_type->ToString() << " " << member_name
+				<< " (" << member_definition->ToString(type_table, child_indent)
+				<< ")";
+
+		os << endl;
+	}
+	return os.str();
+}
+
+const_shared_ptr<Result> RecordType::Build(
+		const_shared_ptr<ExecutionContext> context,
+		const Modifier::Type modifiers,
+		const DeclarationListRef member_declarations) {
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	//generate a temporary structure in which to perform evaluations
 	//of the member declaration statements
 	const shared_ptr<symbol_map> values = make_shared<symbol_map>();
 	volatile_shared_ptr<SymbolTable> member_buffer = make_shared<SymbolTable>(
 			Modifier::NONE, values);
-	shared_ptr<ExecutionContext> struct_context =
-			execution_context->WithContents(member_buffer);
+	shared_ptr<ExecutionContext> struct_context = context->WithContents(
+			member_buffer);
 
-	DeclarationListRef subject = m_member_declaration_list;
+	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
 		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
 
@@ -119,21 +127,11 @@ const ErrorListRef StructDeclarationStatement::preprocess(
 		}
 	}
 
-	auto type = make_shared<CompoundType>(mapping, modifiers);
-	type_table->AddType(*GetName(), type);
-	return errors;
+	auto type = make_shared<RecordType>(mapping, modifiers);
+	return make_shared<Result>(type, errors);
 }
 
-const ErrorListRef StructDeclarationStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
-	return ErrorList::GetTerminator();
-}
-
-const DeclarationStatement* StructDeclarationStatement::WithInitializerExpression(
-		const_shared_ptr<Expression> expression) const {
-	//no-op
-	return new StructDeclarationStatement(GetPosition(), m_type, GetName(),
-			GetNamePosition(), m_member_declaration_list,
-			m_member_declaration_list_position, m_modifier_list,
-			m_modifiers_location);
+const_shared_ptr<TypeSpecifier> RecordType::GetMemberType(
+		const std::string& member_name) const {
+	return GetMember(member_name)->GetType();
 }

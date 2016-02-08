@@ -5,7 +5,7 @@
  *      Author: caleb
  */
 
-#include <compound_type.h>
+#include <record_type.h>
 #include <member_variable.h>
 #include <execution_context.h>
 #include <symbol_table.h>
@@ -26,13 +26,13 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
 		const shared_ptr<ExecutionContext> context) const {
 	const_shared_ptr<TypeSpecifier> container_type_specifier =
 			m_container->GetType(context);
-	const_shared_ptr<CompoundTypeSpecifier> as_compound_type =
-			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+	const_shared_ptr<RecordTypeSpecifier> as_record_type =
+			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 					container_type_specifier);
-	if (as_compound_type) {
-		const_shared_ptr<CompoundTypeInstance> instance =
-				std::static_pointer_cast<const CompoundTypeInstance>(
-						as_compound_type->DefaultValue(
+	if (as_record_type) {
+		const_shared_ptr<Record> instance =
+				std::static_pointer_cast<const Record>(
+						as_record_type->DefaultValue(
 								*context->GetTypeTable()));
 		auto new_context = context->WithContents(instance->GetDefinition());
 		const_shared_ptr<TypeSpecifier> result = m_member_variable->GetType(
@@ -57,18 +57,18 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 
 	const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 			context);
-	const_shared_ptr<CompoundTypeSpecifier> as_compound =
-			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+	const_shared_ptr<RecordTypeSpecifier> as_record =
+			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 					container_type);
 
 	if (container_type != PrimitiveTypeSpecifier::GetNone()) {
-		if (as_compound) {
+		if (as_record) {
 			const_shared_ptr<Result> container_result = m_container->Evaluate(
 					context);
 
 			errors = container_result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				auto instance = static_pointer_cast<const CompoundTypeInstance>(
+				auto instance = static_pointer_cast<const Record>(
 						container_result->GetData());
 				volatile_shared_ptr<SymbolContext> new_symbol_context =
 						instance->GetDefinition();
@@ -110,14 +110,14 @@ const ErrorListRef MemberVariable::SetSymbol(
 
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
 
-		if (as_compound) {
-			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+		if (as_record) {
+			auto instance = static_pointer_cast<const Record>(
 					container_result->GetData());
-			const string member_name = *(m_member_variable->GetName());
+			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
 		} else {
@@ -144,14 +144,14 @@ const ErrorListRef MemberVariable::SetSymbol(
 	if (ErrorList::Reverse(errors)) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
 
-		if (as_compound) {
-			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+		if (as_record) {
+			auto instance = static_pointer_cast<const Record>(
 					container_result->GetData());
-			const string member_name = *(m_member_variable->GetName());
+			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
 		} else {
@@ -178,14 +178,14 @@ const ErrorListRef MemberVariable::SetSymbol(
 	if (ErrorList::Reverse(errors)) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
 
-		if (as_compound) {
-			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+		if (as_record) {
+			auto instance = static_pointer_cast<const Record>(
 					container_result->GetData());
-			const string member_name = *(m_member_variable->GetName());
+			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
 		} else {
@@ -201,7 +201,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<string> value) const {
+		const_shared_ptr<std::string> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
@@ -212,14 +212,14 @@ const ErrorListRef MemberVariable::SetSymbol(
 	if (ErrorList::Reverse(errors)) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
 
-		if (as_compound) {
-			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+		if (as_record) {
+			auto instance = static_pointer_cast<const Record>(
 					container_result->GetData());
-			const string member_name = *(m_member_variable->GetName());
+			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
 		} else {
@@ -244,7 +244,7 @@ const ErrorListRef MemberVariable::AssignValue(
 	errors = container_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		//we're assigning a struct member reference
-		auto struct_value = static_pointer_cast<const CompoundTypeInstance>(
+		auto struct_value = static_pointer_cast<const Record>(
 				container_evaluation->GetData());
 		shared_ptr<SymbolContext> definition = struct_value->GetDefinition();
 
@@ -262,7 +262,7 @@ const ErrorListRef MemberVariable::AssignValue(
 
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<CompoundTypeInstance> value) const {
+		const_shared_ptr<Record> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
@@ -273,14 +273,14 @@ const ErrorListRef MemberVariable::SetSymbol(
 	if (ErrorList::Reverse(errors)) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
 
-		if (as_compound) {
-			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+		if (as_record) {
+			auto instance = static_pointer_cast<const Record>(
 					container_result->GetData());
-			const string member_name = *(m_member_variable->GetName());
+			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
 		} else {
@@ -307,14 +307,14 @@ const ErrorListRef MemberVariable::SetSymbol(
 	if (ErrorList::Reverse(errors)) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
 
-		if (as_compound) {
-			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+		if (as_record) {
+			auto instance = static_pointer_cast<const Record>(
 					container_result->GetData());
-			const string member_name = *(m_member_variable->GetName());
+			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
 		} else {
@@ -337,11 +337,11 @@ const ErrorListRef MemberVariable::Validate(
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
 
-		if (as_compound) {
+		if (as_record) {
 			const_shared_ptr<TypeSpecifier> variable_type = GetType(context);
 
 			if (variable_type == PrimitiveTypeSpecifier::GetNone()) {
@@ -351,7 +351,7 @@ const ErrorListRef MemberVariable::Validate(
 								m_member_variable->GetLocation().begin.line,
 								m_member_variable->GetLocation().begin.column,
 								*m_member_variable->GetName(),
-								as_compound->GetTypeName()), errors);
+								as_record->GetTypeName()), errors);
 			}
 		} else {
 			errors = ErrorList::From(

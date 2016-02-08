@@ -22,6 +22,7 @@
 
 #include <statement.h>
 #include <string>
+#include <modifier.h>
 
 class Expression;
 class TypeSpecifier;
@@ -32,7 +33,9 @@ class DeclarationStatement: public Statement {
 public:
 	DeclarationStatement(const yy::location position,
 			const_shared_ptr<string> name, const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression);
+			const_shared_ptr<Expression> initializer_expression,
+			ModifierListRef modifier_list,
+			const yy::location modifier_list_location);
 	virtual ~DeclarationStatement();
 
 	virtual const_shared_ptr<TypeSpecifier> GetType() const = 0;
@@ -62,11 +65,21 @@ public:
 		return m_initializer_expression;
 	}
 
+	ModifierListRef GetModifierList() const {
+		return m_modifier_list;
+	}
+
+	const yy::location GetModifierListLocation() const {
+		return m_modifier_list_location;
+	}
+
 private:
 	const yy::location m_position;
 	const_shared_ptr<string> m_name;
 	const yy::location m_name_position;
 	const_shared_ptr<Expression> m_initializer_expression;
+	ModifierListRef m_modifier_list;
+	const yy::location m_modifier_list_location;
 };
 
 typedef const LinkedList<const DeclarationStatement, NO_DUPLICATES> DeclarationList;

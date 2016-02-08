@@ -19,12 +19,12 @@
 
 #include <with_expression.h>
 #include <execution_context.h>
-#include <compound_type.h>
+#include <record_type.h>
 #include <member_definition.h>
 #include <member_instantiation.h>
-#include <compound_type_specifier.h>
 #include <assignment_statement.h>
 #include <basic_variable.h>
+#include <record_type_specifier.h>
 
 WithExpression::WithExpression(const yy::location position,
 		const_shared_ptr<Expression> source_expression,
@@ -55,20 +55,21 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 		const_shared_ptr<TypeSpecifier> type_specifier =
 				m_source_expression->GetType(execution_context);
 
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						type_specifier);
-		if (as_compound) {
-			const string type_name = as_compound->GetTypeName();
-			const_shared_ptr<CompoundType> type =
-					execution_context->GetTypeTable()->GetType(type_name);
+		if (as_record) {
+			const string type_name = as_record->GetTypeName();
+			const_shared_ptr<RecordType> type =
+					execution_context->GetTypeTable()->GetType<RecordType>(
+							type_name);
 
-			if (type != CompoundType::GetDefaultCompoundType()) {
+			if (type) {
 				auto raw_result = source_result->GetData();
-				auto as_compound = static_pointer_cast<
-						const CompoundTypeInstance>(raw_result);
+				auto as_record = static_pointer_cast<
+						const Record>(raw_result);
 				const_shared_ptr<SymbolContext> definition =
-						as_compound->GetDefinition();
+						as_record->GetDefinition();
 
 				//create a new context that isn't read-only and has no parent
 				volatile_shared_ptr<SymbolContext> new_symbol_context =
@@ -99,8 +100,8 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 				new_symbol_context = new_symbol_context->WithModifiers(
 						definition->GetModifiers());
 
-				new_value = std::make_shared<CompoundTypeInstance>(
-						as_compound->GetTypeSpecifier(), new_symbol_context);
+				new_value = std::make_shared<Record>(
+						as_record->GetTypeSpecifier(), new_symbol_context);
 
 			} else {
 				errors = ErrorList::From(
@@ -149,15 +150,16 @@ const ErrorListRef WithExpression::Validate(
 		const_shared_ptr<TypeSpecifier> type_specifier =
 				m_source_expression->GetType(execution_context);
 
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						type_specifier);
-		if (as_compound) {
-			const string type_name = as_compound->GetTypeName();
-			const_shared_ptr<CompoundType> type =
-					execution_context->GetTypeTable()->GetType(type_name);
+		if (as_record) {
+			const string type_name = as_record->GetTypeName();
+			const_shared_ptr<RecordType> type =
+					execution_context->GetTypeTable()->GetType<RecordType>(
+							type_name);
 
-			if (type != CompoundType::GetDefaultCompoundType()) {
+			if (type) {
 				MemberInstantiationListRef instantiation_list =
 						m_member_instantiation_list;
 				while (!MemberInstantiationList::IsTerminator(

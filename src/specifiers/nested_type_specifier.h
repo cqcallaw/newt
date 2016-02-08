@@ -17,37 +17,18 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SPECIFIERS_SUM_TYPE_SPECIFIER_H_
-#define SPECIFIERS_SUM_TYPE_SPECIFIER_H_
+#ifndef SPECIFIERS_NESTED_TYPE_SPECIFIER_H_
+#define SPECIFIERS_NESTED_TYPE_SPECIFIER_H_
 
-#include <complex_type_specifier.h>
+#include <type_specifier.h>
 
-class RecordTypeSpecifier;
+class ComplexTypeSpecifier;
 
-class SumTypeSpecifier: public ComplexTypeSpecifier {
+class NestedTypeSpecifier: public TypeSpecifier {
 public:
-	SumTypeSpecifier(const std::string& type_name) :
-			SumTypeSpecifier(type_name, NamespaceQualifierList::GetTerminator()) {
-	}
-
-	SumTypeSpecifier(const std::string& type_name,
-			const NamespaceQualifierListRef space) :
-			m_type_name(type_name), m_space(space) {
-	}
-
-	SumTypeSpecifier(const ComplexTypeSpecifier& complex);
-	SumTypeSpecifier(const_shared_ptr<ComplexTypeSpecifier> complex);
-
-	virtual ~SumTypeSpecifier() {
-	}
-
-	virtual const NamespaceQualifierListRef GetNamespace() const {
-		return m_space;
-	}
-
-	virtual const std::string GetTypeName() const {
-		return m_type_name;
-	}
+	NestedTypeSpecifier(const_shared_ptr<ComplexTypeSpecifier> parent,
+			const_shared_ptr<std::string> member_name);
+	virtual ~NestedTypeSpecifier();
 
 	virtual const std::string ToString() const;
 	virtual const bool IsAssignableTo(
@@ -64,9 +45,17 @@ public:
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
+	const_shared_ptr<ComplexTypeSpecifier> GetParent() const {
+		return m_parent;
+	}
+
+	const_shared_ptr<std::string> GetMemberName() const {
+		return m_member_name;
+	}
+
 private:
-	const std::string m_type_name;
-	const NamespaceQualifierListRef m_space;
+	const_shared_ptr<ComplexTypeSpecifier> m_parent;
+	const_shared_ptr<std::string> m_member_name;
 };
 
-#endif /* SPECIFIERS_SUM_TYPE_SPECIFIER_H_ */
+#endif /* SPECIFIERS_NESTED_TYPE_SPECIFIER_H_ */

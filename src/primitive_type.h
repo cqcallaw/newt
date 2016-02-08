@@ -17,16 +17,31 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <declaration_statement.h>
+#ifndef PRIMITIVE_TYPE_H_
+#define PRIMITIVE_TYPE_H_
 
-DeclarationStatement::DeclarationStatement(const yy::location position,
-		const_shared_ptr<string> name, const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression,
-		ModifierListRef modifier_list, const yy::location modifier_list_location) :
-		m_position(position), m_name(name), m_name_position(name_position), m_initializer_expression(
-				initializer_expression), m_modifier_list(modifier_list), m_modifier_list_location(
-				modifier_list_location) {
-}
+#include <type_definition.h>
+#include <type.h>
 
-DeclarationStatement::~DeclarationStatement() {
-}
+class PrimitiveType: public TypeDefinition {
+public:
+	PrimitiveType(const BasicType type) :
+			m_type(type) {
+	}
+	virtual ~PrimitiveType();
+
+	virtual const std::string ToString(const TypeTable& type_table,
+			const Indent& indent) const;
+
+	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
+			const std::string& member_name) const;
+
+	const BasicType GetType() const {
+		return m_type;
+	}
+
+private:
+	const BasicType m_type;
+};
+
+#endif /* PRIMITIVE_TYPE_H_ */

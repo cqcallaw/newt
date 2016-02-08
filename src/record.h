@@ -17,30 +17,30 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMPOUND_TYPE_INSTANCE_H_
-#define COMPOUND_TYPE_INSTANCE_H_
+#ifndef RECORD_H_
+#define RECORD_H_
 
 #include <defaults.h>
 #include <string>
 #include <linked_list.h>
 #include <type.h>
 
-class CompoundType;
-class CompoundTypeSpecifier;
+class RecordType;
+class RecordTypeSpecifier;
 class SymbolContext;
 class Symbol;
 class Indent;
 
 using namespace std;
 
-class CompoundTypeInstance {
+class Record {
 public:
-	CompoundTypeInstance(const_shared_ptr<CompoundTypeSpecifier> type,
+	Record(const_shared_ptr<RecordTypeSpecifier> type,
 			volatile_shared_ptr<SymbolContext> definition) :
 			m_type(type), m_definition(definition) {
 	}
 
-	const_shared_ptr<CompoundTypeSpecifier> GetTypeSpecifier() const {
+	const_shared_ptr<RecordTypeSpecifier> GetTypeSpecifier() const {
 		return m_type;
 	}
 
@@ -48,8 +48,8 @@ public:
 		return m_definition;
 	}
 
-	static const_shared_ptr<CompoundTypeInstance> GetDefaultInstance(
-			const string& type_name, const_shared_ptr<CompoundType> type);
+	static const_shared_ptr<Record> GetDefaultInstance(
+			const string& type_name, const_shared_ptr<RecordType> type);
 
 	const static const_shared_ptr<Symbol> GetSymbol(
 			const_shared_ptr<TypeSpecifier> member_type,
@@ -59,8 +59,8 @@ public:
 			const Indent& indent) const;
 
 private:
-	const_shared_ptr<CompoundTypeSpecifier> m_type;
+	const_shared_ptr<RecordTypeSpecifier> m_type;
 	volatile_shared_ptr<SymbolContext> m_definition;
 };
 
-#endif /* COMPOUND_TYPE_INSTANCE_H_ */
+#endif /* RECORD_H_ */

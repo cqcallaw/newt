@@ -81,7 +81,7 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<CompoundTypeInstance> value) const;
+			const_shared_ptr<Record> value) const;
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,

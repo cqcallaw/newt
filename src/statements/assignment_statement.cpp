@@ -23,13 +23,13 @@
 #include <basic_variable.h>
 #include <array_variable.h>
 #include <member_variable.h>
-#include <compound_type_instance.h>
 #include <error.h>
 #include <defaults.h>
 #include <execution_context.h>
 #include <typeinfo>
 #include <variable_expression.h>
-#include <compound_type.h>
+#include <record_type.h>
+#include <record.h>
 #include <type_specifier.h>
 
 AssignmentStatement::AssignmentStatement(const_shared_ptr<Variable> variable,
@@ -93,15 +93,15 @@ const ErrorListRef AssignmentStatement::preprocess(
 				}
 			}
 
-			const_shared_ptr<CompoundTypeSpecifier> as_compound =
-					dynamic_pointer_cast<const CompoundTypeSpecifier>(
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					dynamic_pointer_cast<const RecordTypeSpecifier>(
 							symbol_type);
-			if (as_compound) {
+			if (as_record) {
 				//reassigning raw struct reference, not a member
 				if (!expression_type->IsAssignableTo(symbol_type)) {
 					yy::location expression_position =
 							m_expression->GetPosition();
-					const string struct_type_name = as_compound->GetTypeName();
+					const string struct_type_name = as_record->GetTypeName();
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
@@ -140,54 +140,65 @@ const ErrorListRef AssignmentStatement::preprocess(
 		const_shared_ptr<MemberVariable> member_variable = dynamic_pointer_cast<
 				const MemberVariable>(m_variable);
 		if (member_variable) {
-			const_shared_ptr<CompoundTypeSpecifier> as_compound =
-					dynamic_pointer_cast<const CompoundTypeSpecifier>(
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					dynamic_pointer_cast<const RecordTypeSpecifier>(
 							member_variable->GetContainer()->GetType(
 									execution_context));
 
-			if (as_compound) {
-				const_shared_ptr<CompoundType> type =
-						execution_context->GetTypeTable()->GetType(
-								as_compound->GetTypeName());
+			if (as_record) {
+				const_shared_ptr<RecordType> type =
+						execution_context->GetTypeTable()->GetType<RecordType>(
+								as_record->GetTypeName());
 
-				if (!(type->GetModifiers() & Modifier::Type::READONLY)) {
-					const_shared_ptr<TypeSpecifier> member_variable_type =
-							member_variable->GetType(execution_context);
+				if (type) {
+					if (!(type->GetModifiers() & Modifier::Type::READONLY)) {
+						const_shared_ptr<TypeSpecifier> member_variable_type =
+								member_variable->GetType(execution_context);
 
-					if (member_variable_type
-							!= PrimitiveTypeSpecifier::GetNone()) {
-						const_shared_ptr<TypeSpecifier> expression_type =
-								m_expression->GetType(execution_context);
+						if (member_variable_type
+								!= PrimitiveTypeSpecifier::GetNone()) {
+							const_shared_ptr<TypeSpecifier> expression_type =
+									m_expression->GetType(execution_context);
 
-						if (!expression_type->IsAssignableTo(
-								member_variable_type)) {
+							if (!expression_type->IsAssignableTo(
+									member_variable_type)) {
+								errors =
+										ErrorList::From(
+												make_shared<Error>(
+														Error::SEMANTIC,
+														Error::ASSIGNMENT_TYPE_ERROR,
+														member_variable->GetContainer()->GetLocation().begin.line,
+														member_variable->GetContainer()->GetLocation().begin.column,
+														member_variable_type->ToString(),
+														expression_type->ToString()),
+												errors);
+							}
+						} else {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
-													Error::ASSIGNMENT_TYPE_ERROR,
-													member_variable->GetContainer()->GetLocation().begin.line,
-													member_variable->GetContainer()->GetLocation().begin.column,
-													member_variable_type->ToString(),
-													expression_type->ToString()),
+													Error::UNDECLARED_MEMBER,
+													member_variable->GetMemberVariable()->GetLocation().begin.line,
+													member_variable->GetMemberVariable()->GetLocation().begin.column,
+													*member_variable->GetMemberVariable()->GetName(),
+													member_variable->GetContainer()->GetType(
+															execution_context)->ToString()),
 											errors);
 						}
 					} else {
 						errors =
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
-												Error::UNDECLARED_MEMBER,
-												member_variable->GetMemberVariable()->GetLocation().begin.line,
-												member_variable->GetMemberVariable()->GetLocation().begin.column,
-												*member_variable->GetMemberVariable()->GetName(),
-												member_variable->GetContainer()->GetType(
-														execution_context)->ToString()),
-										errors);
+												Error::READONLY,
+												member_variable->GetContainer()->GetLocation().begin.line,
+												member_variable->GetContainer()->GetLocation().begin.column,
+												*variable_name), errors);
 					}
 				} else {
 					errors =
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
-											Error::READONLY,
+											Error::UNDECLARED_TYPE,
 											member_variable->GetContainer()->GetLocation().begin.line,
 											member_variable->GetContainer()->GetLocation().begin.column,
 											*variable_name), errors);
@@ -367,6 +378,8 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 	}
 
 	auto void_value = evaluation->GetData();
+
+	assert(void_value);
 
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);

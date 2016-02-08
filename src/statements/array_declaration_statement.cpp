@@ -16,7 +16,7 @@
 #include <sstream>
 #include <constant_expression.h>
 #include <vector>
-#include <compound_type.h>
+#include <record_type.h>
 #include <array_type_specifier.h>
 #include <type_specifier.h>
 
@@ -27,7 +27,8 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position, name, name_position,
-				initializer_expression), m_type(type_specifier), m_type_position(
+				initializer_expression, ModifierList::GetTerminator(),
+				GetDefaultLocation()), m_type(type_specifier), m_type_position(
 				type_position) {
 }
 
@@ -35,17 +36,18 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<CompoundTypeSpecifier> element_type_as_compound =
-			dynamic_pointer_cast<const CompoundTypeSpecifier>(
+	const_shared_ptr<RecordTypeSpecifier> element_type_as_record =
+			dynamic_pointer_cast<const RecordTypeSpecifier>(
 					m_type->GetElementTypeSpecifier());
-	if (element_type_as_compound) {
+	if (element_type_as_record) {
 		//check that element type exists
 		const_shared_ptr<TypeTable> type_table =
 				execution_context->GetTypeTable();
-		const string type_name = element_type_as_compound->GetTypeName();
-		const_shared_ptr<CompoundType> type = type_table->GetType(type_name);
+		const string type_name = element_type_as_record->GetTypeName();
+		const_shared_ptr<RecordType> type = type_table->GetType<RecordType>(
+				type_name);
 
-		if (type == CompoundType::GetDefaultCompoundType()) {
+		if (!type) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_type_position.begin.line,

@@ -1,0 +1,7 @@
+//test default value of struct member
+struct test {
+	i:int
+	d:double
+}
+
+t := @test.i

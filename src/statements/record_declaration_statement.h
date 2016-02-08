@@ -17,25 +17,24 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_
-#define STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_
+#ifndef STATEMENTS_RECORD_DECLARATION_STATEMENT_H_
+#define STATEMENTS_RECORD_DECLARATION_STATEMENT_H_
 
 #include <statement.h>
-#include <modifier.h>
 #include <string>
 #include <declaration_statement.h>
-#include <compound_type_specifier.h>
+#include <record_type_specifier.h>
 
-class StructDeclarationStatement: public DeclarationStatement {
+class RecordDeclarationStatement: public DeclarationStatement {
 public:
-	StructDeclarationStatement(const yy::location position,
-			const_shared_ptr<CompoundTypeSpecifier> type,
-			const_shared_ptr<string> name, const yy::location name_position,
+	RecordDeclarationStatement(const yy::location position,
+			const_shared_ptr<RecordTypeSpecifier> type,
+			const_shared_ptr<string> name, const yy::location name_location,
 			DeclarationListRef member_declaration_list,
-			const yy::location member_declaration_list_position,
+			const yy::location member_declaration_list_location,
 			ModifierListRef modifier_list,
 			const yy::location modifiers_location);
-	virtual ~StructDeclarationStatement();
+	virtual ~RecordDeclarationStatement();
 
 	virtual const ErrorListRef preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const;
@@ -43,7 +42,7 @@ public:
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	DeclarationListRef GetMemberDeclarationListRef() const {
+	DeclarationListRef GetMemberDeclarationList() const {
 		return m_member_declaration_list;
 	}
 
@@ -54,25 +53,14 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
 
-	const yy::location GetMemberDeclarationListRefPosition() const {
-		return m_member_declaration_list_position;
-	}
-
-	ModifierListRef GetModifierListRef() const {
-		return m_modifier_list;
-	}
-
-	const yy::location GetModifiersLocation() const {
-		return m_modifiers_location;
+	const yy::location GetMemberDeclarationListLocation() const {
+		return m_member_declaration_list_location;
 	}
 
 private:
-	const yy::location m_type_position;
 	DeclarationListRef m_member_declaration_list;
-	const yy::location m_member_declaration_list_position;
-	ModifierListRef m_modifier_list;
-	const yy::location m_modifiers_location;
-	const_shared_ptr<CompoundTypeSpecifier> m_type;
+	const yy::location m_member_declaration_list_location;
+	const_shared_ptr<RecordTypeSpecifier> m_type;
 };
 
-#endif /* STATEMENTS_STRUCT_DECLARATION_STATEMENT_H_ */
+#endif /* STATEMENTS_RECORD_DECLARATION_STATEMENT_H_ */

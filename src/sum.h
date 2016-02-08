@@ -23,6 +23,7 @@
 #include <sum_type_specifier.h>
 
 class Indent;
+class SumType;
 
 class Sum {
 public:
@@ -30,15 +31,19 @@ public:
 			const_shared_ptr<TypeSpecifier> tag, const_shared_ptr<void> value);
 	virtual ~Sum();
 
-	const const_shared_ptr<SumTypeSpecifier> GetType() const {
+	static const_shared_ptr<Sum> GetDefaultInstance(
+			const_shared_ptr<SumTypeSpecifier> type_specifier,
+			const_shared_ptr<SumType> type);
+
+	const_shared_ptr<SumTypeSpecifier> GetType() const {
 		return m_type;
 	}
 
-	const const_shared_ptr<void> GetValue() const {
+	const_shared_ptr<void> GetValue() const {
 		return m_value;
 	}
 
-	const const_shared_ptr<TypeSpecifier> GetTag() const {
+	const_shared_ptr<TypeSpecifier> GetTag() const {
 		return m_tag;
 	}
 

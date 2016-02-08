@@ -24,7 +24,6 @@
 #include <assignment_statement.h>
 #include <function_declaration.h>
 #include <function.h>
-#include <sum_type_specifier.h>
 #include <sum.h>
 
 #include "assert.h"
@@ -188,15 +187,15 @@ const ErrorListRef BasicVariable::AssignValue(
 	}
 
 //TODO: don't allow += or -= operations on compound type specifiers
-	const_shared_ptr<CompoundTypeSpecifier> as_compound =
-			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(symbol_type);
-	if (as_compound) {
+	const_shared_ptr<RecordTypeSpecifier> as_record =
+			std::dynamic_pointer_cast<const RecordTypeSpecifier>(symbol_type);
+	if (as_record) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto new_instance = static_pointer_cast<const CompoundTypeInstance>(
+			auto new_instance = static_pointer_cast<const Record>(
 					expression_evaluation->GetData());
 
 			//we're assigning a struct reference
@@ -220,7 +219,7 @@ const ErrorListRef BasicVariable::AssignValue(
 		}
 	}
 
-	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
+	/*const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
 			const SumTypeSpecifier>(symbol_type);
 	if (as_sum) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
@@ -245,7 +244,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = SetSymbol(output_context, new_sum);
 		}
-	}
+	}*/
 
 	return errors;
 }
@@ -292,7 +291,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<CompoundTypeInstance> value) const {
+		const_shared_ptr<Record> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(context->SetSymbol(*GetName(), value),
 			symbol->GetType(), value->GetTypeSpecifier());

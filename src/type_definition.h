@@ -17,16 +17,27 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <declaration_statement.h>
+#ifndef TYPE_DEFINITION_H_
+#define TYPE_DEFINITION_H_
 
-DeclarationStatement::DeclarationStatement(const yy::location position,
-		const_shared_ptr<string> name, const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression,
-		ModifierListRef modifier_list, const yy::location modifier_list_location) :
-		m_position(position), m_name(name), m_name_position(name_position), m_initializer_expression(
-				initializer_expression), m_modifier_list(modifier_list), m_modifier_list_location(
-				modifier_list_location) {
-}
+#include <string>
+#include <defaults.h>
 
-DeclarationStatement::~DeclarationStatement() {
-}
+class TypeTable;
+class Indent;
+class TypeSpecifier;
+
+class TypeDefinition {
+public:
+	TypeDefinition();
+	virtual ~TypeDefinition();
+
+	virtual const std::string ToString(const TypeTable& type_table,
+			const Indent& indent) const = 0;
+
+	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
+			const std::string& member_name) const = 0;
+
+};
+
+#endif /* TYPE_DEFINITION_H_ */

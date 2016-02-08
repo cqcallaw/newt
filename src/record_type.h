@@ -25,27 +25,36 @@
 #include <linked_list.h>
 #include <symbol_context.h>
 #include <modifier.h>
+#include <declaration_statement.h>
+#include <type_definition.h>
 
 class MemberDefinition;
+class Result;
 
-typedef map<const string, const_shared_ptr<MemberDefinition>> definition_map;
+typedef map<const std::string, const_shared_ptr<MemberDefinition>> definition_map;
 
 using namespace std;
-class CompoundType {
+class RecordType: public TypeDefinition {
 public:
-	CompoundType(const_shared_ptr<definition_map> definition,
+	RecordType(const_shared_ptr<definition_map> definition,
 			const Modifier::Type modifiers);
-	virtual ~CompoundType();
-	const_shared_ptr<MemberDefinition> GetMember(const string& name) const;
+	virtual ~RecordType();
+	const_shared_ptr<MemberDefinition> GetMember(const std::string& name) const;
 
-	const string ToString(const TypeTable& type_table,
+	const_shared_ptr<TypeSpecifier> GetMemberType(
+			const std::string& member_name) const;
+
+	const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
 	const_shared_ptr<definition_map> GetDefinition() const {
 		return m_definition;
 	}
 
-	static const_shared_ptr<CompoundType> GetDefaultCompoundType();
+	static const_shared_ptr<Result> Build(
+			const_shared_ptr<ExecutionContext> context,
+			const Modifier::Type modifiers,
+			const DeclarationListRef member_declarations);
 
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;

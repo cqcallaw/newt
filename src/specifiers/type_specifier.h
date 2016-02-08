@@ -29,13 +29,12 @@ class DeclarationStatement;
 class TypeTable;
 class Symbol;
 
-using namespace std;
 class TypeSpecifier {
 public:
 	virtual ~TypeSpecifier() {
 	}
 
-	virtual const string ToString() const = 0;
+	virtual const std::string ToString() const = 0;
 	virtual const bool IsAssignableTo(
 			const_shared_ptr<TypeSpecifier> other) const = 0;
 	virtual const_shared_ptr<void> DefaultValue(
@@ -48,6 +47,7 @@ public:
 			const_shared_ptr<Expression> initializer_expression) const = 0;
 
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
+
 	virtual bool operator!=(const TypeSpecifier &other) const {
 		return !(*this == other);
 	}

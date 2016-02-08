@@ -27,8 +27,8 @@
 #include <error.h>
 #include <assert.h>
 #include <array_type_specifier.h>
-#include <compound_type_specifier.h>
 #include <primitive_type_specifier.h>
+#include <record_type_specifier.h>
 #include <type_specifier.h>
 #include <symbol.h>
 

@@ -32,7 +32,7 @@ using namespace std;
 class Expression;
 class ExecutionContext;
 class Array;
-class CompoundTypeInstance;
+class Record;
 class Function;
 class Sum;
 
@@ -45,7 +45,7 @@ public:
 	Symbol(const_shared_ptr<double> value);
 	Symbol(const_shared_ptr<string> value);
 	Symbol(const_shared_ptr<Array> value);
-	Symbol(const_shared_ptr<CompoundTypeInstance> value);
+	Symbol(const_shared_ptr<Record> value);
 	Symbol(const_shared_ptr<Function> value);
 	Symbol(const_shared_ptr<Sum> value);
 

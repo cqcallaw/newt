@@ -179,11 +179,11 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 					assert(false);
 				}
 
-				const_shared_ptr<CompoundTypeSpecifier> as_compound =
-						std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+				const_shared_ptr<RecordTypeSpecifier> as_record =
+						std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 								element_type_specifier);
-				if (as_compound) {
-					result_value = array->GetValue<CompoundTypeInstance>(index,
+				if (as_record) {
+					result_value = array->GetValue<Record>(index,
 							*type_table);
 				} else {
 					//we should never get here
@@ -318,11 +318,11 @@ const ErrorListRef ArrayVariable::AssignValue(
 							errors = SetSymbolCore(context, result->GetData());
 						}
 
-						const_shared_ptr<CompoundTypeSpecifier> element_as_compound =
+						const_shared_ptr<RecordTypeSpecifier> element_as_record =
 								std::dynamic_pointer_cast<
-										const CompoundTypeSpecifier>(
+										const RecordTypeSpecifier>(
 										element_type_specifier);
-						if (element_as_compound) {
+						if (element_as_record) {
 							errors = SetSymbolCore(context, result->GetData());
 						}
 					}
@@ -381,7 +381,7 @@ const ErrorListRef ArrayVariable::SetSymbol(
 
 const ErrorListRef ArrayVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<CompoundTypeInstance> value) const {
+		const_shared_ptr<Record> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
@@ -439,12 +439,12 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 						static_pointer_cast<const Array>(value), *type_table);
 			}
 
-			const_shared_ptr<CompoundTypeSpecifier> as_compound =
-					std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 							element_type_specifier);
-			if (as_compound) {
-				new_array = array->WithValue<CompoundTypeInstance>(index,
-						static_pointer_cast<const CompoundTypeInstance>(value),
+			if (as_record) {
+				new_array = array->WithValue<Record>(index,
+						static_pointer_cast<const Record>(value),
 						*type_table);
 			}
 		}

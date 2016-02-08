@@ -17,16 +17,25 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <declaration_statement.h>
+#include <primitive_type.h>
+#include <sstream>
+#include <primitive_type_specifier.h>
+#include <indent.h>
 
-DeclarationStatement::DeclarationStatement(const yy::location position,
-		const_shared_ptr<string> name, const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression,
-		ModifierListRef modifier_list, const yy::location modifier_list_location) :
-		m_position(position), m_name(name), m_name_position(name_position), m_initializer_expression(
-				initializer_expression), m_modifier_list(modifier_list), m_modifier_list_location(
-				modifier_list_location) {
+PrimitiveType::~PrimitiveType() {
 }
 
-DeclarationStatement::~DeclarationStatement() {
+const std::string PrimitiveType::ToString(const TypeTable& type_table,
+		const Indent& indent) const {
+	ostringstream os;
+	os << indent + 1;
+	os << m_type;
+	os << endl;
+	return os.str();
+}
+
+const_shared_ptr<TypeSpecifier> PrimitiveType::GetMemberType(
+		const std::string& member_name) const {
+	assert(false);
+	return const_shared_ptr<const PrimitiveTypeSpecifier>();
 }

@@ -18,10 +18,10 @@
  */
 
 #include <sum.h>
-#include <sum_type_specifier.h>
 #include <sstream>
 #include <indent.h>
 #include <symbol.h>
+#include <sum_type.h>
 
 Sum::Sum(const_shared_ptr<SumTypeSpecifier> type,
 		const_shared_ptr<TypeSpecifier> tag, const_shared_ptr<void> value) :
@@ -50,4 +50,12 @@ const_shared_ptr<Sum> Sum::WithValue(const_shared_ptr<TypeSpecifier> tag,
 	}
 
 	return make_shared<Sum>(m_type, tag, value);
+}
+
+const_shared_ptr<Sum> Sum::GetDefaultInstance(
+		const_shared_ptr<SumTypeSpecifier> type_specifier,
+		const_shared_ptr<SumType> type) {
+	auto declaration_type = type->GetFirstDeclaration()->GetType();
+	return make_shared<Sum>(type_specifier, declaration_type,
+			declaration_type->DefaultValue(*type->GetTypeTable()));
 }

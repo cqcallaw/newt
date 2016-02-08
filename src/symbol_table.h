@@ -22,8 +22,6 @@
 
 #include <symbol_context.h>
 
-using namespace std;
-
 enum InsertResult {
 	NO_INSERT_RESULT = 0, INSERT_SUCCESS = 1, SYMBOL_EXISTS = 2
 };
@@ -36,7 +34,7 @@ public:
 			const shared_ptr<symbol_map> values);
 	SymbolTable(const SymbolContext& other);
 
-	InsertResult InsertSymbol(const string& name,
+	InsertResult InsertSymbol(const std::string& name,
 			const_shared_ptr<Symbol> symbol);
 };
 

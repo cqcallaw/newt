@@ -22,18 +22,22 @@
 #include <execution_context.h>
 #include <sum.h>
 #include <sum_declaration_statement.h>
-#include <sum_type_specifier.h>
 #include <basic_variable.h>
+#include <default_value_expression.h>
+#include <sum_type.h>
 
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
-		const_shared_ptr<SumTypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) :
-		DeclarationStatement(position, name, name_position,
-				initializer_expression), m_type(type), m_type_position(
-				type_position) {
-
+		const_shared_ptr<ComplexTypeSpecifier> type,
+		const_shared_ptr<string> name, const yy::location name_location,
+		const DeclarationListRef variant_list,
+		const yy::location variant_list_location) :
+		DeclarationStatement(position, name, name_location,
+				make_shared<DefaultValueExpression>(
+						DefaultValueExpression(GetDefaultLocation(), type,
+								variant_list_location)),
+				ModifierList::GetTerminator(), GetDefaultLocation()), m_variant_list(
+				variant_list), m_variant_list_location(variant_list_location), m_type(
+				make_shared<SumTypeSpecifier>(type)) {
 }
 
 SumDeclarationStatement::~SumDeclarationStatement() {
@@ -42,48 +46,14 @@ SumDeclarationStatement::~SumDeclarationStatement() {
 const ErrorListRef SumDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	plain_shared_ptr<Symbol> symbol;
 
-	if (GetInitializerExpression()) {
-		errors = GetInitializerExpression()->Validate(execution_context);
+	auto type_table = execution_context->GetTypeTable();
+	auto result = SumType::Build(execution_context, m_type, m_variant_list);
 
-		if (ErrorList::IsTerminator(errors)) {
-			auto expression_type = GetInitializerExpression()->GetType(
-					execution_context);
-
-			if (expression_type->IsAssignableTo(m_type)) {
-				//create a sum with a default value and default tag
-				//we can't use the initializer expression type as a tag because it may be equal to the type of the variable
-				auto tag = m_type->GetDefaultMember();
-				auto value = expression_type->DefaultValue(
-						*execution_context->GetTypeTable());
-				symbol = make_shared<Symbol>(
-						make_shared<Sum>(m_type, tag, value));
-			} else {
-				errors =
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::INVALID_INITIALIZER_TYPE,
-										GetInitializerExpression()->GetPosition().begin.line,
-										GetInitializerExpression()->GetPosition().begin.column,
-										*GetName(), m_type->ToString(),
-										expression_type->ToString()), errors);
-			}
-		}
-	} else {
-		auto sum = make_shared<Sum>(m_type, m_type->GetDefaultMember(),
-				m_type->GetDefaultMember()->DefaultValue(
-						*execution_context->GetTypeTable()));
-		symbol = make_shared<Symbol>(sum);
-	}
-
-	InsertResult insert_result = execution_context->InsertSymbol(*GetName(),
-			symbol);
-	if (insert_result == SYMBOL_EXISTS) {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNamePosition().begin.line,
-						GetNamePosition().begin.column, *GetName()), errors);
+	errors = result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto type = static_pointer_cast<const SumType>(result->GetData());
+		execution_context->GetTypeTable()->AddType(*GetName(), type);
 	}
 
 	return errors;
@@ -91,22 +61,14 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 
 const ErrorListRef SumDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-	if (GetInitializerExpression()) {
-		Variable* temp_variable = new BasicVariable(GetName(),
-				GetNamePosition());
-		auto errors = temp_variable->AssignValue(execution_context,
-				GetInitializerExpression(), AssignmentType::ASSIGN);
-		delete (temp_variable);
-	}
-
-	return errors;
+	return ErrorList::GetTerminator();
 }
 
 const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new SumDeclarationStatement(GetPosition(), m_type, m_type_position,
-			GetName(), GetNamePosition(), expression);
+//no-op
+	return new SumDeclarationStatement(GetPosition(), m_type, GetName(),
+			GetNamePosition(), m_variant_list, m_variant_list_location);
 }
 
 const_shared_ptr<TypeSpecifier> SumDeclarationStatement::GetType() const {

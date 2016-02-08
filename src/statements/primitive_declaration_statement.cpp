@@ -20,8 +20,10 @@ PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position, name, name_position,
-				initializer_expression), m_type(type), m_type_position(
+				initializer_expression, ModifierList::GetTerminator(),
+				GetDefaultLocation()), m_type(type), m_type_position(
 				type_position) {
+	assert(dynamic_pointer_cast<const PrimitiveTypeSpecifier>(type));
 }
 
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {

@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
 				cout << endl;
 				cout << "Root Type Table:" << endl;
 				cout << "----------------" << endl;
-				root_context->GetTypeTable()->print(cout);
+				root_context->GetTypeTable()->print(cout, Indent(0));
 			}
 
 			if (root_context->GetExitCode()) {
