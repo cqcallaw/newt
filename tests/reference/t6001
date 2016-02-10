@@ -2,7 +2,21 @@ Parsing file ../tests/t6001.nwt...
 Parsed file ../tests/t6001.nwt.
 Root Symbol Table:
 ----------------
-(int|double) t: 3.1415 {double}
+number_ctor_map number:
+	(double) -> number continuous:
+
+	(int) -> number discrete:
+
+
+number t: 7 {int}
 
 Root Type Table:
 ----------------
+number: 
+	continuous: 
+		double
+	discrete: 
+		int
+number_ctor_map: 
+	(double) -> number continuous ()
+	(int) -> number discrete ()

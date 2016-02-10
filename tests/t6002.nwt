@@ -1,1 +1,7 @@
-t:(int|double) = 42
+//test automatic conversion where it can be done unambiguously
+sum number {
+	discrete:int
+	| continuous:double
+}
+
+t:number = 42

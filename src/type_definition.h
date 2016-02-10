@@ -34,10 +34,6 @@ public:
 
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const = 0;
-
-	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
-			const std::string& member_name) const = 0;
-
 };
 
 #endif /* TYPE_DEFINITION_H_ */

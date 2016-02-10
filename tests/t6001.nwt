@@ -1,1 +1,6 @@
-t:(int|double) = 3.1415
+sum number {
+	discrete:int
+	| continuous:double
+}
+
+t:= number.discrete(7)

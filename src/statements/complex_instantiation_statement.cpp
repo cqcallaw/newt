@@ -126,6 +126,8 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 			const_shared_ptr<SumType> as_sum = dynamic_pointer_cast<
 					const SumType>(type);
 			if (as_sum) {
+				auto sum_type_specifier = make_shared<SumTypeSpecifier>(
+						m_type_specifier);
 				plain_shared_ptr<const Sum> instance;
 				if (GetInitializerExpression()) {
 					const_shared_ptr<TypeSpecifier> initializer_expression_type =
@@ -135,48 +137,42 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 							execution_context);
 
 					if (ErrorList::IsTerminator(errors)) {
-
-						/*const_shared_ptr<CompoundTypeSpecifier> as_record_specifier =
-						 std::dynamic_pointer_cast<
-						 const CompoundTypeSpecifier>(
-						 initializer_expression_type);
-
-						 if (as_record_specifier
-						 && m_type_specifier->GetTypeName().compare(
-						 as_record_specifier->GetTypeName())
-						 == 0) {
-						 if (GetInitializerExpression()->IsConstant()) {
-						 const_shared_ptr<Result> result =
-						 GetInitializerExpression()->Evaluate(
-						 execution_context);
-						 errors = result->GetErrors();
-						 if (ErrorList::IsTerminator(errors)) {
-						 instance = static_pointer_cast<
-						 const CompoundTypeInstance>(
-						 result->GetData());
-						 }
-						 } else {
-						 //generate default instance
-						 instance =
-						 CompoundTypeInstance::GetDefaultInstance(
-						 m_type_specifier->GetTypeName(),
-						 as_record);
-						 }
-						 } else {
-						 errors =
-						 ErrorList::From(
-						 make_shared<Error>(Error::SEMANTIC,
-						 Error::ASSIGNMENT_TYPE_ERROR,
-						 GetInitializerExpression()->GetPosition().begin.line,
-						 GetInitializerExpression()->GetPosition().begin.column,
-						 m_type_specifier->GetTypeName(),
-						 initializer_expression_type->ToString()),
-						 errors);
-						 }*/
+						const_shared_ptr<SumTypeSpecifier> as_sum_specifier =
+								std::dynamic_pointer_cast<const SumTypeSpecifier>(
+										initializer_expression_type);
+						if (as_sum_specifier
+								&& initializer_expression_type->IsAssignableTo(
+										as_sum_specifier)) {
+							if (GetInitializerExpression()->IsConstant()) {
+								const_shared_ptr<Result> result =
+										GetInitializerExpression()->Evaluate(
+												execution_context);
+								errors = result->GetErrors();
+								if (ErrorList::IsTerminator(errors)) {
+									instance = make_shared<Sum>(
+											sum_type_specifier,
+											initializer_expression_type,
+											result->GetData());
+								}
+							} else {
+								//generate default instance
+								instance = Sum::GetDefaultInstance(
+										sum_type_specifier, as_sum);
+							}
+						} else {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::ASSIGNMENT_TYPE_ERROR,
+													GetInitializerExpression()->GetPosition().begin.line,
+													GetInitializerExpression()->GetPosition().begin.column,
+													m_type_specifier->GetTypeName(),
+													initializer_expression_type->ToString()),
+											errors);
+						}
 					}
 				} else {
-					instance = Sum::GetDefaultInstance(
-							make_shared<SumTypeSpecifier>(m_type_specifier),
+					instance = Sum::GetDefaultInstance(sum_type_specifier,
 							as_sum);
 				}
 
@@ -220,16 +216,40 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (GetInitializerExpression()) {
-		const_shared_ptr<Result> evaluation =
-				GetInitializerExpression()->Evaluate(execution_context);
+		const_shared_ptr<TypeDefinition> type =
+				execution_context->GetTypeTable()->GetType<TypeDefinition>(
+						m_type_specifier->GetTypeName());
 
-		errors = evaluation->GetErrors();
+		const_shared_ptr<RecordType> as_record = dynamic_pointer_cast<
+				const RecordType>(type);
+		if (as_record) {
+			const_shared_ptr<Result> evaluation =
+					GetInitializerExpression()->Evaluate(execution_context);
 
-		if (ErrorList::IsTerminator(errors)) {
-			auto void_value = evaluation->GetData();
-			const_shared_ptr<const Record> instance = static_pointer_cast<
-					const Record>(void_value);
-			execution_context->SetSymbol(*GetName(), instance);
+			errors = evaluation->GetErrors();
+
+			if (ErrorList::IsTerminator(errors)) {
+				auto void_value = evaluation->GetData();
+				const_shared_ptr<Record> instance = static_pointer_cast<
+						const Record>(void_value);
+				execution_context->SetSymbol(*GetName(), instance);
+			}
+		}
+
+		const_shared_ptr<SumType> as_sum = dynamic_pointer_cast<const SumType>(
+				type);
+		if (as_sum) {
+			const_shared_ptr<Result> evaluation =
+					GetInitializerExpression()->Evaluate(execution_context);
+
+			errors = evaluation->GetErrors();
+
+			if (ErrorList::IsTerminator(errors)) {
+				auto void_value = evaluation->GetData();
+				const_shared_ptr<Sum> instance = static_pointer_cast<const Sum>(
+						void_value);
+				execution_context->SetSymbol(*GetName(), instance);
+			}
 		}
 	}
 

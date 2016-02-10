@@ -24,6 +24,7 @@
 #include <nested_type_specifier.h>
 #include <execution_context.h>
 #include <member_definition.h>
+#include <sum.h>
 
 NestedDeclarationStatement::NestedDeclarationStatement(
 		const yy::location position, const_shared_ptr<NestedTypeSpecifier> type,
@@ -43,18 +44,34 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto parent_type =
-			execution_context->GetTypeTable()->GetType<TypeDefinition>(
-					m_type->GetParent()->GetTypeName());
+	auto parent_type = execution_context->GetTypeTable()->GetType<SumType>(
+			m_type->GetParent()->GetTypeName());
 
 	if (parent_type) {
 		auto type_name = m_type->GetMemberName();
-		auto member_type_specifier = parent_type->GetMemberType(*type_name);
 
-		return member_type_specifier->GetDeclarationStatement(GetPosition(),
-				member_type_specifier, GetTypePosition(), GetName(),
-				GetNamePosition(), GetInitializerExpression())->preprocess(
-				execution_context);
+		shared_ptr<const Sum> value;
+		auto initializer_expression = GetInitializerExpression();
+		if (initializer_expression) {
+			errors = initializer_expression->Validate(execution_context);
+
+			if (ErrorList::IsTerminator(errors)) {
+				if (initializer_expression->IsConstant()) {
+					auto result = initializer_expression->Evaluate(
+							execution_context);
+
+					errors = result->GetErrors();
+					if (ErrorList::IsTerminator(errors)) {
+						value = static_pointer_cast<const Sum>(
+								result->GetData());
+					}
+				}
+			}
+		} else {
+			value = Sum::GetDefaultInstance(
+					static_pointer_cast<const SumTypeSpecifier>(
+							m_type->GetParent()), parent_type);
+		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
@@ -70,25 +87,25 @@ const ErrorListRef NestedDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto parent_type =
-			execution_context->GetTypeTable()->GetType<TypeDefinition>(
-					m_type->GetParent()->GetTypeName());
-
-	if (parent_type) {
-		auto type_name = m_type->GetMemberName();
-		auto member_type_specifier = parent_type->GetMemberType(*type_name);
-
-		return member_type_specifier->GetDeclarationStatement(GetPosition(),
-				member_type_specifier, GetTypePosition(), GetName(),
-				GetNamePosition(), GetInitializerExpression())->execute(
-				execution_context);
-	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						GetInitializerExpression()->GetPosition().begin.line,
-						GetInitializerExpression()->GetPosition().begin.column,
-						m_type->ToString()), errors);
-	}
+//	auto parent_type =
+//			execution_context->GetTypeTable()->GetType<TypeDefinition>(
+//					m_type->GetParent()->GetTypeName());
+//
+//	if (parent_type) {
+//		auto type_name = m_type->GetMemberName();
+//		auto member_type_specifier = parent_type->GetMemberType(*type_name);
+//
+//		return member_type_specifier->GetDeclarationStatement(GetPosition(),
+//				member_type_specifier, GetTypePosition(), GetName(),
+//				GetNamePosition(), GetInitializerExpression())->execute(
+//				execution_context);
+//	} else {
+//		errors = ErrorList::From(
+//				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
+//						GetInitializerExpression()->GetPosition().begin.line,
+//						GetInitializerExpression()->GetPosition().begin.column,
+//						m_type->ToString()), errors);
+//	}
 
 	return errors;
 }
