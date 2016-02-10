@@ -37,12 +37,12 @@ InvokeExpression::~InvokeExpression() {
 
 const_shared_ptr<TypeSpecifier> InvokeExpression::GetType(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
 			execution_context);
+
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
-					type_specifier);
-
+					expression_type);
 	if (as_function) {
 		return as_function->GetReturnType();
 	} else {

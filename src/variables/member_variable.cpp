@@ -30,10 +30,9 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
 			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 					container_type_specifier);
 	if (as_record_type) {
-		const_shared_ptr<Record> instance =
-				std::static_pointer_cast<const Record>(
-						as_record_type->DefaultValue(
-								*context->GetTypeTable()));
+		const_shared_ptr<Record> instance = std::static_pointer_cast<
+				const Record>(
+				as_record_type->DefaultValue(*context->GetTypeTable()));
 		auto new_context = context->WithContents(instance->GetDefinition());
 		const_shared_ptr<TypeSpecifier> result = m_member_variable->GetType(
 				new_context);
@@ -57,9 +56,8 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 
 	const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 			context);
-	const_shared_ptr<RecordTypeSpecifier> as_record =
-			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-					container_type);
+	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
+			const RecordTypeSpecifier>(container_type);
 
 	if (container_type != PrimitiveTypeSpecifier::GetNone()) {
 		if (as_record) {
@@ -178,9 +176,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 	if (ErrorList::Reverse(errors)) {
 		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
 				context);
-		const_shared_ptr<RecordTypeSpecifier> as_record =
-				dynamic_pointer_cast<const RecordTypeSpecifier>(
-						container_type);
+		const_shared_ptr<RecordTypeSpecifier> as_record = dynamic_pointer_cast<
+				const RecordTypeSpecifier>(container_type);
 
 		if (as_record) {
 			auto instance = static_pointer_cast<const Record>(
