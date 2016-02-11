@@ -41,21 +41,15 @@ const_shared_ptr<DeclarationStatement> RecordTypeSpecifier::GetDeclarationStatem
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) const {
 	return make_shared<ComplexInstantiationStatement>(position,
-			static_pointer_cast<const RecordTypeSpecifier>(type),
-			type_position, name, name_position, initializer_expression);
+			static_pointer_cast<const RecordTypeSpecifier>(type), type_position,
+			name, name_position, initializer_expression);
 }
 
 const bool RecordTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other) const {
-//	const_shared_ptr<StructuralSumTypeSpecifier> as_sum = dynamic_pointer_cast<
-//			const StructuralSumTypeSpecifier>(other);
-//	if (as_sum) {
-//		return as_sum->ContainsType(*this, ALLOW_WIDENING);
-//	}
-
-	const_shared_ptr<RecordTypeSpecifier> as_record =
-			std::dynamic_pointer_cast<const RecordTypeSpecifier>(other);
-	return as_record && as_record->GetTypeName().compare(m_type_name) == 0;
+	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
+			const RecordTypeSpecifier>(other);
+	return (as_record && as_record->GetTypeName().compare(m_type_name) == 0);
 }
 
 const_shared_ptr<void> RecordTypeSpecifier::DefaultValue(

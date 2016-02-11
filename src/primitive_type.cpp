@@ -21,6 +21,7 @@
 #include <sstream>
 #include <primitive_type_specifier.h>
 #include <indent.h>
+#include <symbol.h>
 
 PrimitiveType::~PrimitiveType() {
 }
@@ -34,8 +35,22 @@ const std::string PrimitiveType::ToString(const TypeTable& type_table,
 	return os.str();
 }
 
-const_shared_ptr<TypeSpecifier> PrimitiveType::GetMemberType(
-		const std::string& member_name) const {
-	assert(false);
-	return const_shared_ptr<const PrimitiveTypeSpecifier>();
+const std::string PrimitiveType::ValueToString(const TypeTable& type_table,
+		const Indent& indent, const_shared_ptr<void> value) const {
+	ostringstream buffer;
+	buffer
+			<< Symbol::ToString(PrimitiveTypeSpecifier::FromBasicType(m_type),
+					value, type_table, indent);
+	return buffer.str();
+}
+
+bool PrimitiveType::IsSpecifiedBy(const std::string name,
+		const TypeSpecifier& type_specifier) const {
+	try {
+		const PrimitiveTypeSpecifier& as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier&>(type_specifier);
+		return m_type == as_primitive.GetBasicType();
+	} catch (std::bad_cast& e) {
+		return false;
+	}
 }

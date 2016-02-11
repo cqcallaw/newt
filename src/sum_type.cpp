@@ -26,8 +26,13 @@
 #include <primitive_type.h>
 #include <primitive_type_specifier.h>
 #include <record_declaration_statement.h>
+#include <sum.h>
 #include <sum_type.h>
+#include <sum_type_specifier.h>
+#include <symbol.h>
+#include <memory>
 #include <sstream>
+#include <typeinfo>
 
 const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
@@ -35,6 +40,14 @@ const std::string SumType::ToString(const TypeTable& type_table,
 	Indent child_indent = indent + 1;
 	m_type_table->print(os, child_indent);
 	return os.str();
+}
+
+const std::string SumType::ValueToString(const TypeTable& type_table,
+		const Indent& indent, const_shared_ptr<void> value) const {
+	ostringstream buffer;
+	auto as_sum = static_pointer_cast<const Sum>(value);
+	buffer << Symbol::ToString(as_sum->GetType(), value, type_table, indent);
+	return buffer.str();
 }
 
 const_shared_ptr<Result> SumType::Build(const TypeTable& type_table,
@@ -93,4 +106,34 @@ const_shared_ptr<Result> SumType::Build(const TypeTable& type_table,
 			new SumType(types, member_declarations->GetData()));
 
 	return make_shared<Result>(type, errors);
+}
+
+bool SumType::IsSpecifiedBy(const std::string name,
+		const TypeSpecifier& type_specifier) const {
+	try {
+		const SumTypeSpecifier& as_sum =
+				dynamic_cast<const SumTypeSpecifier&>(type_specifier);
+		return name == as_sum.GetTypeName();
+	} catch (std::bad_cast& e) {
+		return false;
+	}
+}
+
+const WideningResult SumType::AnalyzeWidening(
+		const TypeSpecifier& other) const {
+	auto count = m_type_table->CountEntriesOfType(other);
+
+	if (count > 1) {
+		return AMBIGUOUS;
+	} else if (count == 1) {
+		return UNAMBIGUOUS;
+	} else {
+		return INCOMPATIBLE;
+	}
+}
+
+const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
+		const TypeSpecifier& type_specifier) const {
+	return make_shared<std::string>(
+			m_type_table->MapSpecifierToName(type_specifier));
 }

@@ -33,8 +33,11 @@ public:
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
-	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
-			const std::string& member_name) const;
+	virtual const std::string ValueToString(const TypeTable& type_table,
+			const Indent& indent, const_shared_ptr<void> value) const;
+
+	virtual bool IsSpecifiedBy(const std::string name,
+			const TypeSpecifier& type_specifier) const;
 
 	const BasicType GetType() const {
 		return m_type;

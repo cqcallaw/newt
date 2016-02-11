@@ -137,28 +137,42 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 							execution_context);
 
 					if (ErrorList::IsTerminator(errors)) {
-						const_shared_ptr<SumTypeSpecifier> as_sum_specifier =
-								std::dynamic_pointer_cast<const SumTypeSpecifier>(
-										initializer_expression_type);
-						if (as_sum_specifier
-								&& initializer_expression_type->IsAssignableTo(
-										as_sum_specifier)) {
+						auto widening_analysis = as_sum->AnalyzeWidening(
+								*initializer_expression_type);
+						if (initializer_expression_type->IsAssignableTo(
+								sum_type_specifier)) {
+							//generate default instance; actual assignment must be done in execute stage
+							//this is because assignment of constant expressions to sum types is only valid if the constant expression is narrower than the sum type
+							instance = Sum::GetDefaultInstance(
+									sum_type_specifier, as_sum);
+						} else if (widening_analysis == UNAMBIGUOUS) {
 							if (GetInitializerExpression()->IsConstant()) {
+								//assignment of constant expressions to sum types is only valid if constant expression is narrower than the sum type
+								//we can therefore assume that a new Sum must be created if we've hit this branch
+								//widening conversions of non-constant initializers must be handled in the execute stage
 								const_shared_ptr<Result> result =
 										GetInitializerExpression()->Evaluate(
 												execution_context);
 								errors = result->GetErrors();
 								if (ErrorList::IsTerminator(errors)) {
+									auto variant_name =
+											as_sum->MapSpecifierToVariant(
+													*initializer_expression_type);
 									instance = make_shared<Sum>(
-											sum_type_specifier,
-											initializer_expression_type,
+											sum_type_specifier, variant_name,
 											result->GetData());
 								}
-							} else {
-								//generate default instance
-								instance = Sum::GetDefaultInstance(
-										sum_type_specifier, as_sum);
 							}
+						} else if (widening_analysis == AMBIGUOUS) {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::AMBIGUOUS_WIDENING_CONVERSION,
+													GetInitializerExpression()->GetPosition().begin.line,
+													GetInitializerExpression()->GetPosition().begin.column,
+													m_type_specifier->GetTypeName(),
+													initializer_expression_type->ToString()),
+											errors);
 						} else {
 							errors =
 									ErrorList::From(

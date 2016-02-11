@@ -38,20 +38,20 @@ const string SumTypeSpecifier::ToString() const {
 
 const bool SumTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other) const {
-	const_shared_ptr<SumTypeSpecifier> as_record = std::dynamic_pointer_cast<
+	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
 			const SumTypeSpecifier>(other);
-	return as_record && as_record->GetTypeName().compare(m_type_name) == 0;
+	return as_sum && as_sum->GetTypeName().compare(m_type_name) == 0;
 }
 
 const_shared_ptr<void> SumTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
 	auto type = type_table.GetType<SumType>(m_type_name);
 	if (type) {
-		auto declaration_type = type->GetFirstDeclaration()->GetType();
+		auto declaration = type->GetFirstDeclaration();
 		return make_shared<Sum>(
 				make_shared<SumTypeSpecifier>(m_type_name, m_space),
-				declaration_type,
-				declaration_type->DefaultValue(*type->GetTypeTable()));
+				declaration->GetName(),
+				declaration->GetType()->DefaultValue(*type->GetTypeTable()));
 	}
 	return const_shared_ptr<void>();
 }
@@ -62,8 +62,8 @@ const_shared_ptr<DeclarationStatement> SumTypeSpecifier::GetDeclarationStatement
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) const {
 	return make_shared<ComplexInstantiationStatement>(position,
-			static_pointer_cast<const RecordTypeSpecifier>(type),
-			type_position, name, name_position, initializer_expression);
+			static_pointer_cast<const RecordTypeSpecifier>(type), type_position,
+			name, name_position, initializer_expression);
 }
 
 bool SumTypeSpecifier::operator ==(const TypeSpecifier& other) const {

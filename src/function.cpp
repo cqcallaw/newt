@@ -28,6 +28,7 @@
 #include <defaults.h>
 #include <sum_type_specifier.h>
 #include <sum.h>
+#include <sum_type.h>
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
@@ -158,14 +159,22 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
 			plain_shared_ptr<void> result = evaluation_result->GetValue();
-			auto as_sum = dynamic_pointer_cast<const SumTypeSpecifier>(
-					m_declaration->GetReturnType());
-			if (as_sum) {
+			auto as_sum_specifier =
+					dynamic_pointer_cast<const SumTypeSpecifier>(
+							m_declaration->GetReturnType());
+			if (as_sum_specifier) {
 				auto evaluation_result_type = evaluation_result->GetType();
-				if (as_sum != evaluation_result_type) {
-					//we're returning a narrower type than the return type; perform boxing
-					result = make_shared<Sum>(as_sum, evaluation_result_type,
-							evaluation_result->GetValue());
+				if (as_sum_specifier != evaluation_result_type) {
+					auto sum_type_definition =
+							invocation_context->GetTypeTable()->GetType<SumType>(
+									as_sum_specifier->GetTypeName());
+					if (sum_type_definition) {
+						//we're returning a narrower type than the return type; perform widening
+						result = make_shared<Sum>(as_sum_specifier,
+								sum_type_definition->MapSpecifierToVariant(
+										*evaluation_result_type),
+								evaluation_result->GetValue());
+					}
 				}
 			}
 

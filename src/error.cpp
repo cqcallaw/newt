@@ -69,6 +69,10 @@ const string Error::get_error_message() const {
 		os << "Cannot assign an expression of type '" << m_s2
 				<< "' to a variable of type '" << m_s1 << "'.";
 		break;
+	case AMBIGUOUS_WIDENING_CONVERSION:
+		os << "Cannot unambiguously widen an expression of type '" << m_s2
+				<< "' to a variable of type '" << m_s1 << "'.";
+		break;
 	case EXIT_STATUS_MUST_BE_AN_INTEGER:
 		os << "Value passed to exit() must be an integer.  "
 				<< "Value passed was of type '" << m_s1 << "'.";

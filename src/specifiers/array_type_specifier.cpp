@@ -59,15 +59,9 @@ const_shared_ptr<void> ArrayTypeSpecifier::DefaultValue(
 
 const bool ArrayTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other) const {
-//	const_shared_ptr<StructuralSumTypeSpecifier> as_sum = dynamic_pointer_cast<
-//			const StructuralSumTypeSpecifier>(other);
-//	if (as_sum) {
-//		return as_sum->ContainsType(*this, ALLOW_WIDENING);
-//	}
-//
 	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
 			const ArrayTypeSpecifier>(other);
-	return as_array
+	return (as_array
 			&& m_element_type_specifier->IsAssignableTo(
-					as_array->GetElementTypeSpecifier());
+					as_array->GetElementTypeSpecifier()));
 }

@@ -135,3 +135,24 @@ const_shared_ptr<TypeSpecifier> RecordType::GetMemberType(
 		const std::string& member_name) const {
 	return GetMember(member_name)->GetType();
 }
+
+const std::string RecordType::ValueToString(const TypeTable& type_table,
+		const Indent& indent, const_shared_ptr<void> value) const {
+	ostringstream buffer;
+	auto as_record = static_pointer_cast<const Record>(value);
+	buffer
+			<< Symbol::ToString(as_record->GetTypeSpecifier(), value,
+					type_table, indent);
+	return buffer.str();
+}
+
+bool RecordType::IsSpecifiedBy(const std::string name,
+		const TypeSpecifier& type_specifier) const {
+	try {
+		const RecordTypeSpecifier& as_record =
+				dynamic_cast<const RecordTypeSpecifier&>(type_specifier);
+		return name == as_record.GetTypeName();
+	} catch (std::bad_cast& e) {
+		return false;
+	}
+}

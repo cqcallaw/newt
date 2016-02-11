@@ -21,6 +21,7 @@
 #include <nested_type_specifier.h>
 #include <sum_type.h>
 #include <record_type.h>
+#include <primitive_type.h>
 #include <member_definition.h>
 #include <nested_declaration_statement.h>
 #include <record_type_specifier.h>
@@ -61,15 +62,24 @@ const_shared_ptr<void> NestedTypeSpecifier::DefaultValue(
 
 	auto as_sum_type = dynamic_pointer_cast<const SumType>(parent_type);
 	if (as_sum_type) {
-		const_shared_ptr<TypeSpecifier> variant_type =
-				as_sum_type->GetMemberType(*m_member_name);
-		if (variant_type != PrimitiveTypeSpecifier::GetNone()) {
-			return variant_type->DefaultValue(*as_sum_type->GetTypeTable());
+		auto sum_type_table = as_sum_type->GetTypeTable();
+
+		auto child_as_primitive = sum_type_table->GetType<PrimitiveType>(
+				*m_member_name);
+		if (child_as_primitive) {
+			return PrimitiveTypeSpecifier::FromBasicType(
+					child_as_primitive->GetType())->DefaultValue(type_table);
 		}
+
+		auto child_as_record = sum_type_table->GetType<RecordType>(
+				*m_member_name);
+		if (child_as_record) {
+			return Record::GetDefaultInstance(*m_member_name, child_as_record);
+		}
+		//TODO: nested sum types
 	}
 
-	auto as_record_type = dynamic_pointer_cast<const RecordType>(
-			parent_type);
+	auto as_record_type = dynamic_pointer_cast<const RecordType>(parent_type);
 	if (as_record_type) {
 		auto definition = as_record_type->GetMember(*m_member_name);
 		if (definition != MemberDefinition::GetDefaultMemberDefinition()) {

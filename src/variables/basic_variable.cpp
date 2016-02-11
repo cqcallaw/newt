@@ -25,6 +25,7 @@
 #include <function_declaration.h>
 #include <function.h>
 #include <sum.h>
+#include <sum_type.h>
 
 #include "assert.h"
 #include "expression.h"
@@ -187,8 +188,8 @@ const ErrorListRef BasicVariable::AssignValue(
 	}
 
 //TODO: don't allow += or -= operations on compound type specifiers
-	const_shared_ptr<RecordTypeSpecifier> as_record =
-			std::dynamic_pointer_cast<const RecordTypeSpecifier>(symbol_type);
+	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
+			const RecordTypeSpecifier>(symbol_type);
 	if (as_record) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
@@ -219,9 +220,9 @@ const ErrorListRef BasicVariable::AssignValue(
 		}
 	}
 
-	/*const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
-			const SumTypeSpecifier>(symbol_type);
-	if (as_sum) {
+	const_shared_ptr<SumTypeSpecifier> as_sum_specifier =
+			std::dynamic_pointer_cast<const SumTypeSpecifier>(symbol_type);
+	if (as_sum_specifier) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
@@ -231,20 +232,30 @@ const ErrorListRef BasicVariable::AssignValue(
 			auto expression_type = expression->GetType(context);
 
 			plain_shared_ptr<Sum> new_sum;
-			if (*symbol->GetType() == *expression_type) {
-				//we're re-assigning an entire sum
+			if (expression_type->IsAssignableTo(symbol_type)) {
+				//we're re-assigning
 				new_sum = static_pointer_cast<const Sum>(
 						expression_evaluation->GetData());
-			} else if (expression_type->IsAssignableTo(symbol_type)) {
-				new_sum = sum->WithValue(expression_type,
-						expression_evaluation->GetData());
 			} else {
-				assert(false);
+				auto sum_type = context->GetTypeTable()->GetType<SumType>(
+						as_sum_specifier->GetTypeName());
+				auto widening_analysis = sum_type->AnalyzeWidening(
+						*expression_type);
+
+				if (widening_analysis == UNAMBIGUOUS) {
+					//we're widening
+					auto tag = sum_type->MapSpecifierToVariant(
+							*expression_type);
+					new_sum = make_shared<Sum>(as_sum_specifier, tag,
+							expression_evaluation->GetData());
+				} else {
+					assert(false);
+				}
 			}
 
 			errors = SetSymbol(output_context, new_sum);
 		}
-	}*/
+	}
 
 	return errors;
 }
@@ -310,7 +321,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const_shared_ptr<Sum> sum) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(context->SetSymbol(*GetName(), sum),
-			symbol->GetType(), sum->GetTag());
+			symbol->GetType(), sum->GetType());
 }
 
 const_shared_ptr<Variable> BasicVariable::GetDefaultVariable() {

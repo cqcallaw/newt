@@ -8,15 +8,15 @@ number_ctor_map number:
 	(int) -> number discrete:
 
 
-number t: 7 {int}
+number t: 7 {discrete}
 
 Root Type Table:
 ----------------
-number: 
-	continuous: 
+number:
+	continuous:
 		double
-	discrete: 
+	discrete:
 		int
-number_ctor_map: 
+number_ctor_map:
 	(double) -> number continuous ()
 	(int) -> number discrete ()

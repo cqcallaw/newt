@@ -63,12 +63,6 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
 	}
 
-//	const_shared_ptr<StructuralSumTypeSpecifier> as_sum = dynamic_pointer_cast<
-//			const StructuralSumTypeSpecifier>(other);
-//	if (as_sum) {
-//		return as_sum->ContainsType(*this, ALLOW_WIDENING);
-//	}
-
 	return false;
 }
 

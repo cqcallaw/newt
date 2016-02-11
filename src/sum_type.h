@@ -30,7 +30,9 @@
 #include <map>
 #include <string>
 
-typedef map<const string, const_shared_ptr<Function>> constructor_map;
+enum WideningResult {
+	INCOMPATIBLE = 0, AMBIGUOUS = 1, UNAMBIGUOUS = 2
+};
 
 class SumType: public TypeDefinition {
 public:
@@ -40,16 +42,27 @@ public:
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
+	virtual const std::string ValueToString(const TypeTable& type_table,
+			const Indent& indent, const_shared_ptr<void> value) const;
+
 	const_shared_ptr<TypeTable> GetTypeTable() const {
 		return m_type_table;
+	}
+
+	const const_shared_ptr<DeclarationStatement> GetFirstDeclaration() const {
+		return m_first_declaration;
 	}
 
 	static const_shared_ptr<Result> Build(const TypeTable& type_table,
 			const DeclarationListRef member_declarations);
 
-	const const_shared_ptr<DeclarationStatement> GetFirstDeclaration() const {
-		return m_first_declaration;
-	}
+	virtual bool IsSpecifiedBy(const std::string name,
+			const TypeSpecifier& type_specifier) const;
+
+	const WideningResult AnalyzeWidening(const TypeSpecifier& other) const;
+
+	const_shared_ptr<std::string> MapSpecifierToVariant(
+			const TypeSpecifier& type_specifier) const;
 
 private:
 	SumType(const_shared_ptr<TypeTable> type_table,

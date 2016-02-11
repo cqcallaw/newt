@@ -65,12 +65,6 @@ const string FunctionTypeSpecifier::ToString() const {
 
 const bool FunctionTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other) const {
-//	const_shared_ptr<StructuralSumTypeSpecifier> as_sum = dynamic_pointer_cast<
-//			const StructuralSumTypeSpecifier>(other);
-//	if (as_sum) {
-//		return as_sum->ContainsType(*this, ALLOW_WIDENING);
-//	}
-
 	return *this == *other;
 }
 

@@ -19,6 +19,7 @@
 
 #include <type_table.h>
 #include <record_type.h>
+#include <primitive_type.h>
 
 TypeTable::TypeTable() :
 		table(make_shared<type_map>()) {
@@ -38,7 +39,7 @@ const void TypeTable::print(ostream& os, const Indent& indent) const {
 	type_map::iterator iter;
 	for (iter = table->begin(); iter != table->end(); ++iter) {
 		os << indent;
-		os << iter->first << ": " << endl;
+		os << iter->first << ":" << endl;
 		const_shared_ptr<TypeDefinition> type = iter->second;
 		os << type->ToString(*this, indent);
 	}
@@ -47,4 +48,29 @@ const void TypeTable::print(ostream& os, const Indent& indent) const {
 volatile_shared_ptr<TypeTable> TypeTable::GetDefault() {
 	static volatile_shared_ptr<TypeTable> instance = make_shared<TypeTable>();
 	return instance;
+}
+
+const uint TypeTable::CountEntriesOfType(const TypeSpecifier& other) const {
+	uint count = 0;
+	for (const auto &entry : *table) {
+		auto name = entry.first;
+		auto definition = entry.second;
+		if (definition->IsSpecifiedBy(name, other)) {
+			count++;
+		}
+	}
+	return count;
+}
+
+const std::string TypeTable::MapSpecifierToName(
+		const TypeSpecifier& type_specifier) const {
+	for (const auto &entry : *table) {
+		auto name = entry.first;
+		auto definition = entry.second;
+		if (definition->IsSpecifiedBy(name, type_specifier)) {
+			return name;
+		}
+	}
+
+	return "";
 }

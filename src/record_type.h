@@ -47,6 +47,9 @@ public:
 	const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
+	virtual const std::string ValueToString(const TypeTable& type_table,
+			const Indent& indent, const_shared_ptr<void> value) const;
+
 	const_shared_ptr<definition_map> GetDefinition() const {
 		return m_definition;
 	}
@@ -59,6 +62,9 @@ public:
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;
 	}
+
+	virtual bool IsSpecifiedBy(const std::string name,
+			const TypeSpecifier& type_specifier) const;
 
 private:
 	const_shared_ptr<definition_map> m_definition;
