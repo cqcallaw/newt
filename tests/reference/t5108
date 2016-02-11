@@ -13,7 +13,7 @@ int s: 9
 
 Root Type Table:
 ----------------
-point: 
+point:
 	(int) -> int squared ()
 	int x (0)
 	int y (0)

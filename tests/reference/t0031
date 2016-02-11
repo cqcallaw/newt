@@ -22,7 +22,7 @@ nested_container container:
 
 Root Type Table:
 ----------------
-nested_container: 
+nested_container:
 	test[][] test ()
-test: 
+test:
 	int x (10)

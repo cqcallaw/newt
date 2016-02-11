@@ -229,7 +229,8 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	if (GetInitializerExpression()) {
+	if (GetInitializerExpression()
+			&& !GetInitializerExpression()->IsConstant()) {
 		const_shared_ptr<TypeDefinition> type =
 				execution_context->GetTypeTable()->GetType<TypeDefinition>(
 						m_type_specifier->GetTypeName());
@@ -257,7 +258,6 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 					GetInitializerExpression()->Evaluate(execution_context);
 
 			errors = evaluation->GetErrors();
-
 			if (ErrorList::IsTerminator(errors)) {
 				auto void_value = evaluation->GetData();
 				const_shared_ptr<Sum> instance = static_pointer_cast<const Sum>(

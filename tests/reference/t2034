@@ -47,12 +47,12 @@ MyStruct m_struct3:
 
 Root Type Table:
 ----------------
-MyStruct: 
+MyStruct:
 	int h (0)
 	int w (0)
 	int x (0)
 	int y (0)
-MyStruct2: 
+MyStruct2:
 	int w (3)
 	double x (0)
 	string y ("")

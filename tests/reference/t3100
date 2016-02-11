@@ -10,5 +10,5 @@ end array
 
 Root Type Table:
 ----------------
-my_struct: 
+my_struct:
 	int[] arr ()

@@ -60,7 +60,7 @@ int p: 20
 
 Root Type Table:
 ----------------
-circle: 
+circle:
 	int radius (0)
 	int w (20)
 	int x (0)

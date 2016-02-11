@@ -9,6 +9,6 @@ point a:
 
 Root Type Table:
 ----------------
-point: 
+point:
 	double x (1)
 	double y (0)

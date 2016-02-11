@@ -86,7 +86,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 								evaluated_expression);
 
 				auto preprocessing_errors = ErrorList::Concatenate(errors,
-						declaration->preprocess(function_execution_context));
+						argument_declaration->preprocess(function_execution_context));
 				if (ErrorList::IsTerminator(preprocessing_errors)) {
 					errors = ErrorList::Concatenate(errors,
 							argument_declaration->execute(

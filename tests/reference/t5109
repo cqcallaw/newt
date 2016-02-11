@@ -26,7 +26,7 @@ point t2:
 
 Root Type Table:
 ----------------
-point: 
+point:
 	(int, int) -> point translate ()
 	int x (0)
 	int y (0)
