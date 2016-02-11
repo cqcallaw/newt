@@ -2,7 +2,26 @@ Parsing file ../tests/t6006.nwt...
 Parsed file ../tests/t6006.nwt.
 Root Symbol Table:
 ----------------
-(double|int|string) t: 15.2 {double}
+franken_ctor_map franken:
+	(string) -> franken as_string:
+
+	(double) -> franken continuous:
+
+	(int) -> franken discrete:
+
+
+franken t: 15.2 {continuous}
 
 Root Type Table:
 ----------------
+franken:
+	as_string:
+		string
+	continuous:
+		double
+	discrete:
+		int
+franken_ctor_map:
+	(string) -> franken as_string ()
+	(double) -> franken continuous ()
+	(int) -> franken discrete ()

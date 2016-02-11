@@ -1,1 +1,7 @@
-t:(double|int|string) = "things"
+sum franken {
+	discrete:int
+	| continuous:double
+	| as_string:string
+}
+
+t:franken = "things"

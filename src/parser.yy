@@ -912,9 +912,9 @@ sum_declaration_statement:
 
 //---------------------------------------------------------------------
 variant_list:
-	variant_list variant
+	variant_list PIPE variant
 	{
-		$$ = DeclarationList::From($2, $1);
+		$$ = DeclarationList::From($3, $1);
 	}
 	| variant PIPE variant
 	{
