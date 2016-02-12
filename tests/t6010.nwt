@@ -1,5 +1,9 @@
 //test inference and subsequent re-assignment
-t:(double|int) = 56 
+sum number {
+	discrete:int
+	| continuous:double
+}
 
+t:number = 56
 a:= t
 a = 42.1

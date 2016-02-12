@@ -48,16 +48,11 @@ const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetType(
 		auto parent_name = as_nested_type->GetParent()->GetTypeName();
 		auto member_name = as_nested_type->GetMemberName();
 
-		auto record_type = execution_context->GetTypeTable()->GetType<
-				RecordType>(parent_name);
+		auto record_type =
+				execution_context->GetTypeTable()->GetType<RecordType>(
+						parent_name);
 		if (record_type) {
 			return record_type->GetMember(*member_name)->GetType();
-		}
-
-		auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
-				parent_name);
-		if (sum_type) {
-			return sum_type->GetMemberType(*member_name);
 		}
 	}
 	return m_type;

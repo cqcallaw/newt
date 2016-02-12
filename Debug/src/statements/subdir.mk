@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/statements/alias_declaration_statement.cpp \
 ../src/statements/array_declaration_statement.cpp \
 ../src/statements/assignment_statement.cpp \
 ../src/statements/complex_instantiation_statement.cpp \
@@ -23,6 +24,7 @@ CPP_SRCS += \
 ../src/statements/sum_declaration_statement.cpp 
 
 OBJS += \
+./src/statements/alias_declaration_statement.o \
 ./src/statements/array_declaration_statement.o \
 ./src/statements/assignment_statement.o \
 ./src/statements/complex_instantiation_statement.o \
@@ -42,6 +44,7 @@ OBJS += \
 ./src/statements/sum_declaration_statement.o 
 
 CPP_DEPS += \
+./src/statements/alias_declaration_statement.d \
 ./src/statements/array_declaration_statement.d \
 ./src/statements/assignment_statement.d \
 ./src/statements/complex_instantiation_statement.d \

@@ -38,6 +38,7 @@
 #include <variable_expression.h>
 #include <return_statement.h>
 #include <with_expression.h>
+#include <alias_declaration_statement.h>
 
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 		const_shared_ptr<ComplexTypeSpecifier> type,
@@ -77,148 +78,166 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 		//generate a record type containing type constructor functions
 		DeclarationListRef subject = m_variant_list;
 		while (!DeclarationList::IsTerminator(subject)) {
-			//in all cases, no arguments == default value
-			//for primitive declaration statements, a single-argument function that just returns that argument
-
 			auto declaration = subject->GetData();
 			auto variant_name = declaration->GetName();
 
-			auto as_primitive = dynamic_pointer_cast<
-					const PrimitiveDeclarationStatement>(declaration);
-			if (as_primitive) {
-				const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
-						as_primitive;
-				DeclarationListRef parameter = DeclarationList::From(
-						parameter_declaration,
-						DeclarationList::GetTerminator());
+			auto as_alias =
+					dynamic_pointer_cast<const AliasDeclarationStatement>(
+							declaration);
 
-				auto function_signature = make_shared<FunctionDeclaration>(
-						parameter, m_type);
+			if (as_alias) {
+				//for primitive declaration statements, a single-argument function that just returns that argument
+				auto alias_type_specifier = as_alias->GetType();
 
-				const_shared_ptr<Expression> return_expression = make_shared<
-						VariableExpression>(GetDefaultLocation(),
-						make_shared<BasicVariable>(as_primitive->GetName(),
-								GetDefaultLocation()));
+				auto as_primitive_specifier = dynamic_pointer_cast<
+						const PrimitiveTypeSpecifier>(alias_type_specifier);
+				if (as_primitive_specifier) {
+					const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
+							make_shared<PrimitiveDeclarationStatement>(
+									as_alias->GetPosition(),
+									as_primitive_specifier,
+									as_alias->GetTypePosition(),
+									as_alias->GetName(),
+									as_alias->GetNamePosition());
+					DeclarationListRef parameter = DeclarationList::From(
+							parameter_declaration,
+							DeclarationList::GetTerminator());
 
-				const_shared_ptr<ReturnStatement> return_statement =
-						make_shared<ReturnStatement>(return_expression);
+					auto function_signature = make_shared<FunctionDeclaration>(
+							parameter, m_type);
 
-				const StatementListRef statement_list = StatementList::From(
-						return_statement, StatementList::GetTerminator());
-				const_shared_ptr<StatementBlock> statement_block = make_shared<
-						StatementBlock>(statement_list, GetDefaultLocation());
-
-				const_shared_ptr<Function> function = make_shared<Function>(
-						function_signature, statement_block, execution_context);
-
-				auto definition = make_shared<MemberDefinition>(
-						function_signature, function);
-				constructor_map->insert(
-						pair<const string, const_shared_ptr<MemberDefinition>>(
-								*variant_name, definition));
-
-				auto symbol = make_shared<Symbol>(function);
-				auto insert_result = constructor_instance->InsertSymbol(
-						*variant_name, symbol);
-
-				if (insert_result == SYMBOL_EXISTS) {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::PREVIOUS_DECLARATION,
-											GetInitializerExpression()->GetPosition().begin.line,
-											GetInitializerExpression()->GetPosition().begin.column,
-											*variant_name), errors);
-				}
-			}
-
-			//for record types, take keyword arguments.
-			//therefore, declaration statements map directly to named parameters
-			auto as_record = dynamic_pointer_cast<
-					const RecordDeclarationStatement>(declaration);
-			if (as_record) {
-				auto variant_specifier = make_shared<NestedTypeSpecifier>(
-						m_type, variant_name);
-
-				auto function_signature = make_shared<FunctionDeclaration>(
-						as_record->GetMemberDeclarationList(), m_type);
-
-				//source expression is (@sum_type).variant_name
-				const_shared_ptr<Expression> default_value_expression =
-						make_shared<DefaultValueExpression>(
-								GetDefaultLocation(), variant_specifier,
-								GetDefaultLocation());
-
-				//instantiation of each member is assigning the argument value to that member.
-				//So we want a function definition that looks something like:
-				// (member_a:member_a_type, member_b:member_b_type) -> sum_type {
-				//		return @sum_type.variant with {
-				//			member_a = member_a,
-				//			member_b = member_b,
-				//		}
-				//}
-				//the member instantiations are self-referential because the right-hand side is evaluated in the containing context
-				DeclarationListRef member_subject =
-						as_record->GetMemberDeclarationList();
-				MemberInstantiationListRef member_instantiation_list =
-						MemberInstantiationList::GetTerminator();
-
-				while (!DeclarationList::IsTerminator(member_subject)) {
-					auto member_declaration = member_subject->GetData();
-
-					const_shared_ptr<Expression> member_instantionation_expression =
+					const_shared_ptr<Expression> return_expression =
 							make_shared<VariableExpression>(
 									GetDefaultLocation(),
 									make_shared<BasicVariable>(
-											member_declaration->GetName(),
+											declaration->GetName(),
 											GetDefaultLocation()));
-					const_shared_ptr<MemberInstantiation> member_instantiation =
-							make_shared<MemberInstantiation>(
-									member_declaration->GetName(),
-									member_declaration->GetNamePosition(),
-									member_instantionation_expression);
-					member_instantiation_list = MemberInstantiationList::From(
-							member_instantiation, member_instantiation_list);
 
-					member_subject = member_subject->GetNext();
-				}
+					const_shared_ptr<ReturnStatement> return_statement =
+							make_shared<ReturnStatement>(return_expression);
 
-				const_shared_ptr<Expression> instantiation_expression =
-						make_shared<WithExpression>(GetDefaultLocation(),
-								default_value_expression,
-								member_instantiation_list,
-								GetDefaultLocation());
+					const StatementListRef statement_list = StatementList::From(
+							return_statement, StatementList::GetTerminator());
+					const_shared_ptr<StatementBlock> statement_block =
+							make_shared<StatementBlock>(statement_list,
+									GetDefaultLocation());
 
-				const_shared_ptr<ReturnStatement> return_statement =
-						make_shared<ReturnStatement>(instantiation_expression);
+					const_shared_ptr<Function> function = make_shared<Function>(
+							function_signature, statement_block,
+							execution_context);
 
-				const StatementListRef statement_list = StatementList::From(
-						return_statement, StatementList::GetTerminator());
-				const_shared_ptr<StatementBlock> statement_block = make_shared<
-						StatementBlock>(statement_list, GetDefaultLocation());
+					auto definition = make_shared<MemberDefinition>(
+							function_signature, function);
+					constructor_map->insert(
+							pair<const string,
+									const_shared_ptr<MemberDefinition>>(
+									*variant_name, definition));
 
-				const_shared_ptr<Function> function = make_shared<Function>(
-						function_signature, statement_block, execution_context);
+					auto symbol = make_shared<Symbol>(function);
+					auto insert_result = constructor_instance->InsertSymbol(
+							*variant_name, symbol);
 
-				auto definition = make_shared<MemberDefinition>(
-						function_signature, function);
-				constructor_map->insert(
-						pair<const string, const_shared_ptr<MemberDefinition>>(
-								*variant_name, definition));
-				auto symbol = make_shared<Symbol>(function);
-				auto insert_result = constructor_instance->InsertSymbol(
-						*variant_name, symbol);
-
-				if (insert_result == SYMBOL_EXISTS) {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::PREVIOUS_DECLARATION,
-											GetInitializerExpression()->GetPosition().begin.line,
-											GetInitializerExpression()->GetPosition().begin.column,
-											*variant_name), errors);
+					if (insert_result == SYMBOL_EXISTS) {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::PREVIOUS_DECLARATION,
+												GetInitializerExpression()->GetPosition().begin.line,
+												GetInitializerExpression()->GetPosition().begin.column,
+												*variant_name), errors);
+					}
 				}
 			}
+
+// this section of code is the seed of kwargs-based type constructors for record types
+// this feature does not seem compelling enough to implement at this time, but may have use later
+//			//for record types, take keyword arguments.
+//			//therefore, declaration statements map directly to named parameters
+//			auto as_record = dynamic_pointer_cast<
+//					const RecordDeclarationStatement>(declaration);
+//			if (as_record) {
+//				auto variant_specifier = make_shared<NestedTypeSpecifier>(
+//						m_type, variant_name);
+//
+//				auto function_signature = make_shared<FunctionDeclaration>(
+//						as_record->GetMemberDeclarationList(), m_type);
+//
+//				//source expression is (@sum_type).variant_name
+//				const_shared_ptr<Expression> default_value_expression =
+//						make_shared<DefaultValueExpression>(
+//								GetDefaultLocation(), variant_specifier,
+//								GetDefaultLocation());
+//
+//				//instantiation of each member is assigning the argument value to that member.
+//				//So we want a function definition that looks something like:
+//				// (member_a:member_a_type, member_b:member_b_type) -> sum_type {
+//				//		return @sum_type.variant with {
+//				//			member_a = member_a,
+//				//			member_b = member_b,
+//				//		}
+//				//}
+//				//the member instantiations are self-referential because the right-hand side is evaluated in the containing context
+//				DeclarationListRef member_subject =
+//						as_record->GetMemberDeclarationList();
+//				MemberInstantiationListRef member_instantiation_list =
+//						MemberInstantiationList::GetTerminator();
+//
+//				while (!DeclarationList::IsTerminator(member_subject)) {
+//					auto member_declaration = member_subject->GetData();
+//
+//					const_shared_ptr<Expression> member_instantionation_expression =
+//							make_shared<VariableExpression>(
+//									GetDefaultLocation(),
+//									make_shared<BasicVariable>(
+//											member_declaration->GetName(),
+//											GetDefaultLocation()));
+//					const_shared_ptr<MemberInstantiation> member_instantiation =
+//							make_shared<MemberInstantiation>(
+//									member_declaration->GetName(),
+//									member_declaration->GetNamePosition(),
+//									member_instantionation_expression);
+//					member_instantiation_list = MemberInstantiationList::From(
+//							member_instantiation, member_instantiation_list);
+//
+//					member_subject = member_subject->GetNext();
+//				}
+//
+//				const_shared_ptr<Expression> instantiation_expression =
+//						make_shared<WithExpression>(GetDefaultLocation(),
+//								default_value_expression,
+//								member_instantiation_list,
+//								GetDefaultLocation());
+//
+//				const_shared_ptr<ReturnStatement> return_statement =
+//						make_shared<ReturnStatement>(instantiation_expression);
+//
+//				const StatementListRef statement_list = StatementList::From(
+//						return_statement, StatementList::GetTerminator());
+//				const_shared_ptr<StatementBlock> statement_block = make_shared<
+//						StatementBlock>(statement_list, GetDefaultLocation());
+//
+//				const_shared_ptr<Function> function = make_shared<Function>(
+//						function_signature, statement_block, execution_context);
+//
+//				auto definition = make_shared<MemberDefinition>(
+//						function_signature, function);
+//				constructor_map->insert(
+//						pair<const string, const_shared_ptr<MemberDefinition>>(
+//								*variant_name, definition));
+//				auto symbol = make_shared<Symbol>(function);
+//				auto insert_result = constructor_instance->InsertSymbol(
+//						*variant_name, symbol);
+//
+//				if (insert_result == SYMBOL_EXISTS) {
+//					errors =
+//							ErrorList::From(
+//									make_shared<Error>(Error::SEMANTIC,
+//											Error::PREVIOUS_DECLARATION,
+//											GetInitializerExpression()->GetPosition().begin.line,
+//											GetInitializerExpression()->GetPosition().begin.column,
+//											*variant_name), errors);
+//				}
+//			}
 
 			subject = subject->GetNext();
 		}

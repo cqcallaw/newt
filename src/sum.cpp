@@ -37,7 +37,8 @@ Sum::~Sum() {
 const string Sum::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
-	auto sum_type = type_table.GetType<SumType>(m_type->GetTypeName());
+	auto name = m_type->GetTypeName();
+	auto sum_type = type_table.GetType<SumType>(name);
 	auto type_definition = sum_type->GetTypeTable()->GetType<TypeDefinition>(
 			*m_tag);
 	buffer << type_definition->ValueToString(type_table, indent, m_value);

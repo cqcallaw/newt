@@ -2,13 +2,25 @@ Parsing file ../tests/t6008.nwt...
 Parsed file ../tests/t6008.nwt.
 Root Symbol Table:
 ----------------
-(double|error) result:
-	int code: 3
-	string message: "Insufficient funds."
+result r:
+		int code: 3
+		string message: "Insufficient funds."
  {error}
+result_ctor_map result:
+	(double) -> result value:
+
+
 
 Root Type Table:
 ----------------
-error: 
+error:
 	int code (0)
 	string message ("")
+result:
+	error:
+		int code (0)
+		string message ("")
+	value:
+		double
+result_ctor_map:
+	(double) -> result value ()

@@ -26,6 +26,7 @@
 #include <primitive_type.h>
 #include <primitive_type_specifier.h>
 #include <record_declaration_statement.h>
+#include <alias_declaration_statement.h>
 #include <sum.h>
 #include <sum_type.h>
 #include <sum_type_specifier.h>
@@ -33,6 +34,8 @@
 #include <memory>
 #include <sstream>
 #include <typeinfo>
+#include <alias_definition.h>
+#include <record_type.h>
 
 const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
@@ -80,22 +83,38 @@ const_shared_ptr<Result> SumType::Build(const TypeTable& type_table,
 			auto declaration = subject->GetData();
 			auto variant_name = declaration->GetName();
 
-			auto as_primitive = dynamic_pointer_cast<
-					const PrimitiveDeclarationStatement>(declaration);
-			if (as_primitive) {
-				auto basic_type =
-						static_pointer_cast<const PrimitiveTypeSpecifier>(
-								as_primitive->GetType())->GetBasicType();
-				types->AddType(*as_primitive->GetName(),
-						make_shared<PrimitiveType>(basic_type));
-			}
-
 			auto as_record = dynamic_pointer_cast<
 					const RecordDeclarationStatement>(declaration);
 			if (as_record) {
 				auto record_type_name = as_record->GetName();
 				types->AddType(*record_type_name,
 						type_table.GetType<TypeDefinition>(*record_type_name));
+			}
+
+			auto as_alias =
+					dynamic_pointer_cast<const AliasDeclarationStatement>(
+							declaration);
+			if (as_alias) {
+				auto alias_type_name = as_alias->GetName();
+				auto original_type_specifier = as_alias->GetType();
+
+				//would be nice to abstract this casting logic into a helper function
+				auto original_as_primitive = dynamic_pointer_cast<
+						const PrimitiveTypeSpecifier>(original_type_specifier);
+				if (original_as_primitive) {
+					auto basic_type = original_as_primitive->GetBasicType();
+					types->AddType(*alias_type_name,
+							make_shared<PrimitiveType>(basic_type));
+				}
+
+				auto original_as_record = dynamic_pointer_cast<
+						const RecordTypeSpecifier>(original_type_specifier);
+				if (original_as_record) {
+					auto original = type_table.GetType<RecordType>(
+							original_as_record->GetTypeName());
+					auto alias = make_shared<AliasDefinition>(original);
+					types->AddType(*alias_type_name, alias);
+				}
 			}
 
 			subject = subject->GetNext();
