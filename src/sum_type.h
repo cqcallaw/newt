@@ -53,7 +53,8 @@ public:
 		return m_first_declaration;
 	}
 
-	static const_shared_ptr<Result> Build(const TypeTable& type_table,
+	static const_shared_ptr<Result> Build(
+			const shared_ptr<ExecutionContext> context,
 			const DeclarationListRef member_declarations);
 
 	virtual bool IsSpecifiedBy(const std::string name,

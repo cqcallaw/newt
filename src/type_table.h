@@ -26,6 +26,7 @@
 
 class TypeDefinition;
 class RecordType;
+class ComplexTypeSpecifier;
 
 typedef map<const string, const_shared_ptr<TypeDefinition>> type_map;
 
@@ -52,6 +53,8 @@ public:
 
 		return shared_ptr<const T>();
 	}
+
+	const bool ContainsType(const ComplexTypeSpecifier& type_specifier);
 
 	const void print(ostream &os, const Indent& indent) const;
 

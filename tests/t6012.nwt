@@ -1,0 +1,10 @@
+//test default values of nested complex types
+sum result {
+	value:int
+	| error {
+		code:int
+		message:string
+	}
+}
+
+good_result:result= 10

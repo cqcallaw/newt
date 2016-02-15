@@ -20,6 +20,7 @@
 #include <type_table.h>
 #include <record_type.h>
 #include <primitive_type.h>
+#include <complex_type_specifier.h>
 
 TypeTable::TypeTable() :
 		table(make_shared<type_map>()) {
@@ -73,4 +74,8 @@ const std::string TypeTable::MapSpecifierToName(
 	}
 
 	return "";
+}
+
+const bool TypeTable::ContainsType(const ComplexTypeSpecifier& type_specifier) {
+	return table->find(type_specifier.GetTypeName()) != table->end();
 }

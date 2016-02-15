@@ -61,8 +61,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
-	auto result = SumType::Build(*type_table, m_variant_list);
+	auto result = SumType::Build(execution_context, m_variant_list);
 
 	errors = result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
@@ -248,7 +247,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 		auto specifier = make_shared<RecordTypeSpecifier>(ctor_type_name);
 		auto type = make_shared<RecordType>(constructor_map,
 				Modifier::Type::READONLY);
-		type_table->AddType(ctor_type_name, type);
+		execution_context->GetTypeTable()->AddType(ctor_type_name, type);
 
 		auto instance = make_shared<Record>(specifier, constructor_instance);
 		auto instance_symbol = make_shared<Symbol>(instance);

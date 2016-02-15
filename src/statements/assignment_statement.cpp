@@ -207,7 +207,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 				errors =
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
-										Error::VARIABLE_NOT_A_COMPOUND_TYPE,
+										Error::NOT_A_COMPOUND_TYPE,
 										member_variable->GetContainer()->GetLocation().begin.line,
 										member_variable->GetContainer()->GetLocation().begin.column,
 										*variable_name), errors);

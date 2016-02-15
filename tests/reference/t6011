@@ -1,0 +1,23 @@
+Parsing file ../tests/t6011.nwt...
+Parsed file ../tests/t6011.nwt.
+Root Symbol Table:
+----------------
+result first_result:
+		int code: 1
+		string message: "Failed to guess magic number."
+ {error}
+result_ctor_map result:
+	(int) -> result value:
+
+
+
+Root Type Table:
+----------------
+result:
+	error:
+		int code (0)
+		string message ("")
+	value:
+		int
+result_ctor_map:
+	(int) -> result value ()

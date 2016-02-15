@@ -78,7 +78,7 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
+							Error::NOT_A_COMPOUND_TYPE,
 							m_container->GetLocation().begin.line,
 							m_container->GetLocation().begin.column,
 							*(GetName())), errors);
@@ -353,7 +353,7 @@ const ErrorListRef MemberVariable::Validate(
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
+							Error::NOT_A_COMPOUND_TYPE,
 							m_container->GetLocation().begin.line,
 							m_container->GetLocation().begin.column,
 							*m_container->GetName()), errors);

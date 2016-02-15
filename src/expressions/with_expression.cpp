@@ -25,6 +25,8 @@
 #include <assignment_statement.h>
 #include <basic_variable.h>
 #include <record_type_specifier.h>
+#include <nested_type_specifier.h>
+#include <sum_type.h>
 
 WithExpression::WithExpression(const yy::location position,
 		const_shared_ptr<Expression> source_expression,
@@ -50,74 +52,100 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 			execution_context);
 
 	errors = source_result->GetErrors();
-	if (errors == ErrorList::GetTerminator()) {
+	if (ErrorList::IsTerminator(errors)) {
 		plain_shared_ptr<void> new_value;
 		const_shared_ptr<TypeSpecifier> type_specifier =
 				m_source_expression->GetType(execution_context);
 
-		const_shared_ptr<RecordTypeSpecifier> as_record =
-				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+		string type_name;
+		shared_ptr<const RecordType> type = nullptr;
+		shared_ptr<const TypeDefinition> member_definition = nullptr;
+
+		const_shared_ptr<NestedTypeSpecifier> as_nested =
+				std::dynamic_pointer_cast<const NestedTypeSpecifier>(
 						type_specifier);
-		if (as_record) {
-			const string type_name = as_record->GetTypeName();
-			const_shared_ptr<RecordType> type =
-					execution_context->GetTypeTable()->GetType<RecordType>(
-							type_name);
 
-			if (type) {
-				auto raw_result = source_result->GetData();
-				auto as_record = static_pointer_cast<
-						const Record>(raw_result);
-				const_shared_ptr<SymbolContext> definition =
-						as_record->GetDefinition();
+		if (as_nested) {
+			auto parent = as_nested->GetParent();
+			auto parent_type = execution_context->GetTypeTable()->GetType<
+					SumType>(parent->GetTypeName());
 
-				//create a new context that isn't read-only and has no parent
-				volatile_shared_ptr<SymbolContext> new_symbol_context =
-						definition->Clone()->WithModifiers(
-								Modifier::Type(
-										definition->GetModifiers()
-												& ~(Modifier::Type::READONLY)));
+			if (parent_type) {
+				type_name = *as_nested->GetMemberName();
+				member_definition = parent_type->GetTypeTable()->GetType<
+						TypeDefinition>(type_name);
+			}
+		} else {
+			const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+							type_specifier);
+			if (as_record_specifier) {
+				type_name = as_record_specifier->GetTypeName();
+				member_definition = execution_context->GetTypeTable()->GetType<
+						TypeDefinition>(type_name);
+			}
+		}
 
-				volatile_shared_ptr<ExecutionContext> temp_execution_context =
-						execution_context->WithContents(new_symbol_context);
+		if (member_definition) {
+			auto as_record = std::dynamic_pointer_cast<const RecordType>(
+					member_definition);
 
-				MemberInstantiationListRef subject = m_member_instantiation_list;
-				while (!MemberInstantiationList::IsTerminator(subject)) {
-					const_shared_ptr<MemberInstantiation> instantiation =
-							subject->GetData();
-
-					auto variable = make_shared<BasicVariable>(
-							instantiation->GetName(),
-							instantiation->GetNamePosition());
-					errors = ErrorList::Concatenate(errors,
-							variable->AssignValue(execution_context,
-									instantiation->GetExpression(),
-									temp_execution_context, ASSIGN));
-
-					subject = subject->GetNext();
-				}
-
-				new_symbol_context = new_symbol_context->WithModifiers(
-						definition->GetModifiers());
-
-				new_value = std::make_shared<Record>(
-						as_record->GetTypeSpecifier(), new_symbol_context);
-
+			if (as_record) {
+				type = as_record;
 			} else {
 				errors = ErrorList::From(
-						std::make_shared<Error>(Error::SEMANTIC,
-								Error::UNDECLARED_TYPE,
+						make_shared<Error>(Error::SEMANTIC,
+								Error::NOT_A_COMPOUND_TYPE,
 								m_source_expression->GetPosition().begin.line,
 								m_source_expression->GetPosition().begin.column,
-								type_name), errors);
+								type_specifier->ToString()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
-					std::make_shared<Error>(Error::SEMANTIC,
-							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
+					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_source_expression->GetPosition().begin.line,
-							m_source_expression->GetPosition().begin.column),
-					errors);
+							m_source_expression->GetPosition().begin.column,
+							type_name), errors);
+		}
+
+		if (ErrorList::IsTerminator(errors)) {
+			auto raw_result = source_result->GetData();
+			auto as_record = static_pointer_cast<const Record>(raw_result);
+			const_shared_ptr<SymbolContext> definition =
+					as_record->GetDefinition();
+
+			//create a new context that isn't read-only and has no parent
+			volatile_shared_ptr<SymbolContext> new_symbol_context =
+					definition->Clone()->WithModifiers(
+							Modifier::Type(
+									definition->GetModifiers()
+											& ~(Modifier::Type::READONLY)));
+
+			volatile_shared_ptr<ExecutionContext> temp_execution_context =
+					execution_context->WithContents(new_symbol_context);
+
+			MemberInstantiationListRef subject = m_member_instantiation_list;
+			while (!MemberInstantiationList::IsTerminator(subject)) {
+				const_shared_ptr<MemberInstantiation> instantiation =
+						subject->GetData();
+
+				auto variable = make_shared<BasicVariable>(
+						instantiation->GetName(),
+						instantiation->GetNamePosition());
+				errors = ErrorList::Concatenate(errors,
+						variable->AssignValue(execution_context,
+								instantiation->GetExpression(),
+								temp_execution_context, ASSIGN));
+
+				subject = subject->GetNext();
+			}
+
+			new_symbol_context = new_symbol_context->WithModifiers(
+					definition->GetModifiers());
+
+			new_value = std::make_shared<Record>(as_record->GetTypeSpecifier(),
+					new_symbol_context);
+
 		}
 
 		return make_shared<Result>(new_value, errors);
@@ -146,80 +174,106 @@ const ErrorListRef WithExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = m_source_expression->Validate(execution_context);
 
-	if (errors == ErrorList::GetTerminator()) {
+	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> type_specifier =
 				m_source_expression->GetType(execution_context);
 
-		const_shared_ptr<RecordTypeSpecifier> as_record =
-				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+		string type_name;
+		shared_ptr<const RecordType> type = nullptr;
+		shared_ptr<const TypeDefinition> member_definition = nullptr;
+
+		const_shared_ptr<NestedTypeSpecifier> as_nested =
+				std::dynamic_pointer_cast<const NestedTypeSpecifier>(
 						type_specifier);
-		if (as_record) {
-			const string type_name = as_record->GetTypeName();
-			const_shared_ptr<RecordType> type =
-					execution_context->GetTypeTable()->GetType<RecordType>(
-							type_name);
 
-			if (type) {
-				MemberInstantiationListRef instantiation_list =
-						m_member_instantiation_list;
-				while (!MemberInstantiationList::IsTerminator(
-						instantiation_list)) {
-					const_shared_ptr<MemberInstantiation> instantiation =
-							instantiation_list->GetData();
-					auto member_name = instantiation->GetName();
-					const_shared_ptr<MemberDefinition> member_definition =
-							type->GetMember(*member_name);
+		if (as_nested) {
+			auto parent = as_nested->GetParent();
+			auto parent_type = execution_context->GetTypeTable()->GetType<
+					SumType>(parent->GetTypeName());
 
-					if (member_definition
-							!= MemberDefinition::GetDefaultMemberDefinition()) {
-						const_shared_ptr<TypeSpecifier> member_type =
-								member_definition->GetType();
-						const_shared_ptr<TypeSpecifier> expression_type =
-								instantiation->GetExpression()->GetType(
-										execution_context);
-						if (!expression_type->IsAssignableTo(member_type)) {
-							//undefined member
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::ASSIGNMENT_TYPE_ERROR,
-													instantiation->GetExpression()->GetPosition().begin.line,
-													instantiation->GetExpression()->GetPosition().begin.column,
-													member_type->ToString(),
-													expression_type->ToString()),
-											errors);
-						}
-					} else {
+			if (parent_type) {
+				type_name = *as_nested->GetMemberName();
+				member_definition = parent_type->GetTypeTable()->GetType<
+						TypeDefinition>(type_name);
+			}
+		} else {
+			const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+							type_specifier);
+			if (as_record_specifier) {
+				type_name = as_record_specifier->GetTypeName();
+				member_definition = execution_context->GetTypeTable()->GetType<
+						TypeDefinition>(type_name);
+			}
+		}
+
+		if (member_definition) {
+			auto as_record = std::dynamic_pointer_cast<const RecordType>(
+					member_definition);
+
+			if (as_record) {
+				type = as_record;
+			} else {
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::NOT_A_COMPOUND_TYPE,
+								m_source_expression->GetPosition().begin.line,
+								m_source_expression->GetPosition().begin.column,
+								type_specifier->ToString()), errors);
+			}
+		} else {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
+							m_source_expression->GetPosition().begin.line,
+							m_source_expression->GetPosition().begin.column,
+							type_name), errors);
+		}
+
+		if (ErrorList::IsTerminator(errors)) {
+			MemberInstantiationListRef instantiation_list =
+					m_member_instantiation_list;
+			while (!MemberInstantiationList::IsTerminator(instantiation_list)) {
+				const_shared_ptr<MemberInstantiation> instantiation =
+						instantiation_list->GetData();
+				auto member_name = instantiation->GetName();
+				const_shared_ptr<MemberDefinition> member_definition =
+						type->GetMember(*member_name);
+
+				if (member_definition
+						!= MemberDefinition::GetDefaultMemberDefinition()) {
+					const_shared_ptr<TypeSpecifier> member_type =
+							member_definition->GetType();
+					const_shared_ptr<TypeSpecifier> expression_type =
+							instantiation->GetExpression()->GetType(
+									execution_context);
+					if (!expression_type->IsAssignableTo(member_type)) {
 						//undefined member
 						errors =
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
-												Error::UNDECLARED_MEMBER,
-												instantiation->GetNamePosition().begin.line,
-												instantiation->GetNamePosition().begin.column,
-												*member_name,
-												member_definition->GetType()->ToString()),
+												Error::ASSIGNMENT_TYPE_ERROR,
+												instantiation->GetExpression()->GetPosition().begin.line,
+												instantiation->GetExpression()->GetPosition().begin.column,
+												member_type->ToString(),
+												expression_type->ToString()),
 										errors);
-
 					}
+				} else {
+					//undefined member
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::UNDECLARED_MEMBER,
+											instantiation->GetNamePosition().begin.line,
+											instantiation->GetNamePosition().begin.column,
+											*member_name,
+											member_definition->GetType()->ToString()),
+									errors);
 
-					instantiation_list = instantiation_list->GetNext();
 				}
-			} else {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::UNDECLARED_TYPE,
-								m_source_expression->GetPosition().begin.line,
-								m_source_expression->GetPosition().begin.column,
-								type_name), errors);
+
+				instantiation_list = instantiation_list->GetNext();
 			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::VARIABLE_NOT_A_COMPOUND_TYPE,
-							m_source_expression->GetPosition().begin.line,
-							m_source_expression->GetPosition().begin.column),
-					errors);
 		}
 	}
 

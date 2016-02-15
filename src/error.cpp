@@ -144,8 +144,8 @@ const string Error::get_error_message() const {
 	case VARIABLE_NOT_AN_ARRAY:
 		os << "Variable '" << m_s1 << "' is not an array.";
 		break;
-	case VARIABLE_NOT_A_COMPOUND_TYPE:
-		os << "Variable '" << m_s1 << "' does not reference a compound type.";
+	case NOT_A_COMPOUND_TYPE:
+		os << "'" << m_s1 << "' does not reference a compound type.";
 		break;
 	case DIVIDE_BY_ZERO:
 		os << "Arithmetic divide by zero.";
