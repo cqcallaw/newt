@@ -139,10 +139,12 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 					if (ErrorList::IsTerminator(errors)) {
 						auto widening_analysis = as_sum->AnalyzeWidening(
 								*initializer_expression_type);
+
 						if (initializer_expression_type->IsAssignableTo(
 								sum_type_specifier)) {
 							//generate default instance; actual assignment must be done in execute stage
-							//this is because assignment of constant expressions to sum types is only valid if the constant expression is narrower than the sum type
+							//this is because assignment of constant expressions to sum types is only valid
+							//if the constant expression is narrower than the sum type
 							instance = Sum::GetDefaultInstance(
 									sum_type_specifier, as_sum);
 						} else if (widening_analysis == UNAMBIGUOUS) {

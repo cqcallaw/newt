@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../src/array.cpp \
 ../src/assert.cpp \
+../src/complex_type.cpp \
 ../src/defaults.cpp \
 ../src/driver.cpp \
 ../src/error.cpp \
@@ -33,6 +34,7 @@ CPP_SRCS += \
 OBJS += \
 ./src/array.o \
 ./src/assert.o \
+./src/complex_type.o \
 ./src/defaults.o \
 ./src/driver.o \
 ./src/error.o \
@@ -60,6 +62,7 @@ OBJS += \
 CPP_DEPS += \
 ./src/array.d \
 ./src/assert.d \
+./src/complex_type.d \
 ./src/defaults.d \
 ./src/driver.d \
 ./src/error.d \

@@ -30,11 +30,15 @@
 #include <function.h>
 #include <function_declaration.h>
 #include <execution_context.h>
+#include <type_table.h>
+#include <sum_type.h>
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
 		TypeSpecifierListRef parameter_type_list,
-		const_shared_ptr<TypeSpecifier> return_type) :
-		m_parameter_type_list(parameter_type_list), m_return_type(return_type) {
+		const_shared_ptr<TypeSpecifier> return_type,
+		const yy::location return_type_location) :
+		m_parameter_type_list(parameter_type_list), m_return_type(return_type), m_return_type_location(
+				return_type_location) {
 }
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(const FunctionTypeSpecifier& other) :

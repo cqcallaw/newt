@@ -1,15 +1,19 @@
-struct error {
-	code:int
-	message:string
-}
-
-f:= (a:int) -> (int | error) {
-	if (a == 1) {
-		return a
-	} else {
-		return @error with { code = 1, message = "Failed to guess magic number." }
+//test sum types as a return value
+sum result {
+	value:int
+	| error {
+		code:int
+		message:string
 	}
 }
 
-result := f(1)
+f:= (a:int) -> result {
+	if (a == 1) {
+		return a
+	} else {
+		return @result.error with { code = 7, message = "Failed to guess magic number." }
+	}
+}
+
+first_result := f(1)
 second_result := f(3)

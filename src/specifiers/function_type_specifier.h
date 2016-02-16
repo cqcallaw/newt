@@ -30,7 +30,8 @@ class Function;
 class FunctionTypeSpecifier: public TypeSpecifier {
 public:
 	FunctionTypeSpecifier(TypeSpecifierListRef parameter_type_list,
-			const_shared_ptr<TypeSpecifier> return_type);
+			const_shared_ptr<TypeSpecifier> return_type,
+			const yy::location m_return_type_location);
 	FunctionTypeSpecifier(const FunctionTypeSpecifier& other);
 	virtual ~FunctionTypeSpecifier();
 
@@ -55,6 +56,11 @@ public:
 	const_shared_ptr<TypeSpecifier> GetReturnType() const {
 		return m_return_type;
 	}
+
+	const yy::location GetReturnTypeLocation() const {
+		return m_return_type_location;
+	}
+
 protected:
 	static const_shared_ptr<StatementBlock> GetDefaultStatementBlock(
 			const_shared_ptr<TypeSpecifier> return_type,
@@ -67,6 +73,7 @@ protected:
 private:
 	TypeSpecifierListRef m_parameter_type_list;
 	const_shared_ptr<TypeSpecifier> m_return_type;
+	const yy::location m_return_type_location;
 };
 
 #endif /* FUNCTION_TYPE_SPECIFIER_H_ */

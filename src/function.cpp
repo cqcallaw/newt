@@ -29,6 +29,7 @@
 #include <sum_type_specifier.h>
 #include <sum.h>
 #include <sum_type.h>
+#include <nested_type_specifier.h>
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
@@ -86,7 +87,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 								evaluated_expression);
 
 				auto preprocessing_errors = ErrorList::Concatenate(errors,
-						argument_declaration->preprocess(function_execution_context));
+						argument_declaration->preprocess(
+								function_execution_context));
 				if (ErrorList::IsTerminator(preprocessing_errors)) {
 					errors = ErrorList::Concatenate(errors,
 							argument_declaration->execute(
@@ -159,21 +161,49 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
 			plain_shared_ptr<void> result = evaluation_result->GetValue();
+			auto return_type = ComplexType::ToActualType(
+					m_declaration->GetReturnType(),
+					*invocation_context->GetTypeTable());
+
 			auto as_sum_specifier =
-					dynamic_pointer_cast<const SumTypeSpecifier>(
-							m_declaration->GetReturnType());
+					dynamic_pointer_cast<const SumTypeSpecifier>(return_type);
 			if (as_sum_specifier) {
 				auto evaluation_result_type = evaluation_result->GetType();
-				if (as_sum_specifier != evaluation_result_type) {
+				if (*as_sum_specifier != *evaluation_result_type) {
 					auto sum_type_definition =
 							invocation_context->GetTypeTable()->GetType<SumType>(
 									as_sum_specifier->GetTypeName());
 					if (sum_type_definition) {
 						//we're returning a narrower type than the return type; perform widening
-						result = make_shared<Sum>(as_sum_specifier,
-								sum_type_definition->MapSpecifierToVariant(
-										*evaluation_result_type),
+						plain_shared_ptr<string> tag;
+						//strip out any container types
+						auto as_nested = dynamic_pointer_cast<
+								const NestedTypeSpecifier>(
+								evaluation_result_type);
+						if (as_nested) {
+							if (as_sum_specifier->GetTypeName()
+									== as_nested->GetParent()->GetTypeName()) {
+								tag = as_nested->GetMemberName();
+							} else {
+								//mismatch between types. if we did our semantic analysis right, this shouldn't ever occur
+								assert(false);
+							}
+						} else {
+							tag = sum_type_definition->MapSpecifierToVariant(
+									*evaluation_result_type);
+						}
+
+						result = make_shared<Sum>(as_sum_specifier, tag,
 								evaluation_result->GetValue());
+					} else {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::UNDECLARED_TYPE,
+												m_declaration->GetReturnTypeLocation().begin.line,
+												m_declaration->GetReturnTypeLocation().begin.column,
+												as_sum_specifier->GetTypeName()),
+										errors);
 					}
 				}
 			}

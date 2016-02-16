@@ -30,14 +30,16 @@
 #include <execution_context.h>
 
 FunctionDeclaration::FunctionDeclaration(DeclarationListRef parameter_list,
-		const_shared_ptr<TypeSpecifier> return_type) :
-		FunctionTypeSpecifier(GetTypeList(parameter_list), return_type), m_parameter_list(
-				parameter_list) {
+		const_shared_ptr<TypeSpecifier> return_type,
+		const yy::location return_type_location) :
+		FunctionTypeSpecifier(GetTypeList(parameter_list), return_type,
+				return_type_location), m_parameter_list(parameter_list) {
 }
 
 FunctionDeclaration::FunctionDeclaration(const FunctionDeclaration& other) :
 		FunctionTypeSpecifier(other.GetParameterTypeList(),
-				other.GetReturnType()), m_parameter_list(other.m_parameter_list) {
+				other.GetReturnType(), other.GetReturnTypeLocation()), m_parameter_list(
+				other.m_parameter_list) {
 }
 
 FunctionDeclaration::~FunctionDeclaration() {
@@ -64,7 +66,8 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 	DeclarationListRef declaration_list = DeclarationList::Reverse(result);
 
 	return make_shared<FunctionDeclaration>(declaration_list,
-			type_specifier.GetReturnType());
+			type_specifier.GetReturnType(),
+			type_specifier.GetReturnTypeLocation());
 }
 
 const_shared_ptr<void> FunctionDeclaration::DefaultValue(

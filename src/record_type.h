@@ -26,7 +26,7 @@
 #include <symbol_context.h>
 #include <modifier.h>
 #include <declaration_statement.h>
-#include <type_definition.h>
+#include <complex_type.h>
 
 class MemberDefinition;
 class Result;
@@ -34,7 +34,7 @@ class Result;
 typedef map<const std::string, const_shared_ptr<MemberDefinition>> definition_map;
 
 using namespace std;
-class RecordType: public TypeDefinition {
+class RecordType: public ComplexType {
 public:
 	RecordType(const_shared_ptr<definition_map> definition,
 			const Modifier::Type modifiers);

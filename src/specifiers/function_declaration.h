@@ -26,7 +26,8 @@
 class FunctionDeclaration: public FunctionTypeSpecifier {
 public:
 	FunctionDeclaration(DeclarationListRef parameter_list,
-			const_shared_ptr<TypeSpecifier> return_type);
+			const_shared_ptr<TypeSpecifier> return_type,
+			const yy::location return_type_location);
 	FunctionDeclaration(const FunctionDeclaration& other);
 	virtual ~FunctionDeclaration();
 
@@ -54,6 +55,7 @@ protected:
 
 private:
 	DeclarationListRef m_parameter_list;
+
 };
 
 #endif /* SPECIFIERS_FUNCTION_DECLARATION_H_ */

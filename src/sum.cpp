@@ -27,7 +27,7 @@ Sum::Sum(const_shared_ptr<SumTypeSpecifier> type,
 		const_shared_ptr<std::string> tag, const_shared_ptr<void> value) :
 		m_type(type), m_tag(tag), m_value(value) {
 	assert(m_type);
-	assert(m_tag);
+	assert(m_tag && *m_tag != "");
 	assert(m_value);
 }
 

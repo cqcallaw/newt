@@ -58,12 +58,12 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			m_expression->GetType(execution_context);
 	if (!expression_type_specifier->IsAssignableTo(type_specifier)) {
-		auto as_complex_specifier = dynamic_pointer_cast<
-				const ComplexTypeSpecifier>(type_specifier);
-		if (as_complex_specifier) {
+		auto as_sum_specifier = dynamic_pointer_cast<const SumTypeSpecifier>(
+				type_specifier);
+		if (as_sum_specifier) {
 			//widening of sum types requires special handling
 			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
-					as_complex_specifier->GetTypeName());
+					as_sum_specifier->GetTypeName());
 			if (sum_type) {
 				auto widening_analysis = sum_type->AnalyzeWidening(
 						*expression_type_specifier);

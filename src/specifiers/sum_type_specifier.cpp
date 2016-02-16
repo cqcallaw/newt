@@ -68,9 +68,9 @@ const_shared_ptr<DeclarationStatement> SumTypeSpecifier::GetDeclarationStatement
 
 bool SumTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
-		const SumTypeSpecifier& as_record =
+		const SumTypeSpecifier& as_sum =
 				dynamic_cast<const SumTypeSpecifier&>(other);
-		return GetTypeName() == as_record.GetTypeName();
+		return GetTypeName() == as_sum.GetTypeName();
 	} catch (std::bad_cast& e) {
 		return false;
 	}

@@ -103,7 +103,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 							DeclarationList::GetTerminator());
 
 					auto function_signature = make_shared<FunctionDeclaration>(
-							parameter, m_type);
+							parameter, m_type, GetDefaultLocation());
 
 					const_shared_ptr<Expression> return_expression =
 							make_shared<VariableExpression>(

@@ -25,7 +25,7 @@
 #include <function.h>
 #include <indent.h>
 #include <result.h>
-#include <type_definition.h>
+#include <complex_type.h>
 #include <type_table.h>
 #include <map>
 #include <string>
@@ -34,7 +34,7 @@ enum WideningResult {
 	INCOMPATIBLE = 0, AMBIGUOUS = 1, UNAMBIGUOUS = 2
 };
 
-class SumType: public TypeDefinition {
+class SumType: public ComplexType {
 public:
 	virtual ~SumType() {
 	}

@@ -1,19 +1,16 @@
-Parsing file ../tests/t6015.nwt...
-Parsed file ../tests/t6015.nwt.
+Parsing file ../tests/t6016.nwt...
+Parsed file ../tests/t6016.nwt.
 Root Symbol Table:
 ----------------
 (int) -> result f:
-	Body Location: 10.24-15.2
+	Body Location: 9.24-10.23
 
 result first_result: 1 {value}
 result_ctor_map result:
 	(int) -> result value:
 
 
-result second_result:
-		int code: 7
-		string message: "Failed to guess magic number."
- {error}
+result second_result: 3 {value}
 
 Root Type Table:
 ----------------
