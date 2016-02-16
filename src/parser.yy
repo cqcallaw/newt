@@ -943,8 +943,9 @@ variant:
 	| IDENTIFIER
 	{
 		//short-hand for unit types
+		const ModifierListRef modifiers = ModifierList::From(make_shared<Modifier>(Modifier::Type::READONLY, GetDefaultLocation()), ModifierList::GetTerminator());
 		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>(*$1);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, DeclarationList::GetTerminator(), GetDefaultLocation(), ModifierList::GetTerminator(), GetDefaultLocation());
+		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, DeclarationList::GetTerminator(), GetDefaultLocation(), modifiers, GetDefaultLocation());
 	}
 	;
 
