@@ -98,7 +98,7 @@ class Driver;
 #include <function_declaration_statement.h>
 #include <inferred_declaration_statement.h>
 #include <sum_declaration_statement.h>
-#include <alias_declaration_statement.h>
+#include <type_alias_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -934,11 +934,11 @@ variant:
 	}
 	| IDENTIFIER COLON primitive_type_specifier
 	{
-		$$ = make_shared<AliasDeclarationStatement>(@$, $3, @3, $1, @1);
+		$$ = make_shared<TypeAliasDeclarationStatement>(@$, $3, @3, $1, @1);
 	}
 	| IDENTIFIER COLON complex_type_specifier
 	{
-		$$ = make_shared<AliasDeclarationStatement>(@$, $3, @3, $1, @1);
+		$$ = make_shared<TypeAliasDeclarationStatement>(@$, $3, @3, $1, @1);
 	}
 	| IDENTIFIER
 	{

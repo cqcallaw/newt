@@ -17,19 +17,18 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_ALIAS_DECLARATION_STATEMENT_H_
-#define STATEMENTS_ALIAS_DECLARATION_STATEMENT_H_
+#ifndef STATEMENTS_TYPE_ALIAS_DECLARATION_STATEMENT_H_
+#define STATEMENTS_TYPE_ALIAS_DECLARATION_STATEMENT_H_
 
 #include <declaration_statement.h>
 
-class AliasDeclarationStatement: public DeclarationStatement {
+class TypeAliasDeclarationStatement: public DeclarationStatement {
 public:
-	AliasDeclarationStatement(const yy::location position,
+	TypeAliasDeclarationStatement(const yy::location position,
 			const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression = nullptr);
-	virtual ~AliasDeclarationStatement();
+			const yy::location name_position);
+	virtual ~TypeAliasDeclarationStatement();
 
 	const_shared_ptr<TypeSpecifier> GetType() const {
 		return m_type;
@@ -53,4 +52,4 @@ private:
 	const yy::location m_type_position;
 };
 
-#endif /* STATEMENTS_ALIAS_DECLARATION_STATEMENT_H_ */
+#endif /* STATEMENTS_TYPE_ALIAS_DECLARATION_STATEMENT_H_ */

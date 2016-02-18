@@ -26,7 +26,6 @@
 #include <primitive_type.h>
 #include <primitive_type_specifier.h>
 #include <record_declaration_statement.h>
-#include <alias_declaration_statement.h>
 #include <sum.h>
 #include <sum_type.h>
 #include <sum_type_specifier.h>
@@ -37,6 +36,7 @@
 #include <alias_definition.h>
 #include <record_type.h>
 #include <execution_context.h>
+#include <type_alias_declaration_statement.h>
 
 const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
@@ -96,7 +96,7 @@ const_shared_ptr<Result> SumType::Build(
 			}
 
 			auto as_alias =
-					dynamic_pointer_cast<const AliasDeclarationStatement>(
+					dynamic_pointer_cast<const TypeAliasDeclarationStatement>(
 							declaration);
 			if (as_alias) {
 				auto alias_type_name = as_alias->GetName();

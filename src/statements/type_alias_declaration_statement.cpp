@@ -17,32 +17,36 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <alias_declaration_statement.h>
+#include <type_alias_declaration_statement.h>
 
-AliasDeclarationStatement::AliasDeclarationStatement(
+TypeAliasDeclarationStatement::TypeAliasDeclarationStatement(
 		const yy::location position, const_shared_ptr<TypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) :
+		const yy::location name_position) :
 		DeclarationStatement(position, name, name_position,
-				initializer_expression, ModifierList::GetTerminator(),
+				const_shared_ptr<Expression>(), ModifierList::GetTerminator(),
 				GetDefaultLocation()), m_type(type), m_type_position(
 				type_position) {
 }
 
-AliasDeclarationStatement::~AliasDeclarationStatement() {
+TypeAliasDeclarationStatement::~TypeAliasDeclarationStatement() {
 }
 
-const ErrorListRef AliasDeclarationStatement::preprocess(
+const ErrorListRef TypeAliasDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
+	//no-op
+	return ErrorList::GetTerminator();
 }
 
-const ErrorListRef AliasDeclarationStatement::execute(
+const ErrorListRef TypeAliasDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
+	//no-op
+	return ErrorList::GetTerminator();
 }
 
-const DeclarationStatement* AliasDeclarationStatement::WithInitializerExpression(
+const DeclarationStatement* TypeAliasDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new AliasDeclarationStatement(GetPosition(), m_type, m_type_position,
-			GetName(), GetNamePosition(), expression);
+	//no-op
+	return new TypeAliasDeclarationStatement(GetPosition(), m_type,
+			m_type_position, GetName(), GetNamePosition());
 }

@@ -37,8 +37,8 @@
 #include <primitive_declaration_statement.h>
 #include <variable_expression.h>
 #include <return_statement.h>
+#include <type_alias_declaration_statement.h>
 #include <with_expression.h>
-#include <alias_declaration_statement.h>
 
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 		const_shared_ptr<ComplexTypeSpecifier> type,
@@ -81,7 +81,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 			auto variant_name = declaration->GetName();
 
 			auto as_alias =
-					dynamic_pointer_cast<const AliasDeclarationStatement>(
+					dynamic_pointer_cast<const TypeAliasDeclarationStatement>(
 							declaration);
 
 			if (as_alias) {
