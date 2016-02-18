@@ -80,9 +80,8 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 			auto declaration = subject->GetData();
 			auto variant_name = declaration->GetName();
 
-			auto as_alias =
-					dynamic_pointer_cast<const TypeAliasDeclarationStatement>(
-							declaration);
+			auto as_alias = dynamic_pointer_cast<
+					const TypeAliasDeclarationStatement>(declaration);
 
 			if (as_alias) {
 				//for primitive declaration statements, a single-argument function that just returns that argument
@@ -121,9 +120,9 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 							make_shared<StatementBlock>(statement_list,
 									GetDefaultLocation());
 
+					auto weak = weak_ptr<ExecutionContext>(execution_context);
 					const_shared_ptr<Function> function = make_shared<Function>(
-							function_signature, statement_block,
-							execution_context);
+							function_signature, statement_block, weak);
 
 					auto definition = make_shared<MemberDefinition>(
 							function_signature, function);
