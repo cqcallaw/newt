@@ -1,0 +1,7 @@
+//test invalid sum type specifier
+sum test {
+	i:int
+	| d:double
+}
+
+t:= invalid_type.i(5)

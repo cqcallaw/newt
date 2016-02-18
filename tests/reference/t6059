@@ -1,0 +1,4 @@
+Parsing file ../tests/t6059.nwt...
+Semantic error on line 7, column 15: Type "test_ctor" does not contain a member named "f".
+Parsed file ../tests/t6059.nwt.
+1 error found; giving up.

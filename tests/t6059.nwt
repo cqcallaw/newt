@@ -1,0 +1,7 @@
+//test invalid default value
+sum test {
+	i:int
+	| d:double
+}
+
+t:test = test.f(5)
