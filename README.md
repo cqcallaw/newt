@@ -11,15 +11,15 @@ newt is derived from [a compilers class project](http://www.ecst.csuchico.edu/~t
 newt is [free software](http://www.gnu.org/philosophy/free-sw.en.html), licensed under the [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html).
 
 # Philosophy
-As creators of software, automation is what we do. We automate because we have the idea that this automation yields value. If we actually believe this idea that automation is valuable, we will apply it everywhere, including the software tools with which we create software (with some [exceptions](https://xkcd.com/1205/)).
+As creators of software, automation is what we do. We automate because we have the idea that this automation yields value. If we truly believe the idea that automation is valuable, we will apply it wherever possible, including the software tools with which we create software (with some [exceptions](https://xkcd.com/1205/)).
 
 Automation tightens feedback loops, and newt is built on the principle that tighter feedback loops yield solutions faster, and the solutions so yielded are qualitatively better. Here "feedback loop" encompasses everything necessary to create a solution and be confident that it works as intended, and includes authoring code, compilation (if necessary), and all forms of testing.
 
 "boilerplate" code and the manually synchronized declaration and definition exemplified by header files are examples of things that lack automation, and newt's creators are inspired by the succinctness and expressiveness found in languages such as [Python](https://www.python.org/) to avoid such constructs. However, newt is statically typed; that is, variables are associated with a type and may only be assigned of that type (or its subtypes). This is because dynamic variable typing has been observed to lead to subtle defects, and also requires a great deal of non-automated unit testing to achieve the same correctness guarantees that are more succinctly and precisely expressed in a static type system.
 
-newt also aims to automate immutability, as immutable data structures have been observed to avoid or mitigate many classes of defects. Little prior art is known to exist for such language constructs, so new syntax is introduced to achieve this goal. 
+newt also aims to automate immutability, as immutable data structures have been observed to avoid or mitigate many classes of defects. Little prior art is known to exist for such language constructs, so new syntax is introduced to achieve this goal. newt is also authored with the understanding that non-astonishing behavior is important, and that "non-astonishing" frequently just means "familiar." Where possible, existing conventions and well-known programming idioms are preserved.
 
-newt is built with the understanding that non-astonishing behavior is important, and that "non-astonishing" frequently just means "familiar". Where possible, existing conventions and well-known programming idioms are preserved.
+newt exists because it was believed that the state of the art of software-authoring software could be improved. The language specification and implementation are offered as evidence that an improved solution exists.
 
 # Building
 newt requires flex (tested with version 2.5.35), Bison (tested with version 3.0.2), and g++ (tested with 4.8.4) to build. To build a release binary, type the following from the commandline:
