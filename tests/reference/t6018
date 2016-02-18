@@ -1,0 +1,17 @@
+Parsing file ../tests/t6018.nwt...
+Parsed file ../tests/t6018.nwt.
+Root Symbol Table:
+----------------
+result_ctor_map result:
+
+result val:
+ {happy_fun}
+
+Root Type Table:
+----------------
+result:
+	error:
+	frowny_sad:
+	happy_fun:
+	no_result:
+result_ctor_map:

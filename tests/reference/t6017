@@ -1,0 +1,19 @@
+Parsing file ../tests/t6017.nwt...
+Parsed file ../tests/t6017.nwt.
+Root Symbol Table:
+----------------
+result_ctor_map result:
+	(int) -> result value:
+
+
+result val:
+ {error}
+
+Root Type Table:
+----------------
+result:
+	error:
+	value:
+		int
+result_ctor_map:
+	(int) -> result value ()

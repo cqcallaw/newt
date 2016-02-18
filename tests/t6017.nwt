@@ -1,0 +1,7 @@
+//test unit variant
+sum result {
+	value:int
+	| error
+}
+
+val:= @result.error
