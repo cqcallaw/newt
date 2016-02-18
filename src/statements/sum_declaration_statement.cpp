@@ -242,7 +242,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
-		string ctor_type_name = *GetName() + "_ctor_map";
+		string ctor_type_name = *GetName() + "_ctor";
 		auto specifier = make_shared<RecordTypeSpecifier>(ctor_type_name);
 		auto type = make_shared<RecordType>(constructor_map,
 				Modifier::Type::READONLY);

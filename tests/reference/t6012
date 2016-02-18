@@ -3,7 +3,7 @@ Parsed file ../tests/t6012.nwt.
 Root Symbol Table:
 ----------------
 result good_result: 10 {value}
-result_ctor_map result:
+result_ctor result:
 	(int) -> result value:
 
 
@@ -16,5 +16,5 @@ result:
 		string message ("")
 	value:
 		int
-result_ctor_map:
+result_ctor:
 	(int) -> result value ()

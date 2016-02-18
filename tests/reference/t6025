@@ -3,7 +3,7 @@ Parsed file ../tests/t6025.nwt.
 Root Symbol Table:
 ----------------
 test t: 0 {i}
-test_ctor_map test:
+test_ctor test:
 	(double) -> test d:
 
 	(int) -> test i:
@@ -17,6 +17,6 @@ test:
 		double
 	i:
 		int
-test_ctor_map:
+test_ctor:
 	(double) -> test d ()
 	(int) -> test i ()

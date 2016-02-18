@@ -6,7 +6,7 @@ result first_result:
 		int code: 1
 		string message: "Failed to guess magic number."
  {error}
-result_ctor_map result:
+result_ctor result:
 	(int) -> result value:
 
 
@@ -19,5 +19,5 @@ result:
 		string message ("")
 	value:
 		int
-result_ctor_map:
+result_ctor:
 	(int) -> result value ()

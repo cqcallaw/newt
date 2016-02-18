@@ -6,7 +6,7 @@ result r:
 		int code: 3
 		string message: "Insufficient funds."
  {error}
-result_ctor_map result:
+result_ctor result:
 	(double) -> result value:
 
 
@@ -22,5 +22,5 @@ result:
 		string message ("")
 	value:
 		double
-result_ctor_map:
+result_ctor:
 	(double) -> result value ()

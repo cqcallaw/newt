@@ -2,7 +2,7 @@ Parsing file ../tests/t6005.nwt...
 Parsed file ../tests/t6005.nwt.
 Root Symbol Table:
 ----------------
-franken_ctor_map franken:
+franken_ctor franken:
 	(string) -> franken as_string:
 
 	(double) -> franken continuous:
@@ -21,7 +21,7 @@ franken:
 		double
 	discrete:
 		int
-franken_ctor_map:
+franken_ctor:
 	(string) -> franken as_string ()
 	(double) -> franken continuous ()
 	(int) -> franken discrete ()

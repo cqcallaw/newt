@@ -2,7 +2,7 @@ Parsing file ../tests/t6017.nwt...
 Parsed file ../tests/t6017.nwt.
 Root Symbol Table:
 ----------------
-result_ctor_map result:
+result_ctor result:
 	(int) -> result value:
 
 
@@ -15,5 +15,5 @@ result:
 	error:
 	value:
 		int
-result_ctor_map:
+result_ctor:
 	(int) -> result value ()

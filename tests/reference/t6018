@@ -2,7 +2,7 @@ Parsing file ../tests/t6018.nwt...
 Parsed file ../tests/t6018.nwt.
 Root Symbol Table:
 ----------------
-result_ctor_map result:
+result_ctor result:
 
 result val:
  {happy_fun}
@@ -14,4 +14,4 @@ result:
 	frowny_sad:
 	happy_fun:
 	no_result:
-result_ctor_map:
+result_ctor:

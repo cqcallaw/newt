@@ -3,7 +3,7 @@ Parsed file ../tests/t6007.nwt.
 Root Symbol Table:
 ----------------
 int a: 51
-franken_ctor_map franken:
+franken_ctor franken:
 	(string) -> franken as_string:
 
 	(double) -> franken continuous:
@@ -22,7 +22,7 @@ franken:
 		double
 	discrete:
 		int
-franken_ctor_map:
+franken_ctor:
 	(string) -> franken as_string ()
 	(double) -> franken continuous ()
 	(int) -> franken discrete ()

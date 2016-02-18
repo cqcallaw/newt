@@ -2,7 +2,7 @@ Parsing file ../tests/t6000.nwt...
 Parsed file ../tests/t6000.nwt.
 Root Symbol Table:
 ----------------
-number_ctor_map number:
+number_ctor number:
 	(double) -> number continuous:
 
 	(int) -> number discrete:
@@ -17,6 +17,6 @@ number:
 		double
 	discrete:
 		int
-number_ctor_map:
+number_ctor:
 	(double) -> number continuous ()
 	(int) -> number discrete ()
