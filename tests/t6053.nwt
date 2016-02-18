@@ -1,0 +1,5 @@
+//test invalid variant name
+sum test {
+	int
+	| i:double
+}

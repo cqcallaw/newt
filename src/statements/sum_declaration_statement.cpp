@@ -140,8 +140,8 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::PREVIOUS_DECLARATION,
-												GetInitializerExpression()->GetPosition().begin.line,
-												GetInitializerExpression()->GetPosition().begin.column,
+												declaration->GetPosition().begin.line,
+												declaration->GetPosition().begin.column,
 												*variant_name), errors);
 					}
 				}

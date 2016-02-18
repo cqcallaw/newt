@@ -1,0 +1,5 @@
+//test duplicate variant names
+sum test {
+	i:int
+	| i:int
+}
