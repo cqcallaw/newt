@@ -51,7 +51,7 @@ const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetType() const {
 
 const ErrorListRef InferredDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<TypeSpecifier> expression_type =
 			GetInitializerExpression()->GetType(execution_context);
@@ -64,12 +64,9 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 						GetNamePosition(), GetInitializerExpression());
 		errors = temp_statement->preprocess(execution_context);
 	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::INFERRED_DECLARATION_FAILED,
-						GetPosition().begin.line, GetPosition().begin.column),
-				errors);
+		errors = GetInitializerExpression()->Validate(execution_context);
 	}
+
 	return errors;
 }
 

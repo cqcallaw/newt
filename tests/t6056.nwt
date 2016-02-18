@@ -1,0 +1,8 @@
+//test invalid variant name in type constructor
+sum test {
+	i:int
+	| d:double
+}
+
+t:= test.f(3.1)
+t2:test= test.f(3.1)

@@ -1,0 +1,5 @@
+Parsing file ../tests/t6057.nwt...
+Semantic error on line 7, column 6: Invalid type "test.f".
+Semantic error on line 8, column 11: Invalid type "test.f".
+Parsed file ../tests/t6057.nwt.
+2 errors found; giving up.
