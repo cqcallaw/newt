@@ -6,7 +6,7 @@ TESTS = $(patsubst $(TEST_PATH)%.nwt,%,$(TEST_FILES))
 WTESTS = $(patsubst $(TEST_PATH)%.nwt,w%,$(TEST_FILES))
 MTESTS = $(patsubst $(TEST_PATH)%.nwt,m%,$(TEST_FILES))
 
-INCLUDE_DIRS = -I"../src/expressions" -I"../src/specifiers" -I"../src/statements" -I"../src/variables" -I"../src" -I"./"
+INCLUDE_DIRS =  -I"./" -I"../src/expressions" -I"../src/types" -I"../src/types/specifiers" -I"../src/statements" -I"../src/statements/declarations" -I"../src/variables" -I"../src"
 
 test: newt $(TESTS)
 

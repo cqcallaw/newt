@@ -24,7 +24,7 @@
 #include <record_type.h>
 #include <primitive_type_specifier.h>
 #include <record_type_specifier.h>
-#include <type_specifier.h>
+#include <specifiers/type_specifier.h>
 
 class MemberDefinition {
 public:

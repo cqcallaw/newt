@@ -50,7 +50,7 @@ CPP_DEPS += \
 src/expressions/%.o: ../src/expressions/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -std=c++0x -I./ -I../src -I../src/expressions -I../src/specifiers -I../src/statements -I../src/variables -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	g++ -std=c++0x -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/Debug/ -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/expressions -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/types -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/types/specifiers -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/statements -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/statements/declarations -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/variables -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

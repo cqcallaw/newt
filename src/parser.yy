@@ -49,10 +49,10 @@
 #include <dimension.h>
 
 #include <type.h>
-#include <type_specifier.h>
-#include <function_type_specifier.h>
-#include <function_declaration.h>
-#include <nested_type_specifier.h>
+#include <specifiers/type_specifier.h>
+#include <specifiers/function_type_specifier.h>
+#include <specifiers/function_declaration.h>
+#include <specifiers/nested_type_specifier.h>
 
 #include <namespace_qualifier.h>
 
@@ -107,9 +107,9 @@ class Driver;
 
 #include <statement_block.h>
 
-#include <array_type_specifier.h>
-#include <primitive_type_specifier.h>
-#include <record_type_specifier.h>
+#include <specifiers/array_type_specifier.h>
+#include <specifiers/primitive_type_specifier.h>
+#include <specifiers/record_type_specifier.h>
 
 #include <assignment_type.h>
 

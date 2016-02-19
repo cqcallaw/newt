@@ -17,34 +17,20 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_
-#define STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_
+#ifndef STATEMENTS_DECLARATIONS_NESTED_DECLARATION_STATEMENT_H_
+#define STATEMENTS_DECLARATIONS_NESTED_DECLARATION_STATEMENT_H_
 
 #include <declaration_statement.h>
-#include <statement.h>
-#include <string>
-#include <type.h>
+#include <nested_type_specifier.h>
 
-class Symbol;
-class Expression;
-class ComplexTypeSpecifier;
-
-using namespace std;
-
-class ComplexInstantiationStatement: public DeclarationStatement {
+class NestedDeclarationStatement: public DeclarationStatement {
 public:
-	ComplexInstantiationStatement(const yy::location position,
-			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
-			const yy::location type_name_position,
-			const_shared_ptr<string> name, const yy::location name_position,
+	NestedDeclarationStatement(const yy::location position,
+			const_shared_ptr<NestedTypeSpecifier> type,
+			const yy::location type_position, const_shared_ptr<string> name,
+			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression = nullptr);
-	virtual ~ComplexInstantiationStatement();
-
-	const_shared_ptr<TypeSpecifier> GetType() const;
-
-	const yy::location GetTypePosition() const {
-		return m_type_position;
-	}
+	virtual ~NestedDeclarationStatement();
 
 	virtual const ErrorListRef preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const;
@@ -55,15 +41,17 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
 
-	virtual const ErrorListRef GetReturnStatementErrors(
-			const_shared_ptr<TypeSpecifier> type_specifier,
-			const shared_ptr<ExecutionContext> execution_context) const {
-		return ErrorList::GetTerminator();
+	const const_shared_ptr<TypeSpecifier> GetType() const {
+		return m_type;
+	}
+
+	const yy::location GetTypePosition() const {
+		return m_type_position;
 	}
 
 private:
-	const_shared_ptr<ComplexTypeSpecifier> m_type_specifier;
+	const_shared_ptr<NestedTypeSpecifier> m_type;
 	const yy::location m_type_position;
 };
 
-#endif /* STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_ */
+#endif /* STATEMENTS_DECLARATIONS_NESTED_DECLARATION_STATEMENT_H_ */

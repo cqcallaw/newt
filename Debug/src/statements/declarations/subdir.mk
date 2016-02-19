@@ -1,0 +1,48 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+CPP_SRCS += \
+../src/statements/declarations/array_declaration_statement.cpp \
+../src/statements/declarations/declaration_statement.cpp \
+../src/statements/declarations/function_declaration_statement.cpp \
+../src/statements/declarations/inferred_declaration_statement.cpp \
+../src/statements/declarations/nested_declaration_statement.cpp \
+../src/statements/declarations/primitive_declaration_statement.cpp \
+../src/statements/declarations/record_declaration_statement.cpp \
+../src/statements/declarations/sum_declaration_statement.cpp \
+../src/statements/declarations/type_alias_declaration_statement.cpp 
+
+OBJS += \
+./src/statements/declarations/array_declaration_statement.o \
+./src/statements/declarations/declaration_statement.o \
+./src/statements/declarations/function_declaration_statement.o \
+./src/statements/declarations/inferred_declaration_statement.o \
+./src/statements/declarations/nested_declaration_statement.o \
+./src/statements/declarations/primitive_declaration_statement.o \
+./src/statements/declarations/record_declaration_statement.o \
+./src/statements/declarations/sum_declaration_statement.o \
+./src/statements/declarations/type_alias_declaration_statement.o 
+
+CPP_DEPS += \
+./src/statements/declarations/array_declaration_statement.d \
+./src/statements/declarations/declaration_statement.d \
+./src/statements/declarations/function_declaration_statement.d \
+./src/statements/declarations/inferred_declaration_statement.d \
+./src/statements/declarations/nested_declaration_statement.d \
+./src/statements/declarations/primitive_declaration_statement.d \
+./src/statements/declarations/record_declaration_statement.d \
+./src/statements/declarations/sum_declaration_statement.d \
+./src/statements/declarations/type_alias_declaration_statement.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+src/statements/declarations/%.o: ../src/statements/declarations/%.cpp
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -std=c++0x -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/Debug/ -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/expressions -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/types -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/types/specifiers -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/statements -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/statements/declarations -I/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/variables -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

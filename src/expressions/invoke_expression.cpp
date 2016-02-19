@@ -35,7 +35,7 @@
 #include <sum_type.h>
 #include <sum_type_specifier.h>
 #include <symbol_context_list.h>
-#include <type_specifier.h>
+#include <specifiers/type_specifier.h>
 #include <type_table.h>
 #include <memory>
 #include <sstream>

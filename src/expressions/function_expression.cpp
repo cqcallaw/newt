@@ -23,10 +23,10 @@
 #include <statement_block.h>
 #include <execution_context.h>
 #include <function_type_specifier.h>
-#include <declaration_statement.h>
-#include <inferred_declaration_statement.h>
 #include <symbol_table.h>
 #include <complex_type.h>
+#include <declaration_statement.h>
+#include <inferred_declaration_statement.h>
 
 FunctionExpression::FunctionExpression(const yy::location position,
 		const_shared_ptr<FunctionDeclaration> declaration,

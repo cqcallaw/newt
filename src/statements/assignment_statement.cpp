@@ -30,7 +30,7 @@
 #include <variable_expression.h>
 #include <record_type.h>
 #include <record.h>
-#include <type_specifier.h>
+#include <specifiers/type_specifier.h>
 
 AssignmentStatement::AssignmentStatement(const_shared_ptr<Variable> variable,
 		const AssignmentType op_type, const_shared_ptr<Expression> expression) :

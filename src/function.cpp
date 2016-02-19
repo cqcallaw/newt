@@ -19,12 +19,12 @@
 
 #include <function.h>
 #include <expression.h>
-#include <declaration_statement.h>
 #include <execution_context.h>
 #include <function_declaration.h>
 #include <error.h>
 #include <statement_block.h>
 #include <constant_expression.h>
+#include <declaration_statement.h>
 #include <defaults.h>
 #include <sum_type_specifier.h>
 #include <sum.h>
