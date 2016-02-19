@@ -5,7 +5,7 @@ Root Symbol Table:
 result good_result: 10 {value}
 result_ctor result:
 	(int) -> result value:
-
+		Body Location: 2.2-6
 
 
 Root Type Table:

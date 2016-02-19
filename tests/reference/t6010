@@ -5,9 +5,9 @@ Root Symbol Table:
 number a: 42.1 {continuous}
 number_ctor number:
 	(double) -> number continuous:
-
+		Body Location: 4.4-13
 	(int) -> number discrete:
-
+		Body Location: 3.2-9
 
 number t: 56 {discrete}
 

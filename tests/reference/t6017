@@ -4,7 +4,7 @@ Root Symbol Table:
 ----------------
 result_ctor result:
 	(int) -> result value:
-
+		Body Location: 3.2-6
 
 result val:
  {error}

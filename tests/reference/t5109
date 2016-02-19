@@ -5,21 +5,18 @@ Root Symbol Table:
 point p:
 	(int, int) -> point translate:
 		Body Location: 8.39-14.3
-
 	int x: 0
 	int y: 0
 
 point t:
 	(int, int) -> point translate:
 		Body Location: 8.39-14.3
-
 	int x: 3
 	int y: 3
 
 point t2:
 	(int, int) -> point translate:
 		Body Location: 8.39-14.3
-
 	int x: 10
 	int y: 10
 

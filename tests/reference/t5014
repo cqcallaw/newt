@@ -11,7 +11,6 @@ person b:
 (person) -> person f:
 	Body Location: 6.27-7.9
 
-
 Root Type Table:
 ----------------
 person:

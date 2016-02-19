@@ -4,11 +4,10 @@ Root Symbol Table:
 ----------------
 (int) -> result f:
 	Body Location: 10.24-15.2
-
 result first_result: 1 {value}
 result_ctor result:
 	(int) -> result value:
-
+		Body Location: 3.2-6
 
 result second_result:
 		int code: 7

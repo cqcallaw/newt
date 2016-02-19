@@ -221,7 +221,7 @@ const string Function::ToString(const TypeTable& type_table,
 		const Indent indent) const {
 	ostringstream buffer;
 	if (m_body->GetLocation() != GetDefaultLocation()) {
-		buffer << indent << "Body Location: " << m_body->GetLocation() << endl;
+		buffer << indent << "Body Location: " << m_body->GetLocation();
 	}
 //	buffer << indent << "Address: " << this << endl;
 //	if (m_closure) {

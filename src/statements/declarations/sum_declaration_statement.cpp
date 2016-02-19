@@ -118,7 +118,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 							return_statement, StatementList::GetTerminator());
 					const_shared_ptr<StatementBlock> statement_block =
 							make_shared<StatementBlock>(statement_list,
-									GetDefaultLocation());
+									as_alias->GetNamePosition());
 
 					auto weak = weak_ptr<ExecutionContext>(execution_context);
 					const_shared_ptr<Function> function = make_shared<Function>(
@@ -136,13 +136,12 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 							*variant_name, symbol);
 
 					if (insert_result == SYMBOL_EXISTS) {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::PREVIOUS_DECLARATION,
-												declaration->GetPosition().begin.line,
-												declaration->GetPosition().begin.column,
-												*variant_name), errors);
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::PREVIOUS_DECLARATION,
+										declaration->GetPosition().begin.line,
+										declaration->GetPosition().begin.column,
+										*variant_name), errors);
 					}
 				}
 			}

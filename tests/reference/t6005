@@ -4,11 +4,11 @@ Root Symbol Table:
 ----------------
 franken_ctor franken:
 	(string) -> franken as_string:
-
+		Body Location: 4.4-12
 	(double) -> franken continuous:
-
+		Body Location: 3.4-13
 	(int) -> franken discrete:
-
+		Body Location: 2.2-9
 
 franken t: "things" {as_string}
 
