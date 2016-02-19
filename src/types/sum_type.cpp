@@ -95,9 +95,8 @@ const_shared_ptr<Result> SumType::Build(
 				//no need to "execute" the declaration statement, since all the work happens during preprocessing
 			}
 
-			auto as_alias =
-					dynamic_pointer_cast<const TypeAliasDeclarationStatement>(
-							declaration);
+			auto as_alias = dynamic_pointer_cast<
+					const TypeAliasDeclarationStatement>(declaration);
 			if (as_alias) {
 				auto alias_type_name = as_alias->GetName();
 				auto original_type_specifier = as_alias->GetType();
@@ -116,13 +115,24 @@ const_shared_ptr<Result> SumType::Build(
 				if (original_as_record) {
 					auto original = type_table->GetType<RecordType>(
 							original_as_record->GetTypeName());
-					auto alias = make_shared<AliasDefinition>(original);
-					types->AddType(*alias_type_name, alias);
+					if (original) {
+						auto alias = make_shared<AliasDefinition>(original);
+						types->AddType(*alias_type_name, alias);
+					} else {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::UNDECLARED_TYPE,
+												as_alias->GetTypePosition().begin.line,
+												as_alias->GetTypePosition().begin.column,
+												as_alias->GetType()->ToString()),
+										errors);
+					}
 				}
 			}
-
-			subject = subject->GetNext();
 		}
+
+		subject = subject->GetNext();
 	}
 
 	auto type = const_shared_ptr<SumType>(
