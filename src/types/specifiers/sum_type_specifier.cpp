@@ -47,11 +47,7 @@ const_shared_ptr<void> SumTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
 	auto type = type_table.GetType<SumType>(m_type_name);
 	if (type) {
-		auto declaration = type->GetFirstDeclaration();
-		return make_shared<Sum>(
-				make_shared<SumTypeSpecifier>(m_type_name, m_space),
-				declaration->GetName(),
-				declaration->GetType()->DefaultValue(*type->GetTypeTable()));
+		return type->GetDefaultValue(m_type_name);
 	}
 	return const_shared_ptr<void>();
 }

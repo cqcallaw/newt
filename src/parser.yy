@@ -56,6 +56,8 @@
 
 #include <namespace_qualifier.h>
 
+#include <match.h>
+
 class Driver;
 
 }
@@ -104,6 +106,7 @@ class Driver;
 #include <for_statement.h>
 #include <invoke_statement.h>
 #include <return_statement.h>
+#include <match_statement.h>
 
 #include <statement_block.h>
 
@@ -176,10 +179,14 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 
 	ARROW_RIGHT         "->"
 
+	UNDERSCORE          "_"
+
 	STRUCT              "struct declaration"
 	READONLY            "readonly modifier"
 	WITH                "with"
 	SUM                 "sum"
+	MATCH               "match"
+	AS                  "as"
 
 	RETURN              "return"
 	PRINT     "print"
@@ -240,6 +247,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<Statement>> struct_declaration_statement
 %type <plain_shared_ptr<Statement>> sum_declaration_statement
 %type <plain_shared_ptr<Statement>> return_statement
+%type <plain_shared_ptr<Statement>> match_statement
 %type <DeclarationListRef> parameter_list
 %type <DeclarationListRef> optional_parameter_list
 %type <TypeSpecifierListRef> anonymous_parameter_list
@@ -264,6 +272,9 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 
 %type <plain_shared_ptr<DeclarationStatement>> variant
 %type <DeclarationListRef> variant_list
+
+%type <plain_shared_ptr<Match>> match_condition
+%type <MatchListRef> match_condition_list
 
 %printer { yyoutput << $$; } <*>;
 
@@ -444,6 +455,10 @@ statement:
 	{
 		$$ = $1;
 	}
+	| match_statement
+	{
+		$$ = $1;
+	}
 	| variable_reference LPAREN optional_argument_list RPAREN
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
@@ -531,6 +546,39 @@ return_statement:
 		$$ = make_shared<ReturnStatement>($2);
 	}
 	;
+
+//---------------------------------------------------------------------
+match_statement:
+	MATCH LPAREN expression RPAREN AS IDENTIFIER match_condition_list
+	{
+		$$ = make_shared<MatchStatement>($3, $6, @6, $7, @7);
+	}
+	;
+
+//---------------------------------------------------------------------
+match_condition_list:
+	match_condition_list PIPE match_condition
+	{
+		$$ = MatchList::From($3, $1);
+	}
+	| match_condition
+	{
+		$$ = MatchList::From($1, MatchList::GetTerminator());
+	}
+	;
+
+//---------------------------------------------------------------------
+match_condition:
+	IDENTIFIER statement_block
+	{
+		$$ = make_shared<Match>($1, @1, $2);
+	}
+	| UNDERSCORE statement_block
+	{
+		$$ = make_shared<Match>(make_shared<std::string>("_"), @1, $2);
+	}
+	;
+	
 
 //---------------------------------------------------------------------
 variable_reference:

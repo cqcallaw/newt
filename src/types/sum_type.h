@@ -45,6 +45,15 @@ public:
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const;
 
+	virtual bool IsSpecifiedBy(const std::string name,
+			const TypeSpecifier& type_specifier) const;
+
+	virtual const_shared_ptr<void> GetDefaultValue(
+			const std::string& name) const;
+
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<void>) const;
+
 	const_shared_ptr<TypeTable> GetTypeTable() const {
 		return m_type_table;
 	}
@@ -56,9 +65,6 @@ public:
 	static const_shared_ptr<Result> Build(
 			const shared_ptr<ExecutionContext> context,
 			const DeclarationListRef member_declarations);
-
-	virtual bool IsSpecifiedBy(const std::string name,
-			const TypeSpecifier& type_specifier) const;
 
 	const WideningResult AnalyzeWidening(const TypeSpecifier& other) const;
 

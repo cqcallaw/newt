@@ -17,8 +17,8 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ALIAS_DEFINITION_H_
-#define ALIAS_DEFINITION_H_
+#ifndef TYPES_ALIAS_DEFINITION_H_
+#define TYPES_ALIAS_DEFINITION_H_
 
 #include <type_definition.h>
 
@@ -44,8 +44,18 @@ public:
 			const TypeSpecifier& type_specifier) const {
 		return m_origin->IsSpecifiedBy(name, type_specifier);
 	}
+
+	virtual const_shared_ptr<void> GetDefaultValue(
+			const std::string& name) const {
+		return m_origin->GetDefaultValue(name);
+	}
+
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<void> value) const {
+		return m_origin->GetSymbol(value);
+	}
 private:
 	const_shared_ptr<TypeDefinition> m_origin;
 };
 
-#endif /* ALIAS_DEFINITION_H_ */
+#endif /* TYPES_ALIAS_DEFINITION_H_ */

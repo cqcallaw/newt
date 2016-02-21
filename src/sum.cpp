@@ -46,10 +46,10 @@ const string Sum::ToString(const TypeTable& type_table,
 	return buffer.str();
 }
 
-const_shared_ptr<Sum> Sum::GetDefaultInstance(
-		const_shared_ptr<SumTypeSpecifier> type_specifier,
-		const_shared_ptr<SumType> type) {
-	auto declaration = type->GetFirstDeclaration();
+const_shared_ptr<Sum> Sum::GetDefaultInstance(const string& type_name,
+		const SumType& type) {
+	auto declaration = type.GetFirstDeclaration();
+	auto type_specifier = make_shared<SumTypeSpecifier>(type_name);
 	return make_shared<Sum>(type_specifier, declaration->GetName(),
-			declaration->GetType()->DefaultValue(*type->GetTypeTable()));
+			declaration->GetType()->DefaultValue(*type.GetTypeTable()));
 }

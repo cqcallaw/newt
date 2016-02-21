@@ -17,6 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <alias_definition.h>
 #include <error.h>
 #include <expression.h>
 #include <linked_list.h>
@@ -31,7 +32,6 @@
 #include <memory>
 #include <sstream>
 #include <typeinfo>
-#include <alias_definition.h>
 #include <primitive_declaration_statement.h>
 #include <record_declaration_statement.h>
 #include <type_alias_declaration_statement.h>
@@ -165,8 +165,18 @@ const WideningResult SumType::AnalyzeWidening(
 	}
 }
 
+const_shared_ptr<Symbol> SumType::GetSymbol(
+		const_shared_ptr<void> value) const {
+	auto cast = static_pointer_cast<const Sum>(value);
+	return make_shared<Symbol>(cast);
+}
+
 const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 		const TypeSpecifier& type_specifier) const {
 	return make_shared<std::string>(
 			m_type_table->MapSpecifierToName(type_specifier));
+}
+
+const_shared_ptr<void> SumType::GetDefaultValue(const std::string& name) const {
+	return Sum::GetDefaultInstance(name, *this);
 }

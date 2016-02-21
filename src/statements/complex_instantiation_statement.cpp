@@ -92,7 +92,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 								//generate default instance
 								instance = Record::GetDefaultInstance(
 										m_type_specifier->GetTypeName(),
-										as_record);
+										*as_record);
 							}
 						} else {
 							errors =
@@ -108,7 +108,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 					}
 				} else {
 					instance = Record::GetDefaultInstance(
-							m_type_specifier->GetTypeName(), as_record);
+							m_type_specifier->GetTypeName(), *as_record);
 				}
 
 				if (ErrorList::IsTerminator(errors)) {
@@ -146,7 +146,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 							//this is because assignment of constant expressions to sum types is only valid
 							//if the constant expression is narrower than the sum type
 							instance = Sum::GetDefaultInstance(
-									sum_type_specifier, as_sum);
+									sum_type_specifier->GetTypeName(), *as_sum);
 						} else if (widening_analysis == UNAMBIGUOUS) {
 							if (GetInitializerExpression()->IsConstant()) {
 								//assignment of constant expressions to sum types is only valid if constant expression is narrower than the sum type
@@ -188,8 +188,8 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 						}
 					}
 				} else {
-					instance = Sum::GetDefaultInstance(sum_type_specifier,
-							as_sum);
+					instance = Sum::GetDefaultInstance(
+							sum_type_specifier->GetTypeName(), *as_sum);
 				}
 
 				if (ErrorList::IsTerminator(errors)) {

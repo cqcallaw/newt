@@ -22,14 +22,14 @@
 #include <record.h>
 #include <symbol_table.h>
 
-const_shared_ptr<Record> Record::GetDefaultInstance(
-		const string& type_name, const_shared_ptr<RecordType> type) {
+const_shared_ptr<Record> Record::GetDefaultInstance(const string& type_name,
+		const RecordType& type) {
 	auto symbol_mapping = make_shared<symbol_map>();
 
-	plain_shared_ptr<definition_map> type_definition = type->GetDefinition();
+	plain_shared_ptr<definition_map> type_definition = type.GetDefinition();
 	definition_map::const_iterator iter;
 
-	auto symbol_table = make_shared<SymbolTable>(type->GetModifiers());
+	auto symbol_table = make_shared<SymbolTable>(type.GetModifiers());
 
 	for (iter = type_definition->begin(); iter != type_definition->end();
 			++iter) {
@@ -45,8 +45,7 @@ const_shared_ptr<Record> Record::GetDefaultInstance(
 	const_shared_ptr<RecordTypeSpecifier> type_specifier = make_shared<
 			RecordTypeSpecifier>(type_name);
 
-	return make_shared<Record>(
-			Record(type_specifier, symbol_table));
+	return make_shared<Record>(Record(type_specifier, symbol_table));
 }
 
 const_shared_ptr<Symbol> Record::GetSymbol(

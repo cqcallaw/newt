@@ -79,8 +79,7 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 				}
 			} else {
 				value = Sum::GetDefaultInstance(
-						static_pointer_cast<const SumTypeSpecifier>(
-								m_type->GetParent()), parent_sum_type);
+						m_type->GetParent()->GetTypeName(), *parent_sum_type);
 			}
 
 			if (ErrorList::IsTerminator(errors)) {

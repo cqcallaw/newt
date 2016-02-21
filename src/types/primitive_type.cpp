@@ -54,3 +54,50 @@ bool PrimitiveType::IsSpecifiedBy(const std::string name,
 		return false;
 	}
 }
+
+const_shared_ptr<void> PrimitiveType::GetDefaultValue(
+		const std::string& name) const {
+	return GetDefaultValue(m_type);
+}
+
+const_shared_ptr<Symbol> PrimitiveType::GetSymbol(
+		const_shared_ptr<void> value) const {
+	switch (m_type) {
+	case BasicType::BOOLEAN:
+		return make_shared<Symbol>(static_pointer_cast<const bool>(value));
+	case BasicType::INT:
+		return make_shared<Symbol>(static_pointer_cast<const int>(value));
+	case BasicType::DOUBLE:
+		return make_shared<Symbol>(static_pointer_cast<const double>(value));
+	case BasicType::STRING:
+		return make_shared<Symbol>(static_pointer_cast<const string>(value));
+	default:
+		assert(false);
+		return nullptr;
+	}
+}
+
+const_shared_ptr<void> PrimitiveType::GetDefaultValue(
+		const BasicType& basic_type) {
+	switch (basic_type) {
+	case BasicType::BOOLEAN:
+		static const_shared_ptr<void> default_boolean_value = const_shared_ptr<
+				void>(new bool(false));
+		return default_boolean_value;
+	case BasicType::INT:
+		static const_shared_ptr<void> default_int_value =
+				const_shared_ptr<void>(new int(0));
+		return default_int_value;
+	case BasicType::DOUBLE:
+		static const_shared_ptr<void> default_double_value = const_shared_ptr<
+				void>(new double(0.0));
+		return default_double_value;
+	case BasicType::STRING:
+		static const_shared_ptr<void> default_string_value = const_shared_ptr<
+				void>(new string(""));
+		return default_string_value;
+	default:
+		assert(false);
+		return nullptr;
+	}
+}

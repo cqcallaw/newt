@@ -146,6 +146,17 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 	return buffer.str();
 }
 
+const_shared_ptr<void> RecordType::GetDefaultValue(
+		const std::string& name) const {
+	return Record::GetDefaultInstance(name, *this);
+}
+
+const_shared_ptr<Symbol> RecordType::GetSymbol(
+		const_shared_ptr<void> value) const {
+	auto cast = static_pointer_cast<const Record>(value);
+	return make_shared<Symbol>(cast);
+}
+
 bool RecordType::IsSpecifiedBy(const std::string name,
 		const TypeSpecifier& type_specifier) const {
 	try {

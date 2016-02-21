@@ -26,6 +26,7 @@
 class TypeTable;
 class Indent;
 class TypeSpecifier;
+class Symbol;
 
 class TypeDefinition {
 public:
@@ -40,6 +41,12 @@ public:
 
 	virtual bool IsSpecifiedBy(const std::string name,
 			const TypeSpecifier& type_specifier) const = 0;
+
+	virtual const_shared_ptr<void> GetDefaultValue(
+			const std::string& name) const = 0;
+
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<void> value) const = 0;
 };
 
 #endif /* TYPE_DEFINITION_H_ */

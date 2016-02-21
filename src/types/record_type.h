@@ -50,6 +50,12 @@ public:
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const;
 
+	virtual const_shared_ptr<void> GetDefaultValue(
+			const std::string& name) const;
+
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<void> value) const;
+
 	const_shared_ptr<definition_map> GetDefinition() const {
 		return m_definition;
 	}

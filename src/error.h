@@ -82,7 +82,8 @@ public:
 		INFERRED_DECLARATION_FAILED,
 		TOO_MANY_ARGUMENTS,
 		NO_PARAMETER_DEFAULT,
-		NOT_A_FUNCTION
+		NOT_A_FUNCTION,
+		MATCH_REQUIRES_SUM
 	};
 
 	Error(ErrorClass error_class, ErrorCode code, int line_number,

@@ -1,0 +1,25 @@
+# *wistful sigh*
+#f:(int|double) = 45
+#
+#match (f) as m
+#	int { 
+#
+#	}
+#	| double { 
+#
+#	}
+
+sum number {
+	discrete:int
+	| continuous:double
+}
+
+t:number = 2
+
+match(t) as val
+	discrete {
+		print("Discrete value " + val)
+	}
+	| continuous {
+		print("Continuous value " + val)
+	}

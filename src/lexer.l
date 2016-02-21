@@ -107,9 +107,13 @@ blank   [ \t\r]
 "with"          return yy::newt_parser::make_WITH(loc);
 "return"        return yy::newt_parser::make_RETURN(loc);
 "sum"           return yy::newt_parser::make_SUM(loc);
+"match"         return yy::newt_parser::make_MATCH(loc);
+"as"            return yy::newt_parser::make_AS(loc);
 
 "true"          return yy::newt_parser::make_TRUE(true, loc);
 "false"         return yy::newt_parser::make_FALSE(false, loc);
+
+"_"             return yy::newt_parser::make_UNDERSCORE(loc);
 
 {int} {
 	errno = 0;

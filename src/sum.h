@@ -31,9 +31,8 @@ public:
 			const_shared_ptr<std::string> tag, const_shared_ptr<void> value);
 	virtual ~Sum();
 
-	static const_shared_ptr<Sum> GetDefaultInstance(
-			const_shared_ptr<SumTypeSpecifier> type_specifier,
-			const_shared_ptr<SumType> type);
+	static const_shared_ptr<Sum> GetDefaultInstance(const string& type_name,
+			const SumType& type);
 
 	const_shared_ptr<SumTypeSpecifier> GetType() const {
 		return m_type;

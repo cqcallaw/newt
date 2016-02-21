@@ -10,6 +10,7 @@ CPP_SRCS += \
 ../src/statements/for_statement.cpp \
 ../src/statements/if_statement.cpp \
 ../src/statements/invoke_statement.cpp \
+../src/statements/match_statement.cpp \
 ../src/statements/print_statement.cpp \
 ../src/statements/return_statement.cpp \
 ../src/statements/statement_block.cpp 
@@ -21,6 +22,7 @@ OBJS += \
 ./src/statements/for_statement.o \
 ./src/statements/if_statement.o \
 ./src/statements/invoke_statement.o \
+./src/statements/match_statement.o \
 ./src/statements/print_statement.o \
 ./src/statements/return_statement.o \
 ./src/statements/statement_block.o 
@@ -32,6 +34,7 @@ CPP_DEPS += \
 ./src/statements/for_statement.d \
 ./src/statements/if_statement.d \
 ./src/statements/invoke_statement.d \
+./src/statements/match_statement.d \
 ./src/statements/print_statement.d \
 ./src/statements/return_statement.d \
 ./src/statements/statement_block.d 

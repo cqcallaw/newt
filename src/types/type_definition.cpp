@@ -24,4 +24,3 @@ TypeDefinition::TypeDefinition() {
 
 TypeDefinition::~TypeDefinition() {
 }
-

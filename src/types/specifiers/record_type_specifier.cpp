@@ -59,7 +59,7 @@ const_shared_ptr<void> RecordTypeSpecifier::DefaultValue(
 
 	//this result cannot be cached because the type table is mutable
 	if (type) {
-		return Record::GetDefaultInstance(m_type_name, type);
+		return type->GetDefaultValue(m_type_name);
 	} else {
 		return const_shared_ptr<RecordType>(); //ugh, nulls
 	}

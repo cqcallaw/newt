@@ -39,9 +39,17 @@ public:
 	virtual bool IsSpecifiedBy(const std::string name,
 			const TypeSpecifier& type_specifier) const;
 
+	virtual const_shared_ptr<void> GetDefaultValue(
+			const std::string& name) const;
+
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<void> value) const;
+
 	const BasicType GetType() const {
 		return m_type;
 	}
+
+	static const_shared_ptr<void> GetDefaultValue(const BasicType& basic_type);
 
 private:
 	const BasicType m_type;

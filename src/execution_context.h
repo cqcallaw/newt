@@ -59,6 +59,17 @@ public:
 						m_return_value, m_exit_code, m_life_time));
 	}
 
+	static const shared_ptr<ExecutionContext> GetEmptyChild(
+			const shared_ptr<ExecutionContext> parent,
+			const Modifier::Type modifiers, const LifeTime life_time) {
+		auto new_parent = SymbolContextList::From(parent, parent->GetParent());
+		return shared_ptr<ExecutionContext>(
+				new ExecutionContext(modifiers, make_shared<symbol_map>(),
+						new_parent, parent->GetTypeTable(),
+						Symbol::GetDefaultSymbol(),
+						plain_shared_ptr<int>(nullptr), life_time));
+	}
+
 	const SymbolContextListRef GetParent() const {
 		return m_parent;
 	}

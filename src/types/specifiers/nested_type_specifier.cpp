@@ -64,18 +64,9 @@ const_shared_ptr<void> NestedTypeSpecifier::DefaultValue(
 	if (as_sum_type) {
 		auto sum_type_table = as_sum_type->GetTypeTable();
 
-		auto child_as_primitive = sum_type_table->GetType<PrimitiveType>(
+		auto definition = sum_type_table->GetType<TypeDefinition>(
 				*m_member_name);
-		if (child_as_primitive) {
-			return PrimitiveTypeSpecifier::FromBasicType(
-					child_as_primitive->GetType())->DefaultValue(type_table);
-		}
-
-		auto child_as_record = sum_type_table->GetType<RecordType>(
-				*m_member_name);
-		if (child_as_record) {
-			return Record::GetDefaultInstance(*m_member_name, child_as_record);
-		}
+		return definition->GetDefaultValue(*m_member_name);
 		//TODO: nested sum types
 	}
 

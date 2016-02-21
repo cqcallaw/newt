@@ -19,6 +19,7 @@
 
 #include <primitive_declaration_statement.h>
 #include <primitive_type_specifier.h>
+#include <primitive_type.h>
 #include <typeinfo>
 #include <expression.h>
 #include <memory>
@@ -69,28 +70,7 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 const_shared_ptr<void> PrimitiveTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
 	const BasicType basic_type = GetBasicType();
-
-	switch (basic_type) {
-	case BasicType::BOOLEAN:
-		static const_shared_ptr<void> default_boolean_value = const_shared_ptr<
-				void>(new bool(false));
-		return default_boolean_value;
-	case BasicType::INT:
-		static const_shared_ptr<void> default_int_value =
-				const_shared_ptr<void>(new int(0));
-		return default_int_value;
-	case BasicType::DOUBLE:
-		static const_shared_ptr<void> default_double_value = const_shared_ptr<
-				void>(new double(0.0));
-		return default_double_value;
-	case BasicType::STRING:
-		static const_shared_ptr<void> default_string_value = const_shared_ptr<
-				void>(new string(""));
-		return default_string_value;
-	default:
-		assert(false);
-		return nullptr;
-	}
+	return PrimitiveType::GetDefaultValue(basic_type);
 }
 
 const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetNone() {
