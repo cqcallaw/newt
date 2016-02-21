@@ -30,14 +30,14 @@
 								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1437433413" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.1422974371" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1967394745" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/Debug/"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/expressions"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/types"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/types/specifiers"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/statements"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/statements/declarations"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/variables"/>
+									<listOptionValue builtIn="false" value="./"/>
+									<listOptionValue builtIn="false" value="../src"/>
+									<listOptionValue builtIn="false" value="../src/expressions"/>
+									<listOptionValue builtIn="false" value="../src/types"/>
+									<listOptionValue builtIn="false" value="../src/types/specifiers"/>
+									<listOptionValue builtIn="false" value="../src/statements"/>
+									<listOptionValue builtIn="false" value="../src/statements/declarations"/>
+									<listOptionValue builtIn="false" value="../src/variables"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1157401231" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -46,12 +46,14 @@
 								<option id="gnu.c.compiler.exe.debug.option.debugging.level.1794629337" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.dialect.std.8723113" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1128690794" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/Debug/"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/expressions"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/specifiers"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/statements"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/variables"/>
+									<listOptionValue builtIn="false" value="./"/>
+									<listOptionValue builtIn="false" value="../src"/>
+									<listOptionValue builtIn="false" value="../src/expressions"/>
+									<listOptionValue builtIn="false" value="../src/types"/>
+									<listOptionValue builtIn="false" value="../src/types/specifiers"/>
+									<listOptionValue builtIn="false" value="../src/statements"/>
+									<listOptionValue builtIn="false" value="../src/statements/declarations"/>
+									<listOptionValue builtIn="false" value="../src/variables"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1359851753" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -66,12 +68,14 @@
 							</tool>
 							<tool command="as" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.tool.gnu.assembler.exe.debug.51208906" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
 								<option id="gnu.both.asm.option.include.paths.1685728405" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/Debug/"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/expressions"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/specifiers"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/statements"/>
-									<listOptionValue builtIn="false" value="/home/caleb/Shared/Education/Chico/CSCI499H/newt/src/variables"/>
+									<listOptionValue builtIn="false" value="./"/>
+									<listOptionValue builtIn="false" value="../src"/>
+									<listOptionValue builtIn="false" value="../src/expressions"/>
+									<listOptionValue builtIn="false" value="../src/types"/>
+									<listOptionValue builtIn="false" value="../src/types/specifiers"/>
+									<listOptionValue builtIn="false" value="../src/statements"/>
+									<listOptionValue builtIn="false" value="../src/statements/declarations"/>
+									<listOptionValue builtIn="false" value="../src/variables"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1226756872" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -111,8 +115,10 @@
 									<listOptionValue builtIn="false" value="./"/>
 									<listOptionValue builtIn="false" value="../src"/>
 									<listOptionValue builtIn="false" value="../src/expressions"/>
-									<listOptionValue builtIn="false" value="../src/specifiers"/>
+									<listOptionValue builtIn="false" value="../src/types"/>
+									<listOptionValue builtIn="false" value="../src/types/specifiers"/>
 									<listOptionValue builtIn="false" value="../src/statements"/>
+									<listOptionValue builtIn="false" value="../src/statements/declarations"/>
 									<listOptionValue builtIn="false" value="../src/variables"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.std.349352185" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
