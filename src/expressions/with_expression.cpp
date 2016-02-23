@@ -143,9 +143,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 			new_symbol_context = new_symbol_context->WithModifiers(
 					definition->GetModifiers());
 
-			new_value = std::make_shared<Record>(as_record->GetTypeSpecifier(),
-					new_symbol_context);
-
+			new_value = as_record->WithDefinition(new_symbol_context);
 		}
 
 		return make_shared<Result>(new_value, errors);

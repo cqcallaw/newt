@@ -40,6 +40,11 @@ public:
 			m_type(type), m_definition(definition) {
 	}
 
+	const_shared_ptr<Record> WithDefinition(
+			volatile_shared_ptr<SymbolContext> new_definition) const {
+		return make_shared<Record>(m_type, new_definition);
+	}
+
 	const_shared_ptr<RecordTypeSpecifier> GetTypeSpecifier() const {
 		return m_type;
 	}
