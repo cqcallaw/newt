@@ -188,6 +188,12 @@ const string Error::get_error_message() const {
 	case INFERRED_DECLARATION_FAILED:
 		os << "Inferred declaration failure.";
 		break;
+	case INCOMPLETE_MATCH:
+		os << "Incomplete match.";
+		break;
+	case MATCH_FAILURE:
+		os << "Match failure.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

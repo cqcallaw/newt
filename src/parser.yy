@@ -549,9 +549,9 @@ return_statement:
 
 //---------------------------------------------------------------------
 match_statement:
-	MATCH LPAREN expression RPAREN AS IDENTIFIER match_condition_list
+	MATCH LPAREN expression RPAREN match_condition_list
 	{
-		$$ = make_shared<MatchStatement>($3, $6, @6, $7, @7);
+		$$ = make_shared<MatchStatement>($3, $5, @5);
 	}
 	;
 

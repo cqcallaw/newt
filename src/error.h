@@ -83,7 +83,9 @@ public:
 		TOO_MANY_ARGUMENTS,
 		NO_PARAMETER_DEFAULT,
 		NOT_A_FUNCTION,
-		MATCH_REQUIRES_SUM
+		MATCH_REQUIRES_SUM,
+		INCOMPLETE_MATCH,
+		MATCH_FAILURE
 	};
 
 	Error(ErrorClass error_class, ErrorCode code, int line_number,

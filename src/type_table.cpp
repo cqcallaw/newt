@@ -79,3 +79,14 @@ const std::string TypeTable::MapSpecifierToName(
 const bool TypeTable::ContainsType(const ComplexTypeSpecifier& type_specifier) {
 	return table->find(type_specifier.GetTypeName()) != table->end();
 }
+
+const_shared_ptr<std::set<std::string>> TypeTable::GetTypeNames() const {
+	shared_ptr<std::set<std::string>> result =
+			make_shared<std::set<std::string>>();
+	for (const auto &entry : *table) {
+		auto name = entry.first;
+		result->insert(name);
+	}
+
+	return result;
+}

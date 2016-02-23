@@ -23,6 +23,7 @@
 #include <member_declaration.h>
 #include <type.h>
 #include <map>
+#include <set>
 
 class TypeDefinition;
 class RecordType;
@@ -69,6 +70,8 @@ public:
 	 */
 	const std::string MapSpecifierToName(
 			const TypeSpecifier& type_specifier) const;
+
+	const_shared_ptr<std::set<std::string>> GetTypeNames() const;
 
 private:
 	const shared_ptr<type_map> table;

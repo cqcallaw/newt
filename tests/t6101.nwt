@@ -5,10 +5,10 @@ sum number {
 
 t:number = 2.0
 
-match(t) as val
+match(t)
 	discrete {
-		print("Discrete value: " + val)
+		print("Discrete value: " + discrete)
 	}
 	| continuous {
-		print("Continuous value: " + val)
+		print("Continuous value: " + continuous)
 	}

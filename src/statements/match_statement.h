@@ -28,11 +28,9 @@ class Expression;
 class MatchStatement: public Statement {
 public:
 	MatchStatement(const_shared_ptr<Expression> source_expression,
-			const_shared_ptr<std::string> name,
-			const yy::location name_location, const MatchListRef match_list,
+			const MatchListRef match_list,
 			const yy::location match_list_location) :
-			m_source_expression(source_expression), m_name(name), m_name_location(
-					name_location), m_match_list(match_list), m_match_list_location(
+			m_source_expression(source_expression), m_match_list(match_list), m_match_list_location(
 					match_list_location) {
 	}
 	virtual ~MatchStatement();
@@ -41,20 +39,12 @@ public:
 		return m_match_list;
 	}
 
-	const const_shared_ptr<std::string> GetName() const {
-		return m_name;
-	}
-
 	const const_shared_ptr<Expression> GetSourceExpression() const {
 		return m_source_expression;
 	}
 
 	const yy::location GetMatchListLocation() const {
 		return m_match_list_location;
-	}
-
-	const yy::location GetNameLocation() const {
-		return m_name_location;
 	}
 
 	virtual const ErrorListRef preprocess(
@@ -69,8 +59,6 @@ public:
 
 private:
 	const_shared_ptr<Expression> m_source_expression;
-	const_shared_ptr<std::string> m_name;
-	const yy::location m_name_location;
 	const MatchListRef m_match_list;
 	const yy::location m_match_list_location;
 };
