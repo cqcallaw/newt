@@ -23,6 +23,7 @@
 #include "variable.h"
 #include "utils.h"
 #include <execution_context.h>
+#include <record.h>
 
 Expression::Expression(const yy::location position) :
 		m_position(position) {

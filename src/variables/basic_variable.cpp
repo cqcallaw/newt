@@ -26,6 +26,7 @@
 #include <function.h>
 #include <sum.h>
 #include <sum_type.h>
+#include <record.h>
 
 #include "assert.h"
 #include "expression.h"

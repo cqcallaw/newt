@@ -22,7 +22,6 @@
 
 #include <namespace_qualifier.h>
 #include <specifiers/complex_type_specifier.h>
-#include <record.h>
 #include <type_table.h>
 
 class Expression;

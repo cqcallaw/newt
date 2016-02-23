@@ -18,6 +18,7 @@
  */
 
 #include <array.h>
+#include <record.h>
 
 const string Array::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
