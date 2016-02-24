@@ -177,6 +177,7 @@ const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 			m_type_table->MapSpecifierToName(type_specifier));
 }
 
-const_shared_ptr<void> SumType::GetDefaultValue(const std::string& name) const {
-	return Sum::GetDefaultInstance(name, *this);
+const_shared_ptr<void> SumType::GetDefaultValue(
+		const std::string& type_name) const {
+	return Sum::GetDefaultInstance(type_name, *this);
 }

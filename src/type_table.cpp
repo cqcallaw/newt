@@ -51,12 +51,12 @@ volatile_shared_ptr<TypeTable> TypeTable::GetDefault() {
 	return instance;
 }
 
-const uint TypeTable::CountEntriesOfType(const TypeSpecifier& other) const {
+const uint TypeTable::CountEntriesOfType(const TypeSpecifier& type_specifier) const {
 	uint count = 0;
 	for (const auto &entry : *table) {
 		auto name = entry.first;
 		auto definition = entry.second;
-		if (definition->IsSpecifiedBy(name, other)) {
+		if (definition->IsSpecifiedBy(name, type_specifier)) {
 			count++;
 		}
 	}

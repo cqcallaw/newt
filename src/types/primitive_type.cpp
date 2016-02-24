@@ -56,7 +56,7 @@ bool PrimitiveType::IsSpecifiedBy(const std::string name,
 }
 
 const_shared_ptr<void> PrimitiveType::GetDefaultValue(
-		const std::string& name) const {
+		const std::string& type_name) const {
 	return GetDefaultValue(m_type);
 }
 

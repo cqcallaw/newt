@@ -147,8 +147,8 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<void> RecordType::GetDefaultValue(
-		const std::string& name) const {
-	return Record::GetDefaultInstance(name, *this);
+		const std::string& type_name) const {
+	return Record::GetDefaultInstance(type_name, *this);
 }
 
 const_shared_ptr<Symbol> RecordType::GetSymbol(

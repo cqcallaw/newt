@@ -63,7 +63,7 @@ public:
 
 	static volatile_shared_ptr<TypeTable> GetDefault();
 
-	const uint CountEntriesOfType(const TypeSpecifier& other) const;
+	const uint CountEntriesOfType(const TypeSpecifier& type_specifier) const;
 
 	/**
 	 * Return the _first_ name that is mapped to the given specifier.

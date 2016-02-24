@@ -43,7 +43,7 @@ public:
 			const TypeSpecifier& type_specifier) const = 0;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const std::string& name) const = 0;
+			const std::string& type_name) const = 0;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(
 			const_shared_ptr<void> value) const = 0;
