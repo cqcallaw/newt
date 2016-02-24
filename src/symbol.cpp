@@ -135,7 +135,7 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type,
 			const SumTypeSpecifier>(type);
 	if (as_sum) {
 		auto sum_instance = static_pointer_cast<const Sum>(value);
-		buffer << sum_instance->ToString(type_table, indent + 1);
+		buffer << sum_instance->ToString(type_table, indent);
 	}
 
 	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<

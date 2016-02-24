@@ -3,8 +3,8 @@ Parsed file ../tests/t6011.nwt.
 Root Symbol Table:
 ----------------
 result first_result:
-		int code: 1
-		string message: "Failed to guess magic number."
+	int code: 1
+	string message: "Failed to guess magic number."
  {error}
 result_ctor result:
 	(int) -> result value:

@@ -8,7 +8,7 @@ result_ctor result:
 		Body Location: 2.2-6
 
 result t:
-		string message: "No go"
+	string message: "No go"
  {error}
 
 Root Type Table:

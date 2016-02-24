@@ -3,8 +3,8 @@ Parsed file ../tests/t6008.nwt.
 Root Symbol Table:
 ----------------
 result r:
-		int code: 3
-		string message: "Insufficient funds."
+	int code: 3
+	string message: "Insufficient funds."
  {error}
 result_ctor result:
 	(double) -> result value:

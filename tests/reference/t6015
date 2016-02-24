@@ -10,8 +10,8 @@ result_ctor result:
 		Body Location: 3.2-6
 
 result second_result:
-		int code: 7
-		string message: "Failed to guess magic number."
+	int code: 7
+	string message: "Failed to guess magic number."
  {error}
 
 Root Type Table:
