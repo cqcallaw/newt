@@ -51,7 +51,8 @@ volatile_shared_ptr<TypeTable> TypeTable::GetDefault() {
 	return instance;
 }
 
-const uint TypeTable::CountEntriesOfType(const TypeSpecifier& type_specifier) const {
+const uint TypeTable::CountEntriesOfType(
+		const TypeSpecifier& type_specifier) const {
 	uint count = 0;
 	for (const auto &entry : *table) {
 		auto name = entry.first;
@@ -77,7 +78,7 @@ const std::string TypeTable::MapSpecifierToName(
 }
 
 const bool TypeTable::ContainsType(const ComplexTypeSpecifier& type_specifier) {
-	return table->find(type_specifier.GetTypeName()) != table->end();
+	return table->find(*type_specifier.GetTypeName()) != table->end();
 }
 
 const_shared_ptr<std::set<std::string>> TypeTable::GetTypeNames() const {

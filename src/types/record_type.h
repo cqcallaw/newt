@@ -51,7 +51,7 @@ public:
 			const Indent& indent, const_shared_ptr<void> value) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const std::string& type_name) const;
+			const_shared_ptr<std::string> type_name) const;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(
 			const_shared_ptr<void> value) const;

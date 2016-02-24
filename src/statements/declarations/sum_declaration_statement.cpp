@@ -241,11 +241,12 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
-		string ctor_type_name = *GetName() + "_ctor";
+		const_shared_ptr<string> ctor_type_name = make_shared<string>(
+				*GetName() + "_ctor");
 		auto specifier = make_shared<RecordTypeSpecifier>(ctor_type_name);
 		auto type = make_shared<RecordType>(constructor_map,
 				Modifier::Type::READONLY);
-		execution_context->GetTypeTable()->AddType(ctor_type_name, type);
+		execution_context->GetTypeTable()->AddType(*ctor_type_name, type);
 
 		auto instance = make_shared<Record>(specifier, constructor_instance);
 		auto instance_symbol = make_shared<Symbol>(instance);

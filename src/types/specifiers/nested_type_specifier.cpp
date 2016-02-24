@@ -66,7 +66,7 @@ const_shared_ptr<void> NestedTypeSpecifier::DefaultValue(
 
 		auto definition = sum_type_table->GetType<TypeDefinition>(
 				*m_member_name);
-		return definition->GetDefaultValue(*m_member_name);
+		return definition->GetDefaultValue(m_member_name);
 		//TODO: nested sum types
 	}
 

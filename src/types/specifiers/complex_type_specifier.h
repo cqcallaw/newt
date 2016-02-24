@@ -25,7 +25,7 @@
 
 class ComplexTypeSpecifier: public TypeSpecifier {
 public:
-	virtual const std::string GetTypeName() const = 0;
+	virtual const_shared_ptr<std::string> GetTypeName() const = 0;
 	virtual const NamespaceQualifierListRef GetNamespace() const = 0;
 };
 

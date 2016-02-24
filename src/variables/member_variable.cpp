@@ -348,7 +348,7 @@ const ErrorListRef MemberVariable::Validate(
 								m_member_variable->GetLocation().begin.line,
 								m_member_variable->GetLocation().begin.column,
 								*m_member_variable->GetName(),
-								as_record->GetTypeName()), errors);
+								*as_record->GetTypeName()), errors);
 			}
 		} else {
 			errors = ErrorList::From(

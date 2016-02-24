@@ -42,6 +42,11 @@ public:
 			const_shared_ptr<TypeDefinition> definition);
 
 	template<class T> const shared_ptr<const T> GetType(
+			const_shared_ptr<std::string> name) const {
+		return GetType<T>(*name);
+	}
+
+	template<class T> const shared_ptr<const T> GetType(
 			const std::string& name) const {
 		auto result = table->find(name);
 

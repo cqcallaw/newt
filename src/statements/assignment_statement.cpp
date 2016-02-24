@@ -101,7 +101,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 				if (!expression_type->IsAssignableTo(symbol_type)) {
 					yy::location expression_position =
 							m_expression->GetPosition();
-					const string struct_type_name = as_record->GetTypeName();
+					const string struct_type_name = *as_record->GetTypeName();
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,

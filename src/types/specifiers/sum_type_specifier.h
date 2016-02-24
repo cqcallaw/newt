@@ -26,11 +26,11 @@ class RecordTypeSpecifier;
 
 class SumTypeSpecifier: public ComplexTypeSpecifier {
 public:
-	SumTypeSpecifier(const std::string& type_name) :
+	SumTypeSpecifier(const_shared_ptr<std::string> type_name) :
 			SumTypeSpecifier(type_name, NamespaceQualifierList::GetTerminator()) {
 	}
 
-	SumTypeSpecifier(const std::string& type_name,
+	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
 			const NamespaceQualifierListRef space) :
 			m_type_name(type_name), m_space(space) {
 	}
@@ -45,7 +45,7 @@ public:
 		return m_space;
 	}
 
-	virtual const std::string GetTypeName() const {
+	virtual const_shared_ptr<std::string> GetTypeName() const {
 		return m_type_name;
 	}
 
@@ -65,7 +65,7 @@ public:
 	virtual bool operator==(const TypeSpecifier &other) const;
 
 private:
-	const std::string m_type_name;
+	const_shared_ptr<std::string> m_type_name;
 	const NamespaceQualifierListRef m_space;
 };
 

@@ -30,12 +30,12 @@ class SymbolContext;
 
 class RecordTypeSpecifier: public ComplexTypeSpecifier {
 public:
-	RecordTypeSpecifier(const std::string& type_name) :
+	RecordTypeSpecifier(const_shared_ptr<std::string> type_name) :
 			RecordTypeSpecifier(type_name,
 					NamespaceQualifierList::GetTerminator()) {
 	}
 
-	RecordTypeSpecifier(const string& type_name,
+	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
 			const NamespaceQualifierListRef space) :
 			m_type_name(type_name), m_space(space) {
 	}
@@ -57,12 +57,12 @@ public:
 
 	virtual bool operator==(const TypeSpecifier& other) const;
 
-	virtual const std::string GetTypeName() const {
+	virtual const_shared_ptr<std::string> GetTypeName() const {
 		return m_type_name;
 	}
 
 	virtual const std::string ToString() const {
-		return m_type_name;
+		return *m_type_name;
 	}
 
 	virtual const NamespaceQualifierListRef GetNamespace() const {
@@ -70,7 +70,7 @@ public:
 	}
 
 private:
-	const std::string m_type_name;
+	const_shared_ptr<std::string> m_type_name;
 	const NamespaceQualifierListRef m_space;
 };
 

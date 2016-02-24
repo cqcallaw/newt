@@ -53,8 +53,8 @@ public:
 		return m_definition;
 	}
 
-	static const_shared_ptr<Record> GetDefaultInstance(const string& type_name,
-			const RecordType& type);
+	static const_shared_ptr<Record> GetDefaultInstance(
+			const_shared_ptr<std::string> type_name, const RecordType& type);
 
 	const static const_shared_ptr<Symbol> GetSymbol(
 			const_shared_ptr<TypeSpecifier> member_type,

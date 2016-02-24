@@ -29,7 +29,7 @@ bool RecordTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const RecordTypeSpecifier& as_record =
 				dynamic_cast<const RecordTypeSpecifier&>(other);
-		return GetTypeName() == as_record.GetTypeName();
+		return *GetTypeName() == *as_record.GetTypeName();
 	} catch (std::bad_cast& e) {
 		return false;
 	}
@@ -49,7 +49,7 @@ const bool RecordTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other) const {
 	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
 			const RecordTypeSpecifier>(other);
-	return (as_record && as_record->GetTypeName().compare(m_type_name) == 0);
+	return (as_record && as_record->GetTypeName()->compare(*m_type_name) == 0);
 }
 
 const_shared_ptr<void> RecordTypeSpecifier::DefaultValue(

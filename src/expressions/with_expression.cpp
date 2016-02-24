@@ -80,7 +80,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 							type_specifier);
 			if (as_record_specifier) {
-				type_name = as_record_specifier->GetTypeName();
+				type_name = *as_record_specifier->GetTypeName();
 				member_definition = execution_context->GetTypeTable()->GetType<
 						TypeDefinition>(type_name);
 			}
@@ -199,7 +199,7 @@ const ErrorListRef WithExpression::Validate(
 					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 							type_specifier);
 			if (as_record_specifier) {
-				type_name = as_record_specifier->GetTypeName();
+				type_name = *as_record_specifier->GetTypeName();
 				member_definition = execution_context->GetTypeTable()->GetType<
 						TypeDefinition>(type_name);
 			}

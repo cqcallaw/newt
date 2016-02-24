@@ -22,7 +22,7 @@
 #include <record.h>
 #include <symbol_table.h>
 
-const_shared_ptr<Record> Record::GetDefaultInstance(const string& type_name,
+const_shared_ptr<Record> Record::GetDefaultInstance(const_shared_ptr<std::string> type_name,
 		const RecordType& type) {
 	auto symbol_mapping = make_shared<symbol_map>();
 

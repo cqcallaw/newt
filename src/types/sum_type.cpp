@@ -146,7 +146,7 @@ bool SumType::IsSpecifiedBy(const std::string name,
 	try {
 		const SumTypeSpecifier& as_sum =
 				dynamic_cast<const SumTypeSpecifier&>(type_specifier);
-		return name == as_sum.GetTypeName();
+		return name == *as_sum.GetTypeName();
 	} catch (std::bad_cast& e) {
 		return false;
 	}
@@ -178,6 +178,6 @@ const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 }
 
 const_shared_ptr<void> SumType::GetDefaultValue(
-		const std::string& type_name) const {
+		const_shared_ptr<std::string> type_name) const {
 	return Sum::GetDefaultInstance(type_name, *this);
 }

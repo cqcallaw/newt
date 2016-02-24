@@ -46,14 +46,14 @@ const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetType(
 	auto as_nested_type = dynamic_pointer_cast<const NestedTypeSpecifier>(
 			m_type);
 	if (as_nested_type) {
-		auto parent_name = as_nested_type->GetParent()->GetTypeName();
-		auto member_name = as_nested_type->GetMemberName();
+		auto parent_name = *as_nested_type->GetParent()->GetTypeName();
+		auto member_name = *as_nested_type->GetMemberName();
 
 		auto record_type =
 				execution_context->GetTypeTable()->GetType<RecordType>(
 						parent_name);
 		if (record_type) {
-			return record_type->GetMember(*member_name)->GetType();
+			return record_type->GetMember(member_name)->GetType();
 		}
 	}
 	return m_type;
@@ -82,7 +82,7 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
 			const RecordTypeSpecifier>(m_type);
 	if (as_record) {
-		const string type_name = as_record->GetTypeName();
+		const string type_name = *as_record->GetTypeName();
 		const_shared_ptr<RecordType> type =
 				execution_context->GetTypeTable()->GetType<RecordType>(
 						type_name);
@@ -101,7 +101,7 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 	const_shared_ptr<NestedTypeSpecifier> as_nested = std::dynamic_pointer_cast<
 			const NestedTypeSpecifier>(m_type);
 	if (as_nested) {
-		const string type_name = as_nested->GetParent()->GetTypeName();
+		const string type_name = *as_nested->GetParent()->GetTypeName();
 		return_value = m_type->DefaultValue(*execution_context->GetTypeTable());
 
 		if (!return_value) {
@@ -139,7 +139,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_type_position.begin.line,
 							m_type_position.begin.column,
-							as_complex->GetTypeName()), errors);
+							*as_complex->GetTypeName()), errors);
 		}
 	}
 
@@ -192,7 +192,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 								Error::UNDECLARED_TYPE,
 								m_type_position.begin.line,
 								m_type_position.begin.column,
-								parent->GetTypeName()), errors);
+								*parent->GetTypeName()), errors);
 			}
 		}
 	}

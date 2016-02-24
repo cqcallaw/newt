@@ -37,7 +37,7 @@ Sum::~Sum() {
 const string Sum::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
-	auto name = m_type->GetTypeName();
+	auto name = *m_type->GetTypeName();
 	auto sum_type = type_table.GetType<SumType>(name);
 	auto type_definition = sum_type->GetTypeTable()->GetType<TypeDefinition>(
 			*m_tag);
@@ -46,8 +46,8 @@ const string Sum::ToString(const TypeTable& type_table,
 	return buffer.str();
 }
 
-const_shared_ptr<Sum> Sum::GetDefaultInstance(const string& type_name,
-		const SumType& type) {
+const_shared_ptr<Sum> Sum::GetDefaultInstance(
+		const_shared_ptr<std::string> type_name, const SumType& type) {
 	auto declaration = type.GetFirstDeclaration();
 	auto type_specifier = make_shared<SumTypeSpecifier>(type_name);
 	return make_shared<Sum>(type_specifier, declaration->GetName(),

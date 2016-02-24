@@ -46,7 +46,7 @@ public:
 	}
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const std::string& type_name) const {
+			const_shared_ptr<std::string> type_name) const {
 		return m_origin->GetDefaultValue(type_name);
 	}
 

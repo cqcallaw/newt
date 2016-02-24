@@ -368,12 +368,12 @@ function_type_specifier:
 complex_type_specifier:
 	IDENTIFIER
 	{
-		$$ = make_shared<RecordTypeSpecifier>(*$1, NamespaceQualifierList::GetTerminator());
+		$$ = make_shared<RecordTypeSpecifier>($1, NamespaceQualifierList::GetTerminator());
 	}
 	| namespace_qualifier_list IDENTIFIER
 	{
 		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
-		$$ = make_shared<RecordTypeSpecifier>(*$2, namespace_qualifier_list);
+		$$ = make_shared<RecordTypeSpecifier>($2, namespace_qualifier_list);
 	}
 	;
 
@@ -847,13 +847,13 @@ struct_declaration_statement:
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($5);
 		ModifierListRef modifier_list = ModifierList::From(ModifierList::Reverse($1));
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>(*$3);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($3);
 		$$ = make_shared<RecordDeclarationStatement>(@$, type, $3, @3, member_declaration_list, @5, modifier_list, @1);
 	}
 	| STRUCT IDENTIFIER LBRACE declaration_list RBRACE
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>(*$2);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($2);
 		$$ = make_shared<RecordDeclarationStatement>(@$, type, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 	;
@@ -954,7 +954,7 @@ sum_declaration_statement:
 	SUM IDENTIFIER LBRACE variant_list RBRACE
 	{
 		const DeclarationListRef variant_list = DeclarationList::Reverse($4);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>(*$2);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($2);
 		$$ = make_shared<SumDeclarationStatement>(@$, type, $2, @2, variant_list, @4);
 	}
 	;
@@ -977,7 +977,7 @@ variant:
 	IDENTIFIER LBRACE declaration_list RBRACE
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>(*$1);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
 		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 	| IDENTIFIER COLON primitive_type_specifier
@@ -992,7 +992,7 @@ variant:
 	{
 		//short-hand for unit types
 		const ModifierListRef modifiers = ModifierList::From(make_shared<Modifier>(Modifier::Type::READONLY, GetDefaultLocation()), ModifierList::GetTerminator());
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>(*$1);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
 		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, DeclarationList::GetTerminator(), GetDefaultLocation(), modifiers, GetDefaultLocation());
 	}
 	;

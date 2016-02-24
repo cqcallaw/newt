@@ -52,9 +52,10 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	//TODO: validate that all members are initialized for readonly structs (?)
 
+	auto type_name = m_type_specifier->GetTypeName();
 	const_shared_ptr<TypeDefinition> type =
 			execution_context->GetTypeTable()->GetType<TypeDefinition>(
-					m_type_specifier->GetTypeName());
+					type_name);
 	if (type) {
 		auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 		if (existing == Symbol::GetDefaultSymbol()) {
@@ -90,8 +91,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 								}
 							} else {
 								//generate default instance
-								instance = Record::GetDefaultInstance(
-										m_type_specifier->GetTypeName(),
+								instance = Record::GetDefaultInstance(type_name,
 										*as_record);
 							}
 						} else {
@@ -101,14 +101,14 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 													Error::ASSIGNMENT_TYPE_ERROR,
 													GetInitializerExpression()->GetPosition().begin.line,
 													GetInitializerExpression()->GetPosition().begin.column,
-													m_type_specifier->GetTypeName(),
+													*type_name,
 													initializer_expression_type->ToString()),
 											errors);
 						}
 					}
 				} else {
-					instance = Record::GetDefaultInstance(
-							m_type_specifier->GetTypeName(), *as_record);
+					instance = Record::GetDefaultInstance(type_name,
+							*as_record);
 				}
 
 				if (ErrorList::IsTerminator(errors)) {
@@ -172,7 +172,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 													Error::AMBIGUOUS_WIDENING_CONVERSION,
 													GetInitializerExpression()->GetPosition().begin.line,
 													GetInitializerExpression()->GetPosition().begin.column,
-													m_type_specifier->GetTypeName(),
+													*type_name,
 													initializer_expression_type->ToString()),
 											errors);
 						} else {
@@ -182,7 +182,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 													Error::ASSIGNMENT_TYPE_ERROR,
 													GetInitializerExpression()->GetPosition().begin.line,
 													GetInitializerExpression()->GetPosition().begin.column,
-													m_type_specifier->GetTypeName(),
+													*type_name,
 													initializer_expression_type->ToString()),
 											errors);
 						}
@@ -216,8 +216,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 						m_type_position.begin.line,
-						m_type_position.begin.column,
-						m_type_specifier->GetTypeName()), errors);
+						m_type_position.begin.column, *type_name), errors);
 	}
 
 	return errors;

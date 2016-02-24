@@ -147,7 +147,7 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<void> RecordType::GetDefaultValue(
-		const std::string& type_name) const {
+		const_shared_ptr<std::string> type_name) const {
 	return Record::GetDefaultInstance(type_name, *this);
 }
 
@@ -162,7 +162,7 @@ bool RecordType::IsSpecifiedBy(const std::string name,
 	try {
 		const RecordTypeSpecifier& as_record =
 				dynamic_cast<const RecordTypeSpecifier&>(type_specifier);
-		return name == as_record.GetTypeName();
+		return name == *as_record.GetTypeName();
 	} catch (std::bad_cast& e) {
 		return false;
 	}

@@ -170,9 +170,10 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			if (as_sum_specifier) {
 				auto evaluation_result_type = evaluation_result->GetType();
 				if (*as_sum_specifier != *evaluation_result_type) {
+					auto sum_type_name = *as_sum_specifier->GetTypeName();
 					auto sum_type_definition =
 							invocation_context->GetTypeTable()->GetType<SumType>(
-									as_sum_specifier->GetTypeName());
+									sum_type_name);
 					if (sum_type_definition) {
 						//we're returning a narrower type than the return type; perform widening
 						plain_shared_ptr<string> tag;
@@ -181,8 +182,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 								const NestedTypeSpecifier>(
 								evaluation_result_type);
 						if (as_nested) {
-							if (as_sum_specifier->GetTypeName()
-									== as_nested->GetParent()->GetTypeName()) {
+							if (sum_type_name
+									== *as_nested->GetParent()->GetTypeName()) {
 								tag = as_nested->GetMemberName();
 							} else {
 								//mismatch between types. if we did our semantic analysis right, this shouldn't ever occur
@@ -202,8 +203,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 												Error::UNDECLARED_TYPE,
 												m_declaration->GetReturnTypeLocation().begin.line,
 												m_declaration->GetReturnTypeLocation().begin.column,
-												as_sum_specifier->GetTypeName()),
-										errors);
+												sum_type_name), errors);
 					}
 				}
 			}

@@ -43,7 +43,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 		//check that element type exists
 		const_shared_ptr<TypeTable> type_table =
 				execution_context->GetTypeTable();
-		const string type_name = element_type_as_record->GetTypeName();
+		const string type_name = *element_type_as_record->GetTypeName();
 		const_shared_ptr<RecordType> type = type_table->GetType<RecordType>(
 				type_name);
 

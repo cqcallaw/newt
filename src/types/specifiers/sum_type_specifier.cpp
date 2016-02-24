@@ -33,19 +33,19 @@ SumTypeSpecifier::SumTypeSpecifier(
 }
 
 const string SumTypeSpecifier::ToString() const {
-	return m_type_name;
+	return *m_type_name;
 }
 
 const bool SumTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other) const {
 	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
 			const SumTypeSpecifier>(other);
-	return as_sum && as_sum->GetTypeName().compare(m_type_name) == 0;
+	return as_sum && as_sum->GetTypeName()->compare(*m_type_name) == 0;
 }
 
 const_shared_ptr<void> SumTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
-	auto type = type_table.GetType<SumType>(m_type_name);
+	auto type = type_table.GetType<SumType>(*m_type_name);
 	if (type) {
 		return type->GetDefaultValue(m_type_name);
 	}
@@ -66,7 +66,7 @@ bool SumTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const SumTypeSpecifier& as_sum =
 				dynamic_cast<const SumTypeSpecifier&>(other);
-		return GetTypeName() == as_sum.GetTypeName();
+		return *GetTypeName() == *as_sum.GetTypeName();
 	} catch (std::bad_cast& e) {
 		return false;
 	}
