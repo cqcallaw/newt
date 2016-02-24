@@ -32,6 +32,7 @@
 #include <function.h>
 #include <sum.h>
 #include <primitive_type_specifier.h>
+#include <nested_type_specifier.h>
 #include <record.h>
 #include <memory>
 
@@ -62,6 +63,14 @@ Symbol::Symbol(const_shared_ptr<Array> value) :
 
 Symbol::Symbol(const_shared_ptr<Record> value) :
 		Symbol(value->GetTypeSpecifier(),
+				static_pointer_cast<const void>(value)) {
+}
+
+Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> container,
+		const_shared_ptr<Record> value) :
+		Symbol(
+				make_shared<NestedTypeSpecifier>(container,
+						value->GetTypeSpecifier()->GetTypeName()),
 				static_pointer_cast<const void>(value)) {
 }
 
@@ -129,12 +138,11 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type,
 		buffer << sum_instance->ToString(type_table, indent + 1);
 	}
 
-	const_shared_ptr<RecordTypeSpecifier> as_record =
-			std::dynamic_pointer_cast<const RecordTypeSpecifier>(type);
+	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
+			const RecordTypeSpecifier>(type);
 	if (as_record) {
 		buffer << endl;
-		auto record_type_instance = static_pointer_cast<
-				const Record>(value);
+		auto record_type_instance = static_pointer_cast<const Record>(value);
 		buffer << record_type_instance->ToString(type_table, indent + 1);
 	}
 

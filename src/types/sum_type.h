@@ -51,7 +51,8 @@ public:
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const_shared_ptr<std::string> type_name) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void>) const;
+	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void>,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
 
 	const_shared_ptr<TypeTable> GetTypeTable() const {
 		return m_type_table;

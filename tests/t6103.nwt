@@ -1,0 +1,16 @@
+sum result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+t:= @result.error with { message = "No go"}
+
+match(t)
+	value {
+		print("Value: " + value)
+	}
+	| error {
+		print("Error: " + error.message)
+	}

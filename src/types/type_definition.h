@@ -26,6 +26,7 @@
 class TypeTable;
 class Indent;
 class TypeSpecifier;
+class ComplexTypeSpecifier;
 class Symbol;
 
 class TypeDefinition {
@@ -45,8 +46,8 @@ public:
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const_shared_ptr<std::string> type_name) const = 0;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(
-			const_shared_ptr<void> value) const = 0;
+	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const = 0;
 };
 
 #endif /* TYPE_DEFINITION_H_ */

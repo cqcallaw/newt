@@ -50,9 +50,9 @@ public:
 		return m_origin->GetDefaultValue(type_name);
 	}
 
-	virtual const_shared_ptr<Symbol> GetSymbol(
-			const_shared_ptr<void> value) const {
-		return m_origin->GetSymbol(value);
+	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const {
+		return m_origin->GetSymbol(value, container);
 	}
 private:
 	const_shared_ptr<TypeDefinition> m_origin;

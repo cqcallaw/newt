@@ -165,8 +165,8 @@ const WideningResult SumType::AnalyzeWidening(
 	}
 }
 
-const_shared_ptr<Symbol> SumType::GetSymbol(
-		const_shared_ptr<void> value) const {
+const_shared_ptr<Symbol> SumType::GetSymbol(const_shared_ptr<void> value,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	auto cast = static_pointer_cast<const Sum>(value);
 	return make_shared<Symbol>(cast);
 }

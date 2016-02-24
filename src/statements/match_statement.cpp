@@ -66,7 +66,8 @@ const ErrorListRef MatchStatement::preprocess(
 						const_shared_ptr<void> default_value =
 								variant_type->GetDefaultValue(match_name);
 						const_shared_ptr<Symbol> default_symbol =
-								variant_type->GetSymbol(default_value);
+								variant_type->GetSymbol(default_value,
+										expression_type_as_sum);
 						block_context->InsertSymbol(*match_name,
 								default_symbol);
 
@@ -167,7 +168,8 @@ const ErrorListRef MatchStatement::execute(
 											EPHEMERAL);
 
 							const_shared_ptr<Symbol> default_symbol =
-									variant_type->GetSymbol(as_sum->GetValue());
+									variant_type->GetSymbol(as_sum->GetValue(),
+											expression_type_as_sum);
 							block_context->InsertSymbol(match_name,
 									default_symbol);
 

@@ -60,8 +60,8 @@ const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 	return GetDefaultValue(m_type);
 }
 
-const_shared_ptr<Symbol> PrimitiveType::GetSymbol(
-		const_shared_ptr<void> value) const {
+const_shared_ptr<Symbol> PrimitiveType::GetSymbol(const_shared_ptr<void> value,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	switch (m_type) {
 	case BasicType::BOOLEAN:
 		return make_shared<Symbol>(static_pointer_cast<const bool>(value));

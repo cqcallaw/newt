@@ -30,6 +30,7 @@
 
 class MemberDefinition;
 class Result;
+class ComplexTypeSpecifier;
 
 typedef map<const std::string, const_shared_ptr<MemberDefinition>> definition_map;
 
@@ -54,7 +55,8 @@ public:
 			const_shared_ptr<std::string> type_name) const;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(
-			const_shared_ptr<void> value) const;
+			const_shared_ptr<void> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
 
 	const_shared_ptr<definition_map> GetDefinition() const {
 		return m_definition;

@@ -42,8 +42,8 @@ public:
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const_shared_ptr<std::string> type_name) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(
-			const_shared_ptr<void> value) const;
+	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
 
 	const BasicType GetType() const {
 		return m_type;

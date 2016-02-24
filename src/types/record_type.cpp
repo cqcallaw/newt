@@ -151,10 +151,14 @@ const_shared_ptr<void> RecordType::GetDefaultValue(
 	return Record::GetDefaultInstance(type_name, *this);
 }
 
-const_shared_ptr<Symbol> RecordType::GetSymbol(
-		const_shared_ptr<void> value) const {
+const_shared_ptr<Symbol> RecordType::GetSymbol(const_shared_ptr<void> value,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	auto cast = static_pointer_cast<const Record>(value);
-	return make_shared<Symbol>(cast);
+	if (container) {
+		return make_shared<Symbol>(container, cast);
+	} else {
+		return make_shared<Symbol>(cast);
+	}
 }
 
 bool RecordType::IsSpecifiedBy(const std::string name,
