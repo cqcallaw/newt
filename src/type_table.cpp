@@ -23,7 +23,7 @@
 #include <complex_type_specifier.h>
 
 TypeTable::TypeTable() :
-		table(make_shared<type_map>()) {
+		m_table(make_shared<type_map>()) {
 }
 
 TypeTable::~TypeTable() {
@@ -31,14 +31,14 @@ TypeTable::~TypeTable() {
 
 void TypeTable::AddType(const std::string& name,
 		const_shared_ptr<TypeDefinition> definition) {
-	table->insert(
+	m_table->insert(
 			pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
 					definition));
 }
 
 const void TypeTable::print(ostream& os, const Indent& indent) const {
 	type_map::iterator iter;
-	for (iter = table->begin(); iter != table->end(); ++iter) {
+	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
 		os << indent;
 		os << iter->first << ":" << endl;
 		const_shared_ptr<TypeDefinition> type = iter->second;
@@ -54,7 +54,7 @@ volatile_shared_ptr<TypeTable> TypeTable::GetDefault() {
 const uint TypeTable::CountEntriesOfType(
 		const TypeSpecifier& type_specifier) const {
 	uint count = 0;
-	for (const auto &entry : *table) {
+	for (const auto &entry : *m_table) {
 		auto name = entry.first;
 		auto definition = entry.second;
 		if (definition->IsSpecifiedBy(name, type_specifier)) {
@@ -66,7 +66,7 @@ const uint TypeTable::CountEntriesOfType(
 
 const std::string TypeTable::MapSpecifierToName(
 		const TypeSpecifier& type_specifier) const {
-	for (const auto &entry : *table) {
+	for (const auto &entry : *m_table) {
 		auto name = entry.first;
 		auto definition = entry.second;
 		if (definition->IsSpecifiedBy(name, type_specifier)) {
@@ -78,13 +78,13 @@ const std::string TypeTable::MapSpecifierToName(
 }
 
 const bool TypeTable::ContainsType(const ComplexTypeSpecifier& type_specifier) {
-	return table->find(*type_specifier.GetTypeName()) != table->end();
+	return m_table->find(*type_specifier.GetTypeName()) != m_table->end();
 }
 
 const_shared_ptr<std::set<std::string>> TypeTable::GetTypeNames() const {
 	shared_ptr<std::set<std::string>> result =
 			make_shared<std::set<std::string>>();
-	for (const auto &entry : *table) {
+	for (const auto &entry : *m_table) {
 		auto name = entry.first;
 		result->insert(name);
 	}

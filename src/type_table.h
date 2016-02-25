@@ -24,6 +24,7 @@
 #include <type.h>
 #include <map>
 #include <set>
+#include <alias_definition.h>
 
 class TypeDefinition;
 class RecordType;
@@ -48,10 +49,19 @@ public:
 
 	template<class T> const shared_ptr<const T> GetType(
 			const std::string& name) const {
-		auto result = table->find(name);
+		auto result = m_table->find(name);
 
-		if (result != table->end()) {
-			auto cast = dynamic_pointer_cast<const T>(result->second);
+		if (result != m_table->end()) {
+			shared_ptr<const TypeDefinition> value = result->second;
+
+			// handle aliases
+			auto as_alias = std::dynamic_pointer_cast<const AliasDefinition>(
+					value);
+			if (as_alias) {
+				value = as_alias->GetOrigin();
+			}
+
+			auto cast = dynamic_pointer_cast<const T>(value);
 			if (cast) {
 				return cast;
 			}
@@ -79,7 +89,7 @@ public:
 	const_shared_ptr<std::set<std::string>> GetTypeNames() const;
 
 private:
-	const shared_ptr<type_map> table;
+	const shared_ptr<type_map> m_table;
 };
 
 #endif /* TYPE_TABLE_H_ */

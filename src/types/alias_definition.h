@@ -54,6 +54,11 @@ public:
 			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const {
 		return m_origin->GetSymbol(value, container);
 	}
+
+	const_shared_ptr<TypeDefinition> GetOrigin() const {
+		return m_origin;
+	}
+
 private:
 	const_shared_ptr<TypeDefinition> m_origin;
 };
