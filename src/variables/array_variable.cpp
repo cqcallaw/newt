@@ -183,8 +183,7 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 						std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 								element_type_specifier);
 				if (as_record) {
-					result_value = array->GetValue<Record>(index,
-							*type_table);
+					result_value = array->GetValue<Record>(index, *type_table);
 				} else {
 					//we should never get here
 					assert(false);
@@ -381,7 +380,8 @@ const ErrorListRef ArrayVariable::SetSymbol(
 
 const ErrorListRef ArrayVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Record> value) const {
+		const_shared_ptr<Record> value,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
@@ -444,8 +444,7 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 							element_type_specifier);
 			if (as_record) {
 				new_array = array->WithValue<Record>(index,
-						static_pointer_cast<const Record>(value),
-						*type_table);
+						static_pointer_cast<const Record>(value), *type_table);
 			}
 		}
 

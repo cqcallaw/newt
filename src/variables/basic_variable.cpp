@@ -26,7 +26,9 @@
 #include <function.h>
 #include <sum.h>
 #include <sum_type.h>
+#include <record_type.h>
 #include <record.h>
+#include <nested_type_specifier.h>
 
 #include "assert.h"
 #include "expression.h"
@@ -238,6 +240,7 @@ const ErrorListRef BasicVariable::AssignValue(
 				new_sum = static_pointer_cast<const Sum>(
 						expression_evaluation->GetData());
 			} else {
+				//test for widening
 				auto sum_type = context->GetTypeTable()->GetType<SumType>(
 						as_sum_specifier->GetTypeName());
 				auto widening_analysis = sum_type->AnalyzeWidening(
@@ -255,6 +258,43 @@ const ErrorListRef BasicVariable::AssignValue(
 			}
 
 			errors = SetSymbol(output_context, new_sum);
+		}
+	}
+
+	const_shared_ptr<NestedTypeSpecifier> as_nested_specifier =
+			std::dynamic_pointer_cast<const NestedTypeSpecifier>(symbol_type);
+	if (as_nested_specifier) {
+		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
+				context);
+
+		errors = expression_evaluation->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto parent_type_definition = context->GetTypeTable()->GetType<
+					ComplexType>(
+					as_nested_specifier->GetParent()->GetTypeName());
+
+			if (parent_type_definition) {
+				auto as_sum = dynamic_pointer_cast<const SumType>(
+						parent_type_definition);
+
+				if (as_sum) {
+					auto child_record_type = as_sum->GetTypeTable()->GetType<
+							RecordType>(as_nested_specifier->GetMemberName());
+					if (child_record_type) {
+						auto value = static_pointer_cast<const Record>(
+								expression_evaluation->GetData());
+						//auto expression_type = expression->GetType(context);
+						errors = SetSymbol(output_context, value,
+								as_nested_specifier->GetParent());
+					} else {
+						assert(false);
+					}
+				} else {
+					assert(false);
+				}
+			} else {
+				assert(false);
+			}
 		}
 	}
 
@@ -303,9 +343,10 @@ const ErrorListRef BasicVariable::SetSymbol(
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Record> value) const {
+		const_shared_ptr<Record> value,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
+	return ToErrorListRef(context->SetSymbol(*GetName(), value, container),
 			symbol->GetType(), value->GetTypeSpecifier());
 }
 

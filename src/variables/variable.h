@@ -83,7 +83,8 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<Record> value) const = 0;
+			const_shared_ptr<Record> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const = 0;
 
 	const ErrorListRef ToErrorListRef(SetResult result,
 			const_shared_ptr<TypeSpecifier> symbol_type,

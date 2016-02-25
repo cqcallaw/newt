@@ -89,7 +89,8 @@ public:
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<Array> value);
 	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<Record> value);
+			const_shared_ptr<Record> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr);
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<Function> value);
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<Sum> value);

@@ -27,6 +27,7 @@
 #include <execution_context.h>
 #include <record.h>
 #include <sum.h>
+#include <nested_type_specifier.h>
 
 #include "type.h"
 #include "utils.h"
@@ -134,9 +135,18 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<Record> value) {
-	return SetSymbol(identifier, value->GetTypeSpecifier(),
-			static_pointer_cast<const void>(value));
+		const_shared_ptr<Record> value,
+		const_shared_ptr<ComplexTypeSpecifier> container) {
+
+	if (container) {
+		return SetSymbol(identifier,
+				make_shared<NestedTypeSpecifier>(container,
+						value->GetTypeSpecifier()->GetTypeName()),
+				static_pointer_cast<const void>(value));
+	} else {
+		return SetSymbol(identifier, value->GetTypeSpecifier(),
+				static_pointer_cast<const void>(value));
+	}
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,

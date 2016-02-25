@@ -261,7 +261,8 @@ const ErrorListRef MemberVariable::AssignValue(
 
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Record> value) const {
+		const_shared_ptr<Record> value,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
@@ -281,7 +282,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 					container_result->GetData());
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value);
+					value, container);
 		} else {
 			set_result = INCOMPATIBLE_TYPE;
 		}
