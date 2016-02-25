@@ -47,8 +47,8 @@ const bool NestedTypeSpecifier::IsAssignableTo(
 			other);
 
 	if (other_as_nested) {
-		if (other_as_nested->GetParent() == m_parent) {
-			return other_as_nested->GetMemberName() == m_member_name;
+		if (*other_as_nested->GetParent() == *m_parent) {
+			return *other_as_nested->GetMemberName() == *m_member_name;
 		}
 	}
 
