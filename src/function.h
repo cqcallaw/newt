@@ -47,7 +47,7 @@ public:
 			const shared_ptr<ExecutionContext> invocation_context) const;
 
 	const string ToString(const TypeTable& type_table,
-			const Indent indent) const;
+			const Indent& indent) const;
 
 	const_shared_ptr<StatementBlock> GetBody() const {
 		return m_body;

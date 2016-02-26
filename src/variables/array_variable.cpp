@@ -74,14 +74,12 @@ ArrayVariable::~ArrayVariable() {
 
 const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperation(
 		const shared_ptr<ExecutionContext> context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	int array_index = -1;
 	yy::location index_location = GetDefaultLocation();
 	plain_shared_ptr<Array> array;
 
 	auto base_evaluation = m_base_variable->Evaluate(context);
-	errors = base_evaluation->GetErrors();
+	ErrorListRef errors = base_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto base_type_as_array =
 				dynamic_pointer_cast<const ArrayTypeSpecifier>(
@@ -460,10 +458,8 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 
 const ErrorListRef ArrayVariable::Validate(
 		const shared_ptr<ExecutionContext> context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	auto base_evaluation = m_base_variable->Evaluate(context);
-	errors = base_evaluation->GetErrors();
+	ErrorListRef errors = base_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> index_expression_type =
 				m_expression->GetType(context);

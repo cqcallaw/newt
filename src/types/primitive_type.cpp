@@ -44,7 +44,7 @@ const std::string PrimitiveType::ValueToString(const TypeTable& type_table,
 	return buffer.str();
 }
 
-bool PrimitiveType::IsSpecifiedBy(const std::string name,
+bool PrimitiveType::IsSpecifiedBy(const std::string& name,
 		const TypeSpecifier& type_specifier) const {
 	try {
 		const PrimitiveTypeSpecifier& as_primitive =

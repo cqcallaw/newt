@@ -59,11 +59,9 @@ SumDeclarationStatement::~SumDeclarationStatement() {
 
 const ErrorListRef SumDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	auto result = SumType::Build(execution_context, m_variant_list);
 
-	errors = result->GetErrors();
+	ErrorListRef errors = result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = static_pointer_cast<const SumType>(result->GetData());
 		execution_context->GetTypeTable()->AddType(*GetName(), type);

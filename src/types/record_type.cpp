@@ -161,7 +161,7 @@ const_shared_ptr<Symbol> RecordType::GetSymbol(const_shared_ptr<void> value,
 	}
 }
 
-bool RecordType::IsSpecifiedBy(const std::string name,
+bool RecordType::IsSpecifiedBy(const std::string& name,
 		const TypeSpecifier& type_specifier) const {
 	try {
 		const RecordTypeSpecifier& as_record =

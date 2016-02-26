@@ -40,7 +40,7 @@ public:
 		return m_origin->ValueToString(type_table, indent, value);
 	}
 
-	virtual bool IsSpecifiedBy(const std::string name,
+	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const {
 		return m_origin->IsSpecifiedBy(name, type_specifier);
 	}

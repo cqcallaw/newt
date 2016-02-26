@@ -142,7 +142,7 @@ const_shared_ptr<Result> SumType::Build(
 	return make_shared<Result>(type, errors);
 }
 
-bool SumType::IsSpecifiedBy(const std::string name,
+bool SumType::IsSpecifiedBy(const std::string& name,
 		const TypeSpecifier& type_specifier) const {
 	try {
 		const SumTypeSpecifier& as_sum =

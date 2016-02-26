@@ -71,7 +71,7 @@ public:
 		return m_modifiers;
 	}
 
-	virtual bool IsSpecifiedBy(const std::string name,
+	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const;
 
 private:

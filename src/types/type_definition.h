@@ -40,7 +40,7 @@ public:
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const = 0;
 
-	virtual bool IsSpecifiedBy(const std::string name,
+	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const = 0;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
