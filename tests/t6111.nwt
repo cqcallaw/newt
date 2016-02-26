@@ -9,10 +9,7 @@ sum result {
 t:result= @result.error with { message = "No go" }
 
 match(t)
-	value {
-		print("Value")
-	}
-	| _ {
+	_ {
 		print("Default")
 	}
 	| error {

@@ -50,7 +50,7 @@ const ErrorListRef MatchStatement::preprocess(
 					std::set<std::string>>();
 
 			if (sum_type) {
-				bool complete_match = false;
+				shared_ptr<const StatementBlock> default_match_block = nullptr;
 
 				auto match_list = m_match_list;
 				while (!MatchList::IsTerminator(match_list)) {
@@ -91,12 +91,7 @@ const ErrorListRef MatchStatement::preprocess(
 													*match_name), errors);
 						}
 					} else if (*match_name == "_") {
-						complete_match = true;
-						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::NONE, EPHEMERAL);
-						auto block_errors = match_body->preprocess(
-								block_context);
-						errors = ErrorList::Concatenate(errors, block_errors);
+						default_match_block = match_body;
 					} else {
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
@@ -110,12 +105,16 @@ const ErrorListRef MatchStatement::preprocess(
 					match_list = match_list->GetNext();
 				}
 
-				if (!complete_match) {
-					//we don't have a default clause; check for total match coverage
-					auto sum_table = sum_type->GetTypeTable();
-					auto variant_names = sum_table->GetTypeNames();
-
-					if (*variant_names != *match_names) {
+				auto sum_table = sum_type->GetTypeTable();
+				auto variant_names = sum_table->GetTypeNames();
+				if (*variant_names != *match_names) {
+					if (default_match_block) {
+						auto block_context = ExecutionContext::GetEmptyChild(
+								execution_context, Modifier::NONE, EPHEMERAL);
+						auto block_errors = default_match_block->preprocess(
+								block_context);
+						errors = ErrorList::Concatenate(errors, block_errors);
+					} else {
 						std::set<std::string> difference;
 						std::set_difference(variant_names->begin(),
 								variant_names->end(), match_names->begin(),
@@ -178,6 +177,7 @@ const ErrorListRef MatchStatement::execute(
 			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
 					expression_type_as_sum->GetTypeName());
 			if (sum_type) {
+				shared_ptr<const StatementBlock> default_match_block = nullptr;
 				bool matched = false;
 				auto match_list = m_match_list;
 				while (!MatchList::IsTerminator(match_list)) {
@@ -187,7 +187,6 @@ const ErrorListRef MatchStatement::execute(
 
 					if (match_name == tag) {
 						matched = true;
-
 						auto variant_type = sum_type->GetTypeTable()->GetType<
 								TypeDefinition>(match_name);
 						if (variant_type) {
@@ -219,27 +218,29 @@ const ErrorListRef MatchStatement::execute(
 						}
 						break;
 					} else if (match_name == "_") {
-						matched = true;
-						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::NONE, EPHEMERAL);
-
-						auto block_errors = match_body->execute(block_context);
-						errors = ErrorList::Concatenate(errors, block_errors);
-						break;
+						default_match_block = match_body;
 					}
 
 					match_list = match_list->GetNext();
 				}
 
 				if (!matched) {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::RUNTIME,
-											Error::MATCH_FAILURE,
-											m_source_expression->GetPosition().begin.line,
-											m_source_expression->GetPosition().begin.column,
-											expression_type->ToString()),
-									errors);
+					if (default_match_block) {
+						auto block_context = ExecutionContext::GetEmptyChild(
+								execution_context, Modifier::NONE, EPHEMERAL);
+						auto block_errors = default_match_block->execute(
+								block_context);
+						errors = ErrorList::Concatenate(errors, block_errors);
+					} else {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::RUNTIME,
+												Error::MATCH_FAILURE,
+												m_source_expression->GetPosition().begin.line,
+												m_source_expression->GetPosition().begin.column,
+												expression_type->ToString()),
+										errors);
+					}
 				}
 			} else {
 				errors = ErrorList::From(
