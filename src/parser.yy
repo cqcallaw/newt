@@ -551,7 +551,8 @@ return_statement:
 match_statement:
 	MATCH LPAREN expression RPAREN match_condition_list
 	{
-		$$ = make_shared<MatchStatement>(@$, $3, $5, @5);
+		auto reverse = MatchList::Reverse($5);
+		$$ = make_shared<MatchStatement>(@$, $3, reverse, @5);
 	}
 	;
 

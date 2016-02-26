@@ -61,21 +61,35 @@ const ErrorListRef MatchStatement::preprocess(
 					auto variant_type = sum_type->GetTypeTable()->GetType<
 							TypeDefinition>(match_name);
 					if (variant_type) {
-						match_names->insert(*match_name);
-						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::NONE, EPHEMERAL);
+						if (match_names->find(*match_name)
+								== match_names->end()) {
+							match_names->insert(*match_name);
+							auto block_context =
+									ExecutionContext::GetEmptyChild(
+											execution_context, Modifier::NONE,
+											EPHEMERAL);
 
-						const_shared_ptr<void> default_value =
-								variant_type->GetDefaultValue(match_name);
-						const_shared_ptr<Symbol> default_symbol =
-								variant_type->GetSymbol(default_value,
-										expression_type_as_sum);
-						block_context->InsertSymbol(*match_name,
-								default_symbol);
+							const_shared_ptr<void> default_value =
+									variant_type->GetDefaultValue(match_name);
+							const_shared_ptr<Symbol> default_symbol =
+									variant_type->GetSymbol(default_value,
+											expression_type_as_sum);
+							block_context->InsertSymbol(*match_name,
+									default_symbol);
 
-						auto block_errors = match_body->preprocess(
-								block_context);
-						errors = ErrorList::Concatenate(errors, block_errors);
+							auto block_errors = match_body->preprocess(
+									block_context);
+							errors = ErrorList::Concatenate(errors,
+									block_errors);
+						} else {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::DUPLICATE_MATCH_BLOCK,
+													match->GetNameLocation().begin.line,
+													match->GetNameLocation().begin.column,
+													*match_name), errors);
+						}
 					} else if (*match_name == "_") {
 						complete_match = true;
 						auto block_context = ExecutionContext::GetEmptyChild(

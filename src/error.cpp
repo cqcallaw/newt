@@ -197,6 +197,9 @@ const string Error::get_error_message() const {
 	case MATCH_REQUIRES_SUM:
 		os << "Match statement requires a sum type expression.";
 		break;
+	case DUPLICATE_MATCH_BLOCK:
+		os << "Match block for variant '" << m_s1 << "' already exists.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

@@ -85,7 +85,8 @@ public:
 		NOT_A_FUNCTION,
 		MATCH_REQUIRES_SUM,
 		INCOMPLETE_MATCH,
-		MATCH_FAILURE
+		MATCH_FAILURE,
+		DUPLICATE_MATCH_BLOCK
 	};
 
 	Error(ErrorClass error_class, ErrorCode code, int line_number,
