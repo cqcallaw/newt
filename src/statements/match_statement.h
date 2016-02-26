@@ -27,20 +27,26 @@ class Expression;
 
 class MatchStatement: public Statement {
 public:
-	MatchStatement(const_shared_ptr<Expression> source_expression,
+	MatchStatement(const yy::location statement_location,
+			const_shared_ptr<Expression> source_expression,
 			const MatchListRef match_list,
 			const yy::location match_list_location) :
-			m_source_expression(source_expression), m_match_list(match_list), m_match_list_location(
+			m_statement_location(statement_location), m_source_expression(
+					source_expression), m_match_list(match_list), m_match_list_location(
 					match_list_location) {
 	}
 	virtual ~MatchStatement();
 
-	const MatchListRef GetMatchList() const {
-		return m_match_list;
+	const yy::location GetStatementLocation() const {
+		return m_statement_location;
 	}
 
 	const const_shared_ptr<Expression> GetSourceExpression() const {
 		return m_source_expression;
+	}
+
+	const MatchListRef GetMatchList() const {
+		return m_match_list;
 	}
 
 	const yy::location GetMatchListLocation() const {
@@ -58,6 +64,7 @@ public:
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 private:
+	const yy::location m_statement_location;
 	const_shared_ptr<Expression> m_source_expression;
 	const MatchListRef m_match_list;
 	const yy::location m_match_list_location;

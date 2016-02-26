@@ -1,0 +1,8 @@
+#match invalid expression
+match(t)
+	value {
+		print("Value: " + value)
+	}
+	| error {
+		print("Error: " + error.message)
+	}

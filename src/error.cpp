@@ -189,10 +189,13 @@ const string Error::get_error_message() const {
 		os << "Inferred declaration failure.";
 		break;
 	case INCOMPLETE_MATCH:
-		os << "Incomplete match.";
+		os << "Incomplete match. Unmatched variants: " << m_s1 << ".";
 		break;
 	case MATCH_FAILURE:
 		os << "Match failure.";
+		break;
+	case MATCH_REQUIRES_SUM:
+		os << "Match statement requires a sum type expression.";
 		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";

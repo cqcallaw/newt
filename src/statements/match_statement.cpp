@@ -25,6 +25,8 @@
 #include <sum.h>
 #include <execution_context.h>
 #include <symbol.h>
+#include <iterator>
+#include <sstream>
 
 MatchStatement::~MatchStatement() {
 }
@@ -100,14 +102,27 @@ const ErrorListRef MatchStatement::preprocess(
 					auto variant_names = sum_table->GetTypeNames();
 
 					if (*variant_names != *match_names) {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::INCOMPLETE_MATCH,
-												m_source_expression->GetPosition().begin.line,
-												m_source_expression->GetPosition().begin.column,
-												expression_type->ToString()),
-										errors);
+						std::set<std::string> difference;
+						std::set_difference(variant_names->begin(),
+								variant_names->end(), match_names->begin(),
+								match_names->end(),
+								std::inserter(difference, difference.begin()));
+
+						ostringstream buffer;
+						std::copy(difference.begin(), difference.end(),
+								std::ostream_iterator<string>(buffer, ", "));
+
+						string result = buffer.str();
+						//ref: http://stackoverflow.com/a/16630332/577298
+						result.pop_back();
+						result.pop_back();
+
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::INCOMPLETE_MATCH,
+										m_statement_location.begin.line,
+										m_statement_location.begin.column,
+										result), errors);
 					}
 				}
 			} else {
