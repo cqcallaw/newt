@@ -6,8 +6,6 @@
 CPP_SRCS += \
 ../src/array.cpp \
 ../src/assert.cpp \
-../src/compound_type.cpp \
-../src/compound_type_instance.cpp \
 ../src/defaults.cpp \
 ../src/driver.cpp \
 ../src/error.cpp \
@@ -18,6 +16,7 @@ CPP_SRCS += \
 ../src/member_definition.cpp \
 ../src/member_instantiation.cpp \
 ../src/newt.cpp \
+../src/record.cpp \
 ../src/sum.cpp \
 ../src/symbol.cpp \
 ../src/symbol_context.cpp \
@@ -30,8 +29,6 @@ CPP_SRCS += \
 OBJS += \
 ./src/array.o \
 ./src/assert.o \
-./src/compound_type.o \
-./src/compound_type_instance.o \
 ./src/defaults.o \
 ./src/driver.o \
 ./src/error.o \
@@ -42,6 +39,7 @@ OBJS += \
 ./src/member_definition.o \
 ./src/member_instantiation.o \
 ./src/newt.o \
+./src/record.o \
 ./src/sum.o \
 ./src/symbol.o \
 ./src/symbol_context.o \
@@ -54,8 +52,6 @@ OBJS += \
 CPP_DEPS += \
 ./src/array.d \
 ./src/assert.d \
-./src/compound_type.d \
-./src/compound_type_instance.d \
 ./src/defaults.d \
 ./src/driver.d \
 ./src/error.d \
@@ -66,6 +62,7 @@ CPP_DEPS += \
 ./src/member_definition.d \
 ./src/member_instantiation.d \
 ./src/newt.d \
+./src/record.d \
 ./src/sum.d \
 ./src/symbol.d \
 ./src/symbol_context.d \
@@ -80,7 +77,7 @@ CPP_DEPS += \
 src/%.o: ../src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -std=c++0x -I./ -I../src -I../src/expressions -I../src/specifiers -I../src/statements -I../src/variables -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	g++ -std=c++0x -I./ -I../src -I../src/expressions -I../src/types -I../src/types/specifiers -I../src/statements -I../src/statements/declarations -I../src/variables -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
