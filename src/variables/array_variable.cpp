@@ -40,15 +40,15 @@ const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
 		auto base_evaluation = m_base_variable->Evaluate(context);
 
 		if (ErrorList::IsTerminator(base_evaluation->GetErrors())) {
-			auto array = std::static_pointer_cast<const Array>(
-					base_evaluation->GetData());
-			return array->GetElementType();
-		} else {
-			return PrimitiveTypeSpecifier::GetNone();
+			auto array = base_evaluation->GetData<Array>();
+			if (array) {
+				return array->GetElementType();
+			} else {
+			}
 		}
-	} else {
-		return PrimitiveTypeSpecifier::GetNone();
 	}
+
+	return PrimitiveTypeSpecifier::GetNone();
 }
 
 const_shared_ptr<string> ArrayVariable::ToString(
@@ -61,7 +61,7 @@ const_shared_ptr<string> ArrayVariable::ToString(
 
 	auto errors = evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		buffer << *(static_pointer_cast<const int>(evaluation->GetData()));
+		buffer << *(evaluation->GetData<int>());
 	} else {
 		buffer << "EVALUATION ERROR";
 	}
@@ -86,8 +86,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 						m_base_variable->GetType(context));
 
 		if (base_type_as_array) {
-			array = static_pointer_cast<const Array>(
-					base_evaluation->GetData());
+			array = base_evaluation->GetData<Array>();
 			const_shared_ptr<TypeSpecifier> index_expression_type =
 					m_expression->GetType(context);
 			if (index_expression_type->IsAssignableTo(
@@ -96,8 +95,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 						m_expression->Evaluate(context);
 				errors = index_expression_evaluation->GetErrors();
 				if (ErrorList::IsTerminator(errors)) {
-					const int i = *(static_pointer_cast<const int>(
-							index_expression_evaluation->GetData()));
+					const int i = *(index_expression_evaluation->GetData<int>());
 
 					if (i >= 0) {
 						array_index = i;
@@ -247,7 +245,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						errors = SetSymbolCore(context, result->GetData());
+						errors = SetSymbolCore(context,
+								result->GetData<bool>());
 						break;
 					}
 					break;
@@ -263,7 +262,7 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						errors = SetSymbolCore(context, result->GetData());
+						errors = SetSymbolCore(context, result->GetData<int>());
 						break;
 					}
 					break;
@@ -279,7 +278,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						errors = SetSymbolCore(context, result->GetData());
+						errors = SetSymbolCore(context,
+								result->GetData<double>());
 					}
 					break;
 				}
@@ -294,7 +294,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						errors = SetSymbolCore(context, result->GetData());
+						errors = SetSymbolCore(context,
+								result->GetData<string>());
 					}
 					break;
 				}
@@ -312,7 +313,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 										const ArrayTypeSpecifier>(
 										element_type_specifier);
 						if (element_as_array) {
-							errors = SetSymbolCore(context, result->GetData());
+							errors = SetSymbolCore(context,
+									result->GetData<Array>());
 						}
 
 						const_shared_ptr<RecordTypeSpecifier> element_as_record =
@@ -320,7 +322,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 										const RecordTypeSpecifier>(
 										element_type_specifier);
 						if (element_as_record) {
-							errors = SetSymbolCore(context, result->GetData());
+							errors = SetSymbolCore(context,
+									result->GetData<Record>());
 						}
 					}
 				} else {

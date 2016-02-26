@@ -76,8 +76,7 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 
 		errors = container_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto instance = static_pointer_cast<const Record>(
-					container_result->GetData());
+			auto instance = container_result->GetData<Record>();
 			volatile_shared_ptr<SymbolContext> new_symbol_context =
 					instance->GetDefinition();
 			auto new_context = context->WithContents(new_symbol_context);
@@ -115,8 +114,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 						container_type);
 
 		if (as_record) {
-			auto instance = static_pointer_cast<const Record>(
-					container_result->GetData());
+			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -149,8 +147,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 						container_type);
 
 		if (as_record) {
-			auto instance = static_pointer_cast<const Record>(
-					container_result->GetData());
+			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -182,8 +179,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 				const RecordTypeSpecifier>(container_type);
 
 		if (as_record) {
-			auto instance = static_pointer_cast<const Record>(
-					container_result->GetData());
+			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -216,8 +212,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 						container_type);
 
 		if (as_record) {
-			auto instance = static_pointer_cast<const Record>(
-					container_result->GetData());
+			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);
@@ -243,8 +238,7 @@ const ErrorListRef MemberVariable::AssignValue(
 	errors = container_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		//we're assigning a struct member reference
-		auto struct_value = static_pointer_cast<const Record>(
-				container_evaluation->GetData());
+		auto struct_value = container_evaluation->GetData<Record>();
 		shared_ptr<SymbolContext> definition = struct_value->GetDefinition();
 
 		const auto new_parent_context = SymbolContextList::From(context,
@@ -278,8 +272,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 						container_type);
 
 		if (as_record) {
-			auto instance = static_pointer_cast<const Record>(
-					container_result->GetData());
+			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value, container);
@@ -312,8 +305,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 						container_type);
 
 		if (as_record) {
-			auto instance = static_pointer_cast<const Record>(
-					container_result->GetData());
+			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
 					value);

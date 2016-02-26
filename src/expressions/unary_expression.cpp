@@ -89,18 +89,17 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 	if (!ErrorList::IsTerminator(evaluation_errors)) {
 		errors = evaluation_errors;
 	} else {
-		auto data = evaluation->GetData();
 		switch (m_operator) {
 		case UNARY_MINUS: {
 			if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt())) {
 				int* value = new int;
-				*value = -(*(static_pointer_cast<const int>(data)));
+				*value = -(*(evaluation->GetData<int>()));
 				result = (void *) value;
 			} else if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetDouble())) {
 				double* value = new double;
-				*value = -(*(static_pointer_cast<const double>(data)));
+				*value = -(*(evaluation->GetData<double>()));
 				result = (void *) value;
 			} else {
 				assert(false);
@@ -110,18 +109,18 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 		case NOT: {
 			if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetBoolean())) {
-				bool old_value = *(static_pointer_cast<const bool>(data));
+				bool old_value = *(evaluation->GetData<bool>());
 				bool* value = new bool(!old_value);
 				result = (void *) value;
 			} else if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt())) {
-				int old_value = *(static_pointer_cast<const int>(data));
+				int old_value = *(evaluation->GetData<int>());
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
 				break;
 			} else if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetDouble())) {
-				double old_value = *(static_pointer_cast<const double>(data));
+				double old_value = *(evaluation->GetData<double>());
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
 				break;

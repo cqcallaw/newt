@@ -105,7 +105,7 @@ const ErrorListRef ForStatement::execute(
 		return evaluation->GetErrors();
 	}
 
-	while (*(static_pointer_cast<const bool>(evaluation->GetData()))) {
+	while (*(evaluation->GetData<bool>())) {
 		ErrorListRef iteration_errors = ErrorList::GetTerminator();
 		if (m_statement_block) {
 			iteration_errors = m_statement_block->execute(

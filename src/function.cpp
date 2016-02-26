@@ -79,9 +79,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				//generate a declaration statement for the function execution context.
 				//it's tempting to just stuff a value into the symbol table,
 				//but this simplistic approach ignores widening conversions
-				auto evaluated_expression =
-						static_pointer_cast<const Expression>(
-								argument_evaluation->GetData());
+				auto evaluated_expression = argument_evaluation->GetData<
+						Expression>();
 				const DeclarationStatement* argument_declaration =
 						declaration->WithInitializerExpression(
 								evaluated_expression);

@@ -30,8 +30,7 @@
 #include <defaults.h>
 
 RecordDeclarationStatement::RecordDeclarationStatement(
-		const yy::location position,
-		const_shared_ptr<RecordTypeSpecifier> type,
+		const yy::location position, const_shared_ptr<RecordTypeSpecifier> type,
 		const_shared_ptr<string> name, const yy::location name_location,
 		DeclarationListRef member_declaration_list,
 		const yy::location member_declaration_list_location,
@@ -67,7 +66,7 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 			m_member_declaration_list);
 	errors = result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto type = static_pointer_cast<const RecordType>(result->GetData());
+		auto type = result->GetData<RecordType>();
 		type_table->AddType(*GetName(), type);
 	}
 

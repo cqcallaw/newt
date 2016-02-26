@@ -109,8 +109,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
-			auto raw_result = source_result->GetData();
-			auto as_record = static_pointer_cast<const Record>(raw_result);
+			auto as_record = source_result->GetData<Record>();
 			const_shared_ptr<SymbolContext> definition =
 					as_record->GetDefinition();
 

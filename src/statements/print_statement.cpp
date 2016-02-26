@@ -38,9 +38,7 @@ const ErrorListRef PrintStatement::execute(
 	errors = string_result->GetErrors();
 
 	if (ErrorList::IsTerminator(errors)) {
-		std::cout
-				<< *(static_pointer_cast<const string>(string_result->GetData()))
-				<< "\n";
+		std::cout << *(string_result->GetData<string>()) << "\n";
 	}
 
 	return errors;

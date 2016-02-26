@@ -26,14 +26,29 @@ class Result {
 public:
 	Result(const_shared_ptr<void> data, const ErrorListRef errors) :
 			m_data(data), m_errors(errors) {
+		assert(m_data || m_errors);
 	}
 
-	const_shared_ptr<void> GetData() const {
-		return m_data;
+	template<class T> const shared_ptr<const T> GetData() const {
+		if (m_data && ErrorList::IsTerminator(m_errors)) {
+			auto cast = static_pointer_cast<const T>(m_data);
+			return cast;
+		}
+
+		return shared_ptr<const T>();
 	}
 
 	const ErrorListRef GetErrors() const {
 		return m_errors;
+	}
+
+	/**
+	 * Get the raw void pointer to the data.
+	 *
+	 * This should be used judiciously; the templated GetData member is almost always a better option.
+	 */
+	const_shared_ptr<void> GetRawData() const {
+		return m_data;
 	}
 
 private:

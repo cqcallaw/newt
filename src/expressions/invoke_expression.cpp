@@ -86,15 +86,14 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 
 		errors = expression_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto function = static_pointer_cast<const Function>(
-					expression_result->GetData());
+			auto function = expression_result->GetData<Function>();
 
 			const_shared_ptr<Result> eval_result = function->Evaluate(
 					m_argument_list, execution_context);
 
 			errors = eval_result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				value = eval_result->GetData();
+				value = eval_result->GetRawData();
 			}
 		}
 	} else {
@@ -114,9 +113,7 @@ const_shared_ptr<Result> InvokeExpression::ToString(
 			execution_context);
 
 	if (expression_result->GetErrors()) {
-		buf
-				<< *(static_pointer_cast<const string>(
-						expression_result->GetData()));
+		buf << *(expression_result->GetData<string>());
 		buf << "(";
 		ErrorListRef errors =
 
@@ -128,9 +125,7 @@ const_shared_ptr<Result> InvokeExpression::ToString(
 			errors = ErrorList::Concatenate(errors,
 					argument_result->GetErrors());
 			if (ErrorList::IsTerminator(errors)) {
-				buf
-						<< *(static_pointer_cast<const string>(
-								argument_result->GetData()));
+				buf << *(argument_result->GetData<string>());
 				if (!ArgumentList::IsTerminator(argument->GetNext())) {
 					buf << ",";
 				}

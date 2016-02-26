@@ -45,7 +45,7 @@ const ErrorListRef ReturnStatement::execute(
 		execution_context->SetReturnValue(
 				const_shared_ptr<Symbol>(
 						new Symbol(m_expression->GetType(execution_context),
-								result->GetData())));
+								result->GetRawData())));
 	}
 
 	return errors;

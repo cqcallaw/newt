@@ -63,7 +63,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 
 	ErrorListRef errors = result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto type = static_pointer_cast<const SumType>(result->GetData());
+		auto type = result->GetData<SumType>();
 		execution_context->GetTypeTable()->AddType(*GetName(), type);
 	}
 

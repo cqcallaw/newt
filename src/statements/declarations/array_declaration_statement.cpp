@@ -118,8 +118,7 @@ const ErrorListRef ArrayDeclarationStatement::execute(
 		errors = initializer_result->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {
-			auto array = static_pointer_cast<const Array>(
-					initializer_result->GetData());
+			auto array = initializer_result->GetData<Array>();
 			auto symbol_context = execution_context;
 			SetResult result = symbol_context->SetSymbol(*GetName(), array);
 			errors = ToErrorListRef(result,

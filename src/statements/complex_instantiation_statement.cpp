@@ -85,9 +85,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 												execution_context);
 								errors = result->GetErrors();
 								if (ErrorList::IsTerminator(errors)) {
-									instance =
-											static_pointer_cast<const Record>(
-													result->GetData());
+									instance = result->GetData<Record>();
 								}
 							} else {
 								//generate default instance
@@ -164,7 +162,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 													*sum_type_name);
 									instance = make_shared<Sum>(
 											sum_type_specifier, variant_name,
-											result->GetData());
+											result->GetRawData());
 								}
 							}
 						} else if (widening_analysis == AMBIGUOUS) {
@@ -247,9 +245,7 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 			errors = evaluation->GetErrors();
 
 			if (ErrorList::IsTerminator(errors)) {
-				auto void_value = evaluation->GetData();
-				const_shared_ptr<Record> instance = static_pointer_cast<
-						const Record>(void_value);
+				auto instance = evaluation->GetData<Record>();
 				execution_context->SetSymbol(*GetName(), instance);
 			}
 		}
@@ -262,9 +258,7 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 
 			errors = evaluation->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				auto void_value = evaluation->GetData();
-				const_shared_ptr<Sum> instance = static_pointer_cast<const Sum>(
-						void_value);
+				auto instance = evaluation->GetData<Sum>();
 				execution_context->SetSymbol(*GetName(), instance);
 			}
 		}

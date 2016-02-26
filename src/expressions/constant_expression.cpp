@@ -70,7 +70,8 @@ const_shared_ptr<ConstantExpression> ConstantExpression::GetDefaultExpression(
 const_shared_ptr<Result> ConstantExpression::GetConstantExpression(
 		const_shared_ptr<Expression> expression,
 		const shared_ptr<ExecutionContext> execution_context) {
-	const_shared_ptr<Result> evaluation = expression->Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = expression->Evaluate(
+			execution_context);
 	plain_shared_ptr<void> result;
 
 	auto errors = evaluation->GetErrors();
@@ -78,7 +79,7 @@ const_shared_ptr<Result> ConstantExpression::GetConstantExpression(
 		result = const_shared_ptr<void>(
 				new ConstantExpression(expression->GetPosition(),
 						expression->GetType(execution_context),
-						evaluation->GetData()));
+						evaluation->GetRawData()));
 	}
 
 	return make_shared<Result>(result, errors);

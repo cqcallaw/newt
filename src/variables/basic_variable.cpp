@@ -116,8 +116,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(output_context,
-						static_pointer_cast<const bool>(result->GetData()));
+				errors = SetSymbol(output_context, result->GetData<bool>());
 			}
 			break;
 		}
@@ -129,8 +128,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(output_context,
-						static_pointer_cast<const int>(result->GetData()));
+				errors = SetSymbol(output_context, result->GetData<int>());
 			}
 			break;
 		}
@@ -142,8 +140,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(output_context,
-						static_pointer_cast<const double>(result->GetData()));
+				errors = SetSymbol(output_context, result->GetData<double>());
 			}
 			break;
 		}
@@ -154,8 +151,7 @@ const ErrorListRef BasicVariable::AssignValue(
 					op, context);
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(output_context,
-						static_pointer_cast<const string>(result->GetData()));
+				errors = SetSymbol(output_context, result->GetData<string>());
 			}
 			break;
 		}
@@ -174,8 +170,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto result_as_array = static_pointer_cast<const Array>(
-					expression_evaluation->GetData());
+			auto result_as_array = expression_evaluation->GetData<Array>();
 
 			if (result_as_array) {
 				errors = SetSymbol(output_context, result_as_array);
@@ -199,8 +194,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto new_instance = static_pointer_cast<const Record>(
-					expression_evaluation->GetData());
+			auto new_instance = expression_evaluation->GetData<Record>();
 
 			//we're assigning a struct reference
 			errors = SetSymbol(output_context, new_instance);
@@ -216,8 +210,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto function = static_pointer_cast<const Function>(
-					expression_evaluation->GetData());
+			auto function = expression_evaluation->GetData<Function>();
 
 			errors = SetSymbol(output_context, function);
 		}
@@ -237,8 +230,7 @@ const ErrorListRef BasicVariable::AssignValue(
 			plain_shared_ptr<Sum> new_sum;
 			if (expression_type->IsAssignableTo(symbol_type)) {
 				//we're re-assigning
-				new_sum = static_pointer_cast<const Sum>(
-						expression_evaluation->GetData());
+				new_sum = expression_evaluation->GetData<Sum>();
 			} else {
 				//test for widening
 				auto sum_type_name = as_sum_specifier->GetTypeName();
@@ -253,7 +245,7 @@ const ErrorListRef BasicVariable::AssignValue(
 					auto tag = sum_type->MapSpecifierToVariant(*expression_type,
 							*sum_type_name);
 					new_sum = make_shared<Sum>(as_sum_specifier, tag,
-							expression_evaluation->GetData());
+							expression_evaluation->GetRawData());
 				} else {
 					assert(false);
 				}
@@ -283,8 +275,7 @@ const ErrorListRef BasicVariable::AssignValue(
 					auto child_record_type = as_sum->GetTypeTable()->GetType<
 							RecordType>(as_nested_specifier->GetMemberName());
 					if (child_record_type) {
-						auto value = static_pointer_cast<const Record>(
-								expression_evaluation->GetData());
+						auto value = expression_evaluation->GetData<Record>();
 						//auto expression_type = expression->GetType(context);
 						errors = SetSymbol(output_context, value,
 								as_nested_specifier->GetParent());

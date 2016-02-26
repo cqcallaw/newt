@@ -73,7 +73,7 @@ const ErrorListRef ExitStatement::execute(
 		if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 			return evaluation->GetErrors();
 		} else {
-			exit_code = static_pointer_cast<const int>(evaluation->GetData());
+			exit_code = evaluation->GetData<int>();
 		}
 	}
 

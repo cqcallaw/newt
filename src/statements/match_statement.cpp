@@ -177,7 +177,7 @@ const ErrorListRef MatchStatement::execute(
 		errors = result->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {
-			auto as_sum = static_pointer_cast<const Sum>(result->GetData());
+			auto as_sum = result->GetData<Sum>();
 			auto tag = *as_sum->GetTag();
 
 			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(

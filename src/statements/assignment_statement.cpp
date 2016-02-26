@@ -377,10 +377,6 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		return evaluation;
 	}
 
-	auto void_value = evaluation->GetData();
-
-	assert(void_value);
-
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
@@ -392,15 +388,13 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		switch (basic_type) {
 		case BOOLEAN: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const bool>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<bool>()), op,
 					execution_context, new_value);
 			break;
 		}
 		case INT: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const int>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<int>()), op,
 					execution_context, new_value);
 			break;
 		}
@@ -437,8 +431,6 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		return evaluation;
 	}
 
-	auto void_value = evaluation->GetData();
-
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
@@ -450,22 +442,19 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		switch (basic_type) {
 		case BOOLEAN:
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const bool>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<bool>()), op,
 					execution_context, new_value);
 			break;
 		case INT: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const int>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<int>()), op,
 					execution_context, new_value);
 			break;
 		}
 		case DOUBLE: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const double>(void_value)), op,
-					execution_context, new_value);
+					variable_column, value, *(evaluation->GetData<double>()),
+					op, execution_context, new_value);
 			break;
 		}
 		default:
@@ -501,8 +490,6 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		return evaluation;
 	}
 
-	auto void_value = evaluation->GetData();
-
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			expression->GetType(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
@@ -514,28 +501,24 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		switch (basic_type) {
 		case BOOLEAN:
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const bool>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<bool>()), op,
 					execution_context, new_value);
 			break;
 		case INT: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const int>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<int>()), op,
 					execution_context, new_value);
 			break;
 		}
 		case DOUBLE: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const double>(void_value)), op,
-					execution_context, new_value);
+					variable_column, value, *(evaluation->GetData<double>()),
+					op, execution_context, new_value);
 			break;
 		}
 		case STRING: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					static_pointer_cast<const string>(void_value), op,
+					variable_column, value, evaluation->GetData<string>(), op,
 					execution_context, new_value);
 			break;
 		}

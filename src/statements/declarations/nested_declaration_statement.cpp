@@ -73,7 +73,8 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 							value = make_shared<Sum>(
 									static_pointer_cast<const SumTypeSpecifier>(
 											parent_type_specifier),
-									m_type->GetMemberName(), result->GetData());
+									m_type->GetMemberName(),
+									result->GetRawData());
 						}
 					}
 				}
