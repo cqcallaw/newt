@@ -86,7 +86,8 @@ public:
 		MATCH_REQUIRES_SUM,
 		INCOMPLETE_MATCH,
 		MATCH_FAILURE,
-		DUPLICATE_MATCH_BLOCK
+		DUPLICATE_MATCH_BLOCK,
+		EXTRANEOUS_DEFAULT_MATCH
 	};
 
 	Error(ErrorClass error_class, ErrorCode code, int line_number,

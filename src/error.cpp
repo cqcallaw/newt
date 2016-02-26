@@ -200,6 +200,9 @@ const string Error::get_error_message() const {
 	case DUPLICATE_MATCH_BLOCK:
 		os << "Match block for variant '" << m_s1 << "' already exists.";
 		break;
+	case EXTRANEOUS_DEFAULT_MATCH:
+		os << "Complete match; default match block well never execute.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

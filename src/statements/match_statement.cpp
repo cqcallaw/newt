@@ -137,6 +137,12 @@ const ErrorListRef MatchStatement::preprocess(
 										m_statement_location.begin.column,
 										result), errors);
 					}
+				} else if (default_match_block) {
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::EXTRANEOUS_DEFAULT_MATCH,
+									m_statement_location.begin.line,
+									m_statement_location.begin.column), errors);
 				}
 			} else {
 				errors = ErrorList::From(

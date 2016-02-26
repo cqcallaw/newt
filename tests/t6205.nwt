@@ -1,0 +1,20 @@
+#test default match termination
+sum result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+t:result= 7
+
+match(t)
+	_ {
+		print("Default")
+	}
+	| value {
+		print("Value")
+	}
+	| error {
+		print("Error")
+	}
