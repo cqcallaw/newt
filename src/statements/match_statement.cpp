@@ -211,13 +211,13 @@ const ErrorListRef MatchStatement::execute(
 
 						auto block_errors = match_body->execute(block_context);
 						errors = ErrorList::Concatenate(errors, block_errors);
+						break;
 					}
 
 					match_list = match_list->GetNext();
 				}
 
 				if (!matched) {
-
 					errors =
 							ErrorList::From(
 									make_shared<Error>(Error::RUNTIME,
