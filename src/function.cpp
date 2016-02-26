@@ -176,23 +176,9 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 									sum_type_name);
 					if (sum_type_definition) {
 						//we're returning a narrower type than the return type; perform widening
-						plain_shared_ptr<string> tag;
-						//strip out any container types
-						auto as_nested = dynamic_pointer_cast<
-								const NestedTypeSpecifier>(
-								evaluation_result_type);
-						if (as_nested) {
-							if (sum_type_name
-									== *as_nested->GetParent()->GetTypeName()) {
-								tag = as_nested->GetMemberName();
-							} else {
-								//mismatch between types. if we did our semantic analysis right, this shouldn't ever occur
-								assert(false);
-							}
-						} else {
-							tag = sum_type_definition->MapSpecifierToVariant(
-									*evaluation_result_type);
-						}
+						plain_shared_ptr<string> tag =
+								sum_type_definition->MapSpecifierToVariant(
+										*evaluation_result_type, sum_type_name);
 
 						result = make_shared<Sum>(as_sum_specifier, tag,
 								evaluation_result->GetValue());

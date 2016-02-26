@@ -137,8 +137,9 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 							execution_context);
 
 					if (ErrorList::IsTerminator(errors)) {
+						auto sum_type_name = sum_type_specifier->GetTypeName();
 						auto widening_analysis = as_sum->AnalyzeWidening(
-								*initializer_expression_type);
+								*initializer_expression_type, *sum_type_name);
 
 						if (initializer_expression_type->IsAssignableTo(
 								sum_type_specifier)) {
@@ -159,7 +160,8 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 								if (ErrorList::IsTerminator(errors)) {
 									auto variant_name =
 											as_sum->MapSpecifierToVariant(
-													*initializer_expression_type);
+													*initializer_expression_type,
+													*sum_type_name);
 									instance = make_shared<Sum>(
 											sum_type_specifier, variant_name,
 											result->GetData());

@@ -66,10 +66,12 @@ public:
 			const shared_ptr<ExecutionContext> context,
 			const DeclarationListRef member_declarations);
 
-	const WideningResult AnalyzeWidening(const TypeSpecifier& other) const;
+	const WideningResult AnalyzeWidening(const TypeSpecifier& other,
+			const string& sum_type_name) const;
 
 	const_shared_ptr<std::string> MapSpecifierToVariant(
-			const TypeSpecifier& type_specifier) const;
+			const TypeSpecifier& type_specifier,
+			const string& sum_type_name) const;
 
 private:
 	SumType(const_shared_ptr<TypeTable> type_table,

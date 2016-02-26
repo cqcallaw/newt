@@ -241,15 +241,17 @@ const ErrorListRef BasicVariable::AssignValue(
 						expression_evaluation->GetData());
 			} else {
 				//test for widening
+				auto sum_type_name = as_sum_specifier->GetTypeName();
 				auto sum_type = context->GetTypeTable()->GetType<SumType>(
-						as_sum_specifier->GetTypeName());
+						sum_type_name);
+
 				auto widening_analysis = sum_type->AnalyzeWidening(
-						*expression_type);
+						*expression_type, *sum_type_name);
 
 				if (widening_analysis == UNAMBIGUOUS) {
 					//we're widening
-					auto tag = sum_type->MapSpecifierToVariant(
-							*expression_type);
+					auto tag = sum_type->MapSpecifierToVariant(*expression_type,
+							*sum_type_name);
 					new_sum = make_shared<Sum>(as_sum_specifier, tag,
 							expression_evaluation->GetData());
 				} else {
