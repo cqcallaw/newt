@@ -37,11 +37,11 @@ public:
 	virtual ~Match() {
 	}
 
-	const const_shared_ptr<StatementBlock> GetBlock() const {
+	const_shared_ptr<StatementBlock> GetBlock() const {
 		return m_block;
 	}
 
-	const const_shared_ptr<std::string> GetName() const {
+	const_shared_ptr<std::string> GetName() const {
 		return m_name;
 	}
 
