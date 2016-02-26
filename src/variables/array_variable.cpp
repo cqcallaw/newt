@@ -74,14 +74,12 @@ ArrayVariable::~ArrayVariable() {
 
 const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperation(
 		const shared_ptr<ExecutionContext> context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	int array_index = -1;
 	yy::location index_location = GetDefaultLocation();
 	plain_shared_ptr<Array> array;
 
 	auto base_evaluation = m_base_variable->Evaluate(context);
-	errors = base_evaluation->GetErrors();
+	ErrorListRef errors = base_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto base_type_as_array =
 				dynamic_pointer_cast<const ArrayTypeSpecifier>(
@@ -179,12 +177,11 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 					assert(false);
 				}
 
-				const_shared_ptr<CompoundTypeSpecifier> as_compound =
-						std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+				const_shared_ptr<RecordTypeSpecifier> as_record =
+						std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 								element_type_specifier);
-				if (as_compound) {
-					result_value = array->GetValue<CompoundTypeInstance>(index,
-							*type_table);
+				if (as_record) {
+					result_value = array->GetValue<Record>(index, *type_table);
 				} else {
 					//we should never get here
 					assert(false);
@@ -318,11 +315,11 @@ const ErrorListRef ArrayVariable::AssignValue(
 							errors = SetSymbolCore(context, result->GetData());
 						}
 
-						const_shared_ptr<CompoundTypeSpecifier> element_as_compound =
+						const_shared_ptr<RecordTypeSpecifier> element_as_record =
 								std::dynamic_pointer_cast<
-										const CompoundTypeSpecifier>(
+										const RecordTypeSpecifier>(
 										element_type_specifier);
-						if (element_as_compound) {
+						if (element_as_record) {
 							errors = SetSymbolCore(context, result->GetData());
 						}
 					}
@@ -381,7 +378,8 @@ const ErrorListRef ArrayVariable::SetSymbol(
 
 const ErrorListRef ArrayVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<CompoundTypeInstance> value) const {
+		const_shared_ptr<Record> value,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
@@ -439,13 +437,12 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 						static_pointer_cast<const Array>(value), *type_table);
 			}
 
-			const_shared_ptr<CompoundTypeSpecifier> as_compound =
-					std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 							element_type_specifier);
-			if (as_compound) {
-				new_array = array->WithValue<CompoundTypeInstance>(index,
-						static_pointer_cast<const CompoundTypeInstance>(value),
-						*type_table);
+			if (as_record) {
+				new_array = array->WithValue<Record>(index,
+						static_pointer_cast<const Record>(value), *type_table);
 			}
 		}
 
@@ -461,10 +458,8 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 
 const ErrorListRef ArrayVariable::Validate(
 		const shared_ptr<ExecutionContext> context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	auto base_evaluation = m_base_variable->Evaluate(context);
-	errors = base_evaluation->GetErrors();
+	ErrorListRef errors = base_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> index_expression_type =
 				m_expression->GetType(context);

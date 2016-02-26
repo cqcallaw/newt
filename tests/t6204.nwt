@@ -1,0 +1,20 @@
+#test multiple match blocks with same variant
+sum result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+t:= @result.error with { message = "No go" }
+
+match(t)
+	error {
+		print("Error 1.")
+	}
+	| error {
+		print("Error 2.")
+	}
+	| value {
+		print("Value.")
+	}

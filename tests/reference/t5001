@@ -4,7 +4,6 @@ Root Symbol Table:
 ----------------
 (int, int) -> int x:
 	Body Location: 1.31-2.13
-
 int y: 13
 
 Root Type Table:

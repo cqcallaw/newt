@@ -27,7 +27,7 @@
 #include <error.h>
 #include <symbol_table.h>
 #include <execution_context.h>
-#include <type_specifier.h>
+#include <specifiers/type_specifier.h>
 
 ForStatement::ForStatement(const_shared_ptr<AssignmentStatement> initial,
 		const_shared_ptr<Expression> loop_expression,

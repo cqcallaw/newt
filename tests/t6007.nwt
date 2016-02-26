@@ -1,4 +1,10 @@
+# test assignment of non-constant expression
 a:= 51
-t:(double|int|string)
 
-t = a
+sum franken {
+	discrete:int
+	| continuous:double
+	| as_string:string
+}
+
+t:= a

@@ -1,0 +1,14 @@
+sum number {
+	discrete:int
+	| continuous:double
+}
+
+t:number = 2.0
+
+match(t)
+	discrete {
+		print("Discrete value: " + discrete)
+	}
+	| continuous {
+		print("Continuous value: " + continuous)
+	}

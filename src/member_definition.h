@@ -21,10 +21,11 @@
 #define MEMBER_DEFINITION_H_
 
 #include <type.h>
-#include <compound_type.h>
-#include <compound_type_specifier.h>
+#include <record_type.h>
 #include <primitive_type_specifier.h>
-#include <type_specifier.h>
+#include <record_type_specifier.h>
+#include <specifiers/type_specifier.h>
+#include <record.h>
 
 class MemberDefinition {
 public:
@@ -43,7 +44,7 @@ public:
 		return m_value;
 	}
 
-	const string ToString(const TypeTable& type_table,
+	const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const {
 		ostringstream buffer;
 		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
@@ -64,17 +65,17 @@ public:
 			}
 		}
 
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(m_type);
-		if (as_compound) {
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(m_type);
+		if (as_record) {
 			buffer << endl;
-			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+			auto instance = static_pointer_cast<const Record>(
 					m_value);
 			buffer << instance->ToString(type_table, indent + 1);
 			buffer << indent;
 		}
 
-		string result = buffer.str();
+		std::string result = buffer.str();
 		return result;
 	}
 

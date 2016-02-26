@@ -8,5 +8,5 @@ test test_instance:
 
 Root Type Table:
 ----------------
-test: 
+test:
 	string s ("hmmm")

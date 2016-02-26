@@ -1,0 +1,10 @@
+//test default values of nested complex types
+sum result {
+	value:int
+	| error {
+		code:int
+		message:string
+	}
+}
+
+first_result := @result.error with { code = 1, message = "Failed to guess magic number." }

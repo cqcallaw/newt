@@ -1,0 +1,4 @@
+Parsing file ../tests/t6205.nwt...
+Semantic error on line 11, column 1: Complete match; default match block well never execute.
+Parsed file ../tests/t6205.nwt.
+1 error found; giving up.

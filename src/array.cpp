@@ -18,6 +18,7 @@
  */
 
 #include <array.h>
+#include <record.h>
 
 const string Array::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
@@ -72,13 +73,13 @@ const string Array::ToString(const TypeTable& type_table,
 		}
 	}
 
-	const_shared_ptr<CompoundTypeSpecifier> as_compound =
-			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+	const_shared_ptr<RecordTypeSpecifier> as_record =
+			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 					element_type);
-	if (as_compound) {
+	if (as_record) {
 		for (int i = 0; i < size; i++) {
-			auto instance = static_pointer_cast<const CompoundTypeInstance>(
-					GetValue<CompoundTypeInstance>(i, type_table));
+			auto instance = static_pointer_cast<const Record>(
+					GetValue<Record>(i, type_table));
 			os << child_indent << "[" << i << "]: " << endl
 					<< instance->ToString(type_table, child_indent + 1);
 		}

@@ -59,6 +59,17 @@ public:
 						m_return_value, m_exit_code, m_life_time));
 	}
 
+	static const shared_ptr<ExecutionContext> GetEmptyChild(
+			const shared_ptr<ExecutionContext> parent,
+			const Modifier::Type modifiers, const LifeTime life_time) {
+		auto new_parent = SymbolContextList::From(parent, parent->GetParent());
+		return shared_ptr<ExecutionContext>(
+				new ExecutionContext(modifiers, make_shared<symbol_map>(),
+						new_parent, parent->GetTypeTable(),
+						Symbol::GetDefaultSymbol(),
+						plain_shared_ptr<int>(nullptr), life_time));
+	}
+
 	const SymbolContextListRef GetParent() const {
 		return m_parent;
 	}
@@ -96,16 +107,16 @@ public:
 		return m_life_time;
 	}
 
-	const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<string> identifier,
+	const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<std::string> identifier,
 			const SearchType search_type) const;
-	const_shared_ptr<Symbol> GetSymbol(const string& identifier,
+	const_shared_ptr<Symbol> GetSymbol(const std::string& identifier,
 			const SearchType search_type) const;
 
 	const void print(ostream &os, const TypeTable& type_table,
 			const Indent& indent, const SearchType search_type = SHALLOW) const;
 
 protected:
-	virtual SetResult SetSymbol(const string& identifier,
+	virtual SetResult SetSymbol(const std::string& identifier,
 			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
 
 private:

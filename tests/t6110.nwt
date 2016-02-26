@@ -1,0 +1,20 @@
+#test re-assignment of value in outer scope, aliased variant
+struct error {
+	message:string
+}
+
+sum result {
+	value:int
+	| error:error
+}
+
+t:result= @result.error with { message = "No go" }
+t2:result
+
+match(t)
+	value {
+		t2 = value
+	}
+	| error {
+		t2 = error
+	}

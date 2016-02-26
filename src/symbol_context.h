@@ -26,7 +26,7 @@
 #include <modifier.h>
 #include <symbol.h>
 
-class CompoundTypeInstance;
+class Record;
 class Function;
 
 using namespace std;
@@ -58,9 +58,6 @@ public:
 	SymbolContext(const SymbolContext&);
 	virtual ~SymbolContext();
 
-	/**
-	 * Clone the context. N.B. that the parent contexts are not cloned.
-	 */
 	volatile_shared_ptr<SymbolContext> Clone() const;
 
 	const Modifier::Type GetModifiers() const {
@@ -92,7 +89,8 @@ public:
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<Array> value);
 	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<CompoundTypeInstance> value);
+			const_shared_ptr<Record> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr);
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<Function> value);
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<Sum> value);

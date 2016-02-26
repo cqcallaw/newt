@@ -32,16 +32,16 @@ class Result;
 
 class Variable {
 public:
-	Variable(const_shared_ptr<string> name, const yy::location location);
+	Variable(const_shared_ptr<std::string> name, const yy::location location);
 	virtual ~Variable();
 
-	virtual const_shared_ptr<string> ToString(
+	virtual const_shared_ptr<std::string> ToString(
 			const shared_ptr<ExecutionContext> context) const = 0;
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const shared_ptr<ExecutionContext> context) const = 0;
 
-	const_shared_ptr<string> GetName() const {
+	const_shared_ptr<std::string> GetName() const {
 		return m_name;
 	}
 
@@ -75,7 +75,7 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<string> value) const = 0;
+			const_shared_ptr<std::string> value) const = 0;
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
@@ -83,14 +83,15 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<CompoundTypeInstance> value) const = 0;
+			const_shared_ptr<Record> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const = 0;
 
 	const ErrorListRef ToErrorListRef(SetResult result,
 			const_shared_ptr<TypeSpecifier> symbol_type,
 			const_shared_ptr<TypeSpecifier> expression_type) const;
 
 private:
-	const_shared_ptr<string> m_name;
+	const_shared_ptr<std::string> m_name;
 	const yy::location m_location;
 };
 

@@ -2,58 +2,16 @@ Parsing file ../tests/t5014.nwt...
 Parsed file ../tests/t5014.nwt.
 Root Symbol Table:
 ----------------
-Circle c1:
-	Point center:
-		int x: 12
-		int y: 0
+person a:
+	string name: "Bob"
 
-	int radius: 0
+person b:
+	string name: "Bob"
 
-Line l1:
-	Point a:
-		int x: 42
-		int y: 10
-
-	Point b:
-		int x: 43
-		int y: 10
-
-
-Point p1:
-	int x: 3
-	int y: 4
-
-Point p2:
-	int x: 13
-	int y: 16
-
-(Circle, int, int) -> Circle translate_circle:
-	Body Location: 30.83-33.2
-
-(Line, int, int) -> Line translate_line:
-	Body Location: 23.77-27.2
-
-(Point, int, int) -> Point translate_point:
-	Body Location: 16.80-20.2
-
+(person) -> person f:
+	Body Location: 6.27-7.9
 
 Root Type Table:
 ----------------
-Circle: 
-	Point center (
-		int x: 0
-		int y: 0
-	)
-	int radius (0)
-Line: 
-	Point a (
-		int x: 0
-		int y: 0
-	)
-	Point b (
-		int x: 1
-		int y: 0
-	)
-Point: 
-	int x (0)
-	int y (0)
+person:
+	string name ("")

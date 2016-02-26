@@ -1,0 +1,7 @@
+//test ambiguous widening
+sum test {
+	i:int
+	| d:int
+}
+
+t:test= 14

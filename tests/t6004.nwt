@@ -1,1 +1,7 @@
-t:(double|int) = 24
+//further testing of the unordered nature of sum types
+sum number {
+	discrete:int
+	| continuous:double
+}
+
+t:number = 24

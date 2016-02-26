@@ -17,13 +17,29 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sstream>
-#include <invoke_expression.h>
-#include <function_declaration.h>
 #include <declaration_statement.h>
-#include <function.h>
-#include <execution_context.h>
 #include <defaults.h>
+#include <error.h>
+#include <execution_context.h>
+#include <function.h>
+#include <function_declaration.h>
+#include <function_type_specifier.h>
+#include <invoke_expression.h>
+#include <linked_list.h>
+#include <location.hh>
+#include <modifier.h>
+#include <position.hh>
+#include <primitive_type_specifier.h>
+#include <record_type_specifier.h>
+#include <result.h>
+#include <sum_type.h>
+#include <sum_type_specifier.h>
+#include <symbol_context_list.h>
+#include <specifiers/type_specifier.h>
+#include <type_table.h>
+#include <memory>
+#include <sstream>
+#include <string>
 
 InvokeExpression::InvokeExpression(const yy::location position,
 		const_shared_ptr<Expression> expression, ArgumentListRef argument_list,
@@ -37,14 +53,17 @@ InvokeExpression::~InvokeExpression() {
 
 const_shared_ptr<TypeSpecifier> InvokeExpression::GetType(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
 			execution_context);
+
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
-					type_specifier);
-
+					expression_type);
 	if (as_function) {
-		return as_function->GetReturnType();
+		auto return_type = ComplexType::ToActualType(
+				as_function->GetReturnType(),
+				*execution_context->GetTypeTable());
+		return return_type;
 	} else {
 		return PrimitiveTypeSpecifier::GetNone();
 	}

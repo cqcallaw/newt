@@ -1,4 +1,4 @@
 Parsing file ../tests/t2083.nwt...
-Semantic error on line 3, column 12: Variable 'array' does not reference a compound type.
+Semantic error on line 3, column 12: 'array' does not reference a compound type.
 Parsed file ../tests/t2083.nwt.
 1 error found; giving up.

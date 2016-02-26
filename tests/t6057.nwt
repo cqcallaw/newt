@@ -1,0 +1,8 @@
+//test invalid variant name in default value expression
+sum test {
+	i:int
+	| d:double
+}
+
+t:= @test.f
+t2:test= @test.f

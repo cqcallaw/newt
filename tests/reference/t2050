@@ -25,7 +25,7 @@ circle[] my_circles:
 
 Root Type Table:
 ----------------
-circle: 
+circle:
 	int radius (0)
 	int w (20)
 	int x (10)

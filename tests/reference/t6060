@@ -1,0 +1,4 @@
+Parsing file ../tests/t6060.nwt...
+Semantic error on line 7, column 3: Invalid type "invalid_type".
+Parsed file ../tests/t6060.nwt.
+1 error found; giving up.

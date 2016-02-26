@@ -3,5 +3,11 @@ struct error {
 	message:string
 }
 
-result: (double | error)
-result = @error with { code = 3, message = "Insufficient funds." }
+sum result {
+	value:double
+	| error:error
+}
+
+r:result
+
+r = @error with { code = 3, message = "Insufficient funds." }

@@ -1,0 +1,7 @@
+//test default value of sum type member
+sum test {
+	i:int
+	| d:double
+}
+
+t := @test.i

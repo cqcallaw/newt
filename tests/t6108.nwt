@@ -1,0 +1,20 @@
+#test re-assignment of value in outer scope
+sum result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+t:= @result.error with { message = "No go" }
+
+t2:result
+
+match(t)
+	value {
+		print("Value: " + value)
+	}
+	| error {
+		t2 = error
+		print("Error: " + error.message)
+	}

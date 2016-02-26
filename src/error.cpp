@@ -69,6 +69,10 @@ const string Error::get_error_message() const {
 		os << "Cannot assign an expression of type '" << m_s2
 				<< "' to a variable of type '" << m_s1 << "'.";
 		break;
+	case AMBIGUOUS_WIDENING_CONVERSION:
+		os << "Cannot unambiguously widen an expression of type '" << m_s2
+				<< "' to a variable of type '" << m_s1 << "'.";
+		break;
 	case EXIT_STATUS_MUST_BE_AN_INTEGER:
 		os << "Value passed to exit() must be an integer.  "
 				<< "Value passed was of type '" << m_s1 << "'.";
@@ -140,8 +144,8 @@ const string Error::get_error_message() const {
 	case VARIABLE_NOT_AN_ARRAY:
 		os << "Variable '" << m_s1 << "' is not an array.";
 		break;
-	case VARIABLE_NOT_A_COMPOUND_TYPE:
-		os << "Variable '" << m_s1 << "' does not reference a compound type.";
+	case NOT_A_COMPOUND_TYPE:
+		os << "'" << m_s1 << "' does not reference a compound type.";
 		break;
 	case DIVIDE_BY_ZERO:
 		os << "Arithmetic divide by zero.";
@@ -183,6 +187,21 @@ const string Error::get_error_message() const {
 		break;
 	case INFERRED_DECLARATION_FAILED:
 		os << "Inferred declaration failure.";
+		break;
+	case INCOMPLETE_MATCH:
+		os << "Incomplete match. Unmatched variants: " << m_s1 << ".";
+		break;
+	case MATCH_FAILURE:
+		os << "Match failure.";
+		break;
+	case MATCH_REQUIRES_SUM:
+		os << "Match statement requires a sum type expression.";
+		break;
+	case DUPLICATE_MATCH_BLOCK:
+		os << "Match block for variant '" << m_s1 << "' already exists.";
+		break;
+	case EXTRANEOUS_DEFAULT_MATCH:
+		os << "Complete match; default match block well never execute.";
 		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";

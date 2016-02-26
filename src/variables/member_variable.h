@@ -20,7 +20,7 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const shared_ptr<ExecutionContext> context) const;
 
-	virtual const_shared_ptr<string> ToString(
+	virtual const_shared_ptr<std::string> ToString(
 			const shared_ptr<ExecutionContext> context) const;
 
 	virtual const ErrorListRef Validate(
@@ -57,7 +57,7 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<string> value) const;
+			const_shared_ptr<std::string> value) const;
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
@@ -65,7 +65,8 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<CompoundTypeInstance> value) const;
+			const_shared_ptr<Record> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
 
 private:
 	const_shared_ptr<Variable> m_container;

@@ -8,5 +8,5 @@ my_struct s:
 
 Root Type Table:
 ----------------
-my_struct: 
+my_struct:
 	double x (0)

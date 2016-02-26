@@ -2,8 +2,22 @@ Parsing file ../tests/t6009.nwt...
 Parsed file ../tests/t6009.nwt.
 Root Symbol Table:
 ----------------
-(double|int) a: 56 {int}
-(double|int) t: 56 {int}
+number a: 56 {discrete}
+number_ctor number:
+	(double) -> number continuous:
+		Body Location: 4.4-13
+	(int) -> number discrete:
+		Body Location: 3.2-9
+
+number t: 56 {discrete}
 
 Root Type Table:
 ----------------
+number:
+	continuous:
+		double
+	discrete:
+		int
+number_ctor:
+	(double) -> number continuous ()
+	(int) -> number discrete ()

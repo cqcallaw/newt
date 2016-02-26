@@ -23,33 +23,35 @@
 #include <sum_type_specifier.h>
 
 class Indent;
+class SumType;
 
 class Sum {
 public:
 	Sum(const_shared_ptr<SumTypeSpecifier> type,
-			const_shared_ptr<TypeSpecifier> tag, const_shared_ptr<void> value);
+			const_shared_ptr<std::string> tag, const_shared_ptr<void> value);
 	virtual ~Sum();
 
-	const const_shared_ptr<SumTypeSpecifier> GetType() const {
+	static const_shared_ptr<Sum> GetDefaultInstance(
+			const_shared_ptr<std::string> type_name, const SumType& type);
+
+	const_shared_ptr<SumTypeSpecifier> GetType() const {
 		return m_type;
 	}
 
-	const const_shared_ptr<void> GetValue() const {
+	const_shared_ptr<void> GetValue() const {
 		return m_value;
 	}
 
-	const const_shared_ptr<TypeSpecifier> GetTag() const {
+	const_shared_ptr<std::string> GetTag() const {
 		return m_tag;
 	}
 
 	const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
-	const_shared_ptr<Sum> WithValue(const_shared_ptr<TypeSpecifier> tag,
-			const_shared_ptr<void> value) const;
 private:
 	const_shared_ptr<SumTypeSpecifier> m_type;
-	const_shared_ptr<TypeSpecifier> m_tag;
+	const_shared_ptr<std::string> m_tag;
 	const_shared_ptr<void> m_value;
 };
 

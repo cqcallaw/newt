@@ -5,7 +5,6 @@ Root Symbol Table:
 point p:
 	(int) -> int squared:
 		Body Location: 7.51-63
-
 	int x: 0
 	int y: 0
 
@@ -13,7 +12,7 @@ int s: 9
 
 Root Type Table:
 ----------------
-point: 
+point:
 	(int) -> int squared ()
 	int x (0)
 	int y (0)

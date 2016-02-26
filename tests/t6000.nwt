@@ -1,1 +1,6 @@
-t:(int|double)
+sum number {
+	discrete:int
+	| continuous:double
+}
+
+t:number

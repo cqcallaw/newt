@@ -1,0 +1,4 @@
+Parsing file ../tests/t6201.nwt...
+Semantic error on line 4, column 7: Match statement requires a sum type expression.
+Parsed file ../tests/t6201.nwt.
+1 error found; giving up.

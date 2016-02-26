@@ -1,0 +1,18 @@
+#test re-assignment of value in inner scope, variant
+sum result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+t:= @result.error with { message = "No go" }
+
+match(t)
+	value {
+		print("Value: " + value)
+	}
+	| error {
+		error = error with { message = "Reassigned!" }
+		print("Error: " + error.message)
+	}

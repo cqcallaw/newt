@@ -20,6 +20,8 @@
 #include <return_statement.h>
 #include <expression.h>
 #include <execution_context.h>
+#include <sum_type.h>
+#include <sum_type_specifier.h>
 
 ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 		m_expression(expression) {
@@ -56,11 +58,36 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			m_expression->GetType(execution_context);
 	if (!expression_type_specifier->IsAssignableTo(type_specifier)) {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::FUNCTION_RETURN_MISMATCH,
-						m_expression->GetPosition().begin.line,
-						m_expression->GetPosition().begin.column), errors);
+		auto as_sum_specifier = dynamic_pointer_cast<const SumTypeSpecifier>(
+				type_specifier);
+		if (as_sum_specifier) {
+			//widening of sum types requires special handling
+			auto sum_type_name = as_sum_specifier->GetTypeName();
+			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
+					sum_type_name);
+			if (sum_type) {
+				auto widening_analysis = sum_type->AnalyzeWidening(
+						*expression_type_specifier, *sum_type_name);
+
+				if (widening_analysis == AMBIGUOUS) {
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::AMBIGUOUS_WIDENING_CONVERSION,
+									m_expression->GetPosition().begin.line,
+									m_expression->GetPosition().begin.column,
+									type_specifier->ToString(),
+									expression_type_specifier->ToString()),
+							errors);
+
+				}
+			}
+		} else {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::FUNCTION_RETURN_MISMATCH,
+							m_expression->GetPosition().begin.line,
+							m_expression->GetPosition().begin.column), errors);
+		}
 	}
 
 	return errors;

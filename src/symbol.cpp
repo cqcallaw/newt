@@ -17,7 +17,6 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <compound_type_instance.h>
 #include <sstream>
 #include <defaults.h>
 
@@ -33,6 +32,8 @@
 #include <function.h>
 #include <sum.h>
 #include <primitive_type_specifier.h>
+#include <nested_type_specifier.h>
+#include <record.h>
 #include <memory>
 
 Symbol::Symbol(const_shared_ptr<bool> value) :
@@ -60,8 +61,16 @@ Symbol::Symbol(const_shared_ptr<Array> value) :
 				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<CompoundTypeInstance> value) :
+Symbol::Symbol(const_shared_ptr<Record> value) :
 		Symbol(value->GetTypeSpecifier(),
+				static_pointer_cast<const void>(value)) {
+}
+
+Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> container,
+		const_shared_ptr<Record> value) :
+		Symbol(
+				make_shared<NestedTypeSpecifier>(container,
+						value->GetTypeSpecifier()->GetTypeName()),
 				static_pointer_cast<const void>(value)) {
 }
 
@@ -122,13 +131,19 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type,
 		buffer << array->ToString(type_table, indent);
 	}
 
-	const_shared_ptr<CompoundTypeSpecifier> as_compound =
-			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(type);
-	if (as_compound) {
+	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
+			const SumTypeSpecifier>(type);
+	if (as_sum) {
+		auto sum_instance = static_pointer_cast<const Sum>(value);
+		buffer << sum_instance->ToString(type_table, indent);
+	}
+
+	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
+			const RecordTypeSpecifier>(type);
+	if (as_record) {
 		buffer << endl;
-		auto compound_type_instance = static_pointer_cast<
-				const CompoundTypeInstance>(value);
-		buffer << compound_type_instance->ToString(type_table, indent + 1);
+		auto record_type_instance = static_pointer_cast<const Record>(value);
+		buffer << record_type_instance->ToString(type_table, indent + 1);
 	}
 
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
@@ -137,13 +152,6 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type,
 		buffer << endl;
 		auto function = static_pointer_cast<const Function>(value);
 		buffer << function->ToString(type_table, indent + 1);
-	}
-
-	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
-			const SumTypeSpecifier>(type);
-	if (as_sum) {
-		auto sum = static_pointer_cast<const Sum>(value);
-		buffer << sum->ToString(type_table, indent);
 	}
 
 	return buffer.str();

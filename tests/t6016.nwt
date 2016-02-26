@@ -1,0 +1,14 @@
+sum result {
+	value:int
+	| error {
+		code:int
+		message:string
+	}
+}
+
+f:= (a:int) -> result {
+	return result.value(a)
+}
+
+first_result := f(1)
+second_result := f(3)

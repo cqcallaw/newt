@@ -23,7 +23,7 @@ my_nested_struct b:
 
 Root Type Table:
 ----------------
-my_nested_struct: 
+my_nested_struct:
 	my_struct i (
 		double y: 0
 	)
@@ -34,10 +34,10 @@ my_nested_struct:
 		int x: 0
 	)
 	int z (0)
-my_other_struct: 
+my_other_struct:
 	my_struct i (
 		double y: 0
 	)
 	int x (0)
-my_struct: 
+my_struct:
 	double y (0)

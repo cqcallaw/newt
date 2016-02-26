@@ -3,7 +3,26 @@ Parsed file ../tests/t6007.nwt.
 Root Symbol Table:
 ----------------
 int a: 51
-(double|int|string) t: 51 {int}
+franken_ctor franken:
+	(string) -> franken as_string:
+		Body Location: 7.4-12
+	(double) -> franken continuous:
+		Body Location: 6.4-13
+	(int) -> franken discrete:
+		Body Location: 5.2-9
+
+int t: 51
 
 Root Type Table:
 ----------------
+franken:
+	as_string:
+		string
+	continuous:
+		double
+	discrete:
+		int
+franken_ctor:
+	(string) -> franken as_string ()
+	(double) -> franken continuous ()
+	(int) -> franken discrete ()

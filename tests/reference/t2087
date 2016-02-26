@@ -25,7 +25,7 @@ rectangle my_rectangle:
 
 Root Type Table:
 ----------------
-rectangle: 
+rectangle:
 	double blue (0)
 	double green (0)
 	int h (0)

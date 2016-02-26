@@ -18,52 +18,76 @@
  */
 
 #include <type_table.h>
-#include <compound_type.h>
+#include <record_type.h>
+#include <primitive_type.h>
+#include <complex_type_specifier.h>
 
 TypeTable::TypeTable() :
-		table(make_shared<type_map>()) {
+		m_table(make_shared<type_map>()) {
 }
 
 TypeTable::~TypeTable() {
 }
 
-void TypeTable::AddType(const string& name,
-		const_shared_ptr<CompoundType> definition) {
-	table->insert(
-			pair<const string, const_shared_ptr<CompoundType>>(name,
+void TypeTable::AddType(const std::string& name,
+		const_shared_ptr<TypeDefinition> definition) {
+	m_table->insert(
+			pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
 					definition));
 }
 
-const_shared_ptr<CompoundType> TypeTable::GetType(const string& name) const {
-	auto result = table->find(name);
-
-	if (result != table->end()) {
-		return result->second;
-	}
-
-	return CompoundType::GetDefaultCompoundType();
-}
-
-const_shared_ptr<void> TypeTable::GetDefaultValue(
-		const string& type_name) const {
-	const_shared_ptr<CompoundType> type = GetType(type_name);
-	if (type != CompoundType::GetDefaultCompoundType()) {
-		return CompoundTypeInstance::GetDefaultInstance(type_name, type);
-	} else {
-		return nullptr;
-	}
-}
-
-const void TypeTable::print(ostream& os) const {
+const void TypeTable::print(ostream& os, const Indent& indent) const {
 	type_map::iterator iter;
-	for (iter = table->begin(); iter != table->end(); ++iter) {
-		os << iter->first << ": " << endl;
-		const_shared_ptr<CompoundType> type = iter->second;
-		os << type->ToString(*this, Indent(0));
+	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
+		os << indent;
+		os << iter->first << ":" << endl;
+		const_shared_ptr<TypeDefinition> type = iter->second;
+		os << type->ToString(*this, indent);
 	}
 }
 
 volatile_shared_ptr<TypeTable> TypeTable::GetDefault() {
 	static volatile_shared_ptr<TypeTable> instance = make_shared<TypeTable>();
 	return instance;
+}
+
+const uint TypeTable::CountEntriesOfType(
+		const TypeSpecifier& type_specifier) const {
+	uint count = 0;
+	for (const auto &entry : *m_table) {
+		auto name = entry.first;
+		auto definition = entry.second;
+		if (definition->IsSpecifiedBy(name, type_specifier)) {
+			count++;
+		}
+	}
+	return count;
+}
+
+const std::string TypeTable::MapSpecifierToName(
+		const TypeSpecifier& type_specifier) const {
+	for (const auto &entry : *m_table) {
+		auto name = entry.first;
+		auto definition = entry.second;
+		if (definition->IsSpecifiedBy(name, type_specifier)) {
+			return name;
+		}
+	}
+
+	return "";
+}
+
+const bool TypeTable::ContainsType(const ComplexTypeSpecifier& type_specifier) {
+	return m_table->find(*type_specifier.GetTypeName()) != m_table->end();
+}
+
+const_shared_ptr<std::set<std::string>> TypeTable::GetTypeNames() const {
+	shared_ptr<std::set<std::string>> result =
+			make_shared<std::set<std::string>>();
+	for (const auto &entry : *m_table) {
+		auto name = entry.first;
+		result->insert(name);
+	}
+
+	return result;
 }

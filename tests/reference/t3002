@@ -41,7 +41,7 @@ my_struct f:
 
 Root Type Table:
 ----------------
-my_struct: 
+my_struct:
 	int x (0)
 	double y (0)
 	string z ("")

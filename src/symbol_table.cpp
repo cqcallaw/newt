@@ -17,10 +17,10 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <compound_type_instance.h>
 #include <iostream>
 #include <sstream>
 #include <defaults.h>
+#include <record.h>
 #include "symbol_table.h"
 
 #include "type.h"

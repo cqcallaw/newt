@@ -22,7 +22,7 @@
 #include <assert.h>
 #include "statement.h"
 #include <execution_context.h>
-#include <type_specifier.h>
+#include <specifiers/type_specifier.h>
 
 using namespace std;
 

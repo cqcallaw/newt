@@ -4,7 +4,6 @@ Root Symbol Table:
 ----------------
 (int, (int) -> string) -> string do_op:
 	Body Location: 1.60-3.23
-
 string result: "Good job 3!"
 
 Root Type Table:

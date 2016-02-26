@@ -11,5 +11,5 @@ test test_instance2:
 
 Root Type Table:
 ----------------
-test: 
+test:
 	string s ("hmmm")

@@ -1,0 +1,10 @@
+#match invalid expression
+t:= 7
+
+match(t)
+	value {
+		print("Value: " + value)
+	}
+	| error {
+		print("Error: " + error.message)
+	}

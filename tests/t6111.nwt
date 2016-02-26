@@ -1,0 +1,17 @@
+#test default match termination
+sum result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+t:result= @result.error with { message = "No go" }
+
+match(t)
+	_ {
+		print("Default")
+	}
+	| error {
+		print("Error")
+	}

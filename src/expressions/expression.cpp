@@ -23,6 +23,7 @@
 #include "variable.h"
 #include "utils.h"
 #include <execution_context.h>
+#include <record.h>
 
 Expression::Expression(const yy::location position) :
 		m_position(position) {
@@ -65,11 +66,11 @@ const_shared_ptr<Result> Expression::ToString(
 
 		//TODO: array printing
 
-		const_shared_ptr<CompoundTypeSpecifier> as_compound =
-				std::dynamic_pointer_cast<const CompoundTypeSpecifier>(
+		const_shared_ptr<RecordTypeSpecifier> as_record =
+				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						type_specifier);
-		if (as_compound) {
-			auto instance = static_pointer_cast<const CompoundTypeInstance>(
+		if (as_record) {
+			auto instance = static_pointer_cast<const Record>(
 					value);
 
 			buffer << "{" << endl;

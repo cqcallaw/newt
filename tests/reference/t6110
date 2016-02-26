@@ -1,0 +1,26 @@
+Parsing file ../tests/t6110.nwt...
+Parsed file ../tests/t6110.nwt.
+Root Symbol Table:
+----------------
+result_ctor result:
+	(int) -> result value:
+		Body Location: 7.2-6
+
+result t:
+	string message: "No go"
+ {error}
+result t2:
+	string message: "No go"
+ {error}
+
+Root Type Table:
+----------------
+error:
+	string message ("")
+result:
+	error:
+		string message ("")
+	value:
+		int
+result_ctor:
+	(int) -> result value ()

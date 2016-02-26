@@ -1,0 +1,23 @@
+Parsing file ../tests/t6100.nwt...
+Parsed file ../tests/t6100.nwt.
+Discrete value 2
+Root Symbol Table:
+----------------
+number_ctor number:
+	(double) -> number continuous:
+		Body Location: 14.4-13
+	(int) -> number discrete:
+		Body Location: 13.2-9
+
+number t: 2 {discrete}
+
+Root Type Table:
+----------------
+number:
+	continuous:
+		double
+	discrete:
+		int
+number_ctor:
+	(double) -> number continuous ()
+	(int) -> number discrete ()

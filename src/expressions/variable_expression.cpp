@@ -20,11 +20,11 @@
 #include <variable_expression.h>
 #include <variable.h>
 #include <array_variable.h>
-#include <compound_type_instance.h>
 #include <member_variable.h>
 #include <error.h>
 #include <sstream>
 #include <execution_context.h>
+#include <record.h>
 #include <type.h>
 
 VariableExpression::VariableExpression(const yy::location position,

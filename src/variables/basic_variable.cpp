@@ -24,15 +24,23 @@
 #include <assignment_statement.h>
 #include <function_declaration.h>
 #include <function.h>
-#include <sum_type_specifier.h>
 #include <sum.h>
+#include <sum_type.h>
+#include <record_type.h>
+#include <record.h>
+#include <nested_type_specifier.h>
 
 #include "assert.h"
 #include "expression.h"
 
 BasicVariable::BasicVariable(const_shared_ptr<string> name,
 		const yy::location location) :
-		Variable(name, location) {
+		BasicVariable(name, location, NamespaceQualifierList::GetTerminator()) {
+}
+
+BasicVariable::BasicVariable(const_shared_ptr<string> name,
+		const yy::location location, const NamespaceQualifierListRef space) :
+		Variable(name, location), m_space(space) {
 }
 
 BasicVariable::~BasicVariable() {
@@ -183,15 +191,15 @@ const ErrorListRef BasicVariable::AssignValue(
 	}
 
 //TODO: don't allow += or -= operations on compound type specifiers
-	const_shared_ptr<CompoundTypeSpecifier> as_compound =
-			std::dynamic_pointer_cast<const CompoundTypeSpecifier>(symbol_type);
-	if (as_compound) {
+	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
+			const RecordTypeSpecifier>(symbol_type);
+	if (as_record) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto new_instance = static_pointer_cast<const CompoundTypeInstance>(
+			auto new_instance = static_pointer_cast<const Record>(
 					expression_evaluation->GetData());
 
 			//we're assigning a struct reference
@@ -215,9 +223,9 @@ const ErrorListRef BasicVariable::AssignValue(
 		}
 	}
 
-	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
-			const SumTypeSpecifier>(symbol_type);
-	if (as_sum) {
+	const_shared_ptr<SumTypeSpecifier> as_sum_specifier =
+			std::dynamic_pointer_cast<const SumTypeSpecifier>(symbol_type);
+	if (as_sum_specifier) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
@@ -227,18 +235,68 @@ const ErrorListRef BasicVariable::AssignValue(
 			auto expression_type = expression->GetType(context);
 
 			plain_shared_ptr<Sum> new_sum;
-			if (*symbol->GetType() == *expression_type) {
-				//we're re-assigning an entire sum
+			if (expression_type->IsAssignableTo(symbol_type)) {
+				//we're re-assigning
 				new_sum = static_pointer_cast<const Sum>(
 						expression_evaluation->GetData());
-			} else if (expression_type->IsAssignableTo(symbol_type)) {
-				new_sum = sum->WithValue(expression_type,
-						expression_evaluation->GetData());
 			} else {
-				assert(false);
+				//test for widening
+				auto sum_type_name = as_sum_specifier->GetTypeName();
+				auto sum_type = context->GetTypeTable()->GetType<SumType>(
+						sum_type_name);
+
+				auto widening_analysis = sum_type->AnalyzeWidening(
+						*expression_type, *sum_type_name);
+
+				if (widening_analysis == UNAMBIGUOUS) {
+					//we're widening
+					auto tag = sum_type->MapSpecifierToVariant(*expression_type,
+							*sum_type_name);
+					new_sum = make_shared<Sum>(as_sum_specifier, tag,
+							expression_evaluation->GetData());
+				} else {
+					assert(false);
+				}
 			}
 
 			errors = SetSymbol(output_context, new_sum);
+		}
+	}
+
+	const_shared_ptr<NestedTypeSpecifier> as_nested_specifier =
+			std::dynamic_pointer_cast<const NestedTypeSpecifier>(symbol_type);
+	if (as_nested_specifier) {
+		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
+				context);
+
+		errors = expression_evaluation->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto parent_type_definition = context->GetTypeTable()->GetType<
+					ComplexType>(
+					as_nested_specifier->GetParent()->GetTypeName());
+
+			if (parent_type_definition) {
+				auto as_sum = dynamic_pointer_cast<const SumType>(
+						parent_type_definition);
+
+				if (as_sum) {
+					auto child_record_type = as_sum->GetTypeTable()->GetType<
+							RecordType>(as_nested_specifier->GetMemberName());
+					if (child_record_type) {
+						auto value = static_pointer_cast<const Record>(
+								expression_evaluation->GetData());
+						//auto expression_type = expression->GetType(context);
+						errors = SetSymbol(output_context, value,
+								as_nested_specifier->GetParent());
+					} else {
+						assert(false);
+					}
+				} else {
+					assert(false);
+				}
+			} else {
+				assert(false);
+			}
 		}
 	}
 
@@ -287,9 +345,10 @@ const ErrorListRef BasicVariable::SetSymbol(
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<CompoundTypeInstance> value) const {
+		const_shared_ptr<Record> value,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
+	return ToErrorListRef(context->SetSymbol(*GetName(), value, container),
 			symbol->GetType(), value->GetTypeSpecifier());
 }
 
@@ -306,14 +365,15 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const_shared_ptr<Sum> sum) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(context->SetSymbol(*GetName(), sum),
-			symbol->GetType(), sum->GetTag());
+			symbol->GetType(), sum->GetType());
 }
 
 const_shared_ptr<Variable> BasicVariable::GetDefaultVariable() {
 	static const_shared_ptr<string> name = const_shared_ptr<string>(
 			new string("!!!!!DefaultVariable!!!!!"));
 	static const const_shared_ptr<Variable> instance =
-			make_shared<BasicVariable>(name, GetDefaultLocation());
+			make_shared<BasicVariable>(name, GetDefaultLocation(),
+					NamespaceQualifierList::GetTerminator());
 
 	return instance;
 }

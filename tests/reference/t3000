@@ -10,7 +10,7 @@ ronly i:
 
 Root Type Table:
 ----------------
-ronly: 
+ronly:
 	int x (0)
 	double y (0)
 	string z ("")

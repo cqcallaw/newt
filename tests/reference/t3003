@@ -13,6 +13,6 @@ point b:
 
 Root Type Table:
 ----------------
-point: 
+point:
 	int x (1)
 	int y (0)

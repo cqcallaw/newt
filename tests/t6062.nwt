@@ -1,0 +1,5 @@
+//test invalid alias
+sum test {
+	i:undefined
+	| d:double
+}

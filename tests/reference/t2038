@@ -49,12 +49,12 @@ double x: 45.1416
 
 Root Type Table:
 ----------------
-rectangle: 
+rectangle:
 	int h (0)
 	int w (10)
 	int x (0)
 	int y (0)
-triangle: 
+triangle:
 	int w (10)
 	int x (0)
 	int y (0)

@@ -26,7 +26,7 @@ rectangle[] rects:
 
 Root Type Table:
 ----------------
-rectangle: 
+rectangle:
 	int h (0)
 	int w (0)
 	int x (0)

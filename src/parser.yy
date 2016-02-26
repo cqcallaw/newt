@@ -49,10 +49,14 @@
 #include <dimension.h>
 
 #include <type.h>
-#include <type_specifier.h>
-#include <function_type_specifier.h>
-#include <function_declaration.h>
-#include <sum_type_specifier.h>
+#include <specifiers/type_specifier.h>
+#include <specifiers/function_type_specifier.h>
+#include <specifiers/function_declaration.h>
+#include <specifiers/nested_type_specifier.h>
+
+#include <namespace_qualifier.h>
+
+#include <match.h>
 
 class Driver;
 
@@ -91,22 +95,24 @@ class Driver;
 #include <assignment_statement.h>
 #include <primitive_declaration_statement.h>
 #include <array_declaration_statement.h>
-#include <struct_declaration_statement.h>
-#include <struct_instantiation_statement.h>
+#include <record_declaration_statement.h>
+#include <complex_instantiation_statement.h>
 #include <function_declaration_statement.h>
 #include <inferred_declaration_statement.h>
 #include <sum_declaration_statement.h>
+#include <type_alias_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
 #include <invoke_statement.h>
 #include <return_statement.h>
+#include <match_statement.h>
 
 #include <statement_block.h>
 
-#include <array_type_specifier.h>
-#include <primitive_type_specifier.h>
-#include <compound_type_specifier.h>
+#include <specifiers/array_type_specifier.h>
+#include <specifiers/primitive_type_specifier.h>
+#include <specifiers/record_type_specifier.h>
 
 #include <assignment_type.h>
 
@@ -142,6 +148,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	LBRACKET            "["
 	RBRACKET            "]"
 	COLON               ":"
+	DOUBLE_COLON        "::"
 	SEMICOLON           ";"
 	COMMA               ","
 	PERIOD              "."
@@ -172,9 +179,14 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 
 	ARROW_RIGHT         "->"
 
+	UNDERSCORE          "_"
+
 	STRUCT              "struct declaration"
 	READONLY            "readonly modifier"
 	WITH                "with"
+	SUM                 "sum"
+	MATCH               "match"
+	AS                  "as"
 
 	RETURN              "return"
 	PRINT     "print"
@@ -212,8 +224,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<PrimitiveTypeSpecifier>> primitive_type_specifier
 %type <plain_shared_ptr<FunctionDeclaration>> function_declaration
 %type <plain_shared_ptr<FunctionTypeSpecifier>> function_type_specifier
-%type <plain_shared_ptr<SumTypeSpecifier>> sum_type_specifier
-%type <TypeSpecifierListRef> sum_type_specifier_list
+%type <plain_shared_ptr<ComplexTypeSpecifier>> complex_type_specifier
+
 %type <plain_shared_ptr<Expression>> expression
 %type <plain_shared_ptr<Expression>> variable_expression
 %type <plain_shared_ptr<Expression>> function_expression
@@ -233,7 +245,9 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<Statement>> for_statement
 %type <plain_shared_ptr<Statement>> exit_statement
 %type <plain_shared_ptr<Statement>> struct_declaration_statement
+%type <plain_shared_ptr<Statement>> sum_declaration_statement
 %type <plain_shared_ptr<Statement>> return_statement
+%type <plain_shared_ptr<Statement>> match_statement
 %type <DeclarationListRef> parameter_list
 %type <DeclarationListRef> optional_parameter_list
 %type <TypeSpecifierListRef> anonymous_parameter_list
@@ -252,6 +266,15 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 
 %type <plain_shared_ptr<Dimension>> dimension
 %type <DimensionListRef> dimensions
+
+%type <plain_shared_ptr<NamespaceQualifier>> namespace_qualifier
+%type <NamespaceQualifierListRef> namespace_qualifier_list
+
+%type <plain_shared_ptr<DeclarationStatement>> variant
+%type <DeclarationListRef> variant_list
+
+%type <plain_shared_ptr<Match>> match_condition
+%type <MatchListRef> match_condition_list
 
 %printer { yyoutput << $$; } <*>;
 
@@ -274,7 +297,7 @@ variable_declaration:
 	{
 		$$ = make_shared<PrimitiveDeclarationStatement>(@$, $3, @3, $1, @1, $4);
 	}
-	| IDENTIFIER COLON primitive_type_specifier dimensions optional_initializer
+	| IDENTIFIER COLON type_specifier dimensions optional_initializer
 	{
 		plain_shared_ptr<TypeSpecifier> type_specifier = $3;
 		//add dimensions to type specifier
@@ -287,31 +310,13 @@ variable_declaration:
 		const_shared_ptr<ArrayTypeSpecifier> array_type_specifier = std::dynamic_pointer_cast<const ArrayTypeSpecifier>(type_specifier);
 		$$ = make_shared<ArrayDeclarationStatement>(@$, array_type_specifier, @3, $1, @1, $5);
 	}
-	| IDENTIFIER COLON IDENTIFIER dimensions optional_initializer
+	| IDENTIFIER COLON complex_type_specifier optional_initializer
 	{
-		plain_shared_ptr<TypeSpecifier> type_specifier = make_shared<CompoundTypeSpecifier>(*$3);
-		//add dimensions to type specifier
-		DimensionListRef dimension = $4;
-		while (!DimensionList::IsTerminator(dimension)) {
-			type_specifier = make_shared<ArrayTypeSpecifier>(type_specifier);
-			dimension = dimension->GetNext();
-		}
-
-		const_shared_ptr<ArrayTypeSpecifier> array_type_specifier = std::dynamic_pointer_cast<const ArrayTypeSpecifier>(type_specifier);
-		$$ = make_shared<ArrayDeclarationStatement>(@$, array_type_specifier, @3, $1, @1, $5);
-	}
-	| IDENTIFIER COLON IDENTIFIER optional_initializer
-	{
-		auto type_specifier = make_shared<CompoundTypeSpecifier>(*$3);
-		$$ = make_shared<StructInstantiationStatement>(@$, type_specifier, @3, $1, @1, $4);
+		$$ = make_shared<ComplexInstantiationStatement>(@$, $3, @3, $1, @1, $4);
 	}
 	| IDENTIFIER COLON function_type_specifier optional_initializer
 	{
 		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, @3, $1, @1, $4);
-	}
-	| IDENTIFIER COLON sum_type_specifier optional_initializer
-	{
-		$$ = make_shared<SumDeclarationStatement>(@$, $3, @3, $1, @1, $4);
 	}
 	| IDENTIFIER COLON EQUALS expression
 	{
@@ -319,6 +324,7 @@ variable_declaration:
 	}
 	;
 
+//---------------------------------------------------------------------
 optional_initializer:
 	EQUALS expression
 	{
@@ -354,28 +360,22 @@ function_type_specifier:
 	LPAREN optional_anonymous_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
 		const TypeSpecifierListRef type_list = TypeSpecifierList::Reverse($2);
-		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5);
+		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @5);
 	}
+	;
 
 //---------------------------------------------------------------------
-sum_type_specifier:
-	LPAREN sum_type_specifier_list RPAREN
+complex_type_specifier:
+	IDENTIFIER
 	{
-		$$ = make_shared<SumTypeSpecifier>(TypeSpecifierList::Reverse($2));
+		$$ = make_shared<RecordTypeSpecifier>($1, NamespaceQualifierList::GetTerminator());
 	}
-
-//---------------------------------------------------------------------
-sum_type_specifier_list:
-	sum_type_specifier_list PIPE type_specifier
+	| namespace_qualifier_list IDENTIFIER
 	{
-		$$ = TypeSpecifierList::From($3, $1);
+		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
+		$$ = make_shared<RecordTypeSpecifier>($2, namespace_qualifier_list);
 	}
-	|
-	type_specifier PIPE type_specifier
-	{
-		$$ = TypeSpecifierList::From($3, 
-			TypeSpecifierList::From($1, TypeSpecifierList::GetTerminator()));
-	}
+	;
 
 //---------------------------------------------------------------------
 type_specifier:
@@ -383,18 +383,19 @@ type_specifier:
 	{
 		$$ = $1;
 	}
-	| IDENTIFIER
+	| complex_type_specifier
 	{
-		$$ = make_shared<CompoundTypeSpecifier>(*$1);
+		$$ = $1;
 	}
 	| function_type_specifier
 	{
 		$$ = $1;
 	}
-	| sum_type_specifier
+	| complex_type_specifier PERIOD IDENTIFIER
 	{
-		$$ = $1;
+		$$ = make_shared<NestedTypeSpecifier>($1, $3);
 	}
+	;
 
 //---------------------------------------------------------------------
 statement_block:
@@ -426,6 +427,10 @@ statement:
 	{
 		$$ = $1;
 	}
+	| sum_declaration_statement
+	{
+		$$ = $1;
+	}
 	| if_statement
 	{
 		$$ = $1;
@@ -447,6 +452,10 @@ statement:
 		$$ = $1;
 	}
 	| return_statement
+	{
+		$$ = $1;
+	}
+	| match_statement
 	{
 		$$ = $1;
 	}
@@ -539,10 +548,49 @@ return_statement:
 	;
 
 //---------------------------------------------------------------------
+match_statement:
+	MATCH LPAREN expression RPAREN match_condition_list
+	{
+		auto reverse = MatchList::Reverse($5);
+		$$ = make_shared<MatchStatement>(@$, $3, reverse, @5);
+	}
+	;
+
+//---------------------------------------------------------------------
+match_condition_list:
+	match_condition_list PIPE match_condition
+	{
+		$$ = MatchList::From($3, $1);
+	}
+	| match_condition
+	{
+		$$ = MatchList::From($1, MatchList::GetTerminator());
+	}
+	;
+
+//---------------------------------------------------------------------
+match_condition:
+	IDENTIFIER statement_block
+	{
+		$$ = make_shared<Match>($1, @1, $2);
+	}
+	| UNDERSCORE statement_block
+	{
+		$$ = make_shared<Match>(make_shared<std::string>("_"), @1, $2);
+	}
+	;
+	
+
+//---------------------------------------------------------------------
 variable_reference:
 	IDENTIFIER
 	{
 		$$ = make_shared<BasicVariable>($1, @1);
+	}
+	| namespace_qualifier_list IDENTIFIER
+	{
+		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
+		$$ = make_shared<BasicVariable>($2, @2, namespace_qualifier_list);
 	}
 	| variable_reference LBRACKET expression RBRACKET
 	{
@@ -645,13 +693,9 @@ expression:
 	{
 		$$ = make_shared<const UnaryExpression>(@$, NOT, $2);
 	}
-	| AT primitive_type_specifier
+	| AT type_specifier
 	{
-		$$ = make_shared<const DefaultValueExpression>(@$, const_shared_ptr<TypeSpecifier>($2), @2);
-	}
-	| AT IDENTIFIER
-	{
-		$$ = make_shared<const DefaultValueExpression>(@$, make_shared<CompoundTypeSpecifier>(*$2), @2);
+		$$ = make_shared<const DefaultValueExpression>(@$, $2, @2);
 	}
 	| expression WITH member_instantiation_block
 	{
@@ -697,7 +741,7 @@ function_declaration:
 	LPAREN optional_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
 		const DeclarationListRef parameter_list = DeclarationList::Reverse($2);
-		$$ = make_shared<FunctionDeclaration>(parameter_list, $5);
+		$$ = make_shared<FunctionDeclaration>(parameter_list, $5, @5);
 	}
 	;
 
@@ -804,14 +848,14 @@ struct_declaration_statement:
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($5);
 		ModifierListRef modifier_list = ModifierList::From(ModifierList::Reverse($1));
-		const_shared_ptr<CompoundTypeSpecifier> type = make_shared<CompoundTypeSpecifier>(*$3);
-		$$ = make_shared<StructDeclarationStatement>(@$, type, $3, @3, member_declaration_list, @5, modifier_list, @1);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($3);
+		$$ = make_shared<RecordDeclarationStatement>(@$, type, $3, @3, member_declaration_list, @5, modifier_list, @1);
 	}
 	| STRUCT IDENTIFIER LBRACE declaration_list RBRACE
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
-		const_shared_ptr<CompoundTypeSpecifier> type = make_shared<CompoundTypeSpecifier>(*$2);
-		$$ = make_shared<StructDeclarationStatement>(@$, type, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($2);
+		$$ = make_shared<RecordDeclarationStatement>(@$, type, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 	;
 
@@ -887,5 +931,72 @@ dimension:
 	;
 
 //---------------------------------------------------------------------
+namespace_qualifier_list:
+	namespace_qualifier_list namespace_qualifier
+	{
+		$$ = NamespaceQualifierList::From($2, $1);
+	}
+	| namespace_qualifier
+	{
+		$$ = NamespaceQualifierList::From($1, NamespaceQualifierList::GetTerminator());
+	}
+	;
+
+//---------------------------------------------------------------------
+namespace_qualifier:
+	IDENTIFIER DOUBLE_COLON
+	{
+		$$ = make_shared<NamespaceQualifier>($1);
+	}
+	;
+
+//---------------------------------------------------------------------
+sum_declaration_statement:
+	SUM IDENTIFIER LBRACE variant_list RBRACE
+	{
+		const DeclarationListRef variant_list = DeclarationList::Reverse($4);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($2);
+		$$ = make_shared<SumDeclarationStatement>(@$, type, $2, @2, variant_list, @4);
+	}
+	;
+
+//---------------------------------------------------------------------
+variant_list:
+	variant_list PIPE variant
+	{
+		$$ = DeclarationList::From($3, $1);
+	}
+	| variant PIPE variant
+	{
+		$$ = DeclarationList::From($3,
+			DeclarationList::From($1, DeclarationList::GetTerminator()));
+	}
+	;
+
+//---------------------------------------------------------------------
+variant:
+	IDENTIFIER LBRACE declaration_list RBRACE
+	{
+		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
+		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
+	}
+	| IDENTIFIER COLON primitive_type_specifier
+	{
+		$$ = make_shared<TypeAliasDeclarationStatement>(@$, $3, @3, $1, @1);
+	}
+	| IDENTIFIER COLON complex_type_specifier
+	{
+		$$ = make_shared<TypeAliasDeclarationStatement>(@$, $3, @3, $1, @1);
+	}
+	| IDENTIFIER
+	{
+		//short-hand for unit types
+		const ModifierListRef modifiers = ModifierList::From(make_shared<Modifier>(Modifier::Type::READONLY, GetDefaultLocation()), ModifierList::GetTerminator());
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
+		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, DeclarationList::GetTerminator(), GetDefaultLocation(), modifiers, GetDefaultLocation());
+	}
+	;
+
 empty:
 	;

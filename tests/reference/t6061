@@ -1,0 +1,4 @@
+Parsing file ../tests/t6061.nwt...
+Semantic error on line 7, column 5: Undeclared variable 'invalid_type'
+Parsed file ../tests/t6061.nwt.
+1 error found; giving up.

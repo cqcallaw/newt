@@ -38,7 +38,7 @@ string str: "rects[3].y = 300"
 
 Root Type Table:
 ----------------
-rectangle: 
+rectangle:
 	int h (0)
 	int w (10)
 	int x (0)

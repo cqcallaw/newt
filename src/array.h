@@ -26,10 +26,10 @@
 #include <type_table.h>
 #include <error.h>
 #include <assert.h>
-#include <array_type_specifier.h>
-#include <compound_type_specifier.h>
-#include <primitive_type_specifier.h>
-#include <type_specifier.h>
+#include <specifiers/array_type_specifier.h>
+#include <specifiers/primitive_type_specifier.h>
+#include <specifiers/record_type_specifier.h>
+#include <specifiers/type_specifier.h>
 #include <symbol.h>
 
 class Array {

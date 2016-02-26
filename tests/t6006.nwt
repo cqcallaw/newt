@@ -1,5 +1,9 @@
-t:(double|int|string)
+sum franken {
+	discrete:int
+	| continuous:double
+	| as_string:string
+}
 
-t = "things"
+t:franken = "things"
 t = 42
 t = 15.2
