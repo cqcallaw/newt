@@ -53,9 +53,8 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 	//TODO: validate that all members are initialized for readonly structs (?)
 
 	auto type_name = m_type_specifier->GetTypeName();
-	const_shared_ptr<TypeDefinition> type =
-			execution_context->GetTypeTable()->GetType<TypeDefinition>(
-					type_name);
+	const_shared_ptr<ComplexType> type =
+			execution_context->GetTypeTable()->GetType<ComplexType>(type_name);
 	if (type) {
 		auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 		if (existing == Symbol::GetDefaultSymbol()) {
@@ -232,8 +231,8 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 
 	if (GetInitializerExpression()
 			&& !GetInitializerExpression()->IsConstant()) {
-		const_shared_ptr<TypeDefinition> type =
-				execution_context->GetTypeTable()->GetType<TypeDefinition>(
+		const_shared_ptr<ConcreteType> type =
+				execution_context->GetTypeTable()->GetType<ConcreteType>(
 						m_type_specifier->GetTypeName());
 
 		const_shared_ptr<RecordType> as_record = dynamic_pointer_cast<

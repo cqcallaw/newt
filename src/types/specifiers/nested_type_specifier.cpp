@@ -57,14 +57,14 @@ const bool NestedTypeSpecifier::IsAssignableTo(
 
 const_shared_ptr<void> NestedTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
-	auto parent_type = type_table.GetType<TypeDefinition>(
+	auto parent_type = type_table.GetType<ComplexType>(
 			m_parent->GetTypeName());
 
 	auto as_sum_type = dynamic_pointer_cast<const SumType>(parent_type);
 	if (as_sum_type) {
 		auto sum_type_table = as_sum_type->GetTypeTable();
 
-		auto definition = sum_type_table->GetType<TypeDefinition>(
+		auto definition = sum_type_table->GetType<ConcreteType>(
 				*m_member_name);
 		return definition->GetDefaultValue(m_member_name);
 		//TODO: nested sum types

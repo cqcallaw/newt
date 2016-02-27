@@ -152,7 +152,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 				const RecordTypeSpecifier>(parent);
 		if (parent_as_record) {
 			auto definition = execution_context->GetTypeTable()->GetType<
-					TypeDefinition>(parent->GetTypeName());
+					ComplexType>(parent->GetTypeName());
 			if (definition) {
 				//record type specifier may represent either either record type or sum type
 				auto record_definition = dynamic_pointer_cast<const RecordType>(
@@ -175,7 +175,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 						definition);
 				if (sum_definition) {
 					auto table = sum_definition->GetTypeTable();
-					auto member_definition = table->GetType<TypeDefinition>(
+					auto member_definition = table->GetType<ConcreteType>(
 							*as_nested->GetMemberName());
 					if (!member_definition) {
 						errors = ErrorList::From(

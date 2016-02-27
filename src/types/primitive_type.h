@@ -20,10 +20,10 @@
 #ifndef PRIMITIVE_TYPE_H_
 #define PRIMITIVE_TYPE_H_
 
-#include <type_definition.h>
+#include <concrete_type.h>
 #include <type.h>
 
-class PrimitiveType: public TypeDefinition {
+class PrimitiveType: public ConcreteType {
 public:
 	PrimitiveType(const BasicType type) :
 			m_type(type) {

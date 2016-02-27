@@ -62,12 +62,19 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 		modifier_list = modifier_list->GetNext();
 	}
 
-	auto result = RecordType::Build(execution_context, modifiers,
-			m_member_declaration_list);
-	errors = result->GetErrors();
-	if (ErrorList::IsTerminator(errors)) {
-		auto type = result->GetData<RecordType>();
-		type_table->AddType(*GetName(), type);
+	if (!type_table->ContainsType(*m_type)) {
+		auto result = RecordType::Build(execution_context, modifiers,
+				m_member_declaration_list);
+		errors = result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type = result->GetData<RecordType>();
+			type_table->AddType(*GetName(), type);
+		}
+	} else {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
+						GetNamePosition().begin.line,
+						GetNamePosition().begin.column, *GetName()), errors);
 	}
 
 	return errors;

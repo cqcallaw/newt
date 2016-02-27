@@ -20,11 +20,11 @@
 #ifndef TYPES_ALIAS_DEFINITION_H_
 #define TYPES_ALIAS_DEFINITION_H_
 
-#include <type_definition.h>
+#include <concrete_type.h>
 
-class AliasDefinition: public TypeDefinition {
+class AliasDefinition: public ConcreteType {
 public:
-	AliasDefinition(const_shared_ptr<TypeDefinition> origin) :
+	AliasDefinition(const_shared_ptr<ConcreteType> origin) :
 			m_origin(origin) {
 	}
 	virtual ~AliasDefinition() {
@@ -55,12 +55,12 @@ public:
 		return m_origin->GetSymbol(value, container);
 	}
 
-	const_shared_ptr<TypeDefinition> GetOrigin() const {
+	const_shared_ptr<ConcreteType> GetOrigin() const {
 		return m_origin;
 	}
 
 private:
-	const_shared_ptr<TypeDefinition> m_origin;
+	const_shared_ptr<ConcreteType> m_origin;
 };
 
 #endif /* TYPES_ALIAS_DEFINITION_H_ */

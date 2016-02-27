@@ -21,6 +21,8 @@
 #include <record_type.h>
 #include <primitive_type.h>
 #include <complex_type_specifier.h>
+#include <memory>
+#include <placeholder.h>
 
 TypeTable::TypeTable() :
 		m_table(make_shared<type_map>()) {
@@ -31,9 +33,15 @@ TypeTable::~TypeTable() {
 
 void TypeTable::AddType(const std::string& name,
 		const_shared_ptr<TypeDefinition> definition) {
-	m_table->insert(
-			pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
-					definition));
+	auto existing = m_table->find(name);
+	if (existing == m_table->end()
+			|| std::dynamic_pointer_cast<const Placeholder>(existing->second)) {
+		m_table->insert(
+				pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
+						definition));
+	} else {
+		assert(false);
+	}
 }
 
 const void TypeTable::print(ostream& os, const Indent& indent) const {
@@ -78,7 +86,11 @@ const std::string TypeTable::MapSpecifierToName(
 }
 
 const bool TypeTable::ContainsType(const ComplexTypeSpecifier& type_specifier) {
-	return m_table->find(*type_specifier.GetTypeName()) != m_table->end();
+	return ContainsType(*type_specifier.GetTypeName());
+}
+
+const bool TypeTable::ContainsType(const string& name) {
+	return m_table->find(name) != m_table->end();
 }
 
 const_shared_ptr<std::set<std::string>> TypeTable::GetTypeNames() const {

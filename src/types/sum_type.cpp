@@ -99,36 +99,46 @@ const_shared_ptr<Result> SumType::Build(
 			auto as_alias = dynamic_pointer_cast<
 					const TypeAliasDeclarationStatement>(declaration);
 			if (as_alias) {
-				auto alias_type_name = as_alias->GetName();
+				auto alias_type_name = *as_alias->GetName();
 				auto original_type_specifier = as_alias->GetType();
 
-				//would be nice to abstract this casting logic into a helper function
-				auto original_as_primitive = dynamic_pointer_cast<
-						const PrimitiveTypeSpecifier>(original_type_specifier);
-				if (original_as_primitive) {
-					auto basic_type = original_as_primitive->GetBasicType();
-					types->AddType(*alias_type_name,
-							make_shared<PrimitiveType>(basic_type));
-				}
-
-				auto original_as_record = dynamic_pointer_cast<
-						const RecordTypeSpecifier>(original_type_specifier);
-				if (original_as_record) {
-					auto original = type_table->GetType<RecordType>(
-							original_as_record->GetTypeName());
-					if (original) {
-						auto alias = make_shared<AliasDefinition>(original);
-						types->AddType(*alias_type_name, alias);
-					} else {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::UNDECLARED_TYPE,
-												as_alias->GetTypePosition().begin.line,
-												as_alias->GetTypePosition().begin.column,
-												as_alias->GetType()->ToString()),
-										errors);
+				if (!types->ContainsType(alias_type_name)) {
+					//would be nice to abstract this casting logic into a helper function
+					auto original_as_primitive = dynamic_pointer_cast<
+							const PrimitiveTypeSpecifier>(
+							original_type_specifier);
+					if (original_as_primitive) {
+						auto basic_type = original_as_primitive->GetBasicType();
+						types->AddType(alias_type_name,
+								make_shared<PrimitiveType>(basic_type));
 					}
+
+					auto original_as_record = dynamic_pointer_cast<
+							const RecordTypeSpecifier>(original_type_specifier);
+					if (original_as_record) {
+						auto original = type_table->GetType<RecordType>(
+								original_as_record->GetTypeName());
+						if (original) {
+							auto alias = make_shared<AliasDefinition>(original);
+							types->AddType(alias_type_name, alias);
+						} else {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::UNDECLARED_TYPE,
+													as_alias->GetTypePosition().begin.line,
+													as_alias->GetTypePosition().begin.column,
+													as_alias->GetType()->ToString()),
+											errors);
+						}
+					}
+				} else {
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::PREVIOUS_DECLARATION,
+									as_alias->GetPosition().begin.line,
+									as_alias->GetPosition().begin.column,
+									alias_type_name), errors);
 				}
 			}
 		}
@@ -136,10 +146,13 @@ const_shared_ptr<Result> SumType::Build(
 		subject = subject->GetNext();
 	}
 
-	auto type = const_shared_ptr<SumType>(
-			new SumType(types, member_declarations->GetData()));
-
-	return make_shared<Result>(type, errors);
+	if (ErrorList::IsTerminator(errors)) {
+		auto type = const_shared_ptr<SumType>(
+				new SumType(types, member_declarations->GetData()));
+		return make_shared<Result>(type, errors);
+	} else {
+		return make_shared<Result>(nullptr, errors);
+	}
 }
 
 bool SumType::IsSpecifiedBy(const std::string& name,
@@ -159,7 +172,7 @@ const WideningResult SumType::AnalyzeWidening(const TypeSpecifier& other,
 	try {
 		auto as_nested = dynamic_cast<const NestedTypeSpecifier&>(other);
 		if (*(as_nested.GetParent()->GetTypeName()) == sum_type_name) {
-			if (m_type_table->GetType<TypeDefinition>(
+			if (m_type_table->GetType<ConcreteType>(
 					*as_nested.GetMemberName())) {
 				return UNAMBIGUOUS;
 			}
@@ -189,10 +202,11 @@ const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 		const string& sum_type_name) const {
 	//strip out nested qualifiers
 	try {
-		auto as_nested = dynamic_cast<const NestedTypeSpecifier&>(type_specifier);
+		auto as_nested =
+				dynamic_cast<const NestedTypeSpecifier&>(type_specifier);
 		if (*(as_nested.GetParent()->GetTypeName()) == sum_type_name) {
 			auto variant_name = as_nested.GetMemberName();
-			if (m_type_table->GetType<TypeDefinition>(variant_name)) {
+			if (m_type_table->GetType<ConcreteType>(variant_name)) {
 				return variant_name;
 			}
 		}

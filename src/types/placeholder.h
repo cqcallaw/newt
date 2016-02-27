@@ -17,31 +17,28 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPE_DEFINITION_H_
-#define TYPE_DEFINITION_H_
+#ifndef TYPES_PLACEHOLDER_H_
+#define TYPES_PLACEHOLDER_H_
 
-#include <string>
-#include <defaults.h>
+#include <type_definition.h>
+#include <assert.h>
 
-class TypeTable;
-class Indent;
-class TypeSpecifier;
-class ComplexTypeSpecifier;
-class Symbol;
-
-class TypeDefinition {
+class Placeholder: public TypeDefinition {
 public:
-	TypeDefinition() {
+	Placeholder() {
+	}
+	virtual ~Placeholder() {
 	}
 
-	virtual ~TypeDefinition() {
+	virtual bool IsSpecifiedBy(const std::string& name,
+			const TypeSpecifier& type_specifier) const {
+		return false;
 	}
 
 	virtual const std::string ToString(const TypeTable& type_table,
-			const Indent& indent) const = 0;
-
-	virtual bool IsSpecifiedBy(const std::string& name,
-			const TypeSpecifier& type_specifier) const = 0;
+			const Indent& indent) const {
+		return "<placeholder>";
+	}
 };
 
-#endif /* TYPE_DEFINITION_H_ */
+#endif /* TYPES_PLACEHOLDER_H_ */

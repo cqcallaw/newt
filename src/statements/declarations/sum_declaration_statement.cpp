@@ -59,90 +59,102 @@ SumDeclarationStatement::~SumDeclarationStatement() {
 
 const ErrorListRef SumDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	auto result = SumType::Build(execution_context, m_variant_list);
+	ErrorListRef errors = ErrorList::GetTerminator();
+	auto type_table = execution_context->GetTypeTable();
 
-	ErrorListRef errors = result->GetErrors();
-	if (ErrorList::IsTerminator(errors)) {
-		auto type = result->GetData<SumType>();
-		execution_context->GetTypeTable()->AddType(*GetName(), type);
-	}
+	if (!type_table->ContainsType(*m_type)) {
+		auto result = SumType::Build(execution_context, m_variant_list);
 
-	//create a new read-only record type and record that contains the names of the variants mapped to type constructors
-	auto constructor_map = make_shared<definition_map>();
-	auto constructor_instance = make_shared<SymbolTable>();
+		errors = result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type = result->GetData<SumType>();
+			execution_context->GetTypeTable()->AddType(*GetName(), type);
 
-	if (ErrorList::IsTerminator(errors)) {
-		//generate a record type containing type constructor functions
-		DeclarationListRef subject = m_variant_list;
-		while (!DeclarationList::IsTerminator(subject)) {
-			auto declaration = subject->GetData();
-			auto variant_name = declaration->GetName();
+			//create a new read-only record type and record that contains the names of the variants mapped to type constructors
+			auto constructor_map = make_shared<definition_map>();
+			auto constructor_instance = make_shared<SymbolTable>();
 
-			auto as_alias = dynamic_pointer_cast<
-					const TypeAliasDeclarationStatement>(declaration);
+			if (ErrorList::IsTerminator(errors)) {
+				//generate a record type containing type constructor functions
+				DeclarationListRef subject = m_variant_list;
+				while (!DeclarationList::IsTerminator(subject)) {
+					auto declaration = subject->GetData();
+					auto variant_name = declaration->GetName();
 
-			if (as_alias) {
-				//for primitive declaration statements, a single-argument function that just returns that argument
-				auto alias_type_specifier = as_alias->GetType();
+					auto as_alias = dynamic_pointer_cast<
+							const TypeAliasDeclarationStatement>(declaration);
 
-				auto as_primitive_specifier = dynamic_pointer_cast<
-						const PrimitiveTypeSpecifier>(alias_type_specifier);
-				if (as_primitive_specifier) {
-					const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
-							make_shared<PrimitiveDeclarationStatement>(
-									as_alias->GetPosition(),
-									as_primitive_specifier,
-									as_alias->GetTypePosition(),
-									as_alias->GetName(),
-									as_alias->GetNamePosition());
-					DeclarationListRef parameter = DeclarationList::From(
-							parameter_declaration,
-							DeclarationList::GetTerminator());
+					if (as_alias) {
+						//for primitive declaration statements, a single-argument function that just returns that argument
+						auto alias_type_specifier = as_alias->GetType();
 
-					auto function_signature = make_shared<FunctionDeclaration>(
-							parameter, m_type, GetDefaultLocation());
+						auto as_primitive_specifier = dynamic_pointer_cast<
+								const PrimitiveTypeSpecifier>(
+								alias_type_specifier);
+						if (as_primitive_specifier) {
+							const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
+									make_shared<PrimitiveDeclarationStatement>(
+											as_alias->GetPosition(),
+											as_primitive_specifier,
+											as_alias->GetTypePosition(),
+											as_alias->GetName(),
+											as_alias->GetNamePosition());
+							DeclarationListRef parameter =
+									DeclarationList::From(parameter_declaration,
+											DeclarationList::GetTerminator());
 
-					const_shared_ptr<Expression> return_expression =
-							make_shared<VariableExpression>(
-									GetDefaultLocation(),
-									make_shared<BasicVariable>(
-											declaration->GetName(),
-											GetDefaultLocation()));
+							auto function_signature = make_shared<
+									FunctionDeclaration>(parameter, m_type,
+									GetDefaultLocation());
 
-					const_shared_ptr<ReturnStatement> return_statement =
-							make_shared<ReturnStatement>(return_expression);
+							const_shared_ptr<Expression> return_expression =
+									make_shared<VariableExpression>(
+											GetDefaultLocation(),
+											make_shared<BasicVariable>(
+													declaration->GetName(),
+													GetDefaultLocation()));
 
-					const StatementListRef statement_list = StatementList::From(
-							return_statement, StatementList::GetTerminator());
-					const_shared_ptr<StatementBlock> statement_block =
-							make_shared<StatementBlock>(statement_list,
-									as_alias->GetNamePosition());
+							const_shared_ptr<ReturnStatement> return_statement =
+									make_shared<ReturnStatement>(
+											return_expression);
 
-					auto weak = weak_ptr<ExecutionContext>(execution_context);
-					const_shared_ptr<Function> function = make_shared<Function>(
-							function_signature, statement_block, weak);
+							const StatementListRef statement_list =
+									StatementList::From(return_statement,
+											StatementList::GetTerminator());
+							const_shared_ptr<StatementBlock> statement_block =
+									make_shared<StatementBlock>(statement_list,
+											as_alias->GetNamePosition());
 
-					auto definition = make_shared<MemberDefinition>(
-							function_signature, function);
-					constructor_map->insert(
-							pair<const string,
-									const_shared_ptr<MemberDefinition>>(
-									*variant_name, definition));
+							auto weak = weak_ptr<ExecutionContext>(
+									execution_context);
+							const_shared_ptr<Function> function = make_shared<
+									Function>(function_signature,
+									statement_block, weak);
 
-					auto symbol = make_shared<Symbol>(function);
-					auto insert_result = constructor_instance->InsertSymbol(
-							*variant_name, symbol);
+							auto definition = make_shared<MemberDefinition>(
+									function_signature, function);
+							constructor_map->insert(
+									pair<const string,
+											const_shared_ptr<MemberDefinition>>(
+											*variant_name, definition));
 
-					if (insert_result == SYMBOL_EXISTS) {
-						errors = ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::PREVIOUS_DECLARATION,
-										declaration->GetPosition().begin.line,
-										declaration->GetPosition().begin.column,
-										*variant_name), errors);
+							auto symbol = make_shared<Symbol>(function);
+							auto insert_result =
+									constructor_instance->InsertSymbol(
+											*variant_name, symbol);
+
+							if (insert_result == SYMBOL_EXISTS) {
+								errors =
+										ErrorList::From(
+												make_shared<Error>(
+														Error::SEMANTIC,
+														Error::PREVIOUS_DECLARATION,
+														declaration->GetPosition().begin.line,
+														declaration->GetPosition().begin.column,
+														*variant_name), errors);
+							}
+						}
 					}
-				}
-			}
 
 // this section of code is the seed of kwargs-based type constructors for record types
 // this feature does not seem compelling enough to implement at this time, but may have use later
@@ -234,31 +246,41 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 //				}
 //			}
 
-			subject = subject->GetNext();
-		}
-	}
+					subject = subject->GetNext();
+				}
+			}
 
-	if (ErrorList::IsTerminator(errors)) {
-		const_shared_ptr<string> ctor_type_name = make_shared<string>(
-				*GetName() + "_ctor");
-		auto specifier = make_shared<RecordTypeSpecifier>(ctor_type_name);
-		auto type = make_shared<RecordType>(constructor_map,
-				Modifier::Type::READONLY);
-		execution_context->GetTypeTable()->AddType(*ctor_type_name, type);
+			if (ErrorList::IsTerminator(errors)) {
+				const_shared_ptr<string> ctor_type_name = make_shared<string>(
+						*GetName() + "_ctor");
+				auto specifier = make_shared<RecordTypeSpecifier>(
+						ctor_type_name);
+				auto type = make_shared<RecordType>(constructor_map,
+						Modifier::Type::READONLY);
+				execution_context->GetTypeTable()->AddType(*ctor_type_name,
+						type);
 
-		auto instance = make_shared<Record>(specifier, constructor_instance);
-		auto instance_symbol = make_shared<Symbol>(instance);
-		auto insert_result = execution_context->InsertSymbol(*GetName(),
-				instance_symbol);
-		if (insert_result == SYMBOL_EXISTS) {
-			errors =
-					ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::PREVIOUS_DECLARATION,
-									GetInitializerExpression()->GetPosition().begin.line,
-									GetInitializerExpression()->GetPosition().begin.column,
-									*GetName()), errors);
+				auto instance = make_shared<Record>(specifier,
+						constructor_instance);
+				auto instance_symbol = make_shared<Symbol>(instance);
+				auto insert_result = execution_context->InsertSymbol(*GetName(),
+						instance_symbol);
+				if (insert_result == SYMBOL_EXISTS) {
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::PREVIOUS_DECLARATION,
+											GetInitializerExpression()->GetPosition().begin.line,
+											GetInitializerExpression()->GetPosition().begin.column,
+											*GetName()), errors);
+				}
+			}
 		}
+	} else {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
+						GetNamePosition().begin.line,
+						GetNamePosition().begin.column, *GetName()), errors);
 	}
 
 	return errors;

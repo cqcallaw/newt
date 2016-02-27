@@ -59,7 +59,7 @@ const ErrorListRef MatchStatement::preprocess(
 					auto match_body = match->GetBlock();
 
 					auto variant_type = sum_type->GetTypeTable()->GetType<
-							TypeDefinition>(match_name);
+							ConcreteType>(match_name);
 					if (variant_type) {
 						if (match_names->find(*match_name)
 								== match_names->end()) {
@@ -194,7 +194,7 @@ const ErrorListRef MatchStatement::execute(
 					if (match_name == tag) {
 						matched = true;
 						auto variant_type = sum_type->GetTypeTable()->GetType<
-								TypeDefinition>(match_name);
+								ConcreteType>(match_name);
 						if (variant_type) {
 							auto block_context =
 									ExecutionContext::GetEmptyChild(

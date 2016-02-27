@@ -17,10 +17,26 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef TYPES_CONCRETE_TYPE_H_
+#define TYPES_CONCRETE_TYPE_H_
+
 #include <type_definition.h>
 
-TypeDefinition::TypeDefinition() {
-}
+class ConcreteType: public TypeDefinition {
+public:
+	ConcreteType() {
+	}
+	virtual ~ConcreteType() {
+	}
 
-TypeDefinition::~TypeDefinition() {
-}
+	virtual const std::string ValueToString(const TypeTable& type_table,
+			const Indent& indent, const_shared_ptr<void> value) const = 0;
+
+	virtual const_shared_ptr<void> GetDefaultValue(
+			const_shared_ptr<std::string> type_name) const = 0;
+
+	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const = 0;
+};
+
+#endif /* TYPES_CONCRETE_TYPE_H_ */

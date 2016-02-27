@@ -72,6 +72,8 @@ public:
 
 	const bool ContainsType(const ComplexTypeSpecifier& type_specifier);
 
+	const bool ContainsType(const string& name);
+
 	const void print(ostream &os, const Indent& indent) const;
 
 	const static string DefaultTypeName;

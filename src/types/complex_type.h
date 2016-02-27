@@ -20,12 +20,12 @@
 #ifndef COMPLEX_TYPE_H_
 #define COMPLEX_TYPE_H_
 
-#include <type_definition.h>
+#include <concrete_type.h>
 
 class TypeSpecifier;
 class TypeTable;
 
-class ComplexType: public TypeDefinition {
+class ComplexType: public ConcreteType {
 public:
 	virtual ~ComplexType();
 	static const_shared_ptr<TypeSpecifier> ToActualType(
