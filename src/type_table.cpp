@@ -24,13 +24,6 @@
 #include <memory>
 #include <placeholder.h>
 
-TypeTable::TypeTable() :
-		m_table(make_shared<type_map>()) {
-}
-
-TypeTable::~TypeTable() {
-}
-
 void TypeTable::AddType(const std::string& name,
 		const_shared_ptr<TypeDefinition> definition) {
 	auto existing = m_table->find(name);

@@ -36,8 +36,12 @@ class Indent;
 
 class TypeTable {
 public:
-	TypeTable();
-	virtual ~TypeTable();
+	TypeTable(const shared_ptr<TypeTable> parent = nullptr) :
+			TypeTable(make_shared<type_map>(), parent) {
+	}
+
+	virtual ~TypeTable() {
+	}
 
 	void AddType(const string& name,
 			const_shared_ptr<TypeDefinition> definition);
@@ -65,6 +69,8 @@ public:
 			if (cast) {
 				return cast;
 			}
+		} else if (m_parent) {
+			return m_parent->GetType<T>(name);
 		}
 
 		return shared_ptr<const T>();
@@ -91,7 +97,13 @@ public:
 	const_shared_ptr<std::set<std::string>> GetTypeNames() const;
 
 private:
+	TypeTable(const shared_ptr<type_map> table,
+			const shared_ptr<TypeTable> parent = nullptr) :
+			m_table(table), m_parent(parent) {
+	}
+
 	const shared_ptr<type_map> m_table;
+	const shared_ptr<TypeTable> m_parent;
 };
 
 #endif /* TYPE_TABLE_H_ */
