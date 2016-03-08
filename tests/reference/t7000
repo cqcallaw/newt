@@ -1,0 +1,16 @@
+Parsing file ../tests/t7000.nwt...
+Parsed file ../tests/t7000.nwt.
+Root Symbol Table:
+----------------
+list_ctor list:
+
+
+Root Type Table:
+----------------
+list:
+	item:
+		int data (0)
+		list next (
+		)
+	terminator:
+list_ctor:

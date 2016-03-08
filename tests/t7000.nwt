@@ -1,0 +1,8 @@
+# a linked list
+sum list {
+	terminator
+	| item {
+		data:int
+		next:list
+	}
+}

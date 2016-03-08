@@ -73,6 +73,12 @@ public:
 			const TypeSpecifier& type_specifier,
 			const string& sum_type_name) const;
 
+protected:
+	virtual const_shared_ptr<Result> GenerateSymbolCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const;
+
 private:
 	SumType(const_shared_ptr<TypeTable> type_table,
 			const_shared_ptr<DeclarationStatement> first_declaration) :

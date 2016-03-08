@@ -49,11 +49,9 @@ const string RecordType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
-	definition_map::const_iterator type_iter;
-	for (type_iter = m_definition->begin(); type_iter != m_definition->end();
-			++type_iter) {
-		const string member_name = type_iter->first;
-		const_shared_ptr<MemberDefinition> member_definition = type_iter->second;
+	for (auto& type_iter : *m_definition) {
+		const string member_name = type_iter.first;
+		const_shared_ptr<MemberDefinition> member_definition = type_iter.second;
 		const_shared_ptr<TypeSpecifier> member_type =
 				member_definition->GetType();
 
@@ -96,8 +94,8 @@ const_shared_ptr<Result> RecordType::Build(
 					errors);
 		} else {
 			//otherwise (no initializer expression OR a valid initializer expression), preprocess
-			errors = ErrorList::Concatenate(errors,
-					declaration->preprocess(struct_context));
+			auto preprocess_errors = declaration->preprocess(struct_context);
+			errors = ErrorList::Concatenate(errors, preprocess_errors);
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
@@ -170,4 +168,49 @@ bool RecordType::IsSpecifiedBy(const std::string& name,
 	} catch (std::bad_cast& e) {
 		return false;
 	}
+}
+
+const_shared_ptr<Result> RecordType::GenerateSymbolCore(
+		const std::shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+		const_shared_ptr<Expression> initializer) const {
+	ErrorListRef errors = ErrorList::GetTerminator();
+
+	plain_shared_ptr<Record> instance = nullptr;
+	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
+
+	auto type_name = type_specifier->GetTypeName();
+
+	const_shared_ptr<TypeSpecifier> initializer_expression_type =
+			initializer->GetType(execution_context);
+	const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
+			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+					initializer_expression_type);
+	if (as_record_specifier
+			&& initializer_expression_type->IsAssignableTo(type_specifier)) {
+		if (initializer->IsConstant()) {
+			const_shared_ptr<Result> result = initializer->Evaluate(
+					execution_context);
+			errors = result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				instance = result->GetData<Record>();
+			}
+		} else {
+			//generate default instance
+			instance = Record::GetDefaultInstance(type_name, *this);
+		}
+	} else {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::ASSIGNMENT_TYPE_ERROR,
+						initializer->GetPosition().begin.line,
+						initializer->GetPosition().begin.column, *type_name,
+						initializer_expression_type->ToString()), errors);
+	}
+
+	if (ErrorList::IsTerminator(errors)) {
+		symbol = make_shared<Symbol>(instance);
+	}
+
+	return make_shared<Result>(symbol, errors);
 }

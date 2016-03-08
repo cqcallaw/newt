@@ -21,15 +21,30 @@
 #define COMPLEX_TYPE_H_
 
 #include <concrete_type.h>
+#include <defaults.h>
 
 class TypeSpecifier;
 class TypeTable;
+class Result;
+class ExecutionContext;
+class Expression;
 
 class ComplexType: public ConcreteType {
 public:
 	virtual ~ComplexType();
 	static const_shared_ptr<TypeSpecifier> ToActualType(
 			const_shared_ptr<TypeSpecifier> original, const TypeTable& table);
+
+	const_shared_ptr<Result> GenerateSymbol(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const;
+
+protected:
+	virtual const_shared_ptr<Result> GenerateSymbolCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const = 0;
 };
 
 #endif /* COMPLEX_TYPE_H_ */

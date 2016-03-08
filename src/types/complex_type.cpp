@@ -23,6 +23,8 @@
 #include <sum_type_specifier.h>
 #include <record_type_specifier.h>
 #include <sum_type.h>
+#include <execution_context.h>
+#include <expression.h>
 
 ComplexType::~ComplexType() {
 }
@@ -39,4 +41,31 @@ const_shared_ptr<TypeSpecifier> ComplexType::ToActualType(
 	}
 
 	return original;
+}
+
+const_shared_ptr<Result> ComplexType::GenerateSymbol(
+		const std::shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+		const_shared_ptr<Expression> initializer) const {
+	ErrorListRef errors = ErrorList::GetTerminator();
+
+	plain_shared_ptr<void> value;
+	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
+
+	if (initializer) {
+		errors = initializer->Validate(execution_context);
+		if (ErrorList::IsTerminator(errors)) {
+			return GenerateSymbolCore(execution_context, type_specifier,
+					initializer);
+		}
+	} else {
+		value = GetDefaultValue(type_specifier->GetTypeName());
+	}
+
+	if (ErrorList::IsTerminator(errors)) {
+		//we've been able to get a good initial value (that is, no errors have occurred)
+		symbol = GetSymbol(value);
+	}
+
+	return make_shared<Result>(symbol, errors);
 }

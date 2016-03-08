@@ -21,14 +21,20 @@
 #include <record_type.h>
 #include <primitive_type.h>
 #include <complex_type_specifier.h>
+#include <recursive_type.h>
 #include <memory>
-#include <placeholder.h>
 
 void TypeTable::AddType(const std::string& name,
 		const_shared_ptr<TypeDefinition> definition) {
 	auto existing = m_table->find(name);
-	if (existing == m_table->end()
-			|| std::dynamic_pointer_cast<const Placeholder>(existing->second)) {
+
+	if (existing == m_table->end()) {
+		m_table->insert(
+				pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
+						definition));
+	} else if (std::dynamic_pointer_cast<const RecursiveType>(
+			existing->second)) {
+		m_table->erase(existing);
 		m_table->insert(
 				pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
 						definition));

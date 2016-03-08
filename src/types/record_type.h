@@ -54,8 +54,7 @@ public:
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const_shared_ptr<std::string> type_name) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(
-			const_shared_ptr<void> value,
+	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
 			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
 
 	const_shared_ptr<definition_map> GetDefinition() const {
@@ -74,6 +73,11 @@ public:
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const;
 
+protected:
+	virtual const_shared_ptr<Result> GenerateSymbolCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const;
 private:
 	const_shared_ptr<definition_map> m_definition;
 	const Modifier::Type m_modifiers;

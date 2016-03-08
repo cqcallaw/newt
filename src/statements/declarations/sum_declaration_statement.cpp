@@ -36,6 +36,7 @@
 #include <statement_block.h>
 #include <member_definition.h>
 #include <nested_type_specifier.h>
+#include <recursive_type.h>
 #include <variable_expression.h>
 #include <return_statement.h>
 #include <with_expression.h>
@@ -63,16 +64,18 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	auto type_table = execution_context->GetTypeTable();
 
 	if (!type_table->ContainsType(*m_type)) {
+		auto placeholder = make_shared<RecursiveType>(GetName());
+		type_table->AddType(*GetName(), placeholder);
 		auto result = SumType::Build(execution_context, m_variant_list);
 
 		errors = result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = result->GetData<SumType>();
-			execution_context->GetTypeTable()->AddType(*GetName(), type);
+			type_table->AddType(*GetName(), type);
 
 			//create a new read-only record type and record that contains the names of the variants mapped to type constructors
 			auto constructor_map = make_shared<definition_map>();
-			auto constructor_instance = make_shared<SymbolTable>();
+			auto constructor_instances = make_shared<SymbolTable>();
 
 			if (ErrorList::IsTerminator(errors)) {
 				//generate a record type containing type constructor functions
@@ -140,7 +143,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 
 							auto symbol = make_shared<Symbol>(function);
 							auto insert_result =
-									constructor_instance->InsertSymbol(
+									constructor_instances->InsertSymbol(
 											*variant_name, symbol);
 
 							if (insert_result == SYMBOL_EXISTS) {
@@ -257,12 +260,12 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 						ctor_type_name);
 				auto type = make_shared<RecordType>(constructor_map,
 						Modifier::Type::READONLY);
-				execution_context->GetTypeTable()->AddType(*ctor_type_name,
-						type);
+				type_table->AddType(*ctor_type_name, type);
 
-				auto instance = make_shared<Record>(specifier,
-						constructor_instance);
-				auto instance_symbol = make_shared<Symbol>(instance);
+				auto constructor_map_record = make_shared<Record>(specifier,
+						constructor_instances);
+				auto instance_symbol = make_shared<Symbol>(
+						constructor_map_record);
 				auto insert_result = execution_context->InsertSymbol(*GetName(),
 						instance_symbol);
 				if (insert_result == SYMBOL_EXISTS) {
