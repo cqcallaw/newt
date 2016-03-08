@@ -53,7 +53,7 @@ public:
 		return m_position;
 	}
 
-	const const_shared_ptr<string> GetName() const {
+	const_shared_ptr<string> GetName() const {
 		return m_name;
 	}
 
