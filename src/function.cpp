@@ -205,8 +205,11 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 const string Function::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
+	buffer << indent << "Body Location: ";
 	if (m_body->GetLocation() != GetDefaultLocation()) {
-		buffer << indent << "Body Location: " << m_body->GetLocation();
+		buffer << m_body->GetLocation();
+	} else {
+		buffer << "[default location]";
 	}
 //	buffer << indent << "Address: " << this << endl;
 //	if (m_closure) {

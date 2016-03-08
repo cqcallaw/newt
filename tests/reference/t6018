@@ -2,16 +2,18 @@ Parsing file ../tests/t6018.nwt...
 Parsed file ../tests/t6018.nwt.
 Root Symbol Table:
 ----------------
-result_ctor result:
-
 result val:
+	<empty>
  {happy_fun}
 
 Root Type Table:
 ----------------
 result:
 	error:
+		<empty>
 	frowny_sad:
+		<empty>
 	happy_fun:
+		<empty>
 	no_result:
-result_ctor:
+		<empty>

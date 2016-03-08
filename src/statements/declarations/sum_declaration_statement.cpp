@@ -253,7 +253,8 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 				}
 			}
 
-			if (ErrorList::IsTerminator(errors)) {
+			if (ErrorList::IsTerminator(errors)
+					&& constructor_map->size() > 0) {
 				const_shared_ptr<string> ctor_type_name = make_shared<string>(
 						*GetName() + "_ctor");
 				auto specifier = make_shared<RecordTypeSpecifier>(

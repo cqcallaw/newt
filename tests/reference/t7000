@@ -2,8 +2,7 @@ Parsing file ../tests/t7000.nwt...
 Parsed file ../tests/t7000.nwt.
 Root Symbol Table:
 ----------------
-list_ctor list:
-
+<empty>
 
 Root Type Table:
 ----------------
@@ -11,6 +10,7 @@ list:
 	item:
 		int data (0)
 		list next (
+			<empty>
 		)
 	terminator:
-list_ctor:
+		<empty>

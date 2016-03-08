@@ -103,13 +103,17 @@ const_shared_ptr<Symbol> SymbolContext::GetSymbol(
 
 const void SymbolContext::print(ostream &os, const TypeTable& type_table,
 		const Indent& indent) const {
-	symbol_map::iterator iter;
-	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
-		const string name = iter->first;
-		auto symbol = iter->second;
-		os << indent << symbol->GetType()->ToString() << " " << name << ":";
-		os << symbol->ToString(type_table, indent);
-		os << endl;
+	if (m_table->size() > 0) {
+		symbol_map::iterator iter;
+		for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
+			const string name = iter->first;
+			auto symbol = iter->second;
+			os << indent << symbol->GetType()->ToString() << " " << name << ":";
+			os << symbol->ToString(type_table, indent);
+			os << endl;
+		}
+	} else {
+		os << indent << "<empty>" << endl;
 	}
 }
 

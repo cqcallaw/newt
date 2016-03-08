@@ -3,7 +3,7 @@ Parsed file ../tests/t5009.nwt.
 Root Symbol Table:
 ----------------
 (int) -> string f:
-
+	Body Location: [default location]
 string x: ""
 
 Root Type Table:

@@ -7,12 +7,14 @@ result_ctor result:
 		Body Location: 3.2-6
 
 result val:
+	<empty>
  {error}
 
 Root Type Table:
 ----------------
 result:
 	error:
+		<empty>
 	value:
 		int
 result_ctor:

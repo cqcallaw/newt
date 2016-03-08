@@ -49,17 +49,23 @@ const string RecordType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
-	for (auto& type_iter : *m_definition) {
-		const string member_name = type_iter.first;
-		const_shared_ptr<MemberDefinition> member_definition = type_iter.second;
-		const_shared_ptr<TypeSpecifier> member_type =
-				member_definition->GetType();
+	if (m_definition->size() > 0) {
+		for (auto& type_iter : *m_definition) {
+			const string member_name = type_iter.first;
+			const_shared_ptr<MemberDefinition> member_definition =
+					type_iter.second;
+			const_shared_ptr<TypeSpecifier> member_type =
+					member_definition->GetType();
 
-		os << child_indent << member_type->ToString() << " " << member_name
-				<< " (" << member_definition->ToString(type_table, child_indent)
-				<< ")";
+			os << child_indent << member_type->ToString() << " " << member_name
+					<< " ("
+					<< member_definition->ToString(type_table, child_indent)
+					<< ")";
 
-		os << endl;
+			os << endl;
+		}
+	} else {
+		os << child_indent << "<empty>" << endl;
 	}
 	return os.str();
 }
