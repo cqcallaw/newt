@@ -190,11 +190,7 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 
 	const_shared_ptr<TypeSpecifier> initializer_expression_type =
 			initializer->GetType(execution_context);
-	const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
-			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-					initializer_expression_type);
-	if (as_record_specifier
-			&& initializer_expression_type->IsAssignableTo(type_specifier)) {
+	if (initializer_expression_type->IsAssignableTo(type_specifier)) {
 		if (initializer->IsConstant()) {
 			const_shared_ptr<Result> result = initializer->Evaluate(
 					execution_context);

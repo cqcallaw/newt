@@ -244,7 +244,6 @@ const ErrorListRef WithExpression::Validate(
 							instantiation->GetExpression()->GetType(
 									execution_context);
 					if (!expression_type->IsAssignableTo(member_type)) {
-						//undefined member
 						errors =
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
