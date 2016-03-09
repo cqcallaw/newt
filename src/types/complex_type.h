@@ -22,6 +22,7 @@
 
 #include <concrete_type.h>
 #include <defaults.h>
+#include <error.h>
 
 class TypeSpecifier;
 class TypeTable;
@@ -35,15 +36,25 @@ public:
 	static const_shared_ptr<TypeSpecifier> ToActualType(
 			const_shared_ptr<TypeSpecifier> original, const TypeTable& table);
 
-	const_shared_ptr<Result> GenerateSymbol(
+	const_shared_ptr<Result> PreprocessSymbol(
 			const std::shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const_shared_ptr<Expression> initializer) const;
 
+	const ErrorListRef Instantiate(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<Expression> initializer) const;
+
 protected:
-	virtual const_shared_ptr<Result> GenerateSymbolCore(
+	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const = 0;
+
+	virtual const ErrorListRef InstantiateCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<std::string> name,
 			const_shared_ptr<Expression> initializer) const = 0;
 };
 

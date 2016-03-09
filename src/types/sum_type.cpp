@@ -18,7 +18,6 @@
  */
 
 #include <alias_definition.h>
-#include <error.h>
 #include <expression.h>
 #include <linked_list.h>
 #include <location.hh>
@@ -38,6 +37,7 @@
 #include <record_type.h>
 #include <execution_context.h>
 #include <nested_type_specifier.h>
+#include <symbol_context.h>
 
 const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
@@ -224,7 +224,7 @@ const_shared_ptr<void> SumType::GetDefaultValue(
 	return Sum::GetDefaultInstance(type_name, *this);
 }
 
-const_shared_ptr<Result> SumType::GenerateSymbolCore(
+const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
@@ -285,4 +285,23 @@ const_shared_ptr<Result> SumType::GenerateSymbolCore(
 
 	return make_shared<Result>(symbol, errors);
 
+}
+
+const ErrorListRef SumType::InstantiateCore(
+		const std::shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<Expression> initializer) const {
+	const_shared_ptr<Result> evaluation = initializer->Evaluate(
+			execution_context);
+
+	auto errors = evaluation->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto instance = evaluation->GetData<Sum>();
+		auto set_result = execution_context->SetSymbol(*name, instance);
+		errors = ToErrorListRef(set_result, initializer->GetPosition(), name,
+				execution_context->GetSymbol(*name)->GetType(),
+				initializer->GetType(execution_context));
+	}
+
+	return errors;
 }

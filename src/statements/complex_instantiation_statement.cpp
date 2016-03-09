@@ -59,7 +59,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 	if (type) {
 		auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 		if (existing == Symbol::GetDefaultSymbol()) {
-			auto result = type->GenerateSymbol(execution_context,
+			auto result = type->PreprocessSymbol(execution_context,
 					m_type_specifier, GetInitializerExpression());
 
 			errors = result->GetErrors();
@@ -103,38 +103,19 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	if (GetInitializerExpression()
-			&& !GetInitializerExpression()->IsConstant()) {
-		const_shared_ptr<ConcreteType> type =
-				execution_context->GetTypeTable()->GetType<ConcreteType>(
-						m_type_specifier->GetTypeName());
+	auto type_name = m_type_specifier->GetTypeName();
+	const_shared_ptr<ComplexType> type =
+			execution_context->GetTypeTable()->GetType<ComplexType>(type_name);
 
-		const_shared_ptr<RecordType> as_record = dynamic_pointer_cast<
-				const RecordType>(type);
-		if (as_record) {
-			const_shared_ptr<Result> evaluation =
-					GetInitializerExpression()->Evaluate(execution_context);
-
-			errors = evaluation->GetErrors();
-
-			if (ErrorList::IsTerminator(errors)) {
-				auto instance = evaluation->GetData<Record>();
-				execution_context->SetSymbol(*GetName(), instance);
-			}
-		}
-
-		const_shared_ptr<SumType> as_sum = dynamic_pointer_cast<const SumType>(
-				type);
-		if (as_sum) {
-			const_shared_ptr<Result> evaluation =
-					GetInitializerExpression()->Evaluate(execution_context);
-
-			errors = evaluation->GetErrors();
-			if (ErrorList::IsTerminator(errors)) {
-				auto instance = evaluation->GetData<Sum>();
-				execution_context->SetSymbol(*GetName(), instance);
-			}
-		}
+	if (type) {
+		errors = type->Instantiate(execution_context, GetName(),
+				GetInitializerExpression());
+	} else {
+		//type does not exist
+		errors = ErrorList::From(
+				make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_TYPE,
+						m_type_position.begin.line,
+						m_type_position.begin.column, *type_name), errors);
 	}
 
 	return errors;

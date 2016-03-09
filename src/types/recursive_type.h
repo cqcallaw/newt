@@ -77,11 +77,18 @@ public:
 	}
 
 protected:
-	virtual const_shared_ptr<Result> GenerateSymbolCore(
+	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const_shared_ptr<Expression> initializer) const {
 		return make_shared<Result>(m_default_symbol, ErrorList::GetTerminator());
+	}
+
+	virtual const ErrorListRef InstantiateCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<Expression> initializer) const {
+		return ErrorList::GetTerminator();
 	}
 
 private:

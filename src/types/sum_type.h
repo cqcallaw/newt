@@ -74,9 +74,14 @@ public:
 			const string& sum_type_name) const;
 
 protected:
-	virtual const_shared_ptr<Result> GenerateSymbolCore(
+	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const;
+
+	virtual const ErrorListRef InstantiateCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<std::string> name,
 			const_shared_ptr<Expression> initializer) const;
 
 private:

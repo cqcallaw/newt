@@ -43,7 +43,7 @@ const_shared_ptr<TypeSpecifier> ComplexType::ToActualType(
 	return original;
 }
 
-const_shared_ptr<Result> ComplexType::GenerateSymbol(
+const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
@@ -55,7 +55,7 @@ const_shared_ptr<Result> ComplexType::GenerateSymbol(
 	if (initializer) {
 		errors = initializer->Validate(execution_context);
 		if (ErrorList::IsTerminator(errors)) {
-			return GenerateSymbolCore(execution_context, type_specifier,
+			return PreprocessSymbolCore(execution_context, type_specifier,
 					initializer);
 		}
 	} else {
@@ -68,4 +68,16 @@ const_shared_ptr<Result> ComplexType::GenerateSymbol(
 	}
 
 	return make_shared<Result>(symbol, errors);
+}
+
+const ErrorListRef ComplexType::Instantiate(
+		const std::shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<Expression> initializer) const {
+	ErrorListRef errors = ErrorList::GetTerminator();
+	if (initializer && !initializer->IsConstant()) {
+		errors = InstantiateCore(execution_context, name, initializer);
+	}
+
+	return errors;
 }

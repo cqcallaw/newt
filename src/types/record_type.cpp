@@ -26,6 +26,7 @@
 #include <symbol_table.h>
 #include <execution_context.h>
 #include <expression.h>
+#include <symbol_context.h>
 
 RecordType::RecordType(const_shared_ptr<definition_map> definition,
 		const Modifier::Type modifiers) :
@@ -176,7 +177,7 @@ bool RecordType::IsSpecifiedBy(const std::string& name,
 	}
 }
 
-const_shared_ptr<Result> RecordType::GenerateSymbolCore(
+const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
@@ -219,4 +220,23 @@ const_shared_ptr<Result> RecordType::GenerateSymbolCore(
 	}
 
 	return make_shared<Result>(symbol, errors);
+}
+
+const ErrorListRef RecordType::InstantiateCore(
+		const std::shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<Expression> initializer) const {
+	const_shared_ptr<Result> evaluation = initializer->Evaluate(
+			execution_context);
+
+	auto errors = evaluation->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto instance = evaluation->GetData<Record>();
+		auto set_result = execution_context->SetSymbol(*name, instance);
+		errors = ToErrorListRef(set_result, initializer->GetPosition(), name,
+				execution_context->GetSymbol(*name)->GetType(),
+				initializer->GetType(execution_context));
+	}
+
+	return errors;
 }
