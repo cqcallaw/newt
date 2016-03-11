@@ -32,6 +32,7 @@ public:
 	MemberDefinition(const_shared_ptr<TypeSpecifier> type,
 			const_shared_ptr<void> value) :
 			m_type(type), m_value(value) {
+		assert(m_value);
 	}
 	virtual ~MemberDefinition() {
 	}
@@ -69,8 +70,7 @@ public:
 				std::dynamic_pointer_cast<const RecordTypeSpecifier>(m_type);
 		if (as_record) {
 			buffer << endl;
-			auto instance = static_pointer_cast<const Record>(
-					m_value);
+			auto instance = static_pointer_cast<const Record>(m_value);
 			buffer << instance->ToString(type_table, indent + 1);
 			buffer << indent;
 		}

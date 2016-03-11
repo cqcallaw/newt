@@ -21,8 +21,6 @@
 #include <primitive_type_specifier.h>
 
 const_shared_ptr<MemberDefinition> MemberDefinition::GetDefaultMemberDefinition() {
-	const static std::shared_ptr<MemberDefinition> instance = std::make_shared
-			< MemberDefinition
-			> (MemberDefinition(PrimitiveTypeSpecifier::GetNone(), nullptr));
+	const static std::shared_ptr<MemberDefinition> instance = nullptr;
 	return instance;
 }
