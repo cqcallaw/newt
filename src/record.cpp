@@ -20,6 +20,7 @@
 #include <member_definition.h>
 #include <function_type_specifier.h>
 #include <record.h>
+#include <sum.h>
 #include <symbol_table.h>
 
 const_shared_ptr<Record> Record::GetDefaultInstance(
@@ -74,6 +75,8 @@ const_shared_ptr<Symbol> Record::GetSymbol(
 			member_type)) {
 		return make_shared<Symbol>(
 				static_pointer_cast<const Function>(void_value));
+	} else if (std::dynamic_pointer_cast<const SumTypeSpecifier>(member_type)) {
+		return make_shared<Symbol>(static_pointer_cast<const Sum>(void_value));
 	} else {
 		assert(false);
 		return nullptr;
