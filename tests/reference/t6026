@@ -1,0 +1,28 @@
+Parsing file ../tests/t6026.nwt...
+Parsed file ../tests/t6026.nwt.
+Root Symbol Table:
+----------------
+number_ctor number:
+	(double) -> number continuous:
+		Body Location: 4.4-13
+	(int) -> number discrete:
+		Body Location: 3.2-9
+
+stringified s:
+	string as_string: "2"
+	number value: 2 {discrete}
+
+
+Root Type Table:
+----------------
+number:
+	continuous:
+		double
+	discrete:
+		int
+number_ctor:
+	(double) -> number continuous ()
+	(int) -> number discrete ()
+stringified:
+	string as_string ("default stuff")
+	number value ()
