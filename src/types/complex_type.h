@@ -23,6 +23,7 @@
 #include <concrete_type.h>
 #include <defaults.h>
 #include <error.h>
+#include <execution_context.h>
 
 class TypeSpecifier;
 class TypeTable;
@@ -43,7 +44,8 @@ public:
 
 	const ErrorListRef Instantiate(
 			const std::shared_ptr<ExecutionContext> execution_context,
-			const_shared_ptr<std::string> name,
+			const_shared_ptr<std::string> type_name,
+			const_shared_ptr<std::string> instance_name,
 			const_shared_ptr<Expression> initializer) const;
 
 protected:
@@ -52,10 +54,9 @@ protected:
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const_shared_ptr<Expression> initializer) const = 0;
 
-	virtual const ErrorListRef InstantiateCore(
+	virtual const SetResult InstantiateCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
-			const_shared_ptr<std::string> name,
-			const_shared_ptr<Expression> initializer) const = 0;
+			const std::string& instance_name, const_shared_ptr<void> data) const = 0;
 };
 
 #endif /* COMPLEX_TYPE_H_ */

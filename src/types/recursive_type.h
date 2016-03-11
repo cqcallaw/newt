@@ -84,11 +84,11 @@ protected:
 		return make_shared<Result>(m_default_symbol, ErrorList::GetTerminator());
 	}
 
-	virtual const ErrorListRef InstantiateCore(
+	virtual const SetResult InstantiateCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
-			const_shared_ptr<std::string> name,
-			const_shared_ptr<Expression> initializer) const {
-		return ErrorList::GetTerminator();
+			const std::string& instance_name,
+			const_shared_ptr<void> data) const {
+		return SetResult::NO_SET_RESULT;
 	}
 
 private:

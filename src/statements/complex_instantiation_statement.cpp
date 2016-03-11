@@ -108,7 +108,7 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 			execution_context->GetTypeTable()->GetType<ComplexType>(type_name);
 
 	if (type) {
-		errors = type->Instantiate(execution_context, GetName(),
+		errors = type->Instantiate(execution_context, type_name, GetName(),
 				GetInitializerExpression());
 	} else {
 		//type does not exist

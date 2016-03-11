@@ -23,7 +23,6 @@
 #include <sum_type_specifier.h>
 #include <record_type_specifier.h>
 #include <sum_type.h>
-#include <execution_context.h>
 #include <expression.h>
 
 ComplexType::~ComplexType() {
@@ -72,11 +71,29 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 
 const ErrorListRef ComplexType::Instantiate(
 		const std::shared_ptr<ExecutionContext> execution_context,
-		const_shared_ptr<std::string> name,
+		const_shared_ptr<std::string> type_name,
+		const_shared_ptr<std::string> instance_name,
 		const_shared_ptr<Expression> initializer) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
+	SetResult set_result = SetResult::NO_SET_RESULT;
+	yy::location location = GetDefaultLocation();
+	plain_shared_ptr<TypeSpecifier> initializer_type = nullptr;
 	if (initializer && !initializer->IsConstant()) {
-		errors = InstantiateCore(execution_context, name, initializer);
+		location = initializer->GetPosition();
+		initializer_type = initializer->GetType(execution_context);
+		auto result = initializer->Evaluate(execution_context);
+		errors = result->GetErrors();
+
+		if (ErrorList::IsTerminator(errors)) {
+			set_result = InstantiateCore(execution_context, *instance_name,
+					result->GetData<void>());
+		}
+	}
+
+	if (set_result) {
+		errors = ToErrorListRef(set_result, location, instance_name,
+				execution_context->GetSymbol(*instance_name)->GetType(),
+				initializer_type); //initializer_type will be null if initializer is not set
 	}
 
 	return errors;

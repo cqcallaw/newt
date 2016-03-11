@@ -287,21 +287,10 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 
 }
 
-const ErrorListRef SumType::InstantiateCore(
+const SetResult SumType::InstantiateCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
-		const_shared_ptr<std::string> name,
-		const_shared_ptr<Expression> initializer) const {
-	const_shared_ptr<Result> evaluation = initializer->Evaluate(
-			execution_context);
-
-	auto errors = evaluation->GetErrors();
-	if (ErrorList::IsTerminator(errors)) {
-		auto instance = evaluation->GetData<Sum>();
-		auto set_result = execution_context->SetSymbol(*name, instance);
-		errors = ToErrorListRef(set_result, initializer->GetPosition(), name,
-				execution_context->GetSymbol(*name)->GetType(),
-				initializer->GetType(execution_context));
-	}
-
-	return errors;
+		const std::string& instance_name, const_shared_ptr<void> data) const {
+	auto instance = static_pointer_cast<const Sum>(data);
+	auto set_result = execution_context->SetSymbol(instance_name, instance);
+	return set_result;
 }

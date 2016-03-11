@@ -79,10 +79,10 @@ protected:
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const_shared_ptr<Expression> initializer) const;
 
-	virtual const ErrorListRef InstantiateCore(
+	virtual const SetResult InstantiateCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
-			const_shared_ptr<std::string> name,
-			const_shared_ptr<Expression> initializer) const;
+			const std::string& instance_name,
+			const_shared_ptr<void> data) const;
 
 private:
 	SumType(const_shared_ptr<TypeTable> type_table,

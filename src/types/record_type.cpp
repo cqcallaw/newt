@@ -199,7 +199,6 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 				instance = result->GetData<Record>();
 			}
 		} else {
-			//generate default instance
 			instance = Record::GetDefaultInstance(type_name, *this);
 		}
 	} else {
@@ -218,21 +217,10 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 	return make_shared<Result>(symbol, errors);
 }
 
-const ErrorListRef RecordType::InstantiateCore(
+const SetResult RecordType::InstantiateCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
-		const_shared_ptr<std::string> name,
-		const_shared_ptr<Expression> initializer) const {
-	const_shared_ptr<Result> evaluation = initializer->Evaluate(
-			execution_context);
-
-	auto errors = evaluation->GetErrors();
-	if (ErrorList::IsTerminator(errors)) {
-		auto instance = evaluation->GetData<Record>();
-		auto set_result = execution_context->SetSymbol(*name, instance);
-		errors = ToErrorListRef(set_result, initializer->GetPosition(), name,
-				execution_context->GetSymbol(*name)->GetType(),
-				initializer->GetType(execution_context));
-	}
-
-	return errors;
+		const std::string& instance_name, const_shared_ptr<void> data) const {
+	auto instance = static_pointer_cast<const Record>(data);
+	auto set_result = execution_context->SetSymbol(instance_name, instance);
+	return set_result;
 }
