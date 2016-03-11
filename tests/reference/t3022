@@ -1,0 +1,17 @@
+Parsing file ../tests/t3022.nwt...
+Parsed file ../tests/t3022.nwt.
+Root Symbol Table:
+----------------
+my_struct a:
+	double y: 5.3
+
+
+Root Type Table:
+----------------
+my_other_struct:
+	my_struct i (
+		double y: 5.3
+	)
+	int x (0)
+my_struct:
+	double y (5.3)
