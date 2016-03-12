@@ -17,8 +17,8 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPES_RECURSIVE_TYPE_H_
-#define TYPES_RECURSIVE_TYPE_H_
+#ifndef TYPES_SUM_RECURSIVE_TYPE_H_
+#define TYPES_SUM_RECURSIVE_TYPE_H_
 
 #include <type_definition.h>
 #include <assert.h>
@@ -28,17 +28,17 @@
 #include <record_type_specifier.h>
 #include <symbol_context.h>
 
-class RecursiveType: public ComplexType {
+class SumRecursiveType: public ComplexType {
 public:
-	RecursiveType(const_shared_ptr<string> type_name) :
+	SumRecursiveType(const_shared_ptr<string> type_name) :
 			m_type_name(type_name) {
-		m_default_value = make_shared<Record>(
-				make_shared<RecordTypeSpecifier>(m_type_name),
-				make_shared<SymbolContext>(Modifier::Type::READONLY));
+		m_default_value = make_shared<Sum>(
+				make_shared<SumTypeSpecifier>(m_type_name),
+				make_shared<string>(""), nullptr);
 		m_default_symbol = make_shared<Symbol>(m_default_value);
 	}
 
-	virtual ~RecursiveType() {
+	virtual ~SumRecursiveType() {
 	}
 
 	virtual bool IsSpecifiedBy(const std::string& name,
@@ -74,11 +74,14 @@ public:
 
 	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
 			const std::string& member_name) const {
+		assert(false);
+		return nullptr;
 	}
 
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
 			const_shared_ptr<std::string> member_name) const {
-
+		assert(false);
+		return nullptr;
 	}
 
 	const_shared_ptr<string> GetTypeName() const {
@@ -102,8 +105,8 @@ protected:
 
 private:
 	const_shared_ptr<string> m_type_name;
-	plain_shared_ptr<Record> m_default_value;
+	plain_shared_ptr<Sum> m_default_value;
 	plain_shared_ptr<Symbol> m_default_symbol;
 };
 
-#endif /* TYPES_RECURSIVE_TYPE_H_ */
+#endif /* TYPES_SUM_RECURSIVE_TYPE_H_ */

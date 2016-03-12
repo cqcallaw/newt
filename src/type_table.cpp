@@ -21,7 +21,7 @@
 #include <record_type.h>
 #include <primitive_type.h>
 #include <complex_type_specifier.h>
-#include <recursive_type.h>
+#include <sum_recursive_type.h>
 #include <memory>
 
 void TypeTable::AddType(const std::string& name,
@@ -32,7 +32,7 @@ void TypeTable::AddType(const std::string& name,
 		m_table->insert(
 				pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
 						definition));
-	} else if (std::dynamic_pointer_cast<const RecursiveType>(
+	} else if (std::dynamic_pointer_cast<const SumRecursiveType>(
 			existing->second)) {
 		m_table->erase(existing);
 		m_table->insert(

@@ -36,9 +36,9 @@
 #include <statement_block.h>
 #include <member_definition.h>
 #include <nested_type_specifier.h>
-#include <recursive_type.h>
 #include <variable_expression.h>
 #include <return_statement.h>
+#include <sum_recursive_type.h>
 #include <with_expression.h>
 
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
@@ -64,8 +64,8 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	auto type_table = execution_context->GetTypeTable();
 
 	if (!type_table->ContainsType(*m_type)) {
-		auto placeholder = make_shared<RecursiveType>(GetName());
-		type_table->AddType(*GetName(), placeholder);
+		auto forward_declaration = make_shared<SumRecursiveType>(GetName());
+		type_table->AddType(*GetName(), forward_declaration);
 		auto result = SumType::Build(execution_context, m_variant_list);
 
 		errors = result->GetErrors();
