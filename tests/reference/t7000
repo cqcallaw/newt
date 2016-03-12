@@ -9,8 +9,6 @@ Root Type Table:
 list:
 	item:
 		int data (0)
-		list next (
-			<empty>
-		)
+		list next ()
 	terminator:
 		<empty>
