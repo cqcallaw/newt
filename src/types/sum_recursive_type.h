@@ -24,8 +24,8 @@
 #include <assert.h>
 #include <result.h>
 #include <sstream>
-#include <record.h>
-#include <record_type_specifier.h>
+#include <sum.h>
+#include <sum_type_specifier.h>
 #include <symbol_context.h>
 
 class SumRecursiveType: public ComplexType {
