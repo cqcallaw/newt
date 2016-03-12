@@ -48,6 +48,12 @@ public:
 			const_shared_ptr<std::string> instance_name,
 			const_shared_ptr<Expression> initializer) const;
 
+	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
+			const std::string& member_name) const = 0;
+
+	virtual const_shared_ptr<void> GetMemberDefaultValue(
+			const_shared_ptr<std::string> member_name) const = 0;
+
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
@@ -56,7 +62,8 @@ protected:
 
 	virtual const SetResult InstantiateCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
-			const std::string& instance_name, const_shared_ptr<void> data) const = 0;
+			const std::string& instance_name,
+			const_shared_ptr<void> data) const = 0;
 };
 
 #endif /* COMPLEX_TYPE_H_ */

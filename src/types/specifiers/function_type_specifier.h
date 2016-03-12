@@ -49,6 +49,9 @@ public:
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const;
 
+	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
+			const TypeTable& container) const;
+
 	TypeSpecifierListRef GetParameterTypeList() const {
 		return m_parameter_type_list;
 	}

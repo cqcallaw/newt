@@ -64,7 +64,8 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 		}
 
 		auto value = m_type->DefaultValue(*execution_context->GetTypeTable());
-		symbol = as_primitive->GetSymbol(value);
+		symbol = as_primitive->GetSymbol(value,
+				*execution_context->GetTypeTable());
 	} else {
 		assert(false);
 	}

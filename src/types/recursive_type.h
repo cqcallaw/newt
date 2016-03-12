@@ -72,6 +72,15 @@ public:
 		return m_default_symbol;
 	}
 
+	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
+			const std::string& member_name) const {
+	}
+
+	virtual const_shared_ptr<void> GetMemberDefaultValue(
+			const_shared_ptr<std::string> member_name) const {
+
+	}
+
 	const_shared_ptr<string> GetTypeName() const {
 		return m_type_name;
 	}

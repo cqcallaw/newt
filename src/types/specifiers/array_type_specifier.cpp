@@ -65,3 +65,8 @@ const bool ArrayTypeSpecifier::IsAssignableTo(
 			&& m_element_type_specifier->IsAssignableTo(
 					as_array->GetElementTypeSpecifier()));
 }
+
+const_shared_ptr<Symbol> ArrayTypeSpecifier::GetSymbol(
+		const_shared_ptr<void> value, const TypeTable& container) const {
+	return make_shared<Symbol>(static_pointer_cast<const Array>(value));
+}

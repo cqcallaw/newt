@@ -287,6 +287,17 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 
 }
 
+const_shared_ptr<TypeSpecifier> SumType::GetMemberType(
+		const std::string& member_name) const {
+	return m_type_table->GetType<TypeSpecifier>(member_name);
+}
+
+const_shared_ptr<void> SumType::GetMemberDefaultValue(
+		const_shared_ptr<std::string> member_name) const {
+	auto definition = m_type_table->GetType<ConcreteType>(member_name);
+	return definition->GetDefaultValue(member_name);
+}
+
 const SetResult SumType::InstantiateCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const std::string& instance_name, const_shared_ptr<void> data) const {

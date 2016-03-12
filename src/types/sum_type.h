@@ -73,6 +73,11 @@ public:
 			const TypeSpecifier& type_specifier,
 			const string& sum_type_name) const;
 
+	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
+			const std::string& member_name) const;
+
+	virtual const_shared_ptr<void> GetMemberDefaultValue(
+			const_shared_ptr<std::string> member_name) const;
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,

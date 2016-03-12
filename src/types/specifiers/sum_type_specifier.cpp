@@ -71,3 +71,8 @@ bool SumTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 		return false;
 	}
 }
+
+const_shared_ptr<Symbol> SumTypeSpecifier::GetSymbol(
+		const_shared_ptr<void> value, const TypeTable& container) const {
+	return make_shared<Symbol>(static_pointer_cast<const Sum>(value));
+}

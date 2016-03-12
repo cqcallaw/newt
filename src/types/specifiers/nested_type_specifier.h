@@ -43,6 +43,9 @@ public:
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const;
 
+	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
+			const TypeTable& container) const;
+
 	virtual bool operator==(const TypeSpecifier &other) const;
 
 	const_shared_ptr<ComplexTypeSpecifier> GetParent() const {

@@ -42,8 +42,11 @@ public:
 	virtual ~RecordType();
 	const_shared_ptr<MemberDefinition> GetMember(const std::string& name) const;
 
-	const_shared_ptr<TypeSpecifier> GetMemberType(
+	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
 			const std::string& member_name) const;
+
+	virtual const_shared_ptr<void> GetMemberDefaultValue(
+			const_shared_ptr<std::string> member_name) const;
 
 	const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;

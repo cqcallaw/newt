@@ -57,28 +57,13 @@ const bool NestedTypeSpecifier::IsAssignableTo(
 
 const_shared_ptr<void> NestedTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
-	auto parent_type = type_table.GetType<ComplexType>(
-			m_parent->GetTypeName());
+	auto parent_type = type_table.GetType<ComplexType>(m_parent->GetTypeName());
 
-	auto as_sum_type = dynamic_pointer_cast<const SumType>(parent_type);
-	if (as_sum_type) {
-		auto sum_type_table = as_sum_type->GetTypeTable();
-
-		auto definition = sum_type_table->GetType<ConcreteType>(
-				*m_member_name);
-		return definition->GetDefaultValue(m_member_name);
-		//TODO: nested sum types
+	if (parent_type) {
+		return parent_type->GetMemberDefaultValue(m_member_name);
+	} else {
+		return const_shared_ptr<void>();
 	}
-
-	auto as_record_type = dynamic_pointer_cast<const RecordType>(parent_type);
-	if (as_record_type) {
-		auto definition = as_record_type->GetMember(*m_member_name);
-		if (definition != MemberDefinition::GetDefaultMemberDefinition()) {
-			return definition->GetDefaultValue();
-		}
-	}
-
-	return const_shared_ptr<void>();
 }
 
 const_shared_ptr<DeclarationStatement> NestedTypeSpecifier::GetDeclarationStatement(
@@ -100,5 +85,17 @@ bool NestedTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 				&& as_nested.m_member_name == m_member_name;
 	} catch (std::bad_cast& e) {
 		return false;
+	}
+}
+
+const_shared_ptr<Symbol> NestedTypeSpecifier::GetSymbol(
+		const_shared_ptr<void> value, const TypeTable& container) const {
+	auto parent_type = container.GetType<ComplexType>(m_parent->GetTypeName());
+
+	if (parent_type) {
+		auto member_type_specifier = parent_type->GetMemberType(*m_member_name);
+		return member_type_specifier->GetSymbol(value, container);
+	} else {
+		return Symbol::GetDefaultSymbol();
 	}
 }

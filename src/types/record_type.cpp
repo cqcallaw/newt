@@ -141,6 +141,11 @@ const_shared_ptr<TypeSpecifier> RecordType::GetMemberType(
 	return GetMember(member_name)->GetType();
 }
 
+const_shared_ptr<void> RecordType::GetMemberDefaultValue(
+		const_shared_ptr<std::string> member_name) const {
+	return GetMember(*member_name)->GetDefaultValue();
+}
+
 const std::string RecordType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;

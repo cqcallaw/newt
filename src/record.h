@@ -56,10 +56,6 @@ public:
 	static const_shared_ptr<Record> GetDefaultInstance(
 			const_shared_ptr<std::string> type_name, const RecordType& type);
 
-	const static const_shared_ptr<Symbol> GetSymbol(
-			const_shared_ptr<TypeSpecifier> member_type,
-			const_shared_ptr<void> void_value);
-
 	const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 

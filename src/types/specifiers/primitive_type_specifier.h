@@ -54,8 +54,8 @@ public:
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(
-			const_shared_ptr<void> value) const;
+	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
+			const TypeTable& container) const;
 
 	const BasicType GetBasicType() const {
 		return m_basic_type;

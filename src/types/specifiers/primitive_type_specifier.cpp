@@ -143,7 +143,7 @@ const_shared_ptr<DeclarationStatement> PrimitiveTypeSpecifier::GetDeclarationSta
 }
 
 const_shared_ptr<Symbol> PrimitiveTypeSpecifier::GetSymbol(
-		const_shared_ptr<void> value) const {
+		const_shared_ptr<void> value, const TypeTable& container) const {
 	const BasicType basic_type = GetBasicType();
 	switch (basic_type) {
 	case BOOLEAN: {
