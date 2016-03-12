@@ -55,6 +55,9 @@ public:
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const;
 
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<void> value) const;
+
 private:
 	const_shared_ptr<TypeSpecifier> m_element_type_specifier;
 };

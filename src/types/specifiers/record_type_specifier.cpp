@@ -64,3 +64,8 @@ const_shared_ptr<void> RecordTypeSpecifier::DefaultValue(
 		return const_shared_ptr<RecordType>(); //ugh, nulls
 	}
 }
+
+const_shared_ptr<Symbol> RecordTypeSpecifier::GetSymbol(
+		const_shared_ptr<void> value) const {
+	return make_shared<Symbol>(static_pointer_cast<const Record>(value));
+}

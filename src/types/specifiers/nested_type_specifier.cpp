@@ -63,7 +63,6 @@ const_shared_ptr<void> NestedTypeSpecifier::DefaultValue(
 	auto as_sum_type = dynamic_pointer_cast<const SumType>(parent_type);
 	if (as_sum_type) {
 		auto sum_type_table = as_sum_type->GetTypeTable();
-
 		auto definition = sum_type_table->GetType<ConcreteType>(
 				*m_member_name);
 		return definition->GetDefaultValue(m_member_name);
@@ -101,4 +100,8 @@ bool NestedTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	} catch (std::bad_cast& e) {
 		return false;
 	}
+}
+
+const_shared_ptr<Symbol> NestedTypeSpecifier::GetSymbol(
+		const_shared_ptr<void> value) const {
 }

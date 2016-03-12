@@ -144,3 +144,8 @@ const_shared_ptr<StatementBlock> FunctionTypeSpecifier::GetDefaultStatementBlock
 
 	return statement_block;
 }
+
+const_shared_ptr<Symbol> FunctionTypeSpecifier::GetSymbol(
+		const_shared_ptr<void> value) const {
+	return make_shared<Symbol>(static_pointer_cast<const Function>(value));
+}
