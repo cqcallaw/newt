@@ -34,7 +34,7 @@ public:
 			m_type_name(type_name) {
 		m_default_value = make_shared<Sum>(
 				make_shared<SumTypeSpecifier>(m_type_name),
-				make_shared<string>(""), nullptr);
+				make_shared<string>("placeholder tag"), make_shared<int>(0));
 		m_default_symbol = make_shared<Symbol>(m_default_value);
 	}
 
