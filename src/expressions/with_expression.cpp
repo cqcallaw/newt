@@ -25,6 +25,7 @@
 #include <assignment_statement.h>
 #include <basic_variable.h>
 #include <record_type_specifier.h>
+#include <sum_type_specifier.h>
 #include <nested_type_specifier.h>
 #include <sum_type.h>
 
@@ -244,15 +245,67 @@ const ErrorListRef WithExpression::Validate(
 							instantiation->GetExpression()->GetType(
 									execution_context);
 					if (!expression_type->IsAssignableTo(member_type)) {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::ASSIGNMENT_TYPE_ERROR,
-												instantiation->GetExpression()->GetPosition().begin.line,
-												instantiation->GetExpression()->GetPosition().begin.column,
-												member_type->ToString(),
-												expression_type->ToString()),
-										errors);
+						auto as_sum_specifier = dynamic_pointer_cast<
+								const SumTypeSpecifier>(member_type);
+						if (as_sum_specifier) {
+							auto sum_type_name =
+									as_sum_specifier->GetTypeName();
+							auto sum_type =
+									execution_context->GetTypeTable()->GetType<
+											SumType>(sum_type_name);
+
+							if (sum_type) {
+								auto widening_analysis =
+										sum_type->AnalyzeWidening(
+												*expression_type,
+												*sum_type_name);
+
+								if (widening_analysis == AMBIGUOUS) {
+									errors =
+											ErrorList::From(
+													make_shared<Error>(
+															Error::SEMANTIC,
+															Error::AMBIGUOUS_WIDENING_CONVERSION,
+															instantiation->GetExpression()->GetPosition().begin.line,
+															instantiation->GetExpression()->GetPosition().begin.column,
+															member_type->ToString(),
+															expression_type->ToString()),
+													errors);
+								} else if (widening_analysis == INCOMPATIBLE) {
+									errors =
+											ErrorList::From(
+													make_shared<Error>(
+															Error::SEMANTIC,
+															Error::ASSIGNMENT_TYPE_ERROR,
+															instantiation->GetExpression()->GetPosition().begin.line,
+															instantiation->GetExpression()->GetPosition().begin.column,
+															member_type->ToString(),
+															expression_type->ToString()),
+													errors);
+								}
+							} else {
+								errors =
+										ErrorList::From(
+												make_shared<Error>(
+														Error::SEMANTIC,
+														Error::UNDECLARED_TYPE,
+														instantiation->GetNamePosition().begin.line,
+														instantiation->GetNamePosition().begin.column,
+														member_type->ToString()),
+												errors);
+							}
+						} else {
+							//not a sum type; this is categorically an error
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::ASSIGNMENT_TYPE_ERROR,
+													instantiation->GetExpression()->GetPosition().begin.line,
+													instantiation->GetExpression()->GetPosition().begin.column,
+													member_type->ToString(),
+													expression_type->ToString()),
+											errors);
+						}
 					}
 				} else {
 					//undefined member

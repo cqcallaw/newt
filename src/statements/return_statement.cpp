@@ -78,7 +78,6 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 									type_specifier->ToString(),
 									expression_type_specifier->ToString()),
 							errors);
-
 				}
 			}
 		} else {
