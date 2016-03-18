@@ -52,7 +52,7 @@ const ErrorListRef ToErrorListRef(const SetResult result,
 				errors);
 		break;
 	case INCOMPATIBLE_TYPE:
-		ErrorList::From(
+		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR, location.begin.line,
 						location.begin.column, symbol_type->ToString(),
