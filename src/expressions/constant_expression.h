@@ -25,6 +25,8 @@
 
 #include "expression.h"
 
+class Array;
+
 class ConstantExpression: public Expression {
 public:
 	ConstantExpression(const yy::location position, const bool value);
@@ -32,6 +34,8 @@ public:
 	ConstantExpression(const yy::location position, const double value);
 	ConstantExpression(const yy::location position,
 			const_shared_ptr<string> value);
+	ConstantExpression(const yy::location position,
+			const_shared_ptr<Array> value);
 	ConstantExpression(const ConstantExpression* other);
 	~ConstantExpression();
 

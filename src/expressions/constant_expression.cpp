@@ -43,6 +43,12 @@ ConstantExpression::ConstantExpression(const yy::location position,
 				std::static_pointer_cast<const void>(value)) {
 }
 
+ConstantExpression::ConstantExpression(const yy::location position,
+		const_shared_ptr<Array> value) :
+		ConstantExpression(position, value->GetTypeSpecifier(),
+				std::static_pointer_cast<const void>(value)) {
+}
+
 ConstantExpression::ConstantExpression(const ConstantExpression* other) :
 		ConstantExpression(other->GetPosition(), other->m_type, other->m_value) {
 }
