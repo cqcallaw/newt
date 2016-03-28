@@ -16,13 +16,20 @@ int t: 51
 Root Type Table:
 ----------------
 franken:
+	<sum>
 	as_string:
 		string
 	continuous:
 		double
 	discrete:
 		int
+
 franken_ctor:
-	(string) -> franken as_string ()
-	(double) -> franken continuous ()
-	(int) -> franken discrete ()
+	<record>
+	as_string:
+		(string) -> franken (Body Location: 7.4-12)
+	continuous:
+		(double) -> franken (Body Location: 6.4-13)
+	discrete:
+		(int) -> franken (Body Location: 5.2-9)
+

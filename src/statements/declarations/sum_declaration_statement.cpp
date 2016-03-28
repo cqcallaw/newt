@@ -40,6 +40,7 @@
 #include <return_statement.h>
 #include <sum_recursive_type.h>
 #include <with_expression.h>
+#include <function_type.h>
 
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 		const_shared_ptr<ComplexTypeSpecifier> type,
@@ -73,9 +74,9 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 			auto type = result->GetData<SumType>();
 			type_table->AddType(*GetName(), type);
 
-			//create a new read-only record type and record that contains the names of the variants mapped to type constructors
-			//auto constructor_map = make_shared<definition_map>();
-			auto constructor_instances = make_shared<SymbolTable>();
+			//create a new read-only record type that contains the names of the variants mapped to type constructors
+			auto constructor_types = make_shared<TypeTable>();
+			bool has_type_constructors = false;
 
 			if (ErrorList::IsTerminator(errors)) {
 				//generate a record type containing type constructor functions
@@ -134,28 +135,13 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 									Function>(function_signature,
 									statement_block, weak);
 
-							auto definition = make_shared<MemberDefinition>(
+							auto constructor_type_alias = make_shared<
+									AliasDefinition>(
+									execution_context->GetTypeTable(),
 									function_signature, function);
-//							constructor_map->insert(
-//									pair<const string,
-//											const_shared_ptr<MemberDefinition>>(
-//											*variant_name, definition));
-
-							auto symbol = make_shared<Symbol>(function);
-							auto insert_result =
-									constructor_instances->InsertSymbol(
-											*variant_name, symbol);
-
-							if (insert_result == SYMBOL_EXISTS) {
-								errors =
-										ErrorList::From(
-												make_shared<Error>(
-														Error::SEMANTIC,
-														Error::PREVIOUS_DECLARATION,
-														declaration->GetPosition().begin.line,
-														declaration->GetPosition().begin.column,
-														*variant_name), errors);
-							}
+							constructor_types->AddType(*variant_name,
+									constructor_type_alias);
+							has_type_constructors = true;
 						}
 					}
 
@@ -253,32 +239,33 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 				}
 			}
 
-//			if (ErrorList::IsTerminator(errors)
-//					&& constructor_map->size() > 0) {
-//				const_shared_ptr<string> ctor_type_name = make_shared<string>(
-//						*GetName() + "_ctor");
-//				auto specifier = make_shared<RecordTypeSpecifier>(
-//						ctor_type_name);
-//				auto type = make_shared<RecordType>(constructor_map,
-//						Modifier::Type::READONLY);
-//				type_table->AddType(*ctor_type_name, type);
-//
-//				auto constructor_map_record = make_shared<Record>(specifier,
-//						constructor_instances);
-//				auto instance_symbol = make_shared<Symbol>(
-//						constructor_map_record);
-//				auto insert_result = execution_context->InsertSymbol(*GetName(),
-//						instance_symbol);
-//				if (insert_result == SYMBOL_EXISTS) {
-//					errors =
-//							ErrorList::From(
-//									make_shared<Error>(Error::SEMANTIC,
-//											Error::PREVIOUS_DECLARATION,
-//											GetInitializerExpression()->GetPosition().begin.line,
-//											GetInitializerExpression()->GetPosition().begin.column,
-//											*GetName()), errors);
-//				}
-//			}
+			if (ErrorList::IsTerminator(errors) && has_type_constructors) {
+				const_shared_ptr<string> ctor_type_name = make_shared<string>(
+						*GetName() + "_ctor");
+				auto specifier = make_shared<RecordTypeSpecifier>(
+						ctor_type_name);
+				auto type = make_shared<RecordType>(constructor_types,
+						Modifier::Type::READONLY);
+				type_table->AddType(*ctor_type_name, type);
+
+				auto constructor_instances =
+						constructor_types->GetDefaultSymbolContext();
+				auto constructor_map_record = make_shared<Record>(specifier,
+						constructor_instances);
+				auto instance_symbol = make_shared<Symbol>(
+						constructor_map_record);
+				auto insert_result = execution_context->InsertSymbol(*GetName(),
+						instance_symbol);
+				if (insert_result == SYMBOL_EXISTS) {
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::PREVIOUS_DECLARATION,
+											GetInitializerExpression()->GetPosition().begin.line,
+											GetInitializerExpression()->GetPosition().begin.column,
+											*GetName()), errors);
+				}
+			}
 		}
 	} else {
 		errors = ErrorList::From(

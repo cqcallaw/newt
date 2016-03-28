@@ -14,10 +14,16 @@ number t: 2 {discrete}
 Root Type Table:
 ----------------
 number:
+	<sum>
 	continuous:
 		double
 	discrete:
 		int
+
 number_ctor:
-	(double) -> number continuous ()
-	(int) -> number discrete ()
+	<record>
+	continuous:
+		(double) -> number (Body Location: 14.4-13)
+	discrete:
+		(int) -> number (Body Location: 13.2-9)
+

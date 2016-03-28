@@ -15,13 +15,20 @@ franken t: "things" {as_string}
 Root Type Table:
 ----------------
 franken:
+	<sum>
 	as_string:
 		string
 	continuous:
 		double
 	discrete:
 		int
+
 franken_ctor:
-	(string) -> franken as_string ()
-	(double) -> franken continuous ()
-	(int) -> franken discrete ()
+	<record>
+	as_string:
+		(string) -> franken (Body Location: 4.4-12)
+	continuous:
+		(double) -> franken (Body Location: 3.4-13)
+	discrete:
+		(int) -> franken (Body Location: 2.2-9)
+
