@@ -75,8 +75,8 @@ protected:
 	Symbol(const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
 
 	virtual const_shared_ptr<Symbol> WithValue(
-			const_shared_ptr<TypeSpecifier> type,
-			const_shared_ptr<void> value) const;
+			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
+			const TypeTable& type_table) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_type;

@@ -33,8 +33,9 @@ VariableExpression::VariableExpression(const yy::location position,
 }
 
 const_shared_ptr<TypeSpecifier> VariableExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	return m_variable->GetType(execution_context);
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
+	return m_variable->GetType(execution_context, resolution);
 }
 
 const_shared_ptr<Result> VariableExpression::Evaluate(

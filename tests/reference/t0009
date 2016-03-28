@@ -9,4 +9,7 @@ my_struct s:
 Root Type Table:
 ----------------
 my_struct:
-	double x (0)
+	<record>
+	x:
+		double ( 0)
+

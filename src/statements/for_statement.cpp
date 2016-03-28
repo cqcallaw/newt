@@ -68,7 +68,8 @@ const ErrorListRef ForStatement::preprocess(
 	//can't nest this loop because m_initial might be empty
 	if (m_loop_expression
 			&& !(m_loop_expression->GetType(execution_context)->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetInt()))) {
+					PrimitiveTypeSpecifier::GetInt(),
+					execution_context->GetTypeTable()))) {
 		yy::location position = m_loop_expression->GetPosition();
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,

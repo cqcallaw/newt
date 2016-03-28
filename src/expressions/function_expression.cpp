@@ -38,7 +38,8 @@ FunctionExpression::~FunctionExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> FunctionExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
 	return m_declaration;
 }
 

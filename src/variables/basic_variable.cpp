@@ -54,7 +54,8 @@ const_shared_ptr<string> BasicVariable::ToString(
 }
 
 const_shared_ptr<TypeSpecifier> BasicVariable::GetType(
-		const shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context,
+		AliasResolution resolution) const {
 	auto symbol = context->GetSymbol(GetName(), DEEP);
 	return symbol->GetType();
 }
@@ -228,7 +229,8 @@ const ErrorListRef BasicVariable::AssignValue(
 			auto expression_type = expression->GetType(context);
 
 			plain_shared_ptr<Sum> new_sum;
-			if (expression_type->IsAssignableTo(symbol_type)) {
+			if (expression_type->IsAssignableTo(symbol_type,
+					context->GetTypeTable())) {
 				//we're re-assigning
 				new_sum = expression_evaluation->GetData<Sum>();
 			} else {
@@ -264,15 +266,14 @@ const ErrorListRef BasicVariable::AssignValue(
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto parent_type_definition = context->GetTypeTable()->GetType<
-					ComplexType>(
-					as_nested_specifier->GetParent()->GetTypeName());
+					ComplexType>(as_nested_specifier->GetParent());
 
 			if (parent_type_definition) {
 				auto as_sum = dynamic_pointer_cast<const SumType>(
 						parent_type_definition);
 
 				if (as_sum) {
-					auto child_record_type = as_sum->GetTypeTable()->GetType<
+					auto child_record_type = as_sum->GetDefinition()->GetType<
 							RecordType>(as_nested_specifier->GetMemberName());
 					if (child_record_type) {
 						auto value = expression_evaluation->GetData<Record>();
@@ -298,7 +299,8 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<bool> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetBoolean());
 }
 
@@ -306,7 +308,8 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<int> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetInt());
 }
 
@@ -314,7 +317,8 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<double> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetDouble());
 }
 
@@ -322,7 +326,8 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<string> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
 			symbol->GetType(), PrimitiveTypeSpecifier::GetString());
 }
 
@@ -330,7 +335,8 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Array> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
 			symbol->GetType(), value->GetTypeSpecifier());
 }
 
@@ -339,15 +345,17 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const_shared_ptr<Record> value,
 		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value, container),
-			symbol->GetType(), value->GetTypeSpecifier());
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable(),
+					container), symbol->GetType(), value->GetTypeSpecifier());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Function> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
 			symbol->GetType(), value->GetType());
 }
 
@@ -355,7 +363,8 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Sum> sum) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), sum),
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), sum, context->GetTypeTable()),
 			symbol->GetType(), sum->GetType());
 }
 

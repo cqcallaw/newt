@@ -49,43 +49,29 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 	auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
-		//make sure we have a sum type specifier, since the parser produces record type specifiers by default
-		auto parent_type_specifier = make_shared<SumTypeSpecifier>(
-				m_type->GetParent());
+		auto type_table = execution_context->GetTypeTable();
+		auto type = m_type->GetType(type_table);
 
-		auto parent_sum_type = execution_context->GetTypeTable()->GetType<
-				SumType>(parent_type_specifier->GetTypeName());
-		if (parent_sum_type) {
-			auto type_name = m_type->GetMemberName();
-
-			shared_ptr<const Sum> value;
+		if (type) {
+			shared_ptr<const Symbol> symbol = Symbol::GetDefaultSymbol();
 			auto initializer_expression = GetInitializerExpression();
 			if (initializer_expression) {
 				errors = initializer_expression->Validate(execution_context);
 
 				if (ErrorList::IsTerminator(errors)) {
-					if (initializer_expression->IsConstant()) {
-						auto result = initializer_expression->Evaluate(
-								execution_context);
+					auto result = initializer_expression->Evaluate(
+							execution_context);
 
-						errors = result->GetErrors();
-						if (ErrorList::IsTerminator(errors)) {
-							value = make_shared<Sum>(
-									static_pointer_cast<const SumTypeSpecifier>(
-											parent_type_specifier),
-									m_type->GetMemberName(),
-									result->GetRawData());
-						}
+					errors = result->GetErrors();
+					if (ErrorList::IsTerminator(errors)) {
+						symbol = type->GetSymbol(result->GetData<void>(),
+								m_type->GetParent());
 					}
 				}
-			} else {
-				value = Sum::GetDefaultInstance(
-						m_type->GetParent()->GetTypeName(), *parent_sum_type);
 			}
 
-			if (ErrorList::IsTerminator(errors)) {
-				auto symbol = make_shared<Symbol>(value);
-
+			if (ErrorList::IsTerminator(errors)
+					&& symbol != Symbol::GetDefaultSymbol()) {
 				volatile_shared_ptr<SymbolTable> symbol_table =
 						static_pointer_cast<SymbolTable>(execution_context);
 				InsertResult insert_result = symbol_table->InsertSymbol(
@@ -104,6 +90,67 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 									GetInitializerExpression()->GetPosition().begin.column,
 									m_type->ToString()), errors);
 		}
+
+//		auto parent_type_specifier = m_type->GetParent();
+//		auto parent_complex_type = execution_context->GetTypeTable()->GetType<
+//				ComplexType>(parent_type_specifier);
+//		if (parent_complex_type) {
+//			//auto type_name = m_type->GetMemberName();
+//
+//			//shared_ptr<const Sum> value;
+//			shared_ptr<const Symbol> symbol = Symbol::GetDefaultSymbol();
+//			auto initializer_expression = GetInitializerExpression();
+//			if (initializer_expression) {
+//				errors = initializer_expression->Validate(execution_context);
+//
+//				if (ErrorList::IsTerminator(errors)) {
+//					if (initializer_expression->IsConstant()) {
+//						auto result = initializer_expression->Evaluate(
+//								execution_context);
+//
+//						errors = result->GetErrors();
+//						if (ErrorList::IsTerminator(errors)) {
+//							symbol = parent_complex_type->GetSymbol(
+//									result->GetData<void>(),
+//									m_type->GetParent());
+//
+////							value = make_shared<Sum>(
+////									static_pointer_cast<const SumTypeSpecifier>(
+////											parent_type_specifier),
+////									m_type->GetMemberName(),
+////									result->GetRawData());
+//						}
+//					}
+//				}
+//			}
+////			else {
+////				value = Sum::GetDefaultInstance(
+////						m_type->GetParent()->GetTypeName(),
+////						*parent_complex_type);
+////			}
+//
+//			if (ErrorList::IsTerminator(errors)
+//					&& symbol != Symbol::GetDefaultSymbol()) {
+////				auto symbol = make_shared<Symbol>(value);
+//
+//				volatile_shared_ptr<SymbolTable> symbol_table =
+//						static_pointer_cast<SymbolTable>(execution_context);
+//				InsertResult insert_result = symbol_table->InsertSymbol(
+//						*GetName(), symbol);
+//
+//				if (insert_result != INSERT_SUCCESS) {
+//					assert(false);
+//				}
+//			}
+//		} else {
+//			errors =
+//					ErrorList::From(
+//							make_shared<Error>(Error::SEMANTIC,
+//									Error::UNDECLARED_TYPE,
+//									GetInitializerExpression()->GetPosition().begin.line,
+//									GetInitializerExpression()->GetPosition().begin.column,
+//									m_type->ToString()), errors);
+//		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,

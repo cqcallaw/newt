@@ -69,12 +69,13 @@ const void ExecutionContext::print(ostream& os, const TypeTable& type_table,
 }
 
 SetResult ExecutionContext::SetSymbol(const string& identifier,
-		const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value) {
-	auto result = SymbolContext::SetSymbol(identifier, type, value);
+		const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
+		const TypeTable& type_table) {
+	auto result = SymbolContext::SetSymbol(identifier, type, value, type_table);
 
 	if (result == UNDEFINED_SYMBOL && m_parent) {
 		auto context = m_parent->GetData();
-		return context->SetSymbol(identifier, type, value);
+		return context->SetSymbol(identifier, type, value, type_table);
 	} else {
 		return result;
 	}

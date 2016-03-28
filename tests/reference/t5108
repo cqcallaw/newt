@@ -13,6 +13,11 @@ int s: 9
 Root Type Table:
 ----------------
 point:
-	(int) -> int squared ()
-	int x (0)
-	int y (0)
+	<record>
+	squared:
+		(int) -> int (Body Location: [default location])
+	x:
+		int ( 0)
+	y:
+		int ( 0)
+

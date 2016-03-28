@@ -44,7 +44,7 @@ const ErrorListRef MatchStatement::preprocess(
 		if (expression_type_as_sum) {
 
 			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
-					expression_type_as_sum->GetTypeName());
+					expression_type_as_sum);
 
 			shared_ptr<std::set<std::string>> match_names = make_shared<
 					std::set<std::string>>();
@@ -57,9 +57,10 @@ const ErrorListRef MatchStatement::preprocess(
 					auto match = match_list->GetData();
 					auto match_name = match->GetName();
 					auto match_body = match->GetBlock();
+					auto table = sum_type->GetDefinition();
 
-					auto variant_type = sum_type->GetTypeTable()->GetType<
-							ConcreteType>(match_name);
+					auto variant_type = table->GetType < ConcreteType
+							> (match_name);
 					if (variant_type) {
 						if (match_names->find(*match_name)
 								== match_names->end()) {
@@ -70,7 +71,8 @@ const ErrorListRef MatchStatement::preprocess(
 											EPHEMERAL);
 
 							const_shared_ptr<void> default_value =
-									variant_type->GetDefaultValue(match_name);
+									variant_type->GetDefaultValue(match_name,
+											*table);
 							const_shared_ptr<Symbol> default_symbol =
 									variant_type->GetSymbol(default_value,
 											expression_type_as_sum);
@@ -105,7 +107,7 @@ const ErrorListRef MatchStatement::preprocess(
 					match_list = match_list->GetNext();
 				}
 
-				auto sum_table = sum_type->GetTypeTable();
+				auto sum_table = sum_type->GetDefinition();
 				auto variant_names = sum_table->GetTypeNames();
 				if (*variant_names != *match_names) {
 					if (default_match_block) {
@@ -181,7 +183,7 @@ const ErrorListRef MatchStatement::execute(
 			auto tag = *as_sum->GetTag();
 
 			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
-					expression_type_as_sum->GetTypeName());
+					expression_type_as_sum);
 			if (sum_type) {
 				shared_ptr<const StatementBlock> default_match_block = nullptr;
 				bool matched = false;
@@ -193,8 +195,8 @@ const ErrorListRef MatchStatement::execute(
 
 					if (match_name == tag) {
 						matched = true;
-						auto variant_type = sum_type->GetTypeTable()->GetType<
-								ConcreteType>(match_name);
+						auto variant_type = sum_type->GetDefinition()->GetType
+								< ConcreteType > (match_name);
 						if (variant_type) {
 							auto block_context =
 									ExecutionContext::GetEmptyChild(

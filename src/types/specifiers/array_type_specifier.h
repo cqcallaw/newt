@@ -37,8 +37,8 @@ public:
 
 	virtual const string ToString() const;
 
-	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const;
+	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
+			const TypeTable& type_table) const;
 
 	virtual const_shared_ptr<void> DefaultValue(
 			const TypeTable& type_table) const;
@@ -57,6 +57,10 @@ public:
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
 			const TypeTable& container) const;
+
+	virtual const_shared_ptr<TypeDefinition> GetType(
+			const TypeTable& type_table, AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_element_type_specifier;

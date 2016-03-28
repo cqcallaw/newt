@@ -50,8 +50,8 @@ public:
 	}
 
 	virtual const std::string ToString() const;
-	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const;
+	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
+			const TypeTable& type_table) const;
 	virtual const_shared_ptr<void> DefaultValue(
 			const TypeTable& type_table) const;
 
@@ -67,6 +67,9 @@ public:
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
+	virtual const_shared_ptr<TypeDefinition> GetType(
+			const TypeTable& type_table, AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 private:
 	const_shared_ptr<std::string> m_type_name;
 	const NamespaceQualifierListRef m_space;

@@ -57,7 +57,8 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 	auto errors = ErrorList::GetTerminator();
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			m_expression->GetType(execution_context);
-	if (!expression_type_specifier->IsAssignableTo(type_specifier)) {
+	if (!expression_type_specifier->IsAssignableTo(type_specifier,
+			execution_context->GetTypeTable())) {
 		auto as_sum_specifier = dynamic_pointer_cast<const SumTypeSpecifier>(
 				type_specifier);
 		if (as_sum_specifier) {

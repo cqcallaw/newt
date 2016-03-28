@@ -25,10 +25,11 @@
 #include <map>
 #include <set>
 #include <alias_definition.h>
+#include <complex_type_specifier.h>
 
 class TypeDefinition;
 class RecordType;
-class ComplexTypeSpecifier;
+class SymbolContext;
 
 typedef map<const string, const_shared_ptr<TypeDefinition>> type_map;
 
@@ -47,22 +48,37 @@ public:
 			const_shared_ptr<TypeDefinition> definition);
 
 	template<class T> const shared_ptr<const T> GetType(
-			const_shared_ptr<std::string> name) const {
-		return GetType<T>(*name);
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			AliasResolution resolution = RESOLVE) const {
+		return GetType<T>(*type_specifier, resolution);
 	}
 
 	template<class T> const shared_ptr<const T> GetType(
-			const std::string& name) const {
+			const ComplexTypeSpecifier& type_specifier,
+			AliasResolution resolution = RESOLVE) const {
+		return GetType<T>(type_specifier.GetTypeName(), resolution);
+	}
+
+	template<class T> const shared_ptr<const T> GetType(
+			const_shared_ptr<std::string> name, AliasResolution resolution =
+					RESOLVE) const {
+		return GetType<T>(*name, resolution);
+	}
+
+	template<class T> const shared_ptr<const T> GetType(const std::string& name,
+			AliasResolution resolution = RESOLVE) const {
 		auto result = m_table->find(name);
 
 		if (result != m_table->end()) {
 			shared_ptr<const TypeDefinition> value = result->second;
 
-			// handle aliases
-			auto as_alias = std::dynamic_pointer_cast<const AliasDefinition>(
-					value);
-			if (as_alias) {
-				value = as_alias->GetOrigin();
+			if (resolution == RESOLVE) {
+				// handle aliases
+				auto as_alias =
+						std::dynamic_pointer_cast<const AliasDefinition>(value);
+				if (as_alias) {
+					value = as_alias->GetOrigin();
+				}
 			}
 
 			auto cast = dynamic_pointer_cast<const T>(value);
@@ -75,6 +91,8 @@ public:
 
 		return shared_ptr<const T>();
 	}
+
+	volatile_shared_ptr<SymbolContext> GetDefaultSymbolContext() const;
 
 	const bool ContainsType(const ComplexTypeSpecifier& type_specifier);
 

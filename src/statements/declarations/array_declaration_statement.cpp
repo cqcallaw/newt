@@ -66,7 +66,8 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							initializer_expression_type);
 			if (!as_array
-					|| !initializer_expression_type->IsAssignableTo(m_type)) {
+					|| !initializer_expression_type->IsAssignableTo(m_type,
+							execution_context->GetTypeTable())) {
 				errors =
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
@@ -120,7 +121,8 @@ const ErrorListRef ArrayDeclarationStatement::execute(
 		if (ErrorList::IsTerminator(errors)) {
 			auto array = initializer_result->GetData<Array>();
 			auto symbol_context = execution_context;
-			SetResult result = symbol_context->SetSymbol(*GetName(), array);
+			SetResult result = symbol_context->SetSymbol(*GetName(), array,
+					execution_context->GetTypeTable());
 			errors = ToErrorListRef(result,
 					GetInitializerExpression()->GetPosition(), GetName(),
 					symbol_context->GetSymbol(GetName(), SHALLOW)->GetType(),

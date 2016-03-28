@@ -43,8 +43,8 @@ public:
 	virtual ~RecordTypeSpecifier() {
 	}
 
-	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const;
+	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
+			const TypeTable& type_table) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
@@ -59,6 +59,10 @@ public:
 			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier& other) const;
+
+	virtual const_shared_ptr<TypeDefinition> GetType(
+			const TypeTable& type_table, AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<std::string> GetTypeName() const {
 		return m_type_name;

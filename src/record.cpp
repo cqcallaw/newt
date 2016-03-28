@@ -27,26 +27,13 @@ const_shared_ptr<Record> Record::GetDefaultInstance(
 		const_shared_ptr<std::string> type_name, const RecordType& type) {
 	auto symbol_mapping = make_shared<symbol_map>();
 
-	plain_shared_ptr<definition_map> type_definition = type.GetDefinition();
-	definition_map::const_iterator iter;
-
-	auto symbol_table = make_shared<SymbolTable>(type.GetModifiers());
-
-	for (iter = type_definition->begin(); iter != type_definition->end();
-			++iter) {
-		const string member_name = iter->first;
-		const_shared_ptr<MemberDefinition> member_type_information =
-				iter->second;
-
-		auto symbol = member_type_information->GetType()->GetSymbol(
-				member_type_information->GetDefaultValue(), TypeTable());
-		symbol_table->InsertSymbol(member_name, symbol);
-	}
+	auto type_definition = type.GetDefinition();
+	auto default_symbols = type_definition->GetDefaultSymbolContext();
 
 	const_shared_ptr<RecordTypeSpecifier> type_specifier = make_shared<
 			RecordTypeSpecifier>(type_name);
 
-	return make_shared<Record>(Record(type_specifier, symbol_table));
+	return make_shared<Record>(type_specifier, default_symbols);
 }
 
 const string Record::ToString(const TypeTable& type_table,

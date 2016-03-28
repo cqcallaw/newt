@@ -53,43 +53,59 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	//TODO: validate that all members are initialized for readonly structs (?)
 
-	auto type_name = m_type_specifier->GetTypeName();
-	const_shared_ptr<ComplexType> type =
-			execution_context->GetTypeTable()->GetType<ComplexType>(type_name);
+	auto type = m_type_specifier->GetType(execution_context->GetTypeTable());
+//	auto type_name = m_type_specifier->GetTypeName();
+//	const_shared_ptr<ComplexType> type =
+//			execution_context->GetTypeTable()->GetType<ComplexType>(type_name);
 	if (type) {
-		auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
-		if (existing == Symbol::GetDefaultSymbol()) {
-			auto result = type->PreprocessSymbol(execution_context,
-					m_type_specifier, GetInitializerExpression());
+		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 
-			errors = result->GetErrors();
-			if (ErrorList::IsTerminator(errors)) {
-				auto symbol = result->GetData<Symbol>();
-				if (symbol) {
-					const InsertResult insert_result =
-							execution_context->InsertSymbol(*GetName(), symbol);
+		if (as_complex) {
+			auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
+			if (existing == Symbol::GetDefaultSymbol()) {
+				auto result = as_complex->PreprocessSymbol(execution_context,
+						m_type_specifier, GetInitializerExpression());
 
-					if (insert_result != INSERT_SUCCESS) {
+				errors = result->GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					auto symbol = result->GetData<Symbol>();
+					if (symbol) {
+						auto name = *GetName();
+						const InsertResult insert_result =
+								execution_context->InsertSymbol(name, symbol);
+
+						if (insert_result != INSERT_SUCCESS) {
+							assert(false);
+						}
+					} else {
 						assert(false);
 					}
-				} else {
-					assert(false);
 				}
+			} else {
+				//symbol already exists
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::PREVIOUS_DECLARATION,
+								m_type_position.begin.line,
+								m_type_position.begin.column, *GetName()),
+						errors);
 			}
 		} else {
-			//symbol already exists
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::PREVIOUS_DECLARATION,
+							Error::NOT_A_COMPOUND_TYPE,
 							m_type_position.begin.line,
-							m_type_position.begin.column, *GetName()), errors);
+							m_type_position.begin.column,
+							m_type_specifier->ToString()), errors);
 		}
 	} else {
+		auto string = m_type_specifier->ToString();
 		//type does not exist
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 						m_type_position.begin.line,
-						m_type_position.begin.column, *type_name), errors);
+						m_type_position.begin.column,
+						m_type_specifier->ToString()), errors);
 	}
 
 	return errors;

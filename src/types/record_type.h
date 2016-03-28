@@ -31,19 +31,18 @@
 class MemberDefinition;
 class Result;
 class ComplexTypeSpecifier;
-
-typedef map<const std::string, const_shared_ptr<MemberDefinition>> definition_map;
+class TypeTable;
 
 using namespace std;
 class RecordType: public ComplexType {
 public:
-	RecordType(const_shared_ptr<definition_map> definition,
+	RecordType(const_shared_ptr<TypeTable> definition,
 			const Modifier::Type modifiers);
 	virtual ~RecordType();
-	const_shared_ptr<MemberDefinition> GetMember(const std::string& name) const;
+	const_shared_ptr<TypeDefinition> GetMember(const std::string& name) const;
 
-	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
-			const std::string& member_name) const;
+	virtual const_shared_ptr<TypeSpecifier> GetMemberTypeSpecifier(
+			const_shared_ptr<std::string> member_name) const;
 
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
 			const_shared_ptr<std::string> member_name) const;
@@ -55,23 +54,27 @@ public:
 			const Indent& indent, const_shared_ptr<void> value) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name) const;
+			const_shared_ptr<std::string> type_name,
+			const TypeTable& type_table) const;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
 			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
 
-	const_shared_ptr<definition_map> GetDefinition() const {
+	virtual const_shared_ptr<TypeTable> GetDefinition() const {
 		return m_definition;
 	}
 
 	static const_shared_ptr<Result> Build(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const Modifier::Type modifiers,
 			const DeclarationListRef member_declarations);
 
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;
 	}
+
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const_shared_ptr<std::string> name) const;
 
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const;
@@ -88,7 +91,7 @@ protected:
 			const_shared_ptr<void> data) const;
 
 private:
-	const_shared_ptr<definition_map> m_definition;
+	const_shared_ptr<TypeTable> m_definition;
 	const Modifier::Type m_modifiers;
 };
 

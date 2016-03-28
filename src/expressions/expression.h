@@ -42,7 +42,9 @@ public:
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> execution_context) const = 0;
+			const shared_ptr<ExecutionContext> execution_context,
+			AliasResolution resolution =
+					AliasResolution::RESOLVE) const = 0;
 
 	virtual const_shared_ptr<Result> Evaluate(
 			const shared_ptr<ExecutionContext> execution_context) const = 0;

@@ -61,7 +61,8 @@ const ErrorListRef AssignmentStatement::preprocess(
 			const_shared_ptr<TypeSpecifier> expression_type =
 					m_expression->GetType(execution_context);
 			if (as_primitive) {
-				if (expression_type->IsAssignableTo(symbol_type)) {
+				if (expression_type->IsAssignableTo(symbol_type,
+						execution_context->GetTypeTable())) {
 					errors = ErrorList::GetTerminator();
 				} else {
 					const yy::location variable_location =
@@ -80,7 +81,8 @@ const ErrorListRef AssignmentStatement::preprocess(
 					dynamic_pointer_cast<const ArrayTypeSpecifier>(symbol_type);
 			if (as_array) {
 				//reassigning raw array reference, not an array element
-				if (!expression_type->IsAssignableTo(symbol_type)) {
+				if (!expression_type->IsAssignableTo(symbol_type,
+						execution_context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
 					errors = ErrorList::From(
@@ -98,7 +100,8 @@ const ErrorListRef AssignmentStatement::preprocess(
 							symbol_type);
 			if (as_record) {
 				//reassigning raw struct reference, not a member
-				if (!expression_type->IsAssignableTo(symbol_type)) {
+				if (!expression_type->IsAssignableTo(symbol_type,
+						execution_context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
 					const string struct_type_name = *as_record->GetTypeName();
@@ -123,7 +126,8 @@ const ErrorListRef AssignmentStatement::preprocess(
 						m_expression->GetType(execution_context);
 				const_shared_ptr<TypeSpecifier> element_type =
 						array_variable->GetElementType(execution_context);
-				if (!expression_type->IsAssignableTo(element_type)) {
+				if (!expression_type->IsAssignableTo(element_type,
+						execution_context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
 					errors = ErrorList::From(
@@ -148,7 +152,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 			if (as_record) {
 				const_shared_ptr<RecordType> type =
 						execution_context->GetTypeTable()->GetType<RecordType>(
-								as_record->GetTypeName());
+								as_record);
 
 				if (type) {
 					if (!(type->GetModifiers() & Modifier::Type::READONLY)) {
@@ -161,7 +165,8 @@ const ErrorListRef AssignmentStatement::preprocess(
 									m_expression->GetType(execution_context);
 
 							if (!expression_type->IsAssignableTo(
-									member_variable_type)) {
+									member_variable_type,
+									execution_context->GetTypeTable())) {
 								errors =
 										ErrorList::From(
 												make_shared<Error>(

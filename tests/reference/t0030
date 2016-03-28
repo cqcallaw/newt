@@ -36,4 +36,7 @@ test[][] d:
 Root Type Table:
 ----------------
 test:
-	int x (10)
+	<record>
+	x:
+		int ( 10)
+

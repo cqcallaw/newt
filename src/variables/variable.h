@@ -39,7 +39,9 @@ public:
 			const shared_ptr<ExecutionContext> context) const = 0;
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> context) const = 0;
+			const shared_ptr<ExecutionContext> context,
+			AliasResolution resolution =
+					AliasResolution::RESOLVE) const = 0;
 
 	const_shared_ptr<std::string> GetName() const {
 		return m_name;

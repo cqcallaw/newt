@@ -41,6 +41,11 @@ public:
 	virtual ~SumRecursiveType() {
 	}
 
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const_shared_ptr<std::string> name) const {
+		return make_shared<SumTypeSpecifier>(name);
+	}
+
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const {
 		return name == *m_type_name;
@@ -63,7 +68,8 @@ public:
 	}
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name) const {
+			const_shared_ptr<std::string> type_name,
+			const TypeTable& type_table) const {
 		return m_default_value;
 	}
 
@@ -72,14 +78,19 @@ public:
 		return m_default_symbol;
 	}
 
-	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
-			const std::string& member_name) const {
+	virtual const_shared_ptr<TypeSpecifier> GetMemberTypeSpecifier(
+			const_shared_ptr<std::string> member_name) const {
 		assert(false);
 		return nullptr;
 	}
 
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
 			const_shared_ptr<std::string> member_name) const {
+		assert(false);
+		return nullptr;
+	}
+
+	virtual const_shared_ptr<TypeTable> GetDefinition() const {
 		assert(false);
 		return nullptr;
 	}

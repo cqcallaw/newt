@@ -57,7 +57,8 @@ ConstantExpression::~ConstantExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> ConstantExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
 	return m_type;
 }
 

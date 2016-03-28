@@ -23,11 +23,13 @@
 #include <defaults.h>
 #include <string>
 #include <linked_list.h>
+#include <alias_resolution.h>
 
 class Expression;
 class DeclarationStatement;
 class TypeTable;
 class Symbol;
+class TypeDefinition;
 
 class TypeSpecifier {
 public:
@@ -35,8 +37,8 @@ public:
 	}
 
 	virtual const std::string ToString() const = 0;
-	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const = 0;
+	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
+			const TypeTable& type_table) const = 0;
 	virtual const_shared_ptr<void> DefaultValue(
 			const TypeTable& type_table) const = 0;
 
@@ -53,6 +55,15 @@ public:
 
 	virtual bool operator!=(const TypeSpecifier &other) const {
 		return !(*this == other);
+	}
+
+	virtual const_shared_ptr<TypeDefinition> GetType(
+			const TypeTable& type_table, AliasResolution resolution =
+					AliasResolution::RESOLVE) const = 0;
+
+	virtual const_shared_ptr<TypeSpecifier> ResolveAliasing(
+			const TypeTable& type_table) const {
+		return const_shared_ptr<TypeSpecifier>();
 	}
 };
 

@@ -23,6 +23,7 @@
 #include <complex_type_specifier.h>
 #include <sum_recursive_type.h>
 #include <memory>
+#include <symbol_context.h>
 
 void TypeTable::AddType(const std::string& name,
 		const_shared_ptr<TypeDefinition> definition) {
@@ -50,6 +51,7 @@ const void TypeTable::print(ostream& os, const Indent& indent) const {
 		os << iter->first << ":" << endl;
 		const_shared_ptr<TypeDefinition> type = iter->second;
 		os << type->ToString(*this, indent);
+		os << endl;
 	}
 }
 
@@ -89,7 +91,25 @@ const bool TypeTable::ContainsType(const ComplexTypeSpecifier& type_specifier) {
 }
 
 const bool TypeTable::ContainsType(const string& name) {
-	return m_table->find(name) != m_table->end();
+	return (bool) GetType<const TypeDefinition>(name);
+}
+
+volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext() const {
+	volatile_shared_ptr<SymbolTable> result = make_shared<SymbolTable>();
+
+	for (const auto &entry : *m_table) {
+		auto name = entry.first;
+		auto type = entry.second;
+
+		auto default_value = type->GetDefaultValue(
+				make_shared<std::string>(name), *this);
+
+		auto default_symbol = type->GetSymbol(default_value);
+		auto insert_result = result->InsertSymbol(name, default_symbol);
+		assert(insert_result == INSERT_SUCCESS);
+	}
+
+	return result;
 }
 
 const_shared_ptr<std::set<std::string>> TypeTable::GetTypeNames() const {

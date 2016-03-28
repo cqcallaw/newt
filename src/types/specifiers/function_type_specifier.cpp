@@ -28,6 +28,7 @@
 #include <return_statement.h>
 #include <statement_block.h>
 #include <function.h>
+#include <function_type.h>
 #include <function_declaration.h>
 #include <execution_context.h>
 #include <type_table.h>
@@ -68,8 +69,18 @@ const string FunctionTypeSpecifier::ToString() const {
 }
 
 const bool FunctionTypeSpecifier::IsAssignableTo(
-		const_shared_ptr<TypeSpecifier> other) const {
-	return *this == *other;
+		const_shared_ptr<TypeSpecifier> other,
+		const TypeTable& type_table) const {
+	if (*this == *other) {
+		return true;
+	}
+
+	auto un_aliased = other->ResolveAliasing(type_table);
+	if (un_aliased) {
+		return *this == *un_aliased;
+	}
+
+	return false;
 }
 
 const_shared_ptr<void> FunctionTypeSpecifier::DefaultValue(
@@ -116,6 +127,12 @@ const_shared_ptr<DeclarationStatement> FunctionTypeSpecifier::GetDeclarationStat
 	return make_shared<FunctionDeclarationStatement>(position,
 			static_pointer_cast<const FunctionTypeSpecifier>(type),
 			type_position, name, name_position, initializer_expression);
+}
+
+const_shared_ptr<TypeDefinition> FunctionTypeSpecifier::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	return make_shared<const FunctionType>(m_parameter_type_list, m_return_type,
+			m_return_type_location);
 }
 
 const_shared_ptr<Function> FunctionTypeSpecifier::GetDefaultFunction(

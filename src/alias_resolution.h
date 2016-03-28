@@ -17,17 +17,11 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPES_CONCRETE_TYPE_H_
-#define TYPES_CONCRETE_TYPE_H_
+#ifndef ALIAS_RESOLUTION_H_
+#define ALIAS_RESOLUTION_H_
 
-#include <type_definition.h>
-
-class ConcreteType: public TypeDefinition {
-public:
-	ConcreteType() {
-	}
-	virtual ~ConcreteType() {
-	}
+enum AliasResolution {
+	RESOLVE = 0, RETURN = 1
 };
 
-#endif /* TYPES_CONCRETE_TYPE_H_ */
+#endif /* ALIAS_RESOLUTION_H_ */

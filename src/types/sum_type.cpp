@@ -43,7 +43,8 @@ const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
-	m_type_table->print(os, child_indent);
+	os << child_indent << "<sum>" << endl;
+	m_definition->print(os, child_indent);
 	return os.str();
 }
 
@@ -121,7 +122,7 @@ const_shared_ptr<Result> SumType::Build(
 								original_name);
 						if (original) {
 							auto alias = make_shared<AliasDefinition>(
-									type_table, original_name);
+									type_table, original_as_record);
 							types->AddType(alias_type_name, alias);
 						} else {
 							errors =
@@ -174,7 +175,7 @@ const WideningResult SumType::AnalyzeWidening(const TypeSpecifier& other,
 	try {
 		auto as_nested = dynamic_cast<const NestedTypeSpecifier&>(other);
 		if (*(as_nested.GetParent()->GetTypeName()) == sum_type_name) {
-			if (m_type_table->GetType<ConcreteType>(
+			if (m_definition->GetType<ConcreteType>(
 					*as_nested.GetMemberName())) {
 				return UNAMBIGUOUS;
 			}
@@ -182,7 +183,7 @@ const WideningResult SumType::AnalyzeWidening(const TypeSpecifier& other,
 	} catch (std::bad_cast& e) {
 	}
 
-	auto count = m_type_table->CountEntriesOfType(other);
+	auto count = m_definition->CountEntriesOfType(other);
 
 	if (count > 1) {
 		return AMBIGUOUS;
@@ -208,7 +209,7 @@ const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 				dynamic_cast<const NestedTypeSpecifier&>(type_specifier);
 		if (*(as_nested.GetParent()->GetTypeName()) == sum_type_name) {
 			auto variant_name = as_nested.GetMemberName();
-			if (m_type_table->GetType<ConcreteType>(variant_name)) {
+			if (m_definition->GetType<ConcreteType>(variant_name)) {
 				return variant_name;
 			}
 		}
@@ -216,11 +217,12 @@ const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 	}
 
 	return make_shared<std::string>(
-			m_type_table->MapSpecifierToName(type_specifier));
+			m_definition->MapSpecifierToName(type_specifier));
 }
 
 const_shared_ptr<void> SumType::GetDefaultValue(
-		const_shared_ptr<std::string> type_name) const {
+		const_shared_ptr<std::string> type_name,
+		const TypeTable& type_table) const {
 	return Sum::GetDefaultInstance(type_name, *this);
 }
 
@@ -240,7 +242,8 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 	auto widening_analysis = AnalyzeWidening(*initializer_expression_type,
 			*type_name);
 
-	if (initializer_expression_type->IsAssignableTo(type_specifier)) {
+	if (initializer_expression_type->IsAssignableTo(type_specifier,
+			execution_context->GetTypeTable())) {
 		//generate default instance; actual assignment must be done in execute stage
 		//this is because assignment of constant expressions to sum types is only valid
 		//if the constant expression is narrower than the sum type
@@ -287,21 +290,28 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 
 }
 
-const_shared_ptr<TypeSpecifier> SumType::GetMemberType(
-		const std::string& member_name) const {
-	return m_type_table->GetType<TypeSpecifier>(member_name);
+const_shared_ptr<TypeSpecifier> SumType::GetMemberTypeSpecifier(
+		const_shared_ptr<std::string> member_name) const {
+	return m_definition->GetType<TypeDefinition>(*member_name)->GetTypeSpecifier(
+			member_name);
 }
 
 const_shared_ptr<void> SumType::GetMemberDefaultValue(
 		const_shared_ptr<std::string> member_name) const {
-	auto definition = m_type_table->GetType<ConcreteType>(member_name);
-	return definition->GetDefaultValue(member_name);
+	auto definition = m_definition->GetType<ConcreteType>(member_name);
+	return definition->GetDefaultValue(member_name, *m_definition);
+}
+
+const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
+		const_shared_ptr<std::string> name) const {
+	return make_shared<SumTypeSpecifier>(name);
 }
 
 const SetResult SumType::InstantiateCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Sum>(data);
-	auto set_result = execution_context->SetSymbol(instance_name, instance);
+	auto set_result = execution_context->SetSymbol(instance_name, instance,
+			execution_context->GetTypeTable());
 	return set_result;
 }

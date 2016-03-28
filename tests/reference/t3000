@@ -11,6 +11,11 @@ ronly i:
 Root Type Table:
 ----------------
 ronly:
-	int x (0)
-	double y (0)
-	string z ("")
+	<record>
+	x:
+		int ( 0)
+	y:
+		double ( 0)
+	z:
+		string ( "")
+

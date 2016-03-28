@@ -22,6 +22,7 @@
 #include <array_declaration_statement.h>
 #include <typeinfo>
 #include <expression.h>
+#include <array_type.h>
 
 const string ArrayTypeSpecifier::ToString() const {
 	ostringstream buffer;
@@ -58,15 +59,22 @@ const_shared_ptr<void> ArrayTypeSpecifier::DefaultValue(
 }
 
 const bool ArrayTypeSpecifier::IsAssignableTo(
-		const_shared_ptr<TypeSpecifier> other) const {
+		const_shared_ptr<TypeSpecifier> other,
+		const TypeTable& type_table) const {
 	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
 			const ArrayTypeSpecifier>(other);
 	return (as_array
 			&& m_element_type_specifier->IsAssignableTo(
-					as_array->GetElementTypeSpecifier()));
+					as_array->GetElementTypeSpecifier(), type_table));
 }
 
 const_shared_ptr<Symbol> ArrayTypeSpecifier::GetSymbol(
 		const_shared_ptr<void> value, const TypeTable& container) const {
 	return make_shared<Symbol>(static_pointer_cast<const Array>(value));
+}
+
+const_shared_ptr<TypeDefinition> ArrayTypeSpecifier::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	//TODO: cache this result, which should never change
+	return make_shared<ArrayType>(m_element_type_specifier);
 }

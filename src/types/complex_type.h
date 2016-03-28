@@ -48,11 +48,13 @@ public:
 			const_shared_ptr<std::string> instance_name,
 			const_shared_ptr<Expression> initializer) const;
 
-	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
-			const std::string& member_name) const = 0;
+	virtual const_shared_ptr<TypeSpecifier> GetMemberTypeSpecifier(
+			const_shared_ptr<std::string> member_name) const = 0;
 
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
 			const_shared_ptr<std::string> member_name) const = 0;
+
+	virtual const_shared_ptr<TypeTable> GetDefinition() const = 0;
 
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(

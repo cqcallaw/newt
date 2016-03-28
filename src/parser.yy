@@ -202,8 +202,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %token <double> DOUBLE_CONSTANT "double constant"
 %token <plain_shared_ptr<std::string>> STRING_CONSTANT "string constant"
 
-%left PERIOD
 %left LBRACKET
+%left PERIOD
 %left OR
 %left AND
 %left EQUAL NOT_EQUAL
@@ -244,8 +244,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<Statement>> print_statement
 %type <plain_shared_ptr<Statement>> for_statement
 %type <plain_shared_ptr<Statement>> exit_statement
-%type <plain_shared_ptr<Statement>> struct_declaration_statement
-%type <plain_shared_ptr<Statement>> sum_declaration_statement
+%type <plain_shared_ptr<DeclarationStatement>> struct_declaration_statement
+%type <plain_shared_ptr<DeclarationStatement>> sum_declaration_statement
 %type <plain_shared_ptr<Statement>> return_statement
 %type <plain_shared_ptr<Statement>> match_statement
 %type <DeclarationListRef> parameter_list
@@ -862,6 +862,14 @@ struct_declaration_statement:
 //---------------------------------------------------------------------
 declaration_list:
 	declaration_list variable_declaration
+	{
+		$$ = DeclarationList::From($2, $1);
+	}
+	| declaration_list struct_declaration_statement
+	{
+		$$ = DeclarationList::From($2, $1);
+	}
+	| declaration_list sum_declaration_statement
 	{
 		$$ = DeclarationList::From($2, $1);
 	}

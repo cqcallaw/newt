@@ -26,9 +26,13 @@ class Variable;
 
 class VariableExpression: public Expression {
 public:
-	VariableExpression(const yy::location position, const_shared_ptr<Variable> variable);
+	VariableExpression(const yy::location position,
+			const_shared_ptr<Variable> variable);
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(const shared_ptr<ExecutionContext> execution_context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetType(
+			const shared_ptr<ExecutionContext> execution_context,
+			AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
 			const shared_ptr<ExecutionContext> execution_context) const;
@@ -37,7 +41,8 @@ public:
 		return false;
 	}
 
-	virtual const ErrorListRef Validate(const shared_ptr<ExecutionContext> execution_context) const;
+	virtual const ErrorListRef Validate(
+			const shared_ptr<ExecutionContext> execution_context) const;
 
 	const_shared_ptr<Variable> GetVariable() const {
 		return m_variable;

@@ -42,8 +42,9 @@ WithExpression::~WithExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> WithExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	return m_source_expression->GetType(execution_context);
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
+	return m_source_expression->GetType(execution_context, resolution);
 }
 
 const_shared_ptr<Result> WithExpression::Evaluate(
@@ -69,11 +70,11 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 		if (as_nested) {
 			auto parent = as_nested->GetParent();
 			auto parent_type = execution_context->GetTypeTable()->GetType<
-					SumType>(parent->GetTypeName());
+					SumType>(parent);
 
 			if (parent_type) {
 				type_name = *as_nested->GetMemberName();
-				member_definition = parent_type->GetTypeTable()->GetType<
+				member_definition = parent_type->GetDefinition()->GetType<
 						ConcreteType>(type_name);
 			}
 		} else {
@@ -173,8 +174,9 @@ const ErrorListRef WithExpression::Validate(
 	ErrorListRef errors = m_source_expression->Validate(execution_context);
 
 	if (ErrorList::IsTerminator(errors)) {
-		const_shared_ptr<TypeSpecifier> type_specifier =
+		const_shared_ptr<TypeSpecifier> source_type_specifier =
 				m_source_expression->GetType(execution_context);
+		plain_shared_ptr<ComplexTypeSpecifier> complex_type_specifier = nullptr;
 
 		string type_name;
 		shared_ptr<const RecordType> type = nullptr;
@@ -182,23 +184,24 @@ const ErrorListRef WithExpression::Validate(
 
 		const_shared_ptr<NestedTypeSpecifier> as_nested =
 				std::dynamic_pointer_cast<const NestedTypeSpecifier>(
-						type_specifier);
-
+						source_type_specifier);
 		if (as_nested) {
 			auto parent = as_nested->GetParent();
 			auto parent_type = execution_context->GetTypeTable()->GetType<
-					SumType>(parent->GetTypeName());
+					SumType>(parent);
 
 			if (parent_type) {
+				complex_type_specifier = parent;
 				type_name = *as_nested->GetMemberName();
-				member_definition = parent_type->GetTypeTable()->GetType<
+				member_definition = parent_type->GetDefinition()->GetType<
 						ConcreteType>(type_name);
 			}
 		} else {
 			const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
 					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-							type_specifier);
+							source_type_specifier);
 			if (as_record_specifier) {
+				complex_type_specifier = as_record_specifier;
 				type_name = *as_record_specifier->GetTypeName();
 				member_definition = execution_context->GetTypeTable()->GetType<
 						ConcreteType>(type_name);
@@ -217,7 +220,7 @@ const ErrorListRef WithExpression::Validate(
 								Error::NOT_A_COMPOUND_TYPE,
 								m_source_expression->GetPosition().begin.line,
 								m_source_expression->GetPosition().begin.column,
-								type_specifier->ToString()), errors);
+								source_type_specifier->ToString()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
@@ -234,19 +237,21 @@ const ErrorListRef WithExpression::Validate(
 				const_shared_ptr<MemberInstantiation> instantiation =
 						instantiation_list->GetData();
 				auto member_name = instantiation->GetName();
-				const_shared_ptr<MemberDefinition> member_definition =
+				const_shared_ptr<TypeSpecifier> member_type_specifier =
+						make_shared<NestedTypeSpecifier>(complex_type_specifier,
+								member_name);
+				const_shared_ptr<TypeDefinition> member_definition =
 						type->GetMember(*member_name);
 
-				if (member_definition
-						!= MemberDefinition::GetDefaultMemberDefinition()) {
-					const_shared_ptr<TypeSpecifier> member_type =
-							member_definition->GetType();
+				if (member_definition) {
 					const_shared_ptr<TypeSpecifier> expression_type =
 							instantiation->GetExpression()->GetType(
 									execution_context);
-					if (!expression_type->IsAssignableTo(member_type)) {
+					if (!expression_type->IsAssignableTo(member_type_specifier,
+							execution_context->GetTypeTable())) {
 						auto as_sum_specifier = dynamic_pointer_cast<
-								const SumTypeSpecifier>(member_type);
+								const SumTypeSpecifier>(member_type_specifier);
+
 						if (as_sum_specifier) {
 							auto sum_type_name =
 									as_sum_specifier->GetTypeName();
@@ -268,7 +273,7 @@ const ErrorListRef WithExpression::Validate(
 															Error::AMBIGUOUS_WIDENING_CONVERSION,
 															instantiation->GetExpression()->GetPosition().begin.line,
 															instantiation->GetExpression()->GetPosition().begin.column,
-															member_type->ToString(),
+															member_type_specifier->ToString(),
 															expression_type->ToString()),
 													errors);
 								} else if (widening_analysis == INCOMPATIBLE) {
@@ -279,7 +284,7 @@ const ErrorListRef WithExpression::Validate(
 															Error::ASSIGNMENT_TYPE_ERROR,
 															instantiation->GetExpression()->GetPosition().begin.line,
 															instantiation->GetExpression()->GetPosition().begin.column,
-															member_type->ToString(),
+															member_type_specifier->ToString(),
 															expression_type->ToString()),
 													errors);
 								}
@@ -291,7 +296,7 @@ const ErrorListRef WithExpression::Validate(
 														Error::UNDECLARED_TYPE,
 														instantiation->GetNamePosition().begin.line,
 														instantiation->GetNamePosition().begin.column,
-														member_type->ToString()),
+														member_type_specifier->ToString()),
 												errors);
 							}
 						} else {
@@ -302,7 +307,7 @@ const ErrorListRef WithExpression::Validate(
 													Error::ASSIGNMENT_TYPE_ERROR,
 													instantiation->GetExpression()->GetPosition().begin.line,
 													instantiation->GetExpression()->GetPosition().begin.column,
-													member_type->ToString(),
+													member_type_specifier->ToString(),
 													expression_type->ToString()),
 											errors);
 						}
@@ -316,7 +321,7 @@ const ErrorListRef WithExpression::Validate(
 											instantiation->GetNamePosition().begin.line,
 											instantiation->GetNamePosition().begin.column,
 											*member_name,
-											member_definition->GetType()->ToString()),
+											source_type_specifier->ToString()),
 									errors);
 
 				}

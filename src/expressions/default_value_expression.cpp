@@ -42,20 +42,22 @@ DefaultValueExpression::~DefaultValueExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	auto as_nested_type = dynamic_pointer_cast<const NestedTypeSpecifier>(
-			m_type);
-	if (as_nested_type) {
-		auto parent_name = *as_nested_type->GetParent()->GetTypeName();
-		auto member_name = *as_nested_type->GetMemberName();
-
-		auto record_type =
-				execution_context->GetTypeTable()->GetType<RecordType>(
-						parent_name);
-		if (record_type) {
-			return record_type->GetMember(member_name)->GetType();
-		}
-	}
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
+//	auto as_nested_type = dynamic_pointer_cast<const NestedTypeSpecifier>(
+//			m_type);
+//	if (as_nested_type) {
+//		auto parent_name = *as_nested_type->GetParent()->GetTypeName();
+//		auto member_name = as_nested_type->GetMemberName();
+//
+//		auto record_type =
+//				execution_context->GetTypeTable()->GetType<RecordType>(
+//						parent_name);
+//		if (record_type) {
+//			return record_type->GetMember(*member_name)->GetTypeSpecifier(
+//					member_name);
+//		}
+//	}
 	return m_type;
 }
 
@@ -152,7 +154,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 				const RecordTypeSpecifier>(parent);
 		if (parent_as_record) {
 			auto definition = execution_context->GetTypeTable()->GetType<
-					ComplexType>(parent->GetTypeName());
+					ComplexType>(parent);
 			if (definition) {
 				//record type specifier may represent either either record type or sum type
 				auto record_definition = dynamic_pointer_cast<const RecordType>(
@@ -160,8 +162,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 				if (record_definition) {
 					auto member_definition = record_definition->GetMember(
 							*as_nested->GetMemberName());
-					if (member_definition
-							== MemberDefinition::GetDefaultMemberDefinition()) {
+					if (!member_definition) {
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::UNDECLARED_TYPE,
@@ -174,7 +175,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 				auto sum_definition = dynamic_pointer_cast<const SumType>(
 						definition);
 				if (sum_definition) {
-					auto table = sum_definition->GetTypeTable();
+					auto table = sum_definition->GetDefinition();
 					auto member_definition = table->GetType<ConcreteType>(
 							*as_nested->GetMemberName());
 					if (!member_definition) {

@@ -54,7 +54,8 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<TypeSpecifier> expression_type =
-			GetInitializerExpression()->GetType(execution_context);
+			GetInitializerExpression()->GetType(execution_context,
+					AliasResolution::RETURN);
 
 	if (expression_type != PrimitiveTypeSpecifier::GetNone()) {
 		const_shared_ptr<Statement> temp_statement =

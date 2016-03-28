@@ -39,7 +39,7 @@ const string Sum::ToString(const TypeTable& type_table,
 	ostringstream buffer;
 	auto name = *m_type->GetTypeName();
 	auto sum_type = type_table.GetType<SumType>(name);
-	auto type_definition = sum_type->GetTypeTable()->GetType<ConcreteType>(
+	auto type_definition = sum_type->GetDefinition()->GetType<ConcreteType>(
 			*m_tag);
 	buffer << type_definition->ValueToString(type_table, indent, m_value);
 	buffer << " {" << *m_tag << "}";
@@ -51,5 +51,5 @@ const_shared_ptr<Sum> Sum::GetDefaultInstance(
 	auto declaration = type.GetFirstDeclaration();
 	auto type_specifier = make_shared<SumTypeSpecifier>(type_name);
 	return make_shared<Sum>(type_specifier, declaration->GetName(),
-			declaration->GetType()->DefaultValue(*type.GetTypeTable()));
+			declaration->GetType()->DefaultValue(*type.GetDefinition()));
 }

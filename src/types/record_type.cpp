@@ -28,19 +28,14 @@
 #include <expression.h>
 #include <symbol_context.h>
 
-RecordType::RecordType(const_shared_ptr<definition_map> definition,
+RecordType::RecordType(const_shared_ptr<TypeTable> definition,
 		const Modifier::Type modifiers) :
 		m_definition(definition), m_modifiers(modifiers) {
 }
 
-const_shared_ptr<MemberDefinition> RecordType::GetMember(
+const_shared_ptr<TypeDefinition> RecordType::GetMember(
 		const std::string& name) const {
-	auto result = m_definition->find(name);
-	if (result != m_definition->end()) {
-		return result->second;
-	} else {
-		return MemberDefinition::GetDefaultMemberDefinition();
-	}
+	return m_definition->GetType<TypeDefinition>(name);
 }
 
 RecordType::~RecordType() {
@@ -50,29 +45,13 @@ const string RecordType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
-	if (m_definition->size() > 0) {
-		for (auto& type_iter : *m_definition) {
-			const string member_name = type_iter.first;
-			const_shared_ptr<MemberDefinition> member_definition =
-					type_iter.second;
-			const_shared_ptr<TypeSpecifier> member_type =
-					member_definition->GetType();
-
-			os << child_indent << member_type->ToString() << " " << member_name
-					<< " ("
-					<< member_definition->ToString(type_table, child_indent)
-					<< ")";
-
-			os << endl;
-		}
-	} else {
-		os << child_indent << "<empty>" << endl;
-	}
+	os << child_indent << "<record>" << endl;
+	m_definition->print(os, child_indent);
 	return os.str();
 }
 
 const_shared_ptr<Result> RecordType::Build(
-		const_shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> context,
 		const Modifier::Type modifiers,
 		const DeclarationListRef member_declarations) {
 	ErrorListRef errors = ErrorList::GetTerminator();
@@ -80,10 +59,15 @@ const_shared_ptr<Result> RecordType::Build(
 	//generate a temporary structure in which to perform evaluations
 	//of the member declaration statements
 	const shared_ptr<symbol_map> values = make_shared<symbol_map>();
-	volatile_shared_ptr<SymbolTable> member_buffer = make_shared<SymbolTable>(
-			Modifier::NONE, values);
-	shared_ptr<ExecutionContext> struct_context = context->WithContents(
-			member_buffer);
+//	volatile_shared_ptr<SymbolTable> member_buffer = make_shared<SymbolTable>(
+//			Modifier::NONE, values);
+//	shared_ptr<ExecutionContext> struct_context = context->WithContents(
+//			member_buffer);
+
+	auto type_table = make_shared<TypeTable>(context->GetTypeTable());
+	shared_ptr<ExecutionContext> struct_context =
+			ExecutionContext::GetEmptyChild(context, context->GetModifiers(),
+					EPHEMERAL, type_table, values);
 
 	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
@@ -114,36 +98,44 @@ const_shared_ptr<Result> RecordType::Build(
 		subject = subject->GetNext();
 	}
 
-	volatile_shared_ptr<definition_map> mapping = make_shared<definition_map>();
+//	volatile_shared_ptr<definition_map> mapping = make_shared<definition_map>();
 	symbol_map::iterator iter;
 	if (ErrorList::IsTerminator(errors)) {
-		//we've evaluated everything without issue
-		//extract member declaration information into immutable MemberDefinition
+		//extract member definitions into type aliases
 		for (iter = values->begin(); iter != values->end(); ++iter) {
 			const string member_name = iter->first;
 			auto symbol = iter->second;
-			const_shared_ptr<TypeSpecifier> type = symbol->GetType();
+			const_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
 			auto value = symbol->GetValue();
-			const_shared_ptr<MemberDefinition> definition = make_shared<
-					MemberDefinition>(type, value);
-			mapping->insert(
-					pair<const string, const_shared_ptr<MemberDefinition>>(
-							member_name, definition));
+//			const_shared_ptr<MemberDefinition> definition = make_shared<
+//					MemberDefinition>(type, value);
+//			mapping->insert(
+//					pair<const string, const_shared_ptr<MemberDefinition>>(
+//							member_name, definition));
+			auto alias = make_shared<AliasDefinition>(context->GetTypeTable(),
+					type_specifier, value);
+			type_table->AddType(member_name, alias);
 		}
 	}
 
-	auto type = make_shared<RecordType>(mapping, modifiers);
+	auto type = make_shared<RecordType>(type_table, modifiers);
 	return make_shared<Result>(type, errors);
 }
 
-const_shared_ptr<TypeSpecifier> RecordType::GetMemberType(
-		const std::string& member_name) const {
-	return GetMember(member_name)->GetType();
+const_shared_ptr<TypeSpecifier> RecordType::GetMemberTypeSpecifier(
+		const_shared_ptr<std::string> member_name) const {
+	auto member = GetMember(*member_name);
+	if (member) {
+		auto member_type = member->GetTypeSpecifier(member_name);
+		return member_type;
+	} else {
+		return PrimitiveTypeSpecifier::GetNone();
+	}
 }
 
 const_shared_ptr<void> RecordType::GetMemberDefaultValue(
 		const_shared_ptr<std::string> member_name) const {
-	return GetMember(*member_name)->GetDefaultValue();
+	return GetMember(*member_name)->GetDefaultValue(member_name, *m_definition);
 }
 
 const std::string RecordType::ValueToString(const TypeTable& type_table,
@@ -157,7 +149,8 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<void> RecordType::GetDefaultValue(
-		const_shared_ptr<std::string> type_name) const {
+		const_shared_ptr<std::string> type_name,
+		const TypeTable& type_table) const {
 	return Record::GetDefaultInstance(type_name, *this);
 }
 
@@ -195,7 +188,8 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 
 	const_shared_ptr<TypeSpecifier> initializer_expression_type =
 			initializer->GetType(execution_context);
-	if (initializer_expression_type->IsAssignableTo(type_specifier)) {
+	if (initializer_expression_type->IsAssignableTo(type_specifier,
+			execution_context->GetTypeTable())) {
 		if (initializer->IsConstant()) {
 			const_shared_ptr<Result> result = initializer->Evaluate(
 					execution_context);
@@ -222,10 +216,16 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 	return make_shared<Result>(symbol, errors);
 }
 
+const_shared_ptr<TypeSpecifier> RecordType::GetTypeSpecifier(
+		const_shared_ptr<std::string> name) const {
+	return make_shared<RecordTypeSpecifier>(name);
+}
+
 const SetResult RecordType::InstantiateCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Record>(data);
-	auto set_result = execution_context->SetSymbol(instance_name, instance);
+	auto set_result = execution_context->SetSymbol(instance_name, instance,
+			execution_context->GetTypeTable());
 	return set_result;
 }

@@ -46,10 +46,39 @@ const_shared_ptr<DeclarationStatement> RecordTypeSpecifier::GetDeclarationStatem
 }
 
 const bool RecordTypeSpecifier::IsAssignableTo(
-		const_shared_ptr<TypeSpecifier> other) const {
+		const_shared_ptr<TypeSpecifier> other,
+		const TypeTable& type_table) const {
 	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
 			const RecordTypeSpecifier>(other);
-	return (as_record && as_record->GetTypeName()->compare(*m_type_name) == 0);
+	if (as_record && as_record->GetTypeName()->compare(*m_type_name) == 0) {
+		return true;
+	}
+
+	//check to see if this type is an alias of the other type
+//	auto other_as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(
+//			other);
+//	if (other_as_nested) {
+//		auto other_definition = other->GetType(type_table);
+//		auto as_complex = dynamic_pointer_cast<const ComplexType>(other_definition);
+//
+//		if (as_complex) {
+//			auto member_definition = as_complex->g
+//		}
+//	}
+
+	auto other_rep = other->ToString();
+	auto other_definition = other->GetType(type_table, RETURN);
+	//auto type_definition = type_table.GetType<RecordType>(m_type_name);
+	if (other_definition) {
+		auto rep = other_definition->ToString(type_table, Indent(0));
+		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(
+				other_definition);
+		if (as_alias) {
+			return *this == *as_alias->GetOriginal();
+		}
+	}
+
+	return false;
 }
 
 const_shared_ptr<void> RecordTypeSpecifier::DefaultValue(
@@ -59,7 +88,7 @@ const_shared_ptr<void> RecordTypeSpecifier::DefaultValue(
 
 	//this result cannot be cached because the type table is mutable
 	if (type) {
-		return type->GetDefaultValue(m_type_name);
+		return type->GetDefaultValue(m_type_name, type_table);
 	} else {
 		return const_shared_ptr<RecordType>(); //ugh, nulls
 	}
@@ -68,4 +97,9 @@ const_shared_ptr<void> RecordTypeSpecifier::DefaultValue(
 const_shared_ptr<Symbol> RecordTypeSpecifier::GetSymbol(
 		const_shared_ptr<void> value, const TypeTable& container) const {
 	return make_shared<Symbol>(static_pointer_cast<const Record>(value));
+}
+
+const_shared_ptr<TypeDefinition> RecordTypeSpecifier::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	return type_table.GetType<ConcreteType>(GetTypeName(), resolution);
 }

@@ -31,7 +31,6 @@ const std::string PrimitiveType::ToString(const TypeTable& type_table,
 	ostringstream os;
 	os << indent + 1;
 	os << m_type;
-	os << endl;
 	return os.str();
 }
 
@@ -56,7 +55,8 @@ bool PrimitiveType::IsSpecifiedBy(const std::string& name,
 }
 
 const_shared_ptr<void> PrimitiveType::GetDefaultValue(
-		const_shared_ptr<std::string> type_name) const {
+		const_shared_ptr<std::string> type_name,
+		const TypeTable& type_table) const {
 	return GetDefaultValue(m_type);
 }
 
@@ -100,4 +100,9 @@ const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 		assert(false);
 		return nullptr;
 	}
+}
+
+const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
+		const_shared_ptr<std::string> name) const {
+	return PrimitiveTypeSpecifier::FromBasicType(m_type);
 }

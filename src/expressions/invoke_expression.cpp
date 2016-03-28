@@ -52,9 +52,10 @@ InvokeExpression::~InvokeExpression() {
 }
 
 const_shared_ptr<TypeSpecifier> InvokeExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
 	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
-			execution_context);
+			execution_context, RESOLVE);
 
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
@@ -183,7 +184,8 @@ const ErrorListRef InvokeExpression::Validate(
 								declaration->GetType();
 						const_shared_ptr<TypeSpecifier> argument_type =
 								argument_expression->GetType(execution_context);
-						if (!argument_type->IsAssignableTo(parameter_type)) {
+						if (!argument_type->IsAssignableTo(parameter_type,
+								execution_context->GetTypeTable())) {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
@@ -243,7 +245,8 @@ const ErrorListRef InvokeExpression::Validate(
 						const_shared_ptr<TypeSpecifier> argument_type =
 								argument_expression->GetType(execution_context);
 
-						if (!argument_type->IsAssignableTo(parameter_type)) {
+						if (!argument_type->IsAssignableTo(parameter_type,
+								execution_context->GetTypeTable())) {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,

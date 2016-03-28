@@ -37,7 +37,8 @@ const string SumTypeSpecifier::ToString() const {
 }
 
 const bool SumTypeSpecifier::IsAssignableTo(
-		const_shared_ptr<TypeSpecifier> other) const {
+		const_shared_ptr<TypeSpecifier> other,
+		const TypeTable& type_table) const {
 	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
 			const SumTypeSpecifier>(other);
 	return as_sum && as_sum->GetTypeName()->compare(*m_type_name) == 0;
@@ -47,7 +48,7 @@ const_shared_ptr<void> SumTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
 	auto type = type_table.GetType<SumType>(*m_type_name);
 	if (type) {
-		return type->GetDefaultValue(m_type_name);
+		return type->GetDefaultValue(m_type_name, type_table);
 	}
 	return const_shared_ptr<void>();
 }
@@ -75,4 +76,10 @@ bool SumTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 const_shared_ptr<Symbol> SumTypeSpecifier::GetSymbol(
 		const_shared_ptr<void> value, const TypeTable& container) const {
 	return make_shared<Symbol>(static_pointer_cast<const Sum>(value));
+}
+
+const_shared_ptr<TypeDefinition> SumTypeSpecifier::GetType(
+		const TypeTable& type_table,
+		AliasResolution resolution) const {
+	return type_table.GetType<ConcreteType>(GetTypeName(), resolution);
 }

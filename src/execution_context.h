@@ -125,7 +125,8 @@ public:
 
 protected:
 	virtual SetResult SetSymbol(const std::string& identifier,
-			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
+			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
+			const TypeTable& type_table);
 
 private:
 	ExecutionContext(const Modifier::Type modifiers,

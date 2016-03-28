@@ -50,7 +50,8 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 					const PrimitiveTypeSpecifier>(expression_type_specifier);
 
 			if (expression_as_primitive == nullptr
-					|| !expression_as_primitive->IsAssignableTo(as_primitive)) {
+					|| !expression_as_primitive->IsAssignableTo(as_primitive,
+							execution_context->GetTypeTable())) {
 				errors =
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,

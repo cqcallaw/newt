@@ -45,17 +45,21 @@ public:
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const;
 
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const_shared_ptr<std::string> name) const;
+
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name) const;
+			const_shared_ptr<std::string> type_name,
+			const TypeTable& type_table) const;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void>,
 			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
 
-	const_shared_ptr<TypeTable> GetTypeTable() const {
-		return m_type_table;
+	virtual const_shared_ptr<TypeTable> GetDefinition() const {
+		return m_definition;
 	}
 
 	const const_shared_ptr<DeclarationStatement> GetFirstDeclaration() const {
@@ -73,8 +77,8 @@ public:
 			const TypeSpecifier& type_specifier,
 			const string& sum_type_name) const;
 
-	virtual const_shared_ptr<TypeSpecifier> GetMemberType(
-			const std::string& member_name) const;
+	virtual const_shared_ptr<TypeSpecifier> GetMemberTypeSpecifier(
+			const_shared_ptr<std::string> member_name) const;
 
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
 			const_shared_ptr<std::string> member_name) const;
@@ -92,9 +96,9 @@ protected:
 private:
 	SumType(const_shared_ptr<TypeTable> type_table,
 			const_shared_ptr<DeclarationStatement> first_declaration) :
-			m_type_table(type_table), m_first_declaration(first_declaration) {
+			m_definition(type_table), m_first_declaration(first_declaration) {
 	}
-	const_shared_ptr<TypeTable> m_type_table;
+	const_shared_ptr<TypeTable> m_definition;
 	const_shared_ptr<DeclarationStatement> m_first_declaration;
 };
 

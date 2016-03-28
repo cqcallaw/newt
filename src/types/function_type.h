@@ -17,18 +17,29 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PRIMITIVE_TYPE_H_
-#define PRIMITIVE_TYPE_H_
+#ifndef TYPES_FUNCTION_TYPE_H_
+#define TYPES_FUNCTION_TYPE_H_
 
 #include <concrete_type.h>
-#include <type.h>
 
-class PrimitiveType: public ConcreteType {
+class FunctionTypeSpecifier;
+
+class FunctionType: public ConcreteType {
 public:
-	PrimitiveType(const BasicType type) :
-			m_type(type) {
+	FunctionType(TypeSpecifierListRef parameter_type_list,
+			const_shared_ptr<TypeSpecifier> return_type,
+			const yy::location m_return_type_location) :
+			m_type_specifier(
+					make_shared<FunctionTypeSpecifier>(parameter_type_list,
+							return_type, m_return_type_location)) {
 	}
-	virtual ~PrimitiveType();
+
+	virtual ~FunctionType() {
+	}
+
+	virtual const_shared_ptr<void> GetDefaultValue(
+			const_shared_ptr<std::string> type_name,
+			const TypeTable& type_table) const;
 
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
@@ -42,21 +53,16 @@ public:
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const;
 
-	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name,
-			const TypeTable& type_table) const;
-
 	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
 			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
 
-	static const_shared_ptr<void> GetDefaultValue(const BasicType& basic_type);
-
-	const BasicType GetType() const {
-		return m_type;
+	const_shared_ptr<FunctionTypeSpecifier> getTypeSpecifier() const {
+		return m_type_specifier;
 	}
 
 private:
-	const BasicType m_type;
+	const_shared_ptr<FunctionTypeSpecifier> m_type_specifier;
+
 };
 
-#endif /* PRIMITIVE_TYPE_H_ */
+#endif /* TYPES_FUNCTION_TYPE_H_ */

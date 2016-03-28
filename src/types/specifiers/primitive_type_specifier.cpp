@@ -19,7 +19,9 @@
 
 #include <primitive_declaration_statement.h>
 #include <primitive_type_specifier.h>
+#include <nested_type_specifier.h>
 #include <primitive_type.h>
+#include <complex_type.h>
 #include <typeinfo>
 #include <expression.h>
 #include <memory>
@@ -56,12 +58,37 @@ const string PrimitiveTypeSpecifier::ToString(
 }
 
 const bool PrimitiveTypeSpecifier::IsAssignableTo(
-		const_shared_ptr<TypeSpecifier> other) const {
+		const_shared_ptr<TypeSpecifier> other,
+		const TypeTable& type_table) const {
 	const_shared_ptr<PrimitiveTypeSpecifier> other_as_primitive =
 			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(other);
 	if (other_as_primitive) {
 		const BasicType other_type = other_as_primitive->GetBasicType();
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
+	}
+
+	const_shared_ptr<NestedTypeSpecifier> as_nested_type_specifier =
+			std::dynamic_pointer_cast<const NestedTypeSpecifier>(other);
+	if (as_nested_type_specifier) {
+		auto complex_type = type_table.GetType<ComplexType>(
+				as_nested_type_specifier->GetParent());
+		if (complex_type) {
+			auto member_name = as_nested_type_specifier->GetMemberName();
+			auto member_type = complex_type->GetDefinition()->GetType<
+					TypeDefinition>(*member_name,
+					AliasResolution::RETURN);
+
+			if (member_type) {
+				//check for aliasing
+				auto as_alias =
+						std::dynamic_pointer_cast<const AliasDefinition>(
+								member_type);
+
+				if (as_alias) {
+					return IsAssignableTo(as_alias->GetOriginal(), type_table);
+				}
+			}
+		}
 	}
 
 	return false;
@@ -168,4 +195,10 @@ const_shared_ptr<Symbol> PrimitiveTypeSpecifier::GetSymbol(
 
 	assert(false);
 	return Symbol::GetDefaultSymbol();
+}
+
+const_shared_ptr<TypeDefinition> PrimitiveTypeSpecifier::GetType(
+		const TypeTable& type_table,
+		AliasResolution resolution) const {
+	return make_shared<PrimitiveType>(GetBasicType());
 }

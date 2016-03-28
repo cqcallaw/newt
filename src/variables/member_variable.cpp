@@ -25,42 +25,53 @@ MemberVariable::~MemberVariable() {
 }
 
 const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
-		const shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context,
+		AliasResolution resolution) const {
 	const_shared_ptr<TypeSpecifier> container_type_specifier =
 			m_container->GetType(context);
 
 	shared_ptr<const void> value = nullptr;
 	auto type_table = *context->GetTypeTable();
 
-	const_shared_ptr<NestedTypeSpecifier> as_nested = std::dynamic_pointer_cast<
-			const NestedTypeSpecifier>(container_type_specifier);
-	if (as_nested) {
-		value = as_nested->DefaultValue(type_table);
-	}
+//	const_shared_ptr<NestedTypeSpecifier> as_nested = std::dynamic_pointer_cast<
+//			const NestedTypeSpecifier>(container_type_specifier);
+//	if (as_nested) {
+//		assert(false); //temporary
+//		value = as_nested->DefaultValue(type_table);
+//	}
 
-	const_shared_ptr<RecordTypeSpecifier> as_record_type =
+	const_shared_ptr<RecordTypeSpecifier> as_record_type_specifier =
 			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 					container_type_specifier);
-	if (as_record_type) {
-		value = as_record_type->DefaultValue(type_table);
+	if (as_record_type_specifier) {
+		auto record_type = type_table.GetType<RecordType>(
+				as_record_type_specifier);
+		if (record_type) {
+			auto member_name = m_member_variable->GetName();
+			auto member_type = record_type->GetDefinition()->GetType
+					< TypeDefinition > (*member_name);
+
+			if (member_type) {
+				auto output = make_shared<NestedTypeSpecifier>(
+						as_record_type_specifier, m_member_variable->GetName());
+
+				if (resolution == AliasResolution::RETURN) {
+					return output;
+				} else {
+					return output->ResolveAliasing(type_table);
+				}
+			}
+		}
 	}
 
-	if (value) {
-		auto instance = std::static_pointer_cast<const Record>(value);
-		auto new_context = context->WithContents(instance->GetDefinition());
-		const_shared_ptr<TypeSpecifier> result = m_member_variable->GetType(
-				new_context);
-		return result;
-	} else {
-		return PrimitiveTypeSpecifier::GetNone();
-	}
+	return PrimitiveTypeSpecifier::GetNone();
 }
 
 const_shared_ptr<string> MemberVariable::ToString(
 		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
-	buffer << "<" << *GetName() << "." << *m_member_variable->ToString(context)
-			<< ">";
+	buffer << "<" << *GetName() << "."
+			<< *(m_member_variable->ToString(context)) << ">";
 	return make_shared<string>(buffer.str());
 }
 
@@ -117,7 +128,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value);
+					value, context->GetTypeTable());
 		} else {
 			set_result = INCOMPATIBLE_TYPE;
 		}
@@ -150,7 +161,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value);
+					value, context->GetTypeTable());
 		} else {
 			set_result = INCOMPATIBLE_TYPE;
 		}
@@ -182,7 +193,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value);
+					value, context->GetTypeTable());
 		} else {
 			set_result = INCOMPATIBLE_TYPE;
 		}
@@ -215,7 +226,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value);
+					value, context->GetTypeTable());
 		} else {
 			set_result = INCOMPATIBLE_TYPE;
 		}
@@ -275,7 +286,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value, container);
+					value, context->GetTypeTable(), container);
 		} else {
 			set_result = INCOMPATIBLE_TYPE;
 		}
@@ -308,7 +319,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
 			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value);
+					value, context->GetTypeTable());
 		} else {
 			set_result = INCOMPATIBLE_TYPE;
 		}
@@ -340,7 +351,7 @@ const ErrorListRef MemberVariable::Validate(
 
 			if (container_definition) {
 				auto member_name = as_nested->GetMemberName();
-				auto member = container_definition->GetTypeTable()->GetType<
+				auto member = container_definition->GetDefinition()->GetType<
 						RecordType>(member_name);
 				if (!member) {
 					errors =

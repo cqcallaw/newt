@@ -89,8 +89,8 @@ Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 }
 
 const_shared_ptr<Symbol> Symbol::WithValue(const_shared_ptr<TypeSpecifier> type,
-		const_shared_ptr<void> value) const {
-	if (!type->IsAssignableTo(this->m_type)) {
+		const_shared_ptr<void> value, const TypeTable& type_table) const {
+	if (!type->IsAssignableTo(this->m_type, type_table)) {
 		return GetDefaultSymbol();
 	}
 
@@ -116,15 +116,23 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type,
 		const_shared_ptr<void> value, const TypeTable& type_table,
 		const Indent& indent) {
 	ostringstream buffer;
+
+	auto subject = type;
+	const_shared_ptr<NestedTypeSpecifier> as_nested = std::dynamic_pointer_cast<
+			const NestedTypeSpecifier>(subject);
+	if (as_nested) {
+		subject = as_nested->ResolveAliasing(type_table);
+	}
+
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(type);
+			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(subject);
 	if (as_primitive) {
 		buffer << " ";
 		buffer << as_primitive->ToString(value);
 	}
 
 	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
-			const ArrayTypeSpecifier>(type);
+			const ArrayTypeSpecifier>(subject);
 	if (as_array) {
 		buffer << endl;
 		auto array = static_pointer_cast<const Array>(value);
@@ -132,14 +140,14 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type,
 	}
 
 	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
-			const SumTypeSpecifier>(type);
+			const SumTypeSpecifier>(subject);
 	if (as_sum) {
 		auto sum_instance = static_pointer_cast<const Sum>(value);
 		buffer << sum_instance->ToString(type_table, indent);
 	}
 
 	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
-			const RecordTypeSpecifier>(type);
+			const RecordTypeSpecifier>(subject);
 	if (as_record) {
 		buffer << endl;
 		auto record_type_instance = static_pointer_cast<const Record>(value);
@@ -147,7 +155,7 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type,
 	}
 
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
-			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(type);
+			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(subject);
 	if (as_function) {
 		buffer << endl;
 		auto function = static_pointer_cast<const Function>(value);

@@ -49,7 +49,8 @@ const ErrorListRef IfStatement::preprocess(
 
 	if (m_expression) {
 		if (m_expression->GetType(execution_context)->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetInt())) {
+				PrimitiveTypeSpecifier::GetInt(),
+				execution_context->GetTypeTable())) {
 
 			SymbolContextListRef new_parent = SymbolContextList::From(
 					execution_context, execution_context->GetParent());

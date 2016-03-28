@@ -11,4 +11,7 @@ end array
 Root Type Table:
 ----------------
 my_struct:
-	int[] arr ()
+	<record>
+	arr:
+		int[] (end array)
+

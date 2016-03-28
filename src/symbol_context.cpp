@@ -118,57 +118,57 @@ const void SymbolContext::print(ostream &os, const TypeTable& type_table,
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<bool> value) {
+		const_shared_ptr<bool> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetBoolean(),
-			static_pointer_cast<const void>(value));
+			static_pointer_cast<const void>(value), type_table);
 }
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<int> value) {
+		const_shared_ptr<int> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetInt(),
-			static_pointer_cast<const void>(value));
+			static_pointer_cast<const void>(value), type_table);
 }
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<double> value) {
+		const_shared_ptr<double> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetDouble(),
-			static_pointer_cast<const void>(value));
+			static_pointer_cast<const void>(value), type_table);
 }
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<string> value) {
+		const_shared_ptr<string> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetString(),
-			static_pointer_cast<const void>(value));
+			static_pointer_cast<const void>(value), type_table);
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<Record> value,
+		const_shared_ptr<Record> value, const TypeTable& type_table,
 		const_shared_ptr<ComplexTypeSpecifier> container) {
 
 	if (container) {
 		return SetSymbol(identifier,
 				make_shared<NestedTypeSpecifier>(container,
 						value->GetTypeSpecifier()->GetTypeName()),
-				static_pointer_cast<const void>(value));
+				static_pointer_cast<const void>(value), type_table);
 	} else {
 		return SetSymbol(identifier, value->GetTypeSpecifier(),
-				static_pointer_cast<const void>(value));
+				static_pointer_cast<const void>(value), type_table);
 	}
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<Array> value) {
+		const_shared_ptr<Array> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, value->GetTypeSpecifier(),
-			static_pointer_cast<const void>(value));
+			static_pointer_cast<const void>(value), type_table);
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<Function> value) {
+		const_shared_ptr<Function> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, value->GetType(),
-			static_pointer_cast<const void>(value));
+			static_pointer_cast<const void>(value), type_table);
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<Sum> value) {
+		const_shared_ptr<Sum> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, value->GetType(),
-			static_pointer_cast<const void>(value));
+			static_pointer_cast<const void>(value), type_table);
 }
 
 volatile_shared_ptr<SymbolContext> SymbolContext::GetDefault() {
@@ -178,16 +178,17 @@ volatile_shared_ptr<SymbolContext> SymbolContext::GetDefault() {
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value) {
+		const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
+		const TypeTable& type_table) {
 	auto result = m_table->find(identifier);
 
 	if (result != m_table->end()) {
 		auto symbol = result->second;
-		if ((symbol->GetType()->IsAssignableTo(type))) {
+		if ((symbol->GetType()->IsAssignableTo(type, type_table))) {
 			if (m_modifiers & Modifier::READONLY) {
 				return MUTATION_DISALLOWED;
 			} else {
-				auto new_symbol = symbol->WithValue(type, value);
+				auto new_symbol = symbol->WithValue(type, value, type_table);
 
 				//TODO: error checking
 				m_table->erase(identifier);

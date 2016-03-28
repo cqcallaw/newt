@@ -28,7 +28,8 @@ LogicExpression::LogicExpression(const yy::location position,
 }
 
 const_shared_ptr<TypeSpecifier> LogicExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
 	return PrimitiveTypeSpecifier::GetBoolean();
 }
 

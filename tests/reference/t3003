@@ -14,5 +14,9 @@ point b:
 Root Type Table:
 ----------------
 point:
-	int x (1)
-	int y (0)
+	<record>
+	x:
+		int ( 1)
+	y:
+		int ( 0)
+

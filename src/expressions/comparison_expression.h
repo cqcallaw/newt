@@ -27,23 +27,29 @@ using namespace std;
 class ComparisonExpression: public BinaryExpression {
 public:
 	ComparisonExpression(const yy::location position, const OperatorType op,
-			const_shared_ptr<Expression> left, const_shared_ptr<Expression> right);
+			const_shared_ptr<Expression> left,
+			const_shared_ptr<Expression> right);
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context,
+			AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 
 	virtual const ErrorListRef Validate(
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 protected:
-	virtual const_shared_ptr<Result> compute(const bool& left, const bool& right,
-			yy::location left_position, yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const bool& left,
+			const bool& right, yy::location left_position,
+			yy::location right_position) const;
 	virtual const_shared_ptr<Result> compute(const int& left, const int& right,
 			yy::location left_position, yy::location right_position) const;
-	virtual const_shared_ptr<Result> compute(const double& left, const double& right,
-			yy::location left_position, yy::location right_position) const;
-	virtual const_shared_ptr<Result> compute(const string& left, const string& right,
-			yy::location left_position, yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const double& left,
+			const double& right, yy::location left_position,
+			yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const string& left,
+			const string& right, yy::location left_position,
+			yy::location right_position) const;
 };
 
 #endif /* COMPARISON_EXPRESSION_H_ */

@@ -17,6 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <array_type_specifier.h>
 #include <array_variable.h>
 #include <expression.h>
 #include <sstream>
@@ -24,6 +25,8 @@
 #include "assert.h"
 #include "execution_context.h"
 #include <assignment_statement.h>
+#include <constant_expression.h>
+#include <array_type.h>
 
 ArrayVariable::ArrayVariable(const_shared_ptr<Variable> base_variable,
 		const_shared_ptr<Expression> expression) :
@@ -32,7 +35,8 @@ ArrayVariable::ArrayVariable(const_shared_ptr<Variable> base_variable,
 }
 
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
-		const shared_ptr<ExecutionContext> context) const {
+		const shared_ptr<ExecutionContext> context,
+		AliasResolution resolution) const {
 	auto base_type_as_array = dynamic_pointer_cast<const ArrayTypeSpecifier>(
 			m_base_variable->GetType(context));
 
@@ -54,7 +58,7 @@ const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
 const_shared_ptr<string> ArrayVariable::ToString(
 		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
-	buffer << m_base_variable->ToString(context);
+	buffer << *m_base_variable->ToString(context);
 	buffer << "[";
 
 	const_shared_ptr<Result> evaluation = m_expression->Evaluate(context);
@@ -81,16 +85,18 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 	auto base_evaluation = m_base_variable->Evaluate(context);
 	ErrorListRef errors = base_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto base_type_as_array =
-				dynamic_pointer_cast<const ArrayTypeSpecifier>(
-						m_base_variable->GetType(context));
+		auto base_type_specifier = m_base_variable->GetType(context);
+		auto base_type = base_type_specifier->GetType(context->GetTypeTable());
 
+		auto base_type_as_array = dynamic_pointer_cast<const ArrayType>(
+				base_type);
 		if (base_type_as_array) {
 			array = base_evaluation->GetData<Array>();
 			const_shared_ptr<TypeSpecifier> index_expression_type =
 					m_expression->GetType(context);
 			if (index_expression_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetInt())) {
+					PrimitiveTypeSpecifier::GetInt(),
+					context->GetTypeTable())) {
 				const_shared_ptr<Result> index_expression_evaluation =
 						m_expression->Evaluate(context);
 				errors = index_expression_evaluation->GetErrors();
@@ -155,16 +161,20 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 			const_shared_ptr<TypeSpecifier> element_type_specifier =
 					array->GetElementType();
 			if (element_type_specifier->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetBoolean())) {
+					PrimitiveTypeSpecifier::GetBoolean(),
+					context->GetTypeTable())) {
 				result_value = array->GetValue<bool>(index, *type_table);
 			} else if (element_type_specifier->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetInt())) {
+					PrimitiveTypeSpecifier::GetInt(),
+					context->GetTypeTable())) {
 				result_value = array->GetValue<int>(index, *type_table);
 			} else if (element_type_specifier->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetDouble())) {
+					PrimitiveTypeSpecifier::GetDouble(),
+					context->GetTypeTable())) {
 				result_value = array->GetValue<double>(index, *type_table);
 			} else if (element_type_specifier->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetString())) {
+					PrimitiveTypeSpecifier::GetString(),
+					context->GetTypeTable())) {
 				result_value = array->GetValue<string>(index, *type_table);
 			} else {
 				const_shared_ptr<ArrayTypeSpecifier> as_array =
@@ -388,11 +398,21 @@ const ErrorListRef ArrayVariable::SetSymbol(
 
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetElementType(
 		const shared_ptr<ExecutionContext> context) const {
-	auto base_type_as_array = dynamic_pointer_cast<const ArrayTypeSpecifier>(
-			m_base_variable->GetType(context));
+//	auto base_type_as_array = dynamic_pointer_cast<const ArrayTypeSpecifier>(
+//			m_base_variable->GetType(context));
+//
+//	if (base_type_as_array) {
+//		return base_type_as_array->GetElementTypeSpecifier();
+//	} else {
+//		return PrimitiveTypeSpecifier::GetNone();
+//	}
 
-	if (base_type_as_array) {
-		return base_type_as_array->GetElementTypeSpecifier();
+	auto base_type_specifier = m_base_variable->GetType(context);
+	auto base_type = base_type_specifier->GetType(context->GetTypeTable());
+
+	auto as_array = dynamic_pointer_cast<const ArrayType>(base_type);
+	if (as_array) {
+		return as_array->GetMemberTypeSpecifier();
 	} else {
 		return PrimitiveTypeSpecifier::GetNone();
 	}
@@ -416,19 +436,20 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 		shared_ptr<const Array> new_array = nullptr;
 
 		if (element_type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetBoolean())) {
+				PrimitiveTypeSpecifier::GetBoolean(),
+				context->GetTypeTable())) {
 			new_array = array->WithValue<bool>(index,
 					static_pointer_cast<const bool>(value), *type_table);
 		} else if (element_type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetInt())) {
+				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())) {
 			new_array = array->WithValue<int>(index,
 					static_pointer_cast<const int>(value), *type_table);
 		} else if (element_type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetDouble())) {
+				PrimitiveTypeSpecifier::GetDouble(), context->GetTypeTable())) {
 			new_array = array->WithValue<double>(index,
 					static_pointer_cast<const double>(value), *type_table);
 		} else if (element_type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetString())) {
+				PrimitiveTypeSpecifier::GetString(), context->GetTypeTable())) {
 			new_array = array->WithValue<string>(index,
 					static_pointer_cast<const string>(value), *type_table);
 		} else {
@@ -449,11 +470,11 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 			}
 		}
 
-		const SetResult set_result = context->SetSymbol(*GetName(), new_array);
-
-		errors = ToErrorListRef(set_result,
-				context->GetSymbol(*GetName(), DEEP)->GetType(),
-				array->GetTypeSpecifier());
+		//wrap result in constant expression and assign it to the base variable
+		auto as_const_expression = make_shared<ConstantExpression>(
+				m_expression->GetPosition(), new_array);
+		errors = m_base_variable->AssignValue(context, as_const_expression,
+				AssignmentType::ASSIGN);
 	}
 
 	return errors;
@@ -467,12 +488,13 @@ const ErrorListRef ArrayVariable::Validate(
 		const_shared_ptr<TypeSpecifier> index_expression_type =
 				m_expression->GetType(context);
 		if (index_expression_type->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetInt())) {
-			auto base_type_as_array = dynamic_pointer_cast<
-					const ArrayTypeSpecifier>(
-					m_base_variable->GetType(context));
+				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())) {
+			auto base_type_specifier = m_base_variable->GetType(context);
+			auto base_type = base_type_specifier->GetType(
+					context->GetTypeTable());
 
-			if (!base_type_as_array) {
+			auto as_array = dynamic_pointer_cast<const ArrayType>(base_type);
+			if (!as_array) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::VARIABLE_NOT_AN_ARRAY,
@@ -480,6 +502,36 @@ const ErrorListRef ArrayVariable::Validate(
 								m_expression->GetPosition().begin.column,
 								*(m_base_variable->ToString(context))), errors);
 			}
+
+//			auto base_type_as_nested = dynamic_pointer_cast<
+//					const NestedTypeSpecifier>(base_type);
+//			if (base_type_as_nested) {
+//				auto base_definition = base_type_as_nested->GetType(
+//						context->GetTypeTable());
+//
+//				auto stuff = base_definition->ToString(context->GetTypeTable(),
+//						Indent(0));
+//
+//				auto as_complex = dynamic_pointer_cast<const ComplexType>(
+//						base_definition);
+//				if (as_complex) {
+//					base_type = as_complex->GetMemberTypeSpecifier(
+//							base_type_as_nested->GetMemberName());
+//				} else {
+//					assert(false);
+//				}
+//			}
+//
+//			auto base_type_as_array = dynamic_pointer_cast<
+//					const ArrayTypeSpecifier>(base_type);
+//			if (!base_type_as_array) {
+//				errors = ErrorList::From(
+//						make_shared<Error>(Error::SEMANTIC,
+//								Error::VARIABLE_NOT_AN_ARRAY,
+//								m_expression->GetPosition().begin.line,
+//								m_expression->GetPosition().begin.column,
+//								*(m_base_variable->ToString(context))), errors);
+//			}
 		} else {
 			ostringstream buffer;
 			buffer << "A " << index_expression_type->ToString()
