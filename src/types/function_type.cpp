@@ -49,6 +49,11 @@ bool FunctionType::IsSpecifiedBy(const std::string& name,
 	return *m_type_specifier == type_specifier;
 }
 
+const std::string FunctionType::GetValueSeperator(const Indent& indent,
+		const_shared_ptr<void> value) const {
+	return "\n" + (indent + 1).ToString();
+}
+
 const_shared_ptr<Symbol> FunctionType::GetSymbol(const_shared_ptr<void> value,
 		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	return make_shared<Symbol>(static_pointer_cast<const Function>(value));

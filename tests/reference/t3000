@@ -13,9 +13,9 @@ Root Type Table:
 ronly:
 	<record>
 	x:
-		int ( 0)
+		int (0)
 	y:
-		double ( 0)
+		double (0)
 	z:
-		string ( "")
+		string ("")
 

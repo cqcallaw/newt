@@ -45,6 +45,9 @@ public:
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const;
 
+	virtual const std::string GetValueSeperator(const Indent& indent,
+			const_shared_ptr<void> value) const;
+
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name) const;
 

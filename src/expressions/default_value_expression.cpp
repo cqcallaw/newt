@@ -23,7 +23,6 @@
 #include <type_table.h>
 #include <execution_context.h>
 #include <nested_type_specifier.h>
-#include <member_definition.h>
 #include <record_type_specifier.h>
 #include <sum_type_specifier.h>
 
@@ -58,6 +57,7 @@ const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetType(
 //					member_name);
 //		}
 //	}
+//	auto str = m_type->ToString();
 	return m_type;
 }
 

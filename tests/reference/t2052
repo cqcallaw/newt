@@ -813,17 +813,17 @@ Root Type Table:
 rectangle:
 	<record>
 	blue:
-		double ( 0)
+		double (0)
 	green:
-		double ( 0)
+		double (0)
 	h:
-		int ( 0)
+		int (0)
 	red:
-		double ( 0)
+		double (0)
 	w:
-		int ( 10)
+		int (10)
 	x:
-		int ( 0)
+		int (0)
 	y:
-		int ( 0)
+		int (0)
 

@@ -37,10 +37,9 @@ const std::string PrimitiveType::ToString(const TypeTable& type_table,
 const std::string PrimitiveType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
-	buffer
-			<< Symbol::ToString(PrimitiveTypeSpecifier::FromBasicType(m_type),
-					value, type_table, indent);
-	return buffer.str();
+	buffer << PrimitiveTypeSpecifier::FromBasicType(m_type)->ToString(value);
+	auto result = buffer.str();
+	return result;
 }
 
 bool PrimitiveType::IsSpecifiedBy(const std::string& name,
@@ -105,4 +104,9 @@ const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name) const {
 	return PrimitiveTypeSpecifier::FromBasicType(m_type);
+}
+
+const std::string PrimitiveType::GetValueSeperator(const Indent& indent,
+		const_shared_ptr<void> value) const {
+	return " ";
 }

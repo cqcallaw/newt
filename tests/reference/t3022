@@ -15,10 +15,10 @@ my_other_struct:
 			double y: 5.3
 		)
 	x:
-		int ( 0)
+		int (0)
 
 my_struct:
 	<record>
 	y:
-		double ( 5.3)
+		double (5.3)
 

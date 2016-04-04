@@ -29,11 +29,11 @@ Root Type Table:
 rectangle:
 	<record>
 	h:
-		int ( 0)
+		int (0)
 	w:
-		int ( 0)
+		int (0)
 	x:
-		int ( 0)
+		int (0)
 	y:
-		int ( 0)
+		int (0)
 

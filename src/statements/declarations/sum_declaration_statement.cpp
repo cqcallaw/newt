@@ -34,7 +34,7 @@
 #include <primitive_type.h>
 #include <function_declaration.h>
 #include <statement_block.h>
-#include <member_definition.h>
+#include <record.h>
 #include <nested_type_specifier.h>
 #include <variable_expression.h>
 #include <return_statement.h>

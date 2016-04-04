@@ -67,7 +67,7 @@ public:
 	virtual const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
-	static const string ToString(const_shared_ptr<TypeSpecifier> type,
+	static const string ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void> value, const TypeTable& type_table,
 			const Indent& indent);
 

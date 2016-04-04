@@ -12,9 +12,17 @@ result t2: 3 {value}
 Root Type Table:
 ----------------
 result:
+	<sum>
 	error:
-		string message ("")
+		<record>
+		message:
+			string ("")
+
 	value:
 		int
+
 result_ctor:
-	(int) -> result value ()
+	<record>
+	value:
+		(int) -> result (Body Location: 3.2-6)
+

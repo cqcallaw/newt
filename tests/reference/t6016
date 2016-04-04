@@ -18,9 +18,9 @@ result:
 	error:
 		<record>
 		code:
-			int ( 0)
+			int (0)
 		message:
-			string ( "")
+			string ("")
 
 	value:
 		int

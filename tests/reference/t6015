@@ -17,10 +17,19 @@ result second_result:
 Root Type Table:
 ----------------
 result:
+	<sum>
 	error:
-		int code (0)
-		string message ("")
+		<record>
+		code:
+			int (0)
+		message:
+			string ("")
+
 	value:
 		int
+
 result_ctor:
-	(int) -> result value ()
+	<record>
+	value:
+		(int) -> result (Body Location: 3.2-6)
+

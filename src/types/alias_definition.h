@@ -46,8 +46,17 @@ public:
 		if (m_default_value) {
 			string default_value = ValueToString(type_table, child_indent,
 					m_default_value);
-			os << " (" << default_value;
-			if (default_value.find("\n") != std::string::npos) {
+			os << " (";
+
+			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					m_original);
+			if (as_complex) {
+				os << endl;
+			}
+
+			os << default_value;
+
+			if (as_complex) {
 				os << child_indent;
 			}
 			os << ")";
@@ -61,6 +70,16 @@ public:
 		auto origin = GetOrigin();
 		if (origin) {
 			return origin->ValueToString(type_table, indent, value);
+		} else {
+			return "<No origin found for alias '" + m_original->ToString() + "'";
+		}
+	}
+
+	virtual const std::string GetValueSeperator(const Indent& indent,
+			const_shared_ptr<void> value) const {
+		auto origin = GetOrigin();
+		if (origin) {
+			return origin->GetValueSeperator(indent, value);
 		} else {
 			return "<No origin found for alias '" + m_original->ToString() + "'";
 		}

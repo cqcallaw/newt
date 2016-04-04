@@ -67,28 +67,9 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
 	}
 
-	const_shared_ptr<NestedTypeSpecifier> as_nested_type_specifier =
-			std::dynamic_pointer_cast<const NestedTypeSpecifier>(other);
-	if (as_nested_type_specifier) {
-		auto complex_type = type_table.GetType<ComplexType>(
-				as_nested_type_specifier->GetParent());
-		if (complex_type) {
-			auto member_name = as_nested_type_specifier->GetMemberName();
-			auto member_type = complex_type->GetDefinition()->GetType<
-					TypeDefinition>(*member_name,
-					AliasResolution::RETURN);
-
-			if (member_type) {
-				//check for aliasing
-				auto as_alias =
-						std::dynamic_pointer_cast<const AliasDefinition>(
-								member_type);
-
-				if (as_alias) {
-					return IsAssignableTo(as_alias->GetOriginal(), type_table);
-				}
-			}
-		}
+	auto unaliased = other->ResolveAliasing(type_table);
+	if (unaliased) {
+		return IsAssignableTo(unaliased, type_table);
 	}
 
 	return false;
@@ -198,7 +179,6 @@ const_shared_ptr<Symbol> PrimitiveTypeSpecifier::GetSymbol(
 }
 
 const_shared_ptr<TypeDefinition> PrimitiveTypeSpecifier::GetType(
-		const TypeTable& type_table,
-		AliasResolution resolution) const {
+		const TypeTable& type_table, AliasResolution resolution) const {
 	return make_shared<PrimitiveType>(GetBasicType());
 }

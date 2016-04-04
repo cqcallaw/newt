@@ -28,6 +28,8 @@ class NestedTypeSpecifier: public TypeSpecifier {
 public:
 	NestedTypeSpecifier(const_shared_ptr<ComplexTypeSpecifier> parent,
 			const_shared_ptr<std::string> member_name);
+//	NestedTypeSpecifier(const_shared_ptr<NestedTypeSpecifier> parent,
+//			const_shared_ptr<std::string> member_name);
 	virtual ~NestedTypeSpecifier();
 
 	virtual const std::string ToString() const;

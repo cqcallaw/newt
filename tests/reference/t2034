@@ -50,20 +50,20 @@ Root Type Table:
 MyStruct:
 	<record>
 	h:
-		int ( 0)
+		int (0)
 	w:
-		int ( 0)
+		int (0)
 	x:
-		int ( 0)
+		int (0)
 	y:
-		int ( 0)
+		int (0)
 
 MyStruct2:
 	<record>
 	w:
-		int ( 3)
+		int (3)
 	x:
-		double ( 0)
+		double (0)
 	y:
-		string ( "")
+		string ("")
 

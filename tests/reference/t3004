@@ -12,7 +12,7 @@ Root Type Table:
 point:
 	<record>
 	x:
-		double ( 1)
+		double (1)
 	y:
-		double ( 0)
+		double (0)
 

@@ -24,7 +24,7 @@
 #include <result.h>
 #include <member_instantiation.h>
 #include <expression.h>
-#include <member_definition.h>
+
 #include <record_type.h>
 #include <symbol.h>
 #include <sum_type.h>

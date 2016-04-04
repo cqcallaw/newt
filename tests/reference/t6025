@@ -13,10 +13,16 @@ test_ctor test:
 Root Type Table:
 ----------------
 test:
+	<sum>
 	d:
 		double
 	i:
 		int
+
 test_ctor:
-	(double) -> test d ()
-	(int) -> test i ()
+	<record>
+	d:
+		(double) -> test (Body Location: 4.4)
+	i:
+		(int) -> test (Body Location: 3.2)
+

@@ -16,7 +16,7 @@ Root Type Table:
 point:
 	<record>
 	x:
-		int ( 1)
+		int (1)
 	y:
-		int ( 0)
+		int (0)
 

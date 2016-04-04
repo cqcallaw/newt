@@ -28,7 +28,7 @@ point:
 	translate:
 		(int, int) -> point (Body Location: [default location])
 	x:
-		int ( 0)
+		int (0)
 	y:
-		int ( 0)
+		int (0)
 

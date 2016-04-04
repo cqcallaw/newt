@@ -54,28 +54,9 @@ const bool RecordTypeSpecifier::IsAssignableTo(
 		return true;
 	}
 
-	//check to see if this type is an alias of the other type
-//	auto other_as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(
-//			other);
-//	if (other_as_nested) {
-//		auto other_definition = other->GetType(type_table);
-//		auto as_complex = dynamic_pointer_cast<const ComplexType>(other_definition);
-//
-//		if (as_complex) {
-//			auto member_definition = as_complex->g
-//		}
-//	}
-
-	auto other_rep = other->ToString();
-	auto other_definition = other->GetType(type_table, RETURN);
-	//auto type_definition = type_table.GetType<RecordType>(m_type_name);
-	if (other_definition) {
-		auto rep = other_definition->ToString(type_table, Indent(0));
-		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(
-				other_definition);
-		if (as_alias) {
-			return *this == *as_alias->GetOriginal();
-		}
+	auto unaliased = other->ResolveAliasing(type_table);
+	if (unaliased) {
+		return IsAssignableTo(unaliased, type_table);
 	}
 
 	return false;

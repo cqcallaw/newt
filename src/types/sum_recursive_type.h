@@ -59,6 +59,11 @@ public:
 		return os.str();
 	}
 
+	virtual const std::string GetValueSeperator(const Indent& indent,
+			const_shared_ptr<void> value) const {
+		return "";
+	}
+
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const {
 		ostringstream os;

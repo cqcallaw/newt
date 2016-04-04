@@ -23,7 +23,7 @@
 #include <sum_type.h>
 #include <record_type.h>
 #include <primitive_type.h>
-#include <member_definition.h>
+
 #include <record_type_specifier.h>
 
 NestedTypeSpecifier::NestedTypeSpecifier(
@@ -32,6 +32,12 @@ NestedTypeSpecifier::NestedTypeSpecifier(
 		m_parent(parent), m_member_name(member_name) {
 }
 
+//NestedTypeSpecifier::NestedTypeSpecifier(
+//		const_shared_ptr<NestedTypeSpecifier> parent,
+//		const_shared_ptr<std::string> member_name) :
+//		m_parent(parent), m_member_name(member_name) {
+//}
+//
 NestedTypeSpecifier::~NestedTypeSpecifier() {
 }
 
@@ -63,10 +69,10 @@ const bool NestedTypeSpecifier::IsAssignableTo(
 
 const_shared_ptr<void> NestedTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
-	auto parent_type = type_table.GetType<ComplexType>(m_parent);
-
-	if (parent_type) {
-		return parent_type->GetMemberDefaultValue(m_member_name);
+	auto parent_type = m_parent->GetType(type_table);
+	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
+	if (as_complex) {
+		return as_complex->GetMemberDefaultValue(m_member_name);
 	} else {
 		return const_shared_ptr<void>();
 	}
@@ -96,10 +102,10 @@ bool NestedTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 
 const_shared_ptr<Symbol> NestedTypeSpecifier::GetSymbol(
 		const_shared_ptr<void> value, const TypeTable& container) const {
-	auto parent_type = container.GetType<ComplexType>(m_parent);
-
-	if (parent_type) {
-		auto member_type_specifier = parent_type->GetMemberTypeSpecifier(
+	auto parent_type = m_parent->GetType(container);
+	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
+	if (as_complex) {
+		auto member_type_specifier = as_complex->GetMemberTypeSpecifier(
 				m_member_name);
 		return member_type_specifier->GetSymbol(value, container);
 	} else {
@@ -108,12 +114,11 @@ const_shared_ptr<Symbol> NestedTypeSpecifier::GetSymbol(
 }
 
 const_shared_ptr<TypeDefinition> NestedTypeSpecifier::GetType(
-		const TypeTable& type_table,
-		AliasResolution resolution) const {
-	auto parent_type = type_table.GetType<ComplexType>(m_parent);
-
-	if (parent_type) {
-		return parent_type->GetDefinition()->GetType<TypeDefinition>(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	auto parent_type = m_parent->GetType(type_table);
+	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
+	if (as_complex) {
+		return as_complex->GetDefinition()->GetType<TypeDefinition>(
 				m_member_name, resolution);
 	} else {
 		return nullptr;
@@ -122,11 +127,11 @@ const_shared_ptr<TypeDefinition> NestedTypeSpecifier::GetType(
 
 const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::ResolveAliasing(
 		const TypeTable& type_table) const {
-	auto parent_type = type_table.GetType<ComplexType>(m_parent);
-	if (parent_type) {
-		auto type_definition = parent_type->GetDefinition()->GetType<
-				TypeDefinition>(m_member_name,
-				AliasResolution::RETURN);
+	auto parent_type = m_parent->GetType(type_table);
+	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
+	if (as_complex) {
+		auto type_definition = as_complex->GetDefinition()->GetType<
+				TypeDefinition>(m_member_name, AliasResolution::RETURN);
 		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(
 				type_definition);
 		if (as_alias) {
@@ -136,3 +141,4 @@ const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::ResolveAliasing(
 
 	return const_shared_ptr<TypeSpecifier>();
 }
+

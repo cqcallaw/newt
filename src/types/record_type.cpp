@@ -18,7 +18,7 @@
  */
 
 #include <record_type.h>
-#include <member_definition.h>
+
 #include <sstream>
 #include <assert.h>
 #include <specifiers/type_specifier.h>
@@ -27,6 +27,7 @@
 #include <execution_context.h>
 #include <expression.h>
 #include <symbol_context.h>
+#include <record.h>
 
 RecordType::RecordType(const_shared_ptr<TypeTable> definition,
 		const Modifier::Type modifiers) :
@@ -142,9 +143,8 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
 	auto as_record = static_pointer_cast<const Record>(value);
-	buffer
-			<< Symbol::ToString(as_record->GetTypeSpecifier(), value,
-					type_table, indent);
+	auto record_type_instance = static_pointer_cast<const Record>(value);
+	buffer << record_type_instance->ToString(type_table, indent + 1);
 	return buffer.str();
 }
 
@@ -228,4 +228,9 @@ const SetResult RecordType::InstantiateCore(
 	auto set_result = execution_context->SetSymbol(instance_name, instance,
 			execution_context->GetTypeTable());
 	return set_result;
+}
+
+const std::string RecordType::GetValueSeperator(const Indent& indent,
+		const_shared_ptr<void> value) const {
+	return "\n";
 }

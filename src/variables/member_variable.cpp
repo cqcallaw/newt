@@ -11,7 +11,7 @@
 #include <symbol_table.h>
 #include <sstream>
 #include <result.h>
-#include <member_definition.h>
+#include <record.h>
 #include <nested_type_specifier.h>
 #include <sum_type.h>
 

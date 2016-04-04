@@ -52,20 +52,20 @@ Root Type Table:
 rectangle:
 	<record>
 	h:
-		int ( 0)
+		int (0)
 	w:
-		int ( 10)
+		int (10)
 	x:
-		int ( 0)
+		int (0)
 	y:
-		int ( 0)
+		int (0)
 
 triangle:
 	<record>
 	w:
-		int ( 10)
+		int (10)
 	x:
-		int ( 0)
+		int (0)
 	y:
-		int ( 0)
+		int (0)
 

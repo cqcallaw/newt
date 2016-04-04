@@ -19,9 +19,9 @@ Root Type Table:
 rectangle:
 	<record>
 	w:
-		int ( 10)
+		int (10)
 	x:
-		int ( 0)
+		int (0)
 	y:
-		int ( 0)
+		int (0)
 

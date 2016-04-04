@@ -63,11 +63,11 @@ Root Type Table:
 circle:
 	<record>
 	radius:
-		int ( 0)
+		int (0)
 	w:
-		int ( 20)
+		int (20)
 	x:
-		int ( 0)
+		int (0)
 	y:
-		int ( 0)
+		int (0)
 

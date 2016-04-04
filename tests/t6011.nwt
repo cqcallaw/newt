@@ -7,4 +7,5 @@ sum result {
 	}
 }
 
-first_result := @result.error with { code = 1, message = "Failed to guess magic number." }
+narrow_result := @result.error with { code = 1, message = "Failed to guess magic number." }
+wide_result:result= @result.error with { code = 2, message = "That other thing." }

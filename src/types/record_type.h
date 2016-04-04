@@ -53,6 +53,9 @@ public:
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const;
 
+	virtual const std::string GetValueSeperator(const Indent& indent,
+			const_shared_ptr<void> value) const;
+
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const_shared_ptr<std::string> type_name,
 			const TypeTable& type_table) const;

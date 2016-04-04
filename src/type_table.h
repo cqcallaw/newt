@@ -20,7 +20,6 @@
 #ifndef TYPE_TABLE_H_
 #define TYPE_TABLE_H_
 
-#include <member_declaration.h>
 #include <type.h>
 #include <map>
 #include <set>

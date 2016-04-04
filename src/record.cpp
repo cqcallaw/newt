@@ -17,11 +17,11 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <member_definition.h>
 #include <function_type_specifier.h>
 #include <record.h>
 #include <sum.h>
 #include <symbol_table.h>
+#include <record_type.h>
 
 const_shared_ptr<Record> Record::GetDefaultInstance(
 		const_shared_ptr<std::string> type_name, const RecordType& type) {

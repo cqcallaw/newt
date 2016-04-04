@@ -62,3 +62,8 @@ const_shared_ptr<Symbol> ArrayType::GetSymbol(const_shared_ptr<void> value,
 	auto cast = static_pointer_cast<const Array>(value);
 	return make_shared<Symbol>(cast);
 }
+
+const std::string ArrayType::GetValueSeperator(const Indent& indent,
+		const_shared_ptr<void> value) const {
+	return "\n";
+}

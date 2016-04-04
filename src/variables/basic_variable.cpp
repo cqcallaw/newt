@@ -265,8 +265,9 @@ const ErrorListRef BasicVariable::AssignValue(
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto parent_type_definition = context->GetTypeTable()->GetType<
-					ComplexType>(as_nested_specifier->GetParent());
+			auto parent_type_definition =
+					as_nested_specifier->GetParent()->GetType(
+							context->GetTypeTable());
 
 			if (parent_type_definition) {
 				auto as_sum = dynamic_pointer_cast<const SumType>(
@@ -277,7 +278,6 @@ const ErrorListRef BasicVariable::AssignValue(
 							RecordType>(as_nested_specifier->GetMemberName());
 					if (child_record_type) {
 						auto value = expression_evaluation->GetData<Record>();
-						//auto expression_type = expression->GetType(context);
 						errors = SetSymbol(output_context, value,
 								as_nested_specifier->GetParent());
 					} else {

@@ -51,8 +51,8 @@ const std::string SumType::ToString(const TypeTable& type_table,
 const std::string SumType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
-	auto as_sum = static_pointer_cast<const Sum>(value);
-	buffer << Symbol::ToString(as_sum->GetType(), value, type_table, indent);
+	auto sum_instance = static_pointer_cast<const Sum>(value);
+	buffer << sum_instance->ToString(type_table, indent);
 	return buffer.str();
 }
 
@@ -62,7 +62,7 @@ const_shared_ptr<Result> SumType::Build(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = context->GetTypeTable();
-	const shared_ptr<TypeTable> types = make_shared<TypeTable>(type_table);
+	const shared_ptr<TypeTable> types = make_shared<TypeTable>();
 
 	auto parent = SymbolContextList::From(context, context->GetParent());
 	shared_ptr<ExecutionContext> tmp_context = make_shared<ExecutionContext>(
@@ -109,9 +109,9 @@ const_shared_ptr<Result> SumType::Build(
 							const PrimitiveTypeSpecifier>(
 							original_type_specifier);
 					if (original_as_primitive) {
-						auto basic_type = original_as_primitive->GetBasicType();
-						types->AddType(alias_type_name,
-								make_shared<PrimitiveType>(basic_type));
+						auto alias = make_shared<AliasDefinition>(type_table,
+								original_as_primitive);
+						types->AddType(alias_type_name, alias);
 					}
 
 					auto original_as_record = dynamic_pointer_cast<
@@ -305,6 +305,15 @@ const_shared_ptr<void> SumType::GetMemberDefaultValue(
 const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name) const {
 	return make_shared<SumTypeSpecifier>(name);
+}
+
+const std::string SumType::GetValueSeperator(const Indent& indent,
+		const_shared_ptr<void> value) const {
+	auto as_sum = static_pointer_cast<const Sum>(value);
+	auto variant_name = as_sum->GetTag();
+
+	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name);
+	return variant_type->GetValueSeperator(indent, value);
 }
 
 const SetResult SumType::InstantiateCore(

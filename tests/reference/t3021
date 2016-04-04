@@ -27,7 +27,7 @@ my_array_struct:
 	arr:
 		my_struct[] ()
 	z:
-		int ( 0)
+		int (0)
 
 my_other_struct:
 	<record>
@@ -36,10 +36,10 @@ my_other_struct:
 			double y: 0
 		)
 	x:
-		int ( 0)
+		int (0)
 
 my_struct:
 	<record>
 	y:
-		double ( 0)
+		double (0)
 

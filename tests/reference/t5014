@@ -16,5 +16,5 @@ Root Type Table:
 person:
 	<record>
 	name:
-		string ( "")
+		string ("")
 

@@ -44,7 +44,7 @@ Circle:
 			int y: 0
 		)
 	radius:
-		int ( 0)
+		int (0)
 
 Line:
 	<record>
@@ -62,7 +62,7 @@ Line:
 Point:
 	<record>
 	x:
-		int ( 0)
+		int (0)
 	y:
-		int ( 0)
+		int (0)
 

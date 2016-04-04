@@ -38,5 +38,5 @@ Root Type Table:
 test:
 	<record>
 	x:
-		int ( 10)
+		int (10)
 

@@ -14,13 +14,21 @@ result_ctor result:
 Root Type Table:
 ----------------
 error:
-	int code (0)
-	string message ("")
+	<record>
+	code:
+		int (0)
+	message:
+		string ("")
+
 result:
+	<sum>
 	error:
-		int code (0)
-		string message ("")
+		error
 	value:
 		double
+
 result_ctor:
-	(double) -> result value ()
+	<record>
+	value:
+		(double) -> result (Body Location: 7.2-6)
+

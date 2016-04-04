@@ -11,5 +11,5 @@ Root Type Table:
 my_struct:
 	<record>
 	x:
-		double ( 0)
+		double (0)
 

@@ -20,11 +20,10 @@
 #include <record_declaration_statement.h>
 #include <error.h>
 #include <expression.h>
-#include <member_declaration.h>
 #include <type_table.h>
 #include <execution_context.h>
 #include <map>
-#include <member_definition.h>
+
 #include <record_type.h>
 #include <default_value_expression.h>
 #include <defaults.h>

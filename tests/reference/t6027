@@ -16,13 +16,24 @@ stringified s:
 Root Type Table:
 ----------------
 number:
+	<sum>
 	continuous:
 		double
 	discrete:
 		int
+
 number_ctor:
-	(double) -> number continuous ()
-	(int) -> number discrete ()
+	<record>
+	continuous:
+		(double) -> number (Body Location: 4.4-13)
+	discrete:
+		(int) -> number (Body Location: 3.2-9)
+
 stringified:
-	string as_string ("default stuff")
-	number value ()
+	<record>
+	as_string:
+		string ("default stuff")
+	value:
+		number (
+0 {discrete}		)
+

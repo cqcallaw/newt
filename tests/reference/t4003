@@ -11,5 +11,5 @@ Root Type Table:
 test:
 	<record>
 	s:
-		string ( "hmmm")
+		string ("hmmm")
 

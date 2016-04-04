@@ -6,4 +6,4 @@ sum result {
 	| error
 }
 
-val:= @result.happy_fun
+val:result= @result.happy_fun

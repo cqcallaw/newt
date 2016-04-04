@@ -4,4 +4,4 @@ sum test {
 	| d:double
 }
 
-t := @test.d
+t:test= @test.d

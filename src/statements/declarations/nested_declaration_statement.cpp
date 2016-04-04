@@ -22,7 +22,6 @@
 #include <memory>
 #include <nested_type_specifier.h>
 #include <execution_context.h>
-#include <member_definition.h>
 #include <sum.h>
 #include <basic_variable.h>
 #include <nested_declaration_statement.h>

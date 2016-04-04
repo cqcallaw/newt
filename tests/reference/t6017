@@ -6,16 +6,22 @@ result_ctor result:
 	(int) -> result value:
 		Body Location: 3.2-6
 
-result val:
+result.error val:
 	<empty>
- {error}
+
 
 Root Type Table:
 ----------------
 result:
+	<sum>
 	error:
-		<empty>
+		<record>
+
 	value:
 		int
+
 result_ctor:
-	(int) -> result value ()
+	<record>
+	value:
+		(int) -> result (Body Location: 3.2-6)
+

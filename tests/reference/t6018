@@ -9,11 +9,17 @@ result val:
 Root Type Table:
 ----------------
 result:
+	<sum>
 	error:
-		<empty>
+		<record>
+
 	frowny_sad:
-		<empty>
+		<record>
+
 	happy_fun:
-		<empty>
+		<record>
+
 	no_result:
-		<empty>
+		<record>
+
+

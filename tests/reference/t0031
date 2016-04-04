@@ -30,5 +30,5 @@ nested_container:
 test:
 	<record>
 	x:
-		int ( 10)
+		int (10)
 
