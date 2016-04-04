@@ -69,6 +69,14 @@ public:
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
 			const shared_ptr<ExecutionContext> parent,
 			const Modifier::Type modifiers, const LifeTime life_time,
+			volatile_shared_ptr<TypeTable> type_table) {
+		return GetEmptyChild(parent, modifiers, life_time, type_table,
+				make_shared<symbol_map>());
+	}
+
+	static const shared_ptr<ExecutionContext> GetEmptyChild(
+			const shared_ptr<ExecutionContext> parent,
+			const Modifier::Type modifiers, const LifeTime life_time,
 			volatile_shared_ptr<TypeTable> type_table,
 			const shared_ptr<symbol_map> map) {
 		auto new_parent = SymbolContextList::From(parent, parent->GetParent());
