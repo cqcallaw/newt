@@ -5,6 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/types/specifiers/array_type_specifier.cpp \
+../src/types/specifiers/complex_type_specifier.cpp \
 ../src/types/specifiers/function_declaration.cpp \
 ../src/types/specifiers/function_type_specifier.cpp \
 ../src/types/specifiers/nested_type_specifier.cpp \
@@ -14,6 +15,7 @@ CPP_SRCS += \
 
 OBJS += \
 ./src/types/specifiers/array_type_specifier.o \
+./src/types/specifiers/complex_type_specifier.o \
 ./src/types/specifiers/function_declaration.o \
 ./src/types/specifiers/function_type_specifier.o \
 ./src/types/specifiers/nested_type_specifier.o \
@@ -23,6 +25,7 @@ OBJS += \
 
 CPP_DEPS += \
 ./src/types/specifiers/array_type_specifier.d \
+./src/types/specifiers/complex_type_specifier.d \
 ./src/types/specifiers/function_declaration.d \
 ./src/types/specifiers/function_type_specifier.d \
 ./src/types/specifiers/nested_type_specifier.d \

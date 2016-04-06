@@ -187,9 +187,9 @@ const ErrorListRef BasicVariable::AssignValue(
 	}
 
 //TODO: don't allow += or -= operations on compound type specifiers
-	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
-			const RecordTypeSpecifier>(symbol_type);
-	if (as_record) {
+	const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
+			std::dynamic_pointer_cast<const RecordTypeSpecifier>(symbol_type);
+	if (as_record_specifier) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
@@ -198,7 +198,8 @@ const ErrorListRef BasicVariable::AssignValue(
 			auto new_instance = expression_evaluation->GetData<Record>();
 
 			//we're assigning a struct reference
-			errors = SetSymbol(output_context, new_instance);
+			errors = SetSymbol(output_context, as_record_specifier,
+					new_instance);
 		}
 	}
 
@@ -246,51 +247,51 @@ const ErrorListRef BasicVariable::AssignValue(
 					//we're widening
 					auto tag = sum_type->MapSpecifierToVariant(*expression_type,
 							*sum_type_name);
-					new_sum = make_shared<Sum>(as_sum_specifier, tag,
+					new_sum = make_shared<Sum>(tag,
 							expression_evaluation->GetRawData());
 				} else {
 					assert(false);
 				}
 			}
 
-			errors = SetSymbol(output_context, new_sum);
+			errors = SetSymbol(output_context, as_sum_specifier, new_sum);
 		}
 	}
 
-	const_shared_ptr<NestedTypeSpecifier> as_nested_specifier =
-			std::dynamic_pointer_cast<const NestedTypeSpecifier>(symbol_type);
-	if (as_nested_specifier) {
-		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
-				context);
-
-		errors = expression_evaluation->GetErrors();
-		if (ErrorList::IsTerminator(errors)) {
-			auto parent_type_definition =
-					as_nested_specifier->GetParent()->GetType(
-							context->GetTypeTable());
-
-			if (parent_type_definition) {
-				auto as_sum = dynamic_pointer_cast<const SumType>(
-						parent_type_definition);
-
-				if (as_sum) {
-					auto child_record_type = as_sum->GetDefinition()->GetType<
-							RecordType>(as_nested_specifier->GetMemberName());
-					if (child_record_type) {
-						auto value = expression_evaluation->GetData<Record>();
-						errors = SetSymbol(output_context, value,
-								as_nested_specifier->GetParent());
-					} else {
-						assert(false);
-					}
-				} else {
-					assert(false);
-				}
-			} else {
-				assert(false);
-			}
-		}
-	}
+//	const_shared_ptr<NestedTypeSpecifier> as_nested_specifier =
+//			std::dynamic_pointer_cast<const NestedTypeSpecifier>(symbol_type);
+//	if (as_nested_specifier) {
+//		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
+//				context);
+//
+//		errors = expression_evaluation->GetErrors();
+//		if (ErrorList::IsTerminator(errors)) {
+//			auto parent_type_definition =
+//					as_nested_specifier->GetParent()->GetType(
+//							context->GetTypeTable());
+//
+//			if (parent_type_definition) {
+//				auto as_sum = dynamic_pointer_cast<const SumType>(
+//						parent_type_definition);
+//
+//				if (as_sum) {
+//					auto child_record_type = as_sum->GetDefinition()->GetType<
+//							RecordType>(as_nested_specifier->GetMemberName());
+//					if (child_record_type) {
+//						auto value = expression_evaluation->GetData<Record>();
+//						errors = SetSymbol(output_context, value,
+//								as_nested_specifier->GetParent());
+//					} else {
+//						assert(false);
+//					}
+//				} else {
+//					assert(false);
+//				}
+//			} else {
+//				assert(false);
+//			}
+//		}
+//	}
 
 	return errors;
 }
@@ -342,12 +343,12 @@ const ErrorListRef BasicVariable::SetSymbol(
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Record> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<RecordTypeSpecifier> type,
+		const_shared_ptr<Record> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
-			context->SetSymbol(*GetName(), value, context->GetTypeTable(),
-					container), symbol->GetType(), value->GetTypeSpecifier());
+			context->SetSymbol(*GetName(), type, value,
+					context->GetTypeTable()), symbol->GetType(), type);
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
@@ -361,11 +362,12 @@ const ErrorListRef BasicVariable::SetSymbol(
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Sum> sum) const {
+		const_shared_ptr<SumTypeSpecifier> type,
+		const_shared_ptr<Sum> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
-			context->SetSymbol(*GetName(), sum, context->GetTypeTable()),
-			symbol->GetType(), sum->GetType());
+			context->SetSymbol(*GetName(), type, value,
+					context->GetTypeTable()), symbol->GetType(), type);
 }
 
 const_shared_ptr<Variable> BasicVariable::GetDefaultVariable() {

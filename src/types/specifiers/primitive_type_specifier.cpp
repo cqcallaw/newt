@@ -75,12 +75,6 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 	return false;
 }
 
-const_shared_ptr<void> PrimitiveTypeSpecifier::DefaultValue(
-		const TypeTable& type_table) const {
-	const BasicType basic_type = GetBasicType();
-	return PrimitiveType::GetDefaultValue(basic_type);
-}
-
 const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetNone() {
 	static const_shared_ptr<PrimitiveTypeSpecifier> instance = const_shared_ptr<
 			PrimitiveTypeSpecifier>(
@@ -139,43 +133,6 @@ bool PrimitiveTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	} catch (std::bad_cast& e) {
 		return false;
 	}
-}
-
-const_shared_ptr<DeclarationStatement> PrimitiveTypeSpecifier::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<PrimitiveDeclarationStatement>(position, type,
-			type_position, name, name_position, initializer_expression);
-}
-
-const_shared_ptr<Symbol> PrimitiveTypeSpecifier::GetSymbol(
-		const_shared_ptr<void> value, const TypeTable& container) const {
-	const BasicType basic_type = GetBasicType();
-	switch (basic_type) {
-	case BOOLEAN: {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const bool>(value)));
-	}
-	case INT: {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const int>(value)));
-	}
-	case DOUBLE: {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const double>(value)));
-	}
-	case STRING: {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const string>(value)));
-	}
-	default:
-		assert(false);
-	}
-
-	assert(false);
-	return Symbol::GetDefaultSymbol();
 }
 
 const_shared_ptr<TypeDefinition> PrimitiveTypeSpecifier::GetType(

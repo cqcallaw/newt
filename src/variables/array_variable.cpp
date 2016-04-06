@@ -391,8 +391,8 @@ const ErrorListRef ArrayVariable::SetSymbol(
 
 const ErrorListRef ArrayVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Record> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<RecordTypeSpecifier> type,
+		const_shared_ptr<Record> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 

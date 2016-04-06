@@ -35,8 +35,7 @@ public:
 
 	virtual const_shared_ptr<TypeSpecifier> GetType(
 			const shared_ptr<ExecutionContext> context,
-			AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<string> ToString(
 			const shared_ptr<ExecutionContext> context) const;
@@ -85,8 +84,8 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<Record> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+			const_shared_ptr<RecordTypeSpecifier> type,
+			const_shared_ptr<Record> value) const;
 
 	class ValidationResult {
 	public:

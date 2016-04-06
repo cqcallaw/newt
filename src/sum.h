@@ -27,16 +27,10 @@ class SumType;
 
 class Sum {
 public:
-	Sum(const_shared_ptr<SumTypeSpecifier> type,
-			const_shared_ptr<std::string> tag, const_shared_ptr<void> value);
+	Sum(const_shared_ptr<std::string> tag, const_shared_ptr<void> value);
 	virtual ~Sum();
 
-	static const_shared_ptr<Sum> GetDefaultInstance(
-			const_shared_ptr<std::string> type_name, const SumType& type);
-
-	const_shared_ptr<SumTypeSpecifier> GetType() const {
-		return m_type;
-	}
+	static const_shared_ptr<Sum> GetDefaultInstance(const SumType& type);
 
 	const_shared_ptr<void> GetValue() const {
 		return m_value;
@@ -46,11 +40,10 @@ public:
 		return m_tag;
 	}
 
-	const string ToString(const TypeTable& type_table,
+	const string ToString(const SumType& type, const TypeTable& type_table,
 			const Indent& indent) const;
 
 private:
-	const_shared_ptr<SumTypeSpecifier> m_type;
 	const_shared_ptr<std::string> m_tag;
 	const_shared_ptr<void> m_value;
 };

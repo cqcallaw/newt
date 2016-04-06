@@ -101,11 +101,27 @@ public:
 	}
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name,
 			const TypeTable& type_table) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void>) const;
+
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position,
+			const_shared_ptr<std::string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression) const {
+		auto origin = GetOrigin();
+		if (origin) {
+			return origin->GetDeclarationStatement(position, type,
+					type_position, name, name_position, initializer_expression);
+		} else {
+			assert(false);
+			return nullptr;
+		}
+	}
 
 	const_shared_ptr<TypeTable> getOriginTable() const {
 		return m_origin_table;

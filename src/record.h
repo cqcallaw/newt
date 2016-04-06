@@ -35,32 +35,25 @@ using namespace std;
 
 class Record {
 public:
-	Record(const_shared_ptr<RecordTypeSpecifier> type,
-			volatile_shared_ptr<SymbolContext> definition) :
-			m_type(type), m_definition(definition) {
+	Record(volatile_shared_ptr<SymbolContext> definition) :
+			m_definition(definition) {
 	}
 
 	const_shared_ptr<Record> WithDefinition(
 			volatile_shared_ptr<SymbolContext> new_definition) const {
-		return make_shared<Record>(m_type, new_definition);
-	}
-
-	const_shared_ptr<RecordTypeSpecifier> GetTypeSpecifier() const {
-		return m_type;
+		return make_shared<Record>(new_definition);
 	}
 
 	volatile_shared_ptr<SymbolContext> GetDefinition() const {
 		return m_definition;
 	}
 
-	static const_shared_ptr<Record> GetDefaultInstance(
-			const_shared_ptr<std::string> type_name, const RecordType& type);
+	static const_shared_ptr<Record> GetDefaultInstance(const RecordType& type);
 
 	const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
 private:
-	const_shared_ptr<RecordTypeSpecifier> m_type;
 	volatile_shared_ptr<SymbolContext> m_definition;
 };
 

@@ -63,8 +63,8 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						symbol = type->GetSymbol(result->GetData<void>(),
-								m_type->GetParent());
+						symbol = type->GetSymbol(m_type,
+								result->GetData<void>());
 					}
 				}
 			}

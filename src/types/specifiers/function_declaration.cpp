@@ -46,7 +46,8 @@ FunctionDeclaration::~FunctionDeclaration() {
 }
 
 const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
-		const FunctionTypeSpecifier& type_specifier) {
+		const FunctionTypeSpecifier& type_specifier,
+		const TypeTable& type_table) {
 	TypeSpecifierListRef subject = type_specifier.GetParameterTypeList();
 	DeclarationListRef result = DeclarationList::GetTerminator();
 	int count = 1;
@@ -55,8 +56,8 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 		const_shared_ptr<TypeSpecifier> data = subject->GetData();
 		buf << "Arg" << count;
 		result = DeclarationList::From(
-				data->GetDeclarationStatement(GetDefaultLocation(), data,
-						GetDefaultLocation(),
+				data->GetType(type_table)->GetDeclarationStatement(
+						GetDefaultLocation(), data, GetDefaultLocation(),
 						const_shared_ptr<string>(new string(buf.str())),
 						GetDefaultLocation(), nullptr), result);
 		count++;
@@ -70,31 +71,31 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 			type_specifier.GetReturnTypeLocation());
 }
 
-const_shared_ptr<void> FunctionDeclaration::DefaultValue(
-		const TypeTable& type_table) const {
-	return GetDefaultFunctionDeclaration(*this, type_table);
-}
+//const_shared_ptr<void> FunctionDeclaration::DefaultValue(
+//		const TypeTable& type_table) const {
+//	return GetDefaultFunctionDeclaration(*this, type_table);
+//}
+//
+//const_shared_ptr<DeclarationStatement> FunctionDeclaration::GetDeclarationStatement(
+//		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+//		const yy::location type_position, const_shared_ptr<string> name,
+//		const yy::location name_position,
+//		const_shared_ptr<Expression> initializer_expression) const {
+//	return make_shared<FunctionDeclarationStatement>(position,
+//			static_pointer_cast<const FunctionTypeSpecifier>(type),
+//			type_position, name, name_position, initializer_expression);
+//}
 
-const_shared_ptr<DeclarationStatement> FunctionDeclaration::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<FunctionDeclarationStatement>(position,
-			static_pointer_cast<const FunctionTypeSpecifier>(type),
-			type_position, name, name_position, initializer_expression);
-}
-
-const_shared_ptr<Function> FunctionDeclaration::GetDefaultFunctionDeclaration(
-		const FunctionDeclaration& function_declaration,
-		const TypeTable& type_table) {
-	auto statement_block = GetDefaultStatementBlock(
-			function_declaration.GetReturnType(), type_table);
-
-	return make_shared<const Function>(
-			make_shared<FunctionDeclaration>(function_declaration),
-			statement_block, ExecutionContext::GetDefault());
-}
+//const_shared_ptr<Function> FunctionDeclaration::GetDefaultFunctionDeclaration(
+//		const FunctionDeclaration& function_declaration,
+//		const TypeTable& type_table) {
+//	auto statement_block = GetDefaultStatementBlock(
+//			function_declaration.GetReturnType(), type_table);
+//
+//	return make_shared<const Function>(
+//			make_shared<FunctionDeclaration>(function_declaration),
+//			statement_block, ExecutionContext::GetDefault());
+//}
 
 TypeSpecifierListRef FunctionDeclaration::GetTypeList(
 		DeclarationListRef parameter_list) {

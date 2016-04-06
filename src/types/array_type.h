@@ -46,11 +46,18 @@ public:
 			const TypeSpecifier& type_specifier) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name,
 			const TypeTable& type_table) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void>) const;
+
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position,
+			const_shared_ptr<std::string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression) const;
 
 	const const_shared_ptr<TypeSpecifier> GetMemberTypeSpecifier() const {
 		return m_member_type_specifier;

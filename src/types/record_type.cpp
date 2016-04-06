@@ -28,6 +28,7 @@
 #include <expression.h>
 #include <symbol_context.h>
 #include <record.h>
+#include <complex_instantiation_statement.h>
 
 RecordType::RecordType(const_shared_ptr<TypeTable> definition,
 		const Modifier::Type modifiers) :
@@ -136,7 +137,7 @@ const_shared_ptr<TypeSpecifier> RecordType::GetMemberTypeSpecifier(
 
 const_shared_ptr<void> RecordType::GetMemberDefaultValue(
 		const_shared_ptr<std::string> member_name) const {
-	return GetMember(*member_name)->GetDefaultValue(member_name, *m_definition);
+	return GetMember(*member_name)->GetDefaultValue(*m_definition);
 }
 
 const std::string RecordType::ValueToString(const TypeTable& type_table,
@@ -149,19 +150,22 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<void> RecordType::GetDefaultValue(
-		const_shared_ptr<std::string> type_name,
 		const TypeTable& type_table) const {
-	return Record::GetDefaultInstance(type_name, *this);
+	return Record::GetDefaultInstance(*this);
 }
 
-const_shared_ptr<Symbol> RecordType::GetSymbol(const_shared_ptr<void> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
-	auto cast = static_pointer_cast<const Record>(value);
-	if (container) {
-		return make_shared<Symbol>(container, cast);
-	} else {
-		return make_shared<Symbol>(cast);
+const_shared_ptr<Symbol> RecordType::GetSymbol(
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<void> value) const {
+	auto as_record_specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
+			type_specifier);
+
+	if (as_record_specifier) {
+		auto as_record = static_pointer_cast<const Record>(value);
+		return make_shared<Symbol>(as_record_specifier, as_record);
 	}
+
+	return Symbol::GetDefaultSymbol();
 }
 
 bool RecordType::IsSpecifiedBy(const std::string& name,
@@ -184,8 +188,6 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 	plain_shared_ptr<Record> instance = nullptr;
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
-	auto type_name = type_specifier->GetTypeName();
-
 	const_shared_ptr<TypeSpecifier> initializer_expression_type =
 			initializer->GetType(execution_context);
 	if (initializer_expression_type->IsAssignableTo(type_specifier,
@@ -198,19 +200,28 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 				instance = result->GetData<Record>();
 			}
 		} else {
-			instance = Record::GetDefaultInstance(type_name, *this);
+			instance = Record::GetDefaultInstance(*this);
 		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR,
 						initializer->GetPosition().begin.line,
-						initializer->GetPosition().begin.column, *type_name,
+						initializer->GetPosition().begin.column,
+						type_specifier->ToString(),
 						initializer_expression_type->ToString()), errors);
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
-		symbol = make_shared<Symbol>(instance);
+		cout << "Garbage" << type_specifier->ToString();
+		auto as_record_specifier = dynamic_pointer_cast<
+				const RecordTypeSpecifier>(type_specifier);
+		if (as_record_specifier) {
+			symbol = make_shared<Symbol>(as_record_specifier, instance);
+		} else {
+			//TODO: error handling
+			assert(false);
+		}
 	}
 
 	return make_shared<Result>(symbol, errors);
@@ -223,14 +234,39 @@ const_shared_ptr<TypeSpecifier> RecordType::GetTypeSpecifier(
 
 const SetResult RecordType::InstantiateCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Record>(data);
-	auto set_result = execution_context->SetSymbol(instance_name, instance,
-			execution_context->GetTypeTable());
-	return set_result;
+	auto specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
+			type_specifier);
+
+	if (specifier) {
+		auto set_result = execution_context->SetSymbol(instance_name, specifier,
+				instance, execution_context->GetTypeTable());
+		return set_result;
+	} else {
+		return SetResult::INCOMPATIBLE_TYPE;
+	}
 }
 
 const std::string RecordType::GetValueSeperator(const Indent& indent,
 		const_shared_ptr<void> value) const {
 	return "\n";
+}
+
+const_shared_ptr<DeclarationStatement> RecordType::GetDeclarationStatement(
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<std::string> name,
+		const yy::location name_position,
+		const_shared_ptr<Expression> initializer_expression) const {
+	auto as_record_specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
+			type);
+	if (as_record_specifier) {
+		return make_shared<ComplexInstantiationStatement>(position,
+				as_record_specifier, type_position, name, name_position,
+				initializer_expression);
+	} else {
+		assert(false);
+		return nullptr;
+	}
 }

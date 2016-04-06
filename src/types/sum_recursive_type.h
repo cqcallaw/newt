@@ -33,9 +33,9 @@ public:
 	SumRecursiveType(const_shared_ptr<string> type_name) :
 			m_type_name(type_name) {
 		m_default_value = make_shared<Sum>(
-				make_shared<SumTypeSpecifier>(m_type_name),
 				make_shared<string>("placeholder tag"), make_shared<int>(0));
-		m_default_symbol = make_shared<Symbol>(m_default_value);
+		m_default_symbol = make_shared<Symbol>(
+				make_shared<SumTypeSpecifier>(m_type_name), m_default_value);
 	}
 
 	virtual ~SumRecursiveType() {
@@ -73,14 +73,24 @@ public:
 	}
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name,
 			const TypeTable& type_table) const {
 		return m_default_value;
 	}
 
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const {
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void> value) const {
 		return m_default_symbol;
+	}
+
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position,
+			const_shared_ptr<std::string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression) const {
+		assert(false);
+		return nullptr;
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetMemberTypeSpecifier(
@@ -114,6 +124,7 @@ protected:
 
 	virtual const SetResult InstantiateCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const std::string& instance_name,
 			const_shared_ptr<void> data) const {
 		return SetResult::NO_SET_RESULT;

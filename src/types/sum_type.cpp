@@ -34,6 +34,7 @@
 #include <primitive_declaration_statement.h>
 #include <record_declaration_statement.h>
 #include <type_alias_declaration_statement.h>
+#include <complex_instantiation_statement.h>
 #include <record_type.h>
 #include <execution_context.h>
 #include <nested_type_specifier.h>
@@ -52,7 +53,7 @@ const std::string SumType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
 	auto sum_instance = static_pointer_cast<const Sum>(value);
-	buffer << sum_instance->ToString(type_table, indent);
+	buffer << sum_instance->ToString(*this, type_table, indent);
 	return buffer.str();
 }
 
@@ -194,10 +195,18 @@ const WideningResult SumType::AnalyzeWidening(const TypeSpecifier& other,
 	}
 }
 
-const_shared_ptr<Symbol> SumType::GetSymbol(const_shared_ptr<void> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
-	auto cast = static_pointer_cast<const Sum>(value);
-	return make_shared<Symbol>(cast);
+const_shared_ptr<Symbol> SumType::GetSymbol(
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<void> value) const {
+	auto as_sum_specifier = dynamic_pointer_cast<const SumTypeSpecifier>(
+			type_specifier);
+
+	if (as_sum_specifier) {
+		auto as_record = static_pointer_cast<const Sum>(value);
+		return make_shared<Symbol>(as_sum_specifier, as_record);
+	}
+
+	return Symbol::GetDefaultSymbol();
 }
 
 const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
@@ -221,9 +230,8 @@ const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 }
 
 const_shared_ptr<void> SumType::GetDefaultValue(
-		const_shared_ptr<std::string> type_name,
 		const TypeTable& type_table) const {
-	return Sum::GetDefaultInstance(type_name, *this);
+	return Sum::GetDefaultInstance(*this);
 }
 
 const_shared_ptr<Result> SumType::PreprocessSymbolCore(
@@ -247,7 +255,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 		//generate default instance; actual assignment must be done in execute stage
 		//this is because assignment of constant expressions to sum types is only valid
 		//if the constant expression is narrower than the sum type
-		instance = Sum::GetDefaultInstance(type_name, *this);
+		instance = Sum::GetDefaultInstance(*this);
 	} else if (widening_analysis == UNAMBIGUOUS) {
 		if (initializer->IsConstant()) {
 			//assignment of constant expressions to sum types is only valid if constant expression is narrower than the sum type
@@ -262,8 +270,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 				auto sum_type_specifier = make_shared<SumTypeSpecifier>(
 						type_specifier);
 
-				instance = make_shared<Sum>(sum_type_specifier, variant_name,
-						result->GetRawData());
+				instance = make_shared<Sum>(variant_name, result->GetRawData());
 			}
 		}
 	} else if (widening_analysis == AMBIGUOUS) {
@@ -271,19 +278,28 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::AMBIGUOUS_WIDENING_CONVERSION,
 						initializer->GetPosition().begin.line,
-						initializer->GetPosition().begin.column, *type_name,
+						initializer->GetPosition().begin.column,
+						type_specifier->ToString(),
 						initializer_expression_type->ToString()), errors);
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR,
 						initializer->GetPosition().begin.line,
-						initializer->GetPosition().begin.column, *type_name,
+						initializer->GetPosition().begin.column,
+						type_specifier->ToString(),
 						initializer_expression_type->ToString()), errors);
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
-		symbol = make_shared<Symbol>(instance);
+		auto as_sum_specifier = dynamic_pointer_cast<const SumTypeSpecifier>(
+				type_specifier);
+		if (as_sum_specifier) {
+			symbol = make_shared<Symbol>(as_sum_specifier, instance);
+		} else {
+			//TODO: error handling
+			assert(false);
+		}
 	}
 
 	return make_shared<Result>(symbol, errors);
@@ -299,7 +315,7 @@ const_shared_ptr<TypeSpecifier> SumType::GetMemberTypeSpecifier(
 const_shared_ptr<void> SumType::GetMemberDefaultValue(
 		const_shared_ptr<std::string> member_name) const {
 	auto definition = m_definition->GetType<ConcreteType>(member_name);
-	return definition->GetDefaultValue(member_name, *m_definition);
+	return definition->GetDefaultValue(*m_definition);
 }
 
 const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
@@ -316,11 +332,28 @@ const std::string SumType::GetValueSeperator(const Indent& indent,
 	return variant_type->GetValueSeperator(indent, value);
 }
 
+const_shared_ptr<DeclarationStatement> SumType::GetDeclarationStatement(
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<std::string> name,
+		const yy::location name_position,
+		const_shared_ptr<Expression> initializer_expression) const {
+	return make_shared<ComplexInstantiationStatement>(position,
+			static_pointer_cast<const SumTypeSpecifier>(type), type_position,
+			name, name_position, initializer_expression);
+}
+
 const SetResult SumType::InstantiateCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Sum>(data);
-	auto set_result = execution_context->SetSymbol(instance_name, instance,
-			execution_context->GetTypeTable());
-	return set_result;
+	auto specifier = dynamic_pointer_cast<const SumTypeSpecifier>(
+			type_specifier);
+	if (specifier) {
+		auto set_result = execution_context->SetSymbol(instance_name, specifier,
+				instance, execution_context->GetTypeTable());
+		return set_result;
+	} else {
+		return SetResult::INCOMPATIBLE_TYPE;
+	}
 }

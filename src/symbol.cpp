@@ -61,25 +61,18 @@ Symbol::Symbol(const_shared_ptr<Array> value) :
 				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<Record> value) :
-		Symbol(value->GetTypeSpecifier(),
-				static_pointer_cast<const void>(value)) {
-}
-
-Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> container,
+Symbol::Symbol(const_shared_ptr<RecordTypeSpecifier> type,
 		const_shared_ptr<Record> value) :
-		Symbol(
-				make_shared<NestedTypeSpecifier>(container,
-						value->GetTypeSpecifier()->GetTypeName()),
-				static_pointer_cast<const void>(value)) {
+		Symbol(type, static_pointer_cast<const void>(value)) {
 }
 
 Symbol::Symbol(const_shared_ptr<Function> value) :
 		Symbol(value->GetType(), static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<Sum> value) :
-		Symbol(value->GetType(), static_pointer_cast<const void>(value)) {
+Symbol::Symbol(const_shared_ptr<SumTypeSpecifier> type,
+		const_shared_ptr<Sum> value) :
+		Symbol(type, static_pointer_cast<const void>(value)) {
 }
 
 Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,

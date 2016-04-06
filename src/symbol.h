@@ -35,7 +35,8 @@ class Array;
 class Record;
 class Function;
 class Sum;
-class ComplexTypeSpecifier;
+class RecordTypeSpecifier;
+class SumTypeSpecifier;
 
 class Symbol {
 	friend class SymbolContext;
@@ -46,11 +47,11 @@ public:
 	Symbol(const_shared_ptr<double> value);
 	Symbol(const_shared_ptr<string> value);
 	Symbol(const_shared_ptr<Array> value);
-	Symbol(const_shared_ptr<Record> value);
-	Symbol(const_shared_ptr<ComplexTypeSpecifier> container,
+	Symbol(const_shared_ptr<RecordTypeSpecifier> type,
 			const_shared_ptr<Record> value);
 	Symbol(const_shared_ptr<Function> value);
-	Symbol(const_shared_ptr<Sum> value);
+	Symbol(const_shared_ptr<SumTypeSpecifier> type,
+			const_shared_ptr<Sum> value);
 
 	virtual ~Symbol();
 

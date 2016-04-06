@@ -24,7 +24,6 @@
 
 class Expression;
 class Statement;
-class StatementBlock;
 class Function;
 
 class FunctionTypeSpecifier: public TypeSpecifier {
@@ -38,19 +37,8 @@ public:
 	virtual const string ToString() const;
 	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
-	virtual const_shared_ptr<void> DefaultValue(
-			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;
-
-	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
-			const yy::location position, const_shared_ptr<TypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const;
-
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const TypeTable& container) const;
 
 	virtual const_shared_ptr<TypeDefinition> GetType(
 			const TypeTable& type_table, AliasResolution resolution =
@@ -67,15 +55,6 @@ public:
 	const yy::location GetReturnTypeLocation() const {
 		return m_return_type_location;
 	}
-
-protected:
-	static const_shared_ptr<StatementBlock> GetDefaultStatementBlock(
-			const_shared_ptr<TypeSpecifier> return_type,
-			const TypeTable& type_table);
-
-	static const_shared_ptr<Function> GetDefaultFunction(
-			const FunctionTypeSpecifier& type_specifier,
-			const TypeTable& type_table);
 
 private:
 	TypeSpecifierListRef m_parameter_type_list;

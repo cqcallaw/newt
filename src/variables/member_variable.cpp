@@ -266,8 +266,8 @@ const ErrorListRef MemberVariable::AssignValue(
 
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Record> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<RecordTypeSpecifier> type,
+		const_shared_ptr<Record> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
@@ -285,8 +285,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 		if (as_record) {
 			auto instance = container_result->GetData<Record>();
 			const std::string member_name = *(m_member_variable->GetName());
-			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value, context->GetTypeTable(), container);
+			set_result = instance->GetDefinition()->SetSymbol(member_name, type,
+					value, context->GetTypeTable());
 		} else {
 			set_result = INCOMPATIBLE_TYPE;
 		}
@@ -294,8 +294,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorListRef(set_result, m_member_variable->GetType(context),
-			value->GetTypeSpecifier());
+	return ToErrorListRef(set_result, m_member_variable->GetType(context), type);
 }
 
 const ErrorListRef MemberVariable::SetSymbol(

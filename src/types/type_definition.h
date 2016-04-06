@@ -28,6 +28,8 @@ class Indent;
 class TypeSpecifier;
 class ComplexTypeSpecifier;
 class Symbol;
+class DeclarationStatement;
+class Expression;
 
 class TypeDefinition {
 public:
@@ -38,7 +40,6 @@ public:
 	}
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name,
 			const TypeTable& type_table) const = 0;
 
 	virtual const std::string ToString(const TypeTable& type_table,
@@ -56,8 +57,16 @@ public:
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const = 0;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const = 0;
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void> value) const = 0;
+
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position,
+			const_shared_ptr<std::string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression) const = 0;
 };
 
 #endif /* TYPE_DEFINITION_H_ */

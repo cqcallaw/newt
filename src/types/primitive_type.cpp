@@ -22,6 +22,7 @@
 #include <primitive_type_specifier.h>
 #include <indent.h>
 #include <symbol.h>
+#include <primitive_declaration_statement.h>
 
 PrimitiveType::~PrimitiveType() {
 }
@@ -54,13 +55,13 @@ bool PrimitiveType::IsSpecifiedBy(const std::string& name,
 }
 
 const_shared_ptr<void> PrimitiveType::GetDefaultValue(
-		const_shared_ptr<std::string> type_name,
 		const TypeTable& type_table) const {
 	return GetDefaultValue(m_type);
 }
 
-const_shared_ptr<Symbol> PrimitiveType::GetSymbol(const_shared_ptr<void> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+const_shared_ptr<Symbol> PrimitiveType::GetSymbol(
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<void> value) const {
 	switch (m_type) {
 	case BasicType::BOOLEAN:
 		return make_shared<Symbol>(static_pointer_cast<const bool>(value));
@@ -109,4 +110,13 @@ const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
 const std::string PrimitiveType::GetValueSeperator(const Indent& indent,
 		const_shared_ptr<void> value) const {
 	return " ";
+}
+
+const_shared_ptr<DeclarationStatement> PrimitiveType::GetDeclarationStatement(
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<std::string> name,
+		const yy::location name_position,
+		const_shared_ptr<Expression> initializer_expression) const {
+	return make_shared<PrimitiveDeclarationStatement>(position, type,
+			type_position, name, name_position, initializer_expression);
 }

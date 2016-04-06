@@ -35,16 +35,6 @@ bool RecordTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const_shared_ptr<DeclarationStatement> RecordTypeSpecifier::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<ComplexInstantiationStatement>(position,
-			static_pointer_cast<const RecordTypeSpecifier>(type), type_position,
-			name, name_position, initializer_expression);
-}
-
 const bool RecordTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
@@ -60,24 +50,6 @@ const bool RecordTypeSpecifier::IsAssignableTo(
 	}
 
 	return false;
-}
-
-const_shared_ptr<void> RecordTypeSpecifier::DefaultValue(
-		const TypeTable& type_table) const {
-	const_shared_ptr<RecordType> type = type_table.GetType<RecordType>(
-			m_type_name);
-
-	//this result cannot be cached because the type table is mutable
-	if (type) {
-		return type->GetDefaultValue(m_type_name, type_table);
-	} else {
-		return const_shared_ptr<RecordType>(); //ugh, nulls
-	}
-}
-
-const_shared_ptr<Symbol> RecordTypeSpecifier::GetSymbol(
-		const_shared_ptr<void> value, const TypeTable& container) const {
-	return make_shared<Symbol>(static_pointer_cast<const Record>(value));
 }
 
 const_shared_ptr<TypeDefinition> RecordTypeSpecifier::GetType(

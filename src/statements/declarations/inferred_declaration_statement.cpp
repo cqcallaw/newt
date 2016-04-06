@@ -27,6 +27,7 @@
 #include <function_type_specifier.h>
 #include <function_expression.h>
 #include <specifiers/type_specifier.h>
+#include <execution_context.h>
 
 InferredDeclarationStatement::InferredDeclarationStatement(
 		const yy::location position, const_shared_ptr<string> name,
@@ -58,11 +59,11 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 					AliasResolution::RETURN);
 
 	if (expression_type != PrimitiveTypeSpecifier::GetNone()) {
-		const_shared_ptr<Statement> temp_statement =
-				expression_type->GetDeclarationStatement(GetPosition(),
-						expression_type,
-						GetInitializerExpression()->GetPosition(), GetName(),
-						GetNamePosition(), GetInitializerExpression());
+		auto type_table = execution_context->GetTypeTable();
+		const_shared_ptr<Statement> temp_statement = expression_type->GetType(
+				type_table)->GetDeclarationStatement(GetPosition(),
+				expression_type, GetInitializerExpression()->GetPosition(),
+				GetName(), GetNamePosition(), GetInitializerExpression());
 		errors = temp_statement->preprocess(execution_context);
 	} else {
 		errors = GetInitializerExpression()->Validate(execution_context);
@@ -78,10 +79,12 @@ const ErrorListRef InferredDeclarationStatement::execute(
 	const_shared_ptr<TypeSpecifier> expression_type =
 			GetInitializerExpression()->GetType(execution_context);
 
-	const_shared_ptr<Statement> temp_statement =
-			expression_type->GetDeclarationStatement(GetPosition(),
-					expression_type, GetInitializerExpression()->GetPosition(),
-					GetName(), GetNamePosition(), GetInitializerExpression());
+	auto type_table = execution_context->GetTypeTable();
+
+	const_shared_ptr<Statement> temp_statement = expression_type->GetType(
+			type_table)->GetDeclarationStatement(GetPosition(), expression_type,
+			GetInitializerExpression()->GetPosition(), GetName(),
+			GetNamePosition(), GetInitializerExpression());
 	errors = temp_statement->execute(execution_context);
 	return errors;
 }

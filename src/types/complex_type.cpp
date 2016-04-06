@@ -58,13 +58,14 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 					initializer);
 		}
 	} else {
-		value = GetDefaultValue(type_specifier->GetTypeName(),
-				execution_context->GetTypeTable());
+		auto type_table = execution_context->GetTypeTable();
+		value = type_specifier->GetType(type_table)->GetDefaultValue(
+				type_table);
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
 		//we've been able to get a good initial value (that is, no errors have occurred)
-		symbol = GetSymbol(value);
+		symbol = GetSymbol(type_specifier, value);
 	}
 
 	return make_shared<Result>(symbol, errors);
@@ -72,7 +73,7 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 
 const ErrorListRef ComplexType::Instantiate(
 		const std::shared_ptr<ExecutionContext> execution_context,
-		const_shared_ptr<std::string> type_name,
+		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<std::string> instance_name,
 		const_shared_ptr<Expression> initializer) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
@@ -86,8 +87,8 @@ const ErrorListRef ComplexType::Instantiate(
 		errors = result->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {
-			set_result = InstantiateCore(execution_context, *instance_name,
-					result->GetData<void>());
+			set_result = InstantiateCore(execution_context, type_specifier,
+					*instance_name, result->GetData<void>());
 		}
 	}
 

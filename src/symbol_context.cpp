@@ -139,18 +139,11 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<Record> value, const TypeTable& type_table,
-		const_shared_ptr<ComplexTypeSpecifier> container) {
+		const_shared_ptr<RecordTypeSpecifier> type,
+		const_shared_ptr<Record> value, const TypeTable& type_table) {
 
-	if (container) {
-		return SetSymbol(identifier,
-				make_shared<NestedTypeSpecifier>(container,
-						value->GetTypeSpecifier()->GetTypeName()),
-				static_pointer_cast<const void>(value), type_table);
-	} else {
-		return SetSymbol(identifier, value->GetTypeSpecifier(),
-				static_pointer_cast<const void>(value), type_table);
-	}
+	return SetSymbol(identifier, type, static_pointer_cast<const void>(value),
+			type_table);
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
@@ -166,9 +159,10 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<Sum> value, const TypeTable& type_table) {
-	return SetSymbol(identifier, value->GetType(),
-			static_pointer_cast<const void>(value), type_table);
+		const_shared_ptr<SumTypeSpecifier> type, const_shared_ptr<Sum> value,
+		const TypeTable& type_table) {
+	return SetSymbol(identifier, type, static_pointer_cast<const void>(value),
+			type_table);
 }
 
 volatile_shared_ptr<SymbolContext> SymbolContext::GetDefault() {

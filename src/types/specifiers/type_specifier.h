@@ -24,12 +24,12 @@
 #include <string>
 #include <linked_list.h>
 #include <alias_resolution.h>
+#include <type_definition.h>
 
 class Expression;
 class DeclarationStatement;
 class TypeTable;
 class Symbol;
-class TypeDefinition;
 
 class TypeSpecifier {
 public:
@@ -39,17 +39,6 @@ public:
 	virtual const std::string ToString() const = 0;
 	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const = 0;
-	virtual const_shared_ptr<void> DefaultValue(
-			const TypeTable& type_table) const = 0;
-
-	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
-			const yy::location position, const_shared_ptr<TypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const = 0;
-
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const TypeTable& container) const = 0;
 
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
 
@@ -64,6 +53,10 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> ResolveAliasing(
 			const TypeTable& type_table) const {
 		return const_shared_ptr<TypeSpecifier>();
+	}
+
+	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const {
+		return GetType(type_table, RESOLVE)->GetDefaultValue(type_table);
 	}
 };
 

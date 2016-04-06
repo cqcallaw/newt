@@ -26,14 +26,13 @@
 #include <primitive_type.h>
 
 const_shared_ptr<void> AliasDefinition::GetDefaultValue(
-		const_shared_ptr<std::string> type_name,
 		const TypeTable& type_table) const {
 	if (m_default_value)
 		return m_default_value;
 	else {
 		auto origin = GetOrigin();
 		if (origin) {
-			return origin->GetDefaultValue(type_name, type_table);
+			return origin->GetDefaultValue(type_table);
 		} else {
 			return PrimitiveTypeSpecifier::GetNone();
 		}
@@ -74,11 +73,11 @@ const_shared_ptr<TypeDefinition> AliasDefinition::GetOrigin() const {
 }
 
 const_shared_ptr<Symbol> AliasDefinition::GetSymbol(
-		const_shared_ptr<void> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<void> value) const {
 	auto origin = GetOrigin();
 	if (origin) {
-		return origin->GetSymbol(value, container);
+		return origin->GetSymbol(type_specifier, value);
 	} else {
 		return Symbol::GetDefaultSymbol();
 	}

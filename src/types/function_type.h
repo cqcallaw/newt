@@ -23,6 +23,7 @@
 #include <concrete_type.h>
 
 class FunctionTypeSpecifier;
+class StatementBlock;
 
 class FunctionType: public ConcreteType {
 public:
@@ -38,7 +39,6 @@ public:
 	}
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name,
 			const TypeTable& type_table) const;
 
 	virtual const std::string ToString(const TypeTable& type_table,
@@ -56,12 +56,28 @@ public:
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+	virtual const_shared_ptr<Symbol> GetSymbol(
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void>) const;
+
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position,
+			const_shared_ptr<std::string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression) const;
 
 	const_shared_ptr<FunctionTypeSpecifier> getTypeSpecifier() const {
 		return m_type_specifier;
 	}
+protected:
+	static const_shared_ptr<Function> GetDefaultFunction(
+			const FunctionTypeSpecifier& type_specifier,
+			const TypeTable& type_table);
+
+	static const_shared_ptr<StatementBlock> GetDefaultStatementBlock(
+			const_shared_ptr<TypeSpecifier> return_type,
+			const TypeTable& type_table);
 
 private:
 	const_shared_ptr<FunctionTypeSpecifier> m_type_specifier;

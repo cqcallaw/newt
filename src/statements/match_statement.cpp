@@ -27,6 +27,7 @@
 #include <symbol.h>
 #include <iterator>
 #include <sstream>
+#include <nested_type_specifier.h>
 
 MatchStatement::~MatchStatement() {
 }
@@ -59,7 +60,7 @@ const ErrorListRef MatchStatement::preprocess(
 					auto match_body = match->GetBlock();
 					auto table = sum_type->GetDefinition();
 
-					auto variant_type = table->GetType < ConcreteType
+					auto variant_type = table->GetType < TypeDefinition
 							> (match_name);
 					if (variant_type) {
 						if (match_names->find(*match_name)
@@ -71,11 +72,13 @@ const ErrorListRef MatchStatement::preprocess(
 											EPHEMERAL);
 
 							const_shared_ptr<void> default_value =
-									variant_type->GetDefaultValue(match_name,
-											*table);
+									variant_type->GetDefaultValue(*table);
 							const_shared_ptr<Symbol> default_symbol =
-									variant_type->GetSymbol(default_value,
-											expression_type_as_sum);
+									variant_type->GetSymbol(
+											make_shared<NestedTypeSpecifier>(
+													expression_type_as_sum,
+													match->GetName()),
+											default_value);
 							block_context->InsertSymbol(*match_name,
 									default_symbol);
 
@@ -204,8 +207,11 @@ const ErrorListRef MatchStatement::execute(
 											EPHEMERAL);
 
 							const_shared_ptr<Symbol> default_symbol =
-									variant_type->GetSymbol(as_sum->GetValue(),
-											expression_type_as_sum);
+									variant_type->GetSymbol(
+											make_shared<NestedTypeSpecifier>(
+													expression_type_as_sum,
+													match->GetName()),
+											as_sum->GetValue());
 							block_context->InsertSymbol(match_name,
 									default_symbol);
 

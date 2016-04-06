@@ -91,12 +91,13 @@ public:
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<Array> value,
 			const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<Record> value, const TypeTable& type_table,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr);
+			const_shared_ptr<RecordTypeSpecifier> type,
+			const_shared_ptr<Record> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<Function> value, const TypeTable& type_table);
-	SetResult SetSymbol(const string& identifier, const_shared_ptr<Sum> value,
-			const TypeTable& type_table);
+	SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<SumTypeSpecifier> type,
+			const_shared_ptr<Sum> value, const TypeTable& type_table);
 
 	static volatile_shared_ptr<SymbolContext> GetDefault();
 

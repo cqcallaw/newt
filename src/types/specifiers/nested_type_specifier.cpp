@@ -67,28 +67,6 @@ const bool NestedTypeSpecifier::IsAssignableTo(
 	return false;
 }
 
-const_shared_ptr<void> NestedTypeSpecifier::DefaultValue(
-		const TypeTable& type_table) const {
-	auto parent_type = m_parent->GetType(type_table);
-	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
-	if (as_complex) {
-		return as_complex->GetMemberDefaultValue(m_member_name);
-	} else {
-		return const_shared_ptr<void>();
-	}
-}
-
-const_shared_ptr<DeclarationStatement> NestedTypeSpecifier::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<std::string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-
-	return make_shared<NestedDeclarationStatement>(position,
-			static_pointer_cast<const NestedTypeSpecifier>(type), type_position,
-			name, name_position, initializer_expression);
-}
-
 bool NestedTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const NestedTypeSpecifier& as_nested =
@@ -97,19 +75,6 @@ bool NestedTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 				&& as_nested.m_member_name == m_member_name;
 	} catch (std::bad_cast& e) {
 		return false;
-	}
-}
-
-const_shared_ptr<Symbol> NestedTypeSpecifier::GetSymbol(
-		const_shared_ptr<void> value, const TypeTable& container) const {
-	auto parent_type = m_parent->GetType(container);
-	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
-	if (as_complex) {
-		auto member_type_specifier = as_complex->GetMemberTypeSpecifier(
-				m_member_name);
-		return member_type_specifier->GetSymbol(value, container);
-	} else {
-		return Symbol::GetDefaultSymbol();
 	}
 }
 

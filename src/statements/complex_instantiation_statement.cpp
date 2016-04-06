@@ -119,19 +119,20 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type_name = m_type_specifier->GetTypeName();
-	const_shared_ptr<ComplexType> type =
-			execution_context->GetTypeTable()->GetType<ComplexType>(type_name);
+	const_shared_ptr<TypeDefinition> type = m_type_specifier->GetType(
+			execution_context->GetTypeTable(), RESOLVE);
 
-	if (type) {
-		errors = type->Instantiate(execution_context, type_name, GetName(),
-				GetInitializerExpression());
+	auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
+	if (as_complex) {
+		errors = as_complex->Instantiate(execution_context, m_type_specifier,
+				GetName(), GetInitializerExpression());
 	} else {
 		//type does not exist
 		errors = ErrorList::From(
 				make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_TYPE,
 						m_type_position.begin.line,
-						m_type_position.begin.column, *type_name), errors);
+						m_type_position.begin.column,
+						m_type_specifier->ToString()), errors);
 	}
 
 	return errors;

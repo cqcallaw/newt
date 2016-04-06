@@ -53,25 +53,6 @@ const bool SumTypeSpecifier::IsAssignableTo(
 	return false;
 }
 
-const_shared_ptr<void> SumTypeSpecifier::DefaultValue(
-		const TypeTable& type_table) const {
-	auto type = type_table.GetType<SumType>(*m_type_name);
-	if (type) {
-		return type->GetDefaultValue(m_type_name, type_table);
-	}
-	return const_shared_ptr<void>();
-}
-
-const_shared_ptr<DeclarationStatement> SumTypeSpecifier::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<ComplexInstantiationStatement>(position,
-			static_pointer_cast<const RecordTypeSpecifier>(type), type_position,
-			name, name_position, initializer_expression);
-}
-
 bool SumTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const SumTypeSpecifier& as_sum =
@@ -80,11 +61,6 @@ bool SumTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	} catch (std::bad_cast& e) {
 		return false;
 	}
-}
-
-const_shared_ptr<Symbol> SumTypeSpecifier::GetSymbol(
-		const_shared_ptr<void> value, const TypeTable& container) const {
-	return make_shared<Symbol>(static_pointer_cast<const Sum>(value));
 }
 
 const_shared_ptr<TypeDefinition> SumTypeSpecifier::GetType(

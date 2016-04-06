@@ -42,22 +42,6 @@ bool ArrayTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const_shared_ptr<DeclarationStatement> ArrayTypeSpecifier::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<ArrayDeclarationStatement>(position,
-			static_pointer_cast<const ArrayTypeSpecifier>(type), type_position,
-			name, name_position, initializer_expression);
-}
-
-const_shared_ptr<void> ArrayTypeSpecifier::DefaultValue(
-		const TypeTable& type_table) const {
-	return const_shared_ptr<void>(
-			new Array(m_element_type_specifier, type_table));
-}
-
 const bool ArrayTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
@@ -66,11 +50,6 @@ const bool ArrayTypeSpecifier::IsAssignableTo(
 	return (as_array
 			&& m_element_type_specifier->IsAssignableTo(
 					as_array->GetElementTypeSpecifier(), type_table));
-}
-
-const_shared_ptr<Symbol> ArrayTypeSpecifier::GetSymbol(
-		const_shared_ptr<void> value, const TypeTable& container) const {
-	return make_shared<Symbol>(static_pointer_cast<const Array>(value));
 }
 
 const_shared_ptr<TypeDefinition> ArrayTypeSpecifier::GetType(

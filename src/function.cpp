@@ -179,7 +179,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 								sum_type_definition->MapSpecifierToVariant(
 										*evaluation_result_type, sum_type_name);
 
-						result = make_shared<Sum>(as_sum_specifier, tag,
+						result = make_shared<Sum>(tag,
 								evaluation_result->GetValue());
 					} else {
 						errors =

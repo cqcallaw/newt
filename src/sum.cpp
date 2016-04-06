@@ -23,10 +23,8 @@
 #include <symbol.h>
 #include <sum_type.h>
 
-Sum::Sum(const_shared_ptr<SumTypeSpecifier> type,
-		const_shared_ptr<std::string> tag, const_shared_ptr<void> value) :
-		m_type(type), m_tag(tag), m_value(value) {
-	assert(m_type);
+Sum::Sum(const_shared_ptr<std::string> tag, const_shared_ptr<void> value) :
+		m_tag(tag), m_value(value) {
 	assert(m_tag && *m_tag != "");
 	assert(m_value);
 }
@@ -34,22 +32,18 @@ Sum::Sum(const_shared_ptr<SumTypeSpecifier> type,
 Sum::~Sum() {
 }
 
-const string Sum::ToString(const TypeTable& type_table,
+const string Sum::ToString(const SumType& type, const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
-	auto name = *m_type->GetTypeName();
-	auto sum_type = type_table.GetType<SumType>(name);
-	auto type_definition = sum_type->GetDefinition()->GetType<ConcreteType>(
+	auto type_definition = type.GetDefinition()->GetType<TypeDefinition>(
 			*m_tag);
 	buffer << type_definition->ValueToString(type_table, indent, m_value);
 	buffer << " {" << *m_tag << "}";
 	return buffer.str();
 }
 
-const_shared_ptr<Sum> Sum::GetDefaultInstance(
-		const_shared_ptr<std::string> type_name, const SumType& type) {
+const_shared_ptr<Sum> Sum::GetDefaultInstance(const SumType& type) {
 	auto declaration = type.GetFirstDeclaration();
-	auto type_specifier = make_shared<SumTypeSpecifier>(type_name);
-	return make_shared<Sum>(type_specifier, declaration->GetName(),
+	return make_shared<Sum>(declaration->GetName(),
 			declaration->GetType()->DefaultValue(*type.GetDefinition()));
 }

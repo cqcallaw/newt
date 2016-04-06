@@ -242,17 +242,17 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 			if (ErrorList::IsTerminator(errors) && has_type_constructors) {
 				const_shared_ptr<string> ctor_type_name = make_shared<string>(
 						*GetName() + "_ctor");
-				auto specifier = make_shared<RecordTypeSpecifier>(
-						ctor_type_name);
+				const_shared_ptr<RecordTypeSpecifier> specifier = make_shared<
+						RecordTypeSpecifier>(ctor_type_name);
 				auto type = make_shared<RecordType>(constructor_types,
 						Modifier::Type::READONLY);
 				type_table->AddType(*ctor_type_name, type);
 
 				auto constructor_instances =
 						constructor_types->GetDefaultSymbolContext();
-				auto constructor_map_record = make_shared<Record>(specifier,
+				auto constructor_map_record = make_shared<Record>(
 						constructor_instances);
-				auto instance_symbol = make_shared<Symbol>(
+				auto instance_symbol = make_shared<Symbol>(specifier,
 						constructor_map_record);
 				auto insert_result = execution_context->InsertSymbol(*GetName(),
 						instance_symbol);

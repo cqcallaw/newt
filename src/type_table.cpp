@@ -101,10 +101,10 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext() const {
 		auto name = entry.first;
 		auto type = entry.second;
 
-		auto default_value = type->GetDefaultValue(
-				make_shared<std::string>(name), *this);
-
-		auto default_symbol = type->GetSymbol(default_value);
+		auto default_value = type->GetDefaultValue(*this);
+		//TODO: this is a hack, and doesn't provide fully qualified type specifiers
+		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name));
+		auto default_symbol = type->GetSymbol(type_specifier, default_value);
 		auto insert_result = result->InsertSymbol(name, default_symbol);
 		assert(insert_result == INSERT_SUCCESS);
 	}

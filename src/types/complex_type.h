@@ -44,7 +44,7 @@ public:
 
 	const ErrorListRef Instantiate(
 			const std::shared_ptr<ExecutionContext> execution_context,
-			const_shared_ptr<std::string> type_name,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const_shared_ptr<std::string> instance_name,
 			const_shared_ptr<Expression> initializer) const;
 
@@ -64,6 +64,7 @@ protected:
 
 	virtual const SetResult InstantiateCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const std::string& instance_name,
 			const_shared_ptr<void> data) const = 0;
 };

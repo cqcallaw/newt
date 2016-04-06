@@ -52,18 +52,6 @@ public:
 	virtual const std::string ToString() const;
 	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
-	virtual const_shared_ptr<void> DefaultValue(
-			const TypeTable& type_table) const;
-
-	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
-			const yy::location position, const_shared_ptr<TypeSpecifier> type,
-			const yy::location type_position,
-			const_shared_ptr<std::string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const;
-
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const TypeTable& container) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 

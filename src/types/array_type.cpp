@@ -20,6 +20,7 @@
 #include <array_type.h>
 #include <array_type_specifier.h>
 #include <array.h>
+#include <array_declaration_statement.h>
 
 const std::string ArrayType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
@@ -52,13 +53,13 @@ bool ArrayType::IsSpecifiedBy(const std::string& name,
 }
 
 const_shared_ptr<void> ArrayType::GetDefaultValue(
-		const_shared_ptr<std::string> type_name,
 		const TypeTable& type_table) const {
 	return make_shared<Array>(m_member_type_specifier, type_table);
 }
 
-const_shared_ptr<Symbol> ArrayType::GetSymbol(const_shared_ptr<void> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+const_shared_ptr<Symbol> ArrayType::GetSymbol(
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<void> value) const {
 	auto cast = static_pointer_cast<const Array>(value);
 	return make_shared<Symbol>(cast);
 }
@@ -66,4 +67,14 @@ const_shared_ptr<Symbol> ArrayType::GetSymbol(const_shared_ptr<void> value,
 const std::string ArrayType::GetValueSeperator(const Indent& indent,
 		const_shared_ptr<void> value) const {
 	return "\n";
+}
+
+const_shared_ptr<DeclarationStatement> ArrayType::GetDeclarationStatement(
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<std::string> name,
+		const yy::location name_position,
+		const_shared_ptr<Expression> initializer_expression) const {
+	return make_shared<ArrayDeclarationStatement>(position,
+			static_pointer_cast<const ArrayTypeSpecifier>(type), type_position,
+			name, name_position, initializer_expression);
 }
