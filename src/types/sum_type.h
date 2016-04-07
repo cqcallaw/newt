@@ -49,7 +49,8 @@ public:
 			const_shared_ptr<void> value) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
-			const_shared_ptr<std::string> name) const;
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container) const;
 
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const;
@@ -86,9 +87,6 @@ public:
 	const_shared_ptr<std::string> MapSpecifierToVariant(
 			const TypeSpecifier& type_specifier,
 			const string& sum_type_name) const;
-
-	virtual const_shared_ptr<TypeSpecifier> GetMemberTypeSpecifier(
-			const_shared_ptr<std::string> member_name) const;
 
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
 			const_shared_ptr<std::string> member_name) const;

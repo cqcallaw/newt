@@ -94,7 +94,8 @@ const bool TypeTable::ContainsType(const string& name) {
 	return (bool) GetType<const TypeDefinition>(name);
 }
 
-volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext() const {
+volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	volatile_shared_ptr<SymbolTable> result = make_shared<SymbolTable>();
 
 	for (const auto &entry : *m_table) {
@@ -103,7 +104,8 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext() const {
 
 		auto default_value = type->GetDefaultValue(*this);
 		//TODO: this is a hack, and doesn't provide fully qualified type specifiers
-		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name));
+		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name),
+				container);
 		auto default_symbol = type->GetSymbol(type_specifier, default_value);
 		auto insert_result = result->InsertSymbol(name, default_symbol);
 		assert(insert_result == INSERT_SUCCESS);

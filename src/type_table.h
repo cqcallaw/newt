@@ -91,7 +91,8 @@ public:
 		return shared_ptr<const T>();
 	}
 
-	volatile_shared_ptr<SymbolContext> GetDefaultSymbolContext() const;
+	volatile_shared_ptr<SymbolContext> GetDefaultSymbolContext(
+			const_shared_ptr<ComplexTypeSpecifier> container) const;
 
 	const bool ContainsType(const ComplexTypeSpecifier& type_specifier);
 

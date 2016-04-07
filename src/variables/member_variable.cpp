@@ -337,66 +337,65 @@ const ErrorListRef MemberVariable::Validate(
 	auto symbol = context->GetSymbol(m_container->GetName(), DEEP);
 
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
-		const_shared_ptr<TypeSpecifier> container_type = m_container->GetType(
-				context);
+		const_shared_ptr<TypeSpecifier> container_type_specifier =
+				m_container->GetType(context);
 
-		const_shared_ptr<NestedTypeSpecifier> as_nested =
-				std::dynamic_pointer_cast<const NestedTypeSpecifier>(
-						container_type);
-		if (as_nested) {
-			auto parent_name = as_nested->GetParent()->GetTypeName();
-			auto container_definition =
-					context->GetTypeTable()->GetType<SumType>(parent_name);
+//		const_shared_ptr<NestedTypeSpecifier> as_nested =
+//				std::dynamic_pointer_cast<const NestedTypeSpecifier>(
+//						container_type);
+//		if (as_nested) {
+//			auto parent_name = as_nested->GetParent()->GetTypeName();
+//			auto container_definition =
+//					context->GetTypeTable()->GetType<SumType>(parent_name);
+//
+//			if (container_definition) {
+//				auto member_name = as_nested->GetMemberName();
+//				auto member = container_definition->GetDefinition()->GetType<
+//						RecordType>(member_name);
+//				if (!member) {
+//					errors =
+//							ErrorList::From(
+//									make_shared<Error>(Error::SEMANTIC,
+//											Error::UNDECLARED_MEMBER,
+//											m_member_variable->GetLocation().begin.line,
+//											m_member_variable->GetLocation().begin.column,
+//											*member_name,
+//											as_nested->ToString()), errors);
+//				}
+//			} else {
+//				errors = ErrorList::From(
+//						make_shared<Error>(Error::SEMANTIC,
+//								Error::UNDECLARED_TYPE,
+//								m_container->GetLocation().begin.line,
+//								m_container->GetLocation().begin.column,
+//								*parent_name), errors);
+//			}
+//		} else {
+		auto type = container_type_specifier->GetType(context->GetTypeTable(),
+				RESOLVE);
 
-			if (container_definition) {
-				auto member_name = as_nested->GetMemberName();
-				auto member = container_definition->GetDefinition()->GetType<
-						RecordType>(member_name);
-				if (!member) {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::UNDECLARED_MEMBER,
-											m_member_variable->GetLocation().begin.line,
-											m_member_variable->GetLocation().begin.column,
-											*member_name,
-											as_nested->ToString()), errors);
-				}
-			} else {
+		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
+		if (as_complex) {
+			auto member_definition = as_complex->GetDefinition()->GetType<
+					TypeDefinition>(m_member_variable->GetName());
+			if (!member_definition) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::UNDECLARED_TYPE,
-								m_container->GetLocation().begin.line,
-								m_container->GetLocation().begin.column,
-								*parent_name), errors);
+								Error::UNDECLARED_MEMBER,
+								m_member_variable->GetLocation().begin.line,
+								m_member_variable->GetLocation().begin.column,
+								*m_member_variable->GetName(),
+								container_type_specifier->ToString()), errors);
 			}
 		} else {
-			const_shared_ptr<RecordTypeSpecifier> as_record =
-					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-							container_type);
-			if (as_record) {
-				const_shared_ptr<TypeSpecifier> variable_type = GetType(
-						context);
-
-				if (variable_type == PrimitiveTypeSpecifier::GetNone()) {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::UNDECLARED_MEMBER,
-											m_member_variable->GetLocation().begin.line,
-											m_member_variable->GetLocation().begin.column,
-											*m_member_variable->GetName(),
-											*as_record->GetTypeName()), errors);
-				}
-			} else {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::NOT_A_COMPOUND_TYPE,
-								m_container->GetLocation().begin.line,
-								m_container->GetLocation().begin.column,
-								*m_container->GetName()), errors);
-			}
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::NOT_A_COMPOUND_TYPE,
+							m_container->GetLocation().begin.line,
+							m_container->GetLocation().begin.column,
+							*m_container->GetName()), errors);
 		}
+//		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,

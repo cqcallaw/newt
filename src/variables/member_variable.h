@@ -68,6 +68,7 @@ protected:
 			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<RecordTypeSpecifier> type,
 			const_shared_ptr<Record> value) const;
+
 private:
 	const_shared_ptr<Variable> m_container;
 	const_shared_ptr<Variable> m_member_variable;

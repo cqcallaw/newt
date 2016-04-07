@@ -74,13 +74,12 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 
 		if (ErrorList::IsTerminator(errors)) {
 			auto value = m_type->DefaultValue(*type_table);
+
 			auto symbol = make_shared<Symbol>(
 					static_pointer_cast<const Function>(value));
 
-			volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
-					SymbolTable>(execution_context);
-			InsertResult insert_result = symbol_table->InsertSymbol(*GetName(),
-					symbol);
+			InsertResult insert_result = execution_context->InsertSymbol(
+					*GetName(), symbol);
 
 			if (insert_result != INSERT_SUCCESS) {
 				assert(false);

@@ -29,7 +29,8 @@ bool RecordTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const RecordTypeSpecifier& as_record =
 				dynamic_cast<const RecordTypeSpecifier&>(other);
-		return *GetTypeName() == *as_record.GetTypeName();
+		return CompareContainers(as_record)
+				&& *GetTypeName() == *as_record.GetTypeName();
 	} catch (std::bad_cast& e) {
 		return false;
 	}
@@ -40,13 +41,31 @@ const bool RecordTypeSpecifier::IsAssignableTo(
 		const TypeTable& type_table) const {
 	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
 			const RecordTypeSpecifier>(other);
-	if (as_record && as_record->GetTypeName()->compare(*m_type_name) == 0) {
-		return true;
-	}
+	if (as_record) {
+		try {
+			auto resolved_specifier =
+					dynamic_cast<const RecordTypeSpecifier&>(ComplexTypeSpecifier::ResolveAliasing(
+							*this, type_table));
+			auto resolved_other =
+					dynamic_cast<const RecordTypeSpecifier&>(ComplexTypeSpecifier::ResolveAliasing(
+							*as_record, type_table));
 
-	auto unaliased = other->ResolveAliasing(type_table);
-	if (unaliased) {
-		return IsAssignableTo(unaliased, type_table);
+			auto container = resolved_specifier.GetContainer();
+			auto other_container = resolved_other.GetContainer();
+			if (container) {
+				if (other_container) {
+					return *container == *other_container
+							&& resolved_other.GetTypeName()->compare(
+									*resolved_specifier.GetTypeName()) == 0;
+				}
+			} else {
+				if (resolved_other.GetTypeName()->compare(
+						*resolved_specifier.GetTypeName()) == 0) {
+					return true;
+				}
+			}
+		} catch (std::bad_cast& e) {
+		}
 	}
 
 	return false;
@@ -54,5 +73,20 @@ const bool RecordTypeSpecifier::IsAssignableTo(
 
 const_shared_ptr<TypeDefinition> RecordTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	return type_table.GetType<ConcreteType>(GetTypeName(), resolution);
+	plain_shared_ptr<RecordType> type = nullptr;
+
+	auto container_type = GetContainerType(type_table);
+	if (container_type) {
+		type = container_type->GetDefinition()->GetType<RecordType>(
+				m_type_name);
+	} else {
+		type = type_table.GetType<RecordType>(m_type_name);
+	}
+
+	return type;
+}
+
+const std::string RecordTypeSpecifier::ToString() const {
+	return (GetContainer() ? GetContainer()->ToString() + "." : "")
+			+ *m_type_name;
 }

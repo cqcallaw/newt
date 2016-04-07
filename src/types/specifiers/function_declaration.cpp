@@ -28,6 +28,7 @@
 #include <statement_block.h>
 #include <function.h>
 #include <execution_context.h>
+#include <function_type.h>
 
 FunctionDeclaration::FunctionDeclaration(DeclarationListRef parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type,
@@ -109,4 +110,32 @@ TypeSpecifierListRef FunctionDeclaration::GetTypeList(
 	}
 
 	return TypeSpecifierList::Reverse(result);
+}
+
+//TODO: re-enable this
+//const string FunctionDeclaration::ToString() const {
+//	ostringstream buffer;
+//	buffer << "(";
+//	DeclarationListRef subject = m_parameter_list;
+//	while (!DeclarationList::IsTerminator(subject)) {
+//		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
+//		buffer << *declaration->GetName() << ":"
+//				<< declaration->GetType()->ToString();
+//		subject = subject->GetNext();
+//
+//		if (!DeclarationList::IsTerminator(subject)) {
+//			//add separator
+//			buffer << ", ";
+//		}
+//	}
+//	buffer << ") -> " << GetReturnType()->ToString() << "";
+//	return buffer.str();
+//}
+
+const_shared_ptr<TypeDefinition> FunctionDeclaration::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	auto result = make_shared<const FunctionType>(m_parameter_list,
+			GetReturnType(), GetReturnTypeLocation());
+
+	return result;
 }

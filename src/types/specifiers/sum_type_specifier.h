@@ -27,12 +27,25 @@ class RecordTypeSpecifier;
 class SumTypeSpecifier: public ComplexTypeSpecifier {
 public:
 	SumTypeSpecifier(const_shared_ptr<std::string> type_name) :
-			SumTypeSpecifier(type_name, NamespaceQualifierList::GetTerminator()) {
+			SumTypeSpecifier(type_name, nullptr,
+					NamespaceQualifierList::GetTerminator()) {
+	}
+
+	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const_shared_ptr<ComplexTypeSpecifier> container) :
+			SumTypeSpecifier(type_name, container,
+					NamespaceQualifierList::GetTerminator()) {
 	}
 
 	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
 			const NamespaceQualifierListRef space) :
-			m_type_name(type_name), m_space(space) {
+			SumTypeSpecifier(type_name, nullptr, space) {
+	}
+
+	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			const NamespaceQualifierListRef space) :
+			m_type_name(type_name), m_container(container), m_space(space) {
 	}
 
 	SumTypeSpecifier(const ComplexTypeSpecifier& complex);
@@ -49,6 +62,10 @@ public:
 		return m_type_name;
 	}
 
+	virtual const_shared_ptr<ComplexTypeSpecifier> GetContainer() const {
+		return m_container;
+	}
+
 	virtual const std::string ToString() const;
 	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
@@ -58,8 +75,10 @@ public:
 	virtual const_shared_ptr<TypeDefinition> GetType(
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const;
+
 private:
 	const_shared_ptr<std::string> m_type_name;
+	const_shared_ptr<ComplexTypeSpecifier> m_container;
 	const NamespaceQualifierListRef m_space;
 };
 

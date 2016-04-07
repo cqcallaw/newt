@@ -37,7 +37,7 @@
 #include <complex_instantiation_statement.h>
 #include <record_type.h>
 #include <execution_context.h>
-#include <nested_type_specifier.h>
+
 #include <symbol_context.h>
 
 const std::string SumType::ToString(const TypeTable& type_table,
@@ -115,15 +115,16 @@ const_shared_ptr<Result> SumType::Build(
 						types->AddType(alias_type_name, alias);
 					}
 
-					auto original_as_record = dynamic_pointer_cast<
-							const RecordTypeSpecifier>(original_type_specifier);
-					if (original_as_record) {
-						auto original_name = original_as_record->GetTypeName();
+					auto original_as_complex = dynamic_pointer_cast<
+							const ComplexTypeSpecifier>(
+							original_type_specifier);
+					if (original_as_complex) {
+						auto original_name = original_as_complex->GetTypeName();
 						auto original = type_table->GetType<RecordType>(
 								original_name);
 						if (original) {
 							auto alias = make_shared<AliasDefinition>(
-									type_table, original_as_record);
+									type_table, original_as_complex);
 							types->AddType(alias_type_name, alias);
 						} else {
 							errors =
@@ -172,18 +173,6 @@ bool SumType::IsSpecifiedBy(const std::string& name,
 
 const WideningResult SumType::AnalyzeWidening(const TypeSpecifier& other,
 		const string& sum_type_name) const {
-	//strip out nested qualifiers
-	try {
-		auto as_nested = dynamic_cast<const NestedTypeSpecifier&>(other);
-		if (*(as_nested.GetParent()->GetTypeName()) == sum_type_name) {
-			if (m_definition->GetType<ConcreteType>(
-					*as_nested.GetMemberName())) {
-				return UNAMBIGUOUS;
-			}
-		}
-	} catch (std::bad_cast& e) {
-	}
-
 	auto count = m_definition->CountEntriesOfType(other);
 
 	if (count > 1) {
@@ -212,18 +201,18 @@ const_shared_ptr<Symbol> SumType::GetSymbol(
 const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 		const TypeSpecifier& type_specifier,
 		const string& sum_type_name) const {
-	//strip out nested qualifiers
-	try {
-		auto as_nested =
-				dynamic_cast<const NestedTypeSpecifier&>(type_specifier);
-		if (*(as_nested.GetParent()->GetTypeName()) == sum_type_name) {
-			auto variant_name = as_nested.GetMemberName();
-			if (m_definition->GetType<ConcreteType>(variant_name)) {
-				return variant_name;
-			}
-		}
-	} catch (std::bad_cast& e) {
-	}
+//	//strip out nested qualifiers
+//	try {
+//		auto as_nested =
+//				dynamic_cast<const NestedTypeSpecifier&>(type_specifier);
+//		if (*(as_nested.GetParent()->GetTypeName()) == sum_type_name) {
+//			auto variant_name = as_nested.GetMemberName();
+//			if (m_definition->GetType<ConcreteType>(variant_name)) {
+//				return variant_name;
+//			}
+//		}
+//	} catch (std::bad_cast& e) {
+//	}
 
 	return make_shared<std::string>(
 			m_definition->MapSpecifierToName(type_specifier));
@@ -306,12 +295,6 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 
 }
 
-const_shared_ptr<TypeSpecifier> SumType::GetMemberTypeSpecifier(
-		const_shared_ptr<std::string> member_name) const {
-	return m_definition->GetType<TypeDefinition>(*member_name)->GetTypeSpecifier(
-			member_name);
-}
-
 const_shared_ptr<void> SumType::GetMemberDefaultValue(
 		const_shared_ptr<std::string> member_name) const {
 	auto definition = m_definition->GetType<ConcreteType>(member_name);
@@ -319,8 +302,9 @@ const_shared_ptr<void> SumType::GetMemberDefaultValue(
 }
 
 const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
-		const_shared_ptr<std::string> name) const {
-	return make_shared<SumTypeSpecifier>(name);
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
+	return make_shared<SumTypeSpecifier>(name, container);
 }
 
 const std::string SumType::GetValueSeperator(const Indent& indent,

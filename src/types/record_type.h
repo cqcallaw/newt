@@ -41,9 +41,6 @@ public:
 	virtual ~RecordType();
 	const_shared_ptr<TypeDefinition> GetMember(const std::string& name) const;
 
-	virtual const_shared_ptr<TypeSpecifier> GetMemberTypeSpecifier(
-			const_shared_ptr<std::string> member_name) const;
-
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
 			const_shared_ptr<std::string> member_name) const;
 
@@ -84,7 +81,8 @@ public:
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
-			const_shared_ptr<std::string> name) const;
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container) const;
 
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const;

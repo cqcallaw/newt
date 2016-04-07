@@ -27,7 +27,6 @@
 #include <execution_context.h>
 #include <record.h>
 #include <sum.h>
-#include <nested_type_specifier.h>
 
 #include "type.h"
 #include "utils.h"

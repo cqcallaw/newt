@@ -224,6 +224,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<FunctionDeclaration>> function_declaration
 %type <plain_shared_ptr<FunctionTypeSpecifier>> function_type_specifier
 %type <plain_shared_ptr<ComplexTypeSpecifier>> complex_type_specifier
+%type <plain_shared_ptr<NestedTypeSpecifier>> nested_type_specifier
 
 %type <plain_shared_ptr<Expression>> expression
 %type <plain_shared_ptr<Expression>> variable_expression
@@ -367,12 +368,24 @@ function_type_specifier:
 complex_type_specifier:
 	IDENTIFIER
 	{
-		$$ = make_shared<RecordTypeSpecifier>($1, NamespaceQualifierList::GetTerminator());
+		$$ = make_shared<RecordTypeSpecifier>($1);
 	}
 	| namespace_qualifier_list IDENTIFIER
 	{
 		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
 		$$ = make_shared<RecordTypeSpecifier>($2, namespace_qualifier_list);
+	}
+	;
+
+//---------------------------------------------------------------------
+nested_type_specifier:
+	complex_type_specifier PERIOD IDENTIFIER
+	{
+		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+	}
+	| nested_type_specifier PERIOD IDENTIFIER
+	{
+		$$ = make_shared<NestedTypeSpecifier>($1, $3);
 	}
 	;
 
@@ -390,9 +403,9 @@ type_specifier:
 	{
 		$$ = $1;
 	}
-	| complex_type_specifier PERIOD IDENTIFIER
+	| nested_type_specifier
 	{
-		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+		$$ = $1;
 	}
 	;
 

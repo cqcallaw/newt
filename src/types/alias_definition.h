@@ -86,7 +86,8 @@ public:
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
-			const_shared_ptr<std::string> name) const {
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container) const {
 		return m_original;
 	}
 

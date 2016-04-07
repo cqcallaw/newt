@@ -58,6 +58,8 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 			GetInitializerExpression()->GetType(execution_context,
 					AliasResolution::RETURN);
 
+	auto str = expression_type->ToString();
+
 	if (expression_type != PrimitiveTypeSpecifier::GetNone()) {
 		auto type_table = execution_context->GetTypeTable();
 		const_shared_ptr<Statement> temp_statement = expression_type->GetType(

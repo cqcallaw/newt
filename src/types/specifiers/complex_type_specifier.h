@@ -23,10 +23,25 @@
 #include <specifiers/type_specifier.h>
 #include <namespace_qualifier.h>
 
+class ComplexType;
+
 class ComplexTypeSpecifier: public TypeSpecifier {
 public:
 	virtual const_shared_ptr<std::string> GetTypeName() const = 0;
 	virtual const NamespaceQualifierListRef GetNamespace() const = 0;
+	virtual const_shared_ptr<ComplexTypeSpecifier> GetContainer() const = 0;
+
+	const_shared_ptr<ComplexType> GetContainerType(
+			const TypeTable& type_table) const;
+
+	virtual const_shared_ptr<void> DefaultValue(
+			const TypeTable& type_table) const;
+
+	bool CompareContainers(const ComplexTypeSpecifier& other) const;
+
+	static const TypeSpecifier& ResolveAliasing(
+			const ComplexTypeSpecifier& original, const TypeTable& type_table);
+
 };
 
 #endif /* SPECIFIERS_COMPLEX_TYPE_SPECIFIER_H_ */

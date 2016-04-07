@@ -31,13 +31,25 @@ class SymbolContext;
 class RecordTypeSpecifier: public ComplexTypeSpecifier {
 public:
 	RecordTypeSpecifier(const_shared_ptr<std::string> type_name) :
-			RecordTypeSpecifier(type_name,
+			RecordTypeSpecifier(type_name, nullptr,
+					NamespaceQualifierList::GetTerminator()) {
+	}
+
+	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const_shared_ptr<ComplexTypeSpecifier> container) :
+			RecordTypeSpecifier(type_name, container,
 					NamespaceQualifierList::GetTerminator()) {
 	}
 
 	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
 			const NamespaceQualifierListRef space) :
-			m_type_name(type_name), m_space(space) {
+			RecordTypeSpecifier(type_name, nullptr, space) {
+	}
+
+	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			const NamespaceQualifierListRef space) :
+			m_type_name(type_name), m_container(container), m_space(space) {
 	}
 
 	virtual ~RecordTypeSpecifier() {
@@ -56,16 +68,19 @@ public:
 		return m_type_name;
 	}
 
-	virtual const std::string ToString() const {
-		return *m_type_name;
-	}
+	virtual const std::string ToString() const;
 
 	virtual const NamespaceQualifierListRef GetNamespace() const {
 		return m_space;
 	}
 
+	virtual const_shared_ptr<ComplexTypeSpecifier> GetContainer() const {
+		return m_container;
+	}
+
 private:
 	const_shared_ptr<std::string> m_type_name;
+	const_shared_ptr<ComplexTypeSpecifier> m_container;
 	const NamespaceQualifierListRef m_space;
 };
 

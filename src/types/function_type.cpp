@@ -30,10 +30,18 @@
 #include <execution_context.h>
 #include <return_statement.h>
 
+FunctionType::FunctionType(DeclarationListRef parameter_type_list,
+		const_shared_ptr<TypeSpecifier> return_type,
+		const yy::location m_return_type_location) :
+		m_type_specifier(
+				make_shared<FunctionDeclaration>(parameter_type_list,
+						return_type, m_return_type_location)) {
+}
+
 const_shared_ptr<void> FunctionType::GetDefaultValue(
 		const TypeTable& type_table) const {
-	const static const_shared_ptr<void> default_value = GetDefaultFunction(
-			*m_type_specifier, type_table);
+	const const_shared_ptr<void> default_value = GetDefaultFunction(
+			m_type_specifier, type_table);
 	return default_value;
 }
 
@@ -49,7 +57,8 @@ const std::string FunctionType::ValueToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<TypeSpecifier> FunctionType::GetTypeSpecifier(
-		const_shared_ptr<std::string> name) const {
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	return m_type_specifier;
 }
 
@@ -80,12 +89,10 @@ const_shared_ptr<DeclarationStatement> FunctionType::GetDeclarationStatement(
 }
 
 const_shared_ptr<Function> FunctionType::GetDefaultFunction(
-		const FunctionTypeSpecifier& type_specifier,
+		const_shared_ptr<FunctionDeclaration> declaration,
 		const TypeTable& type_table) {
 	auto statement_block = GetDefaultStatementBlock(
-			type_specifier.GetReturnType(), type_table);
-	auto declaration = FunctionDeclaration::FromTypeSpecifier(type_specifier,
-			type_table);
+			declaration->GetReturnType(), type_table);
 	return make_shared<Function>(declaration, statement_block,
 			ExecutionContext::GetDefault());
 }

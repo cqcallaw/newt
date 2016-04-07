@@ -5,7 +5,7 @@ sum result {
 	}
 }
 
-t:= @result.error with { message = "No go"}
+t:result = @result.error with { message = "No go"}
 
 match(t)
 	value {

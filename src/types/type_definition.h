@@ -52,7 +52,8 @@ public:
 			const_shared_ptr<void> value) const = 0;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
-			const_shared_ptr<std::string> name) const = 0;
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container) const = 0;
 
 	virtual bool IsSpecifiedBy(const std::string& name,
 			const TypeSpecifier& type_specifier) const = 0;

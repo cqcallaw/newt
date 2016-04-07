@@ -95,16 +95,16 @@ const ErrorListRef AssignmentStatement::preprocess(
 				}
 			}
 
-			const_shared_ptr<RecordTypeSpecifier> as_record =
-					dynamic_pointer_cast<const RecordTypeSpecifier>(
+			const_shared_ptr<ComplexTypeSpecifier> as_complex =
+					dynamic_pointer_cast<const ComplexTypeSpecifier>(
 							symbol_type);
-			if (as_record) {
-				//reassigning raw struct reference, not a member
+			if (as_complex) {
+				//reassigning raw reference, not a member
 				if (!expression_type->IsAssignableTo(symbol_type,
 						execution_context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
-					const string struct_type_name = *as_record->GetTypeName();
+					const string struct_type_name = *as_complex->GetTypeName();
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,

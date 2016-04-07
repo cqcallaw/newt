@@ -8,7 +8,6 @@ CPP_SRCS += \
 ../src/statements/declarations/declaration_statement.cpp \
 ../src/statements/declarations/function_declaration_statement.cpp \
 ../src/statements/declarations/inferred_declaration_statement.cpp \
-../src/statements/declarations/nested_declaration_statement.cpp \
 ../src/statements/declarations/primitive_declaration_statement.cpp \
 ../src/statements/declarations/record_declaration_statement.cpp \
 ../src/statements/declarations/sum_declaration_statement.cpp \
@@ -19,7 +18,6 @@ OBJS += \
 ./src/statements/declarations/declaration_statement.o \
 ./src/statements/declarations/function_declaration_statement.o \
 ./src/statements/declarations/inferred_declaration_statement.o \
-./src/statements/declarations/nested_declaration_statement.o \
 ./src/statements/declarations/primitive_declaration_statement.o \
 ./src/statements/declarations/record_declaration_statement.o \
 ./src/statements/declarations/sum_declaration_statement.o \
@@ -30,7 +28,6 @@ CPP_DEPS += \
 ./src/statements/declarations/declaration_statement.d \
 ./src/statements/declarations/function_declaration_statement.d \
 ./src/statements/declarations/inferred_declaration_statement.d \
-./src/statements/declarations/nested_declaration_statement.d \
 ./src/statements/declarations/primitive_declaration_statement.d \
 ./src/statements/declarations/record_declaration_statement.d \
 ./src/statements/declarations/sum_declaration_statement.d \

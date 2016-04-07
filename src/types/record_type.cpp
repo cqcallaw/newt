@@ -124,17 +124,6 @@ const_shared_ptr<Result> RecordType::Build(
 	return make_shared<Result>(type, errors);
 }
 
-const_shared_ptr<TypeSpecifier> RecordType::GetMemberTypeSpecifier(
-		const_shared_ptr<std::string> member_name) const {
-	auto member = GetMember(*member_name);
-	if (member) {
-		auto member_type = member->GetTypeSpecifier(member_name);
-		return member_type;
-	} else {
-		return PrimitiveTypeSpecifier::GetNone();
-	}
-}
-
 const_shared_ptr<void> RecordType::GetMemberDefaultValue(
 		const_shared_ptr<std::string> member_name) const {
 	return GetMember(*member_name)->GetDefaultValue(*m_definition);
@@ -213,7 +202,6 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
-		cout << "Garbage" << type_specifier->ToString();
 		auto as_record_specifier = dynamic_pointer_cast<
 				const RecordTypeSpecifier>(type_specifier);
 		if (as_record_specifier) {
@@ -228,8 +216,9 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 }
 
 const_shared_ptr<TypeSpecifier> RecordType::GetTypeSpecifier(
-		const_shared_ptr<std::string> name) const {
-	return make_shared<RecordTypeSpecifier>(name);
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
+	return make_shared<RecordTypeSpecifier>(name, container);
 }
 
 const SetResult RecordType::InstantiateCore(

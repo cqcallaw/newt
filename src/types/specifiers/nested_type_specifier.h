@@ -26,9 +26,8 @@ class ComplexTypeSpecifier;
 
 class NestedTypeSpecifier: public TypeSpecifier {
 public:
-	NestedTypeSpecifier(const_shared_ptr<ComplexTypeSpecifier> parent,
+	NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,
 			const_shared_ptr<std::string> member_name);
-
 	virtual ~NestedTypeSpecifier();
 
 	virtual const std::string ToString() const;
@@ -44,7 +43,7 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> ResolveAliasing(
 			const TypeTable& type_table) const;
 
-	const_shared_ptr<ComplexTypeSpecifier> GetParent() const {
+	const_shared_ptr<TypeSpecifier> GetParent() const {
 		return m_parent;
 	}
 
@@ -52,8 +51,12 @@ public:
 		return m_member_name;
 	}
 
+	static const_shared_ptr<TypeSpecifier> ResolveNesting(
+			const_shared_ptr<TypeSpecifier> source,
+			const TypeTable& type_table);
+
 private:
-	const_shared_ptr<ComplexTypeSpecifier> m_parent;
+	const_shared_ptr<TypeSpecifier> m_parent;
 	const_shared_ptr<std::string> m_member_name;
 };
 

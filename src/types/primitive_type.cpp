@@ -103,7 +103,8 @@ const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 }
 
 const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
-		const_shared_ptr<std::string> name) const {
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	return PrimitiveTypeSpecifier::FromBasicType(m_type);
 }
 

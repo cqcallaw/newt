@@ -17,27 +17,20 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <nested_declaration_statement.h>
 #include <sstream>
 #include <nested_type_specifier.h>
+#include <complex_type_specifier.h>
 #include <sum_type.h>
 #include <record_type.h>
 #include <primitive_type.h>
 
 #include <record_type_specifier.h>
 
-NestedTypeSpecifier::NestedTypeSpecifier(
-		const_shared_ptr<ComplexTypeSpecifier> parent,
+NestedTypeSpecifier::NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,
 		const_shared_ptr<std::string> member_name) :
 		m_parent(parent), m_member_name(member_name) {
 }
 
-//NestedTypeSpecifier::NestedTypeSpecifier(
-//		const_shared_ptr<NestedTypeSpecifier> parent,
-//		const_shared_ptr<std::string> member_name) :
-//		m_parent(parent), m_member_name(member_name) {
-//}
-//
 NestedTypeSpecifier::~NestedTypeSpecifier() {
 }
 
@@ -107,3 +100,32 @@ const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::ResolveAliasing(
 	return const_shared_ptr<TypeSpecifier>();
 }
 
+const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::ResolveNesting(
+		const_shared_ptr<TypeSpecifier> source, const TypeTable& type_table) {
+	auto str = source->ToString();
+	auto as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(source);
+
+	if (as_nested) {
+		auto type = as_nested->GetParent()->GetType(type_table, RESOLVE);
+		if (type) {
+			auto resolved_parent = ResolveNesting(as_nested->GetParent(),
+					type_table);
+
+			auto resolved_parent_as_complex = dynamic_pointer_cast<
+					const ComplexTypeSpecifier>(resolved_parent);
+			if (resolved_parent_as_complex) {
+				auto nested = type->GetTypeSpecifier(as_nested->m_member_name,
+						resolved_parent_as_complex);
+				return nested;
+			} else {
+				assert(false);
+				return nullptr;
+			}
+		} else {
+			assert(false);
+			return nullptr;
+		}
+	}
+
+	return source;
+}

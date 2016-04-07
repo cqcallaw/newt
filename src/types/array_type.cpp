@@ -34,9 +34,8 @@ const std::string ArrayType::ValueToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<TypeSpecifier> ArrayType::GetTypeSpecifier(
-		const_shared_ptr<std::string> name) const {
-	//auto member_type_specifier = m_member_type->GetTypeSpecifier(name);
-	//TODO: cache this
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	auto result = make_shared<ArrayTypeSpecifier>(m_member_type_specifier);
 	return result;
 }

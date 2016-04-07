@@ -75,11 +75,6 @@ const bool FunctionTypeSpecifier::IsAssignableTo(
 		return true;
 	}
 
-	auto un_aliased = other->ResolveAliasing(type_table);
-	if (un_aliased) {
-		return *this == *un_aliased;
-	}
-
 	return false;
 }
 
@@ -114,6 +109,9 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 
 const_shared_ptr<TypeDefinition> FunctionTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	return make_shared<const FunctionType>(m_parameter_type_list, m_return_type,
+	auto default_declaration = FunctionDeclaration::FromTypeSpecifier(*this,
+			type_table);
+	return make_shared<const FunctionType>(
+			default_declaration->GetParameterList(), m_return_type,
 			m_return_type_location);
 }

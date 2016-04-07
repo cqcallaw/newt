@@ -42,8 +42,9 @@ public:
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
-			const_shared_ptr<std::string> name) const {
-		return make_shared<SumTypeSpecifier>(name);
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container) const {
+		return make_shared<SumTypeSpecifier>(name, container);
 	}
 
 	virtual bool IsSpecifiedBy(const std::string& name,

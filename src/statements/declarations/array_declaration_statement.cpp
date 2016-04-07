@@ -36,15 +36,15 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<RecordTypeSpecifier> element_type_as_record =
-			dynamic_pointer_cast<const RecordTypeSpecifier>(
+	const_shared_ptr<ComplexTypeSpecifier> element_type_as_record =
+			dynamic_pointer_cast<const ComplexTypeSpecifier>(
 					m_type->GetElementTypeSpecifier());
 	if (element_type_as_record) {
 		//check that element type exists
 		const_shared_ptr<TypeTable> type_table =
 				execution_context->GetTypeTable();
 		const string type_name = *element_type_as_record->GetTypeName();
-		const_shared_ptr<RecordType> type = type_table->GetType<RecordType>(
+		const_shared_ptr<ComplexType> type = type_table->GetType<ComplexType>(
 				type_name);
 
 		if (!type) {

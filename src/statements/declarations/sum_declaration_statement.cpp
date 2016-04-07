@@ -30,12 +30,12 @@
 #include <sum_type.h>
 #include <record_type.h>
 #include <member_instantiation.h>
-#include <nested_type_specifier.h>
+
 #include <primitive_type.h>
 #include <function_declaration.h>
 #include <statement_block.h>
 #include <record.h>
-#include <nested_type_specifier.h>
+
 #include <variable_expression.h>
 #include <return_statement.h>
 #include <sum_recursive_type.h>
@@ -249,7 +249,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 				type_table->AddType(*ctor_type_name, type);
 
 				auto constructor_instances =
-						constructor_types->GetDefaultSymbolContext();
+						constructor_types->GetDefaultSymbolContext(specifier);
 				auto constructor_map_record = make_shared<Record>(
 						constructor_instances);
 				auto instance_symbol = make_shared<Symbol>(specifier,

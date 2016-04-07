@@ -25,7 +25,7 @@
 #include <basic_variable.h>
 #include <record_type_specifier.h>
 #include <sum_type_specifier.h>
-#include <nested_type_specifier.h>
+
 #include <sum_type.h>
 #include <record.h>
 #include <alias_resolution.h>
@@ -180,43 +180,45 @@ const ErrorListRef WithExpression::Validate(
 
 		shared_ptr<const TypeTable> type_table =
 				execution_context->GetTypeTable();
-		shared_ptr<const RecordType> source_type = nullptr;
-		shared_ptr<const TypeDefinition> member_definition =
-				source_type_specifier->GetType(*type_table,
-						AliasResolution::RESOLVE);
-		shared_ptr<const ComplexTypeSpecifier> parent_type_specifier = nullptr;
+		plain_shared_ptr<RecordType> source_type = nullptr;
+		plain_shared_ptr<RecordTypeSpecifier> record_type_specifier = nullptr;
+		shared_ptr<const TypeDefinition> base_source_type =
+				source_type_specifier->GetType(*type_table, RESOLVE);
 
-		const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
-				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-						source_type_specifier);
-		if (as_record_specifier) {
-			parent_type_specifier = as_record_specifier;
-		}
+//		shared_ptr<const ComplexTypeSpecifier> parent_type_specifier = nullptr;
+//		const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
+//				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+//						source_type_specifier);
+//		if (as_record_specifier) {
+//			parent_type_specifier = as_record_specifier;
+//		}
 
-		if (member_definition) {
+		if (base_source_type) {
 			auto as_record = std::dynamic_pointer_cast<const RecordType>(
-					member_definition);
+					base_source_type);
 			if (as_record) {
 				source_type = as_record;
+				record_type_specifier = static_pointer_cast<
+						const RecordTypeSpecifier>(source_type_specifier);
 
-				const_shared_ptr<NestedTypeSpecifier> as_nested =
-						std::dynamic_pointer_cast<const NestedTypeSpecifier>(
-								source_type_specifier);
-				if (as_nested) {
-					auto parent = as_nested->GetParent();
-					auto parent_type = type_table->GetType<ComplexType>(parent);
-
-					if (parent_type) {
-						type_table = parent_type->GetDefinition();
-
-						//this casting jank is "okay" because we know the member definition exists?
-						parent_type_specifier =
-								static_pointer_cast<const ComplexTypeSpecifier>(
-										type_table->GetType<ComplexType>(
-												as_nested->GetMemberName())->GetTypeSpecifier(
-												as_nested->GetMemberName()));
-					}
-				}
+//				const_shared_ptr<NestedTypeSpecifier> as_nested =
+//						std::dynamic_pointer_cast<const NestedTypeSpecifier>(
+//								source_type_specifier);
+//				if (as_nested) {
+//					auto parent = as_nested->GetParent();
+//					auto parent_type = type_table->GetType<ComplexType>(parent);
+//
+//					if (parent_type) {
+//						type_table = parent_type->GetDefinition();
+//
+//						//this casting jank is "okay" because we know the member definition exists?
+//						parent_type_specifier =
+//								static_pointer_cast<const ComplexTypeSpecifier>(
+//										type_table->GetType<ComplexType>(
+//												as_nested->GetMemberName())->GetTypeSpecifier(
+//												as_nested->GetMemberName()));
+//					}
+//				}
 			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
@@ -233,8 +235,8 @@ const ErrorListRef WithExpression::Validate(
 							source_type_specifier->ToString()), errors);
 		}
 
-		if (source_type && parent_type_specifier
-				&& ErrorList::IsTerminator(errors)) {
+		if (source_type //&& parent_type_specifier
+		&& ErrorList::IsTerminator(errors)) {
 			MemberInstantiationListRef instantiation_list =
 					m_member_instantiation_list;
 			while (!MemberInstantiationList::IsTerminator(instantiation_list)) {
@@ -242,25 +244,25 @@ const ErrorListRef WithExpression::Validate(
 						instantiation_list->GetData();
 				auto member_name = instantiation->GetName();
 
-				const_shared_ptr<TypeSpecifier> member_type_specifier =
-						make_shared<NestedTypeSpecifier>(parent_type_specifier,
-								member_name);
 				const_shared_ptr<TypeDefinition> member_definition =
 						source_type->GetMember(*member_name);
-
 				if (member_definition) {
 					const_shared_ptr<TypeSpecifier> expression_type =
 							instantiation->GetExpression()->GetType(
 									execution_context);
+
+					const_shared_ptr<TypeSpecifier> member_type_specifier =
+							member_definition->GetTypeSpecifier(member_name,
+									record_type_specifier);
+
 					if (!expression_type->IsAssignableTo(member_type_specifier,
 							*type_table)) {
 						auto as_sum = dynamic_pointer_cast<const SumType>(
 								member_definition);
-
 						if (as_sum) {
+							//member definition is a sum type; check to see if widening is an option
 							auto widening_analysis = as_sum->AnalyzeWidening(
-									*expression_type,
-									*member_name);
+									*expression_type, *member_name);
 
 							if (widening_analysis == AMBIGUOUS) {
 								errors =

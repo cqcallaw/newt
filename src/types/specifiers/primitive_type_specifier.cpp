@@ -19,7 +19,7 @@
 
 #include <primitive_declaration_statement.h>
 #include <primitive_type_specifier.h>
-#include <nested_type_specifier.h>
+
 #include <primitive_type.h>
 #include <complex_type.h>
 #include <typeinfo>
@@ -65,11 +65,6 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 	if (other_as_primitive) {
 		const BasicType other_type = other_as_primitive->GetBasicType();
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
-	}
-
-	auto unaliased = other->ResolveAliasing(type_table);
-	if (unaliased) {
-		return IsAssignableTo(unaliased, type_table);
 	}
 
 	return false;

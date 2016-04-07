@@ -50,13 +50,16 @@ public:
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const = 0;
 
-	virtual const_shared_ptr<TypeSpecifier> ResolveAliasing(
-			const TypeTable& type_table) const {
-		return const_shared_ptr<TypeSpecifier>();
-	}
-
 	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const {
-		return GetType(type_table, RESOLVE)->GetDefaultValue(type_table);
+		auto type = GetType(type_table, RESOLVE);
+		if (type) {
+			return type->GetDefaultValue(type_table);
+		}
+
+		auto str = ToString();
+		auto stuff = GetType(type_table, RESOLVE);
+
+		return nullptr;
 	}
 };
 
