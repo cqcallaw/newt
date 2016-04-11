@@ -261,8 +261,11 @@ const ErrorListRef WithExpression::Validate(
 								member_definition);
 						if (as_sum) {
 							//member definition is a sum type; check to see if widening is an option
-							auto widening_analysis = as_sum->AnalyzeWidening(
-									*expression_type, *member_name);
+							auto member_specifier_as_sum = dynamic_pointer_cast<
+									const ComplexTypeSpecifier>(
+									member_type_specifier);
+							auto widening_analysis = as_sum->AnalyzeConversion(
+									*member_specifier_as_sum, *expression_type);
 
 							if (widening_analysis == AMBIGUOUS) {
 								errors =

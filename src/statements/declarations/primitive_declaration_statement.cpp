@@ -67,7 +67,7 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 		auto type_table = *execution_context->GetTypeTable();
 		auto type = m_type->GetType(type_table);
 		auto value = type->GetDefaultValue(type_table);
-		symbol = type->GetSymbol(m_type, value);
+		symbol = type->GetSymbol(type_table, m_type, value);
 	} else {
 		assert(false);
 	}

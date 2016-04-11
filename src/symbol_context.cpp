@@ -138,7 +138,7 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<RecordTypeSpecifier> type,
+		const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Record> value, const TypeTable& type_table) {
 
 	return SetSymbol(identifier, type, static_pointer_cast<const void>(value),
@@ -158,8 +158,8 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<SumTypeSpecifier> type, const_shared_ptr<Sum> value,
-		const TypeTable& type_table) {
+		const_shared_ptr<ComplexTypeSpecifier> type,
+		const_shared_ptr<Sum> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, type, static_pointer_cast<const void>(value),
 			type_table);
 }

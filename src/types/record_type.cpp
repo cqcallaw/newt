@@ -143,7 +143,7 @@ const_shared_ptr<void> RecordType::GetDefaultValue(
 	return Record::GetDefaultInstance(*this);
 }
 
-const_shared_ptr<Symbol> RecordType::GetSymbol(
+const_shared_ptr<Symbol> RecordType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value) const {
 	auto as_record_specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
@@ -155,17 +155,6 @@ const_shared_ptr<Symbol> RecordType::GetSymbol(
 	}
 
 	return Symbol::GetDefaultSymbol();
-}
-
-bool RecordType::IsSpecifiedBy(const std::string& name,
-		const TypeSpecifier& type_specifier) const {
-	try {
-		const RecordTypeSpecifier& as_record =
-				dynamic_cast<const RecordTypeSpecifier&>(type_specifier);
-		return name == *as_record.GetTypeName();
-	} catch (std::bad_cast& e) {
-		return false;
-	}
 }
 
 const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
@@ -202,10 +191,10 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
-		auto as_record_specifier = dynamic_pointer_cast<
-				const RecordTypeSpecifier>(type_specifier);
-		if (as_record_specifier) {
-			symbol = make_shared<Symbol>(as_record_specifier, instance);
+		auto as_complex_specifier = dynamic_pointer_cast<
+				const ComplexTypeSpecifier>(type_specifier);
+		if (as_complex_specifier) {
+			symbol = make_shared<Symbol>(as_complex_specifier, instance);
 		} else {
 			//TODO: error handling
 			assert(false);
@@ -248,14 +237,20 @@ const_shared_ptr<DeclarationStatement> RecordType::GetDeclarationStatement(
 		const yy::location type_position, const_shared_ptr<std::string> name,
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) const {
-	auto as_record_specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
-			type);
-	if (as_record_specifier) {
+	auto as_complex_specifier =
+			dynamic_pointer_cast<const ComplexTypeSpecifier>(type);
+	if (as_complex_specifier) {
 		return make_shared<ComplexInstantiationStatement>(position,
-				as_record_specifier, type_position, name, name_position,
+				as_complex_specifier, type_position, name, name_position,
 				initializer_expression);
 	} else {
 		assert(false);
 		return nullptr;
 	}
+}
+
+const WideningResult RecordType::AnalyzeConversion(
+		const ComplexTypeSpecifier& current,
+		const TypeSpecifier& unaliased_other) const {
+	return INCOMPATIBLE;
 }

@@ -60,11 +60,18 @@ const string PrimitiveTypeSpecifier::ToString(
 const bool PrimitiveTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	const_shared_ptr<PrimitiveTypeSpecifier> other_as_primitive =
-			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(other);
-	if (other_as_primitive) {
-		const BasicType other_type = other_as_primitive->GetBasicType();
+	const TypeSpecifier& resolved = ComplexTypeSpecifier::ResolveAliasing(
+			*other, type_table);
+	try {
+		if (resolved.AnalyzeConversion(type_table, *this) == UNAMBIGUOUS) {
+			return true;
+		}
+
+		auto other_as_primitive =
+				dynamic_cast<const PrimitiveTypeSpecifier&>(resolved);
+		const BasicType other_type = other_as_primitive.GetBasicType();
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
+	} catch (std::bad_cast& e) {
 	}
 
 	return false;
@@ -132,5 +139,11 @@ bool PrimitiveTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 
 const_shared_ptr<TypeDefinition> PrimitiveTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	return make_shared<PrimitiveType>(GetBasicType());
+	auto basic_type = GetBasicType();
+	if (basic_type != NONE) {
+		//TODO: cache these, or populate the default type table with them
+		return make_shared<PrimitiveType>(basic_type);
+	}
+
+	return nullptr;
 }

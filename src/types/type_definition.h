@@ -31,6 +31,10 @@ class Symbol;
 class DeclarationStatement;
 class Expression;
 
+enum WideningResult {
+	INCOMPATIBLE = 0, AMBIGUOUS = 1, UNAMBIGUOUS = 2
+};
+
 class TypeDefinition {
 public:
 	TypeDefinition() {
@@ -55,10 +59,7 @@ public:
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container) const = 0;
 
-	virtual bool IsSpecifiedBy(const std::string& name,
-			const TypeSpecifier& type_specifier) const = 0;
-
-	virtual const_shared_ptr<Symbol> GetSymbol(
+	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void> value) const = 0;
 
@@ -68,6 +69,7 @@ public:
 			const_shared_ptr<std::string> name,
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const = 0;
+
 };
 
 #endif /* TYPE_DEFINITION_H_ */

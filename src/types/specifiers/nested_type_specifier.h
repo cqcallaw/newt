@@ -51,7 +51,7 @@ public:
 		return m_member_name;
 	}
 
-	static const_shared_ptr<TypeSpecifier> ResolveNesting(
+	static const_shared_ptr<TypeSpecifier> Resolve(
 			const_shared_ptr<TypeSpecifier> source,
 			const TypeTable& type_table);
 

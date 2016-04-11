@@ -62,17 +62,12 @@ const_shared_ptr<TypeSpecifier> FunctionType::GetTypeSpecifier(
 	return m_type_specifier;
 }
 
-bool FunctionType::IsSpecifiedBy(const std::string& name,
-		const TypeSpecifier& type_specifier) const {
-	return *m_type_specifier == type_specifier;
-}
-
 const std::string FunctionType::GetValueSeperator(const Indent& indent,
 		const_shared_ptr<void> value) const {
 	return "\n" + (indent + 1).ToString();
 }
 
-const_shared_ptr<Symbol> FunctionType::GetSymbol(
+const_shared_ptr<Symbol> FunctionType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value) const {
 	return make_shared<Symbol>(static_pointer_cast<const Function>(value));

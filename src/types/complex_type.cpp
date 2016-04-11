@@ -51,6 +51,7 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 	plain_shared_ptr<void> value;
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
+	auto type_table = execution_context->GetTypeTable();
 	if (initializer) {
 		errors = initializer->Validate(execution_context);
 		if (ErrorList::IsTerminator(errors)) {
@@ -58,14 +59,13 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 					initializer);
 		}
 	} else {
-		auto type_table = execution_context->GetTypeTable();
-		value = type_specifier->GetType(type_table)->GetDefaultValue(
-				type_table);
+		auto type = type_specifier->GetType(type_table);
+		value = type->GetDefaultValue(type_table);
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
 		//we've been able to get a good initial value (that is, no errors have occurred)
-		symbol = GetSymbol(type_specifier, value);
+		symbol = GetSymbol(type_table, type_specifier, value);
 	}
 
 	return make_shared<Result>(symbol, errors);

@@ -49,39 +49,11 @@ public:
 	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			const NamespaceQualifierListRef space) :
-			m_type_name(type_name), m_container(container), m_space(space) {
+			ComplexTypeSpecifier(type_name, container, space) {
 	}
 
 	virtual ~RecordTypeSpecifier() {
 	}
-
-	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
-			const TypeTable& type_table) const;
-
-	virtual bool operator==(const TypeSpecifier& other) const;
-
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
-
-	virtual const_shared_ptr<std::string> GetTypeName() const {
-		return m_type_name;
-	}
-
-	virtual const std::string ToString() const;
-
-	virtual const NamespaceQualifierListRef GetNamespace() const {
-		return m_space;
-	}
-
-	virtual const_shared_ptr<ComplexTypeSpecifier> GetContainer() const {
-		return m_container;
-	}
-
-private:
-	const_shared_ptr<std::string> m_type_name;
-	const_shared_ptr<ComplexTypeSpecifier> m_container;
-	const NamespaceQualifierListRef m_space;
 };
 
 #endif /* SPECIFIERS_RECORD_TYPE_SPECIFIER_H_ */

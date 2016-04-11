@@ -40,23 +40,12 @@ const_shared_ptr<TypeSpecifier> ArrayType::GetTypeSpecifier(
 	return result;
 }
 
-bool ArrayType::IsSpecifiedBy(const std::string& name,
-		const TypeSpecifier& type_specifier) const {
-	try {
-		const ArrayTypeSpecifier& as_array =
-				dynamic_cast<const ArrayTypeSpecifier&>(type_specifier);
-		return *as_array.GetElementTypeSpecifier() == *m_member_type_specifier;
-	} catch (std::bad_cast& e) {
-		return false;
-	}
-}
-
 const_shared_ptr<void> ArrayType::GetDefaultValue(
 		const TypeTable& type_table) const {
 	return make_shared<Array>(m_member_type_specifier, type_table);
 }
 
-const_shared_ptr<Symbol> ArrayType::GetSymbol(
+const_shared_ptr<Symbol> ArrayType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value) const {
 	auto cast = static_pointer_cast<const Array>(value);

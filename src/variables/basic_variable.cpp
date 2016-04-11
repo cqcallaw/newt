@@ -28,8 +28,9 @@
 #include <sum_type.h>
 #include <record_type.h>
 #include <record.h>
-#include <nested_type_specifier.h>
-
+#include <primitive_type.h>
+#include <array_type.h>
+#include <function_type.h>
 #include "assert.h"
 #include "expression.h"
 
@@ -57,7 +58,10 @@ const_shared_ptr<TypeSpecifier> BasicVariable::GetType(
 		const shared_ptr<ExecutionContext> context,
 		AliasResolution resolution) const {
 	auto symbol = context->GetSymbol(GetName(), DEEP);
-	return symbol->GetType();
+	if (symbol) {
+		return symbol->GetType();
+	}
+	return PrimitiveTypeSpecifier::GetNone();
 }
 
 const_shared_ptr<Result> BasicVariable::Evaluate(
@@ -77,7 +81,7 @@ const_shared_ptr<Result> BasicVariable::Evaluate(
 	}
 
 	const_shared_ptr<Result> result = make_shared<Result>(
-			result_symbol->GetValue(), errors);
+			result_symbol ? result_symbol->GetValue() : nullptr, errors);
 	return result;
 }
 
@@ -101,13 +105,15 @@ const ErrorListRef BasicVariable::AssignValue(
 
 	const_shared_ptr<Symbol> symbol = output_context->GetSymbol(variable_name,
 			DEEP);
-	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
+	const_shared_ptr<TypeSpecifier> symbol_type_specifier = symbol->GetType();
+	auto symbol_type = symbol_type_specifier->GetType(context->GetTypeTable(),
+			RESOLVE);
 	auto symbol_value = symbol->GetValue();
 
-	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(symbol_type);
+	const_shared_ptr<PrimitiveType> as_primitive = dynamic_pointer_cast<
+			const PrimitiveType>(symbol_type);
 	if (as_primitive) {
-		const BasicType basic_type = as_primitive->GetBasicType();
+		const BasicType basic_type = as_primitive->GetType();
 		switch (basic_type) {
 		case BOOLEAN: {
 			const_shared_ptr<Result> result = AssignmentStatement::do_op(
@@ -162,8 +168,8 @@ const ErrorListRef BasicVariable::AssignValue(
 	}
 
 	//TODO: don't allow += or -= operations on array specifiers
-	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
-			const ArrayTypeSpecifier>(symbol_type);
+	const_shared_ptr<ArrayType> as_array = std::dynamic_pointer_cast<
+			const ArrayType>(symbol_type);
 	if (as_array) {
 		//re-assigning an array reference
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
@@ -179,7 +185,8 @@ const ErrorListRef BasicVariable::AssignValue(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-								variable_column, as_array->ToString(),
+								variable_column,
+								symbol_type_specifier->ToString(),
 								expression->GetType(context)->ToString()),
 						errors);
 			}
@@ -187,9 +194,11 @@ const ErrorListRef BasicVariable::AssignValue(
 	}
 
 //TODO: don't allow += or -= operations on compound type specifiers
-	const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
-			std::dynamic_pointer_cast<const RecordTypeSpecifier>(symbol_type);
-	if (as_record_specifier) {
+	const_shared_ptr<RecordType> as_record = std::dynamic_pointer_cast<
+			const RecordType>(symbol_type);
+	if (as_record) {
+		auto complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+				symbol_type_specifier);
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
@@ -198,14 +207,13 @@ const ErrorListRef BasicVariable::AssignValue(
 			auto new_instance = expression_evaluation->GetData<Record>();
 
 			//we're assigning a struct reference
-			errors = SetSymbol(output_context, as_record_specifier,
-					new_instance);
+			errors = SetSymbol(output_context, complex, new_instance);
 		}
 	}
 
 //TODO: don't allow += or -= operations on function type specifiers
-	const_shared_ptr<FunctionTypeSpecifier> as_function =
-			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(symbol_type);
+	const_shared_ptr<FunctionType> as_function = std::dynamic_pointer_cast<
+			const FunctionType>(symbol_type);
 	if (as_function) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
@@ -218,43 +226,40 @@ const ErrorListRef BasicVariable::AssignValue(
 		}
 	}
 
-	const_shared_ptr<SumTypeSpecifier> as_sum_specifier =
-			std::dynamic_pointer_cast<const SumTypeSpecifier>(symbol_type);
-	if (as_sum_specifier) {
+	const_shared_ptr<SumType> as_sum = std::dynamic_pointer_cast<const SumType>(
+			symbol_type);
+	if (as_sum) {
+		auto complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+				symbol_type_specifier);
+
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto sum = static_pointer_cast<const Sum>(symbol->GetValue());
-			auto expression_type = expression->GetType(context);
+			auto expression_type_specifier = expression->GetType(context);
 
 			plain_shared_ptr<Sum> new_sum;
-			if (expression_type->IsAssignableTo(symbol_type,
+			if (expression_type_specifier->IsAssignableTo(symbol_type_specifier,
 					context->GetTypeTable())) {
-				//we're re-assigning
-				new_sum = expression_evaluation->GetData<Sum>();
-			} else {
-				//test for widening
-				auto sum_type_name = as_sum_specifier->GetTypeName();
-				auto sum_type = context->GetTypeTable()->GetType<SumType>(
-						sum_type_name);
+				auto expression_type = expression_type_specifier->GetType(
+						context->GetTypeTable(), RESOLVE);
 
-				auto widening_analysis = sum_type->AnalyzeWidening(
-						*expression_type, *sum_type_name);
-
-				if (widening_analysis == UNAMBIGUOUS) {
+				auto evaluation_as_sum = dynamic_pointer_cast<const SumType>(
+						expression_type);
+				if (evaluation_as_sum) {
+					new_sum = expression_evaluation->GetData<Sum>();
+				} else {
 					//we're widening
-					auto tag = sum_type->MapSpecifierToVariant(*expression_type,
-							*sum_type_name);
+					auto tag = as_sum->MapSpecifierToVariant(*complex,
+							*expression_type_specifier);
 					new_sum = make_shared<Sum>(tag,
 							expression_evaluation->GetRawData());
-				} else {
-					assert(false);
 				}
 			}
 
-			errors = SetSymbol(output_context, as_sum_specifier, new_sum);
+			errors = SetSymbol(output_context, complex, new_sum);
 		}
 	}
 
@@ -343,7 +348,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<RecordTypeSpecifier> type,
+		const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Record> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
@@ -362,7 +367,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<SumTypeSpecifier> type,
+		const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Sum> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(

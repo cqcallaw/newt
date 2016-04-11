@@ -43,13 +43,10 @@ public:
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container) const;
 
-	virtual bool IsSpecifiedBy(const std::string& name,
-			const TypeSpecifier& type_specifier) const;
-
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const TypeTable& type_table) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(
+	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void>) const;
 

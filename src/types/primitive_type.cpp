@@ -43,23 +43,12 @@ const std::string PrimitiveType::ValueToString(const TypeTable& type_table,
 	return result;
 }
 
-bool PrimitiveType::IsSpecifiedBy(const std::string& name,
-		const TypeSpecifier& type_specifier) const {
-	try {
-		const PrimitiveTypeSpecifier& as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier&>(type_specifier);
-		return m_type == as_primitive.GetBasicType();
-	} catch (std::bad_cast& e) {
-		return false;
-	}
-}
-
 const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 		const TypeTable& type_table) const {
 	return GetDefaultValue(m_type);
 }
 
-const_shared_ptr<Symbol> PrimitiveType::GetSymbol(
+const_shared_ptr<Symbol> PrimitiveType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value) const {
 	switch (m_type) {

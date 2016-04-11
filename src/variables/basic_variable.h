@@ -82,12 +82,12 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<RecordTypeSpecifier> type,
+			const_shared_ptr<ComplexTypeSpecifier> type,
 			const_shared_ptr<Record> value) const;
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<SumTypeSpecifier> type,
+			const_shared_ptr<ComplexTypeSpecifier> type,
 			const_shared_ptr<Sum> value) const;
 
 	virtual const ErrorListRef SetSymbol(

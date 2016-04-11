@@ -50,14 +50,16 @@ public:
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const = 0;
 
+	virtual const WideningResult AnalyzeConversion(const TypeTable& type_table,
+			const TypeSpecifier& other) const {
+		return INCOMPATIBLE;
+	}
+
 	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const {
 		auto type = GetType(type_table, RESOLVE);
 		if (type) {
 			return type->GetDefaultValue(type_table);
 		}
-
-		auto str = ToString();
-		auto stuff = GetType(type_table, RESOLVE);
 
 		return nullptr;
 	}

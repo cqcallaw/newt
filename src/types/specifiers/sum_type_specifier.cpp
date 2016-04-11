@@ -32,44 +32,23 @@ SumTypeSpecifier::SumTypeSpecifier(
 		SumTypeSpecifier(complex->GetTypeName(), complex->GetNamespace()) {
 }
 
-const string SumTypeSpecifier::ToString() const {
-	return *m_type_name;
-}
-
 const bool SumTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
-			const SumTypeSpecifier>(other);
-	if (as_sum) {
-		return *GetContainer() == *as_sum->GetContainer()
-				&& as_sum->GetTypeName()->compare(*m_type_name) == 0;
+	if (ComplexTypeSpecifier::IsAssignableTo(other, type_table))
+		return true;
+
+	auto other_type = other->GetType(type_table, RESOLVE);
+	auto other_type_as_sum = dynamic_pointer_cast<const SumType>(other_type);
+	if (other_type_as_sum) {
+		auto other_specifier_as_complex = dynamic_pointer_cast<
+				const ComplexTypeSpecifier>(other);
+		auto analysis = other_type_as_sum->AnalyzeConversion(
+				*other_specifier_as_complex, *this);
+		if (analysis == UNAMBIGUOUS) {
+			return true;
+		}
 	}
 
 	return false;
 }
-
-bool SumTypeSpecifier::operator ==(const TypeSpecifier& other) const {
-	try {
-		const SumTypeSpecifier& as_sum =
-				dynamic_cast<const SumTypeSpecifier&>(other);
-		return *GetTypeName() == *as_sum.GetTypeName();
-	} catch (std::bad_cast& e) {
-		return false;
-	}
-}
-
-const_shared_ptr<TypeDefinition> SumTypeSpecifier::GetType(
-		const TypeTable& type_table, AliasResolution resolution) const {
-	plain_shared_ptr<SumType> type = nullptr;
-
-	auto container_type = GetContainerType(type_table);
-	if (container_type) {
-		type = container_type->GetDefinition()->GetType<SumType>(m_type_name);
-	} else {
-		type = type_table.GetType<SumType>(m_type_name);
-	}
-
-	return type;
-}
-

@@ -54,9 +54,6 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 	//TODO: validate that all members are initialized for readonly structs (?)
 
 	auto type = m_type_specifier->GetType(execution_context->GetTypeTable());
-//	auto type_name = m_type_specifier->GetTypeName();
-//	const_shared_ptr<ComplexType> type =
-//			execution_context->GetTypeTable()->GetType<ComplexType>(type_name);
 	if (type) {
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 

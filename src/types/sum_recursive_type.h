@@ -47,11 +47,6 @@ public:
 		return make_shared<SumTypeSpecifier>(name, container);
 	}
 
-	virtual bool IsSpecifiedBy(const std::string& name,
-			const TypeSpecifier& type_specifier) const {
-		return name == *m_type_name;
-	}
-
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const {
 		ostringstream os;
@@ -78,7 +73,7 @@ public:
 		return m_default_value;
 	}
 
-	virtual const_shared_ptr<Symbol> GetSymbol(
+	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void> value) const {
 		return m_default_symbol;
@@ -92,6 +87,12 @@ public:
 			const_shared_ptr<Expression> initializer_expression) const {
 		assert(false);
 		return nullptr;
+	}
+
+	virtual const WideningResult AnalyzeConversion(
+			const ComplexTypeSpecifier& current,
+			const TypeSpecifier& unaliased_other) const {
+		return INCOMPATIBLE;
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetMemberTypeSpecifier(

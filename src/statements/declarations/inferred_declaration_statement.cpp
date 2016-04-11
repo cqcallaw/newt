@@ -58,14 +58,13 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 			GetInitializerExpression()->GetType(execution_context,
 					AliasResolution::RETURN);
 
-	auto str = expression_type->ToString();
-
-	if (expression_type != PrimitiveTypeSpecifier::GetNone()) {
-		auto type_table = execution_context->GetTypeTable();
-		const_shared_ptr<Statement> temp_statement = expression_type->GetType(
-				type_table)->GetDeclarationStatement(GetPosition(),
-				expression_type, GetInitializerExpression()->GetPosition(),
-				GetName(), GetNamePosition(), GetInitializerExpression());
+	auto type_table = execution_context->GetTypeTable();
+	auto type = expression_type->GetType(type_table);
+	if (type) {
+		const_shared_ptr<Statement> temp_statement =
+				type->GetDeclarationStatement(GetPosition(), expression_type,
+						GetInitializerExpression()->GetPosition(), GetName(),
+						GetNamePosition(), GetInitializerExpression());
 		errors = temp_statement->preprocess(execution_context);
 	} else {
 		errors = GetInitializerExpression()->Validate(execution_context);

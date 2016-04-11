@@ -53,6 +53,10 @@ public:
 
 	virtual const_shared_ptr<TypeTable> GetDefinition() const = 0;
 
+	virtual const WideningResult AnalyzeConversion(
+			const ComplexTypeSpecifier& current,
+			const TypeSpecifier& unaliased_other) const = 0;
+
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,

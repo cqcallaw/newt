@@ -84,7 +84,7 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<RecordTypeSpecifier> type,
+			const_shared_ptr<ComplexTypeSpecifier> type,
 			const_shared_ptr<Record> value) const;
 
 	class ValidationResult {

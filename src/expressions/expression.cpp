@@ -39,10 +39,18 @@ const_shared_ptr<Result> Expression::ToString(
 	if (ErrorList::IsTerminator(evaluation->GetErrors())) {
 		const_shared_ptr<TypeSpecifier> type_specifier = GetType(
 				execution_context, AliasResolution::RESOLVE);
-		auto type_table = execution_context->GetTypeTable();
-		auto type = type_specifier->GetType(type_table);
 
-		//TODO: replace this type switching logic with calls to TypeDefinition::ValueToString()
+//		//TODO: replace this type switching logic with calls to TypeDefinition::ValueToString()
+//		auto type_table = execution_context->GetTypeTable();
+//		auto type = type_specifier->GetType(type_table);
+//		if (type) {
+//			buffer
+//					<< type->ValueToString(execution_context->GetTypeTable(),
+//							Indent(0), evaluation->GetRawData());
+//		} else {
+//			assert(false);
+//		}
+
 		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 				std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 						type_specifier);

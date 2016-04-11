@@ -100,7 +100,7 @@ const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::ResolveAliasing(
 	return const_shared_ptr<TypeSpecifier>();
 }
 
-const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::ResolveNesting(
+const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::Resolve(
 		const_shared_ptr<TypeSpecifier> source, const TypeTable& type_table) {
 	auto str = source->ToString();
 	auto as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(source);
@@ -108,7 +108,7 @@ const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::ResolveNesting(
 	if (as_nested) {
 		auto type = as_nested->GetParent()->GetType(type_table, RESOLVE);
 		if (type) {
-			auto resolved_parent = ResolveNesting(as_nested->GetParent(),
+			auto resolved_parent = Resolve(as_nested->GetParent(),
 					type_table);
 
 			auto resolved_parent_as_complex = dynamic_pointer_cast<

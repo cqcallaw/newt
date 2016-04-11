@@ -63,12 +63,11 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 				type_specifier);
 		if (as_sum_specifier) {
 			//widening of sum types requires special handling
-			auto sum_type_name = as_sum_specifier->GetTypeName();
 			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
-					sum_type_name);
+					as_sum_specifier);
 			if (sum_type) {
-				auto widening_analysis = sum_type->AnalyzeWidening(
-						*expression_type_specifier, *sum_type_name);
+				auto widening_analysis = sum_type->AnalyzeConversion(
+						*as_sum_specifier, *expression_type_specifier);
 
 				if (widening_analysis == AMBIGUOUS) {
 					errors = ErrorList::From(

@@ -72,12 +72,12 @@ const_shared_ptr<TypeDefinition> AliasDefinition::GetOrigin() const {
 	return m_original->GetType(*m_origin_table);
 }
 
-const_shared_ptr<Symbol> AliasDefinition::GetSymbol(
+const_shared_ptr<Symbol> AliasDefinition::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value) const {
 	auto origin = GetOrigin();
 	if (origin) {
-		return origin->GetSymbol(type_specifier, value);
+		return origin->GetSymbol(type_table, type_specifier, value);
 	} else {
 		return Symbol::GetDefaultSymbol();
 	}

@@ -242,7 +242,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 			if (ErrorList::IsTerminator(errors) && has_type_constructors) {
 				const_shared_ptr<string> ctor_type_name = make_shared<string>(
 						*GetName() + "_ctor");
-				const_shared_ptr<RecordTypeSpecifier> specifier = make_shared<
+				const_shared_ptr<ComplexTypeSpecifier> specifier = make_shared<
 						RecordTypeSpecifier>(ctor_type_name);
 				auto type = make_shared<RecordType>(constructor_types,
 						Modifier::Type::READONLY);

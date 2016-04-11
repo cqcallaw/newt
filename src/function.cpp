@@ -30,7 +30,6 @@
 #include <sum.h>
 #include <sum_type.h>
 
-
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
 		const shared_ptr<ExecutionContext> closure) :
@@ -169,15 +168,15 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			if (as_sum_specifier) {
 				auto evaluation_result_type = evaluation_result->GetType();
 				if (*as_sum_specifier != *evaluation_result_type) {
-					auto sum_type_name = *as_sum_specifier->GetTypeName();
 					auto sum_type_definition =
 							invocation_context->GetTypeTable()->GetType<SumType>(
-									sum_type_name);
+									as_sum_specifier);
 					if (sum_type_definition) {
 						//we're returning a narrower type than the return type; perform widening
 						plain_shared_ptr<string> tag =
 								sum_type_definition->MapSpecifierToVariant(
-										*evaluation_result_type, sum_type_name);
+										*as_sum_specifier,
+										*evaluation_result_type);
 
 						result = make_shared<Sum>(tag,
 								evaluation_result->GetValue());
@@ -188,7 +187,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 												Error::UNDECLARED_TYPE,
 												m_declaration->GetReturnTypeLocation().begin.line,
 												m_declaration->GetReturnTypeLocation().begin.column,
-												sum_type_name), errors);
+												as_sum_specifier->ToString()),
+										errors);
 					}
 				}
 			}

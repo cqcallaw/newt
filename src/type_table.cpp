@@ -60,13 +60,30 @@ volatile_shared_ptr<TypeTable> TypeTable::GetDefault() {
 	return instance;
 }
 
-const uint TypeTable::CountEntriesOfType(
-		const TypeSpecifier& type_specifier) const {
+const uint TypeTable::CountEntriesOfType(const ComplexTypeSpecifier& current,
+		const TypeSpecifier& other) const {
+	plain_shared_ptr<string> other_complex_name = nullptr;
+	try {
+		auto other_as_complex = dynamic_cast<const ComplexTypeSpecifier&>(other);
+		plain_shared_ptr<ComplexTypeSpecifier> other_container =
+				other_as_complex.GetContainer();
+		other_complex_name = other_as_complex.GetTypeName();
+		if (other_container && *other_container != current) {
+			return 0; //we have a mis-match between containers
+		}
+	} catch (std::bad_cast& e) {
+		//swallow
+	}
+
 	uint count = 0;
 	for (const auto &entry : *m_table) {
 		auto name = entry.first;
 		auto definition = entry.second;
-		if (definition->IsSpecifiedBy(name, type_specifier)) {
+
+		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(definition);
+		if (as_alias && *as_alias->GetOriginal() == other) {
+			count++;
+		} else if (other_complex_name && *other_complex_name == name) {
 			count++;
 		}
 	}
@@ -74,11 +91,36 @@ const uint TypeTable::CountEntriesOfType(
 }
 
 const std::string TypeTable::MapSpecifierToName(
-		const TypeSpecifier& type_specifier) const {
+		const ComplexTypeSpecifier& current, const TypeSpecifier& other) const {
+	plain_shared_ptr<string> other_complex_name = nullptr;
+	try {
+		auto other_as_complex = dynamic_cast<const ComplexTypeSpecifier&>(other);
+		plain_shared_ptr<ComplexTypeSpecifier> other_container =
+				other_as_complex.GetContainer();
+		other_complex_name = other_as_complex.GetTypeName();
+		if (other_container) {
+			if (*other_container == current) {
+				//the container is the same, so we can just use the other type name
+				auto name = other_as_complex.GetTypeName();
+				if (GetType<TypeDefinition>(name)) {
+					return *name;
+				}
+			}
+			//we have a mis-match between containers, or the member name doesn't exist on this type
+			return "";
+		}
+	} catch (std::bad_cast& e) {
+		//swallow
+	}
+
 	for (const auto &entry : *m_table) {
 		auto name = entry.first;
 		auto definition = entry.second;
-		if (definition->IsSpecifiedBy(name, type_specifier)) {
+
+		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(definition);
+		if (as_alias && *as_alias->GetOriginal() == other) {
+			return name;
+		} else if (other_complex_name && *other_complex_name == name) {
 			return name;
 		}
 	}
@@ -106,7 +148,8 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 		//TODO: this is a hack, and doesn't provide fully qualified type specifiers
 		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name),
 				container);
-		auto default_symbol = type->GetSymbol(type_specifier, default_value);
+		auto default_symbol = type->GetSymbol(*this, type_specifier,
+				default_value);
 		auto insert_result = result->InsertSymbol(name, default_symbol);
 		assert(insert_result == INSERT_SUCCESS);
 	}

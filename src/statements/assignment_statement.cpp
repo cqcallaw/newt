@@ -46,22 +46,22 @@ const ErrorListRef AssignmentStatement::preprocess(
 
 	const_shared_ptr<string> variable_name = m_variable->GetName();
 	auto symbol = execution_context->GetSymbol(variable_name, DEEP);
-	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
 
 	int variable_line = m_variable->GetLocation().begin.line;
 	int variable_column = m_variable->GetLocation().begin.column;
 
 	if (symbol != Symbol::GetDefaultSymbol()) {
+		const_shared_ptr<TypeSpecifier> symbol_type_specifier = symbol->GetType();
 		const_shared_ptr<BasicVariable> basic_variable = dynamic_pointer_cast<
 				const BasicVariable>(m_variable);
 		if (basic_variable) {
 			const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 					dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-							symbol_type);
+							symbol_type_specifier);
 			const_shared_ptr<TypeSpecifier> expression_type =
 					m_expression->GetType(execution_context);
 			if (as_primitive) {
-				if (expression_type->IsAssignableTo(symbol_type,
+				if (expression_type->IsAssignableTo(symbol_type_specifier,
 						execution_context->GetTypeTable())) {
 					errors = ErrorList::GetTerminator();
 				} else {
@@ -72,16 +72,17 @@ const ErrorListRef AssignmentStatement::preprocess(
 									Error::ASSIGNMENT_TYPE_ERROR,
 									variable_location.begin.line,
 									variable_location.begin.column,
-									symbol_type->ToString(),
+									symbol_type_specifier->ToString(),
 									expression_type->ToString()), errors);
 				}
 			}
 
 			const_shared_ptr<ArrayTypeSpecifier> as_array =
-					dynamic_pointer_cast<const ArrayTypeSpecifier>(symbol_type);
+					dynamic_pointer_cast<const ArrayTypeSpecifier>(
+							symbol_type_specifier);
 			if (as_array) {
 				//reassigning raw array reference, not an array element
-				if (!expression_type->IsAssignableTo(symbol_type,
+				if (!expression_type->IsAssignableTo(symbol_type_specifier,
 						execution_context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
@@ -97,20 +98,19 @@ const ErrorListRef AssignmentStatement::preprocess(
 
 			const_shared_ptr<ComplexTypeSpecifier> as_complex =
 					dynamic_pointer_cast<const ComplexTypeSpecifier>(
-							symbol_type);
+							symbol_type_specifier);
 			if (as_complex) {
 				//reassigning raw reference, not a member
-				if (!expression_type->IsAssignableTo(symbol_type,
+				if (!expression_type->IsAssignableTo(symbol_type_specifier,
 						execution_context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
-					const string struct_type_name = *as_complex->GetTypeName();
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
 									expression_position.begin.line,
 									expression_position.begin.column,
-									struct_type_name,
+									as_complex->ToString(),
 									expression_type->ToString()), errors);
 				}
 			}

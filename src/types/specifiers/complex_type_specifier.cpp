@@ -56,26 +56,115 @@ bool ComplexTypeSpecifier::CompareContainers(
 	return *GetContainer() == *other.GetContainer();
 }
 
-const TypeSpecifier& ComplexTypeSpecifier::ResolveAliasing(
-		const ComplexTypeSpecifier& original, const TypeTable& type_table) {
-	auto parent = original.GetContainer();
+const_shared_ptr<TypeDefinition> ComplexTypeSpecifier::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	plain_shared_ptr<ComplexType> type = nullptr;
 
-	if (parent) {
-		auto parent_type = parent->GetType(type_table);
+	auto container_type = GetContainerType(type_table);
+	if (container_type) {
+		type = container_type->GetDefinition()->GetType<ComplexType>(
+				GetTypeName());
+	} else {
+		type = type_table.GetType<ComplexType>(GetTypeName());
+	}
 
-		auto parent_as_complex = dynamic_pointer_cast<const ComplexType>(
-				parent_type);
-		if (parent_as_complex) {
-			auto type = parent_as_complex->GetDefinition()->GetType<
-					AliasDefinition>(original.GetTypeName(), RETURN);
-			if (type) {
-				return *type->GetOriginal();
+	return type;
+}
+
+const bool ComplexTypeSpecifier::IsAssignableTo(
+		const_shared_ptr<TypeSpecifier> other,
+		const TypeTable& type_table) const {
+	const_shared_ptr<ComplexTypeSpecifier> as_complex =
+			std::dynamic_pointer_cast<const ComplexTypeSpecifier>(other);
+	if (as_complex) {
+		try {
+			//the following two casts are justified because we know the resolution of a
+			//complex type specifier will yield a complex type specifier
+			const ComplexTypeSpecifier& resolved_specifier =
+					dynamic_cast<const ComplexTypeSpecifier&>(ComplexTypeSpecifier::ResolveAliasing(
+							*this, type_table));
+			const ComplexTypeSpecifier& resolved_other =
+					dynamic_cast<const ComplexTypeSpecifier&>(ComplexTypeSpecifier::ResolveAliasing(
+							*as_complex, type_table));
+
+			auto container = resolved_specifier.GetContainer();
+			auto other_container = resolved_other.GetContainer();
+			if (container) {
+				if (other_container) {
+					return *container == *other_container
+							&& resolved_other.GetTypeName()->compare(
+									*resolved_specifier.GetTypeName()) == 0;
+				}
 			} else {
-				cout << "Nonalias " << *original.GetTypeName() << ":" << endl;
-				cout << parent_type->ToString(type_table, Indent(0));
-				cout << "End Nonalias" << endl;
+				if (resolved_other.GetTypeName()->compare(
+						*resolved_specifier.GetTypeName()) == 0) {
+					return true;
+				}
+			}
+
+			if (resolved_other.AnalyzeConversion(type_table, resolved_specifier)
+					== UNAMBIGUOUS) {
+				return true;
+			}
+
+		} catch (std::bad_cast& e) {
+		}
+	}
+
+	return false;
+}
+
+const std::string ComplexTypeSpecifier::ToString() const {
+	return (GetContainer() ? GetContainer()->ToString() + "." : "")
+			+ *m_type_name;
+}
+
+bool ComplexTypeSpecifier::operator ==(const TypeSpecifier& other) const {
+	try {
+		const ComplexTypeSpecifier& as_complex =
+				dynamic_cast<const ComplexTypeSpecifier&>(other);
+		return CompareContainers(as_complex)
+				&& *GetTypeName() == *as_complex.GetTypeName();
+	} catch (std::bad_cast& e) {
+		return false;
+	}
+}
+
+const WideningResult ComplexTypeSpecifier::AnalyzeConversion(
+		const TypeTable& type_table, const TypeSpecifier& other) const {
+	auto type = GetType(type_table);
+
+	if (type) {
+		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
+		if (as_complex) {
+			return as_complex->AnalyzeConversion(*this, other);
+		}
+	}
+
+	return INCOMPATIBLE;
+}
+
+const TypeSpecifier& ComplexTypeSpecifier::ResolveAliasing(
+		const TypeSpecifier& original, const TypeTable& type_table) {
+	try {
+		const ComplexTypeSpecifier& as_complex =
+				dynamic_cast<const ComplexTypeSpecifier&>(original);
+
+		auto parent = as_complex.GetContainer();
+		if (parent) {
+			auto parent_type = parent->GetType(type_table);
+
+			auto parent_as_complex = dynamic_pointer_cast<const ComplexType>(
+					parent_type);
+			if (parent_as_complex) {
+				auto type = parent_as_complex->GetDefinition()->GetType<
+						AliasDefinition>(as_complex.GetTypeName(), RETURN);
+				if (type) {
+					return *type->GetOriginal();
+				}
 			}
 		}
+	} catch (std::bad_cast& e) {
 	}
 
 	return original;

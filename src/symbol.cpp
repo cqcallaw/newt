@@ -61,7 +61,7 @@ Symbol::Symbol(const_shared_ptr<Array> value) :
 				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<RecordTypeSpecifier> type,
+Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Record> value) :
 		Symbol(type, static_pointer_cast<const void>(value)) {
 }
@@ -70,7 +70,7 @@ Symbol::Symbol(const_shared_ptr<Function> value) :
 		Symbol(value->GetType(), static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<SumTypeSpecifier> type,
+Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Sum> value) :
 		Symbol(type, static_pointer_cast<const void>(value)) {
 }
@@ -79,6 +79,7 @@ Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 		const_shared_ptr<void> value) :
 		m_type(type), m_value(value) {
 	assert(type);
+	assert(type != PrimitiveTypeSpecifier::GetNone());
 }
 
 const_shared_ptr<Symbol> Symbol::WithValue(const_shared_ptr<TypeSpecifier> type,
@@ -96,8 +97,7 @@ const string Symbol::ToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<Symbol> Symbol::GetDefaultSymbol() {
-	const static const_shared_ptr<Symbol> DefaultSymbol = const_shared_ptr<
-			Symbol>(new Symbol(PrimitiveTypeSpecifier::GetNone(), nullptr));
+	const static const_shared_ptr<Symbol> DefaultSymbol = nullptr;
 
 	return DefaultSymbol;
 }

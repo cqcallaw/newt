@@ -33,32 +33,28 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetType(
 	shared_ptr<const void> value = nullptr;
 	auto type_table = *context->GetTypeTable();
 
-//	const_shared_ptr<NestedTypeSpecifier> as_nested = std::dynamic_pointer_cast<
-//			const NestedTypeSpecifier>(container_type_specifier);
-//	if (as_nested) {
-//		assert(false); //temporary
-//		value = as_nested->DefaultValue(type_table);
-//	}
-
 	const_shared_ptr<RecordTypeSpecifier> as_record_type_specifier =
 			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 					container_type_specifier);
 	if (as_record_type_specifier) {
-		auto record_type = type_table.GetType<RecordType>(
-				as_record_type_specifier);
-		if (record_type) {
-			auto member_name = m_member_variable->GetName();
-			auto member_type = record_type->GetDefinition()->GetType
-					< TypeDefinition > (*member_name);
+		auto type = as_record_type_specifier->GetType(type_table, RESOLVE);
+		if (type) {
+			auto as_record = dynamic_pointer_cast<const ComplexType>(type);
+			if (as_record) {
+				auto member_name = m_member_variable->GetName();
+				auto member_type = as_record->GetDefinition()->GetType<
+						TypeDefinition>(*member_name);
 
-			if (member_type) {
-				auto output = make_shared<NestedTypeSpecifier>(
-						as_record_type_specifier, m_member_variable->GetName());
+				if (member_type) {
+					auto output = make_shared<NestedTypeSpecifier>(
+							as_record_type_specifier,
+							m_member_variable->GetName());
 
-				if (resolution == AliasResolution::RETURN) {
-					return output;
-				} else {
-					return output->ResolveAliasing(type_table);
+					if (resolution == AliasResolution::RETURN) {
+						return output;
+					} else {
+						return output->ResolveAliasing(type_table);
+					}
 				}
 			}
 		}
@@ -99,8 +95,8 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 		errors = ErrorList::From(
 				make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_VARIABLE,
 						m_container->GetLocation().begin.line,
-						m_container->GetLocation().begin.column, *(GetName())),
-				errors);
+						m_container->GetLocation().begin.column,
+						*(m_container->GetName())), errors);
 	}
 
 	const_shared_ptr<Result> result = make_shared<Result>(
@@ -266,7 +262,7 @@ const ErrorListRef MemberVariable::AssignValue(
 
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<RecordTypeSpecifier> type,
+		const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Record> value) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
@@ -340,37 +336,6 @@ const ErrorListRef MemberVariable::Validate(
 		const_shared_ptr<TypeSpecifier> container_type_specifier =
 				m_container->GetType(context);
 
-//		const_shared_ptr<NestedTypeSpecifier> as_nested =
-//				std::dynamic_pointer_cast<const NestedTypeSpecifier>(
-//						container_type);
-//		if (as_nested) {
-//			auto parent_name = as_nested->GetParent()->GetTypeName();
-//			auto container_definition =
-//					context->GetTypeTable()->GetType<SumType>(parent_name);
-//
-//			if (container_definition) {
-//				auto member_name = as_nested->GetMemberName();
-//				auto member = container_definition->GetDefinition()->GetType<
-//						RecordType>(member_name);
-//				if (!member) {
-//					errors =
-//							ErrorList::From(
-//									make_shared<Error>(Error::SEMANTIC,
-//											Error::UNDECLARED_MEMBER,
-//											m_member_variable->GetLocation().begin.line,
-//											m_member_variable->GetLocation().begin.column,
-//											*member_name,
-//											as_nested->ToString()), errors);
-//				}
-//			} else {
-//				errors = ErrorList::From(
-//						make_shared<Error>(Error::SEMANTIC,
-//								Error::UNDECLARED_TYPE,
-//								m_container->GetLocation().begin.line,
-//								m_container->GetLocation().begin.column,
-//								*parent_name), errors);
-//			}
-//		} else {
 		auto type = container_type_specifier->GetType(context->GetTypeTable(),
 				RESOLVE);
 
@@ -395,13 +360,12 @@ const ErrorListRef MemberVariable::Validate(
 							m_container->GetLocation().begin.column,
 							*m_container->GetName()), errors);
 		}
-//		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
 						m_container->GetLocation().begin.line,
-						m_container->GetLocation().begin.column, *(GetName())),
-				errors);
+						m_container->GetLocation().begin.column,
+						*m_container->GetName()), errors);
 	}
 
 	return errors;

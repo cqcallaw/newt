@@ -7,7 +7,7 @@ sum result {
 	| error:general_error
 }
 
-t:= @result.error with { message = "No go"}
+t:result= @result.error with { message = "No go"}
 
 match(t)
 	value {
