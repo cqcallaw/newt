@@ -37,7 +37,7 @@ const_shared_ptr<Result> Expression::ToString(
 	ostringstream buffer;
 	const_shared_ptr<Result> evaluation = Evaluate(execution_context);
 	if (ErrorList::IsTerminator(evaluation->GetErrors())) {
-		const_shared_ptr<TypeSpecifier> type_specifier = GetType(
+		const_shared_ptr<TypeSpecifier> type_specifier = GetTypeSpecifier(
 				execution_context, AliasResolution::RESOLVE);
 
 //		//TODO: replace this type switching logic with calls to TypeDefinition::ValueToString()

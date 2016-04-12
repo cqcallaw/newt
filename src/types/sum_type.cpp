@@ -215,7 +215,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
 	const_shared_ptr<TypeSpecifier> initializer_expression_type_specifier =
-			initializer->GetType(execution_context);
+			initializer->GetTypeSpecifier(execution_context);
 	auto widening_analysis = AnalyzeConversion(*type_specifier,
 			*initializer_expression_type_specifier);
 

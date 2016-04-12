@@ -31,7 +31,7 @@ public:
 			const yy::location member_instantiation_list_position);
 	virtual ~WithExpression();
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
 			AliasResolution resolution =
 					AliasResolution::RESOLVE) const;

@@ -44,7 +44,7 @@ const ErrorListRef ReturnStatement::execute(
 	if (ErrorList::IsTerminator(errors)) {
 		execution_context->SetReturnValue(
 				const_shared_ptr<Symbol>(
-						new Symbol(m_expression->GetType(execution_context),
+						new Symbol(m_expression->GetTypeSpecifier(execution_context),
 								result->GetRawData())));
 	}
 
@@ -56,7 +56,7 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	auto errors = ErrorList::GetTerminator();
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			m_expression->GetType(execution_context);
+			m_expression->GetTypeSpecifier(execution_context);
 	if (!expression_type_specifier->IsAssignableTo(type_specifier,
 			execution_context->GetTypeTable())) {
 		auto as_sum_specifier = dynamic_pointer_cast<const SumTypeSpecifier>(

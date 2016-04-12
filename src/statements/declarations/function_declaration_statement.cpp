@@ -53,7 +53,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (GetInitializerExpression()) {
 			const_shared_ptr<TypeSpecifier> expression_type =
-					GetInitializerExpression()->GetType(execution_context);
+					GetInitializerExpression()->GetTypeSpecifier(execution_context);
 			const_shared_ptr<FunctionTypeSpecifier> as_function =
 					std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 							expression_type);

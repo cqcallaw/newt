@@ -44,7 +44,7 @@ InferredDeclarationStatement::~InferredDeclarationStatement() {
 
 const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetType() const {
 	if (GetInitializerExpression()->IsConstant()) {
-		return GetInitializerExpression()->GetType(nullptr);
+		return GetInitializerExpression()->GetTypeSpecifier(nullptr);
 	} else {
 		return PrimitiveTypeSpecifier::GetNone();
 	}
@@ -55,7 +55,7 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<TypeSpecifier> expression_type =
-			GetInitializerExpression()->GetType(execution_context,
+			GetInitializerExpression()->GetTypeSpecifier(execution_context,
 					AliasResolution::RETURN);
 
 	auto type_table = execution_context->GetTypeTable();
@@ -78,7 +78,7 @@ const ErrorListRef InferredDeclarationStatement::execute(
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> expression_type =
-			GetInitializerExpression()->GetType(execution_context);
+			GetInitializerExpression()->GetTypeSpecifier(execution_context);
 
 	auto type_table = execution_context->GetTypeTable();
 

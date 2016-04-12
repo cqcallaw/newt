@@ -48,7 +48,7 @@ const ErrorListRef IfStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_expression) {
-		if (m_expression->GetType(execution_context)->IsAssignableTo(
+		if (m_expression->GetTypeSpecifier(execution_context)->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt(),
 				execution_context->GetTypeTable())) {
 

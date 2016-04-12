@@ -42,10 +42,10 @@ WithExpression::WithExpression(const yy::location position,
 WithExpression::~WithExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> WithExpression::GetType(
+const_shared_ptr<TypeSpecifier> WithExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return m_source_expression->GetType(execution_context, resolution);
+	return m_source_expression->GetTypeSpecifier(execution_context, resolution);
 }
 
 const_shared_ptr<Result> WithExpression::Evaluate(
@@ -58,7 +58,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 	if (ErrorList::IsTerminator(errors)) {
 		plain_shared_ptr<void> new_value;
 		const_shared_ptr<TypeSpecifier> source_type_specifier =
-				m_source_expression->GetType(execution_context);
+				m_source_expression->GetTypeSpecifier(execution_context);
 
 		shared_ptr<const RecordType> type = nullptr;
 		shared_ptr<const TypeDefinition> member_definition =
@@ -176,7 +176,7 @@ const ErrorListRef WithExpression::Validate(
 
 	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> source_type_specifier =
-				m_source_expression->GetType(execution_context);
+				m_source_expression->GetTypeSpecifier(execution_context);
 
 		shared_ptr<const TypeTable> type_table =
 				execution_context->GetTypeTable();
@@ -248,7 +248,7 @@ const ErrorListRef WithExpression::Validate(
 						source_type->GetMember(*member_name);
 				if (member_definition) {
 					const_shared_ptr<TypeSpecifier> expression_type =
-							instantiation->GetExpression()->GetType(
+							instantiation->GetExpression()->GetTypeSpecifier(
 									execution_context);
 
 					const_shared_ptr<TypeSpecifier> member_type_specifier =

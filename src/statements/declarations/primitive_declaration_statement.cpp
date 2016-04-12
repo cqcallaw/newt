@@ -44,7 +44,7 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 	if (as_primitive) {
 		if (GetInitializerExpression()) {
 			const_shared_ptr<TypeSpecifier> expression_type_specifier =
-					GetInitializerExpression()->GetType(execution_context);
+					GetInitializerExpression()->GetTypeSpecifier(execution_context);
 
 			auto expression_as_primitive = std::dynamic_pointer_cast<
 					const PrimitiveTypeSpecifier>(expression_type_specifier);

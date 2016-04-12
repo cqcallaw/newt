@@ -38,7 +38,7 @@ const ErrorListRef MatchStatement::preprocess(
 	errors = m_source_expression->Validate(execution_context);
 
 	if (ErrorList::IsTerminator(errors)) {
-		auto expression_type_specifier = m_source_expression->GetType(
+		auto expression_type_specifier = m_source_expression->GetTypeSpecifier(
 				execution_context);
 		auto expression_type = expression_type_specifier->GetType(
 				execution_context->GetTypeTable(), RESOLVE);
@@ -179,7 +179,7 @@ const ErrorListRef MatchStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 
-	auto expression_type_specifier = m_source_expression->GetType(
+	auto expression_type_specifier = m_source_expression->GetTypeSpecifier(
 			execution_context);
 	auto expression_type = expression_type_specifier->GetType(
 			execution_context->GetTypeTable());

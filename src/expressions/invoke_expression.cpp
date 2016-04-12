@@ -51,10 +51,10 @@ InvokeExpression::InvokeExpression(const yy::location position,
 InvokeExpression::~InvokeExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> InvokeExpression::GetType(
+const_shared_ptr<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetTypeSpecifier(
 			execution_context, RESOLVE);
 
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
@@ -75,7 +75,7 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> value;
 
-	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetTypeSpecifier(
 			execution_context);
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
@@ -144,7 +144,7 @@ const ErrorListRef InvokeExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetTypeSpecifier(
 			execution_context);
 
 	errors = m_expression->Validate(execution_context);
@@ -183,7 +183,7 @@ const ErrorListRef InvokeExpression::Validate(
 						const_shared_ptr<TypeSpecifier> parameter_type =
 								declaration->GetType();
 						const_shared_ptr<TypeSpecifier> argument_type =
-								argument_expression->GetType(execution_context);
+								argument_expression->GetTypeSpecifier(execution_context);
 						if (!argument_type->IsAssignableTo(parameter_type,
 								execution_context->GetTypeTable())) {
 							errors =
@@ -243,7 +243,7 @@ const ErrorListRef InvokeExpression::Validate(
 						const_shared_ptr<TypeSpecifier> parameter_type =
 								type_parameter_list->GetData();
 						const_shared_ptr<TypeSpecifier> argument_type =
-								argument_expression->GetType(execution_context);
+								argument_expression->GetTypeSpecifier(execution_context);
 
 						if (!argument_type->IsAssignableTo(parameter_type,
 								execution_context->GetTypeTable())) {

@@ -43,11 +43,11 @@ const_shared_ptr<TypeSpecifier> UnaryExpression::compute_result_type(
 	}
 }
 
-const_shared_ptr<TypeSpecifier> UnaryExpression::GetType(
+const_shared_ptr<TypeSpecifier> UnaryExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return compute_result_type(
-			m_expression->GetType(execution_context, resolution), m_operator);
+			m_expression->GetTypeSpecifier(execution_context, resolution), m_operator);
 }
 
 const ErrorListRef UnaryExpression::Validate(
@@ -63,7 +63,7 @@ const ErrorListRef UnaryExpression::Validate(
 		return result;
 	}
 
-	const_shared_ptr<TypeSpecifier> expression_type = expression->GetType(
+	const_shared_ptr<TypeSpecifier> expression_type = expression->GetTypeSpecifier(
 			execution_context);
 	if (!(expression_type->IsAssignableTo(PrimitiveTypeSpecifier::GetDouble(),
 			execution_context->GetTypeTable()))) {
@@ -83,7 +83,7 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	void* result = nullptr;
 
-	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetType(
+	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetTypeSpecifier(
 			execution_context);
 	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
 			execution_context);

@@ -40,7 +40,7 @@ const ErrorListRef ExitStatement::preprocess(
 
 	if (m_exit_expression) {
 		const_shared_ptr<TypeSpecifier> expression_type_specifier =
-				m_exit_expression->GetType(execution_context);
+				m_exit_expression->GetTypeSpecifier(execution_context);
 		const_shared_ptr<PrimitiveTypeSpecifier> expression_as_primitive =
 				std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 						expression_type_specifier);
@@ -50,14 +50,12 @@ const ErrorListRef ExitStatement::preprocess(
 						PrimitiveTypeSpecifier::GetInt(),
 						execution_context->GetTypeTable()))) {
 			yy::location position = m_exit_expression->GetPosition();
-			errors =
-					ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-									position.begin.line, position.begin.column,
-									m_exit_expression->GetType(
-											execution_context)->ToString()),
-							errors);
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
+							position.begin.line, position.begin.column,
+							m_exit_expression->GetTypeSpecifier(
+									execution_context)->ToString()), errors);
 		}
 	}
 

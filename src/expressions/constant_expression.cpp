@@ -56,7 +56,7 @@ ConstantExpression::ConstantExpression(const ConstantExpression* other) :
 ConstantExpression::~ConstantExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> ConstantExpression::GetType(
+const_shared_ptr<TypeSpecifier> ConstantExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return m_type;
@@ -85,7 +85,7 @@ const_shared_ptr<Result> ConstantExpression::GetConstantExpression(
 	if (ErrorList::IsTerminator(errors)) {
 		result = const_shared_ptr<void>(
 				new ConstantExpression(expression->GetPosition(),
-						expression->GetType(execution_context),
+						expression->GetTypeSpecifier(execution_context),
 						evaluation->GetRawData()));
 	}
 

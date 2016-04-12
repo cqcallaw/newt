@@ -40,7 +40,7 @@ DefaultValueExpression::DefaultValueExpression(
 DefaultValueExpression::~DefaultValueExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetType(
+const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return NestedTypeSpecifier::Resolve(m_type,
@@ -51,7 +51,7 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto type_table = *execution_context->GetTypeTable();
-	auto resolved_specifier = GetType(execution_context);
+	auto resolved_specifier = GetTypeSpecifier(execution_context);
 	const TypeSpecifier& unaliased = ComplexTypeSpecifier::ResolveAliasing(
 			*resolved_specifier, type_table);
 
@@ -65,7 +65,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = *execution_context->GetTypeTable();
-	auto resolved_specifier = GetType(execution_context);
+	auto resolved_specifier = GetTypeSpecifier(execution_context);
 	const TypeSpecifier& unaliased = ComplexTypeSpecifier::ResolveAliasing(
 			*resolved_specifier, type_table);
 	auto type = unaliased.GetType(type_table, RESOLVE);

@@ -59,7 +59,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 					dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 							symbol_type_specifier);
 			const_shared_ptr<TypeSpecifier> expression_type =
-					m_expression->GetType(execution_context);
+					m_expression->GetTypeSpecifier(execution_context);
 			if (as_primitive) {
 				if (expression_type->IsAssignableTo(symbol_type_specifier,
 						execution_context->GetTypeTable())) {
@@ -123,7 +123,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 
 			if (ErrorList::IsTerminator(errors)) {
 				const_shared_ptr<TypeSpecifier> expression_type =
-						m_expression->GetType(execution_context);
+						m_expression->GetTypeSpecifier(execution_context);
 				const_shared_ptr<TypeSpecifier> element_type =
 						array_variable->GetElementType(execution_context);
 				if (!expression_type->IsAssignableTo(element_type,
@@ -162,7 +162,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 						if (member_variable_type
 								!= PrimitiveTypeSpecifier::GetNone()) {
 							const_shared_ptr<TypeSpecifier> expression_type =
-									m_expression->GetType(execution_context);
+									m_expression->GetTypeSpecifier(execution_context);
 
 							if (!expression_type->IsAssignableTo(
 									member_variable_type,
@@ -383,7 +383,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 	}
 
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			expression->GetType(execution_context);
+			expression->GetTypeSpecifier(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
@@ -437,7 +437,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 	}
 
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			expression->GetType(execution_context);
+			expression->GetTypeSpecifier(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
@@ -496,7 +496,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 	}
 
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			expression->GetType(execution_context);
+			expression->GetTypeSpecifier(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);

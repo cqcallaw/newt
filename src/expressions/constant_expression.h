@@ -42,7 +42,7 @@ public:
 	static const_shared_ptr<ConstantExpression> GetDefaultExpression(
 			const_shared_ptr<TypeSpecifier> type, const TypeTable& type_table);
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
 			AliasResolution resolution =
 					AliasResolution::RESOLVE) const;

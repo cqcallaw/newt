@@ -61,7 +61,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 		auto initializer_expression = GetInitializerExpression();
 		if (initializer_expression) {
 			const_shared_ptr<TypeSpecifier> initializer_expression_type =
-					initializer_expression->GetType(execution_context);
+					initializer_expression->GetTypeSpecifier(execution_context);
 			const_shared_ptr<ArrayTypeSpecifier> as_array =
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							initializer_expression_type);

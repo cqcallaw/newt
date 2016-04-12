@@ -82,7 +82,7 @@ const ErrorListRef ComplexType::Instantiate(
 	plain_shared_ptr<TypeSpecifier> initializer_type = nullptr;
 	if (initializer && !initializer->IsConstant()) {
 		location = initializer->GetPosition();
-		initializer_type = initializer->GetType(execution_context);
+		initializer_type = initializer->GetTypeSpecifier(execution_context);
 		auto result = initializer->Evaluate(execution_context);
 		errors = result->GetErrors();
 

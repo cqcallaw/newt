@@ -112,8 +112,12 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 	if (type_specifier && type_specifier != PrimitiveTypeSpecifier::GetNone()) {
 		auto type = type_specifier->GetType(type_table, RESOLVE);
 
-		buffer << type->GetValueSeperator(indent, value);
-		buffer << type->ValueToString(type_table, indent, value);
+		if (type) {
+			buffer << type->GetValueSeperator(indent, value);
+			buffer << type->ValueToString(type_table, indent, value);
+		} else {
+			buffer << "UNDEFINED TYPE";
+		}
 	}
 	return buffer.str();
 }

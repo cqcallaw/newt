@@ -33,9 +33,9 @@ const_shared_ptr<TypeSpecifier> BinaryExpression::ComputeResultType(
 		const_shared_ptr<Expression> left, const_shared_ptr<Expression> right,
 		const OperatorType op,
 		const shared_ptr<ExecutionContext> execution_context) {
-	const_shared_ptr<TypeSpecifier> left_type = left->GetType(execution_context,
+	const_shared_ptr<TypeSpecifier> left_type = left->GetTypeSpecifier(execution_context,
 			AliasResolution::RESOLVE);
-	const_shared_ptr<TypeSpecifier> right_type = right->GetType(
+	const_shared_ptr<TypeSpecifier> right_type = right->GetTypeSpecifier(
 			execution_context, AliasResolution::RESOLVE);
 
 	const_shared_ptr<PrimitiveTypeSpecifier> left_as_primitive =
@@ -89,9 +89,9 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 		return right_result;
 	}
 
-	const_shared_ptr<TypeSpecifier> left_type = left->GetType(
+	const_shared_ptr<TypeSpecifier> left_type = left->GetTypeSpecifier(
 			execution_context);
-	const_shared_ptr<TypeSpecifier> right_type = right->GetType(
+	const_shared_ptr<TypeSpecifier> right_type = right->GetTypeSpecifier(
 			execution_context);
 
 	yy::location left_position = left->GetPosition();
@@ -214,7 +214,7 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 	return make_shared<Result>(const_shared_ptr<const void>(), errors);
 }
 
-const_shared_ptr<TypeSpecifier> BinaryExpression::GetType(
+const_shared_ptr<TypeSpecifier> BinaryExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return ComputeResultType(m_left, m_right, m_operator, execution_context);
@@ -235,7 +235,7 @@ const ErrorListRef BinaryExpression::Validate(
 		return result;
 	}
 
-	const_shared_ptr<TypeSpecifier> left_type = left->GetType(
+	const_shared_ptr<TypeSpecifier> left_type = left->GetTypeSpecifier(
 			execution_context);
 	if (!(left_type->IsAssignableTo(valid_left,
 			execution_context->GetTypeTable()))) {
@@ -247,7 +247,7 @@ const ErrorListRef BinaryExpression::Validate(
 						operator_to_string(op)), result);
 	}
 	const_shared_ptr<Expression> right = GetRight();
-	const_shared_ptr<TypeSpecifier> right_type = GetRight()->GetType(
+	const_shared_ptr<TypeSpecifier> right_type = GetRight()->GetTypeSpecifier(
 			execution_context);
 
 	ErrorListRef right_errors = right->Validate(execution_context);

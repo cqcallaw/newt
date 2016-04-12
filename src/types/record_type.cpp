@@ -175,7 +175,7 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
 	const_shared_ptr<TypeSpecifier> initializer_expression_type =
-			initializer->GetType(execution_context);
+			initializer->GetTypeSpecifier(execution_context);
 	if (initializer_expression_type->IsAssignableTo(type_specifier,
 			execution_context->GetTypeTable())) {
 		if (initializer->IsConstant()) {

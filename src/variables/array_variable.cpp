@@ -93,7 +93,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 		if (base_type_as_array) {
 			array = base_evaluation->GetData<Array>();
 			const_shared_ptr<TypeSpecifier> index_expression_type =
-					m_expression->GetType(context);
+					m_expression->GetTypeSpecifier(context);
 			if (index_expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt(),
 					context->GetTypeTable())) {
@@ -341,7 +341,7 @@ const ErrorListRef ArrayVariable::AssignValue(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 									variable_column,
-									expression->GetType(context)->ToString(),
+									expression->GetTypeSpecifier(context)->ToString(),
 									element_type_specifier->ToString()),
 							errors);
 				}
@@ -486,7 +486,7 @@ const ErrorListRef ArrayVariable::Validate(
 	ErrorListRef errors = base_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> index_expression_type =
-				m_expression->GetType(context);
+				m_expression->GetTypeSpecifier(context);
 		if (index_expression_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())) {
 			auto base_type_specifier = m_base_variable->GetType(context);

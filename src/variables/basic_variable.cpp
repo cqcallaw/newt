@@ -187,7 +187,7 @@ const ErrorListRef BasicVariable::AssignValue(
 								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 								variable_column,
 								symbol_type_specifier->ToString(),
-								expression->GetType(context)->ToString()),
+								expression->GetTypeSpecifier(context)->ToString()),
 						errors);
 			}
 		}
@@ -238,7 +238,7 @@ const ErrorListRef BasicVariable::AssignValue(
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto sum = static_pointer_cast<const Sum>(symbol->GetValue());
-			auto expression_type_specifier = expression->GetType(context);
+			auto expression_type_specifier = expression->GetTypeSpecifier(context);
 
 			plain_shared_ptr<Sum> new_sum;
 			if (expression_type_specifier->IsAssignableTo(symbol_type_specifier,
