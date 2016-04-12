@@ -1,8 +1,8 @@
 //test assignment to readonly struct
 
 readonly struct ronly {
-	x: int
-	y: double
+	x: int,
+	y: double,
 	z: string
 }
 

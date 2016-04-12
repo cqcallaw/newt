@@ -40,6 +40,7 @@
 #include <statement.h>
 #include <assignment_statement.h>
 #include <declaration_statement.h>
+#include <record_declaration_statement.h>
 #include <statement_block.h>
 #include <execution_context.h>
 #include <stack>
@@ -94,7 +95,6 @@ class Driver;
 #include <assignment_statement.h>
 #include <primitive_declaration_statement.h>
 #include <array_declaration_statement.h>
-#include <record_declaration_statement.h>
 #include <complex_instantiation_statement.h>
 #include <function_declaration_statement.h>
 #include <inferred_declaration_statement.h>
@@ -112,6 +112,7 @@ class Driver;
 #include <specifiers/array_type_specifier.h>
 #include <specifiers/primitive_type_specifier.h>
 #include <specifiers/record_type_specifier.h>
+#include <specifiers/sum_type_specifier.h>
 
 #include <assignment_type.h>
 
@@ -244,8 +245,10 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<Statement>> print_statement
 %type <plain_shared_ptr<Statement>> for_statement
 %type <plain_shared_ptr<Statement>> exit_statement
-%type <plain_shared_ptr<DeclarationStatement>> struct_declaration_statement
+%type <plain_shared_ptr<RecordDeclarationStatement>> struct_declaration_statement
 %type <plain_shared_ptr<DeclarationStatement>> sum_declaration_statement
+%type <plain_shared_ptr<RecordDeclarationStatement>> struct_body
+%type <plain_shared_ptr<DeclarationStatement>> sum_body
 %type <plain_shared_ptr<Statement>> return_statement
 %type <plain_shared_ptr<Statement>> match_statement
 %type <DeclarationListRef> parameter_list
@@ -848,6 +851,7 @@ modifier_list:
 		$$ = ModifierList::From($1, ModifierList::GetTerminator());
 	}
 
+//---------------------------------------------------------------------
 modifier:
 	READONLY
 	{
@@ -856,34 +860,51 @@ modifier:
 
 //---------------------------------------------------------------------
 struct_declaration_statement:
-	modifier_list STRUCT IDENTIFIER LBRACE declaration_list RBRACE
+	modifier_list STRUCT struct_body
 	{
-		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($5);
 		ModifierListRef modifier_list = ModifierList::From(ModifierList::Reverse($1));
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($3);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $3, @3, member_declaration_list, @5, modifier_list, @1);
+		$$ = $3->WithModifiers(modifier_list, @1);
 	}
-	| STRUCT IDENTIFIER LBRACE declaration_list RBRACE
+	| STRUCT struct_body
 	{
-		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($2);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
+		$$ = $2;
 	}
 	;
 
 //---------------------------------------------------------------------
+struct_body:
+	IDENTIFIER LBRACE declaration_list RBRACE
+	{
+		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
+		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
+	}
+
+//---------------------------------------------------------------------
 declaration_list:
-	declaration_list variable_declaration
+	declaration_list COMMA variable_declaration
 	{
-		$$ = DeclarationList::From($2, $1);
+		$$ = DeclarationList::From($3, $1);
 	}
-	| declaration_list struct_declaration_statement
+	| declaration_list COMMA sum_body
 	{
-		$$ = DeclarationList::From($2, $1);
+		$$ = DeclarationList::From($3, $1);
 	}
-	| declaration_list sum_declaration_statement
+	| declaration_list COMMA struct_body
 	{
-		$$ = DeclarationList::From($2, $1);
+		$$ = DeclarationList::From($3, $1);
+	}
+	| struct_body
+	{
+		$$ = DeclarationList::From($1, DeclarationList::GetTerminator());
+	}
+	| sum_body
+	{
+		$$ = DeclarationList::From($1, DeclarationList::GetTerminator());
+	}
+	| variable_declaration
+	{
+		$$ = DeclarationList::From($1, DeclarationList::GetTerminator());
 	}
 	| empty
 	{
@@ -972,11 +993,19 @@ namespace_qualifier:
 
 //---------------------------------------------------------------------
 sum_declaration_statement:
-	SUM IDENTIFIER LBRACE variant_list RBRACE
+	SUM sum_body
 	{
-		const DeclarationListRef variant_list = DeclarationList::Reverse($4);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($2);
-		$$ = make_shared<SumDeclarationStatement>(@$, type, $2, @2, variant_list, @4);
+		$$ = $2;
+	}
+	;
+
+//---------------------------------------------------------------------
+sum_body:
+	IDENTIFIER LBRACE variant_list RBRACE
+	{
+		const DeclarationListRef variant_list = DeclarationList::Reverse($3);
+		const_shared_ptr<SumTypeSpecifier> type = make_shared<SumTypeSpecifier>($1);
+		$$ = make_shared<SumDeclarationStatement>(@$, type, $1, @1, variant_list, @3);
 	}
 	;
 
@@ -995,11 +1024,9 @@ variant_list:
 
 //---------------------------------------------------------------------
 variant:
-	IDENTIFIER LBRACE declaration_list RBRACE
+	struct_body
 	{
-		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
+		$$ = $1;
 	}
 	| IDENTIFIER COLON primitive_type_specifier
 	{

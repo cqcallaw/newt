@@ -1,6 +1,6 @@
 //test that the default value of structs aren't modifiable
 struct point {
-	x: int = 1
+	x: int = 1,
 	y: int
 }
 

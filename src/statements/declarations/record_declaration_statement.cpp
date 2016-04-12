@@ -92,3 +92,11 @@ const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpressio
 			m_member_declaration_list_location, GetModifierList(),
 			GetModifierListLocation());
 }
+
+const_shared_ptr<RecordDeclarationStatement> RecordDeclarationStatement::WithModifiers(
+		ModifierListRef modifiers,
+		const yy::location modifiers_location) const {
+	return make_shared<RecordDeclarationStatement>(GetPosition(), m_type,
+			GetName(), GetNamePosition(), m_member_declaration_list,
+			m_member_declaration_list_location, modifiers, modifiers_location);
+}

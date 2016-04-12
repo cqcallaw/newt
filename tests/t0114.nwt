@@ -1,7 +1,7 @@
 // test invalid assignment of runtime-specified fixed size array
 struct rectangle {
-	x: int
-	y: int
+	x: int,
+	y: int,
 	w: int = 10
 }
 

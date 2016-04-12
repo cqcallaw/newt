@@ -3,13 +3,13 @@ struct my_struct {
 }
 
 struct my_other_struct {
-	x: int
+	x: int,
 	i: my_struct
 }
 
 struct my_nested_struct {
-	z: int
-	i: my_struct
+	z: int,
+	i: my_struct,
 	n: my_other_struct
 }
 

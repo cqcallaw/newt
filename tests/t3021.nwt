@@ -3,12 +3,12 @@ struct my_struct {
 }
 
 struct my_other_struct {
-	x: int
+	x: int,
 	i: my_struct
 }
 
 struct my_array_struct {
-       z: int
+       z: int,
        arr: my_struct[]
 }
 

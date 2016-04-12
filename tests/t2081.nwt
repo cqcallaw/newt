@@ -1,6 +1,6 @@
 struct circle {
-	x: int
-	y: int
+	x: int,
+	y: int,
 	w: int = 10
 }
 

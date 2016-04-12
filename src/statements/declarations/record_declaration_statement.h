@@ -42,20 +42,24 @@ public:
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
+	virtual const_shared_ptr<TypeSpecifier> GetType() const {
+		return m_type;
+	}
+
 	DeclarationListRef GetMemberDeclarationList() const {
 		return m_member_declaration_list;
 	}
 
-	virtual const_shared_ptr<TypeSpecifier> GetType() const {
-		return m_type;
+	const yy::location GetMemberDeclarationListLocation() const {
+		return m_member_declaration_list_location;
 	}
 
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
 
-	const yy::location GetMemberDeclarationListLocation() const {
-		return m_member_declaration_list_location;
-	}
+	virtual const_shared_ptr<RecordDeclarationStatement> WithModifiers(
+			ModifierListRef modifiers,
+			const yy::location modifiers_location) const;
 
 private:
 	DeclarationListRef m_member_declaration_list;

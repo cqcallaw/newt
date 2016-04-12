@@ -1,6 +1,6 @@
 struct point {
-	x:int
-	y:int
+	x:int,
+	y:int,
 	squared:(int) -> int
 }
 

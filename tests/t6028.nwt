@@ -5,7 +5,7 @@ sum number {
 }
 
 struct stringified {
-	as_string:string = "default stuff"
+	as_string:string = "default stuff",
 	value:number
 }
 

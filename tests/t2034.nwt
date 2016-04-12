@@ -1,7 +1,7 @@
 struct MyStruct {
-	x: int
-	y: int
-	w: int
+	x: int,
+	y: int,
+	w: int,
 	h: int
 }
 
@@ -9,8 +9,8 @@ m_struct: MyStruct = @MyStruct with { x = 1, h = 4 }
 m_struct2: MyStruct = @MyStruct with { y = 2 }
 
 struct MyStruct2 {
-	x: double
-	y: string
+	x: double,
+	y: string,
 	w: int = 3
 }
 

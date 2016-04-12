@@ -4,7 +4,7 @@ struct my_struct {
 }
 
 struct my_other_struct {
-	x: int
+	x: int,
 	i: my_struct
 }
 

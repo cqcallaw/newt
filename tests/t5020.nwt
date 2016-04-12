@@ -1,15 +1,15 @@
 readonly struct Point {
-	x:int
+	x:int,
 	y:int
 }
 
 readonly struct Line {
-	a:Point
+	a:Point,
 	b:Point = @Point with { x = 1 }
 }
 
 readonly struct Circle {
-	center:Point
+	center:Point,
 	radius:int
 }
 

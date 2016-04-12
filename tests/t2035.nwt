@@ -1,7 +1,7 @@
 struct rectangle {
-	x: int
-	y: int
-	w: int
+	x: int,
+	y: int,
+	w: int,
 	h: int
 }
 

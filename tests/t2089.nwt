@@ -1,10 +1,10 @@
 struct rectangle {
-	x: int
-	y: int
-	w: int = 10
-	h: int
-	red: double
-	blue: double
+	x: int,
+	y: int,
+	w: int = 10,
+	h: int,
+	red: double,
+	blue: double,
 	green: double
 }
 
