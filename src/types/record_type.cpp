@@ -61,10 +61,6 @@ const_shared_ptr<Result> RecordType::Build(
 	//generate a temporary structure in which to perform evaluations
 	//of the member declaration statements
 	const shared_ptr<symbol_map> values = make_shared<symbol_map>();
-//	volatile_shared_ptr<SymbolTable> member_buffer = make_shared<SymbolTable>(
-//			Modifier::NONE, values);
-//	shared_ptr<ExecutionContext> struct_context = context->WithContents(
-//			member_buffer);
 
 	auto type_table = make_shared<TypeTable>(context->GetTypeTable());
 	shared_ptr<ExecutionContext> struct_context =
@@ -100,20 +96,32 @@ const_shared_ptr<Result> RecordType::Build(
 		subject = subject->GetNext();
 	}
 
-//	volatile_shared_ptr<definition_map> mapping = make_shared<definition_map>();
 	symbol_map::iterator iter;
 	if (ErrorList::IsTerminator(errors)) {
 		//extract member definitions into type aliases
+		int suffix_length = DeclarationStatement::CONSTRUCTOR_SUFFIX.length();
 		for (iter = values->begin(); iter != values->end(); ++iter) {
 			const string member_name = iter->first;
 			auto symbol = iter->second;
 			const_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
+
+			//special case: check for type constructors and don't alias them
+			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					type_specifier);
+			if (as_complex) {
+				auto type_name = *as_complex->GetTypeName();
+				int length = type_name.length();
+				if (length >= suffix_length
+						&& type_name.compare(length - suffix_length,
+								suffix_length,
+								DeclarationStatement::CONSTRUCTOR_SUFFIX)
+								== 0) {
+					//our member identifier is a type constructor; don't add it
+					continue;
+				}
+			}
+
 			auto value = symbol->GetValue();
-//			const_shared_ptr<MemberDefinition> definition = make_shared<
-//					MemberDefinition>(type, value);
-//			mapping->insert(
-//					pair<const string, const_shared_ptr<MemberDefinition>>(
-//							member_name, definition));
 			auto alias = make_shared<AliasDefinition>(context->GetTypeTable(),
 					type_specifier, value);
 			type_table->AddType(member_name, alias);
