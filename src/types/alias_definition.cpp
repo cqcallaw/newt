@@ -40,35 +40,6 @@ const_shared_ptr<void> AliasDefinition::GetDefaultValue(
 }
 
 const_shared_ptr<TypeDefinition> AliasDefinition::GetOrigin() const {
-	//should probably abstract this into a typespecifier pure virtual method
-//	auto subject = m_original;
-//
-//	auto as_array = std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
-//			m_original);
-//	if (as_array) {
-////		shared_ptr<const TypeSpecifier> element_type =
-////				as_array->GetElementTypeSpecifier();
-//		do {
-//			subject = as_array->GetElementTypeSpecifier();
-//			as_array = std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
-//					subject);
-//		} while (as_array);
-//	}
-//
-//	auto as_primitive = std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-//			subject);
-//	if (as_primitive) {
-//		return make_shared<PrimitiveType>(as_primitive->GetBasicType());
-//	}
-//
-//	auto as_complex = std::dynamic_pointer_cast<const ComplexTypeSpecifier>(
-//			subject);
-//	if (as_complex) {
-//		return m_origin_table->GetType<ConcreteType>(as_complex);
-//	}
-//
-//	return nullptr;
-
 	return m_original->GetType(*m_origin_table);
 }
 

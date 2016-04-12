@@ -398,15 +398,6 @@ const ErrorListRef ArrayVariable::SetSymbol(
 
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetElementType(
 		const shared_ptr<ExecutionContext> context) const {
-//	auto base_type_as_array = dynamic_pointer_cast<const ArrayTypeSpecifier>(
-//			m_base_variable->GetType(context));
-//
-//	if (base_type_as_array) {
-//		return base_type_as_array->GetElementTypeSpecifier();
-//	} else {
-//		return PrimitiveTypeSpecifier::GetNone();
-//	}
-
 	auto base_type_specifier = m_base_variable->GetTypeSpecifier(context);
 	auto base_type = base_type_specifier->GetType(context->GetTypeTable());
 

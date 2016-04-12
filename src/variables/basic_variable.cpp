@@ -263,41 +263,6 @@ const ErrorListRef BasicVariable::AssignValue(
 		}
 	}
 
-//	const_shared_ptr<NestedTypeSpecifier> as_nested_specifier =
-//			std::dynamic_pointer_cast<const NestedTypeSpecifier>(symbol_type);
-//	if (as_nested_specifier) {
-//		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
-//				context);
-//
-//		errors = expression_evaluation->GetErrors();
-//		if (ErrorList::IsTerminator(errors)) {
-//			auto parent_type_definition =
-//					as_nested_specifier->GetParent()->GetType(
-//							context->GetTypeTable());
-//
-//			if (parent_type_definition) {
-//				auto as_sum = dynamic_pointer_cast<const SumType>(
-//						parent_type_definition);
-//
-//				if (as_sum) {
-//					auto child_record_type = as_sum->GetDefinition()->GetType<
-//							RecordType>(as_nested_specifier->GetMemberName());
-//					if (child_record_type) {
-//						auto value = expression_evaluation->GetData<Record>();
-//						errors = SetSymbol(output_context, value,
-//								as_nested_specifier->GetParent());
-//					} else {
-//						assert(false);
-//					}
-//				} else {
-//					assert(false);
-//				}
-//			} else {
-//				assert(false);
-//			}
-//		}
-//	}
-
 	return errors;
 }
 

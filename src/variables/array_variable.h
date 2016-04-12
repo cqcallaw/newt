@@ -44,9 +44,6 @@ public:
 		return false;
 	}
 
-//	virtual const_shared_ptr<TypeSpecifier> GetInnerMostElementType(
-//			const shared_ptr<ExecutionContext> context) const;
-
 	virtual const_shared_ptr<TypeSpecifier> GetElementType(
 			const shared_ptr<ExecutionContext> context) const;
 
