@@ -96,7 +96,6 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 							m_type_specifier->ToString()), errors);
 		}
 	} else {
-		auto string = m_type_specifier->ToString();
 		//type does not exist
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
