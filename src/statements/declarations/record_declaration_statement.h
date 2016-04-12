@@ -42,7 +42,7 @@ public:
 	virtual const ErrorListRef execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const_shared_ptr<TypeSpecifier> GetType() const {
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
 		return m_type;
 	}
 

@@ -101,7 +101,7 @@ const_shared_ptr<Result> SumType::Build(
 					const TypeAliasDeclarationStatement>(declaration);
 			if (as_alias) {
 				auto alias_type_name = *as_alias->GetName();
-				auto original_type_specifier = as_alias->GetType();
+				auto original_type_specifier = as_alias->GetTypeSpecifier();
 
 				if (!types->ContainsType(alias_type_name)) {
 					//would be nice to abstract this casting logic into a helper function
@@ -132,7 +132,7 @@ const_shared_ptr<Result> SumType::Build(
 													Error::UNDECLARED_TYPE,
 													as_alias->GetTypePosition().begin.line,
 													as_alias->GetTypePosition().begin.column,
-													as_alias->GetType()->ToString()),
+													as_alias->GetTypeSpecifier()->ToString()),
 											errors);
 						}
 					}

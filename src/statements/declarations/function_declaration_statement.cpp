@@ -116,6 +116,6 @@ const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpress
 			expression->GetPosition(), GetName(), GetNamePosition(), expression);
 }
 
-const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetTypeSpecifier() const {
 	return m_type;
 }

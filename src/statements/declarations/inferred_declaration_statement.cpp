@@ -42,7 +42,7 @@ InferredDeclarationStatement::InferredDeclarationStatement(
 InferredDeclarationStatement::~InferredDeclarationStatement() {
 }
 
-const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetTypeSpecifier() const {
 	if (GetInitializerExpression()->IsConstant()) {
 		return GetInitializerExpression()->GetTypeSpecifier(nullptr);
 	} else {

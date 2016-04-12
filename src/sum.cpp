@@ -45,5 +45,5 @@ const string Sum::ToString(const SumType& type, const TypeTable& type_table,
 const_shared_ptr<Sum> Sum::GetDefaultInstance(const SumType& type) {
 	auto declaration = type.GetFirstDeclaration();
 	return make_shared<Sum>(declaration->GetName(),
-			declaration->GetType()->DefaultValue(*type.GetDefinition()));
+			declaration->GetTypeSpecifier()->DefaultValue(*type.GetDefinition()));
 }

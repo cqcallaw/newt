@@ -133,7 +133,7 @@ const ErrorListRef ArrayDeclarationStatement::execute(
 	return errors;
 }
 
-const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetTypeSpecifier() const {
 	return m_type;
 }
 

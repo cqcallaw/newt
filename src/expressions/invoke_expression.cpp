@@ -181,7 +181,7 @@ const ErrorListRef InvokeExpression::Validate(
 								parameter->GetData();
 
 						const_shared_ptr<TypeSpecifier> parameter_type =
-								declaration->GetType();
+								declaration->GetTypeSpecifier();
 						const_shared_ptr<TypeSpecifier> argument_type =
 								argument_expression->GetTypeSpecifier(execution_context);
 						if (!argument_type->IsAssignableTo(parameter_type,

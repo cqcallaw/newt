@@ -32,7 +32,7 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
 
-	virtual const_shared_ptr<TypeSpecifier> GetType() const {
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
 		return m_type;
 	}
 

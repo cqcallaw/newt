@@ -107,7 +107,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 	return errors;
 }
 
-const_shared_ptr<TypeSpecifier> ComplexInstantiationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> ComplexInstantiationStatement::GetTypeSpecifier() const {
 	return m_type_specifier;
 }
 

@@ -40,7 +40,7 @@ public:
 			const_shared_ptr<Expression> initializer_expression = nullptr);
 	virtual ~ComplexInstantiationStatement();
 
-	const_shared_ptr<TypeSpecifier> GetType() const;
+	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
 
 	const yy::location GetTypePosition() const {
 		return m_type_position;

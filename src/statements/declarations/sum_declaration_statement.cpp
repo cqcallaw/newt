@@ -90,7 +90,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 
 					if (as_alias) {
 						//for primitive declaration statements, a single-argument function that just returns that argument
-						auto alias_type_specifier = as_alias->GetType();
+						auto alias_type_specifier = as_alias->GetTypeSpecifier();
 
 						auto as_primitive_specifier = dynamic_pointer_cast<
 								const PrimitiveTypeSpecifier>(
@@ -289,6 +289,6 @@ const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(
 			GetNamePosition(), m_variant_list, m_variant_list_location);
 }
 
-const_shared_ptr<TypeSpecifier> SumDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> SumDeclarationStatement::GetTypeSpecifier() const {
 	return m_type;
 }

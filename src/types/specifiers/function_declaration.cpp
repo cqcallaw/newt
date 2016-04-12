@@ -104,7 +104,7 @@ TypeSpecifierListRef FunctionDeclaration::GetTypeList(
 	TypeSpecifierListRef result = TypeSpecifierList::GetTerminator();
 	while (!DeclarationList::IsTerminator(subject)) {
 		const_shared_ptr<DeclarationStatement> statement = subject->GetData();
-		const_shared_ptr<TypeSpecifier> type = statement->GetType();
+		const_shared_ptr<TypeSpecifier> type = statement->GetTypeSpecifier();
 		result = TypeSpecifierList::From(type, result);
 		subject = subject->GetNext();
 	}
