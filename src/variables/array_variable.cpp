@@ -46,7 +46,7 @@ const_shared_ptr<TypeSpecifier> ArrayVariable::GetTypeSpecifier(
 		if (ErrorList::IsTerminator(base_evaluation->GetErrors())) {
 			auto array = base_evaluation->GetData<Array>();
 			if (array) {
-				return array->GetElementType();
+				return array->GetElementTypeSpecifier();
 			} else {
 			}
 		}
@@ -159,7 +159,7 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 		if (index < size && index >= 0) {
 			auto type_table = context->GetTypeTable();
 			const_shared_ptr<TypeSpecifier> element_type_specifier =
-					array->GetElementType();
+					array->GetElementTypeSpecifier();
 			if (element_type_specifier->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetBoolean(),
 					context->GetTypeTable())) {
@@ -233,7 +233,7 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 		if (index >= 0) {
 			const_shared_ptr<TypeSpecifier> element_type_specifier =
-					array->GetElementType();
+					array->GetElementTypeSpecifier();
 			const_shared_ptr<PrimitiveTypeSpecifier> element_as_primitive =
 					std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 							element_type_specifier);
@@ -423,7 +423,7 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 
 		auto type_table = context->GetTypeTable();
 		const_shared_ptr<TypeSpecifier> element_type_specifier =
-				array->GetElementType();
+				array->GetElementTypeSpecifier();
 		shared_ptr<const Array> new_array = nullptr;
 
 		if (element_type_specifier->IsAssignableTo(
