@@ -6,7 +6,7 @@ result r:
 	int code: 3
 	string message: "Insufficient funds."
  {error}
-result_ctor result:
+result$ctor result:
 	(double) -> result value:
 		Body Location: 7.2-6
 
@@ -27,7 +27,7 @@ result:
 	value:
 		double
 
-result_ctor:
+result$ctor:
 	<record>
 	value:
 		(double) -> result (Body Location: 7.2-6)

@@ -5,7 +5,7 @@ Root Symbol Table:
 (int) -> result f:
 	Body Location: 10.24-15.2
 result first_result: 1 {value}
-result_ctor result:
+result$ctor result:
 	(int) -> result value:
 		Body Location: 3.2-6
 
@@ -28,7 +28,7 @@ result:
 	value:
 		int
 
-result_ctor:
+result$ctor:
 	<record>
 	value:
 		(int) -> result (Body Location: 3.2-6)

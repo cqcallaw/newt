@@ -2,7 +2,7 @@ Parsing file ../tests/t6017.nwt...
 Parsed file ../tests/t6017.nwt.
 Root Symbol Table:
 ----------------
-result_ctor result:
+result$ctor result:
 	(int) -> result value:
 		Body Location: 3.2-6
 
@@ -20,7 +20,7 @@ result:
 	value:
 		int
 
-result_ctor:
+result$ctor:
 	<record>
 	value:
 		(int) -> result (Body Location: 3.2-6)

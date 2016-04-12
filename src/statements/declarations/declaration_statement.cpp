@@ -19,6 +19,8 @@
 
 #include <declaration_statement.h>
 
+const string DeclarationStatement::CONSTRUCTOR_SUFFIX = "$ctor";
+
 DeclarationStatement::DeclarationStatement(const yy::location position,
 		const_shared_ptr<string> name, const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression,
@@ -27,10 +29,6 @@ DeclarationStatement::DeclarationStatement(const yy::location position,
 		m_position(position), m_name(name), m_name_position(name_position), m_initializer_expression(
 				initializer_expression), m_modifier_list(modifier_list), m_modifier_list_location(
 				modifier_list_location) {
-	//cout << m_initializer_expression;
-//	if (m_name_position.begin.line > 20) {
-//		cout << "Name Position:" << m_name_position << endl;
-//	}
 }
 
 DeclarationStatement::~DeclarationStatement() {

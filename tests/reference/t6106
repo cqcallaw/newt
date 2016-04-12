@@ -3,7 +3,7 @@ Parsed file ../tests/t6106.nwt.
 Error: Reassigned!
 Root Symbol Table:
 ----------------
-result_ctor result:
+result$ctor result:
 	(int) -> result value:
 		Body Location: 3.2-6
 
@@ -23,7 +23,7 @@ result:
 	value:
 		int
 
-result_ctor:
+result$ctor:
 	<record>
 	value:
 		(int) -> result (Body Location: 3.2-6)

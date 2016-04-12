@@ -73,6 +73,8 @@ public:
 		return m_modifier_list_location;
 	}
 
+	static const string CONSTRUCTOR_SUFFIX;
+
 private:
 	const yy::location m_position;
 	const_shared_ptr<string> m_name;

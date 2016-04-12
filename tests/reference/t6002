@@ -2,7 +2,7 @@ Parsing file ../tests/t6002.nwt...
 Parsed file ../tests/t6002.nwt.
 Root Symbol Table:
 ----------------
-number_ctor number:
+number$ctor number:
 	(double) -> number continuous:
 		Body Location: 4.4-13
 	(int) -> number discrete:
@@ -19,7 +19,7 @@ number:
 	discrete:
 		int
 
-number_ctor:
+number$ctor:
 	<record>
 	continuous:
 		(double) -> number (Body Location: 4.4-13)

@@ -3,7 +3,7 @@ Parsed file ../tests/t6025.nwt.
 Root Symbol Table:
 ----------------
 test t: 0 {i}
-test_ctor test:
+test$ctor test:
 	(double) -> test d:
 		Body Location: 4.4
 	(int) -> test i:
@@ -19,7 +19,7 @@ test:
 	i:
 		int
 
-test_ctor:
+test$ctor:
 	<record>
 	d:
 		(double) -> test (Body Location: 4.4)
