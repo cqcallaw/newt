@@ -54,7 +54,7 @@ const_shared_ptr<string> BasicVariable::ToString(
 	return make_shared<string>(buffer.str());
 }
 
-const_shared_ptr<TypeSpecifier> BasicVariable::GetType(
+const_shared_ptr<TypeSpecifier> BasicVariable::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> context,
 		AliasResolution resolution) const {
 	auto symbol = context->GetSymbol(GetName(), DEEP);

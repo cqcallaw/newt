@@ -17,7 +17,7 @@ public:
 			const_shared_ptr<Variable> member_variable);
 	virtual ~MemberVariable();
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 

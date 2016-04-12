@@ -146,7 +146,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 		if (member_variable) {
 			const_shared_ptr<RecordTypeSpecifier> as_record =
 					dynamic_pointer_cast<const RecordTypeSpecifier>(
-							member_variable->GetContainer()->GetType(
+							member_variable->GetContainer()->GetTypeSpecifier(
 									execution_context));
 
 			if (as_record) {
@@ -157,7 +157,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 				if (type) {
 					if (!(type->GetModifiers() & Modifier::Type::READONLY)) {
 						const_shared_ptr<TypeSpecifier> member_variable_type =
-								member_variable->GetType(execution_context);
+								member_variable->GetTypeSpecifier(execution_context);
 
 						if (member_variable_type
 								!= PrimitiveTypeSpecifier::GetNone()) {
@@ -186,7 +186,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 													member_variable->GetMemberVariable()->GetLocation().begin.line,
 													member_variable->GetMemberVariable()->GetLocation().begin.column,
 													*member_variable->GetMemberVariable()->GetName(),
-													member_variable->GetContainer()->GetType(
+													member_variable->GetContainer()->GetTypeSpecifier(
 															execution_context)->ToString()),
 											errors);
 						}

@@ -34,11 +34,11 @@ ArrayVariable::ArrayVariable(const_shared_ptr<Variable> base_variable,
 				base_variable), m_expression(expression) {
 }
 
-const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
+const_shared_ptr<TypeSpecifier> ArrayVariable::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> context,
 		AliasResolution resolution) const {
 	auto base_type_as_array = dynamic_pointer_cast<const ArrayTypeSpecifier>(
-			m_base_variable->GetType(context));
+			m_base_variable->GetTypeSpecifier(context));
 
 	if (base_type_as_array) {
 		auto base_evaluation = m_base_variable->Evaluate(context);
@@ -85,7 +85,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 	auto base_evaluation = m_base_variable->Evaluate(context);
 	ErrorListRef errors = base_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto base_type_specifier = m_base_variable->GetType(context);
+		auto base_type_specifier = m_base_variable->GetTypeSpecifier(context);
 		auto base_type = base_type_specifier->GetType(context->GetTypeTable());
 
 		auto base_type_as_array = dynamic_pointer_cast<const ArrayType>(
@@ -407,7 +407,7 @@ const_shared_ptr<TypeSpecifier> ArrayVariable::GetElementType(
 //		return PrimitiveTypeSpecifier::GetNone();
 //	}
 
-	auto base_type_specifier = m_base_variable->GetType(context);
+	auto base_type_specifier = m_base_variable->GetTypeSpecifier(context);
 	auto base_type = base_type_specifier->GetType(context->GetTypeTable());
 
 	auto as_array = dynamic_pointer_cast<const ArrayType>(base_type);
@@ -489,7 +489,7 @@ const ErrorListRef ArrayVariable::Validate(
 				m_expression->GetTypeSpecifier(context);
 		if (index_expression_type->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())) {
-			auto base_type_specifier = m_base_variable->GetType(context);
+			auto base_type_specifier = m_base_variable->GetTypeSpecifier(context);
 			auto base_type = base_type_specifier->GetType(
 					context->GetTypeTable());
 
