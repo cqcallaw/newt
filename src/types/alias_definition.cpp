@@ -25,6 +25,13 @@
 #include <symbol.h>
 #include <primitive_type.h>
 
+AliasDefinition::AliasDefinition(const_shared_ptr<TypeTable> origin_table,
+		const_shared_ptr<TypeSpecifier> original,
+		const_shared_ptr<void> default_value) :
+		m_origin_table(origin_table), m_original(original), m_default_value(
+				default_value) {
+}
+
 const_shared_ptr<void> AliasDefinition::GetDefaultValue(
 		const TypeTable& type_table) const {
 	if (m_default_value)
@@ -36,6 +43,26 @@ const_shared_ptr<void> AliasDefinition::GetDefaultValue(
 		} else {
 			return PrimitiveTypeSpecifier::GetNone();
 		}
+	}
+}
+
+const std::string AliasDefinition::ValueToString(const TypeTable& type_table,
+		const Indent& indent, const_shared_ptr<void> value) const {
+	auto origin = GetOrigin();
+	if (origin) {
+		return origin->ValueToString(type_table, indent, value);
+	} else {
+		return "<No origin found for alias '" + m_original->ToString() + "'";
+	}
+}
+
+const std::string AliasDefinition::GetValueSeperator(const Indent& indent,
+		const_shared_ptr<void> value) const {
+	auto origin = GetOrigin();
+	if (origin) {
+		return origin->GetValueSeperator(indent, value);
+	} else {
+		return "<No origin found for alias '" + m_original->ToString() + "'";
 	}
 }
 
@@ -52,4 +79,33 @@ const_shared_ptr<Symbol> AliasDefinition::GetSymbol(const TypeTable& type_table,
 	} else {
 		return Symbol::GetDefaultSymbol();
 	}
+}
+
+const std::string AliasDefinition::ToString(const TypeTable& type_table,
+		const Indent& indent) const {
+	ostringstream os;
+	Indent child_indent = indent + 1;
+	os << child_indent;
+	os << m_original->ToString();
+
+	if (m_default_value) {
+		string default_value = ValueToString(type_table, child_indent,
+				m_default_value);
+		os << " (";
+
+		auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+				m_original);
+		if (as_complex) {
+			os << endl;
+		}
+
+		os << default_value;
+
+		if (as_complex) {
+			os << child_indent;
+		}
+		os << ")";
+	}
+
+	return os.str();
 }
