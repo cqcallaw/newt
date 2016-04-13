@@ -93,9 +93,10 @@ const ErrorListRef ComplexType::Instantiate(
 	}
 
 	if (set_result) {
-		errors = ToErrorListRef(set_result, location, instance_name,
-				execution_context->GetSymbol(*instance_name)->GetType(),
-				initializer_type); //initializer_type will be null if initializer is not set
+		errors =
+				ToErrorListRef(set_result, location, instance_name,
+						execution_context->GetSymbol(*instance_name)->GetTypeSpecifier(),
+						initializer_type); //initializer_type will be null if initializer is not set
 	}
 
 	return errors;

@@ -166,7 +166,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			auto as_sum_specifier =
 					dynamic_pointer_cast<const SumTypeSpecifier>(return_type);
 			if (as_sum_specifier) {
-				auto evaluation_result_type = evaluation_result->GetType();
+				auto evaluation_result_type =
+						evaluation_result->GetTypeSpecifier();
 				if (*as_sum_specifier != *evaluation_result_type) {
 					auto sum_type_definition =
 							invocation_context->GetTypeTable()->GetType<SumType>(

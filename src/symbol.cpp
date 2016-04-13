@@ -77,14 +77,14 @@ Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 
 Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 		const_shared_ptr<void> value) :
-		m_type(type), m_value(value) {
+		m_type_specifier(type), m_value(value) {
 	assert(type);
 	assert(type != PrimitiveTypeSpecifier::GetNone());
 }
 
 const_shared_ptr<Symbol> Symbol::WithValue(const_shared_ptr<TypeSpecifier> type,
 		const_shared_ptr<void> value, const TypeTable& type_table) const {
-	if (!type->IsAssignableTo(this->m_type, type_table)) {
+	if (!type->IsAssignableTo(this->m_type_specifier, type_table)) {
 		return GetDefaultSymbol();
 	}
 
@@ -93,7 +93,7 @@ const_shared_ptr<Symbol> Symbol::WithValue(const_shared_ptr<TypeSpecifier> type,
 
 const string Symbol::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
-	return ToString(m_type, m_value, type_table, indent);
+	return ToString(m_type_specifier, m_value, type_table, indent);
 }
 
 const_shared_ptr<Symbol> Symbol::GetDefaultSymbol() {
@@ -113,7 +113,7 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 		auto type = type_specifier->GetType(type_table, RESOLVE);
 
 		if (type) {
-			buffer << type->GetValueSeperator(indent, value);
+			buffer << type->GetValueSeparator(indent, value);
 			buffer << type->ValueToString(type_table, indent, value);
 		} else {
 			buffer << "UNDEFINED TYPE";

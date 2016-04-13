@@ -59,7 +59,7 @@ const_shared_ptr<TypeSpecifier> BasicVariable::GetTypeSpecifier(
 		AliasResolution resolution) const {
 	auto symbol = context->GetSymbol(GetName(), DEEP);
 	if (symbol) {
-		return symbol->GetType();
+		return symbol->GetTypeSpecifier();
 	}
 	return PrimitiveTypeSpecifier::GetNone();
 }
@@ -105,7 +105,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 	const_shared_ptr<Symbol> symbol = output_context->GetSymbol(variable_name,
 			DEEP);
-	const_shared_ptr<TypeSpecifier> symbol_type_specifier = symbol->GetType();
+	const_shared_ptr<TypeSpecifier> symbol_type_specifier = symbol->GetTypeSpecifier();
 	auto symbol_type = symbol_type_specifier->GetType(context->GetTypeTable(),
 			RESOLVE);
 	auto symbol_value = symbol->GetValue();
@@ -272,7 +272,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
-			symbol->GetType(), PrimitiveTypeSpecifier::GetBoolean());
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetBoolean());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
@@ -281,7 +281,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
-			symbol->GetType(), PrimitiveTypeSpecifier::GetInt());
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetInt());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
@@ -290,7 +290,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
-			symbol->GetType(), PrimitiveTypeSpecifier::GetDouble());
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetDouble());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
@@ -299,7 +299,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
-			symbol->GetType(), PrimitiveTypeSpecifier::GetString());
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetString());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
@@ -308,7 +308,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
-			symbol->GetType(), value->GetTypeSpecifier());
+			symbol->GetTypeSpecifier(), value->GetTypeSpecifier());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
@@ -318,7 +318,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), type, value,
-					context->GetTypeTable()), symbol->GetType(), type);
+					context->GetTypeTable()), symbol->GetTypeSpecifier(), type);
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
@@ -327,7 +327,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
-			symbol->GetType(), value->GetType());
+			symbol->GetTypeSpecifier(), value->GetType());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
@@ -337,7 +337,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), type, value,
-					context->GetTypeTable()), symbol->GetType(), type);
+					context->GetTypeTable()), symbol->GetTypeSpecifier(), type);
 }
 
 const_shared_ptr<Variable> BasicVariable::GetDefaultVariable() {

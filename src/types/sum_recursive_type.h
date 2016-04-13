@@ -55,7 +55,7 @@ public:
 		return os.str();
 	}
 
-	virtual const std::string GetValueSeperator(const Indent& indent,
+	virtual const std::string GetValueSeparator(const Indent& indent,
 			const_shared_ptr<void> value) const {
 		return "";
 	}

@@ -103,7 +103,7 @@ const_shared_ptr<Result> RecordType::Build(
 		for (iter = values->begin(); iter != values->end(); ++iter) {
 			const string member_name = iter->first;
 			auto symbol = iter->second;
-			const_shared_ptr<TypeSpecifier> type_specifier = symbol->GetType();
+			const_shared_ptr<TypeSpecifier> type_specifier = symbol->GetTypeSpecifier();
 
 			//special case: check for type constructors and don't alias them
 			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
@@ -235,7 +235,7 @@ const SetResult RecordType::InstantiateCore(
 	}
 }
 
-const std::string RecordType::GetValueSeperator(const Indent& indent,
+const std::string RecordType::GetValueSeparator(const Indent& indent,
 		const_shared_ptr<void> value) const {
 	return "\n";
 }

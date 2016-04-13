@@ -107,7 +107,7 @@ const void SymbolContext::print(ostream &os, const TypeTable& type_table,
 		for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
 			const string name = iter->first;
 			auto symbol = iter->second;
-			os << indent << symbol->GetType()->ToString() << " " << name << ":";
+			os << indent << symbol->GetTypeSpecifier()->ToString() << " " << name << ":";
 			os << symbol->ToString(type_table, indent);
 			os << endl;
 		}
@@ -177,7 +177,7 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 
 	if (result != m_table->end()) {
 		auto symbol = result->second;
-		if ((symbol->GetType()->IsAssignableTo(type, type_table))) {
+		if ((symbol->GetTypeSpecifier()->IsAssignableTo(type, type_table))) {
 			if (m_modifiers & Modifier::READONLY) {
 				return MUTATION_DISALLOWED;
 			} else {

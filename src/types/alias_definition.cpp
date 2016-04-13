@@ -56,11 +56,11 @@ const std::string AliasDefinition::ValueToString(const TypeTable& type_table,
 	}
 }
 
-const std::string AliasDefinition::GetValueSeperator(const Indent& indent,
+const std::string AliasDefinition::GetValueSeparator(const Indent& indent,
 		const_shared_ptr<void> value) const {
 	auto origin = GetOrigin();
 	if (origin) {
-		return origin->GetValueSeperator(indent, value);
+		return origin->GetValueSeparator(indent, value);
 	} else {
 		return "<No origin found for alias '" + m_original->ToString() + "'";
 	}

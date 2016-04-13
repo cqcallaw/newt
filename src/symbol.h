@@ -55,8 +55,8 @@ public:
 
 	virtual ~Symbol();
 
-	const_shared_ptr<TypeSpecifier> GetType() const {
-		return m_type;
+	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
+		return m_type_specifier;
 	}
 
 	const_shared_ptr<void> GetValue() const {
@@ -80,7 +80,7 @@ protected:
 			const TypeTable& type_table) const;
 
 private:
-	const_shared_ptr<TypeSpecifier> m_type;
+	const_shared_ptr<TypeSpecifier> m_type_specifier;
 	const_shared_ptr<void> m_value;
 };
 

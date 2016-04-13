@@ -52,7 +52,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 
 	if (symbol != Symbol::GetDefaultSymbol()) {
 		const_shared_ptr<TypeSpecifier> symbol_type_specifier =
-				symbol->GetType();
+				symbol->GetTypeSpecifier();
 		const_shared_ptr<BasicVariable> basic_variable = dynamic_pointer_cast<
 				const BasicVariable>(m_variable);
 		if (basic_variable) {

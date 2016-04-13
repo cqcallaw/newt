@@ -293,14 +293,14 @@ const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
 	return make_shared<SumTypeSpecifier>(name, container);
 }
 
-const std::string SumType::GetValueSeperator(const Indent& indent,
+const std::string SumType::GetValueSeparator(const Indent& indent,
 		const_shared_ptr<void> value) const {
 	auto as_sum = static_pointer_cast<const Sum>(value);
 	auto variant_name = as_sum->GetTag();
 
 	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name,
 			SHALLOW, RESOLVE);
-	return variant_type->GetValueSeperator(indent, value);
+	return variant_type->GetValueSeparator(indent, value);
 }
 
 const_shared_ptr<DeclarationStatement> SumType::GetDeclarationStatement(

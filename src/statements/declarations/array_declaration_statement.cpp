@@ -125,7 +125,7 @@ const ErrorListRef ArrayDeclarationStatement::execute(
 					execution_context->GetTypeTable());
 			errors = ToErrorListRef(result,
 					GetInitializerExpression()->GetPosition(), GetName(),
-					symbol_context->GetSymbol(GetName(), SHALLOW)->GetType(),
+					symbol_context->GetSymbol(GetName(), SHALLOW)->GetTypeSpecifier(),
 					array->GetTypeSpecifier());
 		}
 	}
