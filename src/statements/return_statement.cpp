@@ -44,7 +44,9 @@ const ErrorListRef ReturnStatement::execute(
 	if (ErrorList::IsTerminator(errors)) {
 		execution_context->SetReturnValue(
 				const_shared_ptr<Symbol>(
-						new Symbol(m_expression->GetTypeSpecifier(execution_context),
+						new Symbol(
+								m_expression->GetTypeSpecifier(
+										execution_context),
 								result->GetRawData())));
 	}
 
@@ -64,7 +66,7 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 		if (as_sum_specifier) {
 			//widening of sum types requires special handling
 			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
-					as_sum_specifier);
+					as_sum_specifier, DEEP, RESOLVE);
 			if (sum_type) {
 				auto widening_analysis = sum_type->AnalyzeConversion(
 						*as_sum_specifier, *expression_type_specifier);

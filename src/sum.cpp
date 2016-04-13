@@ -36,7 +36,8 @@ const string Sum::ToString(const SumType& type, const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
 	auto type_definition = type.GetDefinition();
-	auto variant_definition = type_definition->GetType<TypeDefinition>(*m_tag);
+	auto variant_definition = type_definition->GetType<TypeDefinition>(*m_tag,
+			SHALLOW, RESOLVE);
 	buffer << variant_definition->ValueToString(type_table, indent, m_value);
 	buffer << " {" << *m_tag << "}";
 	return buffer.str();
@@ -45,5 +46,6 @@ const string Sum::ToString(const SumType& type, const TypeTable& type_table,
 const_shared_ptr<Sum> Sum::GetDefaultInstance(const SumType& type) {
 	auto declaration = type.GetFirstDeclaration();
 	return make_shared<Sum>(declaration->GetName(),
-			declaration->GetTypeSpecifier()->DefaultValue(*type.GetDefinition()));
+			declaration->GetTypeSpecifier()->DefaultValue(
+					*type.GetDefinition()));
 }

@@ -45,7 +45,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 				execution_context->GetTypeTable();
 		const string type_name = *element_type_as_record->GetTypeName();
 		const_shared_ptr<ComplexType> type = type_table->GetType<ComplexType>(
-				type_name);
+				type_name, DEEP, RETURN);
 
 		if (!type) {
 			errors = ErrorList::From(

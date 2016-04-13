@@ -62,7 +62,7 @@ const_shared_ptr<Result> SumType::Build(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = context->GetTypeTable();
-	const shared_ptr<TypeTable> types = make_shared<TypeTable>();
+	const shared_ptr<TypeTable> types = make_shared<TypeTable>(type_table);
 
 	auto parent = SymbolContextList::From(context, context->GetParent());
 	shared_ptr<ExecutionContext> tmp_context = make_shared<ExecutionContext>(
@@ -120,7 +120,7 @@ const_shared_ptr<Result> SumType::Build(
 					if (original_as_complex) {
 						auto original_name = original_as_complex->GetTypeName();
 						auto original = type_table->GetType<RecordType>(
-								original_name);
+								original_name, DEEP, RETURN);
 						if (original) {
 							auto alias = make_shared<AliasDefinition>(
 									type_table, original_as_complex);
@@ -282,7 +282,8 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 
 const_shared_ptr<void> SumType::GetMemberDefaultValue(
 		const_shared_ptr<std::string> member_name) const {
-	auto definition = m_definition->GetType<TypeDefinition>(member_name);
+	auto definition = m_definition->GetType<TypeDefinition>(member_name,
+			SHALLOW, RESOLVE);
 	return definition->GetDefaultValue(*m_definition);
 }
 
@@ -297,7 +298,8 @@ const std::string SumType::GetValueSeperator(const Indent& indent,
 	auto as_sum = static_pointer_cast<const Sum>(value);
 	auto variant_name = as_sum->GetTag();
 
-	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name);
+	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name,
+			SHALLOW, RESOLVE);
 	return variant_type->GetValueSeperator(indent, value);
 }
 

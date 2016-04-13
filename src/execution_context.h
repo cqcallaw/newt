@@ -22,16 +22,13 @@
 
 #include <defaults.h>
 #include <symbol_table.h>
+#include <search_type.h>
 #include <modifier.h>
 
 class TypeTable;
 
 enum LifeTime {
 	PERSISTENT, EPHEMERAL
-};
-
-enum SearchType {
-	SHALLOW = 0, DEEP = 1
 };
 
 #include <symbol_context_list.h>

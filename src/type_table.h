@@ -25,6 +25,7 @@
 #include <set>
 #include <alias_definition.h>
 #include <complex_type_specifier.h>
+#include <search_type.h>
 
 class TypeDefinition;
 class RecordType;
@@ -48,23 +49,26 @@ public:
 
 	template<class T> const shared_ptr<const T> GetType(
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const SearchType search_type,
 			AliasResolution resolution = RESOLVE) const {
-		return GetType<T>(*type_specifier, resolution);
+		return GetType<T>(*type_specifier, search_type, resolution);
 	}
 
 	template<class T> const shared_ptr<const T> GetType(
 			const ComplexTypeSpecifier& type_specifier,
+			const SearchType search_type,
 			AliasResolution resolution = RESOLVE) const {
-		return GetType<T>(type_specifier.GetTypeName(), resolution);
+		return GetType<T>(type_specifier.GetTypeName(), search_type, resolution);
 	}
 
 	template<class T> const shared_ptr<const T> GetType(
-			const_shared_ptr<std::string> name, AliasResolution resolution =
-					RESOLVE) const {
-		return GetType<T>(*name, resolution);
+			const_shared_ptr<std::string> name, const SearchType search_type,
+			AliasResolution resolution = RESOLVE) const {
+		return GetType<T>(*name, search_type, resolution);
 	}
 
 	template<class T> const shared_ptr<const T> GetType(const std::string& name,
+			const SearchType search_type,
 			AliasResolution resolution = RESOLVE) const {
 		auto result = m_table->find(name);
 
@@ -84,8 +88,8 @@ public:
 			if (cast) {
 				return cast;
 			}
-		} else if (m_parent) {
-			return m_parent->GetType<T>(name);
+		} else if (m_parent && search_type == SearchType::DEEP) {
+			return m_parent->GetType<T>(name, search_type, resolution);
 		}
 
 		return shared_ptr<const T>();

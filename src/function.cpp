@@ -170,7 +170,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				if (*as_sum_specifier != *evaluation_result_type) {
 					auto sum_type_definition =
 							invocation_context->GetTypeTable()->GetType<SumType>(
-									as_sum_specifier);
+									as_sum_specifier, DEEP, RESOLVE);
 					if (sum_type_definition) {
 						//we're returning a narrower type than the return type; perform widening
 						plain_shared_ptr<string> tag =

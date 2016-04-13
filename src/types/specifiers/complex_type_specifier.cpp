@@ -63,9 +63,9 @@ const_shared_ptr<TypeDefinition> ComplexTypeSpecifier::GetType(
 	auto container_type = GetContainerType(type_table);
 	if (container_type) {
 		type = container_type->GetDefinition()->GetType<ComplexType>(
-				GetTypeName());
+				GetTypeName(), DEEP, resolution);
 	} else {
-		type = type_table.GetType<ComplexType>(GetTypeName());
+		type = type_table.GetType<ComplexType>(GetTypeName(), DEEP, resolution);
 	}
 
 	return type;
@@ -158,7 +158,8 @@ const TypeSpecifier& ComplexTypeSpecifier::ResolveAliasing(
 					parent_type);
 			if (parent_as_complex) {
 				auto type = parent_as_complex->GetDefinition()->GetType<
-						AliasDefinition>(as_complex.GetTypeName(), RETURN);
+						AliasDefinition>(as_complex.GetTypeName(), DEEP,
+						RETURN);
 				if (type) {
 					return *type->GetOriginal();
 				}

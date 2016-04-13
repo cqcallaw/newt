@@ -43,7 +43,7 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 			if (as_record) {
 				auto member_name = m_member_variable->GetName();
 				auto member_type = as_record->GetDefinition()->GetType<
-						TypeDefinition>(*member_name);
+						TypeDefinition>(*member_name, DEEP, RESOLVE);
 
 				if (member_type) {
 					auto output = make_shared<NestedTypeSpecifier>(
@@ -75,8 +75,8 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<TypeSpecifier> container_type = m_container->GetTypeSpecifier(
-			context);
+	const_shared_ptr<TypeSpecifier> container_type =
+			m_container->GetTypeSpecifier(context);
 	if (container_type != PrimitiveTypeSpecifier::GetNone()) {
 		const_shared_ptr<Result> container_result = m_container->Evaluate(
 				context);
@@ -114,8 +114,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 	if (ErrorList::IsTerminator(errors)) {
 		SetResult set_result = NO_SET_RESULT;
 
-		const_shared_ptr<TypeSpecifier> container_type = m_container->GetTypeSpecifier(
-				context);
+		const_shared_ptr<TypeSpecifier> container_type =
+				m_container->GetTypeSpecifier(context);
 		const_shared_ptr<RecordTypeSpecifier> as_record =
 				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
@@ -129,7 +129,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 			set_result = INCOMPATIBLE_TYPE;
 		}
 
-		return ToErrorListRef(set_result, m_member_variable->GetTypeSpecifier(context),
+		return ToErrorListRef(set_result,
+				m_member_variable->GetTypeSpecifier(context),
 				PrimitiveTypeSpecifier::GetBoolean());
 	} else {
 		return errors;
@@ -147,8 +148,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type = m_container->GetTypeSpecifier(
-				context);
+		const_shared_ptr<TypeSpecifier> container_type =
+				m_container->GetTypeSpecifier(context);
 		const_shared_ptr<RecordTypeSpecifier> as_record =
 				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
@@ -165,7 +166,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorListRef(set_result, m_member_variable->GetTypeSpecifier(context),
+	return ToErrorListRef(set_result,
+			m_member_variable->GetTypeSpecifier(context),
 			PrimitiveTypeSpecifier::GetInt());
 }
 
@@ -180,8 +182,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type = m_container->GetTypeSpecifier(
-				context);
+		const_shared_ptr<TypeSpecifier> container_type =
+				m_container->GetTypeSpecifier(context);
 		const_shared_ptr<RecordTypeSpecifier> as_record = dynamic_pointer_cast<
 				const RecordTypeSpecifier>(container_type);
 
@@ -197,7 +199,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorListRef(set_result, m_member_variable->GetTypeSpecifier(context),
+	return ToErrorListRef(set_result,
+			m_member_variable->GetTypeSpecifier(context),
 			PrimitiveTypeSpecifier::GetDouble());
 }
 
@@ -212,8 +215,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type = m_container->GetTypeSpecifier(
-				context);
+		const_shared_ptr<TypeSpecifier> container_type =
+				m_container->GetTypeSpecifier(context);
 		const_shared_ptr<RecordTypeSpecifier> as_record =
 				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
@@ -230,7 +233,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorListRef(set_result, m_member_variable->GetTypeSpecifier(context),
+	return ToErrorListRef(set_result,
+			m_member_variable->GetTypeSpecifier(context),
 			PrimitiveTypeSpecifier::GetString());
 }
 
@@ -272,8 +276,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type = m_container->GetTypeSpecifier(
-				context);
+		const_shared_ptr<TypeSpecifier> container_type =
+				m_container->GetTypeSpecifier(context);
 		const_shared_ptr<RecordTypeSpecifier> as_record =
 				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
@@ -290,7 +294,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorListRef(set_result, m_member_variable->GetTypeSpecifier(context), type);
+	return ToErrorListRef(set_result,
+			m_member_variable->GetTypeSpecifier(context), type);
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
@@ -304,8 +309,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 
 	errors = container_result->GetErrors();
 	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type = m_container->GetTypeSpecifier(
-				context);
+		const_shared_ptr<TypeSpecifier> container_type =
+				m_container->GetTypeSpecifier(context);
 		const_shared_ptr<RecordTypeSpecifier> as_record =
 				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						container_type);
@@ -322,7 +327,8 @@ const ErrorListRef MemberVariable::SetSymbol(
 		return errors;
 	}
 
-	return ToErrorListRef(set_result, m_member_variable->GetTypeSpecifier(context),
+	return ToErrorListRef(set_result,
+			m_member_variable->GetTypeSpecifier(context),
 			value->GetTypeSpecifier());
 }
 
@@ -342,7 +348,8 @@ const ErrorListRef MemberVariable::Validate(
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 		if (as_complex) {
 			auto member_definition = as_complex->GetDefinition()->GetType<
-					TypeDefinition>(m_member_variable->GetName());
+					TypeDefinition>(m_member_variable->GetName(), DEEP,
+					RESOLVE);
 			if (!member_definition) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,

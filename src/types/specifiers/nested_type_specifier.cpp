@@ -77,7 +77,7 @@ const_shared_ptr<TypeDefinition> NestedTypeSpecifier::GetType(
 	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
 	if (as_complex) {
 		return as_complex->GetDefinition()->GetType<TypeDefinition>(
-				m_member_name, resolution);
+				m_member_name, DEEP, resolution);
 	} else {
 		return nullptr;
 	}
@@ -89,7 +89,7 @@ const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::ResolveAliasing(
 	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
 	if (as_complex) {
 		auto type_definition = as_complex->GetDefinition()->GetType<
-				TypeDefinition>(m_member_name, AliasResolution::RETURN);
+				TypeDefinition>(m_member_name, DEEP, RETURN);
 		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(
 				type_definition);
 		if (as_alias) {
@@ -108,8 +108,7 @@ const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::Resolve(
 	if (as_nested) {
 		auto type = as_nested->GetParent()->GetType(type_table, RESOLVE);
 		if (type) {
-			auto resolved_parent = Resolve(as_nested->GetParent(),
-					type_table);
+			auto resolved_parent = Resolve(as_nested->GetParent(), type_table);
 
 			auto resolved_parent_as_complex = dynamic_pointer_cast<
 					const ComplexTypeSpecifier>(resolved_parent);

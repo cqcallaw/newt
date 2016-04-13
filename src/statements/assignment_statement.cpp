@@ -51,7 +51,8 @@ const ErrorListRef AssignmentStatement::preprocess(
 	int variable_column = m_variable->GetLocation().begin.column;
 
 	if (symbol != Symbol::GetDefaultSymbol()) {
-		const_shared_ptr<TypeSpecifier> symbol_type_specifier = symbol->GetType();
+		const_shared_ptr<TypeSpecifier> symbol_type_specifier =
+				symbol->GetType();
 		const_shared_ptr<BasicVariable> basic_variable = dynamic_pointer_cast<
 				const BasicVariable>(m_variable);
 		if (basic_variable) {
@@ -152,17 +153,19 @@ const ErrorListRef AssignmentStatement::preprocess(
 			if (as_record) {
 				const_shared_ptr<RecordType> type =
 						execution_context->GetTypeTable()->GetType<RecordType>(
-								as_record);
+								as_record, DEEP, RESOLVE);
 
 				if (type) {
 					if (!(type->GetModifiers() & Modifier::Type::READONLY)) {
 						const_shared_ptr<TypeSpecifier> member_variable_type =
-								member_variable->GetTypeSpecifier(execution_context);
+								member_variable->GetTypeSpecifier(
+										execution_context);
 
 						if (member_variable_type
 								!= PrimitiveTypeSpecifier::GetNone()) {
 							const_shared_ptr<TypeSpecifier> expression_type =
-									m_expression->GetTypeSpecifier(execution_context);
+									m_expression->GetTypeSpecifier(
+											execution_context);
 
 							if (!expression_type->IsAssignableTo(
 									member_variable_type,

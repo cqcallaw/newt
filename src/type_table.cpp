@@ -102,7 +102,7 @@ const std::string TypeTable::MapSpecifierToName(
 			if (*other_container == current) {
 				//the container is the same, so we can just use the other type name
 				auto name = other_as_complex.GetTypeName();
-				if (GetType<TypeDefinition>(name)) {
+				if (GetType<TypeDefinition>(name, SHALLOW, RETURN)) {
 					return *name;
 				}
 			}
@@ -133,7 +133,7 @@ const bool TypeTable::ContainsType(const ComplexTypeSpecifier& type_specifier) {
 }
 
 const bool TypeTable::ContainsType(const string& name) {
-	return (bool) GetType<const TypeDefinition>(name);
+	return (bool) GetType<const TypeDefinition>(name, SHALLOW, RETURN);
 }
 
 volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(

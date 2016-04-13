@@ -33,7 +33,7 @@ const_shared_ptr<TypeSpecifier> ComplexType::ToActualType(
 	auto as_record = dynamic_pointer_cast<const RecordTypeSpecifier>(original);
 	if (as_record) {
 		//check to see if our "record" type is actually a sum type
-		auto sum_type = table.GetType<SumType>(as_record);
+		auto sum_type = table.GetType<SumType>(as_record, DEEP, RESOLVE);
 		if (sum_type) {
 			return make_shared<SumTypeSpecifier>(as_record);
 		}
