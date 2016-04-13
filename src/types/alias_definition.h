@@ -71,7 +71,7 @@ public:
 		return m_original;
 	}
 
-	const_shared_ptr<TypeTable> GetOriginTable() const {
+	const weak_ptr<const TypeTable> GetOriginTable() const {
 		return m_origin_table;
 	}
 
@@ -86,7 +86,7 @@ public:
 	const_shared_ptr<TypeDefinition> GetOrigin() const;
 
 private:
-	const_shared_ptr<TypeTable> m_origin_table;
+	const weak_ptr<const TypeTable> m_origin_table;
 	const_shared_ptr<TypeSpecifier> m_original;
 	const_shared_ptr<void> m_default_value;
 };

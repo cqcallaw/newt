@@ -67,7 +67,8 @@ const std::string AliasDefinition::GetValueSeparator(const Indent& indent,
 }
 
 const_shared_ptr<TypeDefinition> AliasDefinition::GetOrigin() const {
-	return m_original->GetType(*m_origin_table);
+	const_shared_ptr<TypeTable> ptr = m_origin_table.lock();
+	return m_original->GetType(*ptr);
 }
 
 const_shared_ptr<Symbol> AliasDefinition::GetSymbol(const TypeTable& type_table,
