@@ -20,9 +20,9 @@
 #ifndef TYPES_ARRAY_TYPE_H_
 #define TYPES_ARRAY_TYPE_H_
 
-#include <concrete_type.h>
+#include <type_definition.h>
 
-class ArrayType: public ConcreteType {
+class ArrayType: public TypeDefinition {
 public:
 	ArrayType(const_shared_ptr<TypeSpecifier> member_type_specifier) :
 			m_member_type_specifier(member_type_specifier) {

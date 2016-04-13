@@ -20,12 +20,12 @@
 #ifndef TYPES_FUNCTION_TYPE_H_
 #define TYPES_FUNCTION_TYPE_H_
 
-#include <concrete_type.h>
+#include <type_definition.h>
 
 class FunctionDeclaration;
 class StatementBlock;
 
-class FunctionType: public ConcreteType {
+class FunctionType: public TypeDefinition {
 public:
 	FunctionType(DeclarationListRef parameter_type_list,
 			const_shared_ptr<TypeSpecifier> return_type,

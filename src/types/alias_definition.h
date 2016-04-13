@@ -20,11 +20,11 @@
 #ifndef TYPES_ALIAS_DEFINITION_H_
 #define TYPES_ALIAS_DEFINITION_H_
 
-#include <concrete_type.h>
+#include <type_definition.h>
 #include <primitive_type_specifier.h>
 #include <indent.h>
 
-class AliasDefinition: public ConcreteType {
+class AliasDefinition: public TypeDefinition {
 public:
 	AliasDefinition(const_shared_ptr<TypeTable> origin_table,
 			const_shared_ptr<TypeSpecifier> original,

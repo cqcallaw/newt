@@ -209,7 +209,7 @@ const ErrorListRef MatchStatement::execute(
 					if (match_name == tag) {
 						matched = true;
 						auto variant_type = sum_type->GetDefinition()->GetType<
-								ConcreteType>(match_name);
+								TypeDefinition>(match_name);
 						if (variant_type) {
 							auto block_context =
 									ExecutionContext::GetEmptyChild(

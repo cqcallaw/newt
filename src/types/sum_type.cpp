@@ -282,7 +282,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 
 const_shared_ptr<void> SumType::GetMemberDefaultValue(
 		const_shared_ptr<std::string> member_name) const {
-	auto definition = m_definition->GetType<ConcreteType>(member_name);
+	auto definition = m_definition->GetType<TypeDefinition>(member_name);
 	return definition->GetDefaultValue(*m_definition);
 }
 

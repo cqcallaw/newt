@@ -20,7 +20,7 @@
 #ifndef COMPLEX_TYPE_H_
 #define COMPLEX_TYPE_H_
 
-#include <concrete_type.h>
+#include <type_definition.h>
 #include <defaults.h>
 #include <error.h>
 #include <execution_context.h>
@@ -31,7 +31,7 @@ class Result;
 class ExecutionContext;
 class Expression;
 
-class ComplexType: public ConcreteType {
+class ComplexType: public TypeDefinition {
 public:
 	virtual ~ComplexType();
 	static const_shared_ptr<TypeSpecifier> ToActualType(
