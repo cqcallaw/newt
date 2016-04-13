@@ -76,7 +76,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 //			if (parent_type) {
 //				type_name = *as_nested->GetMemberName();
 //				member_definition = parent_type->GetDefinition()->GetType<
-//						ConcreteType>(type_name);
+//						TypeDefinition>(type_name);
 //			}
 //		} else {
 //			const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
@@ -85,7 +85,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 //			if (as_record_specifier) {
 //				type_name = *as_record_specifier->GetTypeName();
 //				member_definition = execution_context->GetTypeTable()->GetType<
-//						ConcreteType>(type_name);
+//						TypeDefinition>(type_name);
 //			}
 //		}
 
@@ -185,14 +185,6 @@ const ErrorListRef WithExpression::Validate(
 		shared_ptr<const TypeDefinition> base_source_type =
 				source_type_specifier->GetType(*type_table, RESOLVE);
 
-//		shared_ptr<const ComplexTypeSpecifier> parent_type_specifier = nullptr;
-//		const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
-//				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-//						source_type_specifier);
-//		if (as_record_specifier) {
-//			parent_type_specifier = as_record_specifier;
-//		}
-
 		if (base_source_type) {
 			auto as_record = std::dynamic_pointer_cast<const RecordType>(
 					base_source_type);
@@ -201,24 +193,6 @@ const ErrorListRef WithExpression::Validate(
 				record_type_specifier = static_pointer_cast<
 						const RecordTypeSpecifier>(source_type_specifier);
 
-//				const_shared_ptr<NestedTypeSpecifier> as_nested =
-//						std::dynamic_pointer_cast<const NestedTypeSpecifier>(
-//								source_type_specifier);
-//				if (as_nested) {
-//					auto parent = as_nested->GetParent();
-//					auto parent_type = type_table->GetType<ComplexType>(parent);
-//
-//					if (parent_type) {
-//						type_table = parent_type->GetDefinition();
-//
-//						//this casting jank is "okay" because we know the member definition exists?
-//						parent_type_specifier =
-//								static_pointer_cast<const ComplexTypeSpecifier>(
-//										type_table->GetType<ComplexType>(
-//												as_nested->GetMemberName())->GetTypeSpecifier(
-//												as_nested->GetMemberName()));
-//					}
-//				}
 			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
