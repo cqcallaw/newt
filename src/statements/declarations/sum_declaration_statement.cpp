@@ -90,7 +90,8 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 
 					if (as_alias) {
 						//for primitive declaration statements, a single-argument function that just returns that argument
-						auto alias_type_specifier = as_alias->GetTypeSpecifier();
+						auto alias_type_specifier =
+								as_alias->GetTypeSpecifier();
 
 						auto as_primitive_specifier = dynamic_pointer_cast<
 								const PrimitiveTypeSpecifier>(
@@ -138,7 +139,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 							auto constructor_type_alias = make_shared<
 									AliasDefinition>(
 									execution_context->GetTypeTable(),
-									function_signature, function);
+									function_signature, DIRECT, function);
 							constructor_types->AddType(*variant_name,
 									constructor_type_alias);
 							has_type_constructors = true;

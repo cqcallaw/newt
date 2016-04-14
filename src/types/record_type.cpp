@@ -103,7 +103,8 @@ const_shared_ptr<Result> RecordType::Build(
 		for (iter = values->begin(); iter != values->end(); ++iter) {
 			const string member_name = iter->first;
 			auto symbol = iter->second;
-			const_shared_ptr<TypeSpecifier> type_specifier = symbol->GetTypeSpecifier();
+			const_shared_ptr<TypeSpecifier> type_specifier =
+					symbol->GetTypeSpecifier();
 
 			//special case: check for type constructors and don't alias them
 			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
@@ -123,7 +124,7 @@ const_shared_ptr<Result> RecordType::Build(
 
 			auto value = symbol->GetValue();
 			auto alias = make_shared<AliasDefinition>(context->GetTypeTable(),
-					type_specifier, value);
+					type_specifier, DIRECT, value);
 			type_table->AddType(member_name, alias);
 		}
 	}
