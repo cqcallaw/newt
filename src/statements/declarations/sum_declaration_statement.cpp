@@ -65,7 +65,11 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	auto type_table = execution_context->GetTypeTable();
 
 	if (!type_table->ContainsType(*m_type)) {
-		auto forward_declaration = make_shared<PlaceholderType>(GetName());
+		const_shared_ptr<Sum> default_value = make_shared<Sum>(
+				make_shared<string>("placeholder tag"), make_shared<int>(0));
+		auto placeholder_symbol = make_shared<Symbol>(m_type, default_value);
+		auto forward_declaration = make_shared<PlaceholderType>(GetName(),
+				placeholder_symbol);
 		type_table->AddType(*GetName(), forward_declaration);
 		auto result = SumType::Build(execution_context, m_variant_list);
 

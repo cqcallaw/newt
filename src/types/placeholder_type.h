@@ -24,18 +24,15 @@
 #include <assert.h>
 #include <result.h>
 #include <sstream>
-#include <sum.h>
-#include <sum_type_specifier.h>
+#include <complex_type.h>
 #include <symbol_context.h>
+#include <complex_type_specifier.h>
 
 class PlaceholderType: public ComplexType {
 public:
-	PlaceholderType(const_shared_ptr<string> type_name) :
-			m_type_name(type_name) {
-		m_default_value = make_shared<Sum>(
-				make_shared<string>("placeholder tag"), make_shared<int>(0));
-		m_default_symbol = make_shared<Symbol>(
-				make_shared<SumTypeSpecifier>(m_type_name), m_default_value);
+	PlaceholderType(const_shared_ptr<string> type_name,
+			const_shared_ptr<Symbol> symbol) :
+			m_type_name(type_name), m_symbol(symbol) {
 	}
 
 	virtual ~PlaceholderType() {
@@ -44,7 +41,8 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container) const {
-		return make_shared<SumTypeSpecifier>(name, container);
+		return make_shared<ComplexTypeSpecifier>(name, container,
+				NamespaceQualifierList::GetTerminator());
 	}
 
 	virtual const std::string ToString(const TypeTable& type_table,
@@ -70,13 +68,13 @@ public:
 
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const TypeTable& type_table) const {
-		return m_default_value;
+		return nullptr;
 	}
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void> value) const {
-		return m_default_symbol;
+		return m_symbol;
 	}
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
@@ -121,7 +119,8 @@ protected:
 			const std::shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const_shared_ptr<Expression> initializer) const {
-		return make_shared<Result>(m_default_symbol, ErrorList::GetTerminator());
+		return make_shared<Result>(Symbol::GetDefaultSymbol(),
+				ErrorList::GetTerminator());
 	}
 
 	virtual const SetResult InstantiateCore(
@@ -134,8 +133,7 @@ protected:
 
 private:
 	const_shared_ptr<string> m_type_name;
-	plain_shared_ptr<Sum> m_default_value;
-	plain_shared_ptr<Symbol> m_default_symbol;
+	const_shared_ptr<Symbol> m_symbol;
 };
 
 #endif /* TYPES_PLACEHOLDER_TYPE_H_ */

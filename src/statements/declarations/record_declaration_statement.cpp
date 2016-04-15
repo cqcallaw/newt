@@ -22,11 +22,11 @@
 #include <expression.h>
 #include <type_table.h>
 #include <execution_context.h>
-#include <map>
-
+#include <placeholder_type.h>
 #include <record_type.h>
 #include <default_value_expression.h>
 #include <defaults.h>
+#include <record.h>
 
 RecordDeclarationStatement::RecordDeclarationStatement(
 		const yy::location position, const_shared_ptr<RecordTypeSpecifier> type,
@@ -62,6 +62,13 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 	}
 
 	if (!type_table->ContainsType(*m_type)) {
+		const_shared_ptr<Record> default_value = make_shared<Record>(
+				make_shared<SymbolContext>(Modifier::Type::READONLY));
+		auto placeholder_symbol = make_shared<Symbol>(m_type, default_value);
+		auto forward_declaration = make_shared<PlaceholderType>(GetName(),
+				placeholder_symbol);
+		type_table->AddType(*GetName(), forward_declaration);
+
 		auto result = RecordType::Build(execution_context, modifiers,
 				m_member_declaration_list);
 		errors = result->GetErrors();

@@ -119,7 +119,7 @@ const_shared_ptr<Result> SumType::Build(
 							original_type_specifier);
 					if (original_as_complex) {
 						auto original_name = original_as_complex->GetTypeName();
-						auto original = type_table->GetType<RecordType>(
+						auto original = type_table->GetType<ComplexType>(
 								original_name, DEEP, RETURN);
 						if (original) {
 							auto alias = make_shared<AliasDefinition>(
