@@ -56,7 +56,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 
 	errors = source_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		plain_shared_ptr<void> new_value;
+		plain_shared_ptr<Record> new_value;
 		const_shared_ptr<TypeSpecifier> source_type_specifier =
 				m_source_expression->GetTypeSpecifier(execution_context);
 
@@ -64,30 +64,6 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 		shared_ptr<const TypeDefinition> member_definition =
 				source_type_specifier->GetType(
 						execution_context->GetTypeTable());
-
-//		const_shared_ptr<NestedTypeSpecifier> as_nested =
-//				std::dynamic_pointer_cast<const NestedTypeSpecifier>(
-//						source_type_specifier);
-//		if (as_nested) {
-//			auto parent = as_nested->GetParent();
-//			auto parent_type = execution_context->GetTypeTable()->GetType<
-//					SumType>(parent);
-//
-//			if (parent_type) {
-//				type_name = *as_nested->GetMemberName();
-//				member_definition = parent_type->GetDefinition()->GetType<
-//						TypeDefinition>(type_name);
-//			}
-//		} else {
-//			const_shared_ptr<RecordTypeSpecifier> as_record_specifier =
-//					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-//							source_type_specifier);
-//			if (as_record_specifier) {
-//				type_name = *as_record_specifier->GetTypeName();
-//				member_definition = execution_context->GetTypeTable()->GetType<
-//						TypeDefinition>(type_name);
-//			}
-//		}
 
 		if (member_definition) {
 			auto as_record = std::dynamic_pointer_cast<const RecordType>(
@@ -113,6 +89,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 
 		if (ErrorList::IsTerminator(errors)) {
 			auto as_record = source_result->GetData<Record>();
+
 			const_shared_ptr<SymbolContext> definition =
 					as_record->GetDefinition();
 
