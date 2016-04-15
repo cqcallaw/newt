@@ -1,9 +1,9 @@
 //test default value of nested struct
-struct my_struct {
+my_struct {
 	y: double = 5.3
 }
 
-struct my_other_struct {
+my_other_struct {
 	x: int,
 	i: my_struct
 }

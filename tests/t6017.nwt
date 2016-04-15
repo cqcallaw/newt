@@ -1,5 +1,5 @@
 //test unit variant
-sum result {
+result {
 	value:int
 	| error
 }

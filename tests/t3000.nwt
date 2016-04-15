@@ -1,6 +1,6 @@
 //test declaration of readonly struct
 
-readonly struct ronly {
+readonly ronly {
 	x: int,
 	y: double,
 	z: string

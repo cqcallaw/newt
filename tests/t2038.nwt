@@ -1,11 +1,11 @@
-struct rectangle {
+rectangle {
 	x: int,
 	y: int,
 	w: int = 10,
 	h: int
 }
 
-struct triangle {
+triangle {
 	x: int,
 	y: int,
 	w: int = 10

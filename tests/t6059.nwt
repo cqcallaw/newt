@@ -1,5 +1,5 @@
 //test invalid default value
-sum test {
+test {
 	i:int
 	| d:double
 }

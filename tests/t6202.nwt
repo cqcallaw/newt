@@ -1,5 +1,5 @@
 #test re-assignment of value in inner scope
-sum result {
+result {
 	value:int
 	| error {
 		message:string

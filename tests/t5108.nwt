@@ -1,4 +1,4 @@
-struct point {
+point {
 	x:int,
 	y:int,
 	squared:(int) -> int

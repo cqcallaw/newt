@@ -1,8 +1,8 @@
-struct general_error {
+general_error {
 	message:string
 }
 
-sum result {
+result {
 	value:int
 	| error:general_error
 }

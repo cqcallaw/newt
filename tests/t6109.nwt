@@ -1,5 +1,5 @@
 #test re-assignment of value in outer scope, primitive variant
-sum result {
+result {
 	value:int
 	| error {
 		message:string

@@ -1,4 +1,4 @@
-struct circle {
+circle {
 	x: int = 10,
 	y: int,
 	radius: int,

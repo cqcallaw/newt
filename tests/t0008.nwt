@@ -1,5 +1,5 @@
 //test widening conversions of struct members
-struct my_struct {
+my_struct {
 	x: double
 }
 

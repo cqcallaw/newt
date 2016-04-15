@@ -1,5 +1,5 @@
 //test inference
-sum number {
+number {
 	discrete:int
 	| continuous:double
 }

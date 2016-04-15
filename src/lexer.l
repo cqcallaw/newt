@@ -102,11 +102,9 @@ blank   [ \t\r]
 "&&"            return yy::newt_parser::make_AND(loc);
 "||"            return yy::newt_parser::make_OR(loc);
 "|"             return yy::newt_parser::make_PIPE(loc);
-"struct"        return yy::newt_parser::make_STRUCT(loc);
 "readonly"      return yy::newt_parser::make_READONLY(loc);
 "with"          return yy::newt_parser::make_WITH(loc);
 "return"        return yy::newt_parser::make_RETURN(loc);
-"sum"           return yy::newt_parser::make_SUM(loc);
 "match"         return yy::newt_parser::make_MATCH(loc);
 "as"            return yy::newt_parser::make_AS(loc);
 

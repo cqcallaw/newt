@@ -1,4 +1,4 @@
-struct rectangle {
+rectangle {
 	x: int,
 	y: int,
 	w: int = 10,

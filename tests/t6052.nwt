@@ -1,5 +1,5 @@
 //test duplicate variant names with different types
-sum test {
+test {
 	i:int
 	| i:double
 }

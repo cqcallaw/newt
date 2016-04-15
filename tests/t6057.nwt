@@ -1,5 +1,5 @@
 //test invalid variant name in default value expression
-sum test {
+test {
 	i:int
 	| d:double
 }

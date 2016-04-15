@@ -1,4 +1,4 @@
 Parsing file ../tests/t6055.nwt...
-Parse error on line 3, column 2: syntax error, unexpected string, expecting identifier.
+Parse error on line 3, column 2: syntax error, unexpected string, expecting } or ",".
 Parsed file ../tests/t6055.nwt.
 1 error found; giving up.

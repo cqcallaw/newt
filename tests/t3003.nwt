@@ -1,5 +1,5 @@
 //test that the default value of structs aren't modifiable
-struct point {
+point {
 	x: int = 1,
 	y: int
 }

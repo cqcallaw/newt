@@ -1,5 +1,5 @@
 //test invalid assignment of struct member variable
-struct my_struct {
+my_struct {
 	y: double
 }
 a: my_struct

@@ -1,5 +1,5 @@
 //test default value of primitive
-sum test {
+test {
 	i:int
 	| d:double
 }

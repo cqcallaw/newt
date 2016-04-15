@@ -1,5 +1,5 @@
 //test invalid sum type specifier
-sum test {
+test {
 	i:int
 	| d:double
 }

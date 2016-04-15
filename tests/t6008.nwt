@@ -1,9 +1,9 @@
-struct error {
+error {
 	code:int,
 	message:string
 }
 
-sum result {
+result {
 	value:double
 	| error:error
 }

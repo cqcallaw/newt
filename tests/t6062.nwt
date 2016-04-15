@@ -1,5 +1,5 @@
 //test invalid alias
-sum test {
+test {
 	i:undefined
 	| d:double
 }

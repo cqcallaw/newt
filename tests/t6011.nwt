@@ -1,5 +1,5 @@
 //test default values of nested complex types
-sum result {
+result {
 	value:int
 	| error {
 		code:int,

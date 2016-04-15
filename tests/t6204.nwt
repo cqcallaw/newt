@@ -1,5 +1,5 @@
 #test multiple match blocks with same variant
-sum result {
+result {
 	value:int
 	| error {
 		message:string

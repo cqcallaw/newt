@@ -1,10 +1,10 @@
 //test sum type as member of struct type, with widening conversion in "with" transforms
-sum number {
+number {
 	discrete:int
 	| continuous:double
 }
 
-struct stringified {
+stringified {
 	as_string:string = "default stuff",
 	value:number
 }

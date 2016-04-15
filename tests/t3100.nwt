@@ -1,4 +1,4 @@
-struct my_struct {
+my_struct {
 	arr: int[]
 }
 

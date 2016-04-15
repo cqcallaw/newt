@@ -1,5 +1,5 @@
 //test enum
-sum result {
+result {
 	no_result
 	| happy_fun
 	| frowny_sad

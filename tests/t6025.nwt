@@ -1,5 +1,5 @@
 //test default value of sum type member
-sum test {
+test {
 	i:int
 	| d:double
 }

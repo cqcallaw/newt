@@ -181,10 +181,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 
 	UNDERSCORE          "_"
 
-	STRUCT              "struct declaration"
 	READONLY            "readonly modifier"
 	WITH                "with"
-	SUM                 "sum"
 	MATCH               "match"
 	AS                  "as"
 
@@ -860,14 +858,14 @@ modifier:
 
 //---------------------------------------------------------------------
 struct_declaration_statement:
-	modifier_list STRUCT struct_body
+	modifier_list struct_body
 	{
 		ModifierListRef modifier_list = ModifierList::From(ModifierList::Reverse($1));
-		$$ = $3->WithModifiers(modifier_list, @1);
+		$$ = $2->WithModifiers(modifier_list, @1);
 	}
-	| STRUCT struct_body
+	| struct_body
 	{
-		$$ = $2;
+		$$ = $1;
 	}
 	;
 
@@ -993,9 +991,9 @@ namespace_qualifier:
 
 //---------------------------------------------------------------------
 sum_declaration_statement:
-	SUM sum_body
+	sum_body
 	{
-		$$ = $2;
+		$$ = $1;
 	}
 	;
 

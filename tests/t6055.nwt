@@ -1,5 +1,5 @@
 //test invalid variant name
-sum test {
+test {
 	string
 	| i:double
 }

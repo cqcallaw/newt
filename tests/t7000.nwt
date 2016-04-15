@@ -1,8 +1,8 @@
 # a linked list
-sum list {
+list {
 	terminator
 	| item {
-		data:int
+		data:int,
 		next:list
 	}
 }

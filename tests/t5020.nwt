@@ -1,14 +1,14 @@
-readonly struct Point {
+readonly Point {
 	x:int,
 	y:int
 }
 
-readonly struct Line {
+readonly Line {
 	a:Point,
 	b:Point = @Point with { x = 1 }
 }
 
-readonly struct Circle {
+readonly Circle {
 	center:Point,
 	radius:int
 }

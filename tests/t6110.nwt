@@ -1,9 +1,9 @@
 #test re-assignment of value in outer scope, aliased variant
-struct error {
+error {
 	message:string
 }
 
-sum result {
+result {
 	value:int
 	| error:error
 }
