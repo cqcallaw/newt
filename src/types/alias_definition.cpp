@@ -52,7 +52,7 @@ const std::string AliasDefinition::ValueToString(const TypeTable& type_table,
 	if (origin) {
 		return origin->ValueToString(type_table, indent, value);
 	} else {
-		return "<No origin found for alias '" + m_original->ToString() + "'";
+		return "<No origin found for alias '" + m_original->ToString() + "'>";
 	}
 }
 
@@ -62,7 +62,7 @@ const std::string AliasDefinition::GetValueSeparator(const Indent& indent,
 	if (origin) {
 		return origin->GetValueSeparator(indent, value);
 	} else {
-		return "<No origin found for alias '" + m_original->ToString() + "'";
+		return "<No origin found for alias '" + m_original->ToString() + "'>";
 	}
 }
 
