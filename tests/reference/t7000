@@ -7,8 +7,15 @@ Root Symbol Table:
 Root Type Table:
 ----------------
 list:
+	<sum>
 	item:
-		int data (0)
-		list next ()
+		<record>
+		data:
+			int (0)
+		next:
+			list
+
 	terminator:
-		<empty>
+		<record>
+
+

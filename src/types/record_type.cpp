@@ -29,6 +29,7 @@
 #include <symbol_context.h>
 #include <record.h>
 #include <complex_instantiation_statement.h>
+#include <placeholder_type.h>
 
 RecordType::RecordType(const_shared_ptr<TypeTable> definition,
 		const Modifier::Type modifiers) :
@@ -62,7 +63,8 @@ const_shared_ptr<Result> RecordType::Build(
 	//of the member declaration statements
 	const shared_ptr<symbol_map> values = make_shared<symbol_map>();
 
-	auto type_table = make_shared<TypeTable>(context->GetTypeTable());
+	auto context_type_table = context->GetTypeTable();
+	auto type_table = make_shared<TypeTable>(context_type_table);
 	shared_ptr<ExecutionContext> struct_context =
 			ExecutionContext::GetEmptyChild(context, context->GetModifiers(),
 					EPHEMERAL, type_table, values);
@@ -123,8 +125,20 @@ const_shared_ptr<Result> RecordType::Build(
 			}
 
 			auto value = symbol->GetValue();
-			auto alias = make_shared<AliasDefinition>(context->GetTypeTable(),
-					type_specifier, DIRECT, value);
+
+			auto symbol_type = type_specifier->GetType(context_type_table);
+			auto as_sum_recursive =
+					dynamic_pointer_cast<const PlaceholderType>(symbol_type);
+
+			plain_shared_ptr<AliasDefinition> alias = nullptr;
+			if (as_sum_recursive) {
+				alias = make_shared<AliasDefinition>(type_table, type_specifier,
+						RECURSIVE, nullptr);
+			} else {
+				alias = make_shared<AliasDefinition>(type_table, type_specifier,
+						DIRECT, value);
+			}
+
 			type_table->AddType(member_name, alias);
 		}
 	}

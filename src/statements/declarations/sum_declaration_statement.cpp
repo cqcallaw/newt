@@ -38,9 +38,9 @@
 
 #include <variable_expression.h>
 #include <return_statement.h>
-#include <sum_recursive_type.h>
 #include <with_expression.h>
 #include <function_type.h>
+#include <placeholder_type.h>
 
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 		const_shared_ptr<ComplexTypeSpecifier> type,
@@ -65,7 +65,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	auto type_table = execution_context->GetTypeTable();
 
 	if (!type_table->ContainsType(*m_type)) {
-		auto forward_declaration = make_shared<SumRecursiveType>(GetName());
+		auto forward_declaration = make_shared<PlaceholderType>(GetName());
 		type_table->AddType(*GetName(), forward_declaration);
 		auto result = SumType::Build(execution_context, m_variant_list);
 

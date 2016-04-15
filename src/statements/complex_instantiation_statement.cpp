@@ -30,8 +30,8 @@
 #include <sum_type.h>
 #include <sum.h>
 #include <complex_type_specifier.h>
+#include <placeholder_type.h>
 #include <record.h>
-#include <sum_recursive_type.h>
 
 ComplexInstantiationStatement::ComplexInstantiationStatement(
 		const yy::location position,

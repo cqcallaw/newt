@@ -17,8 +17,8 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPES_SUM_RECURSIVE_TYPE_H_
-#define TYPES_SUM_RECURSIVE_TYPE_H_
+#ifndef TYPES_PLACEHOLDER_TYPE_H_
+#define TYPES_PLACEHOLDER_TYPE_H_
 
 #include <type_definition.h>
 #include <assert.h>
@@ -28,9 +28,9 @@
 #include <sum_type_specifier.h>
 #include <symbol_context.h>
 
-class SumRecursiveType: public ComplexType {
+class PlaceholderType: public ComplexType {
 public:
-	SumRecursiveType(const_shared_ptr<string> type_name) :
+	PlaceholderType(const_shared_ptr<string> type_name) :
 			m_type_name(type_name) {
 		m_default_value = make_shared<Sum>(
 				make_shared<string>("placeholder tag"), make_shared<int>(0));
@@ -38,7 +38,7 @@ public:
 				make_shared<SumTypeSpecifier>(m_type_name), m_default_value);
 	}
 
-	virtual ~SumRecursiveType() {
+	virtual ~PlaceholderType() {
 	}
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
@@ -138,4 +138,4 @@ private:
 	plain_shared_ptr<Symbol> m_default_symbol;
 };
 
-#endif /* TYPES_SUM_RECURSIVE_TYPE_H_ */
+#endif /* TYPES_PLACEHOLDER_TYPE_H_ */
