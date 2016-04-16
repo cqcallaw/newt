@@ -1,0 +1,11 @@
+# test construction of a non-terminal linked-list, with non-constant initializer
+list {
+	terminator
+	| item {
+		data:int,
+		next:list
+	}
+}
+
+t:= @list.terminator #l is of type list.terminator
+l:list= @list.item with { data = 2, next = t }

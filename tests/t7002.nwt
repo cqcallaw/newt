@@ -1,0 +1,10 @@
+# a linked list
+list {
+	terminator
+	| item {
+		data:int,
+		next:list
+	}
+}
+
+l:list = @list.terminator
