@@ -113,7 +113,7 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 		auto type = type_specifier->GetType(type_table, RESOLVE);
 
 		if (type) {
-			buffer << type->GetValueSeparator(indent, value);
+			buffer << type->GetValueSeparator(indent, value.get());
 			buffer << type->ValueToString(type_table, indent, value);
 		} else {
 			buffer << "UNDEFINED TYPE";

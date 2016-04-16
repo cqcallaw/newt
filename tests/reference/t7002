@@ -3,8 +3,9 @@ Parsed file ../tests/t7002.nwt.
 Root Symbol Table:
 ----------------
 list l:
+{terminator}
 	<empty>
- {terminator}
+
 
 Root Type Table:
 ----------------

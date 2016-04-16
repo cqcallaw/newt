@@ -3,8 +3,9 @@ Parsed file ../tests/t6018.nwt.
 Root Symbol Table:
 ----------------
 result val:
+{happy_fun}
 	<empty>
- {happy_fun}
+
 
 Root Type Table:
 ----------------

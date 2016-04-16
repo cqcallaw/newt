@@ -10,7 +10,7 @@ franken$ctor franken:
 	(int) -> franken discrete:
 		Body Location: 2.2-9
 
-franken t: 15.2 {continuous}
+franken t: {continuous} 15.2
 
 Root Type Table:
 ----------------

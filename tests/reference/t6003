@@ -8,7 +8,7 @@ number$ctor number:
 	(int) -> number discrete:
 		Body Location: 3.2-9
 
-number t: 0 {discrete}
+number t: {discrete} 0
 
 Root Type Table:
 ----------------

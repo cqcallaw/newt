@@ -3,11 +3,13 @@ Parsed file ../tests/t7004.nwt.
 Root Symbol Table:
 ----------------
 list l:
+{item}
 	int data: 2
 	list next:
+	{terminator}
 		<empty>
- {terminator}
- {item}
+
+
 list.terminator t:
 	<empty>
 

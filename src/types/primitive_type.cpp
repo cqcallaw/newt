@@ -98,7 +98,7 @@ const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
 }
 
 const std::string PrimitiveType::GetValueSeparator(const Indent& indent,
-		const_shared_ptr<void> value) const {
+		const void* value) const {
 	return " ";
 }
 

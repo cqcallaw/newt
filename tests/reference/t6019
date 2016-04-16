@@ -2,7 +2,7 @@ Parsing file ../tests/t6019.nwt...
 Parsed file ../tests/t6019.nwt.
 Root Symbol Table:
 ----------------
-test t: 0 {d}
+test t: {d} 0
 test$ctor test:
 	(double) -> test d:
 		Body Location: 4.4

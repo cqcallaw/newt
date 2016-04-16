@@ -8,11 +8,13 @@ result$ctor result:
 		Body Location: 3.2-6
 
 result t:
+{error}
 	string message: "No go"
- {error}
+
 result t2:
+{error}
 	string message: "No go"
- {error}
+
 
 Root Type Table:
 ----------------

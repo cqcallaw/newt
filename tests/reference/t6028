@@ -10,7 +10,7 @@ number$ctor number:
 
 stringified s:
 	string as_string: "4.0"
-	number value: 4 {continuous}
+	number value: 	{continuous} 4
 
 
 Root Type Table:
@@ -35,5 +35,5 @@ stringified:
 		string ("default stuff")
 	value:
 		number (
-0 {discrete}		)
+		{discrete} 0		)
 

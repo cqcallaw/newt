@@ -57,7 +57,7 @@ const std::string AliasDefinition::ValueToString(const TypeTable& type_table,
 }
 
 const std::string AliasDefinition::GetValueSeparator(const Indent& indent,
-		const_shared_ptr<void> value) const {
+		const void* value) const {
 	auto origin = GetOrigin();
 	if (origin) {
 		return origin->GetValueSeparator(indent, value);

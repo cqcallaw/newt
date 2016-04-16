@@ -11,9 +11,10 @@ result$ctor result:
 		Body Location: 3.2-6
 
 result wide_result:
+{error}
 	int code: 2
 	string message: "That other thing."
- {error}
+
 
 Root Type Table:
 ----------------

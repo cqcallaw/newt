@@ -53,7 +53,7 @@ public:
 			const Indent& indent, const_shared_ptr<void> value) const = 0;
 
 	virtual const std::string GetValueSeparator(const Indent& indent,
-			const_shared_ptr<void> value) const = 0;
+			const void* value) const = 0;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,

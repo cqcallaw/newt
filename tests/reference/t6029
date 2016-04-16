@@ -7,8 +7,9 @@ number$ctor number:
 		Body Location: 3.2-9
 
 number s:
+{stringified}
 	string as_string: "4.0"
- {stringified}
+
 number.stringified v:
 	string as_string: ""
 

@@ -63,7 +63,7 @@ const_shared_ptr<TypeSpecifier> FunctionType::GetTypeSpecifier(
 }
 
 const std::string FunctionType::GetValueSeparator(const Indent& indent,
-		const_shared_ptr<void> value) const {
+		const void* value) const {
 	return "\n" + (indent + 1).ToString();
 }
 

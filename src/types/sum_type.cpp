@@ -294,8 +294,8 @@ const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
 }
 
 const std::string SumType::GetValueSeparator(const Indent& indent,
-		const_shared_ptr<void> value) const {
-	auto as_sum = static_pointer_cast<const Sum>(value);
+		const void* value) const {
+	auto as_sum = static_cast<const Sum*>(value);
 	auto variant_name = as_sum->GetTag();
 
 	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name,

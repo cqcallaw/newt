@@ -10,7 +10,7 @@ franken$ctor franken:
 	(int) -> franken discrete:
 		Body Location: 2.2-9
 
-franken t: "things" {as_string}
+franken t: {as_string} "things"
 
 Root Type Table:
 ----------------

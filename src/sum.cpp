@@ -36,10 +36,11 @@ const string Sum::ToString(const SumType& type, const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
 	auto type_definition = type.GetDefinition();
+	buffer << indent << "{" << *m_tag << "}";
+	buffer << type.GetValueSeparator(indent, this);
 	auto variant_definition = type_definition->GetType<TypeDefinition>(*m_tag,
 			SHALLOW, RESOLVE);
 	buffer << variant_definition->ValueToString(type_table, indent, m_value);
-	buffer << " {" << *m_tag << "}";
 	return buffer.str();
 }
 

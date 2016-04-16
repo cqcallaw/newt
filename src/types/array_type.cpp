@@ -53,7 +53,7 @@ const_shared_ptr<Symbol> ArrayType::GetSymbol(const TypeTable& type_table,
 }
 
 const std::string ArrayType::GetValueSeparator(const Indent& indent,
-		const_shared_ptr<void> value) const {
+		const void* value) const {
 	return "\n";
 }
 

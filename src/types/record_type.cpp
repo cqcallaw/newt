@@ -254,7 +254,7 @@ const SetResult RecordType::InstantiateCore(
 }
 
 const std::string RecordType::GetValueSeparator(const Indent& indent,
-		const_shared_ptr<void> value) const {
+		const void* value) const {
 	return "\n";
 }
 
