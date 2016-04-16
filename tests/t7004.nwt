@@ -7,5 +7,5 @@ list {
 	}
 }
 
-t:= @list.terminator #l is of type list.terminator
+t:= @list.terminator #t is of type list.terminator
 l:list= @list.item with { data = 2, next = t }
