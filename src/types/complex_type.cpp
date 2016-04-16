@@ -79,16 +79,18 @@ const ErrorListRef ComplexType::Instantiate(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	SetResult set_result = SetResult::NO_SET_RESULT;
 	yy::location location = GetDefaultLocation();
-	plain_shared_ptr<TypeSpecifier> initializer_type = nullptr;
+	plain_shared_ptr<TypeSpecifier> initializer_type_specifier = nullptr;
 	if (initializer && !initializer->IsConstant()) {
 		location = initializer->GetPosition();
-		initializer_type = initializer->GetTypeSpecifier(execution_context);
+		initializer_type_specifier = initializer->GetTypeSpecifier(
+				execution_context);
 		auto result = initializer->Evaluate(execution_context);
 		errors = result->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {
 			set_result = InstantiateCore(execution_context, type_specifier,
-					*instance_name, result->GetData<void>());
+					initializer_type_specifier, *instance_name,
+					result->GetData<void>());
 		}
 	}
 
@@ -96,7 +98,7 @@ const ErrorListRef ComplexType::Instantiate(
 		errors =
 				ToErrorListRef(set_result, location, instance_name,
 						execution_context->GetSymbol(*instance_name)->GetTypeSpecifier(),
-						initializer_type); //initializer_type will be null if initializer is not set
+						initializer_type_specifier); //initializer_type will be null if initializer is not set
 	}
 
 	return errors;

@@ -127,8 +127,8 @@ const_shared_ptr<Result> RecordType::Build(
 			auto value = symbol->GetValue();
 
 			auto symbol_type = type_specifier->GetType(context_type_table);
-			auto as_sum_recursive =
-					dynamic_pointer_cast<const PlaceholderType>(symbol_type);
+			auto as_sum_recursive = dynamic_pointer_cast<const PlaceholderType>(
+					symbol_type);
 
 			plain_shared_ptr<AliasDefinition> alias = nullptr;
 			if (as_sum_recursive) {
@@ -236,12 +236,15 @@ const_shared_ptr<TypeSpecifier> RecordType::GetTypeSpecifier(
 const SetResult RecordType::InstantiateCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+		const_shared_ptr<TypeSpecifier> value_type_specifier,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Record>(data);
 	auto specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
 			type_specifier);
 
-	if (specifier) {
+	if (specifier
+			&& value_type_specifier->IsAssignableTo(type_specifier,
+					execution_context->GetTypeTable())) {
 		auto set_result = execution_context->SetSymbol(instance_name, specifier,
 				instance, execution_context->GetTypeTable());
 		return set_result;

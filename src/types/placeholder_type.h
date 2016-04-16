@@ -126,6 +126,7 @@ protected:
 	virtual const SetResult InstantiateCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<TypeSpecifier> value_type_specifier,
 			const std::string& instance_name,
 			const_shared_ptr<void> data) const {
 		return SetResult::NO_SET_RESULT;

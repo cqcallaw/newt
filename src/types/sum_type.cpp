@@ -316,15 +316,29 @@ const_shared_ptr<DeclarationStatement> SumType::GetDeclarationStatement(
 const SetResult SumType::InstantiateCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+		const_shared_ptr<TypeSpecifier> value_type_specifier,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
-	auto instance = static_pointer_cast<const Sum>(data);
-	auto specifier = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-			type_specifier);
-	if (specifier) {
-		auto set_result = execution_context->SetSymbol(instance_name, specifier,
-				instance, execution_context->GetTypeTable());
-		return set_result;
+	auto value_type = value_type_specifier->GetType(
+			execution_context->GetTypeTable(), RESOLVE);
+
+	plain_shared_ptr<Sum> instance = nullptr;
+	auto as_sum_type = dynamic_pointer_cast<const SumType>(value_type);
+	if (as_sum_type) {
+		instance = static_pointer_cast<const Sum>(data);
 	} else {
-		return SetResult::INCOMPATIBLE_TYPE;
+		auto conversion_result = AnalyzeConversion(*type_specifier,
+				*value_type_specifier);
+
+		if (conversion_result == UNAMBIGUOUS) {
+			auto tag = MapSpecifierToVariant(*type_specifier,
+					*value_type_specifier);
+			instance = make_shared<const Sum>(tag, data);
+		} else {
+			return INCOMPATIBLE_TYPE;
+		}
 	}
+
+	auto set_result = execution_context->SetSymbol(instance_name,
+			type_specifier, instance, execution_context->GetTypeTable());
+	return set_result;
 }
