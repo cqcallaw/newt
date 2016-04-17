@@ -49,11 +49,17 @@ const_shared_ptr<void> ComplexTypeSpecifier::DefaultValue(
 
 bool ComplexTypeSpecifier::CompareContainers(
 		const ComplexTypeSpecifier& other) const {
-	if (!GetContainer()) {
-		return !other.GetContainer();
+	auto containers = GetContainer();
+	auto other_containers = other.GetContainer();
+	if (!containers) {
+		return !other_containers;
 	}
 
-	return *GetContainer() == *other.GetContainer();
+	if (!other_containers) {
+		return !containers;
+	}
+
+	return *containers == *other_containers;
 }
 
 const_shared_ptr<TypeDefinition> ComplexTypeSpecifier::GetType(
