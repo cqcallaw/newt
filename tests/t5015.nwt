@@ -1,0 +1,6 @@
+// test member names that are also the names of a complex type
+name {}
+
+person {
+	name:name
+}
