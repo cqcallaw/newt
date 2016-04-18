@@ -43,7 +43,7 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 			if (as_record) {
 				auto member_name = m_member_variable->GetName();
 				auto member_type = as_record->GetDefinition()->GetType<
-						TypeDefinition>(*member_name, DEEP, RESOLVE);
+						TypeDefinition>(*member_name, SHALLOW, RESOLVE);
 
 				if (member_type) {
 					auto output = make_shared<NestedTypeSpecifier>(
@@ -348,7 +348,7 @@ const ErrorListRef MemberVariable::Validate(
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 		if (as_complex) {
 			auto member_definition = as_complex->GetDefinition()->GetType<
-					TypeDefinition>(m_member_variable->GetName(), DEEP,
+					TypeDefinition>(m_member_variable->GetName(), SHALLOW,
 					RESOLVE);
 			if (!member_definition) {
 				errors = ErrorList::From(

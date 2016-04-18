@@ -70,7 +70,7 @@ const_shared_ptr<TypeDefinition> ComplexTypeSpecifier::GetType(
 	auto container_type = GetContainerType(type_table);
 	if (container_type) {
 		type = container_type->GetDefinition()->GetType<ComplexType>(
-				GetTypeName(), DEEP, resolution);
+				GetTypeName(), SHALLOW, resolution);
 	} else {
 		type = type_table.GetType<ComplexType>(GetTypeName(), DEEP, resolution);
 	}

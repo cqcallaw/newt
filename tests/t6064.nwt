@@ -1,0 +1,11 @@
+//test that sum type member lookups don't explore the parent context
+
+a {}
+
+test {
+	i:int
+	| d:string
+}
+
+v := @test
+o := v.a
