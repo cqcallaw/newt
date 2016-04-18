@@ -52,10 +52,8 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto type_table = *execution_context->GetTypeTable();
 	auto resolved_specifier = GetTypeSpecifier(execution_context);
-	const TypeSpecifier& unaliased = ComplexTypeSpecifier::ResolveAliasing(
-			*resolved_specifier, type_table);
 
-	plain_shared_ptr<void> return_value = unaliased.DefaultValue(
+	plain_shared_ptr<void> return_value = resolved_specifier->DefaultValue(
 			execution_context->GetTypeTable());
 	return make_shared<Result>(return_value, errors);
 }
@@ -66,9 +64,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 
 	auto type_table = *execution_context->GetTypeTable();
 	auto resolved_specifier = GetTypeSpecifier(execution_context);
-	const TypeSpecifier& unaliased = ComplexTypeSpecifier::ResolveAliasing(
-			*resolved_specifier, type_table);
-	auto type = unaliased.GetType(type_table, RESOLVE);
+	auto type = resolved_specifier->GetType(type_table, RESOLVE);
 
 	if (!type) {
 		errors = ErrorList::From(

@@ -57,9 +57,6 @@ public:
 
 	bool CompareContainers(const ComplexTypeSpecifier& other) const;
 
-	static const TypeSpecifier& ResolveAliasing(const TypeSpecifier& original,
-			const TypeTable& type_table);
-
 	virtual const_shared_ptr<std::string> GetTypeName() const {
 		return m_type_name;
 	}

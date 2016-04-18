@@ -19,7 +19,7 @@
 
 #include <primitive_declaration_statement.h>
 #include <primitive_type_specifier.h>
-
+#include <nested_type_specifier.h>
 #include <primitive_type.h>
 #include <complex_type.h>
 #include <typeinfo>
@@ -60,18 +60,16 @@ const string PrimitiveTypeSpecifier::ToString(
 const bool PrimitiveTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	const TypeSpecifier& resolved = ComplexTypeSpecifier::ResolveAliasing(
-			*other, type_table);
-	try {
-		if (resolved.AnalyzeConversion(type_table, *this) == UNAMBIGUOUS) {
-			return true;
-		}
+	auto resolved = NestedTypeSpecifier::Resolve(other, type_table);
+	if (resolved->AnalyzeConversion(type_table, *this) == UNAMBIGUOUS) {
+		return true;
+	}
 
-		auto other_as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier&>(resolved);
-		const BasicType other_type = other_as_primitive.GetBasicType();
+	auto other_as_primitive =
+			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(resolved);
+	if (other_as_primitive) {
+		const BasicType other_type = other_as_primitive->GetBasicType();
 		return other_type != BasicType::NONE && m_basic_type <= other_type;
-	} catch (std::bad_cast& e) {
 	}
 
 	return false;

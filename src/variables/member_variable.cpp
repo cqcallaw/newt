@@ -39,7 +39,7 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 	if (as_record_type_specifier) {
 		auto type = as_record_type_specifier->GetType(type_table, RESOLVE);
 		if (type) {
-			auto as_record = dynamic_pointer_cast<const ComplexType>(type);
+			auto as_record = dynamic_pointer_cast<const RecordType>(type);
 			if (as_record) {
 				auto member_name = m_member_variable->GetName();
 				auto member_type = as_record->GetDefinition()->GetType<
@@ -53,7 +53,7 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 					if (resolution == AliasResolution::RETURN) {
 						return output;
 					} else {
-						return output->ResolveAliasing(type_table);
+						return NestedTypeSpecifier::Resolve(output, type_table);
 					}
 				}
 			}

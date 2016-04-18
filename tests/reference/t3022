@@ -2,7 +2,7 @@ Parsing file ../tests/t3022.nwt...
 Parsed file ../tests/t3022.nwt.
 Root Symbol Table:
 ----------------
-my_other_struct.i a:
+my_struct a:
 	double y: 5.3
 
 

@@ -19,6 +19,7 @@
 
 #include <complex_type_specifier.h>
 #include <complex_type.h>
+#include <nested_type_specifier.h>
 
 const_shared_ptr<ComplexType> ComplexTypeSpecifier::GetContainerType(
 		const TypeTable& type_table) const {
@@ -80,35 +81,28 @@ const_shared_ptr<TypeDefinition> ComplexTypeSpecifier::GetType(
 const bool ComplexTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
+	auto resolved_other = NestedTypeSpecifier::Resolve(other, type_table);
+
 	const_shared_ptr<ComplexTypeSpecifier> as_complex =
-			std::dynamic_pointer_cast<const ComplexTypeSpecifier>(other);
+			std::dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					resolved_other);
 	if (as_complex) {
 		try {
-			//the following two casts are justified because we know the resolution of a
-			//complex type specifier will yield a complex type specifier
-			const ComplexTypeSpecifier& resolved_specifier =
-					dynamic_cast<const ComplexTypeSpecifier&>(ComplexTypeSpecifier::ResolveAliasing(
-							*this, type_table));
-			const ComplexTypeSpecifier& resolved_other =
-					dynamic_cast<const ComplexTypeSpecifier&>(ComplexTypeSpecifier::ResolveAliasing(
-							*as_complex, type_table));
-
-			auto container = resolved_specifier.GetContainer();
-			auto other_container = resolved_other.GetContainer();
+			auto container = GetContainer();
+			auto other_container = as_complex->GetContainer();
 			if (container) {
 				if (other_container) {
 					return *container == *other_container
-							&& resolved_other.GetTypeName()->compare(
-									*resolved_specifier.GetTypeName()) == 0;
+							&& as_complex->GetTypeName()->compare(
+									*GetTypeName()) == 0;
 				}
 			} else {
-				if (resolved_other.GetTypeName()->compare(
-						*resolved_specifier.GetTypeName()) == 0) {
+				if (as_complex->GetTypeName()->compare(*GetTypeName()) == 0) {
 					return true;
 				}
 			}
 
-			if (resolved_other.AnalyzeConversion(type_table, resolved_specifier)
+			if (as_complex->AnalyzeConversion(type_table, *this)
 					== UNAMBIGUOUS) {
 				return true;
 			}
@@ -148,31 +142,4 @@ const WideningResult ComplexTypeSpecifier::AnalyzeConversion(
 	}
 
 	return INCOMPATIBLE;
-}
-
-const TypeSpecifier& ComplexTypeSpecifier::ResolveAliasing(
-		const TypeSpecifier& original, const TypeTable& type_table) {
-	try {
-		const ComplexTypeSpecifier& as_complex =
-				dynamic_cast<const ComplexTypeSpecifier&>(original);
-
-		auto parent = as_complex.GetContainer();
-		if (parent) {
-			auto parent_type = parent->GetType(type_table);
-
-			auto parent_as_complex = dynamic_pointer_cast<const ComplexType>(
-					parent_type);
-			if (parent_as_complex) {
-				auto type = parent_as_complex->GetDefinition()->GetType<
-						AliasDefinition>(as_complex.GetTypeName(), DEEP,
-						RETURN);
-				if (type) {
-					return *type->GetOriginal();
-				}
-			}
-		}
-	} catch (std::bad_cast& e) {
-	}
-
-	return original;
 }

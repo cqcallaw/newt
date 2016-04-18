@@ -40,9 +40,6 @@ public:
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const;
 
-	virtual const_shared_ptr<TypeSpecifier> ResolveAliasing(
-			const TypeTable& type_table) const;
-
 	const_shared_ptr<TypeSpecifier> GetParent() const {
 		return m_parent;
 	}

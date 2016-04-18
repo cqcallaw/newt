@@ -52,11 +52,6 @@ const bool NestedTypeSpecifier::IsAssignableTo(
 		}
 	}
 
-	auto un_aliased = ResolveAliasing(type_table);
-	if (un_aliased) {
-		return un_aliased->IsAssignableTo(other, type_table);
-	}
-
 	return false;
 }
 
@@ -83,26 +78,8 @@ const_shared_ptr<TypeDefinition> NestedTypeSpecifier::GetType(
 	}
 }
 
-const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::ResolveAliasing(
-		const TypeTable& type_table) const {
-	auto parent_type = m_parent->GetType(type_table);
-	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
-	if (as_complex) {
-		auto type_definition = as_complex->GetDefinition()->GetType<
-				TypeDefinition>(m_member_name, DEEP, RETURN);
-		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(
-				type_definition);
-		if (as_alias) {
-			return as_alias->GetOriginal();
-		}
-	}
-
-	return const_shared_ptr<TypeSpecifier>();
-}
-
 const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::Resolve(
 		const_shared_ptr<TypeSpecifier> source, const TypeTable& type_table) {
-	auto str = source->ToString();
 	auto as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(source);
 
 	if (as_nested) {
@@ -113,16 +90,26 @@ const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::Resolve(
 			auto resolved_parent_as_complex = dynamic_pointer_cast<
 					const ComplexTypeSpecifier>(resolved_parent);
 			if (resolved_parent_as_complex) {
-				auto nested = type->GetTypeSpecifier(as_nested->m_member_name,
-						resolved_parent_as_complex);
-				return nested;
-			} else {
-				assert(false);
-				return nullptr;
+				auto parent_type = resolved_parent_as_complex->GetType(
+						type_table);
+
+				auto as_complex_type = dynamic_pointer_cast<const ComplexType>(
+						parent_type);
+				if (as_complex_type) {
+					auto type_definition =
+							as_complex_type->GetDefinition()->GetType<
+									TypeDefinition>(as_nested->m_member_name,
+									DEEP, RETURN);
+					auto as_alias = dynamic_pointer_cast<const AliasDefinition>(
+							type_definition);
+					if (as_alias) {
+						return as_alias->GetOriginal();
+					} else {
+						return type->GetTypeSpecifier(as_nested->m_member_name,
+								resolved_parent_as_complex);
+					}
+				}
 			}
-		} else {
-			assert(false);
-			return nullptr;
 		}
 	}
 

@@ -38,7 +38,7 @@ RecordType::RecordType(const_shared_ptr<TypeTable> definition,
 
 const_shared_ptr<TypeDefinition> RecordType::GetMember(
 		const std::string& name) const {
-	return m_definition->GetType<TypeDefinition>(name, SHALLOW, RESOLVE);
+	return m_definition->GetType<TypeDefinition>(name, SHALLOW, RETURN);
 }
 
 RecordType::~RecordType() {

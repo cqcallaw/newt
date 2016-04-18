@@ -1,0 +1,10 @@
+# test deeply nested type specifiers
+top {
+	middle {
+		bottom  {
+			basement: int
+		}
+	}
+}
+
+v: = @top.middle.bottom

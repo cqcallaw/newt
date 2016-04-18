@@ -1,0 +1,9 @@
+// test simple member assignment
+inner {
+}
+
+outer {
+	a:inner
+}
+
+v:= @outer with { a = @inner }
