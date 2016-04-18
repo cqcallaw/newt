@@ -100,6 +100,7 @@ class Driver;
 #include <inferred_declaration_statement.h>
 #include <sum_declaration_statement.h>
 #include <type_alias_declaration_statement.h>
+#include <nested_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -318,6 +319,10 @@ variable_declaration:
 	| IDENTIFIER COLON function_type_specifier optional_initializer
 	{
 		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, @3, $1, @1, $4);
+	}
+	| IDENTIFIER COLON nested_type_specifier optional_initializer
+	{
+		$$ = make_shared<NestedDeclarationStatement>(@$, $3, @3, $1, @1, $4);
 	}
 	| IDENTIFIER COLON EQUALS expression
 	{

@@ -1,0 +1,6 @@
+# test nested primitive type specifiers, no inference
+top {
+	middle: int
+}
+
+v:top.middle = @top.middle.bottom

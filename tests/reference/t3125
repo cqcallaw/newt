@@ -1,0 +1,4 @@
+Parsing file ../tests/t3125.nwt...
+Semantic error on line 6, column 17: Invalid type "top.middle.bottom".
+Parsed file ../tests/t3125.nwt.
+1 error found; giving up.

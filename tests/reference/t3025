@@ -1,0 +1,13 @@
+Parsing file ../tests/t3025.nwt...
+Parsed file ../tests/t3025.nwt.
+Root Symbol Table:
+----------------
+int v: 0
+
+Root Type Table:
+----------------
+top:
+	<record>
+	middle:
+		int (0)
+
