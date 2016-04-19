@@ -145,7 +145,6 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 		auto type = entry.second;
 
 		auto default_value = type->GetDefaultValue(*this);
-		//TODO: this is a hack, and doesn't provide fully qualified type specifiers
 		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name),
 				container);
 		auto default_symbol = type->GetSymbol(*this, type_specifier,
