@@ -1,0 +1,9 @@
+# test sum type as member of struct type, inline definition
+stringified {
+	as_string:string,
+	value {
+		discrete:int
+		| continuous:double
+	}
+}
+
