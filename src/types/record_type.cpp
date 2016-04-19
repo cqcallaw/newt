@@ -133,10 +133,10 @@ const_shared_ptr<Result> RecordType::Build(
 			plain_shared_ptr<AliasDefinition> alias = nullptr;
 			if (as_sum_recursive) {
 				alias = make_shared<AliasDefinition>(context_type_table,
-						type_specifier, nullptr);
+						type_specifier, RECURSIVE, nullptr);
 			} else {
 				alias = make_shared<AliasDefinition>(context_type_table,
-						type_specifier, value);
+						type_specifier, DIRECT, value);
 			}
 
 			type_table->AddType(member_name, alias);

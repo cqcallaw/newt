@@ -26,10 +26,10 @@
 #include <primitive_type.h>
 
 AliasDefinition::AliasDefinition(const_shared_ptr<TypeTable> origin_table,
-		const_shared_ptr<TypeSpecifier> original,
+		const_shared_ptr<TypeSpecifier> original, const AliasType alias_type,
 		const_shared_ptr<void> default_value) :
-		m_origin_table(origin_table), m_original(original), m_default_value(
-				default_value) {
+		m_origin_table(origin_table), m_original(original), m_alias_type(
+				alias_type), m_default_value(default_value) {
 }
 
 const_shared_ptr<void> AliasDefinition::GetDefaultValue(
