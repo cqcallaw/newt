@@ -121,7 +121,7 @@ const_shared_ptr<Result> SumType::Build(
 							const PrimitiveTypeSpecifier>(alias_type_specifier);
 					if (alias_as_primitive) {
 						auto alias = make_shared<AliasDefinition>(type_table,
-								alias_as_primitive, DIRECT);
+								alias_as_primitive);
 						types->AddType(alias_type_name, alias);
 
 						const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
@@ -185,7 +185,7 @@ const_shared_ptr<Result> SumType::Build(
 								original_name, DEEP, RETURN);
 						if (original) {
 							auto alias = make_shared<AliasDefinition>(
-									type_table, original_as_complex, DIRECT);
+									type_table, original_as_complex);
 							types->AddType(alias_type_name, alias);
 						} else {
 							errors =
