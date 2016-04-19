@@ -3,10 +3,6 @@ Parsed file ../tests/t6012.nwt.
 Root Symbol Table:
 ----------------
 result good_result: {value} 10
-result$ctor result:
-	(int) -> result value:
-		Body Location: 2.2-6
-
 
 Root Type Table:
 ----------------
@@ -21,9 +17,4 @@ result:
 
 	value:
 		int
-
-result$ctor:
-	<record>
-	value:
-		(int) -> result (Body Location: 2.2-6)
 

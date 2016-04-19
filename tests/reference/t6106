@@ -3,10 +3,6 @@ Parsed file ../tests/t6106.nwt.
 Error: Reassigned!
 Root Symbol Table:
 ----------------
-result$ctor result:
-	(int) -> result value:
-		Body Location: 3.2-6
-
 result t:
 {error}
 	string message: "No go"
@@ -23,9 +19,4 @@ result:
 
 	value:
 		int
-
-result$ctor:
-	<record>
-	value:
-		(int) -> result (Body Location: 3.2-6)
 

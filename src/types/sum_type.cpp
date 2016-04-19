@@ -39,6 +39,15 @@
 #include <execution_context.h>
 #include <symbol_context.h>
 
+#include <variable_expression.h>
+#include <return_statement.h>
+#include <with_expression.h>
+#include <function_type.h>
+#include <basic_variable.h>
+#include <statement_block.h>
+#include <function_declaration.h>
+#include <record.h>
+
 const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream os;
@@ -52,13 +61,14 @@ const std::string SumType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
 	auto sum_instance = static_pointer_cast<const Sum>(value);
-	buffer << sum_instance->ToString(*this, type_table, indent);
+	buffer << sum_instance->ToString(*this, *m_definition, indent);
 	return buffer.str();
 }
 
 const_shared_ptr<Result> SumType::Build(
 		const shared_ptr<ExecutionContext> context,
-		const DeclarationListRef member_declarations) {
+		const DeclarationListRef member_declarations,
+		const_shared_ptr<SumTypeSpecifier> sum_type_specifier) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = context->GetTypeTable();
@@ -67,6 +77,8 @@ const_shared_ptr<Result> SumType::Build(
 	auto parent = SymbolContextList::From(context, context->GetParent());
 	shared_ptr<ExecutionContext> tmp_context = make_shared<ExecutionContext>(
 			Modifier::NONE, parent, types, EPHEMERAL);
+
+	auto constructors = make_shared<SymbolTable>();
 
 	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
@@ -101,22 +113,72 @@ const_shared_ptr<Result> SumType::Build(
 					const TypeAliasDeclarationStatement>(declaration);
 			if (as_alias) {
 				auto alias_type_name = *as_alias->GetName();
-				auto original_type_specifier = as_alias->GetTypeSpecifier();
+				auto alias_type_specifier = as_alias->GetTypeSpecifier();
 
 				if (!types->ContainsType(alias_type_name)) {
 					//would be nice to abstract this casting logic into a helper function
-					auto original_as_primitive = dynamic_pointer_cast<
-							const PrimitiveTypeSpecifier>(
-							original_type_specifier);
-					if (original_as_primitive) {
+					auto alias_as_primitive = dynamic_pointer_cast<
+							const PrimitiveTypeSpecifier>(alias_type_specifier);
+					if (alias_as_primitive) {
 						auto alias = make_shared<AliasDefinition>(type_table,
-								original_as_primitive, DIRECT);
+								alias_as_primitive, DIRECT);
 						types->AddType(alias_type_name, alias);
+
+						const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
+								make_shared<PrimitiveDeclarationStatement>(
+										as_alias->GetPosition(),
+										alias_as_primitive,
+										as_alias->GetTypePosition(),
+										as_alias->GetName(),
+										as_alias->GetNamePosition());
+						DeclarationListRef parameter = DeclarationList::From(
+								parameter_declaration,
+								DeclarationList::GetTerminator());
+
+						auto function_signature = make_shared<
+								FunctionDeclaration>(parameter,
+								sum_type_specifier, GetDefaultLocation());
+
+						const_shared_ptr<Expression> return_expression =
+								make_shared<VariableExpression>(
+										GetDefaultLocation(),
+										make_shared<BasicVariable>(
+												declaration->GetName(),
+												GetDefaultLocation()));
+
+						const_shared_ptr<ReturnStatement> return_statement =
+								make_shared<ReturnStatement>(return_expression);
+
+						const StatementListRef statement_list =
+								StatementList::From(return_statement,
+										StatementList::GetTerminator());
+						const_shared_ptr<StatementBlock> statement_block =
+								make_shared<StatementBlock>(statement_list,
+										as_alias->GetNamePosition());
+
+						auto weak = weak_ptr<ExecutionContext>(context);
+						const_shared_ptr<Function> function = make_shared<
+								Function>(function_signature, statement_block,
+								weak);
+
+						auto symbol = make_shared<Symbol>(function);
+						auto insert_result = constructors->InsertSymbol(
+								*variant_name, symbol);
+						//this should never happen because we already have an existence check on the variant type table,
+						//but it never hurts to be safe
+						if (insert_result == SYMBOL_EXISTS) {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::PREVIOUS_DECLARATION,
+													as_alias->GetPosition().begin.line,
+													as_alias->GetPosition().begin.column,
+													*variant_name), errors);
+						}
 					}
 
 					auto original_as_complex = dynamic_pointer_cast<
-							const ComplexTypeSpecifier>(
-							original_type_specifier);
+							const ComplexTypeSpecifier>(alias_type_specifier);
 					if (original_as_complex) {
 						auto original_name = original_as_complex->GetTypeName();
 						auto original = type_table->GetType<ComplexType>(
@@ -152,7 +214,8 @@ const_shared_ptr<Result> SumType::Build(
 
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = const_shared_ptr<SumType>(
-				new SumType(types, member_declarations->GetData()));
+				new SumType(types, member_declarations->GetData(),
+						constructors));
 		return make_shared<Result>(type, errors);
 	} else {
 		return make_shared<Result>(nullptr, errors);

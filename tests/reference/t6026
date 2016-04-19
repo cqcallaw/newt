@@ -2,12 +2,6 @@ Parsing file ../tests/t6026.nwt...
 Parsed file ../tests/t6026.nwt.
 Root Symbol Table:
 ----------------
-number$ctor number:
-	(double) -> number continuous:
-		Body Location: 4.4-13
-	(int) -> number discrete:
-		Body Location: 3.2-9
-
 stringified s:
 	string as_string: "2"
 	number value: 	{discrete} 2
@@ -21,13 +15,6 @@ number:
 		double
 	discrete:
 		int
-
-number$ctor:
-	<record>
-	continuous:
-		(double) -> number (Body Location: 4.4-13)
-	discrete:
-		(int) -> number (Body Location: 3.2-9)
 
 stringified:
 	<record>

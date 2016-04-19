@@ -2,10 +2,6 @@ Parsing file ../tests/t6029.nwt...
 Parsed file ../tests/t6029.nwt.
 Root Symbol Table:
 ----------------
-number$ctor number:
-	(int) -> number discrete:
-		Body Location: 3.2-9
-
 number s:
 {stringified}
 	string as_string: "4.0"
@@ -25,9 +21,4 @@ number:
 		as_string:
 			string ("")
 
-
-number$ctor:
-	<record>
-	discrete:
-		(int) -> number (Body Location: 3.2-9)
 

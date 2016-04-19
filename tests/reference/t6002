@@ -2,12 +2,6 @@ Parsing file ../tests/t6002.nwt...
 Parsed file ../tests/t6002.nwt.
 Root Symbol Table:
 ----------------
-number$ctor number:
-	(double) -> number continuous:
-		Body Location: 4.4-13
-	(int) -> number discrete:
-		Body Location: 3.2-9
-
 number t: {discrete} 42
 
 Root Type Table:
@@ -18,11 +12,4 @@ number:
 		double
 	discrete:
 		int
-
-number$ctor:
-	<record>
-	continuous:
-		(double) -> number (Body Location: 4.4-13)
-	discrete:
-		(int) -> number (Body Location: 3.2-9)
 

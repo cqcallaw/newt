@@ -30,6 +30,8 @@
 #include <map>
 #include <string>
 
+class SumTypeSpecifier;
+
 class SumType: public ComplexType {
 public:
 	virtual ~SumType() {
@@ -66,13 +68,18 @@ public:
 		return m_definition;
 	}
 
-	const const_shared_ptr<DeclarationStatement> GetFirstDeclaration() const {
+	const_shared_ptr<DeclarationStatement> GetFirstDeclaration() const {
 		return m_first_declaration;
+	}
+
+	const_shared_ptr<SymbolTable> GetConstructors() const {
+		return m_constructors;
 	}
 
 	static const_shared_ptr<Result> Build(
 			const shared_ptr<ExecutionContext> context,
-			const DeclarationListRef member_declarations);
+			const DeclarationListRef member_declarations,
+			const_shared_ptr<SumTypeSpecifier> sum_type_specifier);
 
 	virtual const WideningResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
@@ -84,6 +91,7 @@ public:
 
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
 			const_shared_ptr<std::string> member_name) const;
+
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
@@ -98,11 +106,14 @@ protected:
 			const_shared_ptr<void> data) const;
 private:
 	SumType(const_shared_ptr<TypeTable> type_table,
-			const_shared_ptr<DeclarationStatement> first_declaration) :
-			m_definition(type_table), m_first_declaration(first_declaration) {
+			const_shared_ptr<DeclarationStatement> first_declaration,
+			const_shared_ptr<SymbolTable> constructors) :
+			m_definition(type_table), m_first_declaration(first_declaration), m_constructors(
+					constructors) {
 	}
 	const_shared_ptr<TypeTable> m_definition;
 	const_shared_ptr<DeclarationStatement> m_first_declaration;
+	const_shared_ptr<SymbolTable> m_constructors;
 };
 
 #endif /* SUM_TYPE_H_ */

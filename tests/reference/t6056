@@ -1,5 +1,5 @@
 Parsing file ../tests/t6056.nwt...
-Semantic error on line 7, column 10: Type "test$ctor" does not contain a member named "f".
-Semantic error on line 8, column 15: Type "test$ctor" does not contain a member named "f".
+Semantic error on line 7, column 10: Type "test" does not contain a member named "f".
+Semantic error on line 8, column 15: Type "test" does not contain a member named "f".
 Parsed file ../tests/t6056.nwt.
 2 errors found; giving up.

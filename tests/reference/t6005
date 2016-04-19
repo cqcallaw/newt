@@ -2,14 +2,6 @@ Parsing file ../tests/t6005.nwt...
 Parsed file ../tests/t6005.nwt.
 Root Symbol Table:
 ----------------
-franken$ctor franken:
-	(string) -> franken as_string:
-		Body Location: 4.4-12
-	(double) -> franken continuous:
-		Body Location: 3.4-13
-	(int) -> franken discrete:
-		Body Location: 2.2-9
-
 franken t: {as_string} "things"
 
 Root Type Table:
@@ -22,13 +14,4 @@ franken:
 		double
 	discrete:
 		int
-
-franken$ctor:
-	<record>
-	as_string:
-		(string) -> franken (Body Location: 4.4-12)
-	continuous:
-		(double) -> franken (Body Location: 3.4-13)
-	discrete:
-		(int) -> franken (Body Location: 2.2-9)
 

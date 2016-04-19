@@ -33,30 +33,38 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 	shared_ptr<const void> value = nullptr;
 	auto type_table = *context->GetTypeTable();
 
-	const_shared_ptr<RecordTypeSpecifier> as_record_type_specifier =
-			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-					container_type_specifier);
-	if (as_record_type_specifier) {
-		auto type = as_record_type_specifier->GetType(type_table, RESOLVE);
-		if (type) {
-			auto as_record = dynamic_pointer_cast<const RecordType>(type);
-			if (as_record) {
-				auto member_name = m_member_variable->GetName();
-				auto member_type = as_record->GetDefinition()->GetType<
-						TypeDefinition>(*member_name, SHALLOW, RESOLVE);
+	auto type = container_type_specifier->GetType(type_table, RESOLVE);
+	if (type) {
+		auto member_name = m_member_variable->GetName();
 
-				if (member_type) {
-					auto output = make_shared<NestedTypeSpecifier>(
-							as_record_type_specifier,
-							m_member_variable->GetName());
+		auto as_record = dynamic_pointer_cast<const RecordType>(type);
+		if (as_record) {
+			auto member_type = as_record->GetDefinition()->GetType<
+					TypeDefinition>(*member_name, SHALLOW, RESOLVE);
 
-					if (resolution == AliasResolution::RETURN) {
-						return output;
-					} else {
-						return NestedTypeSpecifier::Resolve(output, type_table);
-					}
+			if (member_type) {
+				auto output = make_shared<NestedTypeSpecifier>(
+						container_type_specifier, member_name);
+
+				if (resolution == AliasResolution::RETURN) {
+					return output;
+				} else {
+					return NestedTypeSpecifier::Resolve(output, type_table);
 				}
 			}
+		}
+	}
+
+	//try type constructor lookup
+	auto as_sum = context->GetTypeTable()->GetType<SumType>(
+			m_container->GetName(), DEEP, RESOLVE);
+	if (as_sum) {
+		auto constructors = as_sum->GetConstructors();
+		auto constructor_symbol = constructors->GetSymbol(
+				*m_member_variable->GetName());
+		if (constructor_symbol != Symbol::GetDefaultSymbol()) {
+			auto type_specifier = constructor_symbol->GetTypeSpecifier();
+			return type_specifier;
 		}
 	}
 
@@ -75,28 +83,45 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<TypeSpecifier> container_type =
+	const_shared_ptr<TypeSpecifier> container_type_specifier =
 			m_container->GetTypeSpecifier(context);
-	if (container_type != PrimitiveTypeSpecifier::GetNone()) {
+	if (container_type_specifier != PrimitiveTypeSpecifier::GetNone()) {
 		const_shared_ptr<Result> container_result = m_container->Evaluate(
 				context);
 
 		errors = container_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto instance = container_result->GetData<Record>();
-			volatile_shared_ptr<SymbolContext> new_symbol_context =
-					instance->GetDefinition();
-			auto new_context = context->WithContents(new_symbol_context);
-			const_shared_ptr<Result> member_result =
-					m_member_variable->Evaluate(new_context);
-			return member_result;
+			auto as_record = container_result->GetData<Record>();
+			if (as_record) {
+				volatile_shared_ptr<SymbolContext> new_symbol_context =
+						as_record->GetDefinition();
+				auto new_context = context->WithContents(new_symbol_context);
+				const_shared_ptr<Result> member_result =
+						m_member_variable->Evaluate(new_context);
+				return member_result;
+			}
 		}
 	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_VARIABLE,
-						m_container->GetLocation().begin.line,
-						m_container->GetLocation().begin.column,
-						*(m_container->GetName())), errors);
+		//try type constructor lookup
+		auto as_sum_type = context->GetTypeTable()->GetType<SumType>(
+				m_container->GetName(), DEEP, RESOLVE);
+		if (as_sum_type) {
+			auto constructors = as_sum_type->GetConstructors();
+			auto constructor_symbol = constructors->GetSymbol(
+					*m_member_variable->GetName());
+			if (constructor_symbol) {
+				return make_shared<Result>(constructor_symbol->GetValue(),
+						errors);
+			}
+		} else {
+			//no dice: we have a real legit error
+			errors = ErrorList::From(
+					make_shared<Error>(Error::RUNTIME,
+							Error::UNDECLARED_VARIABLE,
+							m_container->GetLocation().begin.line,
+							m_container->GetLocation().begin.column,
+							*(m_container->GetName())), errors);
+		}
 	}
 
 	const_shared_ptr<Result> result = make_shared<Result>(
@@ -250,15 +275,27 @@ const ErrorListRef MemberVariable::AssignValue(
 	if (ErrorList::IsTerminator(errors)) {
 		//we're assigning a struct member reference
 		auto struct_value = container_evaluation->GetData<Record>();
-		shared_ptr<SymbolContext> definition = struct_value->GetDefinition();
+		if (struct_value) {
+			shared_ptr<SymbolContext> definition =
+					struct_value->GetDefinition();
 
-		const auto new_parent_context = SymbolContextList::From(context,
-				context->GetParent());
-		auto new_context = context->WithContents(definition)->WithParent(
-				new_parent_context);
+			const auto new_parent_context = SymbolContextList::From(context,
+					context->GetParent());
+			auto new_context = context->WithContents(definition)->WithParent(
+					new_parent_context);
 
-		const_shared_ptr<Variable> new_variable = GetMemberVariable();
-		errors = new_variable->AssignValue(new_context, expression, op);
+			const_shared_ptr<Variable> new_variable = GetMemberVariable();
+			errors = new_variable->AssignValue(new_context, expression, op);
+		} else {
+			//TODO: consider a more descriptive error message.
+			//the basic idea is that sum types don't have re-assignable members
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::NOT_A_COMPOUND_TYPE,
+							m_container->GetLocation().begin.line,
+							m_container->GetLocation().begin.column,
+							*m_container->GetName()), errors);
+		}
 	}
 
 	return errors;
@@ -337,7 +374,6 @@ const ErrorListRef MemberVariable::Validate(
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	auto symbol = context->GetSymbol(m_container->GetName(), DEEP);
-
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		const_shared_ptr<TypeSpecifier> container_type_specifier =
 				m_container->GetTypeSpecifier(context);
@@ -356,7 +392,7 @@ const ErrorListRef MemberVariable::Validate(
 								Error::UNDECLARED_MEMBER,
 								m_member_variable->GetLocation().begin.line,
 								m_member_variable->GetLocation().begin.column,
-								*m_member_variable->GetName(),
+								*m_member_variable->ToString(context),
 								container_type_specifier->ToString()), errors);
 			}
 		} else {
@@ -365,14 +401,32 @@ const ErrorListRef MemberVariable::Validate(
 							Error::NOT_A_COMPOUND_TYPE,
 							m_container->GetLocation().begin.line,
 							m_container->GetLocation().begin.column,
-							*m_container->GetName()), errors);
+							*m_container->ToString(context)), errors);
 		}
 	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						m_container->GetLocation().begin.line,
-						m_container->GetLocation().begin.column,
-						*m_container->GetName()), errors);
+		auto as_sum_type = context->GetTypeTable()->GetType<SumType>(
+				m_container->GetName(), DEEP, RESOLVE);
+		if (as_sum_type) {
+			auto constructor = as_sum_type->GetConstructors()->GetSymbol(
+					*m_member_variable->GetName());
+
+			if (!constructor) {
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::UNDECLARED_MEMBER,
+								m_member_variable->GetLocation().begin.line,
+								m_member_variable->GetLocation().begin.column,
+								*m_member_variable->ToString(context),
+								*m_container->ToString(context)), errors);
+			}
+		} else {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::UNDECLARED_VARIABLE,
+							m_container->GetLocation().begin.line,
+							m_container->GetLocation().begin.column,
+							*m_container->ToString(context)), errors);
+		}
 	}
 
 	return errors;

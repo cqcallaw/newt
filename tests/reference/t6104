@@ -3,10 +3,6 @@ Parsed file ../tests/t6104.nwt.
 Error: No go
 Root Symbol Table:
 ----------------
-result$ctor result:
-	(int) -> result value:
-		Body Location: 6.2-6
-
 result t:
 {error}
 	string message: "No go"
@@ -25,9 +21,4 @@ result:
 		general_error
 	value:
 		int
-
-result$ctor:
-	<record>
-	value:
-		(int) -> result (Body Location: 6.2-6)
 

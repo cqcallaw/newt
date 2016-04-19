@@ -7,10 +7,6 @@ result r:
 	int code: 3
 	string message: "Insufficient funds."
 
-result$ctor result:
-	(double) -> result value:
-		Body Location: 7.2-6
-
 
 Root Type Table:
 ----------------
@@ -27,9 +23,4 @@ result:
 		error
 	value:
 		double
-
-result$ctor:
-	<record>
-	value:
-		(double) -> result (Body Location: 7.2-6)
 

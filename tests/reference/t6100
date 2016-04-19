@@ -3,12 +3,6 @@ Parsed file ../tests/t6100.nwt.
 Discrete value 2
 Root Symbol Table:
 ----------------
-number$ctor number:
-	(double) -> number continuous:
-		Body Location: 14.4-13
-	(int) -> number discrete:
-		Body Location: 13.2-9
-
 number t: {discrete} 2
 
 Root Type Table:
@@ -19,11 +13,4 @@ number:
 		double
 	discrete:
 		int
-
-number$ctor:
-	<record>
-	continuous:
-		(double) -> number (Body Location: 14.4-13)
-	discrete:
-		(int) -> number (Body Location: 13.2-9)
 

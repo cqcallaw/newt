@@ -6,10 +6,6 @@ result.error narrow_result:
 	int code: 1
 	string message: "Failed to guess magic number."
 
-result$ctor result:
-	(int) -> result value:
-		Body Location: 3.2-6
-
 result wide_result:
 {error}
 	int code: 2
@@ -29,9 +25,4 @@ result:
 
 	value:
 		int
-
-result$ctor:
-	<record>
-	value:
-		(int) -> result (Body Location: 3.2-6)
 

@@ -2,10 +2,6 @@ Parsing file ../tests/t6109.nwt...
 Parsed file ../tests/t6109.nwt.
 Root Symbol Table:
 ----------------
-result$ctor result:
-	(int) -> result value:
-		Body Location: 3.2-6
-
 result t: {value} 3
 result t2: {value} 3
 
@@ -20,9 +16,4 @@ result:
 
 	value:
 		int
-
-result$ctor:
-	<record>
-	value:
-		(int) -> result (Body Location: 3.2-6)
 

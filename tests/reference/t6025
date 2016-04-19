@@ -3,12 +3,6 @@ Parsed file ../tests/t6025.nwt.
 Root Symbol Table:
 ----------------
 test t: {i} 0
-test$ctor test:
-	(double) -> test d:
-		Body Location: 4.4
-	(int) -> test i:
-		Body Location: 3.2
-
 
 Root Type Table:
 ----------------
@@ -18,11 +12,4 @@ test:
 		double
 	i:
 		int
-
-test$ctor:
-	<record>
-	d:
-		(double) -> test (Body Location: 4.4)
-	i:
-		(int) -> test (Body Location: 3.2)
 

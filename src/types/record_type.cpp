@@ -132,11 +132,11 @@ const_shared_ptr<Result> RecordType::Build(
 
 			plain_shared_ptr<AliasDefinition> alias = nullptr;
 			if (as_sum_recursive) {
-				alias = make_shared<AliasDefinition>(context_type_table, type_specifier,
-						RECURSIVE, nullptr);
+				alias = make_shared<AliasDefinition>(context_type_table,
+						type_specifier, RECURSIVE, nullptr);
 			} else {
-				alias = make_shared<AliasDefinition>(context_type_table, type_specifier,
-						DIRECT, value);
+				alias = make_shared<AliasDefinition>(context_type_table,
+						type_specifier, DIRECT, value);
 			}
 
 			type_table->AddType(member_name, alias);
@@ -157,7 +157,7 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 	ostringstream buffer;
 	auto as_record = static_pointer_cast<const Record>(value);
 	auto record_type_instance = static_pointer_cast<const Record>(value);
-	buffer << record_type_instance->ToString(type_table, indent + 1);
+	buffer << record_type_instance->ToString(*m_definition, indent + 1);
 	return buffer.str();
 }
 
