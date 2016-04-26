@@ -38,10 +38,10 @@ const_shared_ptr<void> AliasDefinition::GetDefaultValue(
 		return m_default_value;
 	else {
 		auto origin = GetOrigin();
-		if (origin) {
+		if (origin && m_alias_type == DIRECT) {
 			return origin->GetDefaultValue(type_table);
 		} else {
-			return PrimitiveTypeSpecifier::GetNone();
+			return const_shared_ptr<void>();
 		}
 	}
 }
@@ -49,7 +49,7 @@ const_shared_ptr<void> AliasDefinition::GetDefaultValue(
 const std::string AliasDefinition::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	auto origin = GetOrigin();
-	if (origin) {
+	if (origin && m_alias_type == DIRECT) {
 		return origin->ValueToString(type_table, indent, value);
 	} else {
 		return "<No origin found for alias '" + m_original->ToString() + "'>";
