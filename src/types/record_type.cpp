@@ -155,7 +155,6 @@ const_shared_ptr<void> RecordType::GetMemberDefaultValue(
 const std::string RecordType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
-	auto as_record = static_pointer_cast<const Record>(value);
 	auto record_type_instance = static_pointer_cast<const Record>(value);
 	buffer << record_type_instance->ToString(*m_definition, indent + 1);
 	return buffer.str();
