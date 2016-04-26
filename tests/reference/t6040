@@ -4,7 +4,7 @@ Root Symbol Table:
 ----------------
 stringified i:
 	string as_string: ""
-	value value: 	{discrete} 0
+	value value: {discrete} 0
 
 
 Root Type Table:

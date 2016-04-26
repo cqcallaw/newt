@@ -12,7 +12,8 @@ CPP_SRCS += \
 ../src/statements/declarations/primitive_declaration_statement.cpp \
 ../src/statements/declarations/record_declaration_statement.cpp \
 ../src/statements/declarations/sum_declaration_statement.cpp \
-../src/statements/declarations/type_alias_declaration_statement.cpp 
+../src/statements/declarations/type_alias_declaration_statement.cpp \
+../src/statements/declarations/unit_declaration_statement.cpp 
 
 OBJS += \
 ./src/statements/declarations/array_declaration_statement.o \
@@ -23,7 +24,8 @@ OBJS += \
 ./src/statements/declarations/primitive_declaration_statement.o \
 ./src/statements/declarations/record_declaration_statement.o \
 ./src/statements/declarations/sum_declaration_statement.o \
-./src/statements/declarations/type_alias_declaration_statement.o 
+./src/statements/declarations/type_alias_declaration_statement.o \
+./src/statements/declarations/unit_declaration_statement.o 
 
 CPP_DEPS += \
 ./src/statements/declarations/array_declaration_statement.d \
@@ -34,7 +36,8 @@ CPP_DEPS += \
 ./src/statements/declarations/primitive_declaration_statement.d \
 ./src/statements/declarations/record_declaration_statement.d \
 ./src/statements/declarations/sum_declaration_statement.d \
-./src/statements/declarations/type_alias_declaration_statement.d 
+./src/statements/declarations/type_alias_declaration_statement.d \
+./src/statements/declarations/unit_declaration_statement.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

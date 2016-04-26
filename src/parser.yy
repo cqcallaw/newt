@@ -101,6 +101,7 @@ class Driver;
 #include <sum_declaration_statement.h>
 #include <type_alias_declaration_statement.h>
 #include <nested_declaration_statement.h>
+#include <unit_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -1041,10 +1042,8 @@ variant:
 	}
 	| IDENTIFIER
 	{
-		//short-hand for unit types
-		const ModifierListRef modifiers = ModifierList::From(make_shared<Modifier>(Modifier::Type::READONLY, GetDefaultLocation()), ModifierList::GetTerminator());
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, DeclarationList::GetTerminator(), GetDefaultLocation(), modifiers, GetDefaultLocation());
+		const_shared_ptr<ComplexTypeSpecifier> type = make_shared<ComplexTypeSpecifier>($1);
+		$$ = make_shared<UnitDeclarationStatement>(@$, type, @1, $1, @1);
 	}
 	;
 

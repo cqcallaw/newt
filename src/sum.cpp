@@ -22,6 +22,7 @@
 #include <indent.h>
 #include <symbol.h>
 #include <sum_type.h>
+#include <record_type.h>
 
 Sum::Sum(const_shared_ptr<std::string> tag, const_shared_ptr<void> value) :
 		m_tag(tag), m_value(value) {
@@ -36,10 +37,11 @@ const string Sum::ToString(const SumType& type, const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
 	auto type_definition = type.GetDefinition();
-	buffer << indent << "{" << *m_tag << "}";
-	buffer << type.GetValueSeparator(indent, this);
 	auto variant_definition = type_definition->GetType<TypeDefinition>(*m_tag,
 			SHALLOW, RESOLVE);
+	buffer << variant_definition->GetTagSeparator(indent, this);
+	buffer << "{" << *m_tag << "}";
+	buffer << type.GetValueSeparator(indent, this);
 	buffer << variant_definition->ValueToString(type_table, indent, m_value);
 	return buffer.str();
 }

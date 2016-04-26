@@ -21,7 +21,7 @@
 #include <type_table.h>
 #include <primitive_type_specifier.h>
 #include <array_type_specifier.h>
-#include <complex_type_specifier.h>
+#include <record_type.h>
 #include <symbol.h>
 #include <primitive_type.h>
 
@@ -66,6 +66,16 @@ const std::string AliasDefinition::GetValueSeparator(const Indent& indent,
 	}
 }
 
+const std::string AliasDefinition::GetTagSeparator(const Indent& indent,
+		const void* value) const {
+	auto origin = GetOrigin();
+	if (origin) {
+		return origin->GetValueSeparator(indent, value);
+	} else {
+		return "<No origin found for alias '" + m_original->ToString() + "'>";
+	}
+}
+
 const_shared_ptr<TypeDefinition> AliasDefinition::GetOrigin() const {
 	const_shared_ptr<TypeTable> ptr = m_origin_table.lock();
 	return m_original->GetType(*ptr);
@@ -94,15 +104,15 @@ const std::string AliasDefinition::ToString(const TypeTable& type_table,
 				m_default_value);
 		os << " (";
 
-		auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-				m_original);
-		if (as_complex) {
+		auto origin = GetOrigin();
+		auto as_record = dynamic_pointer_cast<const RecordType>(origin);
+		if (as_record) {
 			os << endl;
 		}
 
 		os << default_value;
 
-		if (as_complex) {
+		if (as_record) {
 			os << child_indent;
 		}
 		os << ")";

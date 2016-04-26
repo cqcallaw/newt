@@ -34,6 +34,7 @@
 #include <primitive_declaration_statement.h>
 #include <record_declaration_statement.h>
 #include <type_alias_declaration_statement.h>
+#include <unit_declaration_statement.h>
 #include <complex_instantiation_statement.h>
 #include <record_type.h>
 #include <execution_context.h>
@@ -100,10 +101,17 @@ const_shared_ptr<Result> SumType::Build(
 			auto declaration = subject->GetData();
 			auto variant_name = declaration->GetName();
 
+			auto as_unit = dynamic_pointer_cast<const UnitDeclarationStatement>(
+					declaration);
+			if (as_unit) {
+				auto validation_errors = as_unit->preprocess(tmp_context);
+				errors = errors->Concatenate(errors, validation_errors);
+				//no need to "execute" the declaration statement, since all the work happens during preprocessing
+			}
+
 			auto as_record = dynamic_pointer_cast<
 					const RecordDeclarationStatement>(declaration);
 			if (as_record) {
-				auto record_type_name = as_record->GetName();
 				auto validation_errors = as_record->preprocess(tmp_context);
 				errors = errors->Concatenate(errors, validation_errors);
 				//no need to "execute" the declaration statement, since all the work happens during preprocessing
@@ -364,6 +372,16 @@ const std::string SumType::GetValueSeparator(const Indent& indent,
 	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name,
 			SHALLOW, RESOLVE);
 	return variant_type->GetValueSeparator(indent, value);
+}
+
+const std::string SumType::GetTagSeparator(const Indent& indent,
+		const void* value) const {
+	auto as_sum = static_cast<const Sum*>(value);
+	auto variant_name = as_sum->GetTag();
+
+	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name,
+			SHALLOW, RESOLVE);
+	return variant_type->GetTagSeparator(indent, value);
 }
 
 const_shared_ptr<DeclarationStatement> SumType::GetDeclarationStatement(

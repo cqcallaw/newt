@@ -2,17 +2,14 @@ Parsing file ../tests/t6017.nwt...
 Parsed file ../tests/t6017.nwt.
 Root Symbol Table:
 ----------------
-result.error val:
-	<empty>
-
+result.error val: <unit>
 
 Root Type Table:
 ----------------
 result:
 	<sum>
 	error:
-		<record>
-
+		<unit>
 	value:
 		int
 

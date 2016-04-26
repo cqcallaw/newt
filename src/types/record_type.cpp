@@ -257,6 +257,11 @@ const std::string RecordType::GetValueSeparator(const Indent& indent,
 	return "\n";
 }
 
+const std::string RecordType::GetTagSeparator(const Indent& indent,
+		const void* value) const {
+	return indent.ToString();
+}
+
 const_shared_ptr<DeclarationStatement> RecordType::GetDeclarationStatement(
 		const yy::location position, const_shared_ptr<TypeSpecifier> type,
 		const yy::location type_position, const_shared_ptr<std::string> name,

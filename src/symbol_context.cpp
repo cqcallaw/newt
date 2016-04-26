@@ -85,6 +85,10 @@ SymbolContext::~SymbolContext() {
 
 const_shared_ptr<Symbol> SymbolContext::GetSymbol(
 		const string& identifier) const {
+	if (identifier == *TypeTable::GetNilName()) {
+		return Symbol::GetNilSymbol();
+	}
+
 	auto result = m_table->find(identifier);
 
 	if (result != m_table->end()) {
@@ -107,7 +111,9 @@ const void SymbolContext::print(ostream &os, const TypeTable& type_table,
 		for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
 			const string name = iter->first;
 			auto symbol = iter->second;
-			os << indent << symbol->GetTypeSpecifier()->ToString() << " " << name << ":";
+
+			auto specifier = symbol->GetTypeSpecifier();
+			os << indent << specifier->ToString() << " " << name << ":";
 			os << symbol->ToString(type_table, indent);
 			os << endl;
 		}

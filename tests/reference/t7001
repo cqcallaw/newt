@@ -15,7 +15,6 @@ list:
 		next:
 			list
 		terminator:
-			<record>
-
+			<unit>
 
 

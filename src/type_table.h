@@ -28,7 +28,6 @@
 #include <search_type.h>
 
 class TypeDefinition;
-class RecordType;
 class SymbolContext;
 
 typedef map<const string, const_shared_ptr<TypeDefinition>> type_map;
@@ -70,8 +69,15 @@ public:
 	template<class T> const shared_ptr<const T> GetType(const std::string& name,
 			const SearchType search_type,
 			AliasResolution resolution = RESOLVE) const {
-		auto result = m_table->find(name);
+		if (name == *GetNilName()) {
+			auto value = GetNilType();
+			auto cast = dynamic_pointer_cast<const T>(value);
+			if (cast) {
+				return cast;
+			}
+		}
 
+		auto result = m_table->find(name);
 		if (result != m_table->end()) {
 			shared_ptr<const TypeDefinition> value = result->second;
 
@@ -118,6 +124,10 @@ public:
 			const TypeSpecifier& other) const;
 
 	const_shared_ptr<std::set<std::string>> GetTypeNames() const;
+
+	static const_shared_ptr<std::string> GetNilName();
+	static const_shared_ptr<TypeDefinition> GetNilType();
+	static const_shared_ptr<ComplexTypeSpecifier> GetNilTypeSpecifier();
 
 private:
 	TypeTable(const shared_ptr<type_map> table,

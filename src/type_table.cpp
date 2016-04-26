@@ -22,6 +22,7 @@
 #include <primitive_type.h>
 #include <complex_type_specifier.h>
 #include <placeholder_type.h>
+#include <unit_type.h>
 #include <memory>
 #include <symbol_context.h>
 
@@ -149,7 +150,8 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 				container);
 		auto default_symbol = type->GetSymbol(*this, type_specifier,
 				default_value);
-		auto insert_result = result->InsertSymbol(name, default_symbol);
+
+		InsertResult insert_result = result->InsertSymbol(name, default_symbol);
 		assert(insert_result == INSERT_SUCCESS);
 	}
 
@@ -165,4 +167,23 @@ const_shared_ptr<std::set<std::string>> TypeTable::GetTypeNames() const {
 	}
 
 	return result;
+}
+
+const_shared_ptr<std::string> TypeTable::GetNilName() {
+	const static const_shared_ptr<std::string> value = make_shared<string>(
+			"nil");
+	return value;
+}
+
+const_shared_ptr<TypeDefinition> TypeTable::GetNilType() {
+	const static const_shared_ptr<TypeDefinition> value =
+			make_shared<UnitType>();
+	return value;
+}
+
+const_shared_ptr<ComplexTypeSpecifier> TypeTable::GetNilTypeSpecifier() {
+	const static const_shared_ptr<ComplexTypeSpecifier> value =
+			static_pointer_cast<const ComplexTypeSpecifier>(
+					GetNilType()->GetTypeSpecifier(GetNilName(), nullptr));
+	return value;
 }

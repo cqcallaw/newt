@@ -17,25 +17,19 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SUM_TYPE_H_
-#define SUM_TYPE_H_
+#ifndef TYPES_UNIT_TYPE_H_
+#define TYPES_UNIT_TYPE_H_
 
-#include <defaults.h>
-#include <function.h>
-#include <indent.h>
-#include <result.h>
 #include <complex_type.h>
-#include <declaration_statement.h>
-#include <type_table.h>
-#include <map>
-#include <string>
+#include <unit.h>
 
-class SumTypeSpecifier;
-
-class SumType: public ComplexType {
+class UnitType: public ComplexType {
 public:
-	virtual ~SumType() {
-	}
+	UnitType();
+	virtual ~UnitType();
+
+	virtual const_shared_ptr<void> GetDefaultValue(
+			const TypeTable& type_table) const;
 
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
@@ -46,19 +40,13 @@ public:
 	virtual const std::string GetValueSeparator(const Indent& indent,
 			const void* value) const;
 
-	virtual const std::string GetTagSeparator(const Indent& indent,
-			const void* value) const;
-
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container) const;
 
-	virtual const_shared_ptr<void> GetDefaultValue(
-			const TypeTable& type_table) const;
-
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void>) const;
+			const_shared_ptr<void> value) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
@@ -67,33 +55,14 @@ public:
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const;
 
-	virtual const_shared_ptr<TypeTable> GetDefinition() const {
-		return m_definition;
-	}
+	virtual const_shared_ptr<void> GetMemberDefaultValue(
+			const_shared_ptr<std::string> member_name) const;
 
-	const_shared_ptr<DeclarationStatement> GetFirstDeclaration() const {
-		return m_first_declaration;
-	}
-
-	const_shared_ptr<SymbolTable> GetConstructors() const {
-		return m_constructors;
-	}
-
-	static const_shared_ptr<Result> Build(
-			const shared_ptr<ExecutionContext> context,
-			const DeclarationListRef member_declarations,
-			const_shared_ptr<SumTypeSpecifier> sum_type_specifier);
+	virtual const_shared_ptr<TypeTable> GetDefinition() const;
 
 	virtual const WideningResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& unaliased_other) const;
-
-	const_shared_ptr<std::string> MapSpecifierToVariant(
-			const ComplexTypeSpecifier& current,
-			const TypeSpecifier& type_specifier) const;
-
-	virtual const_shared_ptr<void> GetMemberDefaultValue(
-			const_shared_ptr<std::string> member_name) const;
 
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
@@ -108,15 +77,8 @@ protected:
 			const std::string& instance_name,
 			const_shared_ptr<void> data) const;
 private:
-	SumType(const_shared_ptr<TypeTable> type_table,
-			const_shared_ptr<DeclarationStatement> first_declaration,
-			const_shared_ptr<SymbolTable> constructors) :
-			m_definition(type_table), m_first_declaration(first_declaration), m_constructors(
-					constructors) {
-	}
-	const_shared_ptr<TypeTable> m_definition;
-	const_shared_ptr<DeclarationStatement> m_first_declaration;
-	const_shared_ptr<SymbolTable> m_constructors;
+	const_shared_ptr<Unit> m_value;
+	const_shared_ptr<TypeTable> m_table;
 };
 
-#endif /* SUM_TYPE_H_ */
+#endif /* TYPES_UNIT_TYPE_H_ */

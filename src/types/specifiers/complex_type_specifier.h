@@ -27,6 +27,11 @@ class ComplexType;
 
 class ComplexTypeSpecifier: public TypeSpecifier {
 public:
+	ComplexTypeSpecifier(const_shared_ptr<std::string> type_name) :
+			ComplexTypeSpecifier(type_name, nullptr,
+					NamespaceQualifierList::GetTerminator()) {
+	}
+
 	ComplexTypeSpecifier(const_shared_ptr<std::string> type_name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			const NamespaceQualifierListRef space) :

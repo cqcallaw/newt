@@ -2,10 +2,7 @@ Parsing file ../tests/t7002.nwt...
 Parsed file ../tests/t7002.nwt.
 Root Symbol Table:
 ----------------
-list l:
-{terminator}
-	<empty>
-
+list l: {terminator} <unit>
 
 Root Type Table:
 ----------------
@@ -19,6 +16,5 @@ list:
 			list
 
 	terminator:
-		<record>
-
+		<unit>
 

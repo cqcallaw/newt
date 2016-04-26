@@ -5,10 +5,7 @@ Root Symbol Table:
 list l:
 {item}
 	int data: 1
-	list next:
-	{terminator}
-		<empty>
-
+	list next: {terminator} <unit>
 
 
 Root Type Table:
@@ -23,6 +20,5 @@ list:
 			list
 
 	terminator:
-		<record>
-
+		<unit>
 

@@ -4,7 +4,7 @@ Root Symbol Table:
 ----------------
 stringified s:
 	string as_string: "2"
-	number value: 	{discrete} 2
+	number value: {discrete} 2
 
 
 Root Type Table:
@@ -21,6 +21,5 @@ stringified:
 	as_string:
 		string ("default stuff")
 	value:
-		number (
-		{discrete} 0		)
+		number ({discrete} 0)
 

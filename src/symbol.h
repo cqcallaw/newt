@@ -37,6 +37,7 @@ class Function;
 class Sum;
 class RecordTypeSpecifier;
 class ComplexTypeSpecifier;
+class Unit;
 
 class Symbol {
 	friend class SymbolContext;
@@ -52,6 +53,8 @@ public:
 	Symbol(const_shared_ptr<Function> value);
 	Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 			const_shared_ptr<Sum> value);
+	Symbol(const_shared_ptr<TypeSpecifier> type,
+			const_shared_ptr<Unit> value);
 
 	virtual ~Symbol();
 
@@ -64,6 +67,8 @@ public:
 	}
 
 	static const_shared_ptr<Symbol> GetDefaultSymbol();
+
+	static const_shared_ptr<Symbol> GetNilSymbol();
 
 	virtual const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;

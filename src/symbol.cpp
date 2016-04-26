@@ -32,6 +32,7 @@
 #include <function.h>
 #include <sum.h>
 #include <primitive_type_specifier.h>
+#include <unit.h>
 
 #include <record.h>
 #include <memory>
@@ -72,6 +73,11 @@ Symbol::Symbol(const_shared_ptr<Function> value) :
 
 Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Sum> value) :
+		Symbol(type, static_pointer_cast<const void>(value)) {
+}
+
+Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
+		const_shared_ptr<Unit> value) :
 		Symbol(type, static_pointer_cast<const void>(value)) {
 }
 
@@ -127,4 +133,10 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 		buffer << "<no value>";
 	}
 	return buffer.str();
+}
+
+const_shared_ptr<Symbol> Symbol::GetNilSymbol() {
+	const static const_shared_ptr<Symbol> value = make_shared<Symbol>(
+			Symbol(TypeTable::GetNilTypeSpecifier(), const_shared_ptr<void>()));
+	return value;
 }

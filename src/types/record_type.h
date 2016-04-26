@@ -53,6 +53,9 @@ public:
 	virtual const std::string GetValueSeparator(const Indent& indent,
 			const void* value) const;
 
+	virtual const std::string GetTagSeparator(const Indent& indent,
+			const void* value) const;
+
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const TypeTable& type_table) const;
 
