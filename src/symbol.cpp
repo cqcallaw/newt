@@ -97,9 +97,9 @@ const string Symbol::ToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<Symbol> Symbol::GetDefaultSymbol() {
-	const static const_shared_ptr<Symbol> DefaultSymbol = nullptr;
+	const static const_shared_ptr<Symbol> default_symbol = nullptr;
 
-	return DefaultSymbol;
+	return default_symbol;
 }
 
 Symbol::~Symbol() {
@@ -109,15 +109,22 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value, const TypeTable& type_table,
 		const Indent& indent) {
 	ostringstream buffer;
-	if (type_specifier && type_specifier != PrimitiveTypeSpecifier::GetNone()) {
-		auto type = type_specifier->GetType(type_table, RESOLVE);
+	if (value) {
+		if (type_specifier
+				&& type_specifier != PrimitiveTypeSpecifier::GetNone()) {
+			auto type = type_specifier->GetType(type_table, RESOLVE);
 
-		if (type) {
-			buffer << type->GetValueSeparator(indent, value.get());
-			buffer << type->ValueToString(type_table, indent, value);
+			if (type) {
+				buffer << type->GetValueSeparator(indent, value.get());
+				buffer << type->ValueToString(type_table, indent, value);
+			} else {
+				buffer << "UNDEFINED TYPE";
+			}
 		} else {
-			buffer << "UNDEFINED TYPE";
+			buffer << "<invalid type specifier>";
 		}
+	} else {
+		buffer << "<no value>";
 	}
 	return buffer.str();
 }
