@@ -19,8 +19,8 @@
 
 #include <assert.h>
 #include <expression.h>
-#include <complex_instantiation_statement.h>
 #include <array_declaration_statement.h>
+#include <complex_instantiation_statement.h>
 #include <function_declaration_statement.h>
 #include <inferred_declaration_statement.h>
 #include <primitive_declaration_statement.h>

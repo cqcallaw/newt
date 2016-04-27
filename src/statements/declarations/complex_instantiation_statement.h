@@ -17,8 +17,8 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_
-#define STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_
+#ifndef STATEMENTS_DECLARATIONS_COMPLEX_INSTANTIATION_STATEMENT_H_
+#define STATEMENTS_DECLARATIONS_COMPLEX_INSTANTIATION_STATEMENT_H_
 
 #include <declaration_statement.h>
 #include <statement.h>
@@ -66,4 +66,4 @@ private:
 	const yy::location m_type_position;
 };
 
-#endif /* STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_ */
+#endif /* STATEMENTS_DECLARATIONS_COMPLEX_INSTANTIATION_STATEMENT_H_ */

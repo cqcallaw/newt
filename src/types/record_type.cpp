@@ -21,6 +21,7 @@
 
 #include <sstream>
 #include <assert.h>
+#include <complex_instantiation_statement.h>
 #include <specifiers/type_specifier.h>
 #include <memory>
 #include <symbol_table.h>
@@ -28,7 +29,6 @@
 #include <expression.h>
 #include <symbol_context.h>
 #include <record.h>
-#include <complex_instantiation_statement.h>
 #include <placeholder_type.h>
 
 RecordType::RecordType(const_shared_ptr<TypeTable> definition,

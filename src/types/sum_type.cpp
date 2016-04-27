@@ -35,7 +35,6 @@
 #include <record_declaration_statement.h>
 #include <type_alias_declaration_statement.h>
 #include <unit_declaration_statement.h>
-#include <complex_instantiation_statement.h>
 #include <record_type.h>
 #include <execution_context.h>
 #include <symbol_context.h>
@@ -45,6 +44,7 @@
 #include <with_expression.h>
 #include <function_type.h>
 #include <basic_variable.h>
+#include <complex_instantiation_statement.h>
 #include <statement_block.h>
 #include <function_declaration.h>
 #include <record.h>

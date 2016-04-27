@@ -5,6 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/statements/declarations/array_declaration_statement.cpp \
+../src/statements/declarations/complex_instantiation_statement.cpp \
 ../src/statements/declarations/declaration_statement.cpp \
 ../src/statements/declarations/function_declaration_statement.cpp \
 ../src/statements/declarations/inferred_declaration_statement.cpp \
@@ -17,6 +18,7 @@ CPP_SRCS += \
 
 OBJS += \
 ./src/statements/declarations/array_declaration_statement.o \
+./src/statements/declarations/complex_instantiation_statement.o \
 ./src/statements/declarations/declaration_statement.o \
 ./src/statements/declarations/function_declaration_statement.o \
 ./src/statements/declarations/inferred_declaration_statement.o \
@@ -29,6 +31,7 @@ OBJS += \
 
 CPP_DEPS += \
 ./src/statements/declarations/array_declaration_statement.d \
+./src/statements/declarations/complex_instantiation_statement.d \
 ./src/statements/declarations/declaration_statement.d \
 ./src/statements/declarations/function_declaration_statement.d \
 ./src/statements/declarations/inferred_declaration_statement.d \
