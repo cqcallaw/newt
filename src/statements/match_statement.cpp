@@ -28,6 +28,7 @@
 #include <iterator>
 #include <sstream>
 #include <nested_type_specifier.h>
+#include <unit_type.h>
 
 MatchStatement::~MatchStatement() {
 }

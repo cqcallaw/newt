@@ -48,6 +48,7 @@
 #include <statement_block.h>
 #include <function_declaration.h>
 #include <record.h>
+#include <unit_type.h>
 
 const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
@@ -123,7 +124,8 @@ const_shared_ptr<Result> SumType::Build(
 				auto alias_type_name = *as_alias->GetName();
 				auto alias_type_specifier = as_alias->GetTypeSpecifier();
 
-				if (!types->ContainsType(alias_type_name)) {
+				if (alias_type_name.compare("nil") == 0
+						|| !types->ContainsType(alias_type_name)) {
 					//would be nice to abstract this casting logic into a helper function
 					auto alias_as_primitive = dynamic_pointer_cast<
 							const PrimitiveTypeSpecifier>(alias_type_specifier);
@@ -250,7 +252,7 @@ const_shared_ptr<Symbol> SumType::GetSymbol(const TypeTable& type_table,
 			type_specifier);
 
 	if (original_as_complex) {
-		auto type = original_as_complex->GetType(type_table, RESOLVE);
+		auto type = type_specifier->GetType(type_table, RESOLVE);
 
 		auto as_sum = dynamic_pointer_cast<const SumType>(type);
 		if (as_sum) {

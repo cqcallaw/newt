@@ -29,6 +29,7 @@
 #include <sum_type_specifier.h>
 #include <sum.h>
 #include <sum_type.h>
+#include <unit_type.h>
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,

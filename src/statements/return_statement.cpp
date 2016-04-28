@@ -22,6 +22,7 @@
 #include <execution_context.h>
 #include <sum_type.h>
 #include <sum_type_specifier.h>
+#include <unit_type.h>
 
 ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 		m_expression(expression) {

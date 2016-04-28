@@ -175,8 +175,8 @@ const_shared_ptr<std::string> TypeTable::GetNilName() {
 	return value;
 }
 
-const_shared_ptr<TypeDefinition> TypeTable::GetNilType() {
-	const static const_shared_ptr<TypeDefinition> value =
+const_shared_ptr<UnitType> TypeTable::GetNilType() {
+	const static const_shared_ptr<UnitType> value =
 			make_shared<UnitType>();
 	return value;
 }

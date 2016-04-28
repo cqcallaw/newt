@@ -24,6 +24,7 @@
 #include <record_type_specifier.h>
 #include <sum_type.h>
 #include <expression.h>
+#include <unit_type.h>
 
 ComplexType::~ComplexType() {
 }

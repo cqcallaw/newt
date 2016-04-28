@@ -8,6 +8,7 @@ CPP_SRCS += \
 ../src/types/specifiers/complex_type_specifier.cpp \
 ../src/types/specifiers/function_declaration.cpp \
 ../src/types/specifiers/function_type_specifier.cpp \
+../src/types/specifiers/maybe_type_specifier.cpp \
 ../src/types/specifiers/nested_type_specifier.cpp \
 ../src/types/specifiers/primitive_type_specifier.cpp \
 ../src/types/specifiers/record_type_specifier.cpp \
@@ -18,6 +19,7 @@ OBJS += \
 ./src/types/specifiers/complex_type_specifier.o \
 ./src/types/specifiers/function_declaration.o \
 ./src/types/specifiers/function_type_specifier.o \
+./src/types/specifiers/maybe_type_specifier.o \
 ./src/types/specifiers/nested_type_specifier.o \
 ./src/types/specifiers/primitive_type_specifier.o \
 ./src/types/specifiers/record_type_specifier.o \
@@ -28,6 +30,7 @@ CPP_DEPS += \
 ./src/types/specifiers/complex_type_specifier.d \
 ./src/types/specifiers/function_declaration.d \
 ./src/types/specifiers/function_type_specifier.d \
+./src/types/specifiers/maybe_type_specifier.d \
 ./src/types/specifiers/nested_type_specifier.d \
 ./src/types/specifiers/primitive_type_specifier.d \
 ./src/types/specifiers/record_type_specifier.d \

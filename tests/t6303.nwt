@@ -1,0 +1,3 @@
+#test basic Maybe declaration with non-constant assignment
+a := 3
+v:int? = a

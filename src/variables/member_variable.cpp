@@ -14,6 +14,7 @@
 #include <record.h>
 #include <nested_type_specifier.h>
 #include <sum_type.h>
+#include <unit_type.h>
 
 MemberVariable::MemberVariable(const_shared_ptr<Variable> container,
 		const_shared_ptr<Variable> member_variable) :

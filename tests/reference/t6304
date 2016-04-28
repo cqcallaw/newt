@@ -1,0 +1,9 @@
+Parsing file ../tests/t6304.nwt...
+Parsed file ../tests/t6304.nwt.
+Root Symbol Table:
+----------------
+int? a: {value} 3
+int? v: {value} 3
+
+Root Type Table:
+----------------

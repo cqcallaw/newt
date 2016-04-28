@@ -30,6 +30,7 @@
 #include <symbol_context.h>
 #include <record.h>
 #include <placeholder_type.h>
+#include <unit_type.h>
 
 RecordType::RecordType(const_shared_ptr<TypeTable> definition,
 		const Modifier::Type modifiers) :

@@ -19,6 +19,7 @@
 #include <array_type_specifier.h>
 #include <array_declaration_statement.h>
 #include <specifiers/type_specifier.h>
+#include <unit_type.h>
 
 ArrayDeclarationStatement::ArrayDeclarationStatement(
 		const yy::location position,

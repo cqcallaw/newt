@@ -1,0 +1,4 @@
+Parsing file ../tests/t6350.nwt...
+Semantic error on line 2, column 10: Variable 'v' of type 'int?' cannot be assigned to an expression of type 'double'.
+Parsed file ../tests/t6350.nwt.
+1 error found; giving up.

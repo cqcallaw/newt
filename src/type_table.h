@@ -29,6 +29,7 @@
 
 class TypeDefinition;
 class SymbolContext;
+class UnitType;
 
 typedef map<const string, const_shared_ptr<TypeDefinition>> type_map;
 
@@ -126,7 +127,7 @@ public:
 	const_shared_ptr<std::set<std::string>> GetTypeNames() const;
 
 	static const_shared_ptr<std::string> GetNilName();
-	static const_shared_ptr<TypeDefinition> GetNilType();
+	static const_shared_ptr<UnitType> GetNilType();
 	static const_shared_ptr<ComplexTypeSpecifier> GetNilTypeSpecifier();
 
 private:

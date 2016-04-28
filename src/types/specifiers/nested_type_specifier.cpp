@@ -23,7 +23,7 @@
 #include <sum_type.h>
 #include <record_type.h>
 #include <primitive_type.h>
-
+#include <unit_type.h>
 #include <record_type_specifier.h>
 
 NestedTypeSpecifier::NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,

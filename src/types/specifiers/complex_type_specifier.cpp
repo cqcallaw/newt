@@ -20,6 +20,7 @@
 #include <complex_type_specifier.h>
 #include <complex_type.h>
 #include <nested_type_specifier.h>
+#include <unit_type.h>
 
 const_shared_ptr<ComplexType> ComplexTypeSpecifier::GetContainerType(
 		const TypeTable& type_table) const {

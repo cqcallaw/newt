@@ -77,6 +77,7 @@ blank   [ \t\r]
 ";"             return yy::newt_parser::make_SEMICOLON(loc);
 ","             return yy::newt_parser::make_COMMA(loc);
 "@"             return yy::newt_parser::make_AT(loc);
+"?"             return yy::newt_parser::make_QMARK(loc);
 
 "("             return yy::newt_parser::make_LPAREN(loc);
 ")"             return yy::newt_parser::make_RPAREN(loc);

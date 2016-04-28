@@ -53,6 +53,7 @@
 #include <specifiers/function_type_specifier.h>
 #include <specifiers/function_declaration.h>
 #include <specifiers/nested_type_specifier.h>
+#include <specifiers/maybe_type_specifier.h>
 
 #include <namespace_qualifier.h>
 
@@ -102,6 +103,7 @@ class Driver;
 #include <type_alias_declaration_statement.h>
 #include <nested_declaration_statement.h>
 #include <unit_declaration_statement.h>
+#include <maybe_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -155,6 +157,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	COMMA               ","
 	PERIOD              "."
 	AT                  "@"
+	QMARK               "?"
 
 	EQUALS              "="
 	PLUS_ASSIGN         "+="
@@ -226,6 +229,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<FunctionTypeSpecifier>> function_type_specifier
 %type <plain_shared_ptr<ComplexTypeSpecifier>> complex_type_specifier
 %type <plain_shared_ptr<NestedTypeSpecifier>> nested_type_specifier
+%type <plain_shared_ptr<MaybeTypeSpecifier>> maybe_type_specifier
 
 %type <plain_shared_ptr<Expression>> expression
 %type <plain_shared_ptr<Expression>> variable_expression
@@ -325,6 +329,10 @@ variable_declaration:
 	{
 		$$ = make_shared<NestedDeclarationStatement>(@$, $3, @3, $1, @1, $4);
 	}
+	| IDENTIFIER COLON maybe_type_specifier optional_initializer
+	{
+		$$ = make_shared<MaybeDeclarationStatement>(@$, $3, @3, $1, @1, $4);
+	}
 	| IDENTIFIER COLON EQUALS expression
 	{
 		$$ = make_shared<InferredDeclarationStatement>(@$, $1, @1, $4);
@@ -393,6 +401,14 @@ nested_type_specifier:
 	| nested_type_specifier PERIOD IDENTIFIER
 	{
 		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+	}
+	;
+
+//---------------------------------------------------------------------
+maybe_type_specifier:
+	type_specifier QMARK
+	{
+		$$ = make_shared<MaybeTypeSpecifier>($1);
 	}
 	;
 
@@ -1039,6 +1055,10 @@ variant:
 	| IDENTIFIER COLON complex_type_specifier
 	{
 		$$ = make_shared<TypeAliasDeclarationStatement>(@$, $3, @3, $1, @1);
+	}
+	| IDENTIFIER COLON maybe_type_specifier
+	{
+		$$ = make_shared<MaybeDeclarationStatement>(@$, $3, @3, $1, @1);
 	}
 	| IDENTIFIER
 	{

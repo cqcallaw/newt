@@ -64,6 +64,10 @@ public:
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& unaliased_other) const;
 
+	const_shared_ptr<Unit> GetValue() const {
+		return m_value;
+	}
+
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,

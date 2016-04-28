@@ -37,6 +37,7 @@ class Function;
 class Sum;
 class RecordTypeSpecifier;
 class ComplexTypeSpecifier;
+class MaybeTypeSpecifier;
 class Unit;
 
 class Symbol {
@@ -52,6 +53,8 @@ public:
 			const_shared_ptr<Record> value);
 	Symbol(const_shared_ptr<Function> value);
 	Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Sum> value);
+	Symbol(const_shared_ptr<MaybeTypeSpecifier> type,
 			const_shared_ptr<Sum> value);
 	Symbol(const_shared_ptr<TypeSpecifier> type,
 			const_shared_ptr<Unit> value);

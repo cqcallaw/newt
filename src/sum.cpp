@@ -23,6 +23,7 @@
 #include <symbol.h>
 #include <sum_type.h>
 #include <record_type.h>
+#include <unit_type.h>
 
 Sum::Sum(const_shared_ptr<std::string> tag, const_shared_ptr<void> value) :
 		m_tag(tag), m_value(value) {
