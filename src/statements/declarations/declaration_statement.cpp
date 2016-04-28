@@ -19,8 +19,6 @@
 
 #include <declaration_statement.h>
 
-const string DeclarationStatement::CONSTRUCTOR_SUFFIX = "$ctor";
-
 DeclarationStatement::DeclarationStatement(const yy::location position,
 		const_shared_ptr<string> name, const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression,

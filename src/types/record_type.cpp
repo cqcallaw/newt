@@ -102,37 +102,19 @@ const_shared_ptr<Result> RecordType::Build(
 	symbol_map::iterator iter;
 	if (ErrorList::IsTerminator(errors)) {
 		//extract member definitions into type aliases
-		int suffix_length = DeclarationStatement::CONSTRUCTOR_SUFFIX.length();
 		for (iter = values->begin(); iter != values->end(); ++iter) {
 			const string member_name = iter->first;
 			auto symbol = iter->second;
 			const_shared_ptr<TypeSpecifier> type_specifier =
 					symbol->GetTypeSpecifier();
 
-			//special case: check for type constructors and don't alias them
-			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-					type_specifier);
-			if (as_complex) {
-				auto type_name = *as_complex->GetTypeName();
-				int length = type_name.length();
-				if (length >= suffix_length
-						&& type_name.compare(length - suffix_length,
-								suffix_length,
-								DeclarationStatement::CONSTRUCTOR_SUFFIX)
-								== 0) {
-					//our member identifier is a type constructor; don't add it
-					continue;
-				}
-			}
-
 			auto value = symbol->GetValue();
-
 			auto symbol_type = type_specifier->GetType(context_type_table);
-			auto as_sum_recursive = dynamic_pointer_cast<const PlaceholderType>(
+			auto as_recursive = dynamic_pointer_cast<const PlaceholderType>(
 					symbol_type);
 
 			plain_shared_ptr<AliasDefinition> alias = nullptr;
-			if (as_sum_recursive) {
+			if (as_recursive) {
 				alias = make_shared<AliasDefinition>(context_type_table,
 						type_specifier, RECURSIVE, nullptr);
 			} else {
