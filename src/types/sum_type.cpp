@@ -50,6 +50,8 @@
 #include <record.h>
 #include <unit_type.h>
 
+#include <maybe_type_specifier.h>
+
 const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream os;
@@ -250,7 +252,6 @@ const_shared_ptr<Symbol> SumType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<void> value) const {
 	auto original_as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 			type_specifier);
-
 	if (original_as_complex) {
 		auto type = type_specifier->GetType(type_table, RESOLVE);
 
@@ -264,6 +265,14 @@ const_shared_ptr<Symbol> SumType::GetSymbol(const TypeTable& type_table,
 		}
 	}
 
+	auto original_as_maybe = dynamic_pointer_cast<const MaybeTypeSpecifier>(
+			type_specifier);
+	if (original_as_maybe) {
+		auto as_sum = static_pointer_cast<const Sum>(value);
+		return make_shared<Symbol>(original_as_maybe, as_sum);
+	}
+
+	assert(false);
 	return Symbol::GetDefaultSymbol();
 }
 
@@ -369,21 +378,33 @@ const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
 const std::string SumType::GetValueSeparator(const Indent& indent,
 		const void* value) const {
 	auto as_sum = static_cast<const Sum*>(value);
-	auto variant_name = as_sum->GetTag();
+	auto variant_name = *as_sum->GetTag();
 
 	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name,
 			SHALLOW, RESOLVE);
-	return variant_type->GetValueSeparator(indent, value);
+
+	if (variant_type) {
+		return variant_type->GetValueSeparator(indent, as_sum->GetValue().get());
+	} else {
+		assert(false);
+		return "";
+	}
 }
 
 const std::string SumType::GetTagSeparator(const Indent& indent,
 		const void* value) const {
 	auto as_sum = static_cast<const Sum*>(value);
-	auto variant_name = as_sum->GetTag();
+	auto variant_name = *as_sum->GetTag();
 
 	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name,
 			SHALLOW, RESOLVE);
-	return variant_type->GetTagSeparator(indent, value);
+
+	if (variant_type) {
+		return variant_type->GetTagSeparator(indent, as_sum->GetValue().get());
+	} else {
+		assert(false);
+		return "";
+	}
 }
 
 const_shared_ptr<DeclarationStatement> SumType::GetDeclarationStatement(

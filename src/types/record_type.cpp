@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <complex_instantiation_statement.h>
 #include <specifiers/type_specifier.h>
+#include <maybe_type_specifier.h>
 #include <memory>
 #include <symbol_table.h>
 #include <execution_context.h>
@@ -72,30 +73,56 @@ const_shared_ptr<Result> RecordType::Build(
 
 	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
+		auto declaration_errors = ErrorList::GetTerminator();
 		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
 
-		const_shared_ptr<Expression> initializer_expression =
-				declaration->GetInitializerExpression();
-		if (initializer_expression && !initializer_expression->IsConstant()) {
-			//if we have a non-constant initializer expression, generate an error
-			yy::location position = initializer_expression->GetPosition();
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
-							position.begin.line, position.begin.column),
-					errors);
-		} else {
-			//otherwise (no initializer expression OR a valid initializer expression), preprocess
-			auto preprocess_errors = declaration->preprocess(struct_context);
-			errors = ErrorList::Concatenate(errors, preprocess_errors);
+		//enforce nullability of recursive members
+		auto declaration_type_specifier = declaration->GetTypeSpecifier();
+		auto existing_type = declaration_type_specifier->GetType(
+				context_type_table);
+		auto as_recursive = dynamic_pointer_cast<const PlaceholderType>(
+				existing_type);
+		if (as_recursive) {
+			auto as_maybe_specifier = dynamic_pointer_cast<
+					const MaybeTypeSpecifier>(declaration_type_specifier);
+			if (!as_maybe_specifier) {
+				declaration_errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::RECURSIVE_MEMBERS_MUST_BE_NULLABLE,
+								declaration->GetNamePosition().begin.line,
+								declaration->GetNamePosition().begin.column),
+						declaration_errors);
+			}
 		}
 
-		if (ErrorList::IsTerminator(errors)) {
+		if (ErrorList::IsTerminator(declaration_errors)) {
+			const_shared_ptr<Expression> initializer_expression =
+					declaration->GetInitializerExpression();
+			if (initializer_expression
+					&& !initializer_expression->IsConstant()) {
+				//if we have a non-constant initializer expression, generate an error
+				yy::location position = initializer_expression->GetPosition();
+				declaration_errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
+								position.begin.line, position.begin.column),
+						declaration_errors);
+			} else {
+				//otherwise (no initializer expression OR a valid initializer expression), preprocess
+				auto preprocess_errors = declaration->preprocess(
+						struct_context);
+				declaration_errors = ErrorList::Concatenate(declaration_errors,
+						preprocess_errors);
+			}
+		}
+
+		if (ErrorList::IsTerminator(declaration_errors)) {
 			//we've pre-processed this statement without issue
-			errors = ErrorList::Concatenate(errors,
+			declaration_errors = ErrorList::Concatenate(declaration_errors,
 					declaration->execute(struct_context));
 		}
 
+		errors = ErrorList::Concatenate(declaration_errors, errors);
 		subject = subject->GetNext();
 	}
 
@@ -105,19 +132,25 @@ const_shared_ptr<Result> RecordType::Build(
 		for (iter = values->begin(); iter != values->end(); ++iter) {
 			const string member_name = iter->first;
 			auto symbol = iter->second;
+
 			const_shared_ptr<TypeSpecifier> type_specifier =
 					symbol->GetTypeSpecifier();
 
-			auto value = symbol->GetValue();
 			auto symbol_type = type_specifier->GetType(context_type_table);
 			auto as_recursive = dynamic_pointer_cast<const PlaceholderType>(
 					symbol_type);
-
 			plain_shared_ptr<AliasDefinition> alias = nullptr;
 			if (as_recursive) {
-				alias = make_shared<AliasDefinition>(context_type_table,
-						type_specifier, RECURSIVE, nullptr);
+				auto as_maybe_specifier = dynamic_pointer_cast<
+						const MaybeTypeSpecifier>(type_specifier);
+				if (as_maybe_specifier) {
+					alias = make_shared<AliasDefinition>(context_type_table,
+							type_specifier, RECURSIVE, nullptr);
+				} else {
+					assert(false);
+				}
 			} else {
+				auto value = symbol->GetValue();
 				alias = make_shared<AliasDefinition>(context_type_table,
 						type_specifier, DIRECT, value);
 			}
@@ -127,7 +160,8 @@ const_shared_ptr<Result> RecordType::Build(
 	}
 
 	auto type = make_shared<RecordType>(type_table, modifiers);
-	return make_shared<Result>(type, errors);
+	return make_shared<Result>(ErrorList::IsTerminator(errors) ? type : nullptr,
+			errors);
 }
 
 const_shared_ptr<void> RecordType::GetMemberDefaultValue(

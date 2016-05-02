@@ -11,10 +11,5 @@ list:
 	data:
 		int (0)
 	tail:
-		<sum>
-		next:
-			list
-		terminator:
-			<unit>
-
+		list? ({empty} <unit>)
 

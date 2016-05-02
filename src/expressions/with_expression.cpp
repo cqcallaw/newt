@@ -186,8 +186,7 @@ const ErrorListRef WithExpression::Validate(
 							source_type_specifier->ToString()), errors);
 		}
 
-		if (source_type //&& parent_type_specifier
-		&& ErrorList::IsTerminator(errors)) {
+		if (source_type && ErrorList::IsTerminator(errors)) {
 			MemberInstantiationListRef instantiation_list =
 					m_member_instantiation_list;
 			while (!MemberInstantiationList::IsTerminator(instantiation_list)) {
@@ -198,7 +197,7 @@ const ErrorListRef WithExpression::Validate(
 				const_shared_ptr<TypeDefinition> member_definition =
 						source_type->GetMember(*member_name);
 				if (member_definition) {
-					const_shared_ptr<TypeSpecifier> expression_type =
+					const_shared_ptr<TypeSpecifier> expression_type_specifier =
 							instantiation->GetExpression()->GetTypeSpecifier(
 									execution_context);
 
@@ -206,8 +205,8 @@ const ErrorListRef WithExpression::Validate(
 							member_definition->GetTypeSpecifier(member_name,
 									record_type_specifier);
 
-					if (!expression_type->IsAssignableTo(member_type_specifier,
-							*type_table)) {
+					if (!expression_type_specifier->IsAssignableTo(
+							member_type_specifier, *type_table)) {
 						auto as_sum = dynamic_pointer_cast<const SumType>(
 								member_definition);
 						if (as_sum) {
@@ -216,7 +215,8 @@ const ErrorListRef WithExpression::Validate(
 									const ComplexTypeSpecifier>(
 									member_type_specifier);
 							auto widening_analysis = as_sum->AnalyzeConversion(
-									*member_specifier_as_sum, *expression_type);
+									*member_specifier_as_sum,
+									*expression_type_specifier);
 
 							if (widening_analysis == AMBIGUOUS) {
 								errors =
@@ -227,7 +227,7 @@ const ErrorListRef WithExpression::Validate(
 														instantiation->GetExpression()->GetPosition().begin.line,
 														instantiation->GetExpression()->GetPosition().begin.column,
 														member_type_specifier->ToString(),
-														expression_type->ToString()),
+														expression_type_specifier->ToString()),
 												errors);
 							} else if (widening_analysis == INCOMPATIBLE) {
 								errors =
@@ -238,7 +238,7 @@ const ErrorListRef WithExpression::Validate(
 														instantiation->GetExpression()->GetPosition().begin.line,
 														instantiation->GetExpression()->GetPosition().begin.column,
 														member_type_specifier->ToString(),
-														expression_type->ToString()),
+														expression_type_specifier->ToString()),
 												errors);
 							}
 						} else {
@@ -250,7 +250,7 @@ const ErrorListRef WithExpression::Validate(
 													instantiation->GetExpression()->GetPosition().begin.line,
 													instantiation->GetExpression()->GetPosition().begin.column,
 													member_type_specifier->ToString(),
-													expression_type->ToString()),
+													expression_type_specifier->ToString()),
 											errors);
 						}
 					}

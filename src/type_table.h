@@ -47,6 +47,12 @@ public:
 	void AddType(const string& name,
 			const_shared_ptr<TypeDefinition> definition);
 
+	void RemovePlaceholderType(const string& name);
+
+	void RemovePlaceholderType(const_shared_ptr<std::string> name) {
+		RemovePlaceholderType(*name);
+	}
+
 	template<class T> const shared_ptr<const T> GetType(
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const SearchType search_type,

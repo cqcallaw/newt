@@ -92,6 +92,11 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
+			const_shared_ptr<MaybeTypeSpecifier> type,
+			const_shared_ptr<Sum> value) const;
+
+	virtual const ErrorListRef SetSymbol(
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Function> value) const;
 
 private:

@@ -45,6 +45,13 @@ void TypeTable::AddType(const std::string& name,
 	}
 }
 
+void TypeTable::RemovePlaceholderType(const string& name) {
+	auto existing = m_table->find(name);
+	if (std::dynamic_pointer_cast<const PlaceholderType>(existing->second)) {
+		m_table->erase(existing);
+	}
+}
+
 const void TypeTable::print(ostream& os, const Indent& indent) const {
 	type_map::iterator iter;
 	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
@@ -176,8 +183,7 @@ const_shared_ptr<std::string> TypeTable::GetNilName() {
 }
 
 const_shared_ptr<UnitType> TypeTable::GetNilType() {
-	const static const_shared_ptr<UnitType> value =
-			make_shared<UnitType>();
+	const static const_shared_ptr<UnitType> value = make_shared<UnitType>();
 	return value;
 }
 

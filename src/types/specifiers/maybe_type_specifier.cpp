@@ -20,6 +20,11 @@
 #include <maybe_type_specifier.h>
 #include <sum_type.h>
 
+const_shared_ptr<std::string> MaybeTypeSpecifier::VARIANT_NAME = make_shared<
+		std::string>("value");
+const_shared_ptr<std::string> MaybeTypeSpecifier::EMPTY_NAME = make_shared<
+		std::string>("empty");
+
 MaybeTypeSpecifier::MaybeTypeSpecifier(
 		const_shared_ptr<TypeSpecifier> type_specifier) :
 		MaybeTypeSpecifier(type_specifier, nullptr) {
@@ -41,7 +46,8 @@ const std::string MaybeTypeSpecifier::ToString() const {
 const bool MaybeTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	return m_type_specifier->IsAssignableTo(other, type_table)
+	return *this == *other
+			|| m_type_specifier->IsAssignableTo(other, type_table)
 			|| TypeTable::GetNilTypeSpecifier()->IsAssignableTo(other,
 					type_table);
 }
@@ -74,4 +80,16 @@ const WideningResult MaybeTypeSpecifier::AnalyzeConversion(
 const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
 	return const_shared_ptr<void>();
+}
+
+const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(
+		const TypeSpecifier& type_specifier,
+		const TypeTable& type_table) const {
+	if (type_specifier.IsAssignableTo(m_type_specifier, type_table)) {
+		return VARIANT_NAME;
+	} else if (type_specifier.IsAssignableTo(TypeTable::GetNilTypeSpecifier(),
+			type_table)) {
+		return EMPTY_NAME;
+	}
+	return const_shared_ptr<std::string>();
 }

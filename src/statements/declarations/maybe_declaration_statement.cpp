@@ -27,11 +27,6 @@
 #include <sum.h>
 #include <unit_type.h>
 
-const_shared_ptr<std::string> MaybeDeclarationStatement::VARIANT_NAME =
-		make_shared<std::string>("value");
-const_shared_ptr<std::string> MaybeDeclarationStatement::EMPTY_NAME =
-		make_shared<std::string>("empty");
-
 MaybeDeclarationStatement::MaybeDeclarationStatement(
 		const yy::location location,
 		const_shared_ptr<MaybeTypeSpecifier> type_specifier,
@@ -58,11 +53,12 @@ const ErrorListRef MaybeDeclarationStatement::preprocess(
 		//build up our sum type representation of the Maybe
 		auto unit_declaration = make_shared<TypeAliasDeclarationStatement>(
 				m_type_specifier_location, TypeTable::GetNilTypeSpecifier(),
-				GetDefaultLocation(), EMPTY_NAME, GetDefaultLocation());
+				GetDefaultLocation(), MaybeTypeSpecifier::EMPTY_NAME,
+				GetDefaultLocation());
 
 		auto type_declaration = make_shared<TypeAliasDeclarationStatement>(
 				m_type_specifier_location, root_specifier, GetDefaultLocation(),
-				VARIANT_NAME, GetDefaultLocation());
+				MaybeTypeSpecifier::VARIANT_NAME, GetDefaultLocation());
 
 		auto declaration_list = DeclarationList::From(unit_declaration,
 				DeclarationList::GetTerminator());
@@ -85,7 +81,8 @@ const ErrorListRef MaybeDeclarationStatement::preprocess(
 			auto maybe_type_specifier = make_shared<MaybeTypeSpecifier>(
 					m_type_specifier->GetTypeSpecifier(), maybe_type);
 
-			plain_shared_ptr<Sum> value = make_shared<Sum>(EMPTY_NAME,
+			plain_shared_ptr<Sum> value = make_shared<Sum>(
+					MaybeTypeSpecifier::EMPTY_NAME,
 					TypeTable::GetNilType()->GetValue());
 			auto initializer = GetInitializerExpression();
 			if (initializer) {
@@ -103,7 +100,8 @@ const ErrorListRef MaybeDeclarationStatement::preprocess(
 								value = result->GetData<Sum>();
 							} else {
 								//widening conversion
-								value = make_shared<Sum>(VARIANT_NAME,
+								value = make_shared<Sum>(
+										MaybeTypeSpecifier::VARIANT_NAME,
 										result->GetRawData());
 							}
 						}
@@ -184,7 +182,8 @@ const ErrorListRef MaybeDeclarationStatement::execute(
 						value = result->GetData<Sum>();
 					} else {
 						//widening conversion
-						value = make_shared<Sum>(VARIANT_NAME,
+						value = make_shared<Sum>(
+								MaybeTypeSpecifier::VARIANT_NAME,
 								result->GetRawData());
 					}
 				}

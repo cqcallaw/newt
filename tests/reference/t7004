@@ -5,7 +5,7 @@ Root Symbol Table:
 list l:
 {item}
 	int data: 2
-	list next: {terminator} <unit>
+	list? next: {value} {terminator} <unit>
 
 list.terminator t: <unit>
 
@@ -18,7 +18,7 @@ list:
 		data:
 			int (0)
 		next:
-			list
+			list? ({empty} <unit>)
 
 	terminator:
 		<unit>

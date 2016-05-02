@@ -76,6 +76,8 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = result->GetData<SumType>();
 			type_table->AddType(*GetName(), type);
+		} else {
+			type_table->RemovePlaceholderType(GetName());
 		}
 
 //// this section of code is the seed of kwargs-based type constructors for record types

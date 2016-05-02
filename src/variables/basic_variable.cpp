@@ -31,6 +31,7 @@
 #include <primitive_type.h>
 #include <array_type.h>
 #include <function_type.h>
+#include <maybe_type_specifier.h>
 #include "assert.h"
 #include "expression.h"
 
@@ -105,7 +106,8 @@ const ErrorListRef BasicVariable::AssignValue(
 
 	const_shared_ptr<Symbol> symbol = output_context->GetSymbol(variable_name,
 			DEEP);
-	const_shared_ptr<TypeSpecifier> symbol_type_specifier = symbol->GetTypeSpecifier();
+	const_shared_ptr<TypeSpecifier> symbol_type_specifier =
+			symbol->GetTypeSpecifier();
 	auto symbol_type = symbol_type_specifier->GetType(context->GetTypeTable(),
 			RESOLVE);
 	auto symbol_value = symbol->GetValue();
@@ -182,13 +184,14 @@ const ErrorListRef BasicVariable::AssignValue(
 			if (result_as_array) {
 				errors = SetSymbol(output_context, result_as_array);
 			} else {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-								variable_column,
-								symbol_type_specifier->ToString(),
-								expression->GetTypeSpecifier(context)->ToString()),
-						errors);
+				errors =
+						ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::ASSIGNMENT_TYPE_ERROR,
+										variable_line, variable_column,
+										symbol_type_specifier->ToString(),
+										expression->GetTypeSpecifier(context)->ToString()),
+								errors);
 			}
 		}
 	}
@@ -229,37 +232,74 @@ const ErrorListRef BasicVariable::AssignValue(
 	const_shared_ptr<SumType> as_sum = std::dynamic_pointer_cast<const SumType>(
 			symbol_type);
 	if (as_sum) {
-		auto complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-				symbol_type_specifier);
-
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
-
 		errors = expression_evaluation->GetErrors();
+
 		if (ErrorList::IsTerminator(errors)) {
 			auto sum = static_pointer_cast<const Sum>(symbol->GetValue());
-			auto expression_type_specifier = expression->GetTypeSpecifier(context);
+			auto expression_type_specifier = expression->GetTypeSpecifier(
+					context);
 
-			plain_shared_ptr<Sum> new_sum;
 			if (expression_type_specifier->IsAssignableTo(symbol_type_specifier,
 					context->GetTypeTable())) {
 				auto expression_type = expression_type_specifier->GetType(
 						context->GetTypeTable(), RESOLVE);
+				auto expression_type_as_sum =
+						dynamic_pointer_cast<const SumType>(expression_type);
 
-				auto evaluation_as_sum = dynamic_pointer_cast<const SumType>(
-						expression_type);
-				if (evaluation_as_sum) {
-					new_sum = expression_evaluation->GetData<Sum>();
-				} else {
-					//we're widening
-					auto tag = as_sum->MapSpecifierToVariant(*complex,
-							*expression_type_specifier);
-					new_sum = make_shared<Sum>(tag,
-							expression_evaluation->GetRawData());
+				plain_shared_ptr<Sum> new_sum = nullptr;
+				auto as_complex = dynamic_pointer_cast<
+						const ComplexTypeSpecifier>(symbol_type_specifier);
+				if (as_complex) {
+					if (expression_type_as_sum) {
+						new_sum = expression_evaluation->GetData<Sum>();
+					} else {
+						//we're widening
+						auto tag = as_sum->MapSpecifierToVariant(*as_complex,
+								*expression_type_specifier);
+						new_sum = make_shared<Sum>(tag,
+								expression_evaluation->GetRawData());
+					}
+					errors = SetSymbol(output_context, as_complex, new_sum);
+				}
+
+				auto as_maybe = dynamic_pointer_cast<const MaybeTypeSpecifier>(
+						symbol_type_specifier);
+				if (as_maybe) {
+					if (expression_type_as_sum) {
+						//we're _likely_ doing a direct assignment
+						//TODO: we have to consider sums that should be widened, not directly assigned
+						new_sum = expression_evaluation->GetData<Sum>();
+					} else {
+						//we're widening
+						auto base_type_specifier = as_maybe->GetTypeSpecifier();
+						auto base_type = base_type_specifier->GetType(
+								context->GetTypeTable(), RESOLVE);
+
+						plain_shared_ptr<void> data =
+								expression_evaluation->GetRawData();
+						auto base_as_sum = dynamic_pointer_cast<const SumType>(
+								base_type);
+						if (base_as_sum) {
+							auto sum_type_specifier = static_pointer_cast<
+									const ComplexTypeSpecifier>(
+									base_type_specifier);
+							auto base_tag = base_as_sum->MapSpecifierToVariant(
+									*sum_type_specifier,
+									*expression_type_specifier);
+							data = make_shared<Sum>(base_tag, data);
+						}
+
+						auto tag = as_maybe->MapSpecifierToVariant(
+								*expression_type_specifier,
+								context->GetTypeTable());
+
+						new_sum = make_shared<Sum>(tag, data);
+					}
+					errors = SetSymbol(output_context, as_maybe, new_sum);
 				}
 			}
-
-			errors = SetSymbol(output_context, complex, new_sum);
 		}
 	}
 
@@ -315,6 +355,16 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Record> value) const {
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), type, value,
+					context->GetTypeTable()), symbol->GetTypeSpecifier(), type);
+}
+
+const ErrorListRef BasicVariable::SetSymbol(
+		const shared_ptr<ExecutionContext> context,
+		const_shared_ptr<MaybeTypeSpecifier> type,
+		const_shared_ptr<Sum> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), type, value,

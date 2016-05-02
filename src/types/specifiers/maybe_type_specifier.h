@@ -50,6 +50,13 @@ public:
 		return m_type_specifier;
 	}
 
+	const_shared_ptr<std::string> MapSpecifierToVariant(
+			const TypeSpecifier& type_specifier,
+			const TypeTable& type_table) const;
+
+	static const_shared_ptr<std::string> VARIANT_NAME;
+	static const_shared_ptr<std::string> EMPTY_NAME;
+
 private:
 	const_shared_ptr<TypeSpecifier> m_type_specifier;
 	const_shared_ptr<SumType> m_type;

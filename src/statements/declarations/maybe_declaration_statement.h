@@ -52,9 +52,6 @@ public:
 		return m_type_specifier_location;
 	}
 
-	static const_shared_ptr<std::string> VARIANT_NAME;
-	static const_shared_ptr<std::string> EMPTY_NAME;
-
 private:
 	const_shared_ptr<MaybeTypeSpecifier> m_type_specifier;
 	const yy::location m_type_specifier_location;

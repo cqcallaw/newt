@@ -2,8 +2,5 @@
 # this formulation does not allow for empty lists
 list {
 	data:int,
-	tail {
-		terminator
-		| next:list
-	}
+	tail:list?
 }

@@ -75,6 +75,8 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = result->GetData<RecordType>();
 			type_table->AddType(*GetName(), type);
+		} else {
+			type_table->RemovePlaceholderType(GetName());
 		}
 	} else {
 		errors = ErrorList::From(
