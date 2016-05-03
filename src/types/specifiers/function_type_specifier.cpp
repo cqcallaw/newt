@@ -68,14 +68,14 @@ const string FunctionTypeSpecifier::ToString() const {
 	return buffer.str();
 }
 
-const bool FunctionTypeSpecifier::IsAssignableTo(
+const AnalysisResult FunctionTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	if (*this == *other) {
-		return true;
+		return EQUIVALENT;
 	}
 
-	return false;
+	return INCOMPATIBLE;
 }
 
 bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {

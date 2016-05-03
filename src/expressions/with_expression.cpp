@@ -205,55 +205,29 @@ const ErrorListRef WithExpression::Validate(
 							member_definition->GetTypeSpecifier(member_name,
 									record_type_specifier);
 
-					if (!expression_type_specifier->IsAssignableTo(
-							member_type_specifier, *type_table)) {
-						auto as_sum = dynamic_pointer_cast<const SumType>(
-								member_definition);
-						if (as_sum) {
-							//member definition is a sum type; check to see if widening is an option
-							auto member_specifier_as_sum = dynamic_pointer_cast<
-									const ComplexTypeSpecifier>(
-									member_type_specifier);
-							auto widening_analysis = as_sum->AnalyzeConversion(
-									*member_specifier_as_sum,
-									*expression_type_specifier);
-
-							if (widening_analysis
-									== ConversionResult::AMBIGUOUS) {
-								errors =
-										ErrorList::From(
-												make_shared<Error>(
-														Error::SEMANTIC,
-														Error::AMBIGUOUS_WIDENING_CONVERSION,
-														instantiation->GetExpression()->GetPosition().begin.line,
-														instantiation->GetExpression()->GetPosition().begin.column,
-														member_type_specifier->ToString(),
-														expression_type_specifier->ToString()),
-												errors);
-							} else if (widening_analysis == INCOMPATIBLE) {
-								errors =
-										ErrorList::From(
-												make_shared<Error>(
-														Error::SEMANTIC,
-														Error::ASSIGNMENT_TYPE_ERROR,
-														instantiation->GetExpression()->GetPosition().begin.line,
-														instantiation->GetExpression()->GetPosition().begin.column,
-														member_type_specifier->ToString(),
-														expression_type_specifier->ToString()),
-												errors);
-							}
-						} else {
-							//not a sum type; this is categorically an error
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::ASSIGNMENT_TYPE_ERROR,
-													instantiation->GetExpression()->GetPosition().begin.line,
-													instantiation->GetExpression()->GetPosition().begin.column,
-													member_type_specifier->ToString(),
-													expression_type_specifier->ToString()),
-											errors);
-						}
+					auto assignability =
+							expression_type_specifier->IsAssignableTo(
+									member_type_specifier, *type_table);
+					if (assignability == AnalysisResult::AMBIGUOUS) {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::AMBIGUOUS_WIDENING_CONVERSION,
+												instantiation->GetExpression()->GetPosition().begin.line,
+												instantiation->GetExpression()->GetPosition().begin.column,
+												member_type_specifier->ToString(),
+												expression_type_specifier->ToString()),
+										errors);
+					} else if (assignability == INCOMPATIBLE) {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::ASSIGNMENT_TYPE_ERROR,
+												instantiation->GetExpression()->GetPosition().begin.line,
+												instantiation->GetExpression()->GetPosition().begin.column,
+												member_type_specifier->ToString(),
+												expression_type_specifier->ToString()),
+										errors);
 					}
 				} else {
 					//undefined member

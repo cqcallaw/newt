@@ -53,7 +53,7 @@ public:
 
 	virtual const_shared_ptr<TypeTable> GetDefinition() const = 0;
 
-	virtual const ConversionResult AnalyzeConversion(
+	virtual const AnalysisResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& unaliased_other) const = 0;
 

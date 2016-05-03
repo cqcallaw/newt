@@ -37,7 +37,8 @@ public:
 
 	virtual const string ToString() const;
 
-	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
+	virtual const AnalysisResult IsAssignableTo(
+			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier& other) const;

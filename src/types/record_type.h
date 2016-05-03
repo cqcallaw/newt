@@ -59,7 +59,7 @@ public:
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const TypeTable& type_table) const;
 
-	virtual const ConversionResult AnalyzeConversion(
+	virtual const AnalysisResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& unaliased_other) const;
 

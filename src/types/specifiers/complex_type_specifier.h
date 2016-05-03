@@ -44,7 +44,7 @@ public:
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const;
 
-	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
+	virtual const AnalysisResult IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
 
 	const_shared_ptr<ComplexType> GetContainerType(
@@ -55,7 +55,7 @@ public:
 
 	virtual const std::string ToString() const;
 
-	virtual const ConversionResult AnalyzeConversion(const TypeTable& type_table,
+	virtual const AnalysisResult AnalyzeConversion(const TypeTable& type_table,
 			const TypeSpecifier& other) const;
 
 	virtual bool operator==(const TypeSpecifier& other) const;

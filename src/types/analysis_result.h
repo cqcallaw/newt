@@ -17,14 +17,11 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPES_CONVERSION_RESULT_H_
-#define TYPES_CONVERSION_RESULT_H_
+#ifndef TYPES_ANALYSIS_RESULT_H_
+#define TYPES_ANALYSIS_RESULT_H_
 
-enum ConversionResult {
-	INCOMPATIBLE = 0,
-	AMBIGUOUS = 1,
-	UNAMBIGUOUS = 2,
-	EQUIVALENT = 3
+enum AnalysisResult {
+	INCOMPATIBLE = 0, AMBIGUOUS = 10, UNAMBIGUOUS = 20, EQUIVALENT = 100
 };
 
-#endif /* TYPES_CONVERSION_RESULT_H_ */
+#endif /* TYPES_ANALYSIS_RESULT_H_ */

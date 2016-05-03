@@ -296,7 +296,7 @@ const_shared_ptr<DeclarationStatement> RecordType::GetDeclarationStatement(
 	}
 }
 
-const ConversionResult RecordType::AnalyzeConversion(
+const AnalysisResult RecordType::AnalyzeConversion(
 		const ComplexTypeSpecifier& current,
 		const TypeSpecifier& unaliased_other) const {
 	return INCOMPATIBLE;

@@ -73,7 +73,7 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 						*as_sum_specifier, *expression_type_specifier);
 
 				if (widening_analysis
-						== ConversionResult::AMBIGUOUS) {
+						== AnalysisResult::AMBIGUOUS) {
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::AMBIGUOUS_WIDENING_CONVERSION,

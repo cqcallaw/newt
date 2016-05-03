@@ -54,7 +54,8 @@ public:
 	virtual ~SumTypeSpecifier() {
 	}
 
-	virtual const bool IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
+	virtual const AnalysisResult IsAssignableTo(
+			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
 };
 

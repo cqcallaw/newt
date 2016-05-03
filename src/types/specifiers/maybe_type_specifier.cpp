@@ -43,13 +43,17 @@ const std::string MaybeTypeSpecifier::ToString() const {
 	return m_type_specifier->ToString() + "?";
 }
 
-const bool MaybeTypeSpecifier::IsAssignableTo(
+const AnalysisResult MaybeTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	return *this == *other
-			|| m_type_specifier->IsAssignableTo(other, type_table)
-			|| TypeTable::GetNilTypeSpecifier()->IsAssignableTo(other,
-					type_table);
+	if (*this == *other) {
+		return AnalysisResult::EQUIVALENT;
+	} else if (TypeTable::GetNilTypeSpecifier()->IsAssignableTo(other,
+			type_table) >= UNAMBIGUOUS) {
+		return AnalysisResult::UNAMBIGUOUS;
+	} else {
+		return m_type_specifier->IsAssignableTo(other, type_table);
+	}
 }
 
 bool MaybeTypeSpecifier::operator ==(const TypeSpecifier& other) const {
@@ -67,7 +71,7 @@ const_shared_ptr<TypeDefinition> MaybeTypeSpecifier::GetType(
 	return m_type;
 }
 
-const ConversionResult MaybeTypeSpecifier::AnalyzeConversion(
+const AnalysisResult MaybeTypeSpecifier::AnalyzeConversion(
 		const TypeTable& type_table, const TypeSpecifier& other) const {
 	if (m_type) {
 		auto placeholder = ComplexTypeSpecifier(

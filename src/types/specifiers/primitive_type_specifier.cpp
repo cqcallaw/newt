@@ -57,23 +57,29 @@ const string PrimitiveTypeSpecifier::ToString(
 	return buffer.str();
 }
 
-const bool PrimitiveTypeSpecifier::IsAssignableTo(
+const AnalysisResult PrimitiveTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	auto resolved = NestedTypeSpecifier::Resolve(other, type_table);
-	if (resolved->AnalyzeConversion(type_table, *this)
-			== ConversionResult::UNAMBIGUOUS) {
-		return true;
+	auto resolved_analysis = resolved->AnalyzeConversion(type_table, *this);
+	if (resolved_analysis != AnalysisResult::INCOMPATIBLE) {
+		return resolved_analysis;
 	}
 
 	auto other_as_primitive =
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(resolved);
 	if (other_as_primitive) {
 		const BasicType other_type = other_as_primitive->GetBasicType();
-		return other_type != BasicType::NONE && m_basic_type <= other_type;
+		if (other_type != BasicType::NONE) {
+			if (m_basic_type == other_type) {
+				return AnalysisResult::EQUIVALENT;
+			} else if (m_basic_type < other_type) {
+				return AnalysisResult::UNAMBIGUOUS;
+			}
+		}
 	}
 
-	return false;
+	return INCOMPATIBLE;
 }
 
 const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetNone() {

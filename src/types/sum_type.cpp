@@ -234,17 +234,17 @@ const_shared_ptr<Result> SumType::Build(
 	}
 }
 
-const ConversionResult SumType::AnalyzeConversion(
+const AnalysisResult SumType::AnalyzeConversion(
 		const ComplexTypeSpecifier& current, const TypeSpecifier& other) const {
 	//Note: "other" type is a type that is potentially convertible to the sum type.
 	auto count = m_definition->CountEntriesOfType(current, other);
 	if (count > 1) {
-		return ConversionResult::AMBIGUOUS;
+		return AnalysisResult::AMBIGUOUS;
 	} else if (count == 1) {
-		return ConversionResult::UNAMBIGUOUS;
+		return AnalysisResult::UNAMBIGUOUS;
 	}
 
-	return ConversionResult::INCOMPATIBLE;
+	return AnalysisResult::INCOMPATIBLE;
 }
 
 const_shared_ptr<Symbol> SumType::GetSymbol(const TypeTable& type_table,
@@ -298,14 +298,13 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 
 	const_shared_ptr<TypeSpecifier> initializer_expression_type_specifier =
 			initializer->GetTypeSpecifier(execution_context);
-	auto widening_analysis = AnalyzeConversion(*type_specifier,
-			*initializer_expression_type_specifier);
 
-	if (initializer_expression_type_specifier->IsAssignableTo(type_specifier,
-			execution_context->GetTypeTable())) {
+	auto conversion_analysis =
+			initializer_expression_type_specifier->IsAssignableTo(
+					type_specifier, execution_context->GetTypeTable());
+	if (conversion_analysis == EQUIVALENT) {
 		auto expression_type = initializer_expression_type_specifier->GetType(
 				execution_context->GetTypeTable(), RESOLVE);
-
 		auto as_sum = dynamic_pointer_cast<const SumType>(expression_type);
 		if (as_sum) {
 			//generate default instance; actual assignment must be done in execute stage
@@ -313,46 +312,40 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 			//if the constant expression is narrower than the sum type
 			instance = Sum::GetDefaultInstance(*this);
 		} else {
-			if (widening_analysis == UNAMBIGUOUS) {
-				if (initializer->IsConstant()) {
-					//assignment of constant expressions to sum types is only valid if constant expression is narrower than the sum type
-					//we can therefore assume that a new Sum must be created if we've hit this branch
-					//widening conversions of non-constant initializers must be handled in the execute stage
-					const_shared_ptr<Result> result = initializer->Evaluate(
-							execution_context);
-					errors = result->GetErrors();
-					if (ErrorList::IsTerminator(errors)) {
-						auto variant_name = MapSpecifierToVariant(
-								*type_specifier,
-								*initializer_expression_type_specifier);
-
-						instance = make_shared<Sum>(variant_name,
-								result->GetRawData());
-					}
-				}
+			assert(false);
+		}
+	} else if (conversion_analysis == UNAMBIGUOUS) {
+		if (initializer->IsConstant()) {
+			//assignment of constant expressions to sum types is only valid if constant expression is narrower than the sum type
+			//we can therefore assume that a new Sum must be created if we've hit this branch
+			//widening conversions of non-constant initializers must be handled in the execute stage
+			const_shared_ptr<Result> result = initializer->Evaluate(
+					execution_context);
+			errors = result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto variant_name = MapSpecifierToVariant(*type_specifier,
+						*initializer_expression_type_specifier);
+				instance = make_shared<Sum>(variant_name, result->GetRawData());
 			}
 		}
+	} else if (conversion_analysis == AMBIGUOUS) {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::AMBIGUOUS_WIDENING_CONVERSION,
+						initializer->GetPosition().begin.line,
+						initializer->GetPosition().begin.column,
+						type_specifier->ToString(),
+						initializer_expression_type_specifier->ToString()),
+				errors);
 	} else {
-
-		if (widening_analysis == AMBIGUOUS) {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::AMBIGUOUS_WIDENING_CONVERSION,
-							initializer->GetPosition().begin.line,
-							initializer->GetPosition().begin.column,
-							type_specifier->ToString(),
-							initializer_expression_type_specifier->ToString()),
-					errors);
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::ASSIGNMENT_TYPE_ERROR,
-							initializer->GetPosition().begin.line,
-							initializer->GetPosition().begin.column,
-							type_specifier->ToString(),
-							initializer_expression_type_specifier->ToString()),
-					errors);
-		}
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::ASSIGNMENT_TYPE_ERROR,
+						initializer->GetPosition().begin.line,
+						initializer->GetPosition().begin.column,
+						type_specifier->ToString(),
+						initializer_expression_type_specifier->ToString()),
+				errors);
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
@@ -432,7 +425,6 @@ const SetResult SumType::InstantiateCore(
 	} else {
 		auto conversion_result = AnalyzeConversion(*type_specifier,
 				*value_type_specifier);
-
 		if (conversion_result == UNAMBIGUOUS) {
 			auto tag = MapSpecifierToVariant(*type_specifier,
 					*value_type_specifier);

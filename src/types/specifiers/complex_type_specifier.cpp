@@ -79,7 +79,7 @@ const_shared_ptr<TypeDefinition> ComplexTypeSpecifier::GetType(
 	return type;
 }
 
-const bool ComplexTypeSpecifier::IsAssignableTo(
+const AnalysisResult ComplexTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	auto resolved_other = NestedTypeSpecifier::Resolve(other, type_table);
@@ -91,28 +91,22 @@ const bool ComplexTypeSpecifier::IsAssignableTo(
 		try {
 			auto container = GetContainer();
 			auto other_container = as_complex->GetContainer();
-			if (container) {
-				if (other_container) {
-					return *container == *other_container
-							&& as_complex->GetTypeName()->compare(
-									*GetTypeName()) == 0;
-				}
-			} else {
-				if (as_complex->GetTypeName()->compare(*GetTypeName()) == 0) {
-					return true;
-				}
+			if (container && other_container && *container == *other_container
+					&& as_complex->GetTypeName()->compare(*GetTypeName())
+							== 0) {
+				return AnalysisResult::EQUIVALENT;
+			} else if (as_complex->GetTypeName()->compare(*GetTypeName())
+					== 0) {
+				return AnalysisResult::EQUIVALENT;
 			}
 
-			if (as_complex->AnalyzeConversion(type_table, *this)
-					== ConversionResult::UNAMBIGUOUS) {
-				return true;
-			}
+			return as_complex->AnalyzeConversion(type_table, *this);
 
 		} catch (std::bad_cast& e) {
 		}
 	}
 
-	return false;
+	return AnalysisResult::INCOMPATIBLE;
 }
 
 const std::string ComplexTypeSpecifier::ToString() const {
@@ -131,7 +125,7 @@ bool ComplexTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const ConversionResult ComplexTypeSpecifier::AnalyzeConversion(
+const AnalysisResult ComplexTypeSpecifier::AnalyzeConversion(
 		const TypeTable& type_table, const TypeSpecifier& other) const {
 	auto type = GetType(type_table);
 

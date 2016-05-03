@@ -33,11 +33,13 @@ SumTypeSpecifier::SumTypeSpecifier(
 		SumTypeSpecifier(complex->GetTypeName(), complex->GetNamespace()) {
 }
 
-const bool SumTypeSpecifier::IsAssignableTo(
+const AnalysisResult SumTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	if (ComplexTypeSpecifier::IsAssignableTo(other, type_table)) {
-		return true;
+	auto complex_result = ComplexTypeSpecifier::IsAssignableTo(other,
+			type_table);
+	if (complex_result) {
+		return complex_result;
 	}
 
 	auto other_type = other->GetType(type_table, RESOLVE);
@@ -48,9 +50,7 @@ const bool SumTypeSpecifier::IsAssignableTo(
 		if (other_specifier_as_complex) {
 			auto analysis = other_type_as_sum->AnalyzeConversion(
 					*other_specifier_as_complex, *this);
-			if (analysis == ConversionResult::UNAMBIGUOUS) {
-				return true;
-			}
+			return analysis;
 		}
 
 		auto other_specifier_as_maybe = dynamic_pointer_cast<
@@ -61,5 +61,5 @@ const bool SumTypeSpecifier::IsAssignableTo(
 		}
 	}
 
-	return false;
+	return AnalysisResult::INCOMPATIBLE;
 }
