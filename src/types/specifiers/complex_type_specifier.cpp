@@ -79,7 +79,7 @@ const_shared_ptr<TypeDefinition> ComplexTypeSpecifier::GetType(
 	return type;
 }
 
-const AnalysisResult ComplexTypeSpecifier::IsAssignableTo(
+const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	auto resolved_other = NestedTypeSpecifier::Resolve(other, type_table);
@@ -100,7 +100,7 @@ const AnalysisResult ComplexTypeSpecifier::IsAssignableTo(
 				return AnalysisResult::EQUIVALENT;
 			}
 
-			return as_complex->AnalyzeConversion(type_table, *this);
+			return as_complex->AnalyzeWidening(type_table, *this);
 
 		} catch (std::bad_cast& e) {
 		}
@@ -125,7 +125,7 @@ bool ComplexTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const AnalysisResult ComplexTypeSpecifier::AnalyzeConversion(
+const AnalysisResult ComplexTypeSpecifier::AnalyzeWidening(
 		const TypeTable& type_table, const TypeSpecifier& other) const {
 	auto type = GetType(type_table);
 

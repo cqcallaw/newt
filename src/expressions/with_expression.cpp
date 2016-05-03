@@ -206,7 +206,7 @@ const ErrorListRef WithExpression::Validate(
 									record_type_specifier);
 
 					auto assignability =
-							expression_type_specifier->IsAssignableTo(
+							expression_type_specifier->AnalyzeAssignmentTo(
 									member_type_specifier, *type_table);
 					if (assignability == AnalysisResult::AMBIGUOUS) {
 						errors =

@@ -32,7 +32,7 @@ public:
 	virtual ~MaybeTypeSpecifier();
 
 	virtual const std::string ToString() const;
-	virtual const AnalysisResult IsAssignableTo(
+	virtual const AnalysisResult AnalyzeAssignmentTo(
 			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
 
@@ -42,7 +42,7 @@ public:
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const;
 
-	virtual const AnalysisResult AnalyzeConversion(
+	virtual const AnalysisResult AnalyzeWidening(
 			const TypeTable& type_table, const TypeSpecifier& other) const;
 
 	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const;

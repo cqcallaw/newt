@@ -79,7 +79,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							initializer_expression_type);
 			if (!as_array
-					|| !initializer_expression_type->IsAssignableTo(m_type,
+					|| !initializer_expression_type->AnalyzeAssignmentTo(m_type,
 							execution_context->GetTypeTable())) {
 				errors =
 						ErrorList::From(

@@ -35,7 +35,7 @@ public:
 	virtual ~FunctionTypeSpecifier();
 
 	virtual const string ToString() const;
-	virtual const AnalysisResult IsAssignableTo(
+	virtual const AnalysisResult AnalyzeAssignmentTo(
 			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
 

@@ -40,7 +40,7 @@ const std::string NestedTypeSpecifier::ToString() const {
 	return buffer.str();
 }
 
-const AnalysisResult NestedTypeSpecifier::IsAssignableTo(
+const AnalysisResult NestedTypeSpecifier::AnalyzeAssignmentTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	auto other_as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(

@@ -186,7 +186,7 @@ const ErrorListRef InvokeExpression::Validate(
 								argument_expression->GetTypeSpecifier(
 										execution_context);
 						auto conversion_analysis =
-								argument_type->IsAssignableTo(parameter_type,
+								argument_type->AnalyzeAssignmentTo(parameter_type,
 										execution_context->GetTypeTable());
 						if (conversion_analysis == AMBIGUOUS) {
 							errors =
@@ -259,7 +259,7 @@ const ErrorListRef InvokeExpression::Validate(
 										execution_context);
 
 						auto conversion_analysis =
-								argument_type->IsAssignableTo(parameter_type,
+								argument_type->AnalyzeAssignmentTo(parameter_type,
 										execution_context->GetTypeTable());
 						if (conversion_analysis == AMBIGUOUS) {
 							errors =

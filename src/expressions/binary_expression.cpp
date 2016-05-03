@@ -99,27 +99,27 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 
 	auto type_table = execution_context->GetTypeTable();
 
-	if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean(),
+	if (left_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetBoolean(),
 			type_table) == EQUIVALENT) {
 		bool left_value = *(left_result->GetData<bool>());
 
-		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean(),
+		if (right_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetBoolean(),
 				type_table) == EQUIVALENT) {
 			bool right_value = *(right_result->GetData<bool>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt(),
+		} else if (right_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetInt(),
 				type_table) == EQUIVALENT) {
 			int right_value = *(right_result->GetData<int>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(
+		} else if (right_type->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetDouble(), type_table)
 				== EQUIVALENT) {
 			double right_value = *(right_result->GetData<double>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(
+		} else if (right_type->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetString(), type_table)
 				== EQUIVALENT) {
 			string right_value = *(right_result->GetData<string>());
@@ -128,27 +128,27 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 		} else {
 			assert(false);
 		}
-	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt(),
+	} else if (left_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetInt(),
 			type_table) == EQUIVALENT) {
 		int left_value = *(left_result->GetData<int>());
 
-		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean(),
+		if (right_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetBoolean(),
 				type_table) == EQUIVALENT) {
 			bool right_value = *(right_result->GetData<bool>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt(),
+		} else if (right_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetInt(),
 				type_table) == EQUIVALENT) {
 			int right_value = *(right_result->GetData<int>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(
+		} else if (right_type->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetDouble(), type_table)
 				== EQUIVALENT) {
 			double right_value = *(right_result->GetData<double>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(
+		} else if (right_type->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetString(), type_table)
 				== EQUIVALENT) {
 			string right_value = *(right_result->GetData<string>());
@@ -157,27 +157,27 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 		} else {
 			assert(false);
 		}
-	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetDouble(),
+	} else if (left_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetDouble(),
 			type_table) == EQUIVALENT) {
 		double left_value = *(left_result->GetData<double>());
 
-		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean(),
+		if (right_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetBoolean(),
 				type_table) == EQUIVALENT) {
 			bool right_value = *(right_result->GetData<bool>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt(),
+		} else if (right_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetInt(),
 				type_table) == EQUIVALENT) {
 			int right_value = *(right_result->GetData<int>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(
+		} else if (right_type->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetDouble(), type_table)
 				== EQUIVALENT) {
 			double right_value = *(right_result->GetData<double>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(
+		} else if (right_type->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetString(), type_table)
 				== EQUIVALENT) {
 			string right_value = *(right_result->GetData<string>());
@@ -186,27 +186,27 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 		} else {
 			assert(false);
 		}
-	} else if (left_type->IsAssignableTo(PrimitiveTypeSpecifier::GetString(),
+	} else if (left_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetString(),
 			type_table) == EQUIVALENT) {
 		string left_value = *(left_result->GetData<string>());
 
-		if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean(),
+		if (right_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetBoolean(),
 				type_table) == EQUIVALENT) {
 			bool right_value = *(right_result->GetData<bool>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt(),
+		} else if (right_type->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetInt(),
 				type_table) == EQUIVALENT) {
 			int right_value = *(right_result->GetData<int>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(
+		} else if (right_type->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetDouble(), type_table)
 				== EQUIVALENT) {
 			double right_value = *(right_result->GetData<double>());
 			return compute(left_value, right_value, left_position,
 					right_position);
-		} else if (right_type->IsAssignableTo(
+		} else if (right_type->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetString(), type_table)
 				== EQUIVALENT) {
 			string right_value = *(right_result->GetData<string>());
@@ -245,7 +245,7 @@ const ErrorListRef BinaryExpression::Validate(
 
 	const_shared_ptr<TypeSpecifier> left_type = left->GetTypeSpecifier(
 			execution_context);
-	auto left_analysis = left_type->IsAssignableTo(valid_left,
+	auto left_analysis = left_type->AnalyzeAssignmentTo(valid_left,
 			execution_context->GetTypeTable());
 	if (left_analysis != EQUIVALENT && left_analysis != UNAMBIGUOUS) {
 		result = ErrorList::From(
@@ -266,7 +266,7 @@ const ErrorListRef BinaryExpression::Validate(
 	}
 
 	result = ErrorList::Concatenate(result, right->Validate(execution_context));
-	auto right_analysis = right_type->IsAssignableTo(valid_right,
+	auto right_analysis = right_type->AnalyzeAssignmentTo(valid_right,
 			execution_context->GetTypeTable());
 	if (right_analysis != EQUIVALENT && right_analysis != UNAMBIGUOUS) {
 		result = ErrorList::From(

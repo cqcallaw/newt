@@ -42,13 +42,13 @@ bool ArrayTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const AnalysisResult ArrayTypeSpecifier::IsAssignableTo(
+const AnalysisResult ArrayTypeSpecifier::AnalyzeAssignmentTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
 			const ArrayTypeSpecifier>(other);
 	if (as_array) {
-		return m_element_type_specifier->IsAssignableTo(
+		return m_element_type_specifier->AnalyzeAssignmentTo(
 				as_array->GetElementTypeSpecifier(), type_table);
 	}
 

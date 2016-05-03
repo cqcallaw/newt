@@ -88,7 +88,7 @@ const ErrorListRef MaybeDeclarationStatement::preprocess(
 			if (initializer) {
 				auto initializer_type_specifier = initializer->GetTypeSpecifier(
 						execution_context, RESOLVE);
-				if (initializer_type_specifier->IsAssignableTo(root_specifier,
+				if (initializer_type_specifier->AnalyzeAssignmentTo(root_specifier,
 						*type_table)) {
 					if (initializer->IsConstant()) {
 						auto result = initializer->Evaluate(execution_context);
@@ -109,7 +109,7 @@ const ErrorListRef MaybeDeclarationStatement::preprocess(
 						value = static_pointer_cast<const Sum>(
 								maybe_type->GetDefaultValue(type_table));
 					}
-				} else if (initializer_type_specifier->IsAssignableTo(
+				} else if (initializer_type_specifier->AnalyzeAssignmentTo(
 						TypeTable::GetNilTypeSpecifier(), *type_table)) {
 					//do nothing; our default value is fine
 				} else {
@@ -172,7 +172,7 @@ const ErrorListRef MaybeDeclarationStatement::execute(
 			plain_shared_ptr<Sum> value = nullptr;
 			auto initializer_type_specifier = initializer->GetTypeSpecifier(
 					execution_context, RESOLVE);
-			if (initializer_type_specifier->IsAssignableTo(root_specifier,
+			if (initializer_type_specifier->AnalyzeAssignmentTo(root_specifier,
 					*type_table)) {
 				auto result = initializer->Evaluate(execution_context);
 				errors = result->GetErrors();
@@ -187,7 +187,7 @@ const ErrorListRef MaybeDeclarationStatement::execute(
 								result->GetRawData());
 					}
 				}
-			} else if (initializer_type_specifier->IsAssignableTo(
+			} else if (initializer_type_specifier->AnalyzeAssignmentTo(
 					TypeTable::GetNilTypeSpecifier(), *type_table)) {
 				//no-op: we don't need to re-assign the nil value
 			} else {

@@ -38,7 +38,8 @@ public:
 	}
 
 	virtual const std::string ToString() const = 0;
-	virtual const AnalysisResult IsAssignableTo(const_shared_ptr<TypeSpecifier> other,
+	virtual const AnalysisResult AnalyzeAssignmentTo(
+			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const = 0;
 
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
@@ -51,7 +52,7 @@ public:
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const = 0;
 
-	virtual const AnalysisResult AnalyzeConversion(const TypeTable& type_table,
+	virtual const AnalysisResult AnalyzeWidening(const TypeTable& type_table,
 			const TypeSpecifier& other) const {
 		return INCOMPATIBLE;
 	}

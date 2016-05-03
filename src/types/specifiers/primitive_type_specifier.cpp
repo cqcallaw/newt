@@ -57,13 +57,14 @@ const string PrimitiveTypeSpecifier::ToString(
 	return buffer.str();
 }
 
-const AnalysisResult PrimitiveTypeSpecifier::IsAssignableTo(
+const AnalysisResult PrimitiveTypeSpecifier::AnalyzeAssignmentTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	auto resolved = NestedTypeSpecifier::Resolve(other, type_table);
-	auto resolved_analysis = resolved->AnalyzeConversion(type_table, *this);
-	if (resolved_analysis != AnalysisResult::INCOMPATIBLE) {
-		return resolved_analysis;
+
+	auto widening_analysis = resolved->AnalyzeWidening(type_table, *this);
+	if (widening_analysis != AnalysisResult::INCOMPATIBLE) {
+		return widening_analysis;
 	}
 
 	auto other_as_primitive =

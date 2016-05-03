@@ -94,7 +94,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 			array = base_evaluation->GetData<Array>();
 			const_shared_ptr<TypeSpecifier> index_expression_type =
 					m_expression->GetTypeSpecifier(context);
-			auto index_analysis = index_expression_type->IsAssignableTo(
+			auto index_analysis = index_expression_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
 			if (index_analysis == EQUIVALENT || index_analysis == UNAMBIGUOUS) {
 				const_shared_ptr<Result> index_expression_evaluation =
@@ -160,19 +160,19 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 			auto type_table = context->GetTypeTable();
 			const_shared_ptr<TypeSpecifier> element_type_specifier =
 					array->GetElementTypeSpecifier();
-			if (element_type_specifier->IsAssignableTo(
+			if (element_type_specifier->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetBoolean(),
 					context->GetTypeTable()) == EQUIVALENT) {
 				result_value = array->GetValue<bool>(index, *type_table);
-			} else if (element_type_specifier->IsAssignableTo(
+			} else if (element_type_specifier->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())
 					== EQUIVALENT) {
 				result_value = array->GetValue<int>(index, *type_table);
-			} else if (element_type_specifier->IsAssignableTo(
+			} else if (element_type_specifier->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetDouble(),
 					context->GetTypeTable()) == EQUIVALENT) {
 				result_value = array->GetValue<double>(index, *type_table);
-			} else if (element_type_specifier->IsAssignableTo(
+			} else if (element_type_specifier->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetString(),
 					context->GetTypeTable()) == EQUIVALENT) {
 				result_value = array->GetValue<string>(index, *type_table);
@@ -428,20 +428,20 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 				array->GetElementTypeSpecifier();
 		shared_ptr<const Array> new_array = nullptr;
 
-		if (element_type_specifier->IsAssignableTo(
+		if (element_type_specifier->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetBoolean(),
 				context->GetTypeTable())) {
 			new_array = array->WithValue<bool>(index,
 					static_pointer_cast<const bool>(value), *type_table);
-		} else if (element_type_specifier->IsAssignableTo(
+		} else if (element_type_specifier->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())) {
 			new_array = array->WithValue<int>(index,
 					static_pointer_cast<const int>(value), *type_table);
-		} else if (element_type_specifier->IsAssignableTo(
+		} else if (element_type_specifier->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetDouble(), context->GetTypeTable())) {
 			new_array = array->WithValue<double>(index,
 					static_pointer_cast<const double>(value), *type_table);
-		} else if (element_type_specifier->IsAssignableTo(
+		} else if (element_type_specifier->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetString(), context->GetTypeTable())) {
 			new_array = array->WithValue<string>(index,
 					static_pointer_cast<const string>(value), *type_table);
@@ -480,7 +480,7 @@ const ErrorListRef ArrayVariable::Validate(
 	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> index_expression_type =
 				m_expression->GetTypeSpecifier(context);
-		auto index_analysis = index_expression_type->IsAssignableTo(
+		auto index_analysis = index_expression_type->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
 		if (index_analysis == EQUIVALENT || index_analysis == UNAMBIGUOUS) {
 			auto base_type_specifier = m_base_variable->GetTypeSpecifier(

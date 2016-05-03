@@ -68,7 +68,7 @@ const string FunctionTypeSpecifier::ToString() const {
 	return buffer.str();
 }
 
-const AnalysisResult FunctionTypeSpecifier::IsAssignableTo(
+const AnalysisResult FunctionTypeSpecifier::AnalyzeAssignmentTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	if (*this == *other) {

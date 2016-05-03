@@ -207,7 +207,7 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 
 	const_shared_ptr<TypeSpecifier> initializer_expression_type =
 			initializer->GetTypeSpecifier(execution_context);
-	auto initializer_analysis = initializer_expression_type->IsAssignableTo(
+	auto initializer_analysis = initializer_expression_type->AnalyzeAssignmentTo(
 			type_specifier, execution_context->GetTypeTable());
 	if (initializer_analysis == EQUIVALENT) {
 		if (initializer->IsConstant()) {
@@ -260,7 +260,7 @@ const SetResult RecordType::InstantiateCore(
 			type_specifier);
 
 	if (specifier
-			&& value_type_specifier->IsAssignableTo(type_specifier,
+			&& value_type_specifier->AnalyzeAssignmentTo(type_specifier,
 					execution_context->GetTypeTable())) {
 		auto set_result = execution_context->SetSymbol(instance_name, specifier,
 				instance, execution_context->GetTypeTable());

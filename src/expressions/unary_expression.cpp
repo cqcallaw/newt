@@ -66,7 +66,7 @@ const ErrorListRef UnaryExpression::Validate(
 
 	const_shared_ptr<TypeSpecifier> expression_type =
 			expression->GetTypeSpecifier(execution_context);
-	auto operand_analysis = expression_type->IsAssignableTo(
+	auto operand_analysis = expression_type->AnalyzeAssignmentTo(
 			PrimitiveTypeSpecifier::GetDouble(),
 			execution_context->GetTypeTable());
 	if (operand_analysis != EQUIVALENT && operand_analysis != UNAMBIGUOUS) {
@@ -97,7 +97,7 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 	} else {
 		switch (m_operator) {
 		case UNARY_MINUS: {
-			auto expression_analysis = expression_type->IsAssignableTo(
+			auto expression_analysis = expression_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetInt(),
 					execution_context->GetTypeTable());
 			if (expression_analysis == EQUIVALENT
@@ -105,7 +105,7 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 				int* value = new int;
 				*value = -(*(evaluation->GetData<int>()));
 				result = (void *) value;
-			} else if (expression_type->IsAssignableTo(
+			} else if (expression_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetDouble(),
 					execution_context->GetTypeTable())) {
 				double* value = new double;
@@ -117,20 +117,20 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 			break;
 		}
 		case NOT: {
-			if (expression_type->IsAssignableTo(
+			if (expression_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetBoolean(),
 					execution_context->GetTypeTable()) == EQUIVALENT) {
 				bool old_value = *(evaluation->GetData<bool>());
 				bool* value = new bool(!old_value);
 				result = (void *) value;
-			} else if (expression_type->IsAssignableTo(
+			} else if (expression_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetInt(),
 					execution_context->GetTypeTable()) == EQUIVALENT) {
 				int old_value = *(evaluation->GetData<int>());
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
 				break;
-			} else if (expression_type->IsAssignableTo(
+			} else if (expression_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetDouble(),
 					execution_context->GetTypeTable()) == EQUIVALENT) {
 				double old_value = *(evaluation->GetData<double>());

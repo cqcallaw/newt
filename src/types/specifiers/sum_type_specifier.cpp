@@ -33,10 +33,10 @@ SumTypeSpecifier::SumTypeSpecifier(
 		SumTypeSpecifier(complex->GetTypeName(), complex->GetNamespace()) {
 }
 
-const AnalysisResult SumTypeSpecifier::IsAssignableTo(
+const AnalysisResult SumTypeSpecifier::AnalyzeAssignmentTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	auto complex_result = ComplexTypeSpecifier::IsAssignableTo(other,
+	auto complex_result = ComplexTypeSpecifier::AnalyzeAssignmentTo(other,
 			type_table);
 	if (complex_result) {
 		return complex_result;
@@ -56,7 +56,7 @@ const AnalysisResult SumTypeSpecifier::IsAssignableTo(
 		auto other_specifier_as_maybe = dynamic_pointer_cast<
 				const MaybeTypeSpecifier>(other);
 		if (other_specifier_as_maybe) {
-			return IsAssignableTo(other_specifier_as_maybe->GetTypeSpecifier(),
+			return AnalyzeAssignmentTo(other_specifier_as_maybe->GetTypeSpecifier(),
 					type_table);
 		}
 	}

@@ -60,7 +60,7 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 	auto errors = ErrorList::GetTerminator();
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			m_expression->GetTypeSpecifier(execution_context);
-	auto assignment_analysis = expression_type_specifier->IsAssignableTo(
+	auto assignment_analysis = expression_type_specifier->AnalyzeAssignmentTo(
 			type_specifier, execution_context->GetTypeTable());
 	if (assignment_analysis == AnalysisResult::AMBIGUOUS) {
 		errors = ErrorList::From(

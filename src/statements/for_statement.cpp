@@ -68,7 +68,7 @@ const ErrorListRef ForStatement::preprocess(
 	//can't nest this loop because m_initial might be empty
 	if (m_loop_expression) {
 		auto loop_expression_analysis = m_loop_expression->GetTypeSpecifier(
-				execution_context)->IsAssignableTo(
+				execution_context)->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetInt(),
 				execution_context->GetTypeTable());
 		if (loop_expression_analysis == EQUIVALENT

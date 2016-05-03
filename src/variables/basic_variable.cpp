@@ -241,7 +241,7 @@ const ErrorListRef BasicVariable::AssignValue(
 			auto expression_type_specifier = expression->GetTypeSpecifier(
 					context);
 
-			if (expression_type_specifier->IsAssignableTo(symbol_type_specifier,
+			if (expression_type_specifier->AnalyzeAssignmentTo(symbol_type_specifier,
 					context->GetTypeTable())) {
 				auto expression_type = expression_type_specifier->GetType(
 						context->GetTypeTable(), RESOLVE);

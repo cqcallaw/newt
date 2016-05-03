@@ -43,16 +43,16 @@ const std::string MaybeTypeSpecifier::ToString() const {
 	return m_type_specifier->ToString() + "?";
 }
 
-const AnalysisResult MaybeTypeSpecifier::IsAssignableTo(
+const AnalysisResult MaybeTypeSpecifier::AnalyzeAssignmentTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	if (*this == *other) {
 		return AnalysisResult::EQUIVALENT;
-	} else if (TypeTable::GetNilTypeSpecifier()->IsAssignableTo(other,
+	} else if (TypeTable::GetNilTypeSpecifier()->AnalyzeAssignmentTo(other,
 			type_table) >= UNAMBIGUOUS) {
 		return AnalysisResult::UNAMBIGUOUS;
 	} else {
-		return m_type_specifier->IsAssignableTo(other, type_table);
+		return m_type_specifier->AnalyzeAssignmentTo(other, type_table);
 	}
 }
 
@@ -71,7 +71,7 @@ const_shared_ptr<TypeDefinition> MaybeTypeSpecifier::GetType(
 	return m_type;
 }
 
-const AnalysisResult MaybeTypeSpecifier::AnalyzeConversion(
+const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
 		const TypeTable& type_table, const TypeSpecifier& other) const {
 	if (m_type) {
 		auto placeholder = ComplexTypeSpecifier(
@@ -89,9 +89,9 @@ const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(
 const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(
 		const TypeSpecifier& type_specifier,
 		const TypeTable& type_table) const {
-	if (type_specifier.IsAssignableTo(m_type_specifier, type_table)) {
+	if (type_specifier.AnalyzeAssignmentTo(m_type_specifier, type_table)) {
 		return VARIANT_NAME;
-	} else if (type_specifier.IsAssignableTo(TypeTable::GetNilTypeSpecifier(),
+	} else if (type_specifier.AnalyzeAssignmentTo(TypeTable::GetNilTypeSpecifier(),
 			type_table)) {
 		return EMPTY_NAME;
 	}

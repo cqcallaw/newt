@@ -95,7 +95,7 @@ Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 
 const_shared_ptr<Symbol> Symbol::WithValue(const_shared_ptr<TypeSpecifier> type,
 		const_shared_ptr<void> value, const TypeTable& type_table) const {
-	if (type->IsAssignableTo(this->m_type_specifier, type_table)
+	if (type->AnalyzeAssignmentTo(this->m_type_specifier, type_table)
 			!= EQUIVALENT) {
 		return GetDefaultSymbol();
 	}

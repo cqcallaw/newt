@@ -49,7 +49,7 @@ const ErrorListRef IfStatement::preprocess(
 
 	if (m_expression) {
 		auto expression_analysis = m_expression->GetTypeSpecifier(
-				execution_context)->IsAssignableTo(
+				execution_context)->AnalyzeAssignmentTo(
 				PrimitiveTypeSpecifier::GetInt(),
 				execution_context->GetTypeTable());
 		if (expression_analysis == EQUIVALENT

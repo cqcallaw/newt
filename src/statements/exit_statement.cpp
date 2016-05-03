@@ -46,7 +46,7 @@ const ErrorListRef ExitStatement::preprocess(
 						expression_type_specifier);
 
 		if (expression_as_primitive == nullptr
-				|| !(expression_as_primitive->IsAssignableTo(
+				|| !(expression_as_primitive->AnalyzeAssignmentTo(
 						PrimitiveTypeSpecifier::GetInt(),
 						execution_context->GetTypeTable()))) {
 			yy::location position = m_exit_expression->GetPosition();

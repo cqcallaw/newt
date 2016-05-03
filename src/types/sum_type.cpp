@@ -300,7 +300,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 			initializer->GetTypeSpecifier(execution_context);
 
 	auto conversion_analysis =
-			initializer_expression_type_specifier->IsAssignableTo(
+			initializer_expression_type_specifier->AnalyzeAssignmentTo(
 					type_specifier, execution_context->GetTypeTable());
 	if (conversion_analysis == EQUIVALENT) {
 		auto expression_type = initializer_expression_type_specifier->GetType(
