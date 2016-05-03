@@ -169,7 +169,11 @@ const string Error::get_error_message() const {
 	case FUNCTION_RETURN_MISMATCH:
 		os << "Return type does not match function return type.";
 		break;
-	case FUNCTION_PARAMETER_TYPE_MISMATCH:
+	case FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS:
+		os << "Parameter type mismatch: can't unambiguous assign '" << m_s1
+				<< "' to '" << m_s2 << "'";
+		break;
+	case FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE:
 		os << "Parameter type mismatch: can't assign '" << m_s1 << "' to '"
 				<< m_s2 << "'";
 		break;

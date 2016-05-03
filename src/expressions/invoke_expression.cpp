@@ -54,8 +54,8 @@ InvokeExpression::~InvokeExpression() {
 const_shared_ptr<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetTypeSpecifier(
-			execution_context, RESOLVE);
+	const_shared_ptr<TypeSpecifier> expression_type =
+			m_expression->GetTypeSpecifier(execution_context, RESOLVE);
 
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
@@ -75,8 +75,8 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> value;
 
-	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetTypeSpecifier(
-			execution_context);
+	const_shared_ptr<TypeSpecifier> type_specifier =
+			m_expression->GetTypeSpecifier(execution_context);
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 					type_specifier);
@@ -144,8 +144,8 @@ const ErrorListRef InvokeExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<TypeSpecifier> type_specifier = m_expression->GetTypeSpecifier(
-			execution_context);
+	const_shared_ptr<TypeSpecifier> type_specifier =
+			m_expression->GetTypeSpecifier(execution_context);
 
 	errors = m_expression->Validate(execution_context);
 
@@ -183,20 +183,32 @@ const ErrorListRef InvokeExpression::Validate(
 						const_shared_ptr<TypeSpecifier> parameter_type =
 								declaration->GetTypeSpecifier();
 						const_shared_ptr<TypeSpecifier> argument_type =
-								argument_expression->GetTypeSpecifier(execution_context);
-						if (!argument_type->IsAssignableTo(parameter_type,
-								execution_context->GetTypeTable())) {
+								argument_expression->GetTypeSpecifier(
+										execution_context);
+						auto conversion_analysis =
+								argument_type->IsAssignableTo(parameter_type,
+										execution_context->GetTypeTable());
+						if (conversion_analysis == AMBIGUOUS) {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
-													Error::FUNCTION_PARAMETER_TYPE_MISMATCH,
+													Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
+													argument_expression->GetPosition().begin.line,
+													argument_expression->GetPosition().begin.column,
+													argument_type->ToString(),
+													parameter_type->ToString()),
+											errors);
+						} else if (conversion_analysis == INCOMPATIBLE) {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
 													argument_expression->GetPosition().begin.line,
 													argument_expression->GetPosition().begin.column,
 													argument_type->ToString(),
 													parameter_type->ToString()),
 											errors);
 						}
-
 						argument = argument->GetNext();
 						parameter = parameter->GetNext();
 					} else {
@@ -243,14 +255,27 @@ const ErrorListRef InvokeExpression::Validate(
 						const_shared_ptr<TypeSpecifier> parameter_type =
 								type_parameter_list->GetData();
 						const_shared_ptr<TypeSpecifier> argument_type =
-								argument_expression->GetTypeSpecifier(execution_context);
+								argument_expression->GetTypeSpecifier(
+										execution_context);
 
-						if (!argument_type->IsAssignableTo(parameter_type,
-								execution_context->GetTypeTable())) {
+						auto conversion_analysis =
+								argument_type->IsAssignableTo(parameter_type,
+										execution_context->GetTypeTable());
+						if (conversion_analysis == AMBIGUOUS) {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
-													Error::FUNCTION_PARAMETER_TYPE_MISMATCH,
+													Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
+													argument_expression->GetPosition().begin.line,
+													argument_expression->GetPosition().begin.column,
+													argument_type->ToString(),
+													parameter_type->ToString()),
+											errors);
+						} else if (conversion_analysis == INCOMPATIBLE) {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
 													argument_expression->GetPosition().begin.line,
 													argument_expression->GetPosition().begin.column,
 													argument_type->ToString(),
