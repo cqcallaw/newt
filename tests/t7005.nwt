@@ -3,7 +3,7 @@ list {
 	terminator
 	| item {
 		data:int,
-		next:list
+		next:list?
 	}
 }
 

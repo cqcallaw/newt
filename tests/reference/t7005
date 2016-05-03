@@ -5,16 +5,19 @@ Root Symbol Table:
 list l:
 {item}
 	int data: 16
-	list next:
+	list? next:
+	{value}
 	{item}
 		int data: 8
-		list next:
+		list? next:
+		{value}
 		{item}
 			int data: 4
-			list next:
+			list? next:
+			{value}
 			{item}
 				int data: 2
-				list next: {terminator} <unit>
+				list? next: {value} {terminator} <unit>
 
 
 
@@ -29,7 +32,7 @@ list:
 		data:
 			int (0)
 		next:
-			list
+			list? ({empty} <unit>)
 
 	terminator:
 		<unit>

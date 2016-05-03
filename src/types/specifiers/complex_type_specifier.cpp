@@ -20,6 +20,7 @@
 #include <complex_type_specifier.h>
 #include <complex_type.h>
 #include <nested_type_specifier.h>
+#include <maybe_type_specifier.h>
 #include <unit_type.h>
 
 const_shared_ptr<ComplexType> ComplexTypeSpecifier::GetContainerType(
@@ -103,6 +104,22 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 			return as_complex->AnalyzeWidening(type_table, *this);
 
 		} catch (std::bad_cast& e) {
+		}
+	}
+
+	const_shared_ptr<MaybeTypeSpecifier> as_maybe = std::dynamic_pointer_cast<
+			const MaybeTypeSpecifier>(resolved_other);
+	if (as_maybe) {
+		if (*this == *TypeTable::GetNilTypeSpecifier()) {
+			return UNAMBIGUOUS;
+		}
+
+		auto base_analysis = AnalyzeAssignmentTo(as_maybe->GetTypeSpecifier(),
+				type_table);
+		if (base_analysis == EQUIVALENT) {
+			return UNAMBIGUOUS;
+		} else if (base_analysis == UNAMBIGUOUS) {
+			return UNAMBIGUOUS_NESTED;
 		}
 	}
 

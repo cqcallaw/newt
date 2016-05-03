@@ -15,8 +15,6 @@ list:
 		int (0)
 	tail:
 		<sum>
-		next:
-			list
 		terminator:
 			<unit>
 

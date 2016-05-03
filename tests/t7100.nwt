@@ -4,7 +4,7 @@ list {
 	data:int,
 	tail {
 		terminator
-		| next:list
+		| next:list?
 	}
 }
 

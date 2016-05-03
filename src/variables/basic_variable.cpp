@@ -237,68 +237,81 @@ const ErrorListRef BasicVariable::AssignValue(
 		errors = expression_evaluation->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {
-			auto sum = static_pointer_cast<const Sum>(symbol->GetValue());
 			auto expression_type_specifier = expression->GetTypeSpecifier(
 					context);
 
-			if (expression_type_specifier->AnalyzeAssignmentTo(symbol_type_specifier,
-					context->GetTypeTable())) {
-				auto expression_type = expression_type_specifier->GetType(
-						context->GetTypeTable(), RESOLVE);
-				auto expression_type_as_sum =
-						dynamic_pointer_cast<const SumType>(expression_type);
+			plain_shared_ptr<Sum> new_sum = nullptr;
+			auto assignment_analysis =
+					expression_type_specifier->AnalyzeAssignmentTo(
+							symbol_type_specifier, context->GetTypeTable());
 
-				plain_shared_ptr<Sum> new_sum = nullptr;
-				auto as_complex = dynamic_pointer_cast<
-						const ComplexTypeSpecifier>(symbol_type_specifier);
-				if (as_complex) {
-					if (expression_type_as_sum) {
-						new_sum = expression_evaluation->GetData<Sum>();
+			auto debug = symbol_type_specifier->ToString();
+			auto debug2 = expression_type_specifier->ToString();
+
+			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					symbol_type_specifier);
+			if (as_complex) {
+				if (assignment_analysis == EQUIVALENT) {
+					new_sum = expression_evaluation->GetData<Sum>();
+				} else if (assignment_analysis == UNAMBIGUOUS) {
+					auto tag = as_sum->MapSpecifierToVariant(*as_complex,
+							*expression_type_specifier);
+					new_sum = make_shared<Sum>(tag,
+							expression_evaluation->GetRawData());
+				} else {
+					assert(false);
+				}
+				errors = SetSymbol(output_context, as_complex, new_sum);
+			}
+
+			auto as_maybe = dynamic_pointer_cast<const MaybeTypeSpecifier>(
+					symbol_type_specifier);
+			if (as_maybe) {
+				if (assignment_analysis == EQUIVALENT) {
+					new_sum = expression_evaluation->GetData<Sum>();
+				} else if (assignment_analysis == UNAMBIGUOUS) {
+					plain_shared_ptr<void> data =
+							expression_evaluation->GetRawData();
+					if (expression_type_specifier->AnalyzeAssignmentTo(
+							TypeTable::GetNilTypeSpecifier(),
+							context->GetTypeTable()) == EQUIVALENT) {
+						new_sum = make_shared<Sum>(
+								MaybeTypeSpecifier::EMPTY_NAME, data);
 					} else {
-						//we're widening
-						auto tag = as_sum->MapSpecifierToVariant(*as_complex,
+						new_sum = make_shared<Sum>(
+								MaybeTypeSpecifier::VARIANT_NAME, data);
+					}
+				} else if (assignment_analysis == UNAMBIGUOUS_NESTED) {
+					//do the requisite widening
+					plain_shared_ptr<void> data =
+							expression_evaluation->GetRawData();
+					auto base_type_specifier = as_maybe->GetTypeSpecifier();
+					auto base_type = base_type_specifier->GetType(
+							context->GetTypeTable(), RESOLVE);
+					auto base_as_sum = dynamic_pointer_cast<const SumType>(
+							base_type);
+					if (base_as_sum) {
+						//TODO: allow this widening process to be recursive
+						auto sum_type_specifier = static_pointer_cast<
+								const ComplexTypeSpecifier>(
+								base_type_specifier);
+						auto base_tag = base_as_sum->MapSpecifierToVariant(
+								*sum_type_specifier,
 								*expression_type_specifier);
-						new_sum = make_shared<Sum>(tag,
-								expression_evaluation->GetRawData());
-					}
-					errors = SetSymbol(output_context, as_complex, new_sum);
-				}
-
-				auto as_maybe = dynamic_pointer_cast<const MaybeTypeSpecifier>(
-						symbol_type_specifier);
-				if (as_maybe) {
-					if (expression_type_as_sum) {
-						//we're _likely_ doing a direct assignment
-						//TODO: we have to consider sums that should be widened, not directly assigned
-						new_sum = expression_evaluation->GetData<Sum>();
+						assert(*base_tag != "");
+						data = make_shared<Sum>(base_tag, data);
 					} else {
-						//we're widening
-						auto base_type_specifier = as_maybe->GetTypeSpecifier();
-						auto base_type = base_type_specifier->GetType(
-								context->GetTypeTable(), RESOLVE);
-
-						plain_shared_ptr<void> data =
-								expression_evaluation->GetRawData();
-						auto base_as_sum = dynamic_pointer_cast<const SumType>(
-								base_type);
-						if (base_as_sum) {
-							auto sum_type_specifier = static_pointer_cast<
-									const ComplexTypeSpecifier>(
-									base_type_specifier);
-							auto base_tag = base_as_sum->MapSpecifierToVariant(
-									*sum_type_specifier,
-									*expression_type_specifier);
-							data = make_shared<Sum>(base_tag, data);
-						}
-
-						auto tag = as_maybe->MapSpecifierToVariant(
-								*expression_type_specifier,
-								context->GetTypeTable());
-
-						new_sum = make_shared<Sum>(tag, data);
+						//TODO: generalize this widening conversion process to more than sum types
+						assert(false);
 					}
-					errors = SetSymbol(output_context, as_maybe, new_sum);
+
+					new_sum = make_shared<Sum>(MaybeTypeSpecifier::VARIANT_NAME,
+							data);
+				} else {
+					assert(false);
 				}
+
+				errors = SetSymbol(output_context, as_maybe, new_sum);
 			}
 		}
 	}
