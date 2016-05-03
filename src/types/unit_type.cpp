@@ -83,7 +83,7 @@ const_shared_ptr<TypeTable> UnitType::GetDefinition() const {
 	return m_table;
 }
 
-const WideningResult UnitType::AnalyzeConversion(
+const ConversionResult UnitType::AnalyzeConversion(
 		const ComplexTypeSpecifier& current,
 		const TypeSpecifier& unaliased_other) const {
 	return INCOMPATIBLE;

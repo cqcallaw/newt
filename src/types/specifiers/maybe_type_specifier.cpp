@@ -67,7 +67,7 @@ const_shared_ptr<TypeDefinition> MaybeTypeSpecifier::GetType(
 	return m_type;
 }
 
-const WideningResult MaybeTypeSpecifier::AnalyzeConversion(
+const ConversionResult MaybeTypeSpecifier::AnalyzeConversion(
 		const TypeTable& type_table, const TypeSpecifier& other) const {
 	if (m_type) {
 		auto placeholder = ComplexTypeSpecifier(

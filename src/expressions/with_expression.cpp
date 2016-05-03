@@ -218,7 +218,8 @@ const ErrorListRef WithExpression::Validate(
 									*member_specifier_as_sum,
 									*expression_type_specifier);
 
-							if (widening_analysis == AMBIGUOUS) {
+							if (widening_analysis
+									== ConversionResult::AMBIGUOUS) {
 								errors =
 										ErrorList::From(
 												make_shared<Error>(

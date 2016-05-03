@@ -31,10 +31,6 @@ class Symbol;
 class DeclarationStatement;
 class Expression;
 
-enum WideningResult {
-	INCOMPATIBLE = 0, AMBIGUOUS = 1, UNAMBIGUOUS = 2
-};
-
 class TypeDefinition {
 public:
 	TypeDefinition() {

@@ -84,7 +84,7 @@ public:
 			const DeclarationListRef member_declarations,
 			const_shared_ptr<SumTypeSpecifier> sum_type_specifier);
 
-	virtual const WideningResult AnalyzeConversion(
+	virtual const ConversionResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& unaliased_other) const;
 

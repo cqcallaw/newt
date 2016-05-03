@@ -55,7 +55,7 @@ public:
 
 	virtual const std::string ToString() const;
 
-	virtual const WideningResult AnalyzeConversion(const TypeTable& type_table,
+	virtual const ConversionResult AnalyzeConversion(const TypeTable& type_table,
 			const TypeSpecifier& other) const;
 
 	virtual bool operator==(const TypeSpecifier& other) const;

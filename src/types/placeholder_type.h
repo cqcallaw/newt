@@ -87,7 +87,7 @@ public:
 		return nullptr;
 	}
 
-	virtual const WideningResult AnalyzeConversion(
+	virtual const ConversionResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& unaliased_other) const {
 		return INCOMPATIBLE;

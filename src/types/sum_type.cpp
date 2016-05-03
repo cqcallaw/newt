@@ -234,17 +234,17 @@ const_shared_ptr<Result> SumType::Build(
 	}
 }
 
-const WideningResult SumType::AnalyzeConversion(
+const ConversionResult SumType::AnalyzeConversion(
 		const ComplexTypeSpecifier& current, const TypeSpecifier& other) const {
 	//Note: "other" type is a type that is potentially convertible to the sum type.
 	auto count = m_definition->CountEntriesOfType(current, other);
 	if (count > 1) {
-		return AMBIGUOUS;
+		return ConversionResult::AMBIGUOUS;
 	} else if (count == 1) {
-		return UNAMBIGUOUS;
+		return ConversionResult::UNAMBIGUOUS;
 	}
 
-	return INCOMPATIBLE;
+	return ConversionResult::INCOMPATIBLE;
 }
 
 const_shared_ptr<Symbol> SumType::GetSymbol(const TypeTable& type_table,

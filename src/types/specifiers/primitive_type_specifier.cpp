@@ -61,7 +61,8 @@ const bool PrimitiveTypeSpecifier::IsAssignableTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
 	auto resolved = NestedTypeSpecifier::Resolve(other, type_table);
-	if (resolved->AnalyzeConversion(type_table, *this) == UNAMBIGUOUS) {
+	if (resolved->AnalyzeConversion(type_table, *this)
+			== ConversionResult::UNAMBIGUOUS) {
 		return true;
 	}
 

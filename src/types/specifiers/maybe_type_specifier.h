@@ -41,7 +41,7 @@ public:
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const;
 
-	virtual const WideningResult AnalyzeConversion(const TypeTable& type_table,
+	virtual const ConversionResult AnalyzeConversion(const TypeTable& type_table,
 			const TypeSpecifier& other) const;
 
 	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const;

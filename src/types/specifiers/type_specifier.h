@@ -25,6 +25,7 @@
 #include <linked_list.h>
 #include <alias_resolution.h>
 #include <type_definition.h>
+#include <conversion_result.h>
 
 class Expression;
 class DeclarationStatement;
@@ -50,7 +51,7 @@ public:
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const = 0;
 
-	virtual const WideningResult AnalyzeConversion(const TypeTable& type_table,
+	virtual const ConversionResult AnalyzeConversion(const TypeTable& type_table,
 			const TypeSpecifier& other) const {
 		return INCOMPATIBLE;
 	}

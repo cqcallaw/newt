@@ -104,7 +104,7 @@ const bool ComplexTypeSpecifier::IsAssignableTo(
 			}
 
 			if (as_complex->AnalyzeConversion(type_table, *this)
-					== UNAMBIGUOUS) {
+					== ConversionResult::UNAMBIGUOUS) {
 				return true;
 			}
 
@@ -131,7 +131,7 @@ bool ComplexTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const WideningResult ComplexTypeSpecifier::AnalyzeConversion(
+const ConversionResult ComplexTypeSpecifier::AnalyzeConversion(
 		const TypeTable& type_table, const TypeSpecifier& other) const {
 	auto type = GetType(type_table);
 

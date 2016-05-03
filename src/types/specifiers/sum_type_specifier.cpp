@@ -48,7 +48,7 @@ const bool SumTypeSpecifier::IsAssignableTo(
 		if (other_specifier_as_complex) {
 			auto analysis = other_type_as_sum->AnalyzeConversion(
 					*other_specifier_as_complex, *this);
-			if (analysis == UNAMBIGUOUS) {
+			if (analysis == ConversionResult::UNAMBIGUOUS) {
 				return true;
 			}
 		}

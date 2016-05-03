@@ -72,7 +72,8 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 				auto widening_analysis = sum_type->AnalyzeConversion(
 						*as_sum_specifier, *expression_type_specifier);
 
-				if (widening_analysis == AMBIGUOUS) {
+				if (widening_analysis
+						== ConversionResult::AMBIGUOUS) {
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::AMBIGUOUS_WIDENING_CONVERSION,
