@@ -191,7 +191,8 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 
 	if (result != m_table->end()) {
 		auto symbol = result->second;
-		if ((symbol->GetTypeSpecifier()->IsAssignableTo(type, type_table))) {
+		if (symbol->GetTypeSpecifier()->IsAssignableTo(type, type_table)
+				== EQUIVALENT) {
 			if (m_modifiers & Modifier::READONLY) {
 				return MUTATION_DISALLOWED;
 			} else {
