@@ -94,9 +94,9 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 			array = base_evaluation->GetData<Array>();
 			const_shared_ptr<TypeSpecifier> index_expression_type =
 					m_expression->GetTypeSpecifier(context);
-			if (index_expression_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetInt(),
-					context->GetTypeTable())) {
+			auto index_analysis = index_expression_type->IsAssignableTo(
+					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
+			if (index_analysis == EQUIVALENT || index_analysis == UNAMBIGUOUS) {
 				const_shared_ptr<Result> index_expression_evaluation =
 						m_expression->Evaluate(context);
 				errors = index_expression_evaluation->GetErrors();
@@ -162,19 +162,19 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 					array->GetElementTypeSpecifier();
 			if (element_type_specifier->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetBoolean(),
-					context->GetTypeTable())) {
+					context->GetTypeTable()) == EQUIVALENT) {
 				result_value = array->GetValue<bool>(index, *type_table);
 			} else if (element_type_specifier->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetInt(),
-					context->GetTypeTable())) {
+					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())
+					== EQUIVALENT) {
 				result_value = array->GetValue<int>(index, *type_table);
 			} else if (element_type_specifier->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetDouble(),
-					context->GetTypeTable())) {
+					context->GetTypeTable()) == EQUIVALENT) {
 				result_value = array->GetValue<double>(index, *type_table);
 			} else if (element_type_specifier->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetString(),
-					context->GetTypeTable())) {
+					context->GetTypeTable()) == EQUIVALENT) {
 				result_value = array->GetValue<string>(index, *type_table);
 			} else {
 				const_shared_ptr<ArrayTypeSpecifier> as_array =
@@ -337,13 +337,15 @@ const ErrorListRef ArrayVariable::AssignValue(
 						}
 					}
 				} else {
-					errors = errors->From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-									variable_column,
-									expression->GetTypeSpecifier(context)->ToString(),
-									element_type_specifier->ToString()),
-							errors);
+					errors =
+							errors->From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::ASSIGNMENT_TYPE_ERROR,
+											variable_line, variable_column,
+											expression->GetTypeSpecifier(
+													context)->ToString(),
+											element_type_specifier->ToString()),
+									errors);
 				}
 			}
 		} else {
@@ -478,9 +480,11 @@ const ErrorListRef ArrayVariable::Validate(
 	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> index_expression_type =
 				m_expression->GetTypeSpecifier(context);
-		if (index_expression_type->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())) {
-			auto base_type_specifier = m_base_variable->GetTypeSpecifier(context);
+		auto index_analysis = index_expression_type->IsAssignableTo(
+				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
+		if (index_analysis == EQUIVALENT || index_analysis == UNAMBIGUOUS) {
+			auto base_type_specifier = m_base_variable->GetTypeSpecifier(
+					context);
 			auto base_type = base_type_specifier->GetType(
 					context->GetTypeTable());
 

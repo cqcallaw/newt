@@ -60,37 +60,22 @@ const ErrorListRef ReturnStatement::GetReturnStatementErrors(
 	auto errors = ErrorList::GetTerminator();
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
 			m_expression->GetTypeSpecifier(execution_context);
-	if (!expression_type_specifier->IsAssignableTo(type_specifier,
-			execution_context->GetTypeTable())) {
-		auto as_sum_specifier = dynamic_pointer_cast<const SumTypeSpecifier>(
-				type_specifier);
-		if (as_sum_specifier) {
-			//widening of sum types requires special handling
-			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
-					as_sum_specifier, DEEP, RESOLVE);
-			if (sum_type) {
-				auto widening_analysis = sum_type->AnalyzeConversion(
-						*as_sum_specifier, *expression_type_specifier);
-
-				if (widening_analysis
-						== AnalysisResult::AMBIGUOUS) {
-					errors = ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::AMBIGUOUS_WIDENING_CONVERSION,
-									m_expression->GetPosition().begin.line,
-									m_expression->GetPosition().begin.column,
-									type_specifier->ToString(),
-									expression_type_specifier->ToString()),
-							errors);
-				}
-			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::FUNCTION_RETURN_MISMATCH,
-							m_expression->GetPosition().begin.line,
-							m_expression->GetPosition().begin.column), errors);
-		}
+	auto assignment_analysis = expression_type_specifier->IsAssignableTo(
+			type_specifier, execution_context->GetTypeTable());
+	if (assignment_analysis == AnalysisResult::AMBIGUOUS) {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::AMBIGUOUS_WIDENING_CONVERSION,
+						m_expression->GetPosition().begin.line,
+						m_expression->GetPosition().begin.column,
+						type_specifier->ToString(),
+						expression_type_specifier->ToString()), errors);
+	} else if (assignment_analysis == AnalysisResult::INCOMPATIBLE) {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::FUNCTION_RETURN_MISMATCH,
+						m_expression->GetPosition().begin.line,
+						m_expression->GetPosition().begin.column), errors);
 	}
 
 	return errors;

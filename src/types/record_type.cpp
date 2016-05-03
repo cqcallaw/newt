@@ -207,8 +207,9 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 
 	const_shared_ptr<TypeSpecifier> initializer_expression_type =
 			initializer->GetTypeSpecifier(execution_context);
-	if (initializer_expression_type->IsAssignableTo(type_specifier,
-			execution_context->GetTypeTable())) {
+	auto initializer_analysis = initializer_expression_type->IsAssignableTo(
+			type_specifier, execution_context->GetTypeTable());
+	if (initializer_analysis == EQUIVALENT) {
 		if (initializer->IsConstant()) {
 			const_shared_ptr<Result> result = initializer->Evaluate(
 					execution_context);

@@ -48,10 +48,12 @@ const ErrorListRef IfStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_expression) {
-		if (m_expression->GetTypeSpecifier(execution_context)->IsAssignableTo(
+		auto expression_analysis = m_expression->GetTypeSpecifier(
+				execution_context)->IsAssignableTo(
 				PrimitiveTypeSpecifier::GetInt(),
-				execution_context->GetTypeTable())) {
-
+				execution_context->GetTypeTable());
+		if (expression_analysis == EQUIVALENT
+				|| expression_analysis == UNAMBIGUOUS) {
 			SymbolContextListRef new_parent = SymbolContextList::From(
 					execution_context, execution_context->GetParent());
 			const shared_ptr<ExecutionContext> new_execution_context =

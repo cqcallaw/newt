@@ -47,7 +47,8 @@ const_shared_ptr<TypeSpecifier> UnaryExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return compute_result_type(
-			m_expression->GetTypeSpecifier(execution_context, resolution), m_operator);
+			m_expression->GetTypeSpecifier(execution_context, resolution),
+			m_operator);
 }
 
 const ErrorListRef UnaryExpression::Validate(
@@ -63,10 +64,12 @@ const ErrorListRef UnaryExpression::Validate(
 		return result;
 	}
 
-	const_shared_ptr<TypeSpecifier> expression_type = expression->GetTypeSpecifier(
-			execution_context);
-	if (!(expression_type->IsAssignableTo(PrimitiveTypeSpecifier::GetDouble(),
-			execution_context->GetTypeTable()))) {
+	const_shared_ptr<TypeSpecifier> expression_type =
+			expression->GetTypeSpecifier(execution_context);
+	auto operand_analysis = expression_type->IsAssignableTo(
+			PrimitiveTypeSpecifier::GetDouble(),
+			execution_context->GetTypeTable());
+	if (operand_analysis != EQUIVALENT && operand_analysis != UNAMBIGUOUS) {
 		result = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_RIGHT_OPERAND_TYPE,
@@ -83,8 +86,8 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	void* result = nullptr;
 
-	const_shared_ptr<TypeSpecifier> expression_type = m_expression->GetTypeSpecifier(
-			execution_context);
+	const_shared_ptr<TypeSpecifier> expression_type =
+			m_expression->GetTypeSpecifier(execution_context);
 	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
 			execution_context);
 	ErrorListRef evaluation_errors = evaluation->GetErrors();
@@ -94,9 +97,11 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 	} else {
 		switch (m_operator) {
 		case UNARY_MINUS: {
-			if (expression_type->IsAssignableTo(
+			auto expression_analysis = expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt(),
-					execution_context->GetTypeTable())) {
+					execution_context->GetTypeTable());
+			if (expression_analysis == EQUIVALENT
+					|| expression_analysis == UNAMBIGUOUS) {
 				int* value = new int;
 				*value = -(*(evaluation->GetData<int>()));
 				result = (void *) value;
@@ -114,20 +119,20 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 		case NOT: {
 			if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetBoolean(),
-					execution_context->GetTypeTable())) {
+					execution_context->GetTypeTable()) == EQUIVALENT) {
 				bool old_value = *(evaluation->GetData<bool>());
 				bool* value = new bool(!old_value);
 				result = (void *) value;
 			} else if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetInt(),
-					execution_context->GetTypeTable())) {
+					execution_context->GetTypeTable()) == EQUIVALENT) {
 				int old_value = *(evaluation->GetData<int>());
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
 				break;
 			} else if (expression_type->IsAssignableTo(
 					PrimitiveTypeSpecifier::GetDouble(),
-					execution_context->GetTypeTable())) {
+					execution_context->GetTypeTable()) == EQUIVALENT) {
 				double old_value = *(evaluation->GetData<double>());
 				bool* value = new bool(!(old_value != 0));
 				result = (void *) value;
