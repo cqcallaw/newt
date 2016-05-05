@@ -24,6 +24,15 @@
 #include <expression.h>
 #include <array_type.h>
 
+ArrayTypeSpecifier::ArrayTypeSpecifier(
+		const_shared_ptr<TypeSpecifier> element_type_specifier) :
+		m_element_type_specifier(element_type_specifier), m_type(
+				make_shared<ArrayType>(m_element_type_specifier)) {
+}
+
+ArrayTypeSpecifier::~ArrayTypeSpecifier() {
+}
+
 const string ArrayTypeSpecifier::ToString() const {
 	ostringstream buffer;
 
@@ -57,6 +66,5 @@ const AnalysisResult ArrayTypeSpecifier::AnalyzeAssignmentTo(
 
 const_shared_ptr<TypeDefinition> ArrayTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	//TODO: cache this result, which should never change
-	return make_shared<ArrayType>(m_element_type_specifier);
+	return m_type;
 }

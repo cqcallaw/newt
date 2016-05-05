@@ -24,16 +24,14 @@
 
 class Expression;
 class Statement;
+class ArrayType;
 
 using namespace std;
 class ArrayTypeSpecifier: public TypeSpecifier {
 public:
-	ArrayTypeSpecifier(const_shared_ptr<TypeSpecifier> element_type_specifier) :
-			m_element_type_specifier(element_type_specifier) {
-	}
+	ArrayTypeSpecifier(const_shared_ptr<TypeSpecifier> element_type_specifier);
 
-	virtual ~ArrayTypeSpecifier() {
-	}
+	virtual ~ArrayTypeSpecifier();
 
 	virtual const string ToString() const;
 
@@ -53,6 +51,7 @@ public:
 
 private:
 	const_shared_ptr<TypeSpecifier> m_element_type_specifier;
+	const_shared_ptr<ArrayType> m_type;
 };
 
 #endif /* ARRAY_TYPE_SPECIFIER_H_ */
