@@ -101,8 +101,10 @@ public:
 			if (cast) {
 				return cast;
 			}
-		} else if (m_parent && search_type == SearchType::DEEP) {
-			return m_parent->GetType<T>(name, search_type, resolution);
+		} else if (search_type == SearchType::DEEP) {
+			if (auto lock = m_parent.lock()) {
+				return lock->GetType<T>(name, search_type, resolution);
+			}
 		}
 
 		return shared_ptr<const T>();
@@ -143,7 +145,7 @@ private:
 	}
 
 	const shared_ptr<type_map> m_table;
-	const shared_ptr<TypeTable> m_parent;
+	const weak_ptr<TypeTable> m_parent;
 };
 
 #endif /* TYPE_TABLE_H_ */
