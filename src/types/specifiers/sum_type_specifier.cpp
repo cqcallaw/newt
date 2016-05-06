@@ -56,7 +56,7 @@ const AnalysisResult SumTypeSpecifier::AnalyzeAssignmentTo(
 		auto other_specifier_as_maybe = dynamic_pointer_cast<
 				const MaybeTypeSpecifier>(other);
 		if (other_specifier_as_maybe) {
-			return AnalyzeAssignmentTo(other_specifier_as_maybe->GetTypeSpecifier(),
+			return AnalyzeAssignmentTo(other_specifier_as_maybe->GetBaseTypeSpecifier(),
 					type_table);
 		}
 	}

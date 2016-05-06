@@ -1,20 +1,24 @@
-Parsing file ../tests/t7002.nwt...
-Parsed file ../tests/t7002.nwt.
+Parsing file ../tests/t7200.nwt...
+Parsed file ../tests/t7200.nwt.
 Root Symbol Table:
 ----------------
-list l: {terminator} <unit>
+list l:
+{node}
+	int data: 0
+	list? next: {empty}
+
 
 Root Type Table:
 ----------------
 list:
 	<sum>
-	item:
+	end:
+		<unit>
+	node:
 		<record>
 		data:
 			int (0)
 		next:
 			list? ({empty})
 
-	terminator:
-		<unit>
 

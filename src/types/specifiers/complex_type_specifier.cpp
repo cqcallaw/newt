@@ -114,7 +114,7 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 			return UNAMBIGUOUS;
 		}
 
-		auto base_analysis = AnalyzeAssignmentTo(as_maybe->GetTypeSpecifier(),
+		auto base_analysis = AnalyzeAssignmentTo(as_maybe->GetBaseTypeSpecifier(),
 				type_table);
 		if (base_analysis == EQUIVALENT) {
 			return UNAMBIGUOUS;

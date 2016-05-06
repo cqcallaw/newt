@@ -52,6 +52,10 @@ public:
 		return m_type_specifier_location;
 	}
 
+	const_shared_ptr<MaybeTypeSpecifier> GetMaybeTypeSpecifier() const {
+		return m_type_specifier;
+	}
+
 private:
 	const_shared_ptr<MaybeTypeSpecifier> m_type_specifier;
 	const yy::location m_type_specifier_location;

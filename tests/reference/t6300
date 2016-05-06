@@ -2,7 +2,7 @@ Parsing file ../tests/t6300.nwt...
 Parsed file ../tests/t6300.nwt.
 Root Symbol Table:
 ----------------
-int? v: {empty} <unit>
+int? v: {empty}
 
 Root Type Table:
 ----------------

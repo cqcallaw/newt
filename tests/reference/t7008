@@ -5,7 +5,7 @@ Root Symbol Table:
 list l:
 {item}
 	int data: 1
-	list? next: {empty} <unit>
+	list? next: {empty}
 
 
 Root Type Table:
@@ -17,7 +17,7 @@ list:
 		data:
 			int (0)
 		next:
-			list? ({empty} <unit>)
+			list? ({empty})
 
 	terminator:
 		<unit>

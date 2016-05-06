@@ -13,7 +13,7 @@ list:
 		data:
 			int (0)
 		next:
-			list? ({empty} <unit>)
+			list? ({empty})
 
 	terminator:
 		<unit>

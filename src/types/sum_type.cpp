@@ -35,7 +35,9 @@
 #include <record_declaration_statement.h>
 #include <type_alias_declaration_statement.h>
 #include <unit_declaration_statement.h>
+#include <maybe_declaration_statement.h>
 #include <record_type.h>
+#include <maybe_type.h>
 #include <execution_context.h>
 #include <symbol_context.h>
 
@@ -76,11 +78,11 @@ const_shared_ptr<Result> SumType::Build(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = context->GetTypeTable();
-	const shared_ptr<TypeTable> types = make_shared<TypeTable>(type_table);
+	const shared_ptr<TypeTable> definition = make_shared<TypeTable>(type_table);
 
 	auto parent = SymbolContextList::From(context, context->GetParent());
 	shared_ptr<ExecutionContext> tmp_context = make_shared<ExecutionContext>(
-			Modifier::NONE, parent, types, EPHEMERAL);
+			Modifier::NONE, parent, definition, EPHEMERAL);
 
 	auto constructors = make_shared<SymbolTable>();
 
@@ -109,7 +111,6 @@ const_shared_ptr<Result> SumType::Build(
 			if (as_unit) {
 				auto validation_errors = as_unit->preprocess(tmp_context);
 				errors = errors->Concatenate(errors, validation_errors);
-				//no need to "execute" the declaration statement, since all the work happens during preprocessing
 			}
 
 			auto as_record = dynamic_pointer_cast<
@@ -117,7 +118,18 @@ const_shared_ptr<Result> SumType::Build(
 			if (as_record) {
 				auto validation_errors = as_record->preprocess(tmp_context);
 				errors = errors->Concatenate(errors, validation_errors);
-				//no need to "execute" the declaration statement, since all the work happens during preprocessing
+			}
+
+			auto as_maybe =
+					dynamic_pointer_cast<const MaybeDeclarationStatement>(
+							declaration);
+			if (as_maybe) {
+				auto validation_errors = as_maybe->preprocess(tmp_context);
+				errors = errors->Concatenate(errors, validation_errors);
+				auto root_specifier =
+						as_maybe->GetMaybeTypeSpecifier()->GetBaseTypeSpecifier();
+				auto maybe_type = make_shared<MaybeType>(root_specifier);
+				definition->AddType(*variant_name, maybe_type);
 			}
 
 			auto as_alias = dynamic_pointer_cast<
@@ -127,14 +139,14 @@ const_shared_ptr<Result> SumType::Build(
 				auto alias_type_specifier = as_alias->GetTypeSpecifier();
 
 				if (alias_type_name.compare("nil") == 0
-						|| !types->ContainsType(alias_type_name)) {
+						|| !definition->ContainsType(alias_type_name)) {
 					//would be nice to abstract this casting logic into a helper function
 					auto alias_as_primitive = dynamic_pointer_cast<
 							const PrimitiveTypeSpecifier>(alias_type_specifier);
 					if (alias_as_primitive) {
 						auto alias = make_shared<AliasDefinition>(type_table,
 								alias_as_primitive, DIRECT);
-						types->AddType(alias_type_name, alias);
+						definition->AddType(alias_type_name, alias);
 
 						const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
 								make_shared<PrimitiveDeclarationStatement>(
@@ -198,7 +210,7 @@ const_shared_ptr<Result> SumType::Build(
 						if (original) {
 							auto alias = make_shared<AliasDefinition>(
 									type_table, original_as_complex, DIRECT);
-							types->AddType(alias_type_name, alias);
+							definition->AddType(alias_type_name, alias);
 						} else {
 							errors =
 									ErrorList::From(
@@ -226,7 +238,7 @@ const_shared_ptr<Result> SumType::Build(
 
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = const_shared_ptr<SumType>(
-				new SumType(types, member_declarations->GetData(),
+				new SumType(definition, member_declarations->GetData(),
 						constructors));
 		return make_shared<Result>(type, errors);
 	} else {

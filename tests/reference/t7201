@@ -1,10 +1,10 @@
-Parsing file ../tests/t7100.nwt...
-Parsed file ../tests/t7100.nwt.
+Parsing file ../tests/t7201.nwt...
+Parsed file ../tests/t7201.nwt.
 Root Symbol Table:
 ----------------
-list l:
-	int data: 4
-	tail tail: {terminator} <unit>
+list v:
+	int data: 0
+	tail tail: {next} {empty}
 
 
 Root Type Table:

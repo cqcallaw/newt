@@ -22,13 +22,11 @@
 
 #include <type_specifier.h>
 
-class SumType;
+class MaybeType;
 
 class MaybeTypeSpecifier: public TypeSpecifier {
 public:
-	MaybeTypeSpecifier(const_shared_ptr<TypeSpecifier> type_specifier);
-	MaybeTypeSpecifier(const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<SumType> type);
+	MaybeTypeSpecifier(const_shared_ptr<TypeSpecifier> base_type_specifier);
 	virtual ~MaybeTypeSpecifier();
 
 	virtual const std::string ToString() const;
@@ -42,13 +40,13 @@ public:
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const;
 
-	virtual const AnalysisResult AnalyzeWidening(
-			const TypeTable& type_table, const TypeSpecifier& other) const;
+	virtual const AnalysisResult AnalyzeWidening(const TypeTable& type_table,
+			const TypeSpecifier& other) const;
 
 	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const;
 
-	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
-		return m_type_specifier;
+	const_shared_ptr<TypeSpecifier> GetBaseTypeSpecifier() const {
+		return m_base_type_specifier;
 	}
 
 	const_shared_ptr<std::string> MapSpecifierToVariant(
@@ -59,8 +57,8 @@ public:
 	static const_shared_ptr<std::string> EMPTY_NAME;
 
 private:
-	const_shared_ptr<TypeSpecifier> m_type_specifier;
-	const_shared_ptr<SumType> m_type;
+	const_shared_ptr<TypeSpecifier> m_base_type_specifier;
+	const_shared_ptr<MaybeType> m_type;
 };
 
 #endif /* TYPES_SPECIFIERS_MAYBE_TYPE_SPECIFIER_H_ORIG_ */

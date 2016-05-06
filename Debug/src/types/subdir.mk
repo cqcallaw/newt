@@ -8,6 +8,7 @@ CPP_SRCS += \
 ../src/types/array_type.cpp \
 ../src/types/complex_type.cpp \
 ../src/types/function_type.cpp \
+../src/types/maybe_type.cpp \
 ../src/types/primitive_type.cpp \
 ../src/types/record_type.cpp \
 ../src/types/sum_type.cpp \
@@ -18,6 +19,7 @@ OBJS += \
 ./src/types/array_type.o \
 ./src/types/complex_type.o \
 ./src/types/function_type.o \
+./src/types/maybe_type.o \
 ./src/types/primitive_type.o \
 ./src/types/record_type.o \
 ./src/types/sum_type.o \
@@ -28,6 +30,7 @@ CPP_DEPS += \
 ./src/types/array_type.d \
 ./src/types/complex_type.d \
 ./src/types/function_type.d \
+./src/types/maybe_type.d \
 ./src/types/primitive_type.d \
 ./src/types/record_type.d \
 ./src/types/sum_type.d \

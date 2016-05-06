@@ -1,0 +1,10 @@
+# test that a non-nullable recursive member generates an error, ordering #2
+list {
+	end
+	| tail {
+		data:int,
+		next:list
+	}
+}
+
+v := @list

@@ -18,7 +18,9 @@
  */
 
 #include <maybe_type_specifier.h>
-#include <sum_type.h>
+#include <maybe_type.h>
+#include <unit_type.h>
+#include <placeholder_type.h>
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::VARIANT_NAME = make_shared<
 		std::string>("value");
@@ -26,21 +28,16 @@ const_shared_ptr<std::string> MaybeTypeSpecifier::EMPTY_NAME = make_shared<
 		std::string>("empty");
 
 MaybeTypeSpecifier::MaybeTypeSpecifier(
-		const_shared_ptr<TypeSpecifier> type_specifier) :
-		MaybeTypeSpecifier(type_specifier, nullptr) {
-}
-
-MaybeTypeSpecifier::MaybeTypeSpecifier(
-		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<SumType> type) :
-		m_type_specifier(type_specifier), m_type(type) {
+		const_shared_ptr<TypeSpecifier> base_type_specifier) :
+		m_base_type_specifier(base_type_specifier), m_type(
+				make_shared<MaybeType>(base_type_specifier)) {
 }
 
 MaybeTypeSpecifier::~MaybeTypeSpecifier() {
 }
 
 const std::string MaybeTypeSpecifier::ToString() const {
-	return m_type_specifier->ToString() + "?";
+	return m_base_type_specifier->ToString() + "?";
 }
 
 const AnalysisResult MaybeTypeSpecifier::AnalyzeAssignmentTo(
@@ -52,7 +49,7 @@ const AnalysisResult MaybeTypeSpecifier::AnalyzeAssignmentTo(
 			type_table) >= UNAMBIGUOUS) {
 		return AnalysisResult::UNAMBIGUOUS;
 	} else {
-		return m_type_specifier->AnalyzeAssignmentTo(other, type_table);
+		return m_base_type_specifier->AnalyzeAssignmentTo(other, type_table);
 	}
 }
 
@@ -60,7 +57,7 @@ bool MaybeTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const MaybeTypeSpecifier& as_maybe =
 				dynamic_cast<const MaybeTypeSpecifier&>(other);
-		return *GetTypeSpecifier() == *as_maybe.GetTypeSpecifier();
+		return *GetBaseTypeSpecifier() == *as_maybe.GetBaseTypeSpecifier();
 	} catch (std::bad_cast& e) {
 		return false;
 	}
@@ -73,26 +70,37 @@ const_shared_ptr<TypeDefinition> MaybeTypeSpecifier::GetType(
 
 const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
 		const TypeTable& type_table, const TypeSpecifier& other) const {
-	if (m_type) {
-		auto placeholder = ComplexTypeSpecifier(
-				make_shared<std::string>(ToString()));
-		return m_type->AnalyzeConversion(placeholder, other);
+	auto base_analysis = m_base_type_specifier->AnalyzeWidening(type_table,
+			other);
+	auto empty_analysis = other.AnalyzeAssignmentTo(
+			TypeTable::GetNilTypeSpecifier(), type_table);
+
+	if (base_analysis && empty_analysis)
+		return AMBIGUOUS;
+
+	if (base_analysis) {
+		return base_analysis;
 	}
+
+	if (empty_analysis) {
+		return empty_analysis;
+	}
+
 	return INCOMPATIBLE;
 }
 
 const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
-	return const_shared_ptr<void>();
+	return TypeTable::GetNilType()->GetDefaultValue(type_table);
 }
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(
 		const TypeSpecifier& type_specifier,
 		const TypeTable& type_table) const {
-	if (type_specifier.AnalyzeAssignmentTo(m_type_specifier, type_table)) {
+	if (type_specifier.AnalyzeAssignmentTo(m_base_type_specifier, type_table)) {
 		return VARIANT_NAME;
-	} else if (type_specifier.AnalyzeAssignmentTo(TypeTable::GetNilTypeSpecifier(),
-			type_table)) {
+	} else if (type_specifier.AnalyzeAssignmentTo(
+			TypeTable::GetNilTypeSpecifier(), type_table)) {
 		return EMPTY_NAME;
 	}
 	return const_shared_ptr<std::string>();

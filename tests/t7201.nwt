@@ -1,0 +1,11 @@
+# test default value of struct-first linked-list definition,
+# this test verifies that the "tail" sum type has a proper default value
+list {
+	data:int,
+	tail {
+		next:list?
+		| terminator
+	}
+}
+
+v := @list
