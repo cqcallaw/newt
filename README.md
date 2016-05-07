@@ -56,8 +56,8 @@ a_lovely_var:int = 42
 a_type_inferred_var:= "danny boy" #the type is inferred from the type of the initialization value
 a_var:double #every type in newt has an associated default value.
 ```
-### Builtin types
-The following types are builtin:
+### Built-in types
+The following types are built-in:
 * boolean (default value: false)
 * int (default value: 0)
 * double (default value: 0.0)
@@ -81,51 +81,71 @@ a_lovely_multidimensional_array[3][1] = "n"
 ```
 
 ## Default Values
-Every type--both builtin and programmer-defined--has a default value. The default value of any type can be accessed using the `@` operator:
+Every type--both built-in and programmer-defined--has a default value. The default value of any type can be accessed using the `@` operator:
 ```
 a_lovely_var:int = @int 
 ```
 The default value of a type is fixed and constant for the lifetime of a program's execution.
 
-## Compound Types ("structs")
+## Compound Types
+
+### Record Types
 newt supports compound types analagous to C's structs. Unlike C's structs, the data is not stored contiguously in memory. In newt, these are called _record types_.
 
 ```
-Person {
+person {
 	age:int,
-	name:string = "Jojo" #default member values allowed
+	name:string = "Jojo" # default member values allowed
 }
 ```
 
 newt's record types are instantiated from another instance of a record type, or the record type's default value, using the `with` operator:
 
 ```
-	p1:Person = @Person with { age = 25, name = "Joe" }
+	p1:person = @person with { age = 25, name = "Joe" }
 	p2 = p1 with { age = 26 }
 ```
 
 Records are immutable by default:
 
 ```
-Point {
-	x:int
+point {
+	x:int,
 	y:int
 }
 
-point:Point = @Point with { x = 30, y = 40 }
-point.x = 50 #semantic error
+point:point = @point with { x = 30, y = 40 }
+point.x = 50 # semantic error
 ```
 
 To make a record mutable, use the `mutable` type modifier 
 
 ```
-mutable Point {
-	x:int
+mutable point {
+	x:int,
 	y:int
 }
-point:Point = @Point
-point.x = 50
+point:point = @point
+point.x = 50 # valid
 ```
+
+### Sum Types
+
+newt provides support for [sum types](https://en.wikipedia.org/wiki/Tagged_union), that is, data structures that can hold a value which may be one--and only one--of several different, but fixed, types. For example, one might model the return type of a function that returns a value _or_ an error as follows:
+
+```
+result {
+    value:double
+    | error {
+       int:code,
+       string:message
+    }
+}
+
+f:= (...) -> result { ... }
+```
+
+The previous example also serves to demonstrate the manner in which complex types may be declared as members of a containing complex type. `result.error` is a discrete type definition, and is _not_ considered equivalent to any other definition named `error`, even if the structure of the other type is identical. `result.value`, on the other hand, is an _alias_ for the built-in `double` type, and variables of type `result.value` may be assigned to values of type `double`.
 
 ## Functions
 
@@ -149,11 +169,11 @@ g:= (d:int) -> int {
 }
 
 x:= f(3, g)
-y:= f(3, (e:int) -> int { return e * e * e }) #anonymous functions are supported too
+y:= f(3, (e:int) -> int { return e * e * e }) # anonymous functions are supported too
 ```
 
 Functions need not be declared with a body, as every type has a default value. The default value of a function type is a placeholder function that returns the default value of its return type.
 
 ```
-f:(int) -> int  #will return the default value of the int type if invoked
+f:(int) -> int  # will return the default value of the int type if invoked
 ```
