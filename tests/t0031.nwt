@@ -3,7 +3,7 @@ test {
 	x: int = 10
 }
 
-nested_container {
+mutable nested_container {
 	test: test[][]
 }
 

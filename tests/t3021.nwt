@@ -7,7 +7,7 @@ my_other_struct {
 	i: my_struct
 }
 
-my_array_struct {
+mutable my_array_struct {
        z: int,
        arr: my_struct[]
 }

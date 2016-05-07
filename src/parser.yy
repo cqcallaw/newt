@@ -186,7 +186,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 
 	UNDERSCORE          "_"
 
-	READONLY            "readonly modifier"
+	MUTABLE             "mutable modifier"
 	WITH                "with"
 	MATCH               "match"
 	AS                  "as"
@@ -873,9 +873,9 @@ modifier_list:
 
 //---------------------------------------------------------------------
 modifier:
-	READONLY
+	MUTABLE
 	{
-		$$ = make_shared<Modifier>(Modifier(Modifier::READONLY, @1));
+		$$ = make_shared<Modifier>(Modifier(Modifier::MUTABLE, @1));
 	}
 
 //---------------------------------------------------------------------
@@ -1044,7 +1044,7 @@ variant_list:
 
 //---------------------------------------------------------------------
 variant:
-	struct_body
+	struct_declaration_statement
 	{
 		$$ = $1;
 	}

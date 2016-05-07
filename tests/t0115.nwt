@@ -1,5 +1,5 @@
 // test invalid assignment of runtime-specified fixed size array
-rectangle {
+mutable rectangle {
 	x: int,
 	y: int,
 	w: int = 10

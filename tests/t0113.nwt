@@ -1,5 +1,5 @@
 // test valid assignment of array index
-rectangle {
+mutable rectangle {
 	x: int,
 	y: int,
 	w: int = 10

@@ -150,7 +150,7 @@ ForStatement::ForStatement(const_shared_ptr<Statement> initial,
 		const_shared_ptr<StatementBlock> statement_block) :
 		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
 				loop_assignment), m_statement_block(statement_block), m_block_context(
-				make_shared<ExecutionContext>()) {
+				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)) {
 	assert(loop_expression);
 	assert(loop_assignment);
 }

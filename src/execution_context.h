@@ -40,6 +40,7 @@ public:
 	using SymbolContext::SetSymbol;
 
 	ExecutionContext();
+	ExecutionContext(const Modifier::Type modifiers);
 	ExecutionContext(const shared_ptr<SymbolContext> existing,
 			volatile_shared_ptr<TypeTable> type_table,
 			const LifeTime life_time);
@@ -50,11 +51,7 @@ public:
 	virtual ~ExecutionContext();
 
 	const shared_ptr<ExecutionContext> WithContents(
-			const shared_ptr<SymbolContext> contents) const {
-		return shared_ptr<ExecutionContext>(
-				new ExecutionContext(contents, m_parent, m_type_table,
-						m_return_value, m_exit_code, m_life_time));
-	}
+			const shared_ptr<SymbolContext> contents) const;
 
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
 			const shared_ptr<ExecutionContext> parent,

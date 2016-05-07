@@ -1,4 +1,4 @@
-circle {
+mutable circle {
 	x: int,
 	y: int,
 	radius: int,

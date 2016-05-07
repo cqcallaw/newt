@@ -475,8 +475,8 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 
 const ErrorListRef ArrayVariable::Validate(
 		const shared_ptr<ExecutionContext> context) const {
-	auto base_evaluation = m_base_variable->Evaluate(context);
-	ErrorListRef errors = base_evaluation->GetErrors();
+	auto base_evaluation = m_base_variable->Validate(context);
+	ErrorListRef errors = base_evaluation;
 	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> index_expression_type =
 				m_expression->GetTypeSpecifier(context);
@@ -497,36 +497,6 @@ const ErrorListRef ArrayVariable::Validate(
 								m_expression->GetPosition().begin.column,
 								*(m_base_variable->ToString(context))), errors);
 			}
-
-//			auto base_type_as_nested = dynamic_pointer_cast<
-//					const NestedTypeSpecifier>(base_type);
-//			if (base_type_as_nested) {
-//				auto base_definition = base_type_as_nested->GetType(
-//						context->GetTypeTable());
-//
-//				auto stuff = base_definition->ToString(context->GetTypeTable(),
-//						Indent(0));
-//
-//				auto as_complex = dynamic_pointer_cast<const ComplexType>(
-//						base_definition);
-//				if (as_complex) {
-//					base_type = as_complex->GetMemberTypeSpecifier(
-//							base_type_as_nested->GetMemberName());
-//				} else {
-//					assert(false);
-//				}
-//			}
-//
-//			auto base_type_as_array = dynamic_pointer_cast<
-//					const ArrayTypeSpecifier>(base_type);
-//			if (!base_type_as_array) {
-//				errors = ErrorList::From(
-//						make_shared<Error>(Error::SEMANTIC,
-//								Error::VARIABLE_NOT_AN_ARRAY,
-//								m_expression->GetPosition().begin.line,
-//								m_expression->GetPosition().begin.column,
-//								*(m_base_variable->ToString(context))), errors);
-//			}
 		} else {
 			ostringstream buffer;
 			buffer << "A " << index_expression_type->ToString()

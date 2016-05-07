@@ -72,7 +72,7 @@ const ErrorListRef MatchStatement::preprocess(
 							match_names->insert(*match_name);
 							auto block_context =
 									ExecutionContext::GetEmptyChild(
-											execution_context, Modifier::NONE,
+											execution_context, Modifier::MUTABLE,
 											EPHEMERAL);
 
 							auto variant_type_specifier =
@@ -122,7 +122,7 @@ const ErrorListRef MatchStatement::preprocess(
 				if (*variant_names != *match_names) {
 					if (default_match_block) {
 						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::NONE, EPHEMERAL);
+								execution_context, Modifier::MUTABLE, EPHEMERAL);
 						auto block_errors = default_match_block->preprocess(
 								block_context);
 						errors = ErrorList::Concatenate(errors, block_errors);
@@ -214,7 +214,7 @@ const ErrorListRef MatchStatement::execute(
 						if (variant_type) {
 							auto block_context =
 									ExecutionContext::GetEmptyChild(
-											execution_context, Modifier::NONE,
+											execution_context, Modifier::MUTABLE,
 											EPHEMERAL);
 
 							auto variant_type_specifier =
@@ -255,7 +255,7 @@ const ErrorListRef MatchStatement::execute(
 				if (!matched) {
 					if (default_match_block) {
 						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::NONE, EPHEMERAL);
+								execution_context, Modifier::MUTABLE, EPHEMERAL);
 						auto block_errors = default_match_block->execute(
 								block_context);
 						errors = ErrorList::Concatenate(errors, block_errors);

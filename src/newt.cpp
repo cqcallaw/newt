@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 	if (parse_result == 0) {
 		auto main_statement_block = driver.GetStatementBlock();
 		shared_ptr<ExecutionContext> root_context =
-				make_shared<ExecutionContext>();
+				make_shared<ExecutionContext>(Modifier::Type::MUTABLE);
 		ErrorListRef semantic_errors = main_statement_block->preprocess(
 				root_context);
 

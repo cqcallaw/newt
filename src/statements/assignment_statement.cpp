@@ -157,7 +157,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 								as_record, DEEP, RESOLVE);
 
 				if (type) {
-					if (!(type->GetModifiers() & Modifier::Type::READONLY)) {
+					if (type->GetModifiers() & Modifier::Type::MUTABLE) {
 						const_shared_ptr<TypeSpecifier> member_variable_type =
 								member_variable->GetTypeSpecifier(
 										execution_context);

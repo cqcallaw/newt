@@ -29,6 +29,12 @@ ExecutionContext::ExecutionContext() :
 				PERSISTENT) {
 }
 
+ExecutionContext::ExecutionContext(const Modifier::Type modifiers) :
+		ExecutionContext(modifiers, make_shared<symbol_map>(),
+				SymbolContextList::GetTerminator(), make_shared<TypeTable>(),
+				Symbol::GetDefaultSymbol(), plain_shared_ptr<int>(nullptr),
+				PERSISTENT) {
+}
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> existing,
 		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
 		ExecutionContext(existing, m_parent, type_table,
@@ -87,6 +93,13 @@ const_shared_ptr<Symbol> ExecutionContext::GetSymbol(
 	return GetSymbol(*identifier, search_type);
 }
 
+const shared_ptr<ExecutionContext> ExecutionContext::WithContents(
+		const shared_ptr<SymbolContext> contents) const {
+	return shared_ptr<ExecutionContext>(
+			new ExecutionContext(contents, m_parent, m_type_table,
+					m_return_value, m_exit_code, m_life_time));
+}
+
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> context,
 		const SymbolContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table,
@@ -113,7 +126,7 @@ ExecutionContext::~ExecutionContext() {
 
 const shared_ptr<ExecutionContext> ExecutionContext::GetDefault() {
 	static const shared_ptr<ExecutionContext> instance = make_shared<
-			ExecutionContext>(Modifier::READONLY,
+			ExecutionContext>(Modifier::NONE,
 			SymbolContextList::GetTerminator(), TypeTable::GetDefault(),
 			PERSISTENT);
 	return instance;

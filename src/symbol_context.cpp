@@ -180,7 +180,7 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 
 volatile_shared_ptr<SymbolContext> SymbolContext::GetDefault() {
 	static volatile_shared_ptr<SymbolContext> instance = make_shared<
-			SymbolContext>(Modifier::READONLY);
+			SymbolContext>(Modifier::Type::NONE);
 	return instance;
 }
 
@@ -193,7 +193,7 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 		auto symbol = result->second;
 		if (symbol->GetTypeSpecifier()->AnalyzeAssignmentTo(type, type_table)
 				== EQUIVALENT) {
-			if (m_modifiers & Modifier::READONLY) {
+			if (!(m_modifiers & Modifier::MUTABLE)) {
 				return MUTATION_DISALLOWED;
 			} else {
 				auto new_symbol = symbol->WithValue(type, value, type_table);

@@ -1,4 +1,4 @@
-MyStruct {
+mutable MyStruct {
 	x: int,
 	y: int,
 	w: int,
@@ -8,7 +8,7 @@ MyStruct {
 m_struct: MyStruct = @MyStruct with { x = 1, h = 4 }
 m_struct2: MyStruct = @MyStruct with { y = 2 }
 
-MyStruct2 {
+mutable MyStruct2 {
 	x: double,
 	y: string,
 	w: int = 3

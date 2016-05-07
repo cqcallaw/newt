@@ -27,7 +27,8 @@ const_shared_ptr<Record> Record::GetDefaultInstance(const RecordType& type) {
 	auto symbol_mapping = make_shared<symbol_map>();
 
 	auto type_definition = type.GetDefinition();
-	auto default_symbols = type_definition->GetDefaultSymbolContext(nullptr);
+	auto default_symbols = type_definition->GetDefaultSymbolContext(
+			type.GetModifiers(), nullptr);
 
 	return make_shared<Record>(default_symbols);
 }

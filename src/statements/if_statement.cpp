@@ -36,8 +36,8 @@ IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block,
 		const_shared_ptr<StatementBlock> else_block) :
 		m_expression(expression), m_block(block), m_else_block(else_block), m_block_context(
-				make_shared<ExecutionContext>()), m_else_block_context(
-				make_shared<ExecutionContext>()) {
+				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)), m_else_block_context(
+				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)) {
 }
 
 IfStatement::~IfStatement() {

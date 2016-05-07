@@ -63,7 +63,7 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 
 	if (!type_table->ContainsType(*m_type)) {
 		const_shared_ptr<Record> default_value = make_shared<Record>(
-				make_shared<SymbolContext>(Modifier::Type::READONLY));
+				make_shared<SymbolContext>(Modifier::Type::NONE));
 		auto placeholder_symbol = make_shared<Symbol>(m_type, default_value);
 		auto forward_declaration = make_shared<PlaceholderType>(GetName(),
 				placeholder_symbol);

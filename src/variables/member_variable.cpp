@@ -280,6 +280,7 @@ const ErrorListRef MemberVariable::AssignValue(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
+	assert(context->GetModifiers() & Modifier::MUTABLE);
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<Result> container_evaluation = GetContainer()->Evaluate(
@@ -294,8 +295,8 @@ const ErrorListRef MemberVariable::AssignValue(
 
 			const auto new_parent_context = SymbolContextList::From(context,
 					context->GetParent());
-			auto new_context = context->WithContents(definition)->WithParent(
-					new_parent_context);
+			auto new_context = context->WithContents(definition);
+			new_context = new_context->WithParent(new_parent_context);
 
 			const_shared_ptr<Variable> new_variable = GetMemberVariable();
 			errors = new_variable->AssignValue(new_context, expression, op);

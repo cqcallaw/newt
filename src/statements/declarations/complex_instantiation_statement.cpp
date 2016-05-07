@@ -51,7 +51,6 @@ ComplexInstantiationStatement::~ComplexInstantiationStatement() {
 const ErrorListRef ComplexInstantiationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	//TODO: validate that all members are initialized for readonly structs (?)
 
 	auto type = m_type_specifier->GetType(execution_context->GetTypeTable());
 	if (type) {

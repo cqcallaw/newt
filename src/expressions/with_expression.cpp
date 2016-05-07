@@ -98,7 +98,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 					definition->Clone()->WithModifiers(
 							Modifier::Type(
 									definition->GetModifiers()
-											& ~(Modifier::Type::READONLY)));
+											| Modifier::Type::MUTABLE));
 
 			volatile_shared_ptr<ExecutionContext> temp_execution_context =
 					execution_context->WithContents(new_symbol_context);

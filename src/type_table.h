@@ -26,6 +26,7 @@
 #include <alias_definition.h>
 #include <complex_type_specifier.h>
 #include <search_type.h>
+#include <modifier.h>
 
 class TypeDefinition;
 class SymbolContext;
@@ -111,6 +112,7 @@ public:
 	}
 
 	volatile_shared_ptr<SymbolContext> GetDefaultSymbolContext(
+			const Modifier::Type modifiers,
 			const_shared_ptr<ComplexTypeSpecifier> container) const;
 
 	const bool ContainsType(const ComplexTypeSpecifier& type_specifier);

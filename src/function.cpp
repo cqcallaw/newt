@@ -59,7 +59,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	auto parent_context = SymbolContextList::From(invocation_context,
 			invocation_context->GetParent());
 	shared_ptr<ExecutionContext> function_execution_context = make_shared<
-			ExecutionContext>(Modifier::NONE, parent_context,
+			ExecutionContext>(Modifier::MUTABLE, parent_context,
 			closure_reference->GetTypeTable(), EPHEMERAL);
 
 	//populate evaluation context with results of argument evaluation
@@ -92,7 +92,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 					errors = ErrorList::Concatenate(errors,
 							argument_declaration->execute(
 									function_execution_context));
-				} else {
+				} else if (preprocessing_errors != errors) {
 					errors = ErrorList::Concatenate(errors,
 							preprocessing_errors);
 				}

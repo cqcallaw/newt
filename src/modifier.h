@@ -25,7 +25,7 @@
 class Modifier {
 public:
 	enum Type {
-		NONE = 0, READONLY = 1
+		NONE = 0, MUTABLE = 1
 	};
 
 	Modifier(const Type type, const yy::location type_position) :

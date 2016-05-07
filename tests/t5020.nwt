@@ -1,14 +1,14 @@
-readonly Point {
+Point {
 	x:int,
 	y:int
 }
 
-readonly Line {
+Line {
 	a:Point,
 	b:Point = @Point with { x = 1 }
 }
 
-readonly Circle {
+Circle {
 	center:Point,
 	radius:int
 }

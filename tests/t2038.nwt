@@ -1,11 +1,11 @@
-rectangle {
+mutable rectangle {
 	x: int,
 	y: int,
 	w: int = 10,
 	h: int
 }
 
-triangle {
+mutable triangle {
 	x: int,
 	y: int,
 	w: int = 10

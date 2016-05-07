@@ -69,10 +69,6 @@ public:
 		return make_shared<SymbolContext>(SymbolContext(modifiers, m_table));
 	}
 
-	const bool IsMutable() const {
-		return m_modifiers & Modifier::READONLY;
-	}
-
 	const void print(ostream &os, const TypeTable& type_table,
 			const Indent& indent) const;
 

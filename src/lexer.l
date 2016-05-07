@@ -103,7 +103,7 @@ blank   [ \t\r]
 "&&"            return yy::newt_parser::make_AND(loc);
 "||"            return yy::newt_parser::make_OR(loc);
 "|"             return yy::newt_parser::make_PIPE(loc);
-"readonly"      return yy::newt_parser::make_READONLY(loc);
+"mutable"       return yy::newt_parser::make_MUTABLE(loc);
 "with"          return yy::newt_parser::make_WITH(loc);
 "return"        return yy::newt_parser::make_RETURN(loc);
 "match"         return yy::newt_parser::make_MATCH(loc);

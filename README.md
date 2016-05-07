@@ -88,32 +88,43 @@ a_lovely_var:int = @int
 The default value of a type is fixed and constant for the lifetime of a program's execution.
 
 ## Compound Types ("structs")
-newt supports compound types analagous to C's structs. Unlike C's structs, the data is not stored contiguously in memory.
+newt supports compound types analagous to C's structs. Unlike C's structs, the data is not stored contiguously in memory. In newt, these are called _record types_.
 
 ```
-struct Person {
-	age:int
+Person {
+	age:int,
 	name:string = "Jojo" #default member values allowed
 }
 ```
 
-Structs are instantiated from another instance of a struct, or the struct's default value, using the `with` operator:
+newt's record types are instantiated from another instance of a record type, or the record type's default value, using the `with` operator:
 
 ```
 	p1:Person = @Person with { age = 25, name = "Joe" }
 	p2 = p1 with { age = 26 }
 ```
 
-Structs may be declared readonly, in which case it is a semantic error to re-assign its member values:
+Records are immutable by default:
 
 ```
-readonly struct Point {
+Point {
 	x:int
 	y:int
 }
 
 point:Point = @Point with { x = 30, y = 40 }
 point.x = 50 #semantic error
+```
+
+To make a record mutable, use the `mutable` type modifier 
+
+```
+mutable Point {
+	x:int
+	y:int
+}
+point:Point = @Point
+point.x = 50
 ```
 
 ## Functions

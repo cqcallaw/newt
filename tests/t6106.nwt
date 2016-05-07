@@ -1,7 +1,7 @@
 #test re-assignment of value in inner scope
 result {
 	value:int
-	| error {
+	| mutable error {
 		message:string
 	}
 }

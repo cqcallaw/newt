@@ -145,8 +145,10 @@ const bool TypeTable::ContainsType(const string& name) {
 }
 
 volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
+		const Modifier::Type modifiers,
 		const_shared_ptr<ComplexTypeSpecifier> container) const {
-	volatile_shared_ptr<SymbolTable> result = make_shared<SymbolTable>();
+	volatile_shared_ptr<SymbolTable> result = make_shared<SymbolTable>(
+			modifiers);
 
 	for (const auto &entry : *m_table) {
 		auto name = entry.first;

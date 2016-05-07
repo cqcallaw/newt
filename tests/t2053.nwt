@@ -1,4 +1,4 @@
-rectangle {
+mutable rectangle {
 	x: int,
 	y: int,
 	w: int = 10,
