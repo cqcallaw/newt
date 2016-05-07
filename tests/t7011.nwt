@@ -1,0 +1,18 @@
+# test longer linked list with non-primitive data payload
+person {
+	age:int,
+	name:string
+}
+
+list {
+	terminator
+	| item {
+		data:person,
+		next:list?
+	}
+}
+
+l:list= @list.item with { data = @person with { age = 5, name = "zero" }, next = @list.terminator }
+l = @list.item with { data = @person with { age = 43, name = "nothing" }, next = l }
+l = @list.item with { data = @person with { age = 10, name = "nemo" }, next = l }
+l = @list.item with { data = @person with { age = 25, name = "nobody" }, next = l }

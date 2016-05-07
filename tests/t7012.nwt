@@ -1,0 +1,11 @@
+# test lengthly invocation of alternate formulation
+# this formulation does not allow for empty lists
+list {
+	data:int,
+	tail:list?
+}
+
+l:list= @list with { data = 2 }
+l = @list with { data = 4, tail = l }
+l = @list with { data = 8, tail = l }
+l = @list with { data = 16, tail = l }

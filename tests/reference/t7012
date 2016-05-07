@@ -1,0 +1,30 @@
+Parsing file ../tests/t7012.nwt...
+Parsed file ../tests/t7012.nwt.
+Root Symbol Table:
+----------------
+list l:
+	int data: 16
+	list? tail:
+		{value}
+			int data: 8
+			list? tail:
+				{value}
+					int data: 4
+					list? tail:
+						{value}
+							int data: 2
+							list? tail: {empty}
+
+
+
+
+
+Root Type Table:
+----------------
+list:
+	<record>
+	data:
+		int (0)
+	tail:
+		list? ({empty})
+
