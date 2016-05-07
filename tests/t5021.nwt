@@ -1,0 +1,12 @@
+# test forward declaration of functions
+b:()->int
+
+a := () -> int {
+	return b()
+}
+
+b = () -> int {
+	return 3
+}
+
+print(a())

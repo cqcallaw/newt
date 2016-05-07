@@ -1,0 +1,12 @@
+Parsing file ../tests/t5021.nwt...
+Parsed file ../tests/t5021.nwt.
+3
+Root Symbol Table:
+----------------
+() -> int a:
+	Body Location: 4.17-5.11
+() -> int b:
+	Body Location: 8.16-9.9
+
+Root Type Table:
+----------------
