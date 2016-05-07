@@ -27,8 +27,9 @@ LogicExpression::LogicExpression(const yy::location position,
 	assert(op == OR || op == AND);
 }
 
-const_shared_ptr<TypeSpecifier> LogicExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const_shared_ptr<TypeSpecifier> LogicExpression::GetTypeSpecifier(
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
 	return PrimitiveTypeSpecifier::GetBoolean();
 }
 

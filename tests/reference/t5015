@@ -1,0 +1,18 @@
+Parsing file ../tests/t5015.nwt...
+Parsed file ../tests/t5015.nwt.
+Root Symbol Table:
+----------------
+<empty>
+
+Root Type Table:
+----------------
+name:
+	<record>
+
+person:
+	<record>
+	name:
+		name (
+			<empty>
+		)
+

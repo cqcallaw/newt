@@ -1,8 +1,8 @@
 //test assignment of struct reference and verify assignment
 
-struct my_struct {
-	x: int
-	y: double
+mutable my_struct {
+	x: int,
+	y: double,
 	z: string
 }
 

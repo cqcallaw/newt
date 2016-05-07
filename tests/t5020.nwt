@@ -1,15 +1,15 @@
-readonly struct Point {
-	x:int
+Point {
+	x:int,
 	y:int
 }
 
-readonly struct Line {
-	a:Point
+Line {
+	a:Point,
 	b:Point = @Point with { x = 1 }
 }
 
-readonly struct Circle {
-	center:Point
+Circle {
+	center:Point,
 	radius:int
 }
 

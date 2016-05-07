@@ -1,0 +1,24 @@
+Parsing file ../tests/t5017.nwt...
+Parsed file ../tests/t5017.nwt.
+Root Symbol Table:
+----------------
+outer l:
+	inner a:
+		int x: 2
+
+
+
+Root Type Table:
+----------------
+inner:
+	<record>
+	x:
+		int (0)
+
+outer:
+	<record>
+	a:
+		inner (
+			int x: 0
+		)
+

@@ -77,6 +77,7 @@ blank   [ \t\r]
 ";"             return yy::newt_parser::make_SEMICOLON(loc);
 ","             return yy::newt_parser::make_COMMA(loc);
 "@"             return yy::newt_parser::make_AT(loc);
+"?"             return yy::newt_parser::make_QMARK(loc);
 
 "("             return yy::newt_parser::make_LPAREN(loc);
 ")"             return yy::newt_parser::make_RPAREN(loc);
@@ -102,11 +103,9 @@ blank   [ \t\r]
 "&&"            return yy::newt_parser::make_AND(loc);
 "||"            return yy::newt_parser::make_OR(loc);
 "|"             return yy::newt_parser::make_PIPE(loc);
-"struct"        return yy::newt_parser::make_STRUCT(loc);
-"readonly"      return yy::newt_parser::make_READONLY(loc);
+"mutable"       return yy::newt_parser::make_MUTABLE(loc);
 "with"          return yy::newt_parser::make_WITH(loc);
 "return"        return yy::newt_parser::make_RETURN(loc);
-"sum"           return yy::newt_parser::make_SUM(loc);
 "match"         return yy::newt_parser::make_MATCH(loc);
 "as"            return yy::newt_parser::make_AS(loc);
 

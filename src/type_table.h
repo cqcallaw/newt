@@ -20,15 +20,17 @@
 #ifndef TYPE_TABLE_H_
 #define TYPE_TABLE_H_
 
-#include <member_declaration.h>
 #include <type.h>
 #include <map>
 #include <set>
 #include <alias_definition.h>
+#include <complex_type_specifier.h>
+#include <search_type.h>
+#include <modifier.h>
 
 class TypeDefinition;
-class RecordType;
-class ComplexTypeSpecifier;
+class SymbolContext;
+class UnitType;
 
 typedef map<const string, const_shared_ptr<TypeDefinition>> type_map;
 
@@ -36,41 +38,86 @@ class Indent;
 
 class TypeTable {
 public:
-	TypeTable();
-	virtual ~TypeTable();
+	TypeTable(const shared_ptr<TypeTable> parent = nullptr) :
+			TypeTable(make_shared<type_map>(), parent) {
+	}
+
+	virtual ~TypeTable() {
+	}
 
 	void AddType(const string& name,
 			const_shared_ptr<TypeDefinition> definition);
 
-	template<class T> const shared_ptr<const T> GetType(
-			const_shared_ptr<std::string> name) const {
-		return GetType<T>(*name);
+	void RemovePlaceholderType(const string& name);
+
+	void RemovePlaceholderType(const_shared_ptr<std::string> name) {
+		RemovePlaceholderType(*name);
 	}
 
 	template<class T> const shared_ptr<const T> GetType(
-			const std::string& name) const {
-		auto result = m_table->find(name);
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const SearchType search_type,
+			AliasResolution resolution = RESOLVE) const {
+		return GetType<T>(*type_specifier, search_type, resolution);
+	}
 
-		if (result != m_table->end()) {
-			shared_ptr<const TypeDefinition> value = result->second;
+	template<class T> const shared_ptr<const T> GetType(
+			const ComplexTypeSpecifier& type_specifier,
+			const SearchType search_type,
+			AliasResolution resolution = RESOLVE) const {
+		return GetType<T>(type_specifier.GetTypeName(), search_type, resolution);
+	}
 
-			// handle aliases
-			auto as_alias = std::dynamic_pointer_cast<const AliasDefinition>(
-					value);
-			if (as_alias) {
-				value = as_alias->GetOrigin();
-			}
+	template<class T> const shared_ptr<const T> GetType(
+			const_shared_ptr<std::string> name, const SearchType search_type,
+			AliasResolution resolution = RESOLVE) const {
+		return GetType<T>(*name, search_type, resolution);
+	}
 
+	template<class T> const shared_ptr<const T> GetType(const std::string& name,
+			const SearchType search_type,
+			AliasResolution resolution = RESOLVE) const {
+		if (name == *GetNilName()) {
+			auto value = GetNilType();
 			auto cast = dynamic_pointer_cast<const T>(value);
 			if (cast) {
 				return cast;
 			}
 		}
 
+		auto result = m_table->find(name);
+		if (result != m_table->end()) {
+			shared_ptr<const TypeDefinition> value = result->second;
+
+			if (resolution == RESOLVE) {
+				// handle aliases
+				auto as_alias =
+						std::dynamic_pointer_cast<const AliasDefinition>(value);
+				if (as_alias) {
+					value = as_alias->GetOrigin();
+				}
+			}
+
+			auto cast = dynamic_pointer_cast<const T>(value);
+			if (cast) {
+				return cast;
+			}
+		} else if (search_type == SearchType::DEEP) {
+			if (auto lock = m_parent.lock()) {
+				return lock->GetType<T>(name, search_type, resolution);
+			}
+		}
+
 		return shared_ptr<const T>();
 	}
 
+	volatile_shared_ptr<SymbolContext> GetDefaultSymbolContext(
+			const Modifier::Type modifiers,
+			const_shared_ptr<ComplexTypeSpecifier> container) const;
+
 	const bool ContainsType(const ComplexTypeSpecifier& type_specifier);
+
+	const bool ContainsType(const string& name);
 
 	const void print(ostream &os, const Indent& indent) const;
 
@@ -78,18 +125,29 @@ public:
 
 	static volatile_shared_ptr<TypeTable> GetDefault();
 
-	const uint CountEntriesOfType(const TypeSpecifier& type_specifier) const;
+	const uint CountEntriesOfType(const ComplexTypeSpecifier& current,
+			const TypeSpecifier& type_specifier) const;
 
 	/**
 	 * Return the _first_ name that is mapped to the given specifier.
 	 */
-	const std::string MapSpecifierToName(
-			const TypeSpecifier& type_specifier) const;
+	const std::string MapSpecifierToName(const ComplexTypeSpecifier& current,
+			const TypeSpecifier& other) const;
 
 	const_shared_ptr<std::set<std::string>> GetTypeNames() const;
 
+	static const_shared_ptr<std::string> GetNilName();
+	static const_shared_ptr<UnitType> GetNilType();
+	static const_shared_ptr<ComplexTypeSpecifier> GetNilTypeSpecifier();
+
 private:
+	TypeTable(const shared_ptr<type_map> table,
+			const shared_ptr<TypeTable> parent = nullptr) :
+			m_table(table), m_parent(parent) {
+	}
+
 	const shared_ptr<type_map> m_table;
+	const weak_ptr<TypeTable> m_parent;
 };
 
 #endif /* TYPE_TABLE_H_ */

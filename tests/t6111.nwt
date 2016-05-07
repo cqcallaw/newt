@@ -1,5 +1,5 @@
 #test default match termination
-sum result {
+result {
 	value:int
 	| error {
 		message:string

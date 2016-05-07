@@ -1,0 +1,20 @@
+Parsing file ../tests/t7002.nwt...
+Parsed file ../tests/t7002.nwt.
+Root Symbol Table:
+----------------
+list l: {terminator} <unit>
+
+Root Type Table:
+----------------
+list:
+	<sum>
+	item:
+		<record>
+		data:
+			int (0)
+		next:
+			list? ({empty})
+
+	terminator:
+		<unit>
+

@@ -12,8 +12,6 @@ CPP_SRCS += \
 ../src/execution_context.cpp \
 ../src/function.cpp \
 ../src/indent.cpp \
-../src/member_declaration.cpp \
-../src/member_definition.cpp \
 ../src/member_instantiation.cpp \
 ../src/newt.cpp \
 ../src/record.cpp \
@@ -24,6 +22,7 @@ CPP_SRCS += \
 ../src/symbol_table.cpp \
 ../src/type.cpp \
 ../src/type_table.cpp \
+../src/unit.cpp \
 ../src/utils.cpp 
 
 OBJS += \
@@ -35,8 +34,6 @@ OBJS += \
 ./src/execution_context.o \
 ./src/function.o \
 ./src/indent.o \
-./src/member_declaration.o \
-./src/member_definition.o \
 ./src/member_instantiation.o \
 ./src/newt.o \
 ./src/record.o \
@@ -47,6 +44,7 @@ OBJS += \
 ./src/symbol_table.o \
 ./src/type.o \
 ./src/type_table.o \
+./src/unit.o \
 ./src/utils.o 
 
 CPP_DEPS += \
@@ -58,8 +56,6 @@ CPP_DEPS += \
 ./src/execution_context.d \
 ./src/function.d \
 ./src/indent.d \
-./src/member_declaration.d \
-./src/member_definition.d \
 ./src/member_instantiation.d \
 ./src/newt.d \
 ./src/record.d \
@@ -70,6 +66,7 @@ CPP_DEPS += \
 ./src/symbol_table.d \
 ./src/type.d \
 ./src/type_table.d \
+./src/unit.d \
 ./src/utils.d 
 
 

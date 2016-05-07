@@ -21,19 +21,35 @@
 #include <record_type.h>
 #include <primitive_type.h>
 #include <complex_type_specifier.h>
-
-TypeTable::TypeTable() :
-		m_table(make_shared<type_map>()) {
-}
-
-TypeTable::~TypeTable() {
-}
+#include <placeholder_type.h>
+#include <unit_type.h>
+#include <memory>
+#include <symbol_context.h>
 
 void TypeTable::AddType(const std::string& name,
 		const_shared_ptr<TypeDefinition> definition) {
-	m_table->insert(
-			pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
-					definition));
+	auto existing = m_table->find(name);
+
+	if (existing == m_table->end()) {
+		m_table->insert(
+				pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
+						definition));
+	} else if (std::dynamic_pointer_cast<const PlaceholderType>(
+			existing->second)) {
+		m_table->erase(existing);
+		m_table->insert(
+				pair<const std::string, const_shared_ptr<TypeDefinition>>(name,
+						definition));
+	} else {
+		assert(false);
+	}
+}
+
+void TypeTable::RemovePlaceholderType(const string& name) {
+	auto existing = m_table->find(name);
+	if (std::dynamic_pointer_cast<const PlaceholderType>(existing->second)) {
+		m_table->erase(existing);
+	}
 }
 
 const void TypeTable::print(ostream& os, const Indent& indent) const {
@@ -43,6 +59,7 @@ const void TypeTable::print(ostream& os, const Indent& indent) const {
 		os << iter->first << ":" << endl;
 		const_shared_ptr<TypeDefinition> type = iter->second;
 		os << type->ToString(*this, indent);
+		os << endl;
 	}
 }
 
@@ -51,13 +68,30 @@ volatile_shared_ptr<TypeTable> TypeTable::GetDefault() {
 	return instance;
 }
 
-const uint TypeTable::CountEntriesOfType(
-		const TypeSpecifier& type_specifier) const {
+const uint TypeTable::CountEntriesOfType(const ComplexTypeSpecifier& current,
+		const TypeSpecifier& other) const {
+	plain_shared_ptr<string> other_complex_name = nullptr;
+	try {
+		auto other_as_complex = dynamic_cast<const ComplexTypeSpecifier&>(other);
+		plain_shared_ptr<ComplexTypeSpecifier> other_container =
+				other_as_complex.GetContainer();
+		other_complex_name = other_as_complex.GetTypeName();
+		if (other_container && *other_container != current) {
+			return 0; //we have a mis-match between containers
+		}
+	} catch (std::bad_cast& e) {
+		//swallow
+	}
+
 	uint count = 0;
 	for (const auto &entry : *m_table) {
 		auto name = entry.first;
 		auto definition = entry.second;
-		if (definition->IsSpecifiedBy(name, type_specifier)) {
+
+		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(definition);
+		if (as_alias && *as_alias->GetOriginal() == other) {
+			count++;
+		} else if (other_complex_name && *other_complex_name == name) {
 			count++;
 		}
 	}
@@ -65,11 +99,36 @@ const uint TypeTable::CountEntriesOfType(
 }
 
 const std::string TypeTable::MapSpecifierToName(
-		const TypeSpecifier& type_specifier) const {
+		const ComplexTypeSpecifier& current, const TypeSpecifier& other) const {
+	plain_shared_ptr<string> other_complex_name = nullptr;
+	try {
+		auto other_as_complex = dynamic_cast<const ComplexTypeSpecifier&>(other);
+		plain_shared_ptr<ComplexTypeSpecifier> other_container =
+				other_as_complex.GetContainer();
+		other_complex_name = other_as_complex.GetTypeName();
+		if (other_container) {
+			if (*other_container == current) {
+				//the container is the same, so we can just use the other type name
+				auto name = other_as_complex.GetTypeName();
+				if (GetType<TypeDefinition>(name, SHALLOW, RETURN)) {
+					return *name;
+				}
+			}
+			//we have a mis-match between containers, or the member name doesn't exist on this type
+			return "";
+		}
+	} catch (std::bad_cast& e) {
+		//swallow
+	}
+
 	for (const auto &entry : *m_table) {
 		auto name = entry.first;
 		auto definition = entry.second;
-		if (definition->IsSpecifiedBy(name, type_specifier)) {
+
+		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(definition);
+		if (as_alias && *as_alias->GetOriginal() == other) {
+			return name;
+		} else if (other_complex_name && *other_complex_name == name) {
 			return name;
 		}
 	}
@@ -78,7 +137,34 @@ const std::string TypeTable::MapSpecifierToName(
 }
 
 const bool TypeTable::ContainsType(const ComplexTypeSpecifier& type_specifier) {
-	return m_table->find(*type_specifier.GetTypeName()) != m_table->end();
+	return ContainsType(*type_specifier.GetTypeName());
+}
+
+const bool TypeTable::ContainsType(const string& name) {
+	return (bool) GetType<const TypeDefinition>(name, SHALLOW, RETURN);
+}
+
+volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
+		const Modifier::Type modifiers,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
+	volatile_shared_ptr<SymbolTable> result = make_shared<SymbolTable>(
+			modifiers);
+
+	for (const auto &entry : *m_table) {
+		auto name = entry.first;
+		auto type = entry.second;
+
+		auto default_value = type->GetDefaultValue(*this);
+		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name),
+				container);
+		auto default_symbol = type->GetSymbol(*this, type_specifier,
+				default_value);
+
+		InsertResult insert_result = result->InsertSymbol(name, default_symbol);
+		assert(insert_result == INSERT_SUCCESS);
+	}
+
+	return result;
 }
 
 const_shared_ptr<std::set<std::string>> TypeTable::GetTypeNames() const {
@@ -90,4 +176,22 @@ const_shared_ptr<std::set<std::string>> TypeTable::GetTypeNames() const {
 	}
 
 	return result;
+}
+
+const_shared_ptr<std::string> TypeTable::GetNilName() {
+	const static const_shared_ptr<std::string> value = make_shared<string>(
+			"nil");
+	return value;
+}
+
+const_shared_ptr<UnitType> TypeTable::GetNilType() {
+	const static const_shared_ptr<UnitType> value = make_shared<UnitType>();
+	return value;
+}
+
+const_shared_ptr<ComplexTypeSpecifier> TypeTable::GetNilTypeSpecifier() {
+	const static const_shared_ptr<ComplexTypeSpecifier> value =
+			static_pointer_cast<const ComplexTypeSpecifier>(
+					GetNilType()->GetTypeSpecifier(GetNilName(), nullptr));
+	return value;
 }

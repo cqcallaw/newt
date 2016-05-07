@@ -30,9 +30,7 @@
 #include <map>
 #include <string>
 
-enum WideningResult {
-	INCOMPATIBLE = 0, AMBIGUOUS = 1, UNAMBIGUOUS = 2
-};
+class SumTypeSpecifier;
 
 class SumType: public ComplexType {
 public:
@@ -45,41 +43,80 @@ public:
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const;
 
-	virtual bool IsSpecifiedBy(const std::string& name,
-			const TypeSpecifier& type_specifier) const;
+	virtual const std::string GetValueSeparator(const Indent& indent,
+			const void* value) const;
+
+	virtual const std::string GetTagSeparator(const Indent& indent,
+			const void* value) const;
+
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name) const;
+			const TypeTable& type_table) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void>,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void>) const;
 
-	const_shared_ptr<TypeTable> GetTypeTable() const {
-		return m_type_table;
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position,
+			const_shared_ptr<std::string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression) const;
+
+	virtual const_shared_ptr<TypeTable> GetDefinition() const {
+		return m_definition;
 	}
 
-	const const_shared_ptr<DeclarationStatement> GetFirstDeclaration() const {
+	const_shared_ptr<DeclarationStatement> GetFirstDeclaration() const {
 		return m_first_declaration;
+	}
+
+	const_shared_ptr<SymbolTable> GetConstructors() const {
+		return m_constructors;
 	}
 
 	static const_shared_ptr<Result> Build(
 			const shared_ptr<ExecutionContext> context,
-			const DeclarationListRef member_declarations);
+			const DeclarationListRef member_declarations,
+			const_shared_ptr<SumTypeSpecifier> sum_type_specifier);
 
-	const WideningResult AnalyzeWidening(const TypeSpecifier& other,
-			const string& sum_type_name) const;
+	virtual const AnalysisResult AnalyzeConversion(
+			const ComplexTypeSpecifier& current,
+			const TypeSpecifier& unaliased_other) const;
 
 	const_shared_ptr<std::string> MapSpecifierToVariant(
-			const TypeSpecifier& type_specifier,
-			const string& sum_type_name) const;
+			const ComplexTypeSpecifier& current,
+			const TypeSpecifier& type_specifier) const;
 
+	virtual const_shared_ptr<void> GetMemberDefaultValue(
+			const_shared_ptr<std::string> member_name) const;
+
+protected:
+	virtual const_shared_ptr<Result> PreprocessSymbolCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const;
+
+	virtual const SetResult InstantiateCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<TypeSpecifier> value_type_specifier,
+			const std::string& instance_name,
+			const_shared_ptr<void> data) const;
 private:
 	SumType(const_shared_ptr<TypeTable> type_table,
-			const_shared_ptr<DeclarationStatement> first_declaration) :
-			m_type_table(type_table), m_first_declaration(first_declaration) {
+			const_shared_ptr<DeclarationStatement> first_declaration,
+			const_shared_ptr<SymbolTable> constructors) :
+			m_definition(type_table), m_first_declaration(first_declaration), m_constructors(
+					constructors) {
 	}
-	const_shared_ptr<TypeTable> m_type_table;
+	const_shared_ptr<TypeTable> m_definition;
 	const_shared_ptr<DeclarationStatement> m_first_declaration;
+	const_shared_ptr<SymbolTable> m_constructors;
 };
 
 #endif /* SUM_TYPE_H_ */

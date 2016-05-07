@@ -22,6 +22,7 @@
 #include <primitive_type_specifier.h>
 #include <indent.h>
 #include <symbol.h>
+#include <primitive_declaration_statement.h>
 
 PrimitiveType::~PrimitiveType() {
 }
@@ -31,37 +32,25 @@ const std::string PrimitiveType::ToString(const TypeTable& type_table,
 	ostringstream os;
 	os << indent + 1;
 	os << m_type;
-	os << endl;
 	return os.str();
 }
 
 const std::string PrimitiveType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
-	buffer
-			<< Symbol::ToString(PrimitiveTypeSpecifier::FromBasicType(m_type),
-					value, type_table, indent);
-	return buffer.str();
-}
-
-bool PrimitiveType::IsSpecifiedBy(const std::string& name,
-		const TypeSpecifier& type_specifier) const {
-	try {
-		const PrimitiveTypeSpecifier& as_primitive =
-				dynamic_cast<const PrimitiveTypeSpecifier&>(type_specifier);
-		return m_type == as_primitive.GetBasicType();
-	} catch (std::bad_cast& e) {
-		return false;
-	}
+	buffer << PrimitiveTypeSpecifier::FromBasicType(m_type)->ToString(value);
+	auto result = buffer.str();
+	return result;
 }
 
 const_shared_ptr<void> PrimitiveType::GetDefaultValue(
-		const_shared_ptr<std::string> type_name) const {
+		const TypeTable& type_table) const {
 	return GetDefaultValue(m_type);
 }
 
-const_shared_ptr<Symbol> PrimitiveType::GetSymbol(const_shared_ptr<void> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+const_shared_ptr<Symbol> PrimitiveType::GetSymbol(const TypeTable& type_table,
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<void> value) const {
 	switch (m_type) {
 	case BasicType::BOOLEAN:
 		return make_shared<Symbol>(static_pointer_cast<const bool>(value));
@@ -100,4 +89,24 @@ const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 		assert(false);
 		return nullptr;
 	}
+}
+
+const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
+	return PrimitiveTypeSpecifier::FromBasicType(m_type);
+}
+
+const std::string PrimitiveType::GetValueSeparator(const Indent& indent,
+		const void* value) const {
+	return " ";
+}
+
+const_shared_ptr<DeclarationStatement> PrimitiveType::GetDeclarationStatement(
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<std::string> name,
+		const yy::location name_position,
+		const_shared_ptr<Expression> initializer_expression) const {
+	return make_shared<PrimitiveDeclarationStatement>(position, type,
+			type_position, name, name_position, initializer_expression);
 }

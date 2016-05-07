@@ -1,0 +1,11 @@
+# test longer linked list without explicit initialization of all members 
+list {
+	terminator
+	| item {
+		data:int,
+		next:list?
+	}
+}
+
+l:list= @list.item with { data = 2 }
+l = @list.item with { data = 4, next = l }

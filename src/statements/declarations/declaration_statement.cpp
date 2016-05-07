@@ -22,7 +22,8 @@
 DeclarationStatement::DeclarationStatement(const yy::location position,
 		const_shared_ptr<string> name, const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression,
-		ModifierListRef modifier_list, const yy::location modifier_list_location) :
+		ModifierListRef modifier_list,
+		const yy::location modifier_list_location) :
 		m_position(position), m_name(name), m_name_position(name_position), m_initializer_expression(
 				initializer_expression), m_modifier_list(modifier_list), m_modifier_list_location(
 				modifier_list_location) {

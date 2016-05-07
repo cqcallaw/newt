@@ -17,10 +17,11 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <type_definition.h>
+#ifndef ALIAS_RESOLUTION_H_
+#define ALIAS_RESOLUTION_H_
 
-TypeDefinition::TypeDefinition() {
-}
+enum AliasResolution {
+	RESOLVE = 0, RETURN = 1
+};
 
-TypeDefinition::~TypeDefinition() {
-}
+#endif /* ALIAS_RESOLUTION_H_ */

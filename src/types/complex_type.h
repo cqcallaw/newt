@@ -21,15 +21,54 @@
 #define COMPLEX_TYPE_H_
 
 #include <type_definition.h>
+#include <defaults.h>
+#include <error.h>
+#include <execution_context.h>
 
 class TypeSpecifier;
 class TypeTable;
+class Result;
+class ExecutionContext;
+class Expression;
 
 class ComplexType: public TypeDefinition {
 public:
 	virtual ~ComplexType();
 	static const_shared_ptr<TypeSpecifier> ToActualType(
 			const_shared_ptr<TypeSpecifier> original, const TypeTable& table);
+
+	const_shared_ptr<Result> PreprocessSymbol(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const;
+
+	const ErrorListRef Instantiate(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<std::string> instance_name,
+			const_shared_ptr<Expression> initializer) const;
+
+	virtual const_shared_ptr<void> GetMemberDefaultValue(
+			const_shared_ptr<std::string> member_name) const = 0;
+
+	virtual const_shared_ptr<TypeTable> GetDefinition() const = 0;
+
+	virtual const AnalysisResult AnalyzeConversion(
+			const ComplexTypeSpecifier& current,
+			const TypeSpecifier& unaliased_other) const = 0;
+
+protected:
+	virtual const_shared_ptr<Result> PreprocessSymbolCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const = 0;
+
+	virtual const SetResult InstantiateCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<TypeSpecifier> value_type_specifier,
+			const std::string& instance_name,
+			const_shared_ptr<void> data) const = 0;
 };
 
 #endif /* COMPLEX_TYPE_H_ */

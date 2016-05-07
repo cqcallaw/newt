@@ -26,26 +26,21 @@ class ComplexTypeSpecifier;
 
 class NestedTypeSpecifier: public TypeSpecifier {
 public:
-	NestedTypeSpecifier(const_shared_ptr<ComplexTypeSpecifier> parent,
+	NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,
 			const_shared_ptr<std::string> member_name);
 	virtual ~NestedTypeSpecifier();
 
 	virtual const std::string ToString() const;
-	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const;
-	virtual const_shared_ptr<void> DefaultValue(
+	virtual const AnalysisResult AnalyzeAssignmentTo(const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
-
-	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
-			const yy::location position, const_shared_ptr<TypeSpecifier> type,
-			const yy::location type_position,
-			const_shared_ptr<std::string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
-	const_shared_ptr<ComplexTypeSpecifier> GetParent() const {
+	virtual const_shared_ptr<TypeDefinition> GetType(
+			const TypeTable& type_table, AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
+
+	const_shared_ptr<TypeSpecifier> GetParent() const {
 		return m_parent;
 	}
 
@@ -53,8 +48,12 @@ public:
 		return m_member_name;
 	}
 
+	static const_shared_ptr<TypeSpecifier> Resolve(
+			const_shared_ptr<TypeSpecifier> source,
+			const TypeTable& type_table);
+
 private:
-	const_shared_ptr<ComplexTypeSpecifier> m_parent;
+	const_shared_ptr<TypeSpecifier> m_parent;
 	const_shared_ptr<std::string> m_member_name;
 };
 

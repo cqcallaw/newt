@@ -1,8 +1,20 @@
 /*
- * member_variable.h
- *
- *  Created on: Aug 29, 2015
- *      Author: caleb
+ Copyright (C) 2015 The newt Authors.
+
+ This file is part of newt.
+
+ newt is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ newt is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef MEMBER_VARIABLE_H_
@@ -17,8 +29,9 @@ public:
 			const_shared_ptr<Variable> member_variable);
 	virtual ~MemberVariable();
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const shared_ptr<ExecutionContext> context,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<std::string> ToString(
 			const shared_ptr<ExecutionContext> context) const;
@@ -65,8 +78,8 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<Record> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Record> value) const;
 
 private:
 	const_shared_ptr<Variable> m_container;

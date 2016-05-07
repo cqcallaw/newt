@@ -9,4 +9,7 @@ test test_instance:
 Root Type Table:
 ----------------
 test:
-	string s ("hmmm")
+	<record>
+	s:
+		string ("hmmm")
+

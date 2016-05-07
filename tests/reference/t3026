@@ -1,0 +1,21 @@
+Parsing file ../tests/t3026.nwt...
+Parsed file ../tests/t3026.nwt.
+Root Symbol Table:
+----------------
+top.middle.bottom v:
+	int basement: 0
+
+
+Root Type Table:
+----------------
+top:
+	<record>
+	middle:
+		<record>
+		bottom:
+			<record>
+			basement:
+				int (0)
+
+
+

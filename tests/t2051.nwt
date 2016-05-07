@@ -1,7 +1,7 @@
-struct circle {
-	x: int
-	y: int
-	radius: int
+mutable circle {
+	x: int,
+	y: int,
+	radius: int,
 	w: int = 20
 }
 

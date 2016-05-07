@@ -25,13 +25,16 @@
 
 class WithExpression: public Expression {
 public:
-	WithExpression(const yy::location position, const_shared_ptr<Expression> source_expression,
+	WithExpression(const yy::location position,
+			const_shared_ptr<Expression> source_expression,
 			MemberInstantiationListRef member_instantiation_list,
 			const yy::location member_instantiation_list_position);
 	virtual ~WithExpression();
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> execution_context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const shared_ptr<ExecutionContext> execution_context,
+			AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
 			const shared_ptr<ExecutionContext> execution_context) const;

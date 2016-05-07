@@ -1,0 +1,10 @@
+//test sum type as member of struct type, with runtime widening conversion
+number {
+	discrete:int
+	| stringified {
+		as_string:string
+	}
+}
+
+v:= @number.stringified #the variable 'v' so that the 'with' statement is non-constant
+s:number= v with { as_string = "4.0" }

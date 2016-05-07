@@ -1,6 +1,6 @@
-struct point {
-	x:int
-	y:int
+point {
+	x:int,
+	y:int,
 	translate:(int, int) -> point
 }
 

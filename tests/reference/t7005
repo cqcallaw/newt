@@ -1,0 +1,40 @@
+Parsing file ../tests/t7005.nwt...
+Parsed file ../tests/t7005.nwt.
+Root Symbol Table:
+----------------
+list l:
+{item}
+	int data: 16
+	list? next:
+		{value}
+		{item}
+			int data: 8
+			list? next:
+				{value}
+				{item}
+					int data: 4
+					list? next:
+						{value}
+						{item}
+							int data: 2
+							list? next:
+								{value} {terminator} <unit>
+
+
+
+
+
+Root Type Table:
+----------------
+list:
+	<sum>
+	item:
+		<record>
+		data:
+			int (0)
+		next:
+			list? ({empty})
+
+	terminator:
+		<unit>
+

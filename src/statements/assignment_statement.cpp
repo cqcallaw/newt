@@ -31,6 +31,7 @@
 #include <record_type.h>
 #include <record.h>
 #include <specifiers/type_specifier.h>
+#include <unit_type.h>
 
 AssignmentStatement::AssignmentStatement(const_shared_ptr<Variable> variable,
 		const AssignmentType op_type, const_shared_ptr<Expression> expression) :
@@ -46,22 +47,24 @@ const ErrorListRef AssignmentStatement::preprocess(
 
 	const_shared_ptr<string> variable_name = m_variable->GetName();
 	auto symbol = execution_context->GetSymbol(variable_name, DEEP);
-	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
 
 	int variable_line = m_variable->GetLocation().begin.line;
 	int variable_column = m_variable->GetLocation().begin.column;
 
 	if (symbol != Symbol::GetDefaultSymbol()) {
+		const_shared_ptr<TypeSpecifier> symbol_type_specifier =
+				symbol->GetTypeSpecifier();
 		const_shared_ptr<BasicVariable> basic_variable = dynamic_pointer_cast<
 				const BasicVariable>(m_variable);
 		if (basic_variable) {
 			const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 					dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-							symbol_type);
+							symbol_type_specifier);
 			const_shared_ptr<TypeSpecifier> expression_type =
-					m_expression->GetType(execution_context);
+					m_expression->GetTypeSpecifier(execution_context);
 			if (as_primitive) {
-				if (expression_type->IsAssignableTo(symbol_type)) {
+				if (expression_type->AnalyzeAssignmentTo(symbol_type_specifier,
+						execution_context->GetTypeTable())) {
 					errors = ErrorList::GetTerminator();
 				} else {
 					const yy::location variable_location =
@@ -71,16 +74,18 @@ const ErrorListRef AssignmentStatement::preprocess(
 									Error::ASSIGNMENT_TYPE_ERROR,
 									variable_location.begin.line,
 									variable_location.begin.column,
-									symbol_type->ToString(),
+									symbol_type_specifier->ToString(),
 									expression_type->ToString()), errors);
 				}
 			}
 
 			const_shared_ptr<ArrayTypeSpecifier> as_array =
-					dynamic_pointer_cast<const ArrayTypeSpecifier>(symbol_type);
+					dynamic_pointer_cast<const ArrayTypeSpecifier>(
+							symbol_type_specifier);
 			if (as_array) {
 				//reassigning raw array reference, not an array element
-				if (!expression_type->IsAssignableTo(symbol_type)) {
+				if (!expression_type->AnalyzeAssignmentTo(symbol_type_specifier,
+						execution_context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
 					errors = ErrorList::From(
@@ -93,21 +98,21 @@ const ErrorListRef AssignmentStatement::preprocess(
 				}
 			}
 
-			const_shared_ptr<RecordTypeSpecifier> as_record =
-					dynamic_pointer_cast<const RecordTypeSpecifier>(
-							symbol_type);
-			if (as_record) {
-				//reassigning raw struct reference, not a member
-				if (!expression_type->IsAssignableTo(symbol_type)) {
+			const_shared_ptr<ComplexTypeSpecifier> as_complex =
+					dynamic_pointer_cast<const ComplexTypeSpecifier>(
+							symbol_type_specifier);
+			if (as_complex) {
+				//reassigning raw reference, not a member
+				if (!expression_type->AnalyzeAssignmentTo(symbol_type_specifier,
+						execution_context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
-					const string struct_type_name = *as_record->GetTypeName();
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
 									expression_position.begin.line,
 									expression_position.begin.column,
-									struct_type_name,
+									as_complex->ToString(),
 									expression_type->ToString()), errors);
 				}
 			}
@@ -120,10 +125,11 @@ const ErrorListRef AssignmentStatement::preprocess(
 
 			if (ErrorList::IsTerminator(errors)) {
 				const_shared_ptr<TypeSpecifier> expression_type =
-						m_expression->GetType(execution_context);
+						m_expression->GetTypeSpecifier(execution_context);
 				const_shared_ptr<TypeSpecifier> element_type =
 						array_variable->GetElementType(execution_context);
-				if (!expression_type->IsAssignableTo(element_type)) {
+				if (!expression_type->AnalyzeAssignmentTo(element_type,
+						execution_context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
 					errors = ErrorList::From(
@@ -142,26 +148,29 @@ const ErrorListRef AssignmentStatement::preprocess(
 		if (member_variable) {
 			const_shared_ptr<RecordTypeSpecifier> as_record =
 					dynamic_pointer_cast<const RecordTypeSpecifier>(
-							member_variable->GetContainer()->GetType(
+							member_variable->GetContainer()->GetTypeSpecifier(
 									execution_context));
 
 			if (as_record) {
 				const_shared_ptr<RecordType> type =
 						execution_context->GetTypeTable()->GetType<RecordType>(
-								as_record->GetTypeName());
+								as_record, DEEP, RESOLVE);
 
 				if (type) {
-					if (!(type->GetModifiers() & Modifier::Type::READONLY)) {
+					if (type->GetModifiers() & Modifier::Type::MUTABLE) {
 						const_shared_ptr<TypeSpecifier> member_variable_type =
-								member_variable->GetType(execution_context);
+								member_variable->GetTypeSpecifier(
+										execution_context);
 
 						if (member_variable_type
 								!= PrimitiveTypeSpecifier::GetNone()) {
 							const_shared_ptr<TypeSpecifier> expression_type =
-									m_expression->GetType(execution_context);
+									m_expression->GetTypeSpecifier(
+											execution_context);
 
-							if (!expression_type->IsAssignableTo(
-									member_variable_type)) {
+							if (!expression_type->AnalyzeAssignmentTo(
+									member_variable_type,
+									execution_context->GetTypeTable())) {
 								errors =
 										ErrorList::From(
 												make_shared<Error>(
@@ -181,7 +190,7 @@ const ErrorListRef AssignmentStatement::preprocess(
 													member_variable->GetMemberVariable()->GetLocation().begin.line,
 													member_variable->GetMemberVariable()->GetLocation().begin.column,
 													*member_variable->GetMemberVariable()->GetName(),
-													member_variable->GetContainer()->GetType(
+													member_variable->GetContainer()->GetTypeSpecifier(
 															execution_context)->ToString()),
 											errors);
 						}
@@ -377,12 +386,8 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		return evaluation;
 	}
 
-	auto void_value = evaluation->GetData();
-
-	assert(void_value);
-
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			expression->GetType(execution_context);
+			expression->GetTypeSpecifier(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
@@ -392,15 +397,13 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		switch (basic_type) {
 		case BOOLEAN: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const bool>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<bool>()), op,
 					execution_context, new_value);
 			break;
 		}
 		case INT: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const int>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<int>()), op,
 					execution_context, new_value);
 			break;
 		}
@@ -437,10 +440,8 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		return evaluation;
 	}
 
-	auto void_value = evaluation->GetData();
-
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			expression->GetType(execution_context);
+			expression->GetTypeSpecifier(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
@@ -450,22 +451,19 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		switch (basic_type) {
 		case BOOLEAN:
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const bool>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<bool>()), op,
 					execution_context, new_value);
 			break;
 		case INT: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const int>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<int>()), op,
 					execution_context, new_value);
 			break;
 		}
 		case DOUBLE: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const double>(void_value)), op,
-					execution_context, new_value);
+					variable_column, value, *(evaluation->GetData<double>()),
+					op, execution_context, new_value);
 			break;
 		}
 		default:
@@ -501,10 +499,8 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		return evaluation;
 	}
 
-	auto void_value = evaluation->GetData();
-
 	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			expression->GetType(execution_context);
+			expression->GetTypeSpecifier(execution_context);
 	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 					expression_type_specifier);
@@ -514,28 +510,24 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		switch (basic_type) {
 		case BOOLEAN:
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const bool>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<bool>()), op,
 					execution_context, new_value);
 			break;
 		case INT: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const int>(void_value)), op,
+					variable_column, value, *(evaluation->GetData<int>()), op,
 					execution_context, new_value);
 			break;
 		}
 		case DOUBLE: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					*(static_pointer_cast<const double>(void_value)), op,
-					execution_context, new_value);
+					variable_column, value, *(evaluation->GetData<double>()),
+					op, execution_context, new_value);
 			break;
 		}
 		case STRING: {
 			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value,
-					static_pointer_cast<const string>(void_value), op,
+					variable_column, value, evaluation->GetData<string>(), op,
 					execution_context, new_value);
 			break;
 		}

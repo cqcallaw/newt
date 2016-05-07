@@ -1,0 +1,11 @@
+# a linked list, alternate formulation
+# this formulation does not allow for empty lists
+list {
+	data:int,
+	tail {
+		terminator
+		| next:list?
+	}
+}
+
+l:list = @list with { data = 4, tail = @list.tail.terminator }

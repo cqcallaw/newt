@@ -29,7 +29,7 @@
 #include <sum_type_specifier.h>
 #include <sum.h>
 #include <sum_type.h>
-#include <nested_type_specifier.h>
+#include <unit_type.h>
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
@@ -59,7 +59,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	auto parent_context = SymbolContextList::From(invocation_context,
 			invocation_context->GetParent());
 	shared_ptr<ExecutionContext> function_execution_context = make_shared<
-			ExecutionContext>(Modifier::NONE, parent_context,
+			ExecutionContext>(Modifier::MUTABLE, parent_context,
 			closure_reference->GetTypeTable(), EPHEMERAL);
 
 	//populate evaluation context with results of argument evaluation
@@ -79,9 +79,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				//generate a declaration statement for the function execution context.
 				//it's tempting to just stuff a value into the symbol table,
 				//but this simplistic approach ignores widening conversions
-				auto evaluated_expression =
-						static_pointer_cast<const Expression>(
-								argument_evaluation->GetData());
+				auto evaluated_expression = argument_evaluation->GetData<
+						Expression>();
 				const DeclarationStatement* argument_declaration =
 						declaration->WithInitializerExpression(
 								evaluated_expression);
@@ -93,7 +92,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 					errors = ErrorList::Concatenate(errors,
 							argument_declaration->execute(
 									function_execution_context));
-				} else {
+				} else if (preprocessing_errors != errors) {
 					errors = ErrorList::Concatenate(errors,
 							preprocessing_errors);
 				}
@@ -168,19 +167,20 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			auto as_sum_specifier =
 					dynamic_pointer_cast<const SumTypeSpecifier>(return_type);
 			if (as_sum_specifier) {
-				auto evaluation_result_type = evaluation_result->GetType();
+				auto evaluation_result_type =
+						evaluation_result->GetTypeSpecifier();
 				if (*as_sum_specifier != *evaluation_result_type) {
-					auto sum_type_name = *as_sum_specifier->GetTypeName();
 					auto sum_type_definition =
 							invocation_context->GetTypeTable()->GetType<SumType>(
-									sum_type_name);
+									as_sum_specifier, DEEP, RESOLVE);
 					if (sum_type_definition) {
 						//we're returning a narrower type than the return type; perform widening
 						plain_shared_ptr<string> tag =
 								sum_type_definition->MapSpecifierToVariant(
-										*evaluation_result_type, sum_type_name);
+										*as_sum_specifier,
+										*evaluation_result_type);
 
-						result = make_shared<Sum>(as_sum_specifier, tag,
+						result = make_shared<Sum>(tag,
 								evaluation_result->GetValue());
 					} else {
 						errors =
@@ -189,7 +189,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 												Error::UNDECLARED_TYPE,
 												m_declaration->GetReturnTypeLocation().begin.line,
 												m_declaration->GetReturnTypeLocation().begin.column,
-												sum_type_name), errors);
+												as_sum_specifier->ToString()),
+										errors);
 					}
 				}
 			}
@@ -206,8 +207,11 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 const string Function::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
+	buffer << indent << "Body Location: ";
 	if (m_body->GetLocation() != GetDefaultLocation()) {
-		buffer << indent << "Body Location: " << m_body->GetLocation();
+		buffer << m_body->GetLocation();
+	} else {
+		buffer << "[default location]";
 	}
 //	buffer << indent << "Address: " << this << endl;
 //	if (m_closure) {

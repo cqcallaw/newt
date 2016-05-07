@@ -38,8 +38,9 @@ public:
 	virtual const_shared_ptr<std::string> ToString(
 			const shared_ptr<ExecutionContext> context) const = 0;
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> context) const = 0;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const shared_ptr<ExecutionContext> context,
+			AliasResolution resolution = AliasResolution::RESOLVE) const = 0;
 
 	const_shared_ptr<std::string> GetName() const {
 		return m_name;
@@ -83,8 +84,8 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<Record> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const = 0;
+			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Record> value) const = 0;
 
 	const ErrorListRef ToErrorListRef(SetResult result,
 			const_shared_ptr<TypeSpecifier> symbol_type,

@@ -19,14 +19,15 @@
 
 #include <assert.h>
 #include <expression.h>
-#include <complex_instantiation_statement.h>
 #include <array_declaration_statement.h>
+#include <complex_instantiation_statement.h>
 #include <function_declaration_statement.h>
 #include <inferred_declaration_statement.h>
 #include <primitive_declaration_statement.h>
 #include <function_type_specifier.h>
 #include <function_expression.h>
 #include <specifiers/type_specifier.h>
+#include <execution_context.h>
 
 InferredDeclarationStatement::InferredDeclarationStatement(
 		const yy::location position, const_shared_ptr<string> name,
@@ -41,9 +42,9 @@ InferredDeclarationStatement::InferredDeclarationStatement(
 InferredDeclarationStatement::~InferredDeclarationStatement() {
 }
 
-const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetTypeSpecifier() const {
 	if (GetInitializerExpression()->IsConstant()) {
-		return GetInitializerExpression()->GetType(nullptr);
+		return GetInitializerExpression()->GetTypeSpecifier(nullptr);
 	} else {
 		return PrimitiveTypeSpecifier::GetNone();
 	}
@@ -54,12 +55,14 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<TypeSpecifier> expression_type =
-			GetInitializerExpression()->GetType(execution_context);
+			GetInitializerExpression()->GetTypeSpecifier(execution_context,
+					AliasResolution::RETURN);
 
-	if (expression_type != PrimitiveTypeSpecifier::GetNone()) {
+	auto type_table = execution_context->GetTypeTable();
+	auto type = expression_type->GetType(type_table);
+	if (type) {
 		const_shared_ptr<Statement> temp_statement =
-				expression_type->GetDeclarationStatement(GetPosition(),
-						expression_type,
+				type->GetDeclarationStatement(GetPosition(), expression_type,
 						GetInitializerExpression()->GetPosition(), GetName(),
 						GetNamePosition(), GetInitializerExpression());
 		errors = temp_statement->preprocess(execution_context);
@@ -75,13 +78,20 @@ const ErrorListRef InferredDeclarationStatement::execute(
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> expression_type =
-			GetInitializerExpression()->GetType(execution_context);
+			GetInitializerExpression()->GetTypeSpecifier(execution_context);
 
-	const_shared_ptr<Statement> temp_statement =
-			expression_type->GetDeclarationStatement(GetPosition(),
-					expression_type, GetInitializerExpression()->GetPosition(),
-					GetName(), GetNamePosition(), GetInitializerExpression());
-	errors = temp_statement->execute(execution_context);
+	auto type_table = execution_context->GetTypeTable();
+	auto type = expression_type->GetType(type_table);
+	if (type) {
+		const_shared_ptr<Statement> temp_statement =
+				type->GetDeclarationStatement(GetPosition(), expression_type,
+						GetInitializerExpression()->GetPosition(), GetName(),
+						GetNamePosition(), GetInitializerExpression());
+		errors = temp_statement->execute(execution_context);
+	} else {
+		errors = GetInitializerExpression()->Validate(execution_context);
+	}
+
 	return errors;
 }
 

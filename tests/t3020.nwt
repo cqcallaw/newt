@@ -1,15 +1,15 @@
-struct my_struct {
+my_struct {
 	y: double
 }
 
-struct my_other_struct {
-	x: int
+my_other_struct {
+	x: int,
 	i: my_struct
 }
 
-struct my_nested_struct {
-	z: int
-	i: my_struct
+my_nested_struct {
+	z: int,
+	i: my_struct,
 	n: my_other_struct
 }
 

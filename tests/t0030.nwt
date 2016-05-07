@@ -1,5 +1,5 @@
 // test array declaration variants
-struct test {
+test {
 	x: int = 10
 }
 

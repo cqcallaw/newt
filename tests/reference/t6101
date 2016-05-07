@@ -3,21 +3,14 @@ Parsed file ../tests/t6101.nwt.
 Continuous value: 2
 Root Symbol Table:
 ----------------
-number_ctor number:
-	(double) -> number continuous:
-		Body Location: 3.4-13
-	(int) -> number discrete:
-		Body Location: 2.2-9
-
-number t: 2 {continuous}
+number t: {continuous} 2
 
 Root Type Table:
 ----------------
 number:
+	<sum>
 	continuous:
 		double
 	discrete:
 		int
-number_ctor:
-	(double) -> number continuous ()
-	(int) -> number discrete ()
+

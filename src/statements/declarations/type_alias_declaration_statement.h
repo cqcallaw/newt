@@ -30,7 +30,7 @@ public:
 			const yy::location name_position);
 	virtual ~TypeAliasDeclarationStatement();
 
-	const_shared_ptr<TypeSpecifier> GetType() const {
+	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
 		return m_type;
 	}
 

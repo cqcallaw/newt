@@ -1,9 +1,9 @@
 //test array assignment as member of struct
-struct test {
+test {
 	x: int = 10
 }
 
-struct nested_container {
+mutable nested_container {
 	test: test[][]
 }
 

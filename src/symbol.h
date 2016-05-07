@@ -35,7 +35,10 @@ class Array;
 class Record;
 class Function;
 class Sum;
+class RecordTypeSpecifier;
 class ComplexTypeSpecifier;
+class MaybeTypeSpecifier;
+class Unit;
 
 class Symbol {
 	friend class SymbolContext;
@@ -46,16 +49,20 @@ public:
 	Symbol(const_shared_ptr<double> value);
 	Symbol(const_shared_ptr<string> value);
 	Symbol(const_shared_ptr<Array> value);
-	Symbol(const_shared_ptr<Record> value);
-	Symbol(const_shared_ptr<ComplexTypeSpecifier> container,
+	Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 			const_shared_ptr<Record> value);
 	Symbol(const_shared_ptr<Function> value);
-	Symbol(const_shared_ptr<Sum> value);
+	Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Sum> value);
+	Symbol(const_shared_ptr<MaybeTypeSpecifier> type,
+			const_shared_ptr<Sum> value);
+	Symbol(const_shared_ptr<TypeSpecifier> type,
+			const_shared_ptr<Unit> value);
 
 	virtual ~Symbol();
 
-	const_shared_ptr<TypeSpecifier> GetType() const {
-		return m_type;
+	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
+		return m_type_specifier;
 	}
 
 	const_shared_ptr<void> GetValue() const {
@@ -64,10 +71,12 @@ public:
 
 	static const_shared_ptr<Symbol> GetDefaultSymbol();
 
+	static const_shared_ptr<Symbol> GetNilSymbol();
+
 	virtual const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
-	static const string ToString(const_shared_ptr<TypeSpecifier> type,
+	static const string ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void> value, const TypeTable& type_table,
 			const Indent& indent);
 
@@ -75,11 +84,11 @@ protected:
 	Symbol(const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
 
 	virtual const_shared_ptr<Symbol> WithValue(
-			const_shared_ptr<TypeSpecifier> type,
-			const_shared_ptr<void> value) const;
+			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
+			const TypeTable& type_table) const;
 
 private:
-	const_shared_ptr<TypeSpecifier> m_type;
+	const_shared_ptr<TypeSpecifier> m_type_specifier;
 	const_shared_ptr<void> m_value;
 };
 

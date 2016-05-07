@@ -28,8 +28,10 @@
 #include <sum_type.h>
 #include <record_type.h>
 #include <record.h>
-#include <nested_type_specifier.h>
-
+#include <primitive_type.h>
+#include <array_type.h>
+#include <function_type.h>
+#include <maybe_type_specifier.h>
 #include "assert.h"
 #include "expression.h"
 
@@ -53,10 +55,14 @@ const_shared_ptr<string> BasicVariable::ToString(
 	return make_shared<string>(buffer.str());
 }
 
-const_shared_ptr<TypeSpecifier> BasicVariable::GetType(
-		const shared_ptr<ExecutionContext> context) const {
+const_shared_ptr<TypeSpecifier> BasicVariable::GetTypeSpecifier(
+		const shared_ptr<ExecutionContext> context,
+		AliasResolution resolution) const {
 	auto symbol = context->GetSymbol(GetName(), DEEP);
-	return symbol->GetType();
+	if (symbol) {
+		return symbol->GetTypeSpecifier();
+	}
+	return PrimitiveTypeSpecifier::GetNone();
 }
 
 const_shared_ptr<Result> BasicVariable::Evaluate(
@@ -76,7 +82,7 @@ const_shared_ptr<Result> BasicVariable::Evaluate(
 	}
 
 	const_shared_ptr<Result> result = make_shared<Result>(
-			result_symbol->GetValue(), errors);
+			result_symbol ? result_symbol->GetValue() : nullptr, errors);
 	return result;
 }
 
@@ -100,13 +106,16 @@ const ErrorListRef BasicVariable::AssignValue(
 
 	const_shared_ptr<Symbol> symbol = output_context->GetSymbol(variable_name,
 			DEEP);
-	const_shared_ptr<TypeSpecifier> symbol_type = symbol->GetType();
+	const_shared_ptr<TypeSpecifier> symbol_type_specifier =
+			symbol->GetTypeSpecifier();
+	auto symbol_type = symbol_type_specifier->GetType(context->GetTypeTable(),
+			RESOLVE);
 	auto symbol_value = symbol->GetValue();
 
-	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(symbol_type);
+	const_shared_ptr<PrimitiveType> as_primitive = dynamic_pointer_cast<
+			const PrimitiveType>(symbol_type);
 	if (as_primitive) {
-		const BasicType basic_type = as_primitive->GetBasicType();
+		const BasicType basic_type = as_primitive->GetType();
 		switch (basic_type) {
 		case BOOLEAN: {
 			const_shared_ptr<Result> result = AssignmentStatement::do_op(
@@ -116,8 +125,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(output_context,
-						static_pointer_cast<const bool>(result->GetData()));
+				errors = SetSymbol(output_context, result->GetData<bool>());
 			}
 			break;
 		}
@@ -129,8 +137,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(output_context,
-						static_pointer_cast<const int>(result->GetData()));
+				errors = SetSymbol(output_context, result->GetData<int>());
 			}
 			break;
 		}
@@ -142,8 +149,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(output_context,
-						static_pointer_cast<const double>(result->GetData()));
+				errors = SetSymbol(output_context, result->GetData<double>());
 			}
 			break;
 		}
@@ -154,8 +160,7 @@ const ErrorListRef BasicVariable::AssignValue(
 					op, context);
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				errors = SetSymbol(output_context,
-						static_pointer_cast<const string>(result->GetData()));
+				errors = SetSymbol(output_context, result->GetData<string>());
 			}
 			break;
 		}
@@ -165,8 +170,8 @@ const ErrorListRef BasicVariable::AssignValue(
 	}
 
 	//TODO: don't allow += or -= operations on array specifiers
-	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
-			const ArrayTypeSpecifier>(symbol_type);
+	const_shared_ptr<ArrayType> as_array = std::dynamic_pointer_cast<
+			const ArrayType>(symbol_type);
 	if (as_array) {
 		//re-assigning an array reference
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
@@ -174,129 +179,149 @@ const ErrorListRef BasicVariable::AssignValue(
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto result_as_array = static_pointer_cast<const Array>(
-					expression_evaluation->GetData());
+			auto result_as_array = expression_evaluation->GetData<Array>();
 
 			if (result_as_array) {
 				errors = SetSymbol(output_context, result_as_array);
 			} else {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-								variable_column, as_array->ToString(),
-								expression->GetType(context)->ToString()),
-						errors);
+				errors =
+						ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::ASSIGNMENT_TYPE_ERROR,
+										variable_line, variable_column,
+										symbol_type_specifier->ToString(),
+										expression->GetTypeSpecifier(context)->ToString()),
+								errors);
 			}
 		}
 	}
 
 //TODO: don't allow += or -= operations on compound type specifiers
-	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
-			const RecordTypeSpecifier>(symbol_type);
+	const_shared_ptr<RecordType> as_record = std::dynamic_pointer_cast<
+			const RecordType>(symbol_type);
 	if (as_record) {
+		auto complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+				symbol_type_specifier);
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto new_instance = static_pointer_cast<const Record>(
-					expression_evaluation->GetData());
+			auto new_instance = expression_evaluation->GetData<Record>();
 
 			//we're assigning a struct reference
-			errors = SetSymbol(output_context, new_instance);
+			errors = SetSymbol(output_context, complex, new_instance);
 		}
 	}
 
 //TODO: don't allow += or -= operations on function type specifiers
-	const_shared_ptr<FunctionTypeSpecifier> as_function =
-			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(symbol_type);
+	const_shared_ptr<FunctionType> as_function = std::dynamic_pointer_cast<
+			const FunctionType>(symbol_type);
 	if (as_function) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto function = static_pointer_cast<const Function>(
-					expression_evaluation->GetData());
+			auto function = expression_evaluation->GetData<Function>();
 
 			errors = SetSymbol(output_context, function);
 		}
 	}
 
-	const_shared_ptr<SumTypeSpecifier> as_sum_specifier =
-			std::dynamic_pointer_cast<const SumTypeSpecifier>(symbol_type);
-	if (as_sum_specifier) {
+	const_shared_ptr<SumType> as_sum = std::dynamic_pointer_cast<const SumType>(
+			symbol_type);
+	if (as_sum) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
-
 		errors = expression_evaluation->GetErrors();
+
 		if (ErrorList::IsTerminator(errors)) {
-			auto sum = static_pointer_cast<const Sum>(symbol->GetValue());
-			auto expression_type = expression->GetType(context);
+			auto expression_type_specifier = expression->GetTypeSpecifier(
+					context);
 
-			plain_shared_ptr<Sum> new_sum;
-			if (expression_type->IsAssignableTo(symbol_type)) {
-				//we're re-assigning
-				new_sum = static_pointer_cast<const Sum>(
-						expression_evaluation->GetData());
-			} else {
-				//test for widening
-				auto sum_type_name = as_sum_specifier->GetTypeName();
-				auto sum_type = context->GetTypeTable()->GetType<SumType>(
-						sum_type_name);
+			plain_shared_ptr<Sum> new_sum = nullptr;
+			auto assignment_analysis =
+					expression_type_specifier->AnalyzeAssignmentTo(
+							symbol_type_specifier, context->GetTypeTable());
 
-				auto widening_analysis = sum_type->AnalyzeWidening(
-						*expression_type, *sum_type_name);
-
-				if (widening_analysis == UNAMBIGUOUS) {
-					//we're widening
-					auto tag = sum_type->MapSpecifierToVariant(*expression_type,
-							*sum_type_name);
-					new_sum = make_shared<Sum>(as_sum_specifier, tag,
-							expression_evaluation->GetData());
+			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					symbol_type_specifier);
+			if (as_complex) {
+				if (assignment_analysis == EQUIVALENT) {
+					new_sum = expression_evaluation->GetData<Sum>();
+				} else if (assignment_analysis == UNAMBIGUOUS) {
+					auto tag = as_sum->MapSpecifierToVariant(*as_complex,
+							*expression_type_specifier);
+					new_sum = make_shared<Sum>(tag,
+							expression_evaluation->GetRawData());
 				} else {
 					assert(false);
 				}
+				errors = SetSymbol(output_context, as_complex, new_sum);
 			}
-
-			errors = SetSymbol(output_context, new_sum);
 		}
 	}
 
-	const_shared_ptr<NestedTypeSpecifier> as_nested_specifier =
-			std::dynamic_pointer_cast<const NestedTypeSpecifier>(symbol_type);
-	if (as_nested_specifier) {
+	auto as_maybe = dynamic_pointer_cast<const MaybeTypeSpecifier>(
+			symbol_type_specifier);
+	if (as_maybe) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context);
-
 		errors = expression_evaluation->GetErrors();
+
 		if (ErrorList::IsTerminator(errors)) {
-			auto parent_type_definition = context->GetTypeTable()->GetType<
-					ComplexType>(
-					as_nested_specifier->GetParent()->GetTypeName());
+			auto expression_type_specifier = expression->GetTypeSpecifier(
+					context);
 
-			if (parent_type_definition) {
-				auto as_sum = dynamic_pointer_cast<const SumType>(
-						parent_type_definition);
+			plain_shared_ptr<Sum> new_sum = nullptr;
+			auto assignment_analysis =
+					expression_type_specifier->AnalyzeAssignmentTo(
+							symbol_type_specifier, context->GetTypeTable());
 
-				if (as_sum) {
-					auto child_record_type = as_sum->GetTypeTable()->GetType<
-							RecordType>(as_nested_specifier->GetMemberName());
-					if (child_record_type) {
-						auto value = static_pointer_cast<const Record>(
-								expression_evaluation->GetData());
-						//auto expression_type = expression->GetType(context);
-						errors = SetSymbol(output_context, value,
-								as_nested_specifier->GetParent());
-					} else {
-						assert(false);
-					}
+			if (assignment_analysis == EQUIVALENT) {
+				new_sum = expression_evaluation->GetData<Sum>();
+			} else if (assignment_analysis == UNAMBIGUOUS) {
+				plain_shared_ptr<void> data =
+						expression_evaluation->GetRawData();
+				if (expression_type_specifier->AnalyzeAssignmentTo(
+						TypeTable::GetNilTypeSpecifier(),
+						context->GetTypeTable()) == EQUIVALENT) {
+					new_sum = make_shared<Sum>(MaybeTypeSpecifier::EMPTY_NAME,
+							data);
 				} else {
+					new_sum = make_shared<Sum>(MaybeTypeSpecifier::VARIANT_NAME,
+							data);
+				}
+			} else if (assignment_analysis == UNAMBIGUOUS_NESTED) {
+				//do the requisite widening
+				plain_shared_ptr<void> data =
+						expression_evaluation->GetRawData();
+				auto base_type_specifier = as_maybe->GetBaseTypeSpecifier();
+				auto base_type = base_type_specifier->GetType(
+						context->GetTypeTable(), RESOLVE);
+				auto base_as_sum = dynamic_pointer_cast<const SumType>(
+						base_type);
+				if (base_as_sum) {
+					//TODO: allow this widening process to be recursive
+					auto sum_type_specifier = static_pointer_cast<
+							const ComplexTypeSpecifier>(base_type_specifier);
+					auto base_tag = base_as_sum->MapSpecifierToVariant(
+							*sum_type_specifier, *expression_type_specifier);
+					assert(*base_tag != "");
+					data = make_shared<Sum>(base_tag, data);
+				} else {
+					//TODO: generalize this widening conversion process to more than sum types
 					assert(false);
 				}
+
+				new_sum = make_shared<Sum>(MaybeTypeSpecifier::VARIANT_NAME,
+						data);
 			} else {
 				assert(false);
 			}
+
+			errors = SetSymbol(output_context, as_maybe, new_sum);
 		}
 	}
 
@@ -307,65 +332,84 @@ const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<bool> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
-			symbol->GetType(), PrimitiveTypeSpecifier::GetBoolean());
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetBoolean());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<int> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
-			symbol->GetType(), PrimitiveTypeSpecifier::GetInt());
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetInt());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<double> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
-			symbol->GetType(), PrimitiveTypeSpecifier::GetDouble());
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetDouble());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<string> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
-			symbol->GetType(), PrimitiveTypeSpecifier::GetString());
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetString());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Array> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
-			symbol->GetType(), value->GetTypeSpecifier());
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
+			symbol->GetTypeSpecifier(), value->GetTypeSpecifier());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Record> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<ComplexTypeSpecifier> type,
+		const_shared_ptr<Record> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value, container),
-			symbol->GetType(), value->GetTypeSpecifier());
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), type, value,
+					context->GetTypeTable()), symbol->GetTypeSpecifier(), type);
+}
+
+const ErrorListRef BasicVariable::SetSymbol(
+		const shared_ptr<ExecutionContext> context,
+		const_shared_ptr<MaybeTypeSpecifier> type,
+		const_shared_ptr<Sum> value) const {
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), type, value,
+					context->GetTypeTable()), symbol->GetTypeSpecifier(), type);
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Function> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), value),
-			symbol->GetType(), value->GetType());
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
+			symbol->GetTypeSpecifier(), value->GetType());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Sum> sum) const {
+		const_shared_ptr<ComplexTypeSpecifier> type,
+		const_shared_ptr<Sum> value) const {
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
-	return ToErrorListRef(context->SetSymbol(*GetName(), sum),
-			symbol->GetType(), sum->GetType());
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), type, value,
+					context->GetTypeTable()), symbol->GetTypeSpecifier(), type);
 }
 
 const_shared_ptr<Variable> BasicVariable::GetDefaultVariable() {

@@ -17,67 +17,20 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <member_definition.h>
 #include <function_type_specifier.h>
 #include <record.h>
+#include <sum.h>
 #include <symbol_table.h>
+#include <record_type.h>
 
-const_shared_ptr<Record> Record::GetDefaultInstance(
-		const_shared_ptr<std::string> type_name, const RecordType& type) {
+const_shared_ptr<Record> Record::GetDefaultInstance(const RecordType& type) {
 	auto symbol_mapping = make_shared<symbol_map>();
 
-	plain_shared_ptr<definition_map> type_definition = type.GetDefinition();
-	definition_map::const_iterator iter;
+	auto type_definition = type.GetDefinition();
+	auto default_symbols = type_definition->GetDefaultSymbolContext(
+			type.GetModifiers(), nullptr);
 
-	auto symbol_table = make_shared<SymbolTable>(type.GetModifiers());
-
-	for (iter = type_definition->begin(); iter != type_definition->end();
-			++iter) {
-		const string member_name = iter->first;
-		const_shared_ptr<MemberDefinition> member_type_information =
-				iter->second;
-
-		auto symbol = GetSymbol(member_type_information->GetType(),
-				member_type_information->GetDefaultValue());
-		symbol_table->InsertSymbol(member_name, symbol);
-	}
-
-	const_shared_ptr<RecordTypeSpecifier> type_specifier = make_shared<
-			RecordTypeSpecifier>(type_name);
-
-	return make_shared<Record>(Record(type_specifier, symbol_table));
-}
-
-const_shared_ptr<Symbol> Record::GetSymbol(
-		const_shared_ptr<TypeSpecifier> member_type,
-		const_shared_ptr<void> void_value) {
-	if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::GetBoolean())) {
-		return make_shared<Symbol>(static_pointer_cast<const bool>(void_value));
-	} else if (member_type->IsAssignableTo(PrimitiveTypeSpecifier::GetInt())) {
-		return make_shared<Symbol>(static_pointer_cast<const int>(void_value));
-	} else if (member_type->IsAssignableTo(
-			PrimitiveTypeSpecifier::GetDouble())) {
-		return make_shared<Symbol>(
-				static_pointer_cast<const double>(void_value));
-	} else if (member_type->IsAssignableTo(
-			PrimitiveTypeSpecifier::GetString())) {
-		return make_shared<Symbol>(
-				static_pointer_cast<const string>(void_value));
-	} else if (std::dynamic_pointer_cast<const ArrayTypeSpecifier>(member_type)
-			!= nullptr) {
-		return make_shared<Symbol>(static_pointer_cast<const Array>(void_value));
-	} else if (std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-			member_type)) {
-		return make_shared<Symbol>(
-				static_pointer_cast<const Record>(void_value));
-	} else if (std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
-			member_type)) {
-		return make_shared<Symbol>(
-				static_pointer_cast<const Function>(void_value));
-	} else {
-		assert(false);
-		return nullptr;
-	}
+	return make_shared<Record>(default_symbols);
 }
 
 const string Record::ToString(const TypeTable& type_table,

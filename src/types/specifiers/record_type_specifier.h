@@ -31,47 +31,29 @@ class SymbolContext;
 class RecordTypeSpecifier: public ComplexTypeSpecifier {
 public:
 	RecordTypeSpecifier(const_shared_ptr<std::string> type_name) :
-			RecordTypeSpecifier(type_name,
+			RecordTypeSpecifier(type_name, nullptr,
+					NamespaceQualifierList::GetTerminator()) {
+	}
+
+	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const_shared_ptr<ComplexTypeSpecifier> container) :
+			RecordTypeSpecifier(type_name, container,
 					NamespaceQualifierList::GetTerminator()) {
 	}
 
 	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
 			const NamespaceQualifierListRef space) :
-			m_type_name(type_name), m_space(space) {
+			RecordTypeSpecifier(type_name, nullptr, space) {
+	}
+
+	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			const NamespaceQualifierListRef space) :
+			ComplexTypeSpecifier(type_name, container, space) {
 	}
 
 	virtual ~RecordTypeSpecifier() {
 	}
-
-	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const;
-
-	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
-			const yy::location position, const_shared_ptr<TypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const;
-
-	virtual const_shared_ptr<void> DefaultValue(
-			const TypeTable& type_table) const;
-
-	virtual bool operator==(const TypeSpecifier& other) const;
-
-	virtual const_shared_ptr<std::string> GetTypeName() const {
-		return m_type_name;
-	}
-
-	virtual const std::string ToString() const {
-		return *m_type_name;
-	}
-
-	virtual const NamespaceQualifierListRef GetNamespace() const {
-		return m_space;
-	}
-
-private:
-	const_shared_ptr<std::string> m_type_name;
-	const NamespaceQualifierListRef m_space;
 };
 
 #endif /* SPECIFIERS_RECORD_TYPE_SPECIFIER_H_ */

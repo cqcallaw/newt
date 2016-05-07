@@ -2,18 +2,14 @@ Parsing file ../tests/t6017.nwt...
 Parsed file ../tests/t6017.nwt.
 Root Symbol Table:
 ----------------
-result_ctor result:
-	(int) -> result value:
-		Body Location: 3.2-6
-
-result val:
- {error}
+result.error val: <unit>
 
 Root Type Table:
 ----------------
 result:
+	<sum>
 	error:
+		<unit>
 	value:
 		int
-result_ctor:
-	(int) -> result value ()
+

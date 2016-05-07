@@ -36,20 +36,32 @@ public:
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const;
 
-	virtual bool IsSpecifiedBy(const std::string& name,
-			const TypeSpecifier& type_specifier) const;
+	virtual const std::string GetValueSeparator(const Indent& indent,
+			const void* value) const;
+
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name) const;
+			const TypeTable& type_table) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void>) const;
+
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position,
+			const_shared_ptr<std::string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression) const;
+
+	static const_shared_ptr<void> GetDefaultValue(const BasicType& basic_type);
 
 	const BasicType GetType() const {
 		return m_type;
 	}
-
-	static const_shared_ptr<void> GetDefaultValue(const BasicType& basic_type);
 
 private:
 	const BasicType m_type;

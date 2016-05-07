@@ -1,8 +1,20 @@
 /*
- * declaration_statement.cpp
- *
- *  Created on: Jun 14, 2015
- *      Author: caleb
+ Copyright (C) 2015 The newt Authors.
+
+ This file is part of newt.
+
+ newt is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ newt is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <error.h>
@@ -44,13 +56,14 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 	if (as_primitive) {
 		if (GetInitializerExpression()) {
 			const_shared_ptr<TypeSpecifier> expression_type_specifier =
-					GetInitializerExpression()->GetType(execution_context);
+					GetInitializerExpression()->GetTypeSpecifier(execution_context);
 
 			auto expression_as_primitive = std::dynamic_pointer_cast<
 					const PrimitiveTypeSpecifier>(expression_type_specifier);
 
 			if (expression_as_primitive == nullptr
-					|| !expression_as_primitive->IsAssignableTo(as_primitive)) {
+					|| !expression_as_primitive->AnalyzeAssignmentTo(as_primitive,
+							execution_context->GetTypeTable())) {
 				errors =
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
@@ -63,8 +76,10 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 			}
 		}
 
-		auto value = m_type->DefaultValue(*execution_context->GetTypeTable());
-		symbol = as_primitive->GetSymbol(value);
+		auto type_table = *execution_context->GetTypeTable();
+		auto type = m_type->GetType(type_table);
+		auto value = type->GetDefaultValue(type_table);
+		symbol = type->GetSymbol(type_table, m_type, value);
 	} else {
 		assert(false);
 	}

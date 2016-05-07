@@ -1,5 +1,5 @@
 //test duplicate member declaration
-struct my_struct {
-	y: double
+my_struct {
+	y: double,
 	y: double
 }

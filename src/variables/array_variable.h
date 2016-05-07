@@ -33,8 +33,9 @@ public:
 			const_shared_ptr<Expression> expression);
 	virtual ~ArrayVariable();
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const shared_ptr<ExecutionContext> context,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<string> ToString(
 			const shared_ptr<ExecutionContext> context) const;
@@ -42,9 +43,6 @@ public:
 	virtual const bool IsBasicReference() const {
 		return false;
 	}
-
-//	virtual const_shared_ptr<TypeSpecifier> GetInnerMostElementType(
-//			const shared_ptr<ExecutionContext> context) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetElementType(
 			const shared_ptr<ExecutionContext> context) const;
@@ -83,8 +81,8 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<Record> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Record> value) const;
 
 	class ValidationResult {
 	public:

@@ -31,27 +31,21 @@ public:
 	FunctionDeclaration(const FunctionDeclaration& other);
 	virtual ~FunctionDeclaration();
 
+//	virtual const string ToString() const;
+
 	static const_shared_ptr<FunctionDeclaration> FromTypeSpecifier(
-			const FunctionTypeSpecifier& type_specifier);
+			const FunctionTypeSpecifier& type_specifier,
+			const TypeTable& type_table);
 
-	virtual const_shared_ptr<void> DefaultValue(
-			const TypeTable& type_table) const;
-
-	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
-			const yy::location position, const_shared_ptr<TypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const;
+	virtual const_shared_ptr<TypeDefinition> GetType(
+			const TypeTable& type_table, AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 
 	DeclarationListRef GetParameterList() const {
 		return m_parameter_list;
 	}
 
 	static TypeSpecifierListRef GetTypeList(DeclarationListRef parameter_list);
-protected:
-	static const_shared_ptr<Function> GetDefaultFunctionDeclaration(
-			const FunctionDeclaration& function_declaration,
-			const TypeTable& type_table);
 
 private:
 	DeclarationListRef m_parameter_list;

@@ -1,9 +1,9 @@
 //test enum
-sum result {
+result {
 	no_result
 	| happy_fun
 	| frowny_sad
 	| error
 }
 
-val:= @result.happy_fun
+val:result= @result.happy_fun

@@ -1,0 +1,2 @@
+#test invalid initializer
+v:int? = 3.8

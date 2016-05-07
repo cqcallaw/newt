@@ -1,0 +1,8 @@
+# test nested type specifiers
+top {
+	middle {
+		bottom : int
+	}
+}
+
+v:= @top.middle

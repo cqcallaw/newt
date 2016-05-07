@@ -66,16 +66,22 @@ const ErrorListRef ForStatement::preprocess(
 	}
 
 	//can't nest this loop because m_initial might be empty
-	if (m_loop_expression
-			&& !(m_loop_expression->GetType(execution_context)->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetInt()))) {
-		yy::location position = m_loop_expression->GetPosition();
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
-						position.begin.line, position.begin.column), errors);
-	} else {
-		errors = m_statement_block->preprocess(new_execution_context);
+	if (m_loop_expression) {
+		auto loop_expression_analysis = m_loop_expression->GetTypeSpecifier(
+				execution_context)->AnalyzeAssignmentTo(
+				PrimitiveTypeSpecifier::GetInt(),
+				execution_context->GetTypeTable());
+		if (loop_expression_analysis == EQUIVALENT
+				|| loop_expression_analysis == UNAMBIGUOUS) {
+			errors = m_statement_block->preprocess(new_execution_context);
+		} else {
+			yy::location position = m_loop_expression->GetPosition();
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
+							position.begin.line, position.begin.column),
+					errors);
+		}
 	}
 
 	return errors;
@@ -105,7 +111,7 @@ const ErrorListRef ForStatement::execute(
 		return evaluation->GetErrors();
 	}
 
-	while (*(static_pointer_cast<const bool>(evaluation->GetData()))) {
+	while (*(evaluation->GetData<bool>())) {
 		ErrorListRef iteration_errors = ErrorList::GetTerminator();
 		if (m_statement_block) {
 			iteration_errors = m_statement_block->execute(
@@ -144,7 +150,7 @@ ForStatement::ForStatement(const_shared_ptr<Statement> initial,
 		const_shared_ptr<StatementBlock> statement_block) :
 		m_initial(initial), m_loop_expression(loop_expression), m_loop_assignment(
 				loop_assignment), m_statement_block(statement_block), m_block_context(
-				make_shared<ExecutionContext>()) {
+				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)) {
 	assert(loop_expression);
 	assert(loop_assignment);
 }

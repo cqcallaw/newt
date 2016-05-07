@@ -1,0 +1,2 @@
+#test basic Maybe declaration with assignment to nil
+v:int? = nil

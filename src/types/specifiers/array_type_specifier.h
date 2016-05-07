@@ -24,23 +24,19 @@
 
 class Expression;
 class Statement;
+class ArrayType;
 
 using namespace std;
 class ArrayTypeSpecifier: public TypeSpecifier {
 public:
-	ArrayTypeSpecifier(const_shared_ptr<TypeSpecifier> element_type_specifier) :
-			m_element_type_specifier(element_type_specifier) {
-	}
+	ArrayTypeSpecifier(const_shared_ptr<TypeSpecifier> element_type_specifier);
 
-	virtual ~ArrayTypeSpecifier() {
-	}
+	virtual ~ArrayTypeSpecifier();
 
 	virtual const string ToString() const;
 
-	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const;
-
-	virtual const_shared_ptr<void> DefaultValue(
+	virtual const AnalysisResult AnalyzeAssignmentTo(
+			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier& other) const;
@@ -49,14 +45,13 @@ public:
 		return m_element_type_specifier;
 	}
 
-	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
-			const yy::location position, const_shared_ptr<TypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const;
+	virtual const_shared_ptr<TypeDefinition> GetType(
+			const TypeTable& type_table, AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_element_type_specifier;
+	const_shared_ptr<ArrayType> m_type;
 };
 
 #endif /* ARRAY_TYPE_SPECIFIER_H_ */

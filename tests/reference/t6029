@@ -1,0 +1,24 @@
+Parsing file ../tests/t6029.nwt...
+Parsed file ../tests/t6029.nwt.
+Root Symbol Table:
+----------------
+number s:
+{stringified}
+	string as_string: "4.0"
+
+number.stringified v:
+	string as_string: ""
+
+
+Root Type Table:
+----------------
+number:
+	<sum>
+	discrete:
+		int
+	stringified:
+		<record>
+		as_string:
+			string ("")
+
+

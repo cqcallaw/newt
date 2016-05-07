@@ -40,11 +40,11 @@
 #include <statement.h>
 #include <assignment_statement.h>
 #include <declaration_statement.h>
+#include <record_declaration_statement.h>
 #include <statement_block.h>
 #include <execution_context.h>
 #include <stack>
 #include <modifier.h>
-#include <member_declaration.h>
 #include <member_instantiation.h>
 #include <dimension.h>
 
@@ -53,6 +53,7 @@
 #include <specifiers/function_type_specifier.h>
 #include <specifiers/function_declaration.h>
 #include <specifiers/nested_type_specifier.h>
+#include <specifiers/maybe_type_specifier.h>
 
 #include <namespace_qualifier.h>
 
@@ -95,12 +96,14 @@ class Driver;
 #include <assignment_statement.h>
 #include <primitive_declaration_statement.h>
 #include <array_declaration_statement.h>
-#include <record_declaration_statement.h>
 #include <complex_instantiation_statement.h>
 #include <function_declaration_statement.h>
 #include <inferred_declaration_statement.h>
 #include <sum_declaration_statement.h>
 #include <type_alias_declaration_statement.h>
+#include <nested_declaration_statement.h>
+#include <unit_declaration_statement.h>
+#include <maybe_declaration_statement.h>
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
@@ -113,6 +116,7 @@ class Driver;
 #include <specifiers/array_type_specifier.h>
 #include <specifiers/primitive_type_specifier.h>
 #include <specifiers/record_type_specifier.h>
+#include <specifiers/sum_type_specifier.h>
 
 #include <assignment_type.h>
 
@@ -153,6 +157,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	COMMA               ","
 	PERIOD              "."
 	AT                  "@"
+	QMARK               "?"
 
 	EQUALS              "="
 	PLUS_ASSIGN         "+="
@@ -181,10 +186,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 
 	UNDERSCORE          "_"
 
-	STRUCT              "struct declaration"
-	READONLY            "readonly modifier"
+	MUTABLE             "mutable modifier"
 	WITH                "with"
-	SUM                 "sum"
 	MATCH               "match"
 	AS                  "as"
 
@@ -202,8 +205,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %token <double> DOUBLE_CONSTANT "double constant"
 %token <plain_shared_ptr<std::string>> STRING_CONSTANT "string constant"
 
-%left PERIOD
 %left LBRACKET
+%left PERIOD
 %left OR
 %left AND
 %left EQUAL NOT_EQUAL
@@ -225,6 +228,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<FunctionDeclaration>> function_declaration
 %type <plain_shared_ptr<FunctionTypeSpecifier>> function_type_specifier
 %type <plain_shared_ptr<ComplexTypeSpecifier>> complex_type_specifier
+%type <plain_shared_ptr<NestedTypeSpecifier>> nested_type_specifier
+%type <plain_shared_ptr<MaybeTypeSpecifier>> maybe_type_specifier
 
 %type <plain_shared_ptr<Expression>> expression
 %type <plain_shared_ptr<Expression>> variable_expression
@@ -244,8 +249,10 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<Statement>> print_statement
 %type <plain_shared_ptr<Statement>> for_statement
 %type <plain_shared_ptr<Statement>> exit_statement
-%type <plain_shared_ptr<Statement>> struct_declaration_statement
-%type <plain_shared_ptr<Statement>> sum_declaration_statement
+%type <plain_shared_ptr<RecordDeclarationStatement>> struct_declaration_statement
+%type <plain_shared_ptr<DeclarationStatement>> sum_declaration_statement
+%type <plain_shared_ptr<RecordDeclarationStatement>> struct_body
+%type <plain_shared_ptr<DeclarationStatement>> sum_body
 %type <plain_shared_ptr<Statement>> return_statement
 %type <plain_shared_ptr<Statement>> match_statement
 %type <DeclarationListRef> parameter_list
@@ -318,6 +325,14 @@ variable_declaration:
 	{
 		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, @3, $1, @1, $4);
 	}
+	| IDENTIFIER COLON nested_type_specifier optional_initializer
+	{
+		$$ = make_shared<NestedDeclarationStatement>(@$, $3, @3, $1, @1, $4);
+	}
+	| IDENTIFIER COLON maybe_type_specifier optional_initializer
+	{
+		$$ = make_shared<MaybeDeclarationStatement>(@$, $3, @3, $1, @1, $4);
+	}
 	| IDENTIFIER COLON EQUALS expression
 	{
 		$$ = make_shared<InferredDeclarationStatement>(@$, $1, @1, $4);
@@ -368,12 +383,32 @@ function_type_specifier:
 complex_type_specifier:
 	IDENTIFIER
 	{
-		$$ = make_shared<RecordTypeSpecifier>($1, NamespaceQualifierList::GetTerminator());
+		$$ = make_shared<RecordTypeSpecifier>($1);
 	}
 	| namespace_qualifier_list IDENTIFIER
 	{
 		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
 		$$ = make_shared<RecordTypeSpecifier>($2, namespace_qualifier_list);
+	}
+	;
+
+//---------------------------------------------------------------------
+nested_type_specifier:
+	complex_type_specifier PERIOD IDENTIFIER
+	{
+		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+	}
+	| nested_type_specifier PERIOD IDENTIFIER
+	{
+		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+	}
+	;
+
+//---------------------------------------------------------------------
+maybe_type_specifier:
+	type_specifier QMARK
+	{
+		$$ = make_shared<MaybeTypeSpecifier>($1);
 	}
 	;
 
@@ -391,9 +426,9 @@ type_specifier:
 	{
 		$$ = $1;
 	}
-	| complex_type_specifier PERIOD IDENTIFIER
+	| nested_type_specifier
 	{
-		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+		$$ = $1;
 	}
 	;
 
@@ -836,34 +871,60 @@ modifier_list:
 		$$ = ModifierList::From($1, ModifierList::GetTerminator());
 	}
 
+//---------------------------------------------------------------------
 modifier:
-	READONLY
+	MUTABLE
 	{
-		$$ = make_shared<Modifier>(Modifier(Modifier::READONLY, @1));
+		$$ = make_shared<Modifier>(Modifier(Modifier::MUTABLE, @1));
 	}
 
 //---------------------------------------------------------------------
 struct_declaration_statement:
-	modifier_list STRUCT IDENTIFIER LBRACE declaration_list RBRACE
+	modifier_list struct_body
 	{
-		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($5);
 		ModifierListRef modifier_list = ModifierList::From(ModifierList::Reverse($1));
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($3);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $3, @3, member_declaration_list, @5, modifier_list, @1);
+		$$ = $2->WithModifiers(modifier_list, @1);
 	}
-	| STRUCT IDENTIFIER LBRACE declaration_list RBRACE
+	| struct_body
 	{
-		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($2);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $2, @2, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
+		$$ = $1;
 	}
 	;
 
 //---------------------------------------------------------------------
-declaration_list:
-	declaration_list variable_declaration
+struct_body:
+	IDENTIFIER LBRACE declaration_list RBRACE
 	{
-		$$ = DeclarationList::From($2, $1);
+		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
+		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
+	}
+
+//---------------------------------------------------------------------
+declaration_list:
+	declaration_list COMMA variable_declaration
+	{
+		$$ = DeclarationList::From($3, $1);
+	}
+	| declaration_list COMMA sum_body
+	{
+		$$ = DeclarationList::From($3, $1);
+	}
+	| declaration_list COMMA struct_body
+	{
+		$$ = DeclarationList::From($3, $1);
+	}
+	| struct_body
+	{
+		$$ = DeclarationList::From($1, DeclarationList::GetTerminator());
+	}
+	| sum_body
+	{
+		$$ = DeclarationList::From($1, DeclarationList::GetTerminator());
+	}
+	| variable_declaration
+	{
+		$$ = DeclarationList::From($1, DeclarationList::GetTerminator());
 	}
 	| empty
 	{
@@ -952,11 +1013,19 @@ namespace_qualifier:
 
 //---------------------------------------------------------------------
 sum_declaration_statement:
-	SUM IDENTIFIER LBRACE variant_list RBRACE
+	sum_body
 	{
-		const DeclarationListRef variant_list = DeclarationList::Reverse($4);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($2);
-		$$ = make_shared<SumDeclarationStatement>(@$, type, $2, @2, variant_list, @4);
+		$$ = $1;
+	}
+	;
+
+//---------------------------------------------------------------------
+sum_body:
+	IDENTIFIER LBRACE variant_list RBRACE
+	{
+		const DeclarationListRef variant_list = DeclarationList::Reverse($3);
+		const_shared_ptr<SumTypeSpecifier> type = make_shared<SumTypeSpecifier>($1);
+		$$ = make_shared<SumDeclarationStatement>(@$, type, $1, @1, variant_list, @3);
 	}
 	;
 
@@ -975,11 +1044,9 @@ variant_list:
 
 //---------------------------------------------------------------------
 variant:
-	IDENTIFIER LBRACE declaration_list RBRACE
+	struct_declaration_statement
 	{
-		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
+		$$ = $1;
 	}
 	| IDENTIFIER COLON primitive_type_specifier
 	{
@@ -989,12 +1056,14 @@ variant:
 	{
 		$$ = make_shared<TypeAliasDeclarationStatement>(@$, $3, @3, $1, @1);
 	}
+	| IDENTIFIER COLON maybe_type_specifier
+	{
+		$$ = make_shared<MaybeDeclarationStatement>(@$, $3, @3, $1, @1);
+	}
 	| IDENTIFIER
 	{
-		//short-hand for unit types
-		const ModifierListRef modifiers = ModifierList::From(make_shared<Modifier>(Modifier::Type::READONLY, GetDefaultLocation()), ModifierList::GetTerminator());
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, DeclarationList::GetTerminator(), GetDefaultLocation(), modifiers, GetDefaultLocation());
+		const_shared_ptr<ComplexTypeSpecifier> type = make_shared<ComplexTypeSpecifier>($1);
+		$$ = make_shared<UnitDeclarationStatement>(@$, type, @1, $1, @1);
 	}
 	;
 

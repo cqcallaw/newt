@@ -1,0 +1,6 @@
+# test nested primitive type specifiers
+top {
+	middle: int
+}
+
+v:= @top.middle

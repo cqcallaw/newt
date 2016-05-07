@@ -53,7 +53,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (GetInitializerExpression()) {
 			const_shared_ptr<TypeSpecifier> expression_type =
-					GetInitializerExpression()->GetType(execution_context);
+					GetInitializerExpression()->GetTypeSpecifier(execution_context);
 			const_shared_ptr<FunctionTypeSpecifier> as_function =
 					std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 							expression_type);
@@ -74,13 +74,12 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 
 		if (ErrorList::IsTerminator(errors)) {
 			auto value = m_type->DefaultValue(*type_table);
+
 			auto symbol = make_shared<Symbol>(
 					static_pointer_cast<const Function>(value));
 
-			volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
-					SymbolTable>(execution_context);
-			InsertResult insert_result = symbol_table->InsertSymbol(*GetName(),
-					symbol);
+			InsertResult insert_result = execution_context->InsertSymbol(
+					*GetName(), symbol);
 
 			if (insert_result != INSERT_SUCCESS) {
 				assert(false);
@@ -117,6 +116,6 @@ const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpress
 			expression->GetPosition(), GetName(), GetNamePosition(), expression);
 }
 
-const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetTypeSpecifier() const {
 	return m_type;
 }

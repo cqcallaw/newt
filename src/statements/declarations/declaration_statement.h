@@ -38,7 +38,7 @@ public:
 			const yy::location modifier_list_location);
 	virtual ~DeclarationStatement();
 
-	virtual const_shared_ptr<TypeSpecifier> GetType() const = 0;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const = 0;
 
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const = 0;
@@ -53,7 +53,7 @@ public:
 		return m_position;
 	}
 
-	const const_shared_ptr<string> GetName() const {
+	const_shared_ptr<string> GetName() const {
 		return m_name;
 	}
 

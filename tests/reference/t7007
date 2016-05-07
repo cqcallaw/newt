@@ -1,0 +1,4 @@
+Parsing file ../tests/t7007.nwt...
+Semantic error on line 2, column 7: Cannot assign an expression of type 'int' to a variable of type 'nil'.
+Parsed file ../tests/t7007.nwt.
+1 error found; giving up.

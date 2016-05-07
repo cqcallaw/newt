@@ -1,8 +1,20 @@
 /*
- * declaration_statement.h
- *
- *  Created on: Jun 14, 2015
- *      Author: caleb
+ Copyright (C) 2015 The newt Authors.
+
+ This file is part of newt.
+
+ newt is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ newt is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef STATEMENTS_DECLARATIONS_PRIMITIVE_DECLARATION_STATEMENT_H_
@@ -32,7 +44,7 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
 
-	virtual const_shared_ptr<TypeSpecifier> GetType() const {
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
 		return m_type;
 	}
 

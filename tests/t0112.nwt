@@ -1,7 +1,7 @@
 // test invalid compound type member for array element
-struct rectangle {
-	x: int
-	y: int
+mutable rectangle {
+	x: int,
+	y: int,
 	w: int = 10
 }
 

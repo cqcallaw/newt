@@ -1,0 +1,10 @@
+# test construction of a non-terminal linked list
+list {
+	terminator
+	| item {
+		data:int,
+		next:list?
+	}
+}
+
+l:list = @list.item with { data = 1, next = @list.terminator }

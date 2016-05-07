@@ -14,4 +14,7 @@ person b:
 Root Type Table:
 ----------------
 person:
-	string name ("")
+	<record>
+	name:
+		string ("")
+

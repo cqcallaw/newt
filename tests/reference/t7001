@@ -1,0 +1,15 @@
+Parsing file ../tests/t7001.nwt...
+Parsed file ../tests/t7001.nwt.
+Root Symbol Table:
+----------------
+<empty>
+
+Root Type Table:
+----------------
+list:
+	<record>
+	data:
+		int (0)
+	tail:
+		list? ({empty})
+

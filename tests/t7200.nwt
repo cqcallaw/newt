@@ -1,0 +1,10 @@
+# test default value of sum type where first variant is a recursive definition 
+list {
+	node {
+		data:int,
+		next:list?
+	}
+	| end
+}
+
+l := @list

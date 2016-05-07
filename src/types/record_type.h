@@ -31,19 +31,18 @@
 class MemberDefinition;
 class Result;
 class ComplexTypeSpecifier;
-
-typedef map<const std::string, const_shared_ptr<MemberDefinition>> definition_map;
+class TypeTable;
 
 using namespace std;
 class RecordType: public ComplexType {
 public:
-	RecordType(const_shared_ptr<definition_map> definition,
+	RecordType(const_shared_ptr<TypeTable> definition,
 			const Modifier::Type modifiers);
 	virtual ~RecordType();
-	const_shared_ptr<MemberDefinition> GetMember(const std::string& name) const;
+	const_shared_ptr<TypeDefinition> GetMember(const std::string& name) const;
 
-	const_shared_ptr<TypeSpecifier> GetMemberType(
-			const std::string& member_name) const;
+	virtual const_shared_ptr<void> GetMemberDefaultValue(
+			const_shared_ptr<std::string> member_name) const;
 
 	const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
@@ -51,19 +50,36 @@ public:
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const;
 
+	virtual const std::string GetValueSeparator(const Indent& indent,
+			const void* value) const;
+
+	virtual const std::string GetTagSeparator(const Indent& indent,
+			const void* value) const;
+
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name) const;
+			const TypeTable& type_table) const;
 
-	virtual const_shared_ptr<Symbol> GetSymbol(
-			const_shared_ptr<void> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+	virtual const AnalysisResult AnalyzeConversion(
+			const ComplexTypeSpecifier& current,
+			const TypeSpecifier& unaliased_other) const;
 
-	const_shared_ptr<definition_map> GetDefinition() const {
+	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void>) const;
+
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position,
+			const_shared_ptr<std::string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression) const;
+
+	virtual const_shared_ptr<TypeTable> GetDefinition() const {
 		return m_definition;
 	}
 
 	static const_shared_ptr<Result> Build(
-			const_shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> context,
 			const Modifier::Type modifiers,
 			const DeclarationListRef member_declarations);
 
@@ -71,11 +87,25 @@ public:
 		return m_modifiers;
 	}
 
-	virtual bool IsSpecifiedBy(const std::string& name,
-			const TypeSpecifier& type_specifier) const;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container) const;
+
+protected:
+	virtual const_shared_ptr<Result> PreprocessSymbolCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<Expression> initializer) const;
+
+	virtual const SetResult InstantiateCore(
+			const std::shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const_shared_ptr<TypeSpecifier> value_type_specifier,
+			const std::string& instance_name,
+			const_shared_ptr<void> data) const;
 
 private:
-	const_shared_ptr<definition_map> m_definition;
+	const_shared_ptr<TypeTable> m_definition;
 	const Modifier::Type m_modifiers;
 };
 

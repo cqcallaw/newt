@@ -19,7 +19,9 @@
 
 #include <primitive_declaration_statement.h>
 #include <primitive_type_specifier.h>
+#include <nested_type_specifier.h>
 #include <primitive_type.h>
+#include <complex_type.h>
 #include <typeinfo>
 #include <expression.h>
 #include <memory>
@@ -55,22 +57,30 @@ const string PrimitiveTypeSpecifier::ToString(
 	return buffer.str();
 }
 
-const bool PrimitiveTypeSpecifier::IsAssignableTo(
-		const_shared_ptr<TypeSpecifier> other) const {
-	const_shared_ptr<PrimitiveTypeSpecifier> other_as_primitive =
-			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(other);
-	if (other_as_primitive) {
-		const BasicType other_type = other_as_primitive->GetBasicType();
-		return other_type != BasicType::NONE && m_basic_type <= other_type;
+const AnalysisResult PrimitiveTypeSpecifier::AnalyzeAssignmentTo(
+		const_shared_ptr<TypeSpecifier> other,
+		const TypeTable& type_table) const {
+	auto resolved = NestedTypeSpecifier::Resolve(other, type_table);
+
+	auto widening_analysis = resolved->AnalyzeWidening(type_table, *this);
+	if (widening_analysis != AnalysisResult::INCOMPATIBLE) {
+		return widening_analysis;
 	}
 
-	return false;
-}
+	auto other_as_primitive =
+			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(resolved);
+	if (other_as_primitive) {
+		const BasicType other_type = other_as_primitive->GetBasicType();
+		if (other_type != BasicType::NONE) {
+			if (m_basic_type == other_type) {
+				return AnalysisResult::EQUIVALENT;
+			} else if (m_basic_type < other_type) {
+				return AnalysisResult::UNAMBIGUOUS;
+			}
+		}
+	}
 
-const_shared_ptr<void> PrimitiveTypeSpecifier::DefaultValue(
-		const TypeTable& type_table) const {
-	const BasicType basic_type = GetBasicType();
-	return PrimitiveType::GetDefaultValue(basic_type);
+	return INCOMPATIBLE;
 }
 
 const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetNone() {
@@ -133,39 +143,13 @@ bool PrimitiveTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const_shared_ptr<DeclarationStatement> PrimitiveTypeSpecifier::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<PrimitiveDeclarationStatement>(position, type,
-			type_position, name, name_position, initializer_expression);
-}
-
-const_shared_ptr<Symbol> PrimitiveTypeSpecifier::GetSymbol(
-		const_shared_ptr<void> value) const {
-	const BasicType basic_type = GetBasicType();
-	switch (basic_type) {
-	case BOOLEAN: {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const bool>(value)));
-	}
-	case INT: {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const int>(value)));
-	}
-	case DOUBLE: {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const double>(value)));
-	}
-	case STRING: {
-		return const_shared_ptr<Symbol>(
-				new Symbol(static_pointer_cast<const string>(value)));
-	}
-	default:
-		assert(false);
+const_shared_ptr<TypeDefinition> PrimitiveTypeSpecifier::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	auto basic_type = GetBasicType();
+	if (basic_type != NONE) {
+		//TODO: cache these, or populate the default type table with them
+		return make_shared<PrimitiveType>(basic_type);
 	}
 
-	assert(false);
-	return Symbol::GetDefaultSymbol();
+	return nullptr;
 }

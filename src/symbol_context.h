@@ -69,10 +69,6 @@ public:
 		return make_shared<SymbolContext>(SymbolContext(modifiers, m_table));
 	}
 
-	const bool IsMutable() const {
-		return m_modifiers & Modifier::READONLY;
-	}
-
 	const void print(ostream &os, const TypeTable& type_table,
 			const Indent& indent) const;
 
@@ -80,20 +76,27 @@ public:
 			const_shared_ptr<string> identifier) const;
 	const_shared_ptr<Symbol> GetSymbol(const string& identifier) const;
 
-	SetResult SetSymbol(const string& identifier, const_shared_ptr<bool> value);
-	SetResult SetSymbol(const string& identifier, const_shared_ptr<int> value);
+	SetResult SetSymbol(const string& identifier, const_shared_ptr<bool> value,
+			const TypeTable& type_table);
+	SetResult SetSymbol(const string& identifier, const_shared_ptr<int> value,
+			const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<double> value);
+			const_shared_ptr<double> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<string> value);
+			const_shared_ptr<string> value, const TypeTable& type_table);
+	SetResult SetSymbol(const string& identifier, const_shared_ptr<Array> value,
+			const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<Array> value);
+			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Record> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<Record> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr);
+			const_shared_ptr<Function> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<Function> value);
-	SetResult SetSymbol(const string& identifier, const_shared_ptr<Sum> value);
+			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Sum> value, const TypeTable& type_table);
+	SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<MaybeTypeSpecifier> type,
+			const_shared_ptr<Sum> value, const TypeTable& type_table);
 
 	static volatile_shared_ptr<SymbolContext> GetDefault();
 
@@ -106,7 +109,8 @@ protected:
 			const shared_ptr<symbol_map> values);
 
 	virtual SetResult SetSymbol(const string& identifier,
-			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
+			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
+			const TypeTable& type_table);
 private:
 	const Modifier::Type m_modifiers;
 	const shared_ptr<symbol_map> m_table;

@@ -37,8 +37,9 @@ FunctionExpression::FunctionExpression(const yy::location position,
 FunctionExpression::~FunctionExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> FunctionExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const_shared_ptr<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
 	return m_declaration;
 }
 

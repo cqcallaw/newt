@@ -17,18 +17,11 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <member_declaration.h>
+#include <unit.h>
 
-MemberDeclaration::MemberDeclaration(const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const std::string* name,
-		const yy::location name_position, const_shared_ptr<Expression> initializer_expression,
-		const yy::location initializer_expression_position) :
-		m_type(type), m_type_position(type_position), m_name(name), m_name_position(
-				name_position), m_initializer_expression(
-				initializer_expression), m_initializer_expression_position(
-				initializer_expression_position) {
+Unit::Unit() {
 }
 
-MemberDeclaration::~MemberDeclaration() {
+Unit::~Unit() {
 }
 

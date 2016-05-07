@@ -1,13 +1,13 @@
-struct rectangle {
-	x: int
-	y: int
-	w: int = 10
+mutable rectangle {
+	x: int,
+	y: int,
+	w: int = 10,
 	h: int
 }
 
-struct triangle {
-	x: int
-	y: int
+mutable triangle {
+	x: int,
+	y: int,
 	w: int = 10
 }
 

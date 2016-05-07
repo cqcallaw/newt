@@ -35,8 +35,9 @@ public:
 
 	static const_shared_ptr<Variable> GetDefaultVariable();
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const shared_ptr<ExecutionContext> context,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const ErrorListRef Validate(
 			const shared_ptr<ExecutionContext> context) const;
@@ -81,16 +82,22 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<Record> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
+			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Record> value) const;
+
+	virtual const ErrorListRef SetSymbol(
+			const shared_ptr<ExecutionContext> context,
+			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Sum> value) const;
+
+	virtual const ErrorListRef SetSymbol(
+			const shared_ptr<ExecutionContext> context,
+			const_shared_ptr<MaybeTypeSpecifier> type,
+			const_shared_ptr<Sum> value) const;
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<Function> value) const;
-
-	virtual const ErrorListRef SetSymbol(
-			const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<Sum> sum) const;
 
 private:
 	const NamespaceQualifierListRef m_space;

@@ -1,0 +1,10 @@
+# test construction of a non-terminal linked list with nil assignment to Maybe type
+list {
+	terminator
+	| item {
+		data:int,
+		next:list?
+	}
+}
+
+l:list = @list.item with { data = 1, next = nil }

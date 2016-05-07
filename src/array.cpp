@@ -24,7 +24,7 @@ const string Array::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream os;
 
-	const_shared_ptr<TypeSpecifier> element_type = GetElementType();
+	const_shared_ptr<TypeSpecifier> element_type = GetElementTypeSpecifier();
 	int size = GetSize();
 
 	Indent child_indent = indent + 1;
@@ -73,9 +73,8 @@ const string Array::ToString(const TypeTable& type_table,
 		}
 	}
 
-	const_shared_ptr<RecordTypeSpecifier> as_record =
-			std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-					element_type);
+	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
+			const RecordTypeSpecifier>(element_type);
 	if (as_record) {
 		for (int i = 0; i < size; i++) {
 			auto instance = static_pointer_cast<const Record>(

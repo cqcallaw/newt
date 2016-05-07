@@ -2,22 +2,27 @@ Parsing file ../tests/t6011.nwt...
 Parsed file ../tests/t6011.nwt.
 Root Symbol Table:
 ----------------
-result first_result:
+result.error narrow_result:
 	int code: 1
 	string message: "Failed to guess magic number."
- {error}
-result_ctor result:
-	(int) -> result value:
-		Body Location: 3.2-6
+
+result wide_result:
+{error}
+	int code: 2
+	string message: "That other thing."
 
 
 Root Type Table:
 ----------------
 result:
+	<sum>
 	error:
-		int code (0)
-		string message ("")
+		<record>
+		code:
+			int (0)
+		message:
+			string ("")
+
 	value:
 		int
-result_ctor:
-	(int) -> result value ()
+

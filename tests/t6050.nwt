@@ -1,5 +1,5 @@
 //test ambiguous widening
-sum test {
+test {
 	i:int
 	| d:int
 }

@@ -1,12 +1,12 @@
 #test multiple match blocks with same variant
-sum result {
+result {
 	value:int
 	| error {
 		message:string
 	}
 }
 
-t:= @result.error with { message = "No go" }
+t:result= @result.error with { message = "No go" }
 
 match(t)
 	error {

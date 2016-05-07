@@ -1,0 +1,5 @@
+Parsing file ../tests/t7300.nwt...
+Semantic error on line 4, column 3: Recursive members must be Maybe types.
+Semantic error on line 10, column 7: Invalid type "list".
+Parsed file ../tests/t7300.nwt.
+2 errors found; giving up.

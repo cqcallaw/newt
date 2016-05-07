@@ -1,0 +1,10 @@
+# test default value of contained sum variant, without inference
+stringified {
+	as_string:string,
+	value {
+		discrete:int
+		| continuous:double
+	}
+}
+
+v :stringified.value.discrete= @stringified.value.discrete

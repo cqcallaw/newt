@@ -1,0 +1,62 @@
+Parsing file ../tests/t7011.nwt...
+Parsed file ../tests/t7011.nwt.
+Root Symbol Table:
+----------------
+list l:
+{item}
+	person data:
+		int age: 25
+		string name: "nobody"
+
+	list? next:
+		{value}
+		{item}
+			person data:
+				int age: 10
+				string name: "nemo"
+
+			list? next:
+				{value}
+				{item}
+					person data:
+						int age: 43
+						string name: "nothing"
+
+					list? next:
+						{value}
+						{item}
+							person data:
+								int age: 5
+								string name: "zero"
+
+							list? next:
+								{value} {terminator} <unit>
+
+
+
+
+
+Root Type Table:
+----------------
+list:
+	<sum>
+	item:
+		<record>
+		data:
+			person (
+				int age: 0
+				string name: ""
+			)
+		next:
+			list? ({empty})
+
+	terminator:
+		<unit>
+
+person:
+	<record>
+	age:
+		int (0)
+	name:
+		string ("")
+

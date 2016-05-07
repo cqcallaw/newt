@@ -1,10 +1,10 @@
 //test assignment of struct reference and verify assignment
 
-struct my_struct {
+my_struct {
 	y: double
 }
 
-struct my_other_struct {
+my_other_struct {
 	x: int
 }
 

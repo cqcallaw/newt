@@ -1,6 +1,6 @@
 //test widening conversions of `with` clauses
-struct point {
-	x: double = 1
+point {
+	x: double = 1,
 	y: double
 }
 

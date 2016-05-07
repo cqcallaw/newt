@@ -24,20 +24,32 @@ my_nested_struct b:
 Root Type Table:
 ----------------
 my_nested_struct:
-	my_struct i (
-		double y: 0
-	)
-	my_other_struct n (
-		my_struct i:
+	<record>
+	i:
+		my_struct (
 			double y: 0
+		)
+	n:
+		my_other_struct (
+			my_struct i:
+				double y: 0
 
-		int x: 0
-	)
-	int z (0)
+			int x: 0
+		)
+	z:
+		int (0)
+
 my_other_struct:
-	my_struct i (
-		double y: 0
-	)
-	int x (0)
+	<record>
+	i:
+		my_struct (
+			double y: 0
+		)
+	x:
+		int (0)
+
 my_struct:
-	double y (0)
+	<record>
+	y:
+		double (0)
+

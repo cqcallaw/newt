@@ -1,8 +1,20 @@
 /*
- * array_declaration_statement.cpp
- *
- *  Created on: Jul 28, 2015
- *      Author: caleb
+ Copyright (C) 2015 The newt Authors.
+
+ This file is part of newt.
+
+ newt is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ newt is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <array.h>
@@ -19,6 +31,7 @@
 #include <array_type_specifier.h>
 #include <array_declaration_statement.h>
 #include <specifiers/type_specifier.h>
+#include <unit_type.h>
 
 ArrayDeclarationStatement::ArrayDeclarationStatement(
 		const yy::location position,
@@ -36,16 +49,16 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<RecordTypeSpecifier> element_type_as_record =
-			dynamic_pointer_cast<const RecordTypeSpecifier>(
+	const_shared_ptr<ComplexTypeSpecifier> element_type_as_record =
+			dynamic_pointer_cast<const ComplexTypeSpecifier>(
 					m_type->GetElementTypeSpecifier());
 	if (element_type_as_record) {
 		//check that element type exists
 		const_shared_ptr<TypeTable> type_table =
 				execution_context->GetTypeTable();
 		const string type_name = *element_type_as_record->GetTypeName();
-		const_shared_ptr<RecordType> type = type_table->GetType<RecordType>(
-				type_name);
+		const_shared_ptr<ComplexType> type = type_table->GetType<ComplexType>(
+				type_name, DEEP, RETURN);
 
 		if (!type) {
 			errors = ErrorList::From(
@@ -61,12 +74,13 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 		auto initializer_expression = GetInitializerExpression();
 		if (initializer_expression) {
 			const_shared_ptr<TypeSpecifier> initializer_expression_type =
-					initializer_expression->GetType(execution_context);
+					initializer_expression->GetTypeSpecifier(execution_context);
 			const_shared_ptr<ArrayTypeSpecifier> as_array =
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							initializer_expression_type);
 			if (!as_array
-					|| !initializer_expression_type->IsAssignableTo(m_type)) {
+					|| !initializer_expression_type->AnalyzeAssignmentTo(m_type,
+							execution_context->GetTypeTable())) {
 				errors =
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
@@ -118,13 +132,13 @@ const ErrorListRef ArrayDeclarationStatement::execute(
 		errors = initializer_result->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {
-			auto array = static_pointer_cast<const Array>(
-					initializer_result->GetData());
+			auto array = initializer_result->GetData<Array>();
 			auto symbol_context = execution_context;
-			SetResult result = symbol_context->SetSymbol(*GetName(), array);
+			SetResult result = symbol_context->SetSymbol(*GetName(), array,
+					execution_context->GetTypeTable());
 			errors = ToErrorListRef(result,
 					GetInitializerExpression()->GetPosition(), GetName(),
-					symbol_context->GetSymbol(GetName(), SHALLOW)->GetType(),
+					symbol_context->GetSymbol(GetName(), SHALLOW)->GetTypeSpecifier(),
 					array->GetTypeSpecifier());
 		}
 	}
@@ -132,7 +146,7 @@ const ErrorListRef ArrayDeclarationStatement::execute(
 	return errors;
 }
 
-const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetType() const {
+const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetTypeSpecifier() const {
 	return m_type;
 }
 

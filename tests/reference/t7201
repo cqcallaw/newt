@@ -1,0 +1,23 @@
+Parsing file ../tests/t7201.nwt...
+Parsed file ../tests/t7201.nwt.
+Root Symbol Table:
+----------------
+list v:
+	int data: 0
+	tail tail: {next} {empty}
+
+
+Root Type Table:
+----------------
+list:
+	<record>
+	data:
+		int (0)
+	tail:
+		<sum>
+		next:
+			list?
+		terminator:
+			<unit>
+
+

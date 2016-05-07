@@ -1,0 +1,13 @@
+# test longer linked list
+list {
+	terminator
+	| item {
+		data:int,
+		next:list?
+	}
+}
+
+l:list= @list.item with { data = 2, next = @list.terminator }
+l = @list.item with { data = 4, next = l }
+l = @list.item with { data = 8, next = l }
+l = @list.item with { data = 16, next = l }

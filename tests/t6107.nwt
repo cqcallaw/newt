@@ -1,12 +1,12 @@
 #test re-assignment of value in inner scope, variant
-sum result {
+result {
 	value:int
 	| error {
 		message:string
 	}
 }
 
-t:= @result.error with { message = "No go" }
+t:result= @result.error with { message = "No go" }
 
 match(t)
 	value {

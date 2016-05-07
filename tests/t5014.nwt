@@ -1,5 +1,5 @@
 // test evaluation of complex function arguments
-struct person {
+person {
 	name:string
 }
 

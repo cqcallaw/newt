@@ -33,8 +33,9 @@ ComparisonExpression::ComparisonExpression(const yy::location position,
 							| GREATER_THAN_EQUAL));
 }
 
-const_shared_ptr<TypeSpecifier> ComparisonExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const_shared_ptr<TypeSpecifier> ComparisonExpression::GetTypeSpecifier(
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
 	return PrimitiveTypeSpecifier::GetBoolean();
 }
 

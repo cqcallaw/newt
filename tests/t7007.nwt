@@ -1,0 +1,2 @@
+# test invalid re-assignment of nil
+nil = 3

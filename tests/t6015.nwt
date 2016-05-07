@@ -1,8 +1,8 @@
 //test sum types as a return value
-sum result {
+result {
 	value:int
 	| error {
-		code:int
+		code:int,
 		message:string
 	}
 }

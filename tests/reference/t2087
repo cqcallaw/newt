@@ -26,10 +26,19 @@ rectangle my_rectangle:
 Root Type Table:
 ----------------
 rectangle:
-	double blue (0)
-	double green (0)
-	int h (0)
-	double red (0)
-	int w (10)
-	int x (0)
-	int y (0)
+	<record>
+	blue:
+		double (0)
+	green:
+		double (0)
+	h:
+		int (0)
+	red:
+		double (0)
+	w:
+		int (10)
+	x:
+		int (0)
+	y:
+		int (0)
+

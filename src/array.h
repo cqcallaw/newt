@@ -51,7 +51,7 @@ public:
 			return result;
 		} else {
 			return static_pointer_cast<const T>(
-					GetElementType()->DefaultValue(type_table));
+					GetElementTypeSpecifier()->DefaultValue(type_table));
 		}
 	}
 
@@ -68,7 +68,7 @@ public:
 			//fill with default values
 			for (int i = old_size; i < new_vector->size(); i++) {
 				const_shared_ptr<void> default_value =
-						GetElementType()->DefaultValue(type_table);
+						GetElementTypeSpecifier()->DefaultValue(type_table);
 				new_vector->at(i) = default_value;
 			}
 
@@ -76,7 +76,7 @@ public:
 		}
 
 		const shared_ptr<const vector<shared_ptr<const void>>> wrapper = shared_ptr<const vector<shared_ptr<const void>>>(new_vector);
-		return const_shared_ptr<Array>(new Array(GetElementType(), wrapper));
+		return const_shared_ptr<Array>(new Array(GetElementTypeSpecifier(), wrapper));
 	}
 
 	const int GetSize() const {
@@ -88,7 +88,7 @@ public:
 		return m_type_specifier;
 	}
 
-	const_shared_ptr<TypeSpecifier> GetElementType() const {
+	const_shared_ptr<TypeSpecifier> GetElementTypeSpecifier() const {
 		return m_type_specifier->GetElementTypeSpecifier();
 	}
 

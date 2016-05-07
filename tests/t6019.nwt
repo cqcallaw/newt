@@ -1,7 +1,7 @@
 //test default value of primitive
-sum test {
+test {
 	i:int
 	| d:double
 }
 
-t := @test.d
+t:test= @test.d

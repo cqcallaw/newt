@@ -22,6 +22,16 @@
 #include <array_declaration_statement.h>
 #include <typeinfo>
 #include <expression.h>
+#include <array_type.h>
+
+ArrayTypeSpecifier::ArrayTypeSpecifier(
+		const_shared_ptr<TypeSpecifier> element_type_specifier) :
+		m_element_type_specifier(element_type_specifier), m_type(
+				make_shared<ArrayType>(m_element_type_specifier)) {
+}
+
+ArrayTypeSpecifier::~ArrayTypeSpecifier() {
+}
 
 const string ArrayTypeSpecifier::ToString() const {
 	ostringstream buffer;
@@ -41,27 +51,20 @@ bool ArrayTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const_shared_ptr<DeclarationStatement> ArrayTypeSpecifier::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<ArrayDeclarationStatement>(position,
-			static_pointer_cast<const ArrayTypeSpecifier>(type), type_position,
-			name, name_position, initializer_expression);
-}
-
-const_shared_ptr<void> ArrayTypeSpecifier::DefaultValue(
+const AnalysisResult ArrayTypeSpecifier::AnalyzeAssignmentTo(
+		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	return const_shared_ptr<void>(
-			new Array(m_element_type_specifier, type_table));
-}
-
-const bool ArrayTypeSpecifier::IsAssignableTo(
-		const_shared_ptr<TypeSpecifier> other) const {
 	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
 			const ArrayTypeSpecifier>(other);
-	return (as_array
-			&& m_element_type_specifier->IsAssignableTo(
-					as_array->GetElementTypeSpecifier()));
+	if (as_array) {
+		return m_element_type_specifier->AnalyzeAssignmentTo(
+				as_array->GetElementTypeSpecifier(), type_table);
+	}
+
+	return INCOMPATIBLE;
+}
+
+const_shared_ptr<TypeDefinition> ArrayTypeSpecifier::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	return m_type;
 }

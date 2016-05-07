@@ -43,6 +43,12 @@ ConstantExpression::ConstantExpression(const yy::location position,
 				std::static_pointer_cast<const void>(value)) {
 }
 
+ConstantExpression::ConstantExpression(const yy::location position,
+		const_shared_ptr<Array> value) :
+		ConstantExpression(position, value->GetTypeSpecifier(),
+				std::static_pointer_cast<const void>(value)) {
+}
+
 ConstantExpression::ConstantExpression(const ConstantExpression* other) :
 		ConstantExpression(other->GetPosition(), other->m_type, other->m_value) {
 }
@@ -50,8 +56,9 @@ ConstantExpression::ConstantExpression(const ConstantExpression* other) :
 ConstantExpression::~ConstantExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> ConstantExpression::GetType(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const_shared_ptr<TypeSpecifier> ConstantExpression::GetTypeSpecifier(
+		const shared_ptr<ExecutionContext> execution_context,
+		AliasResolution resolution) const {
 	return m_type;
 }
 
@@ -70,15 +77,16 @@ const_shared_ptr<ConstantExpression> ConstantExpression::GetDefaultExpression(
 const_shared_ptr<Result> ConstantExpression::GetConstantExpression(
 		const_shared_ptr<Expression> expression,
 		const shared_ptr<ExecutionContext> execution_context) {
-	const_shared_ptr<Result> evaluation = expression->Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = expression->Evaluate(
+			execution_context);
 	plain_shared_ptr<void> result;
 
 	auto errors = evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		result = const_shared_ptr<void>(
 				new ConstantExpression(expression->GetPosition(),
-						expression->GetType(execution_context),
-						evaluation->GetData()));
+						expression->GetTypeSpecifier(execution_context),
+						evaluation->GetRawData()));
 	}
 
 	return make_shared<Result>(result, errors);

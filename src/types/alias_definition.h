@@ -21,46 +21,87 @@
 #define TYPES_ALIAS_DEFINITION_H_
 
 #include <type_definition.h>
+#include <primitive_type_specifier.h>
+#include <indent.h>
+
+enum AliasType {
+	DIRECT = 0, RECURSIVE
+};
 
 class AliasDefinition: public TypeDefinition {
 public:
-	AliasDefinition(const_shared_ptr<TypeDefinition> origin) :
-			m_origin(origin) {
-	}
+	AliasDefinition(const_shared_ptr<TypeTable> origin_table,
+			const_shared_ptr<TypeSpecifier> original,
+			const AliasType alias_type, const_shared_ptr<void> default_value =
+					nullptr);
+
 	virtual ~AliasDefinition() {
 	}
 
 	virtual const std::string ToString(const TypeTable& type_table,
-			const Indent& indent) const {
-		return m_origin->ToString(type_table, indent);
-	}
+			const Indent& indent) const;
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
-			const Indent& indent, const_shared_ptr<void> value) const {
-		return m_origin->ValueToString(type_table, indent, value);
-	}
+			const Indent& indent, const_shared_ptr<void> value) const;
 
-	virtual bool IsSpecifiedBy(const std::string& name,
-			const TypeSpecifier& type_specifier) const {
-		return m_origin->IsSpecifiedBy(name, type_specifier);
-	}
+	virtual const std::string GetValueSeparator(const Indent& indent,
+			const void* value) const;
+
+	virtual const std::string GetTagSeparator(const Indent& indent,
+			const void* value) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const_shared_ptr<std::string> type_name) const {
-		return m_origin->GetDefaultValue(type_name);
+			const TypeTable& type_table) const;
+
+	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void>) const;
+
+	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
+			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location type_position,
+			const_shared_ptr<std::string> name,
+			const yy::location name_position,
+			const_shared_ptr<Expression> initializer_expression) const {
+		auto origin = GetOrigin();
+		if (origin) {
+			return origin->GetDeclarationStatement(position, type,
+					type_position, name, name_position, initializer_expression);
+		} else {
+			assert(false);
+			return nullptr;
+		}
 	}
 
-	virtual const_shared_ptr<Symbol> GetSymbol(const_shared_ptr<void> value,
-			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const {
-		return m_origin->GetSymbol(value, container);
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container) const {
+		return m_original;
 	}
 
-	const_shared_ptr<TypeDefinition> GetOrigin() const {
-		return m_origin;
+	const weak_ptr<const TypeTable> GetOriginTable() const {
+		return m_origin_table;
 	}
+
+	const_shared_ptr<TypeSpecifier> GetOriginal() const {
+		return m_original;
+	}
+
+	const const_shared_ptr<void> GetDefaultValue() const {
+		return m_default_value;
+	}
+
+	const AliasType GetAliasType() const {
+		return m_alias_type;
+	}
+
+	const_shared_ptr<TypeDefinition> GetOrigin() const;
 
 private:
-	const_shared_ptr<TypeDefinition> m_origin;
+	const weak_ptr<const TypeTable> m_origin_table;
+	const_shared_ptr<TypeSpecifier> m_original;
+	const AliasType m_alias_type;
+	const_shared_ptr<void> m_default_value;
 };
 
 #endif /* TYPES_ALIAS_DEFINITION_H_ */

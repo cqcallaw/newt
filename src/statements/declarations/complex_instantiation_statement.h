@@ -17,8 +17,8 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_
-#define STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_
+#ifndef STATEMENTS_DECLARATIONS_COMPLEX_INSTANTIATION_STATEMENT_H_
+#define STATEMENTS_DECLARATIONS_COMPLEX_INSTANTIATION_STATEMENT_H_
 
 #include <declaration_statement.h>
 #include <statement.h>
@@ -40,7 +40,7 @@ public:
 			const_shared_ptr<Expression> initializer_expression = nullptr);
 	virtual ~ComplexInstantiationStatement();
 
-	const_shared_ptr<TypeSpecifier> GetType() const;
+	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
 
 	const yy::location GetTypePosition() const {
 		return m_type_position;
@@ -66,4 +66,4 @@ private:
 	const yy::location m_type_position;
 };
 
-#endif /* STATEMENTS_COMPLEX_INSTANTIATION_STATEMENT_H_ */
+#endif /* STATEMENTS_DECLARATIONS_COMPLEX_INSTANTIATION_STATEMENT_H_ */

@@ -25,6 +25,8 @@
 
 #include "expression.h"
 
+class Array;
+
 class ConstantExpression: public Expression {
 public:
 	ConstantExpression(const yy::location position, const bool value);
@@ -32,14 +34,18 @@ public:
 	ConstantExpression(const yy::location position, const double value);
 	ConstantExpression(const yy::location position,
 			const_shared_ptr<string> value);
+	ConstantExpression(const yy::location position,
+			const_shared_ptr<Array> value);
 	ConstantExpression(const ConstantExpression* other);
 	~ConstantExpression();
 
 	static const_shared_ptr<ConstantExpression> GetDefaultExpression(
 			const_shared_ptr<TypeSpecifier> type, const TypeTable& type_table);
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> execution_context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const shared_ptr<ExecutionContext> execution_context,
+			AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
 			const shared_ptr<ExecutionContext> execution_context) const;

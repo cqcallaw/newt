@@ -1,0 +1,6 @@
+# test nested primitive type specifiers, invalid depth
+top {
+	middle: int
+}
+
+v:= @top.middle.bottom

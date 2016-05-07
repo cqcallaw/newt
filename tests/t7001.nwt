@@ -1,0 +1,6 @@
+# a linked list, alternate formulation
+# this formulation does not allow for empty lists
+list {
+	data:int,
+	tail:list?
+}

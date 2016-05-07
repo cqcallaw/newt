@@ -32,7 +32,9 @@
 #include <function.h>
 #include <sum.h>
 #include <primitive_type_specifier.h>
-#include <nested_type_specifier.h>
+#include <maybe_type_specifier.h>
+#include <unit.h>
+#include <unit_type.h>
 #include <record.h>
 #include <memory>
 
@@ -61,36 +63,40 @@ Symbol::Symbol(const_shared_ptr<Array> value) :
 				static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<Record> value) :
-		Symbol(value->GetTypeSpecifier(),
-				static_pointer_cast<const void>(value)) {
-}
-
-Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> container,
+Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Record> value) :
-		Symbol(
-				make_shared<NestedTypeSpecifier>(container,
-						value->GetTypeSpecifier()->GetTypeName()),
-				static_pointer_cast<const void>(value)) {
+		Symbol(type, static_pointer_cast<const void>(value)) {
 }
 
 Symbol::Symbol(const_shared_ptr<Function> value) :
 		Symbol(value->GetType(), static_pointer_cast<const void>(value)) {
 }
 
-Symbol::Symbol(const_shared_ptr<Sum> value) :
-		Symbol(value->GetType(), static_pointer_cast<const void>(value)) {
+Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
+		const_shared_ptr<Sum> value) :
+		Symbol(type, static_pointer_cast<const void>(value)) {
+}
+
+Symbol::Symbol(const_shared_ptr<MaybeTypeSpecifier> type,
+		const_shared_ptr<Sum> value) :
+		Symbol(type, static_pointer_cast<const void>(value)) {
+}
+Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
+		const_shared_ptr<Unit> value) :
+		Symbol(type, static_pointer_cast<const void>(value)) {
 }
 
 Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 		const_shared_ptr<void> value) :
-		m_type(type), m_value(value) {
+		m_type_specifier(type), m_value(value) {
 	assert(type);
+	assert(type != PrimitiveTypeSpecifier::GetNone());
 }
 
 const_shared_ptr<Symbol> Symbol::WithValue(const_shared_ptr<TypeSpecifier> type,
-		const_shared_ptr<void> value) const {
-	if (!type->IsAssignableTo(this->m_type)) {
+		const_shared_ptr<void> value, const TypeTable& type_table) const {
+	if (type->AnalyzeAssignmentTo(this->m_type_specifier, type_table)
+			!= EQUIVALENT) {
 		return GetDefaultSymbol();
 	}
 
@@ -99,60 +105,45 @@ const_shared_ptr<Symbol> Symbol::WithValue(const_shared_ptr<TypeSpecifier> type,
 
 const string Symbol::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
-	return ToString(m_type, m_value, type_table, indent);
+	return ToString(m_type_specifier, m_value, type_table, indent);
 }
 
 const_shared_ptr<Symbol> Symbol::GetDefaultSymbol() {
-	const static const_shared_ptr<Symbol> DefaultSymbol = const_shared_ptr<
-			Symbol>(new Symbol(PrimitiveTypeSpecifier::GetNone(), nullptr));
+	const static const_shared_ptr<Symbol> default_symbol = nullptr;
 
-	return DefaultSymbol;
+	return default_symbol;
 }
 
 Symbol::~Symbol() {
 }
 
-const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type,
+const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value, const TypeTable& type_table,
 		const Indent& indent) {
 	ostringstream buffer;
-	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(type);
-	if (as_primitive) {
-		buffer << " ";
-		buffer << as_primitive->ToString(value);
-	}
+	if (value) {
+		if (type_specifier
+				&& type_specifier != PrimitiveTypeSpecifier::GetNone()) {
+			auto type = type_specifier->GetType(type_table, RESOLVE);
 
-	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
-			const ArrayTypeSpecifier>(type);
-	if (as_array) {
-		buffer << endl;
-		auto array = static_pointer_cast<const Array>(value);
-		buffer << array->ToString(type_table, indent);
+			if (type) {
+				buffer << type->GetValueSeparator(indent, value.get());
+				buffer << type->ValueToString(type_table, indent, value);
+			} else {
+				buffer << "UNDEFINED TYPE";
+			}
+		} else {
+			buffer << "<invalid type specifier>";
+		}
+	} else {
+		buffer << "<no value>";
 	}
-
-	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
-			const SumTypeSpecifier>(type);
-	if (as_sum) {
-		auto sum_instance = static_pointer_cast<const Sum>(value);
-		buffer << sum_instance->ToString(type_table, indent);
-	}
-
-	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
-			const RecordTypeSpecifier>(type);
-	if (as_record) {
-		buffer << endl;
-		auto record_type_instance = static_pointer_cast<const Record>(value);
-		buffer << record_type_instance->ToString(type_table, indent + 1);
-	}
-
-	const_shared_ptr<FunctionTypeSpecifier> as_function =
-			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(type);
-	if (as_function) {
-		buffer << endl;
-		auto function = static_pointer_cast<const Function>(value);
-		buffer << function->ToString(type_table, indent + 1);
-	}
-
 	return buffer.str();
+}
+
+const_shared_ptr<Symbol> Symbol::GetNilSymbol() {
+	const static const_shared_ptr<Symbol> value = make_shared<Symbol>(
+			Symbol(TypeTable::GetNilTypeSpecifier(),
+					TypeTable::GetNilType()->GetValue()));
+	return value;
 }

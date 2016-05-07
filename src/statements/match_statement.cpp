@@ -27,6 +27,8 @@
 #include <symbol.h>
 #include <iterator>
 #include <sstream>
+#include <nested_type_specifier.h>
+#include <unit_type.h>
 
 MatchStatement::~MatchStatement() {
 }
@@ -37,19 +39,22 @@ const ErrorListRef MatchStatement::preprocess(
 	errors = m_source_expression->Validate(execution_context);
 
 	if (ErrorList::IsTerminator(errors)) {
-		auto expression_type = m_source_expression->GetType(execution_context);
+		auto expression_type_specifier = m_source_expression->GetTypeSpecifier(
+				execution_context);
+		auto expression_type = expression_type_specifier->GetType(
+				execution_context->GetTypeTable(), RESOLVE);
 
-		auto expression_type_as_sum = dynamic_pointer_cast<
-				const SumTypeSpecifier>(expression_type);
-		if (expression_type_as_sum) {
-
-			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
-					expression_type_as_sum->GetTypeName());
-
-			shared_ptr<std::set<std::string>> match_names = make_shared<
-					std::set<std::string>>();
-
+		if (expression_type) {
+			auto sum_type = dynamic_pointer_cast<const SumType>(
+					expression_type);
 			if (sum_type) {
+				auto source_sum_specifier = dynamic_pointer_cast<
+						const ComplexTypeSpecifier>(expression_type_specifier);
+				assert(source_sum_specifier);
+
+				shared_ptr<std::set<std::string>> match_names = make_shared<
+						std::set<std::string>>();
+
 				shared_ptr<const StatementBlock> default_match_block = nullptr;
 
 				auto match_list = m_match_list;
@@ -57,23 +62,30 @@ const ErrorListRef MatchStatement::preprocess(
 					auto match = match_list->GetData();
 					auto match_name = match->GetName();
 					auto match_body = match->GetBlock();
+					auto table = sum_type->GetDefinition();
 
-					auto variant_type = sum_type->GetTypeTable()->GetType<
-							TypeDefinition>(match_name);
+					auto variant_type = table->GetType<TypeDefinition>(
+							match_name, SHALLOW, RESOLVE);
 					if (variant_type) {
 						if (match_names->find(*match_name)
 								== match_names->end()) {
 							match_names->insert(*match_name);
 							auto block_context =
 									ExecutionContext::GetEmptyChild(
-											execution_context, Modifier::NONE,
+											execution_context, Modifier::MUTABLE,
 											EPHEMERAL);
 
+							auto variant_type_specifier =
+									variant_type->GetTypeSpecifier(
+											match->GetName(),
+											source_sum_specifier);
 							const_shared_ptr<void> default_value =
-									variant_type->GetDefaultValue(match_name);
+									variant_type->GetDefaultValue(*table);
 							const_shared_ptr<Symbol> default_symbol =
-									variant_type->GetSymbol(default_value,
-											expression_type_as_sum);
+									variant_type->GetSymbol(
+											execution_context->GetTypeTable(),
+											variant_type_specifier,
+											default_value);
 							block_context->InsertSymbol(*match_name,
 									default_symbol);
 
@@ -98,19 +110,19 @@ const ErrorListRef MatchStatement::preprocess(
 										Error::UNDECLARED_TYPE,
 										match->GetNameLocation().begin.line,
 										match->GetNameLocation().begin.column,
-										expression_type_as_sum->ToString() + "."
-												+ *match_name), errors);
+										expression_type_specifier->ToString()
+												+ "." + *match_name), errors);
 					}
 
 					match_list = match_list->GetNext();
 				}
 
-				auto sum_table = sum_type->GetTypeTable();
+				auto sum_table = sum_type->GetDefinition();
 				auto variant_names = sum_table->GetTypeNames();
 				if (*variant_names != *match_names) {
 					if (default_match_block) {
 						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::NONE, EPHEMERAL);
+								execution_context, Modifier::MUTABLE, EPHEMERAL);
 						auto block_errors = default_match_block->preprocess(
 								block_context);
 						errors = ErrorList::Concatenate(errors, block_errors);
@@ -147,18 +159,17 @@ const ErrorListRef MatchStatement::preprocess(
 			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::UNDECLARED_TYPE,
+								Error::MATCH_REQUIRES_SUM,
 								m_source_expression->GetPosition().begin.line,
 								m_source_expression->GetPosition().begin.column,
-								expression_type_as_sum->ToString()), errors);
+								expression_type_specifier->ToString()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::MATCH_REQUIRES_SUM,
+					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 							m_source_expression->GetPosition().begin.line,
 							m_source_expression->GetPosition().begin.column,
-							expression_type->ToString()), errors);
+							expression_type_specifier->ToString()), errors);
 		}
 	}
 
@@ -169,20 +180,25 @@ const ErrorListRef MatchStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 
-	auto expression_type = m_source_expression->GetType(execution_context);
-	auto expression_type_as_sum = dynamic_pointer_cast<const SumTypeSpecifier>(
-			expression_type);
-	if (expression_type_as_sum) {
-		auto result = m_source_expression->Evaluate(execution_context);
-		errors = result->GetErrors();
+	auto expression_type_specifier = m_source_expression->GetTypeSpecifier(
+			execution_context);
+	auto expression_type = expression_type_specifier->GetType(
+			execution_context->GetTypeTable());
 
-		if (ErrorList::IsTerminator(errors)) {
-			auto as_sum = static_pointer_cast<const Sum>(result->GetData());
-			auto tag = *as_sum->GetTag();
+	if (expression_type) {
+		auto sum_type = dynamic_pointer_cast<const SumType>(expression_type);
+		if (sum_type) {
+			auto source_sum_specifier = dynamic_pointer_cast<
+					const ComplexTypeSpecifier>(expression_type_specifier);
+			assert(source_sum_specifier);
 
-			auto sum_type = execution_context->GetTypeTable()->GetType<SumType>(
-					expression_type_as_sum->GetTypeName());
-			if (sum_type) {
+			auto result = m_source_expression->Evaluate(execution_context);
+			errors = result->GetErrors();
+
+			if (ErrorList::IsTerminator(errors)) {
+				auto as_sum = result->GetData<Sum>();
+				auto tag = *as_sum->GetTag();
+
 				shared_ptr<const StatementBlock> default_match_block = nullptr;
 				bool matched = false;
 				auto match_list = m_match_list;
@@ -193,17 +209,23 @@ const ErrorListRef MatchStatement::execute(
 
 					if (match_name == tag) {
 						matched = true;
-						auto variant_type = sum_type->GetTypeTable()->GetType<
-								TypeDefinition>(match_name);
+						auto variant_type = sum_type->GetDefinition()->GetType<
+								TypeDefinition>(match_name, SHALLOW, RESOLVE);
 						if (variant_type) {
 							auto block_context =
 									ExecutionContext::GetEmptyChild(
-											execution_context, Modifier::NONE,
+											execution_context, Modifier::MUTABLE,
 											EPHEMERAL);
 
+							auto variant_type_specifier =
+									variant_type->GetTypeSpecifier(
+											match->GetName(),
+											source_sum_specifier);
 							const_shared_ptr<Symbol> default_symbol =
-									variant_type->GetSymbol(as_sum->GetValue(),
-											expression_type_as_sum);
+									variant_type->GetSymbol(
+											execution_context->GetTypeTable(),
+											variant_type_specifier,
+											as_sum->GetValue());
 							block_context->InsertSymbol(match_name,
 									default_symbol);
 
@@ -218,7 +240,7 @@ const ErrorListRef MatchStatement::execute(
 													Error::UNDECLARED_TYPE,
 													match->GetNameLocation().begin.line,
 													match->GetNameLocation().begin.column,
-													expression_type_as_sum->ToString()
+													expression_type_specifier->ToString()
 															+ "." + match_name),
 											errors);
 						}
@@ -233,7 +255,7 @@ const ErrorListRef MatchStatement::execute(
 				if (!matched) {
 					if (default_match_block) {
 						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::NONE, EPHEMERAL);
+								execution_context, Modifier::MUTABLE, EPHEMERAL);
 						auto block_errors = default_match_block->execute(
 								block_context);
 						errors = ErrorList::Concatenate(errors, block_errors);
@@ -244,26 +266,25 @@ const ErrorListRef MatchStatement::execute(
 												Error::MATCH_FAILURE,
 												m_source_expression->GetPosition().begin.line,
 												m_source_expression->GetPosition().begin.column,
-												expression_type->ToString()),
+												expression_type_specifier->ToString()),
 										errors);
 					}
 				}
-			} else {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::UNDECLARED_TYPE,
-								m_source_expression->GetPosition().begin.line,
-								m_source_expression->GetPosition().begin.column,
-								expression_type_as_sum->ToString()), errors);
 			}
-
+		} else {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::MATCH_REQUIRES_SUM,
+							m_source_expression->GetPosition().begin.line,
+							m_source_expression->GetPosition().begin.column,
+							expression_type_specifier->ToString()), errors);
 		}
 	} else {
 		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::MATCH_REQUIRES_SUM,
+				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
 						m_source_expression->GetPosition().begin.line,
 						m_source_expression->GetPosition().begin.column,
-						expression_type->ToString()), errors);
+						expression_type_specifier->ToString()), errors);
 	}
 
 	return errors;

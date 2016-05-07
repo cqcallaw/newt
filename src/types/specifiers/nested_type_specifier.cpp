@@ -17,17 +17,16 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <nested_declaration_statement.h>
 #include <sstream>
 #include <nested_type_specifier.h>
+#include <complex_type_specifier.h>
 #include <sum_type.h>
 #include <record_type.h>
 #include <primitive_type.h>
-#include <member_definition.h>
+#include <unit_type.h>
 #include <record_type_specifier.h>
 
-NestedTypeSpecifier::NestedTypeSpecifier(
-		const_shared_ptr<ComplexTypeSpecifier> parent,
+NestedTypeSpecifier::NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,
 		const_shared_ptr<std::string> member_name) :
 		m_parent(parent), m_member_name(member_name) {
 }
@@ -41,55 +40,21 @@ const std::string NestedTypeSpecifier::ToString() const {
 	return buffer.str();
 }
 
-const bool NestedTypeSpecifier::IsAssignableTo(
-		const_shared_ptr<TypeSpecifier> other) const {
+const AnalysisResult NestedTypeSpecifier::AnalyzeAssignmentTo(
+		const_shared_ptr<TypeSpecifier> other,
+		const TypeTable& type_table) const {
 	auto other_as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(
 			other);
 
 	if (other_as_nested) {
 		if (*other_as_nested->GetParent() == *m_parent) {
-			return *other_as_nested->GetMemberName() == *m_member_name;
+			if (*other_as_nested->GetMemberName() == *m_member_name) {
+				return AnalysisResult::EQUIVALENT;
+			}
 		}
 	}
 
-	return false;
-}
-
-const_shared_ptr<void> NestedTypeSpecifier::DefaultValue(
-		const TypeTable& type_table) const {
-	auto parent_type = type_table.GetType<TypeDefinition>(
-			m_parent->GetTypeName());
-
-	auto as_sum_type = dynamic_pointer_cast<const SumType>(parent_type);
-	if (as_sum_type) {
-		auto sum_type_table = as_sum_type->GetTypeTable();
-
-		auto definition = sum_type_table->GetType<TypeDefinition>(
-				*m_member_name);
-		return definition->GetDefaultValue(m_member_name);
-		//TODO: nested sum types
-	}
-
-	auto as_record_type = dynamic_pointer_cast<const RecordType>(parent_type);
-	if (as_record_type) {
-		auto definition = as_record_type->GetMember(*m_member_name);
-		if (definition != MemberDefinition::GetDefaultMemberDefinition()) {
-			return definition->GetDefaultValue();
-		}
-	}
-
-	return const_shared_ptr<void>();
-}
-
-const_shared_ptr<DeclarationStatement> NestedTypeSpecifier::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<std::string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-
-	return make_shared<NestedDeclarationStatement>(position,
-			static_pointer_cast<const NestedTypeSpecifier>(type), type_position,
-			name, name_position, initializer_expression);
+	return AnalysisResult::INCOMPATIBLE;
 }
 
 bool NestedTypeSpecifier::operator ==(const TypeSpecifier& other) const {
@@ -101,4 +66,54 @@ bool NestedTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	} catch (std::bad_cast& e) {
 		return false;
 	}
+}
+
+const_shared_ptr<TypeDefinition> NestedTypeSpecifier::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	auto parent_type = m_parent->GetType(type_table);
+	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
+	if (as_complex) {
+		return as_complex->GetDefinition()->GetType<TypeDefinition>(
+				m_member_name, DEEP, resolution);
+	} else {
+		return nullptr;
+	}
+}
+
+const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::Resolve(
+		const_shared_ptr<TypeSpecifier> source, const TypeTable& type_table) {
+	auto as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(source);
+
+	if (as_nested) {
+		auto type = as_nested->GetParent()->GetType(type_table, RESOLVE);
+		if (type) {
+			auto resolved_parent = Resolve(as_nested->GetParent(), type_table);
+
+			auto resolved_parent_as_complex = dynamic_pointer_cast<
+					const ComplexTypeSpecifier>(resolved_parent);
+			if (resolved_parent_as_complex) {
+				auto parent_type = resolved_parent_as_complex->GetType(
+						type_table);
+
+				auto as_complex_type = dynamic_pointer_cast<const ComplexType>(
+						parent_type);
+				if (as_complex_type) {
+					auto type_definition =
+							as_complex_type->GetDefinition()->GetType<
+									TypeDefinition>(as_nested->m_member_name,
+									DEEP, RETURN);
+					auto as_alias = dynamic_pointer_cast<const AliasDefinition>(
+							type_definition);
+					if (as_alias) {
+						return as_alias->GetOriginal();
+					} else {
+						return type->GetTypeSpecifier(as_nested->m_member_name,
+								resolved_parent_as_complex);
+					}
+				}
+			}
+		}
+	}
+
+	return source;
 }

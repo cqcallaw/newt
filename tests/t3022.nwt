@@ -1,0 +1,11 @@
+//test default value of nested struct
+my_struct {
+	y: double = 5.3
+}
+
+my_other_struct {
+	x: int,
+	i: my_struct
+}
+
+a:= @my_other_struct.i

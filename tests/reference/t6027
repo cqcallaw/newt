@@ -1,0 +1,25 @@
+Parsing file ../tests/t6027.nwt...
+Parsed file ../tests/t6027.nwt.
+Root Symbol Table:
+----------------
+stringified s:
+	string as_string: "2"
+	number value: {discrete} 2
+
+
+Root Type Table:
+----------------
+number:
+	<sum>
+	continuous:
+		double
+	discrete:
+		int
+
+stringified:
+	<record>
+	as_string:
+		string ("default stuff")
+	value:
+		number ({discrete} 0)
+

@@ -39,7 +39,13 @@ string str: "rects[3].y = 300"
 Root Type Table:
 ----------------
 rectangle:
-	int h (0)
-	int w (10)
-	int x (0)
-	int y (0)
+	<record>
+	h:
+		int (0)
+	w:
+		int (10)
+	x:
+		int (0)
+	y:
+		int (0)
+

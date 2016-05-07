@@ -1,14 +1,14 @@
 # test variant with same name as aliased type
-struct error {
+error {
 	message:string
 }
 
-sum result {
+result {
 	value:int
 	| error:error
 }
 
-t:= @result.error with { message = "No go"}
+t:result= @result.error with { message = "No go"}
 
 match(t)
 	value {

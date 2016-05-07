@@ -17,12 +17,11 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <member_definition.h>
-#include <primitive_type_specifier.h>
+#ifndef SEARCH_TYPE_H_
+#define SEARCH_TYPE_H_
 
-const_shared_ptr<MemberDefinition> MemberDefinition::GetDefaultMemberDefinition() {
-	const static std::shared_ptr<MemberDefinition> instance = std::make_shared
-			< MemberDefinition
-			> (MemberDefinition(PrimitiveTypeSpecifier::GetNone(), nullptr));
-	return instance;
-}
+enum SearchType {
+	SHALLOW = 0, DEEP = 1
+};
+
+#endif /* SEARCH_TYPE_H_ */

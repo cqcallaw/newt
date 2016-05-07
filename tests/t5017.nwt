@@ -1,0 +1,10 @@
+// test simple assignment
+inner {
+	x:int
+}
+
+outer {
+	a:inner
+}
+
+l:= @outer with { a = @inner with { x = 2 } }

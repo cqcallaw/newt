@@ -17,6 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <array_type_specifier.h>
 #include <array_variable.h>
 #include <expression.h>
 #include <sstream>
@@ -24,6 +25,8 @@
 #include "assert.h"
 #include "execution_context.h"
 #include <assignment_statement.h>
+#include <constant_expression.h>
+#include <array_type.h>
 
 ArrayVariable::ArrayVariable(const_shared_ptr<Variable> base_variable,
 		const_shared_ptr<Expression> expression) :
@@ -31,37 +34,38 @@ ArrayVariable::ArrayVariable(const_shared_ptr<Variable> base_variable,
 				base_variable), m_expression(expression) {
 }
 
-const_shared_ptr<TypeSpecifier> ArrayVariable::GetType(
-		const shared_ptr<ExecutionContext> context) const {
+const_shared_ptr<TypeSpecifier> ArrayVariable::GetTypeSpecifier(
+		const shared_ptr<ExecutionContext> context,
+		AliasResolution resolution) const {
 	auto base_type_as_array = dynamic_pointer_cast<const ArrayTypeSpecifier>(
-			m_base_variable->GetType(context));
+			m_base_variable->GetTypeSpecifier(context));
 
 	if (base_type_as_array) {
 		auto base_evaluation = m_base_variable->Evaluate(context);
 
 		if (ErrorList::IsTerminator(base_evaluation->GetErrors())) {
-			auto array = std::static_pointer_cast<const Array>(
-					base_evaluation->GetData());
-			return array->GetElementType();
-		} else {
-			return PrimitiveTypeSpecifier::GetNone();
+			auto array = base_evaluation->GetData<Array>();
+			if (array) {
+				return array->GetElementTypeSpecifier();
+			} else {
+			}
 		}
-	} else {
-		return PrimitiveTypeSpecifier::GetNone();
 	}
+
+	return PrimitiveTypeSpecifier::GetNone();
 }
 
 const_shared_ptr<string> ArrayVariable::ToString(
 		const shared_ptr<ExecutionContext> context) const {
 	ostringstream buffer;
-	buffer << m_base_variable->ToString(context);
+	buffer << *m_base_variable->ToString(context);
 	buffer << "[";
 
 	const_shared_ptr<Result> evaluation = m_expression->Evaluate(context);
 
 	auto errors = evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		buffer << *(static_pointer_cast<const int>(evaluation->GetData()));
+		buffer << *(evaluation->GetData<int>());
 	} else {
 		buffer << "EVALUATION ERROR";
 	}
@@ -81,23 +85,23 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 	auto base_evaluation = m_base_variable->Evaluate(context);
 	ErrorListRef errors = base_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto base_type_as_array =
-				dynamic_pointer_cast<const ArrayTypeSpecifier>(
-						m_base_variable->GetType(context));
+		auto base_type_specifier = m_base_variable->GetTypeSpecifier(context);
+		auto base_type = base_type_specifier->GetType(context->GetTypeTable());
 
+		auto base_type_as_array = dynamic_pointer_cast<const ArrayType>(
+				base_type);
 		if (base_type_as_array) {
-			array = static_pointer_cast<const Array>(
-					base_evaluation->GetData());
+			array = base_evaluation->GetData<Array>();
 			const_shared_ptr<TypeSpecifier> index_expression_type =
-					m_expression->GetType(context);
-			if (index_expression_type->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetInt())) {
+					m_expression->GetTypeSpecifier(context);
+			auto index_analysis = index_expression_type->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
+			if (index_analysis == EQUIVALENT || index_analysis == UNAMBIGUOUS) {
 				const_shared_ptr<Result> index_expression_evaluation =
 						m_expression->Evaluate(context);
 				errors = index_expression_evaluation->GetErrors();
 				if (ErrorList::IsTerminator(errors)) {
-					const int i = *(static_pointer_cast<const int>(
-							index_expression_evaluation->GetData()));
+					const int i = *(index_expression_evaluation->GetData<int>());
 
 					if (i >= 0) {
 						array_index = i;
@@ -155,18 +159,22 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 		if (index < size && index >= 0) {
 			auto type_table = context->GetTypeTable();
 			const_shared_ptr<TypeSpecifier> element_type_specifier =
-					array->GetElementType();
-			if (element_type_specifier->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetBoolean())) {
+					array->GetElementTypeSpecifier();
+			if (element_type_specifier->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetBoolean(),
+					context->GetTypeTable()) == EQUIVALENT) {
 				result_value = array->GetValue<bool>(index, *type_table);
-			} else if (element_type_specifier->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetInt())) {
+			} else if (element_type_specifier->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())
+					== EQUIVALENT) {
 				result_value = array->GetValue<int>(index, *type_table);
-			} else if (element_type_specifier->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetDouble())) {
+			} else if (element_type_specifier->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetDouble(),
+					context->GetTypeTable()) == EQUIVALENT) {
 				result_value = array->GetValue<double>(index, *type_table);
-			} else if (element_type_specifier->IsAssignableTo(
-					PrimitiveTypeSpecifier::GetString())) {
+			} else if (element_type_specifier->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetString(),
+					context->GetTypeTable()) == EQUIVALENT) {
 				result_value = array->GetValue<string>(index, *type_table);
 			} else {
 				const_shared_ptr<ArrayTypeSpecifier> as_array =
@@ -225,7 +233,7 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 		if (index >= 0) {
 			const_shared_ptr<TypeSpecifier> element_type_specifier =
-					array->GetElementType();
+					array->GetElementTypeSpecifier();
 			const_shared_ptr<PrimitiveTypeSpecifier> element_as_primitive =
 					std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 							element_type_specifier);
@@ -247,7 +255,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						errors = SetSymbolCore(context, result->GetData());
+						errors = SetSymbolCore(context,
+								result->GetData<bool>());
 						break;
 					}
 					break;
@@ -263,7 +272,7 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						errors = SetSymbolCore(context, result->GetData());
+						errors = SetSymbolCore(context, result->GetData<int>());
 						break;
 					}
 					break;
@@ -279,7 +288,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						errors = SetSymbolCore(context, result->GetData());
+						errors = SetSymbolCore(context,
+								result->GetData<double>());
 					}
 					break;
 				}
@@ -294,7 +304,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						errors = SetSymbolCore(context, result->GetData());
+						errors = SetSymbolCore(context,
+								result->GetData<string>());
 					}
 					break;
 				}
@@ -312,7 +323,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 										const ArrayTypeSpecifier>(
 										element_type_specifier);
 						if (element_as_array) {
-							errors = SetSymbolCore(context, result->GetData());
+							errors = SetSymbolCore(context,
+									result->GetData<Array>());
 						}
 
 						const_shared_ptr<RecordTypeSpecifier> element_as_record =
@@ -320,17 +332,20 @@ const ErrorListRef ArrayVariable::AssignValue(
 										const RecordTypeSpecifier>(
 										element_type_specifier);
 						if (element_as_record) {
-							errors = SetSymbolCore(context, result->GetData());
+							errors = SetSymbolCore(context,
+									result->GetData<Record>());
 						}
 					}
 				} else {
-					errors = errors->From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-									variable_column,
-									expression->GetType(context)->ToString(),
-									element_type_specifier->ToString()),
-							errors);
+					errors =
+							errors->From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::ASSIGNMENT_TYPE_ERROR,
+											variable_line, variable_column,
+											expression->GetTypeSpecifier(
+													context)->ToString(),
+											element_type_specifier->ToString()),
+									errors);
 				}
 			}
 		} else {
@@ -378,18 +393,19 @@ const ErrorListRef ArrayVariable::SetSymbol(
 
 const ErrorListRef ArrayVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Record> value,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<ComplexTypeSpecifier> type,
+		const_shared_ptr<Record> value) const {
 	return SetSymbolCore(context, static_pointer_cast<const void>(value));
 }
 
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetElementType(
 		const shared_ptr<ExecutionContext> context) const {
-	auto base_type_as_array = dynamic_pointer_cast<const ArrayTypeSpecifier>(
-			m_base_variable->GetType(context));
+	auto base_type_specifier = m_base_variable->GetTypeSpecifier(context);
+	auto base_type = base_type_specifier->GetType(context->GetTypeTable());
 
-	if (base_type_as_array) {
-		return base_type_as_array->GetElementTypeSpecifier();
+	auto as_array = dynamic_pointer_cast<const ArrayType>(base_type);
+	if (as_array) {
+		return as_array->GetMemberTypeSpecifier();
 	} else {
 		return PrimitiveTypeSpecifier::GetNone();
 	}
@@ -409,23 +425,24 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 
 		auto type_table = context->GetTypeTable();
 		const_shared_ptr<TypeSpecifier> element_type_specifier =
-				array->GetElementType();
+				array->GetElementTypeSpecifier();
 		shared_ptr<const Array> new_array = nullptr;
 
-		if (element_type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetBoolean())) {
+		if (element_type_specifier->AnalyzeAssignmentTo(
+				PrimitiveTypeSpecifier::GetBoolean(),
+				context->GetTypeTable())) {
 			new_array = array->WithValue<bool>(index,
 					static_pointer_cast<const bool>(value), *type_table);
-		} else if (element_type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetInt())) {
+		} else if (element_type_specifier->AnalyzeAssignmentTo(
+				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())) {
 			new_array = array->WithValue<int>(index,
 					static_pointer_cast<const int>(value), *type_table);
-		} else if (element_type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetDouble())) {
+		} else if (element_type_specifier->AnalyzeAssignmentTo(
+				PrimitiveTypeSpecifier::GetDouble(), context->GetTypeTable())) {
 			new_array = array->WithValue<double>(index,
 					static_pointer_cast<const double>(value), *type_table);
-		} else if (element_type_specifier->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetString())) {
+		} else if (element_type_specifier->AnalyzeAssignmentTo(
+				PrimitiveTypeSpecifier::GetString(), context->GetTypeTable())) {
 			new_array = array->WithValue<string>(index,
 					static_pointer_cast<const string>(value), *type_table);
 		} else {
@@ -446,11 +463,11 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 			}
 		}
 
-		const SetResult set_result = context->SetSymbol(*GetName(), new_array);
-
-		errors = ToErrorListRef(set_result,
-				context->GetSymbol(*GetName(), DEEP)->GetType(),
-				array->GetTypeSpecifier());
+		//wrap result in constant expression and assign it to the base variable
+		auto as_const_expression = make_shared<ConstantExpression>(
+				m_expression->GetPosition(), new_array);
+		errors = m_base_variable->AssignValue(context, as_const_expression,
+				AssignmentType::ASSIGN);
 	}
 
 	return errors;
@@ -458,18 +475,21 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 
 const ErrorListRef ArrayVariable::Validate(
 		const shared_ptr<ExecutionContext> context) const {
-	auto base_evaluation = m_base_variable->Evaluate(context);
-	ErrorListRef errors = base_evaluation->GetErrors();
+	auto base_evaluation = m_base_variable->Validate(context);
+	ErrorListRef errors = base_evaluation;
 	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> index_expression_type =
-				m_expression->GetType(context);
-		if (index_expression_type->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetInt())) {
-			auto base_type_as_array = dynamic_pointer_cast<
-					const ArrayTypeSpecifier>(
-					m_base_variable->GetType(context));
+				m_expression->GetTypeSpecifier(context);
+		auto index_analysis = index_expression_type->AnalyzeAssignmentTo(
+				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
+		if (index_analysis == EQUIVALENT || index_analysis == UNAMBIGUOUS) {
+			auto base_type_specifier = m_base_variable->GetTypeSpecifier(
+					context);
+			auto base_type = base_type_specifier->GetType(
+					context->GetTypeTable());
 
-			if (!base_type_as_array) {
+			auto as_array = dynamic_pointer_cast<const ArrayType>(base_type);
+			if (!as_array) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::VARIABLE_NOT_AN_ARRAY,

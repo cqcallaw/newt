@@ -1,7 +1,7 @@
-struct rectangle {
-	x: int
-	y: int
-	w: int = 10
+mutable rectangle {
+	x: int,
+	y: int,
+	w: int = 10,
 	h: int
 }
 

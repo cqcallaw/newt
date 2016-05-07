@@ -1,0 +1,20 @@
+Parsing file ../tests/t6030.nwt...
+Parsed file ../tests/t6030.nwt.
+Root Symbol Table:
+----------------
+<empty>
+
+Root Type Table:
+----------------
+stringified:
+	<record>
+	as_string:
+		string ("")
+	value:
+		<sum>
+		continuous:
+			double
+		discrete:
+			int
+
+

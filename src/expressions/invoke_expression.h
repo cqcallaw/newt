@@ -30,8 +30,10 @@ public:
 			const yy::location argument_list_position);
 	virtual ~InvokeExpression();
 
-	virtual const_shared_ptr<TypeSpecifier> GetType(
-			const shared_ptr<ExecutionContext> execution_context) const;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const shared_ptr<ExecutionContext> execution_context,
+			AliasResolution resolution =
+					AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
 			const shared_ptr<ExecutionContext> execution_context) const;

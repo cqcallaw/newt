@@ -37,9 +37,19 @@ const_shared_ptr<Result> Expression::ToString(
 	ostringstream buffer;
 	const_shared_ptr<Result> evaluation = Evaluate(execution_context);
 	if (ErrorList::IsTerminator(evaluation->GetErrors())) {
-		const_shared_ptr<TypeSpecifier> type_specifier = GetType(
-				execution_context);
-		auto value = evaluation->GetData();
+		const_shared_ptr<TypeSpecifier> type_specifier = GetTypeSpecifier(
+				execution_context, AliasResolution::RESOLVE);
+
+//		//TODO: replace this type switching logic with calls to TypeDefinition::ValueToString()
+//		auto type_table = execution_context->GetTypeTable();
+//		auto type = type_specifier->GetType(type_table);
+//		if (type) {
+//			buffer
+//					<< type->ValueToString(execution_context->GetTypeTable(),
+//							Indent(0), evaluation->GetRawData());
+//		} else {
+//			assert(false);
+//		}
 
 		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
 				std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
@@ -48,16 +58,16 @@ const_shared_ptr<Result> Expression::ToString(
 			const BasicType basic_type = as_primitive->GetBasicType();
 			switch (basic_type) {
 			case BOOLEAN:
-				buffer << *(static_pointer_cast<const bool>(value));
+				buffer << *(evaluation->GetData<bool>());
 				break;
 			case INT:
-				buffer << *(static_pointer_cast<const int>(value));
+				buffer << *(evaluation->GetData<int>());
 				break;
 			case DOUBLE:
-				buffer << *(static_pointer_cast<const double>(value));
+				buffer << *(evaluation->GetData<double>());
 				break;
 			case STRING:
-				buffer << *(static_pointer_cast<const string>(value));
+				buffer << *(evaluation->GetData<string>());
 				break;
 			default:
 				assert(false);
@@ -70,8 +80,7 @@ const_shared_ptr<Result> Expression::ToString(
 				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
 						type_specifier);
 		if (as_record) {
-			auto instance = static_pointer_cast<const Record>(
-					value);
+			auto instance = evaluation->GetData<Record>();
 
 			buffer << "{" << endl;
 			buffer
@@ -82,8 +91,6 @@ const_shared_ptr<Result> Expression::ToString(
 	} else {
 		return evaluation;
 	}
-
-	
 
 	return make_shared<Result>(const_shared_ptr<void>(new string(buffer.str())),
 			ErrorList::GetTerminator());

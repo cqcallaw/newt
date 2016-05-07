@@ -27,7 +27,13 @@ rectangle[] rects:
 Root Type Table:
 ----------------
 rectangle:
-	int h (0)
-	int w (0)
-	int x (0)
-	int y (0)
+	<record>
+	h:
+		int (0)
+	w:
+		int (0)
+	x:
+		int (0)
+	y:
+		int (0)
+

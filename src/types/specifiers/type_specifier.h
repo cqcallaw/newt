@@ -23,6 +23,9 @@
 #include <defaults.h>
 #include <string>
 #include <linked_list.h>
+#include <alias_resolution.h>
+#include <analysis_result.h>
+#include <type_definition.h>
 
 class Expression;
 class DeclarationStatement;
@@ -35,21 +38,32 @@ public:
 	}
 
 	virtual const std::string ToString() const = 0;
-	virtual const bool IsAssignableTo(
-			const_shared_ptr<TypeSpecifier> other) const = 0;
-	virtual const_shared_ptr<void> DefaultValue(
+	virtual const AnalysisResult AnalyzeAssignmentTo(
+			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const = 0;
-
-	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
-			const yy::location position, const_shared_ptr<TypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const = 0;
 
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
 
 	virtual bool operator!=(const TypeSpecifier &other) const {
 		return !(*this == other);
+	}
+
+	virtual const_shared_ptr<TypeDefinition> GetType(
+			const TypeTable& type_table, AliasResolution resolution =
+					AliasResolution::RESOLVE) const = 0;
+
+	virtual const AnalysisResult AnalyzeWidening(const TypeTable& type_table,
+			const TypeSpecifier& other) const {
+		return INCOMPATIBLE;
+	}
+
+	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const {
+		auto type = GetType(type_table, RESOLVE);
+		if (type) {
+			return type->GetDefaultValue(type_table);
+		}
+
+		return nullptr;
 	}
 };
 

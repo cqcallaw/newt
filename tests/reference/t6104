@@ -3,22 +3,22 @@ Parsed file ../tests/t6104.nwt.
 Error: No go
 Root Symbol Table:
 ----------------
-result_ctor result:
-	(int) -> result value:
-		Body Location: 6.2-6
-
 result t:
+{error}
 	string message: "No go"
- {error}
+
 
 Root Type Table:
 ----------------
 general_error:
-	string message ("")
+	<record>
+	message:
+		string ("")
+
 result:
+	<sum>
 	error:
-		string message ("")
+		general_error
 	value:
 		int
-result_ctor:
-	(int) -> result value ()
+

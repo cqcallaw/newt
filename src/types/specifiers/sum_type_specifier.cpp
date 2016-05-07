@@ -21,6 +21,7 @@
 #include <sum_type_specifier.h>
 #include <sum.h>
 #include <complex_type_specifier.h>
+#include <maybe_type_specifier.h>
 #include <sum_type.h>
 
 SumTypeSpecifier::SumTypeSpecifier(const ComplexTypeSpecifier& complex) :
@@ -32,42 +33,33 @@ SumTypeSpecifier::SumTypeSpecifier(
 		SumTypeSpecifier(complex->GetTypeName(), complex->GetNamespace()) {
 }
 
-const string SumTypeSpecifier::ToString() const {
-	return *m_type_name;
-}
-
-const bool SumTypeSpecifier::IsAssignableTo(
-		const_shared_ptr<TypeSpecifier> other) const {
-	const_shared_ptr<SumTypeSpecifier> as_sum = std::dynamic_pointer_cast<
-			const SumTypeSpecifier>(other);
-	return as_sum && as_sum->GetTypeName()->compare(*m_type_name) == 0;
-}
-
-const_shared_ptr<void> SumTypeSpecifier::DefaultValue(
+const AnalysisResult SumTypeSpecifier::AnalyzeAssignmentTo(
+		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	auto type = type_table.GetType<SumType>(*m_type_name);
-	if (type) {
-		return type->GetDefaultValue(m_type_name);
+	auto complex_result = ComplexTypeSpecifier::AnalyzeAssignmentTo(other,
+			type_table);
+	if (complex_result) {
+		return complex_result;
 	}
-	return const_shared_ptr<void>();
-}
 
-const_shared_ptr<DeclarationStatement> SumTypeSpecifier::GetDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
-		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<ComplexInstantiationStatement>(position,
-			static_pointer_cast<const RecordTypeSpecifier>(type), type_position,
-			name, name_position, initializer_expression);
-}
+	auto other_type = other->GetType(type_table, RESOLVE);
+	auto other_type_as_sum = dynamic_pointer_cast<const SumType>(other_type);
+	if (other_type_as_sum) {
+		auto other_specifier_as_complex = dynamic_pointer_cast<
+				const ComplexTypeSpecifier>(other);
+		if (other_specifier_as_complex) {
+			auto analysis = other_type_as_sum->AnalyzeConversion(
+					*other_specifier_as_complex, *this);
+			return analysis;
+		}
 
-bool SumTypeSpecifier::operator ==(const TypeSpecifier& other) const {
-	try {
-		const SumTypeSpecifier& as_sum =
-				dynamic_cast<const SumTypeSpecifier&>(other);
-		return *GetTypeName() == *as_sum.GetTypeName();
-	} catch (std::bad_cast& e) {
-		return false;
+		auto other_specifier_as_maybe = dynamic_pointer_cast<
+				const MaybeTypeSpecifier>(other);
+		if (other_specifier_as_maybe) {
+			return AnalyzeAssignmentTo(other_specifier_as_maybe->GetBaseTypeSpecifier(),
+					type_table);
+		}
 	}
+
+	return AnalysisResult::INCOMPATIBLE;
 }

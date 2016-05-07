@@ -36,8 +36,8 @@ IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block,
 		const_shared_ptr<StatementBlock> else_block) :
 		m_expression(expression), m_block(block), m_else_block(else_block), m_block_context(
-				make_shared<ExecutionContext>()), m_else_block_context(
-				make_shared<ExecutionContext>()) {
+				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)), m_else_block_context(
+				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)) {
 }
 
 IfStatement::~IfStatement() {
@@ -48,9 +48,12 @@ const ErrorListRef IfStatement::preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_expression) {
-		if (m_expression->GetType(execution_context)->IsAssignableTo(
-				PrimitiveTypeSpecifier::GetInt())) {
-
+		auto expression_analysis = m_expression->GetTypeSpecifier(
+				execution_context)->AnalyzeAssignmentTo(
+				PrimitiveTypeSpecifier::GetInt(),
+				execution_context->GetTypeTable());
+		if (expression_analysis == EQUIVALENT
+				|| expression_analysis == UNAMBIGUOUS) {
 			SymbolContextListRef new_parent = SymbolContextList::From(
 					execution_context, execution_context->GetParent());
 			const shared_ptr<ExecutionContext> new_execution_context =
@@ -92,7 +95,7 @@ const ErrorListRef IfStatement::execute(
 	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
 			execution_context);
 	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
-	bool test = *(static_pointer_cast<const bool>(evaluation->GetData()));
+	bool test = *(evaluation->GetData<bool>());
 
 	if (test) {
 		SymbolContextListRef new_parent = SymbolContextList::From(
