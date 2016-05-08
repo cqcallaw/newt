@@ -49,13 +49,10 @@ const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
 
 const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
 	auto type_table = *execution_context->GetTypeTable();
-	auto resolved_specifier = GetTypeSpecifier(execution_context);
-
-	plain_shared_ptr<void> return_value = resolved_specifier->DefaultValue(
-			execution_context->GetTypeTable());
-	return make_shared<Result>(return_value, errors);
+	auto type = m_type->GetType(type_table, RETURN);
+	plain_shared_ptr<void> return_value = type->GetDefaultValue(type_table);
+	return make_shared<Result>(return_value, ErrorList::GetTerminator());
 }
 
 const ErrorListRef DefaultValueExpression::Validate(

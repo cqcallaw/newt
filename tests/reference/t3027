@@ -1,0 +1,13 @@
+Parsing file ../tests/t3027.nwt...
+Parsed file ../tests/t3027.nwt.
+Root Symbol Table:
+----------------
+string v: "nono"
+
+Root Type Table:
+----------------
+a:
+	<record>
+	b:
+		string ("nono")
+
