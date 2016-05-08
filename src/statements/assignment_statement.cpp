@@ -57,64 +57,18 @@ const ErrorListRef AssignmentStatement::preprocess(
 		const_shared_ptr<BasicVariable> basic_variable = dynamic_pointer_cast<
 				const BasicVariable>(m_variable);
 		if (basic_variable) {
-			const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-					dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-							symbol_type_specifier);
-			const_shared_ptr<TypeSpecifier> expression_type =
+			const_shared_ptr<TypeSpecifier> expression_type_specifier =
 					m_expression->GetTypeSpecifier(execution_context);
-			if (as_primitive) {
-				if (expression_type->AnalyzeAssignmentTo(symbol_type_specifier,
-						execution_context->GetTypeTable())) {
-					errors = ErrorList::GetTerminator();
-				} else {
-					const yy::location variable_location =
-							m_variable->GetLocation();
-					errors = ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::ASSIGNMENT_TYPE_ERROR,
-									variable_location.begin.line,
-									variable_location.begin.column,
-									symbol_type_specifier->ToString(),
-									expression_type->ToString()), errors);
-				}
-			}
-
-			const_shared_ptr<ArrayTypeSpecifier> as_array =
-					dynamic_pointer_cast<const ArrayTypeSpecifier>(
-							symbol_type_specifier);
-			if (as_array) {
-				//reassigning raw array reference, not an array element
-				if (!expression_type->AnalyzeAssignmentTo(symbol_type_specifier,
-						execution_context->GetTypeTable())) {
-					yy::location expression_position =
-							m_expression->GetPosition();
-					errors = ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::ASSIGNMENT_TYPE_ERROR,
-									expression_position.begin.line,
-									expression_position.begin.column,
-									as_array->ToString(),
-									expression_type->ToString()), errors);
-				}
-			}
-
-			const_shared_ptr<ComplexTypeSpecifier> as_complex =
-					dynamic_pointer_cast<const ComplexTypeSpecifier>(
-							symbol_type_specifier);
-			if (as_complex) {
-				//reassigning raw reference, not a member
-				if (!expression_type->AnalyzeAssignmentTo(symbol_type_specifier,
-						execution_context->GetTypeTable())) {
-					yy::location expression_position =
-							m_expression->GetPosition();
-					errors = ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::ASSIGNMENT_TYPE_ERROR,
-									expression_position.begin.line,
-									expression_position.begin.column,
-									as_complex->ToString(),
-									expression_type->ToString()), errors);
-				}
+			if (!expression_type_specifier->AnalyzeAssignmentTo(
+					symbol_type_specifier, execution_context->GetTypeTable())) {
+				yy::location expression_position = m_expression->GetPosition();
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::ASSIGNMENT_TYPE_ERROR,
+								expression_position.begin.line,
+								expression_position.begin.column,
+								symbol_type_specifier->ToString(),
+								expression_type_specifier->ToString()), errors);
 			}
 		}
 
