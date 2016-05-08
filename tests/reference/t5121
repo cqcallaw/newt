@@ -1,0 +1,4 @@
+Parsing file ../tests/t5121.nwt...
+Semantic error on line 8, column 5: Cannot assign an expression of type '() -> double' to a variable of type '() -> int'.
+Parsed file ../tests/t5121.nwt.
+1 error found; giving up.
