@@ -1048,6 +1048,10 @@ variant:
 	{
 		$$ = $1;
 	}
+	| sum_body
+	{
+		$$ = $1;
+	}
 	| IDENTIFIER COLON primitive_type_specifier
 	{
 		$$ = make_shared<TypeAliasDeclarationStatement>(@$, $3, @3, $1, @1);

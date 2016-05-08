@@ -33,6 +33,7 @@
 #include <typeinfo>
 #include <primitive_declaration_statement.h>
 #include <record_declaration_statement.h>
+#include <sum_declaration_statement.h>
 #include <type_alias_declaration_statement.h>
 #include <unit_declaration_statement.h>
 #include <maybe_declaration_statement.h>
@@ -117,6 +118,13 @@ const_shared_ptr<Result> SumType::Build(
 					const RecordDeclarationStatement>(declaration);
 			if (as_record) {
 				auto validation_errors = as_record->preprocess(tmp_context);
+				errors = errors->Concatenate(errors, validation_errors);
+			}
+
+			auto as_sum = dynamic_pointer_cast<
+					const SumDeclarationStatement>(declaration);
+			if (as_sum) {
+				auto validation_errors = as_sum->preprocess(tmp_context);
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
