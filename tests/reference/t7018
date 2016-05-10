@@ -1,0 +1,18 @@
+Parsing file ../tests/t7018.nwt...
+Parsed file ../tests/t7018.nwt.
+Root Symbol Table:
+----------------
+a v:
+	a.c? b: {empty}
+	int c: 0
+
+
+Root Type Table:
+----------------
+a:
+	<record>
+	b:
+		a.c? ({empty})
+	c:
+		int (0)
+

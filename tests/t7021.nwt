@@ -1,0 +1,9 @@
+# test type alias with recursion, in-order variant
+a {
+	b {
+		d:int,
+		c:a.b?
+	}
+}
+
+v:=@a
