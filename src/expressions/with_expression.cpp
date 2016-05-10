@@ -169,7 +169,6 @@ const ErrorListRef WithExpression::Validate(
 				source_type = as_record;
 				record_type_specifier = static_pointer_cast<
 						const RecordTypeSpecifier>(source_type_specifier);
-
 			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
@@ -197,37 +196,44 @@ const ErrorListRef WithExpression::Validate(
 				const_shared_ptr<TypeDefinition> member_definition =
 						source_type->GetMember(*member_name);
 				if (member_definition) {
-					const_shared_ptr<TypeSpecifier> expression_type_specifier =
-							instantiation->GetExpression()->GetTypeSpecifier(
-									execution_context);
+					auto expression = instantiation->GetExpression();
 
-					const_shared_ptr<TypeSpecifier> member_type_specifier =
-							member_definition->GetTypeSpecifier(member_name,
-									record_type_specifier);
+					auto member_errors = expression->Validate(
+							execution_context);
+					if (ErrorList::IsTerminator(member_errors)) {
+						const_shared_ptr<TypeSpecifier> expression_type_specifier =
+								expression->GetTypeSpecifier(execution_context);
 
-					auto assignability =
-							expression_type_specifier->AnalyzeAssignmentTo(
-									member_type_specifier, *type_table);
-					if (assignability == AnalysisResult::AMBIGUOUS) {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::AMBIGUOUS_WIDENING_CONVERSION,
-												instantiation->GetExpression()->GetPosition().begin.line,
-												instantiation->GetExpression()->GetPosition().begin.column,
-												member_type_specifier->ToString(),
-												expression_type_specifier->ToString()),
-										errors);
-					} else if (assignability == INCOMPATIBLE) {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::ASSIGNMENT_TYPE_ERROR,
-												instantiation->GetExpression()->GetPosition().begin.line,
-												instantiation->GetExpression()->GetPosition().begin.column,
-												member_type_specifier->ToString(),
-												expression_type_specifier->ToString()),
-										errors);
+						const_shared_ptr<TypeSpecifier> member_type_specifier =
+								member_definition->GetTypeSpecifier(member_name,
+										record_type_specifier);
+
+						auto assignability =
+								expression_type_specifier->AnalyzeAssignmentTo(
+										member_type_specifier, *type_table);
+						if (assignability == AnalysisResult::AMBIGUOUS) {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::AMBIGUOUS_WIDENING_CONVERSION,
+													instantiation->GetExpression()->GetPosition().begin.line,
+													instantiation->GetExpression()->GetPosition().begin.column,
+													member_type_specifier->ToString(),
+													expression_type_specifier->ToString()),
+											errors);
+						} else if (assignability == INCOMPATIBLE) {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::ASSIGNMENT_TYPE_ERROR,
+													instantiation->GetExpression()->GetPosition().begin.line,
+													instantiation->GetExpression()->GetPosition().begin.column,
+													member_type_specifier->ToString(),
+													expression_type_specifier->ToString()),
+											errors);
+						}
+					} else {
+						errors = ErrorList::Concatenate(errors, member_errors);
 					}
 				} else {
 					//undefined member
