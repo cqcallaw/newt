@@ -1,0 +1,7 @@
+# test type alias with recursion 
+a {
+	b:int,
+	c:b # should be an invalid type
+}
+
+v:=@a
