@@ -37,9 +37,9 @@ ExecutionContext::ExecutionContext(const Modifier::Type modifiers) :
 }
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> existing,
 		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
-		ExecutionContext(existing, m_parent, type_table,
-				Symbol::GetDefaultSymbol(), plain_shared_ptr<int>(nullptr),
-				life_time) {
+		ExecutionContext(existing, SymbolContextList::GetTerminator(),
+				type_table, Symbol::GetDefaultSymbol(),
+				plain_shared_ptr<int>(nullptr), life_time) {
 }
 
 ExecutionContext::ExecutionContext(const Modifier::Type modifiers,

@@ -90,14 +90,14 @@ const ErrorListRef BasicVariable::AssignValue(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
-	return AssignValue(context, expression, context, op);
+	return AssignValue(context, expression, op, context);
 }
 
 const ErrorListRef BasicVariable::AssignValue(
 		const shared_ptr<ExecutionContext> context,
-		const_shared_ptr<Expression> expression,
+		const_shared_ptr<Expression> expression, const AssignmentType op,
 		const shared_ptr<ExecutionContext> output_context,
-		const AssignmentType op) const {
+		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto variable_name = GetName();
@@ -108,8 +108,9 @@ const ErrorListRef BasicVariable::AssignValue(
 			DEEP);
 	const_shared_ptr<TypeSpecifier> symbol_type_specifier =
 			symbol->GetTypeSpecifier();
-	auto symbol_type = symbol_type_specifier->GetType(context->GetTypeTable(),
-			RESOLVE);
+
+	auto symbol_type = symbol_type_specifier->GetType(
+			output_context->GetTypeTable(), RESOLVE);
 	auto symbol_value = symbol->GetValue();
 
 	const_shared_ptr<PrimitiveType> as_primitive = dynamic_pointer_cast<
@@ -240,25 +241,55 @@ const ErrorListRef BasicVariable::AssignValue(
 			auto expression_type_specifier = expression->GetTypeSpecifier(
 					context);
 
-			plain_shared_ptr<Sum> new_sum = nullptr;
-			auto assignment_analysis =
-					expression_type_specifier->AnalyzeAssignmentTo(
-							symbol_type_specifier, context->GetTypeTable());
+			auto symbol_specifier_as_complex = dynamic_pointer_cast<
+					const ComplexTypeSpecifier>(symbol_type_specifier);
+			if (symbol_specifier_as_complex) {
 
-			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-					symbol_type_specifier);
-			if (as_complex) {
+				shared_ptr<const ComplexTypeSpecifier> fully_qualified_symbol_type_specifier =
+						symbol_specifier_as_complex;
+				if (container) {
+					//look up the symbol type in the _source_ context instead of the output context
+					auto symbol_type_outside = symbol_type_specifier->GetType(
+							context->GetTypeTable(), RESOLVE);
+					if (!symbol_type_outside) {
+						//qualify the symbol type: it's an inline type
+						fully_qualified_symbol_type_specifier =
+								ComplexTypeSpecifier::Build(container,
+										symbol_specifier_as_complex);
+					}
+				}
+
+				plain_shared_ptr<Sum> new_sum = nullptr;
+				auto assignment_analysis =
+						expression_type_specifier->AnalyzeAssignmentTo(
+								fully_qualified_symbol_type_specifier,
+								output_context->GetTypeTable());
 				if (assignment_analysis == EQUIVALENT) {
 					new_sum = expression_evaluation->GetData<Sum>();
 				} else if (assignment_analysis == UNAMBIGUOUS) {
-					auto tag = as_sum->MapSpecifierToVariant(*as_complex,
+					auto tag = as_sum->MapSpecifierToVariant(
+							*fully_qualified_symbol_type_specifier,
 							*expression_type_specifier);
 					new_sum = make_shared<Sum>(tag,
 							expression_evaluation->GetRawData());
 				} else {
-					assert(false);
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::ASSIGNMENT_TYPE_ERROR,
+											variable_line, variable_column,
+											fully_qualified_symbol_type_specifier->ToString(),
+											expression->GetTypeSpecifier(
+													context)->ToString()),
+									errors);
 				}
-				errors = SetSymbol(output_context, as_complex, new_sum);
+
+				if (ErrorList::IsTerminator(errors)) {
+					errors = SetSymbol(output_context,
+							symbol_specifier_as_complex, new_sum);
+				}
+			} else {
+				assert(false);
 			}
 		}
 	}

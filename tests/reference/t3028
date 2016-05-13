@@ -1,0 +1,20 @@
+Parsing file ../tests/t3028.nwt...
+Parsed file ../tests/t3028.nwt.
+Root Symbol Table:
+----------------
+a v:
+	b b:
+		int c: 3
+
+
+
+Root Type Table:
+----------------
+a:
+	<record>
+	b:
+		<record>
+		c:
+			int (0)
+
+

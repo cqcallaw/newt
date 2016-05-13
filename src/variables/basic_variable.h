@@ -51,9 +51,9 @@ public:
 			const AssignmentType op) const;
 
 	const ErrorListRef AssignValue(const shared_ptr<ExecutionContext> context,
-			const_shared_ptr<Expression> expression,
+			const_shared_ptr<Expression> expression, const AssignmentType op,
 			const shared_ptr<ExecutionContext> output_context,
-			const AssignmentType op) const;
+			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
 
 	const NamespaceQualifierListRef GetSpace() const {
 		return m_space;

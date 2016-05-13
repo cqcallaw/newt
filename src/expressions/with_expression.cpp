@@ -25,7 +25,7 @@
 #include <basic_variable.h>
 #include <record_type_specifier.h>
 #include <sum_type_specifier.h>
-
+#include <nested_type_specifier.h>
 #include <sum_type.h>
 #include <record.h>
 #include <alias_resolution.h>
@@ -64,7 +64,6 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 		shared_ptr<const TypeDefinition> member_definition =
 				source_type_specifier->GetType(
 						execution_context->GetTypeTable());
-
 		if (member_definition) {
 			auto as_record = std::dynamic_pointer_cast<const RecordType>(
 					member_definition);
@@ -93,15 +92,25 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 			const_shared_ptr<SymbolContext> definition =
 					as_record->GetDefinition();
 
-			//create a new context that isn't read-only and has no parent
+			//create a new context that isn't read-only
 			volatile_shared_ptr<SymbolContext> new_symbol_context =
 					definition->Clone()->WithModifiers(
 							Modifier::Type(
 									definition->GetModifiers()
 											| Modifier::Type::MUTABLE));
+			auto type_definition = type->GetDefinition();
+			auto temp_type_table = type_definition->Clone()->WithParent(
+					execution_context->GetTypeTable());
 
 			volatile_shared_ptr<ExecutionContext> temp_execution_context =
-					execution_context->WithContents(new_symbol_context);
+					make_shared<ExecutionContext>(new_symbol_context,
+							temp_type_table, EPHEMERAL);
+
+			auto resolved_specifier = NestedTypeSpecifier::Resolve(
+					source_type_specifier, execution_context->GetTypeTable());
+			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					resolved_specifier);
+			assert(as_complex);
 
 			MemberInstantiationListRef subject = m_member_instantiation_list;
 			while (!MemberInstantiationList::IsTerminator(subject)) {
@@ -113,8 +122,8 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 						instantiation->GetNamePosition());
 				errors = ErrorList::Concatenate(errors,
 						variable->AssignValue(execution_context,
-								instantiation->GetExpression(),
-								temp_execution_context, ASSIGN));
+								instantiation->GetExpression(), ASSIGN,
+								temp_execution_context, as_complex));
 
 				subject = subject->GetNext();
 			}

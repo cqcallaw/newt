@@ -45,6 +45,11 @@ public:
 	virtual ~TypeTable() {
 	}
 
+	const shared_ptr<TypeTable> Clone() const;
+
+	const shared_ptr<TypeTable> WithParent(
+			const shared_ptr<TypeTable> parent) const;
+
 	void AddType(const string& name,
 			const_shared_ptr<TypeDefinition> definition);
 
@@ -119,7 +124,8 @@ public:
 
 	const bool ContainsType(const string& name);
 
-	const void print(ostream &os, const Indent& indent) const;
+	const void print(ostream &os, const Indent& indent,
+			const SearchType search_type = SHALLOW) const;
 
 	const static string DefaultTypeName;
 
@@ -139,6 +145,10 @@ public:
 	static const_shared_ptr<std::string> GetNilName();
 	static const_shared_ptr<UnitType> GetNilType();
 	static const_shared_ptr<ComplexTypeSpecifier> GetNilTypeSpecifier();
+
+	const weak_ptr<TypeTable> GetParent() const {
+		return m_parent;
+	}
 
 private:
 	TypeTable(const shared_ptr<type_map> table,
