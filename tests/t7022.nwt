@@ -1,0 +1,13 @@
+# test type alias with recursion and instantiation
+a {
+	b {
+		d:int,
+		c:a.b?
+	}
+}
+
+v:=@a with {
+	b = @a.b with {
+		d = 3
+	}
+}
