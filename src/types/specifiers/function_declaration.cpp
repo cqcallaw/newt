@@ -72,32 +72,6 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 			type_specifier.GetReturnTypeLocation());
 }
 
-//const_shared_ptr<void> FunctionDeclaration::DefaultValue(
-//		const TypeTable& type_table) const {
-//	return GetDefaultFunctionDeclaration(*this, type_table);
-//}
-//
-//const_shared_ptr<DeclarationStatement> FunctionDeclaration::GetDeclarationStatement(
-//		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-//		const yy::location type_position, const_shared_ptr<string> name,
-//		const yy::location name_position,
-//		const_shared_ptr<Expression> initializer_expression) const {
-//	return make_shared<FunctionDeclarationStatement>(position,
-//			static_pointer_cast<const FunctionTypeSpecifier>(type),
-//			type_position, name, name_position, initializer_expression);
-//}
-
-//const_shared_ptr<Function> FunctionDeclaration::GetDefaultFunctionDeclaration(
-//		const FunctionDeclaration& function_declaration,
-//		const TypeTable& type_table) {
-//	auto statement_block = GetDefaultStatementBlock(
-//			function_declaration.GetReturnType(), type_table);
-//
-//	return make_shared<const Function>(
-//			make_shared<FunctionDeclaration>(function_declaration),
-//			statement_block, ExecutionContext::GetDefault());
-//}
-
 TypeSpecifierListRef FunctionDeclaration::GetTypeList(
 		DeclarationListRef parameter_list) {
 	DeclarationListRef subject = parameter_list;
