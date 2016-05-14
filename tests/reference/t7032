@@ -1,0 +1,19 @@
+Parsing file ../tests/t7032.nwt...
+Parsed file ../tests/t7032.nwt.
+Root Symbol Table:
+----------------
+a v:
+	int b: 0
+	(a.b?) -> int f:
+		Body Location: [default location]
+
+
+Root Type Table:
+----------------
+a:
+	<record>
+	b:
+		int (0)
+	f:
+		(a.b?) -> int (Body Location: [default location])
+
