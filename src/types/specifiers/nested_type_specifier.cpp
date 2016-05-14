@@ -62,8 +62,8 @@ bool NestedTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const NestedTypeSpecifier& as_nested =
 				dynamic_cast<const NestedTypeSpecifier&>(other);
-		return as_nested.m_parent == m_parent
-				&& as_nested.m_member_name == m_member_name;
+		return *as_nested.m_parent == *m_parent
+				&& *as_nested.m_member_name == *m_member_name;
 	} catch (std::bad_cast& e) {
 		return false;
 	}

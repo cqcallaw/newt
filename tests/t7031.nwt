@@ -1,0 +1,10 @@
+# test type alias with recursive function parameter and initialization
+a {
+	f:(a.f?) -> int
+}
+
+v:=@a with { 
+	f = (v:a.f?) -> int {
+		return 3
+	}
+}

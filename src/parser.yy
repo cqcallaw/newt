@@ -830,6 +830,14 @@ anonymous_parameter_list:
 	{
 		$$ = TypeSpecifierList::From($3, $1);
 	}
+	| anonymous_parameter_list COMMA maybe_type_specifier
+	{
+		$$ = TypeSpecifierList::From($3, $1);
+	}
+	| maybe_type_specifier
+	{
+		$$ = TypeSpecifierList::From($1, TypeSpecifierList::GetTerminator());
+	}
 	| type_specifier
 	{
 		$$ = TypeSpecifierList::From($1, TypeSpecifierList::GetTerminator());
