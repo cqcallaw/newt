@@ -192,7 +192,8 @@ const ErrorListRef MaybeDeclarationStatement::GetReturnStatementErrors(
 
 const DeclarationStatement* MaybeDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return this; //no-op
+	return new MaybeDeclarationStatement(GetPosition(), m_type_specifier,
+			m_type_specifier_location, GetName(), GetNamePosition(), expression);
 }
 
 const_shared_ptr<TypeSpecifier> MaybeDeclarationStatement::GetTypeSpecifier() const {
