@@ -80,9 +80,9 @@ const_shared_ptr<Result> RecordType::Build(
 		auto declaration_type_specifier = declaration->GetTypeSpecifier();
 		auto existing_type = declaration_type_specifier->GetType(
 				context_type_table);
-		auto as_recursive = dynamic_pointer_cast<const PlaceholderType>(
+		auto as_placeholder = dynamic_pointer_cast<const PlaceholderType>(
 				existing_type);
-		if (as_recursive) {
+		if (as_placeholder) {
 			auto as_maybe_specifier = dynamic_pointer_cast<
 					const MaybeTypeSpecifier>(declaration_type_specifier);
 			if (!as_maybe_specifier) {

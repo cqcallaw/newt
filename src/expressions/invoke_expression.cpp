@@ -180,33 +180,34 @@ const ErrorListRef InvokeExpression::Validate(
 						const_shared_ptr<DeclarationStatement> declaration =
 								parameter->GetData();
 
-						const_shared_ptr<TypeSpecifier> parameter_type =
+						const_shared_ptr<TypeSpecifier> parameter_type_specifier =
 								declaration->GetTypeSpecifier();
-						const_shared_ptr<TypeSpecifier> argument_type =
+						const_shared_ptr<TypeSpecifier> argument_type_specifier =
 								argument_expression->GetTypeSpecifier(
 										execution_context);
-						auto conversion_analysis =
-								argument_type->AnalyzeAssignmentTo(parameter_type,
+						auto assignment_analysis =
+								argument_type_specifier->AnalyzeAssignmentTo(
+										parameter_type_specifier,
 										execution_context->GetTypeTable());
-						if (conversion_analysis == AMBIGUOUS) {
+						if (assignment_analysis == AMBIGUOUS) {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
 													argument_expression->GetPosition().begin.line,
 													argument_expression->GetPosition().begin.column,
-													argument_type->ToString(),
-													parameter_type->ToString()),
+													argument_type_specifier->ToString(),
+													parameter_type_specifier->ToString()),
 											errors);
-						} else if (conversion_analysis == INCOMPATIBLE) {
+						} else if (assignment_analysis == INCOMPATIBLE) {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
 													argument_expression->GetPosition().begin.line,
 													argument_expression->GetPosition().begin.column,
-													argument_type->ToString(),
-													parameter_type->ToString()),
+													argument_type_specifier->ToString(),
+													parameter_type_specifier->ToString()),
 											errors);
 						}
 						argument = argument->GetNext();
@@ -259,7 +260,8 @@ const ErrorListRef InvokeExpression::Validate(
 										execution_context);
 
 						auto conversion_analysis =
-								argument_type->AnalyzeAssignmentTo(parameter_type,
+								argument_type->AnalyzeAssignmentTo(
+										parameter_type,
 										execution_context->GetTypeTable());
 						if (conversion_analysis == AMBIGUOUS) {
 							errors =
