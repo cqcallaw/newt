@@ -1,0 +1,20 @@
+Parsing file ../tests/t7017.nwt...
+Parsed file ../tests/t7017.nwt.
+Root Symbol Table:
+----------------
+a.c t: {d} <unit>
+
+Root Type Table:
+----------------
+a:
+	<sum>
+	b:
+		<unit>
+	c:
+		<sum>
+		d:
+			<unit>
+		e:
+			<unit>
+
+

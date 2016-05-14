@@ -24,6 +24,7 @@
 #include <record_type.h>
 #include <primitive_type.h>
 #include <unit_type.h>
+#include <placeholder_type.h>
 #include <record_type_specifier.h>
 
 NestedTypeSpecifier::NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,
@@ -73,8 +74,14 @@ const_shared_ptr<TypeDefinition> NestedTypeSpecifier::GetType(
 	auto parent_type = m_parent->GetType(type_table);
 	auto as_complex = dynamic_pointer_cast<const ComplexType>(parent_type);
 	if (as_complex) {
-		return as_complex->GetDefinition()->GetType<TypeDefinition>(
-				m_member_name, DEEP, resolution);
+		auto as_placeholder = dynamic_pointer_cast<const PlaceholderType>(
+				as_complex);
+		if (as_placeholder) {
+			return as_placeholder;
+		} else {
+			return as_complex->GetDefinition()->GetType<TypeDefinition>(
+					m_member_name, DEEP, resolution);
+		}
 	} else {
 		return nullptr;
 	}

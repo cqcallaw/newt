@@ -25,9 +25,7 @@ C_UPPER_DEPS :=
 SUBDIRS := \
 src \
 src/expressions \
+src/specifiers \
 src/statements \
-src/statements/declarations \
-src/types \
-src/types/specifiers \
 src/variables \
 

@@ -1,0 +1,4 @@
+Parsing file ../tests/t3130.nwt...
+Semantic error on line 5, column 18: Undeclared variable 't'
+Parsed file ../tests/t3130.nwt.
+1 error found; giving up.

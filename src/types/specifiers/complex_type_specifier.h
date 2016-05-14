@@ -40,11 +40,16 @@ public:
 	~ComplexTypeSpecifier() {
 	}
 
+	static const_shared_ptr<ComplexTypeSpecifier> Build(
+			const_shared_ptr<ComplexTypeSpecifier> parent,
+			const_shared_ptr<ComplexTypeSpecifier> child);
+
 	virtual const_shared_ptr<TypeDefinition> GetType(
 			const TypeTable& type_table, AliasResolution resolution =
 					AliasResolution::RESOLVE) const;
 
-	virtual const AnalysisResult AnalyzeAssignmentTo(const_shared_ptr<TypeSpecifier> other,
+	virtual const AnalysisResult AnalyzeAssignmentTo(
+			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
 
 	const_shared_ptr<ComplexType> GetContainerType(

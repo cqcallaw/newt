@@ -1,0 +1,19 @@
+#test match of non-trivial expression
+result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+f:=() -> result {
+	return @result.error with { message = "No go" }
+}
+
+match(f())
+	_ {
+		print("Default")
+	}
+	| error {
+		print("Error: " + error.message)
+	}

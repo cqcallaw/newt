@@ -1,0 +1,20 @@
+Parsing file ../tests/t6112.nwt...
+Parsed file ../tests/t6112.nwt.
+Error: No go
+Root Symbol Table:
+----------------
+() -> result f:
+	Body Location: 9.18-10.48
+
+Root Type Table:
+----------------
+result:
+	<sum>
+	error:
+		<record>
+		message:
+			string ("")
+
+	value:
+		int
+

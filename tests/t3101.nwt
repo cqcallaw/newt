@@ -1,0 +1,3 @@
+# test duplicate type declaration at the top level
+a { v:int }
+a { v:string }

@@ -1,0 +1,13 @@
+# this test exercises an obscure code path that leads to a segfault
+# each component of the test is required--even the unused function!
+line { a { } }
+
+translate_line:= (source:line) -> line {
+	return source with {}
+}
+
+translate_point:= () -> int {
+	return 3
+}
+
+l1:= translate_line(@line)

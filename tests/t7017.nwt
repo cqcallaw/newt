@@ -1,0 +1,10 @@
+# test default value nested sum types, first variant 
+a {
+	b
+	| c {
+		d
+		| e
+	}
+}
+
+t:= @a.c

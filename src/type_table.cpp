@@ -26,6 +26,18 @@
 #include <memory>
 #include <symbol_context.h>
 
+const shared_ptr<TypeTable> TypeTable::Clone() const {
+	auto new_map = make_shared<type_map>();
+	new_map->insert(m_table->begin(), m_table->end());
+	return make_shared<TypeTable>(TypeTable(new_map, m_parent.lock()));
+}
+
+const shared_ptr<TypeTable> TypeTable::WithParent(
+		const shared_ptr<TypeTable> new_parent) const {
+	assert(new_parent.get() != this);
+	return make_shared<TypeTable>(TypeTable(m_table, new_parent));
+}
+
 void TypeTable::AddType(const std::string& name,
 		const_shared_ptr<TypeDefinition> definition) {
 	auto existing = m_table->find(name);
@@ -52,7 +64,8 @@ void TypeTable::RemovePlaceholderType(const string& name) {
 	}
 }
 
-const void TypeTable::print(ostream& os, const Indent& indent) const {
+const void TypeTable::print(ostream& os, const Indent& indent,
+		const SearchType search_type) const {
 	type_map::iterator iter;
 	for (iter = m_table->begin(); iter != m_table->end(); ++iter) {
 		os << indent;
@@ -60,6 +73,12 @@ const void TypeTable::print(ostream& os, const Indent& indent) const {
 		const_shared_ptr<TypeDefinition> type = iter->second;
 		os << type->ToString(*this, indent);
 		os << endl;
+	}
+
+	if (search_type == DEEP) {
+		if (auto parent = m_parent.lock()) {
+			parent->print(os, indent, search_type);
+		}
 	}
 }
 
@@ -195,3 +214,4 @@ const_shared_ptr<ComplexTypeSpecifier> TypeTable::GetNilTypeSpecifier() {
 					GetNilType()->GetTypeSpecifier(GetNilName(), nullptr));
 	return value;
 }
+

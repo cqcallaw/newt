@@ -1,0 +1,6 @@
+# test default value of member with initializer
+a {
+	b:string = "nono"
+}
+
+v: = @a.b

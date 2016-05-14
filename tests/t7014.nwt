@@ -1,0 +1,8 @@
+# test declaration of nested sum types 
+a {
+	b
+	| c {
+		d
+		| e
+	}
+}

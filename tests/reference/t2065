@@ -1,4 +1,4 @@
 Parsing file ../tests/t2065.nwt...
-Semantic error on line 4, column 5: Cannot assign an expression of type 'double' to a variable of type 'int'.
+Semantic error on line 4, column 10: Cannot assign an expression of type 'double' to a variable of type 'int'.
 Parsed file ../tests/t2065.nwt.
 1 error found; giving up.

@@ -22,6 +22,37 @@
 #include <nested_type_specifier.h>
 #include <maybe_type_specifier.h>
 #include <unit_type.h>
+#include <stack>
+
+const_shared_ptr<ComplexTypeSpecifier> ComplexTypeSpecifier::Build(
+		const_shared_ptr<ComplexTypeSpecifier> parent,
+		const_shared_ptr<ComplexTypeSpecifier> child) {
+	if (!parent) {
+		return child;
+	}
+
+	if (!child) {
+		return parent;
+	}
+
+	std::stack<shared_ptr<const std::string>> child_names;
+	shared_ptr<const ComplexTypeSpecifier> start = child;
+	child_names.push(start->GetTypeName());
+	while (start->GetContainer()) {
+		child_names.push(start->GetTypeName());
+		start = start->GetContainer();
+	}
+
+	shared_ptr<const ComplexTypeSpecifier> result = parent;
+	while (!child_names.empty()) {
+		auto name = child_names.top();
+		result = make_shared<ComplexTypeSpecifier>(name, result,
+				NamespaceQualifierList::GetTerminator());
+		child_names.pop();
+	}
+
+	return result;
+}
 
 const_shared_ptr<ComplexType> ComplexTypeSpecifier::GetContainerType(
 		const TypeTable& type_table) const {
@@ -114,8 +145,8 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 			return UNAMBIGUOUS;
 		}
 
-		auto base_analysis = AnalyzeAssignmentTo(as_maybe->GetBaseTypeSpecifier(),
-				type_table);
+		auto base_analysis = AnalyzeAssignmentTo(
+				as_maybe->GetBaseTypeSpecifier(), type_table);
 		if (base_analysis == EQUIVALENT) {
 			return UNAMBIGUOUS;
 		} else if (base_analysis == UNAMBIGUOUS) {

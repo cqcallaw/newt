@@ -1,0 +1,12 @@
+# test nested with statements
+a {
+	b {
+		c:int
+	}
+}
+
+v:=@a with {
+	b = @a.b with {
+		c = 3
+	}
+}

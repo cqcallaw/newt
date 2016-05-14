@@ -1,0 +1,5 @@
+a {
+	b: int
+}
+
+v:=@a with { b = t }
