@@ -1,0 +1,3 @@
+# test validation of function arguments
+f:= (b:int) -> int { return b }
+v:= f(t(3))
