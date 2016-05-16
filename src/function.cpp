@@ -27,6 +27,7 @@
 #include <declaration_statement.h>
 #include <defaults.h>
 #include <sum_type_specifier.h>
+#include <maybe_type_specifier.h>
 #include <sum.h>
 #include <sum_type.h>
 #include <unit_type.h>
@@ -160,21 +161,28 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
 			plain_shared_ptr<void> result = evaluation_result->GetValue();
-			auto return_type = ComplexType::ToActualType(
-					m_declaration->GetReturnType(),
-					*invocation_context->GetTypeTable());
+			auto invocation_type_table = invocation_context->GetTypeTable();
 
-			auto as_sum_specifier =
-					dynamic_pointer_cast<const SumTypeSpecifier>(return_type);
-			if (as_sum_specifier) {
-				auto evaluation_result_type =
-						evaluation_result->GetTypeSpecifier();
-				if (*as_sum_specifier != *evaluation_result_type) {
+			auto return_type_specifier = ComplexType::ToActualTypeSpecifier(
+					m_declaration->GetReturnTypeSpecifier(),
+					*invocation_type_table);
+			auto evaluation_result_type = evaluation_result->GetTypeSpecifier();
+
+			auto assignment_analysis =
+					evaluation_result_type->AnalyzeAssignmentTo(
+							return_type_specifier, invocation_type_table);
+
+			switch (assignment_analysis) {
+			case UNAMBIGUOUS:
+			case UNAMBIGUOUS_NESTED: {
+				//we're returning a narrower type than the return type; perform widening
+				auto as_sum_specifier = dynamic_pointer_cast<
+						const SumTypeSpecifier>(return_type_specifier);
+				if (as_sum_specifier) {
 					auto sum_type_definition =
 							invocation_context->GetTypeTable()->GetType<SumType>(
 									as_sum_specifier, DEEP, RESOLVE);
 					if (sum_type_definition) {
-						//we're returning a narrower type than the return type; perform widening
 						plain_shared_ptr<string> tag =
 								sum_type_definition->MapSpecifierToVariant(
 										*as_sum_specifier,
@@ -183,16 +191,32 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 						result = make_shared<Sum>(tag,
 								evaluation_result->GetValue());
 					} else {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::UNDECLARED_TYPE,
-												m_declaration->GetReturnTypeLocation().begin.line,
-												m_declaration->GetReturnTypeLocation().begin.column,
-												as_sum_specifier->ToString()),
-										errors);
+						assert(false); // our semantic analysis should have caught this already
 					}
 				}
+
+				auto as_maybe_specifier = dynamic_pointer_cast<
+						const MaybeTypeSpecifier>(return_type_specifier);
+				if (as_maybe_specifier) {
+					if (*evaluation_result_type
+							== *TypeTable::GetNilTypeSpecifier()) {
+						result = make_shared<Sum>(
+								MaybeTypeSpecifier::EMPTY_NAME,
+								evaluation_result->GetValue());
+					} else {
+						result = make_shared<Sum>(
+								MaybeTypeSpecifier::VARIANT_NAME,
+								evaluation_result->GetValue());
+					}
+				}
+				break;
+			}
+			case AMBIGUOUS:
+				assert(false); // our semantic analysis should have caught this already
+				break;
+			case EQUIVALENT:
+			default:
+				break;
 			}
 
 			return make_shared<Result>(result, errors);

@@ -104,5 +104,5 @@ const_shared_ptr<DeclarationStatement> MaybeType::GetDeclarationStatement(
 		const_shared_ptr<Expression> initializer_expression) const {
 	return make_shared<MaybeDeclarationStatement>(position,
 			static_pointer_cast<const MaybeTypeSpecifier>(type), type_position,
-			name, name_position);
+			name, name_position, initializer_expression);
 }

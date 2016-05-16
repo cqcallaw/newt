@@ -29,7 +29,7 @@
 ComplexType::~ComplexType() {
 }
 
-const_shared_ptr<TypeSpecifier> ComplexType::ToActualType(
+const_shared_ptr<TypeSpecifier> ComplexType::ToActualTypeSpecifier(
 		const_shared_ptr<TypeSpecifier> original, const TypeTable& table) {
 	auto as_record = dynamic_pointer_cast<const RecordTypeSpecifier>(original);
 	if (as_record) {

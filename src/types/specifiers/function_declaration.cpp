@@ -39,7 +39,7 @@ FunctionDeclaration::FunctionDeclaration(DeclarationListRef parameter_list,
 
 FunctionDeclaration::FunctionDeclaration(const FunctionDeclaration& other) :
 		FunctionTypeSpecifier(other.GetParameterTypeList(),
-				other.GetReturnType(), other.GetReturnTypeLocation()), m_parameter_list(
+				other.GetReturnTypeSpecifier(), other.GetReturnTypeLocation()), m_parameter_list(
 				other.m_parameter_list) {
 }
 
@@ -68,7 +68,7 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 	DeclarationListRef declaration_list = DeclarationList::Reverse(result);
 
 	return make_shared<FunctionDeclaration>(declaration_list,
-			type_specifier.GetReturnType(),
+			type_specifier.GetReturnTypeSpecifier(),
 			type_specifier.GetReturnTypeLocation());
 }
 
@@ -109,7 +109,7 @@ TypeSpecifierListRef FunctionDeclaration::GetTypeList(
 const_shared_ptr<TypeDefinition> FunctionDeclaration::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
 	auto result = make_shared<const FunctionType>(m_parameter_list,
-			GetReturnType(), GetReturnTypeLocation());
+			GetReturnTypeSpecifier(), GetReturnTypeLocation());
 
 	return result;
 }

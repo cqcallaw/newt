@@ -121,8 +121,8 @@ const ErrorListRef FunctionExpression::Validate(
 		errors = ErrorList::Concatenate(errors,
 				m_body->preprocess(tmp_context));
 
-		auto return_type = ComplexType::ToActualType(
-				m_declaration->GetReturnType(),
+		auto return_type = ComplexType::ToActualTypeSpecifier(
+				m_declaration->GetReturnTypeSpecifier(),
 				*execution_context->GetTypeTable());
 
 		errors = ErrorList::Concatenate(errors,

@@ -87,7 +87,7 @@ const_shared_ptr<Function> FunctionType::GetDefaultFunction(
 		const_shared_ptr<FunctionDeclaration> declaration,
 		const TypeTable& type_table) {
 	auto statement_block = GetDefaultStatementBlock(
-			declaration->GetReturnType(), type_table);
+			declaration->GetReturnTypeSpecifier(), type_table);
 	return make_shared<Function>(declaration, statement_block,
 			ExecutionContext::GetDefault());
 }

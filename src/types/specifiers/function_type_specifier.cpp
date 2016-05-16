@@ -82,7 +82,7 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const FunctionTypeSpecifier& as_function =
 				dynamic_cast<const FunctionTypeSpecifier&>(other);
-		if (*m_return_type == *as_function.GetReturnType()) {
+		if (*m_return_type == *as_function.GetReturnTypeSpecifier()) {
 			TypeSpecifierListRef subject = m_parameter_type_list;
 			TypeSpecifierListRef other_subject =
 					as_function.GetParameterTypeList();

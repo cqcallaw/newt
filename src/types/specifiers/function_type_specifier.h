@@ -49,7 +49,7 @@ public:
 		return m_parameter_type_list;
 	}
 
-	const_shared_ptr<TypeSpecifier> GetReturnType() const {
+	const_shared_ptr<TypeSpecifier> GetReturnTypeSpecifier() const {
 		return m_return_type;
 	}
 

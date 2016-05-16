@@ -34,7 +34,7 @@ class Expression;
 class ComplexType: public TypeDefinition {
 public:
 	virtual ~ComplexType();
-	static const_shared_ptr<TypeSpecifier> ToActualType(
+	static const_shared_ptr<TypeSpecifier> ToActualTypeSpecifier(
 			const_shared_ptr<TypeSpecifier> original, const TypeTable& table);
 
 	const_shared_ptr<Result> PreprocessSymbol(

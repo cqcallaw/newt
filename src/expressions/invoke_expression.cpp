@@ -61,8 +61,8 @@ const_shared_ptr<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 					expression_type);
 	if (as_function) {
-		auto return_type = ComplexType::ToActualType(
-				as_function->GetReturnType(),
+		auto return_type = ComplexType::ToActualTypeSpecifier(
+				as_function->GetReturnTypeSpecifier(),
 				*execution_context->GetTypeTable());
 		return return_type;
 	} else {
