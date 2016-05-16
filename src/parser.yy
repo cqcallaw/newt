@@ -406,7 +406,15 @@ nested_type_specifier:
 
 //---------------------------------------------------------------------
 maybe_type_specifier:
-	type_specifier QMARK
+	primitive_type_specifier QMARK
+	{
+		$$ = make_shared<MaybeTypeSpecifier>($1);
+	}
+	| complex_type_specifier QMARK
+	{
+		$$ = make_shared<MaybeTypeSpecifier>($1);
+	}
+	| nested_type_specifier QMARK
 	{
 		$$ = make_shared<MaybeTypeSpecifier>($1);
 	}
@@ -427,6 +435,10 @@ type_specifier:
 		$$ = $1;
 	}
 	| nested_type_specifier
+	{
+		$$ = $1;
+	}
+	| maybe_type_specifier
 	{
 		$$ = $1;
 	}
@@ -829,14 +841,6 @@ anonymous_parameter_list:
 	anonymous_parameter_list COMMA type_specifier
 	{
 		$$ = TypeSpecifierList::From($3, $1);
-	}
-	| anonymous_parameter_list COMMA maybe_type_specifier
-	{
-		$$ = TypeSpecifierList::From($3, $1);
-	}
-	| maybe_type_specifier
-	{
-		$$ = TypeSpecifierList::From($1, TypeSpecifierList::GetTerminator());
 	}
 	| type_specifier
 	{
