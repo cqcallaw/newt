@@ -158,11 +158,11 @@ const_shared_ptr<Result> SumType::Build(
 
 						const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
 								make_shared<PrimitiveDeclarationStatement>(
-										as_alias->GetPosition(),
+										as_alias->GetLocation(),
 										alias_as_primitive,
 										as_alias->GetTypePosition(),
 										as_alias->GetName(),
-										as_alias->GetNamePosition());
+										as_alias->GetNameLocation());
 						DeclarationListRef parameter = DeclarationList::From(
 								parameter_declaration,
 								DeclarationList::GetTerminator());
@@ -186,7 +186,7 @@ const_shared_ptr<Result> SumType::Build(
 										StatementList::GetTerminator());
 						const_shared_ptr<StatementBlock> statement_block =
 								make_shared<StatementBlock>(statement_list,
-										as_alias->GetNamePosition());
+										as_alias->GetNameLocation());
 
 						auto weak = weak_ptr<ExecutionContext>(context);
 						const_shared_ptr<Function> function = make_shared<
@@ -203,8 +203,8 @@ const_shared_ptr<Result> SumType::Build(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::PREVIOUS_DECLARATION,
-													as_alias->GetPosition().begin.line,
-													as_alias->GetPosition().begin.column,
+													as_alias->GetLocation().begin.line,
+													as_alias->GetLocation().begin.column,
 													*variant_name), errors);
 						}
 					}
@@ -234,8 +234,8 @@ const_shared_ptr<Result> SumType::Build(
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::PREVIOUS_DECLARATION,
-									as_alias->GetPosition().begin.line,
-									as_alias->GetPosition().begin.column,
+									as_alias->GetLocation().begin.line,
+									as_alias->GetLocation().begin.column,
 									alias_type_name), errors);
 				}
 			}

@@ -31,14 +31,12 @@ using namespace std;
 
 class DeclarationStatement: public Statement {
 public:
-	DeclarationStatement(const yy::location position,
-			const_shared_ptr<string> name, const yy::location name_position,
+	DeclarationStatement(const yy::location location,
+			const_shared_ptr<string> name, const yy::location name_location,
 			const_shared_ptr<Expression> initializer_expression,
 			ModifierListRef modifier_list,
 			const yy::location modifier_list_location);
 	virtual ~DeclarationStatement();
-
-	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const = 0;
 
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const = 0;
@@ -49,16 +47,18 @@ public:
 		return ErrorList::GetTerminator();
 	}
 
-	const yy::location GetPosition() const {
-		return m_position;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const = 0;
+
+	const yy::location GetLocation() const {
+		return m_location;
 	}
 
 	const_shared_ptr<string> GetName() const {
 		return m_name;
 	}
 
-	const yy::location GetNamePosition() const {
-		return m_name_position;
+	const yy::location GetNameLocation() const {
+		return m_name_location;
 	}
 
 	const_shared_ptr<Expression> GetInitializerExpression() const {
@@ -74,9 +74,9 @@ public:
 	}
 
 private:
-	const yy::location m_position;
+	const yy::location m_location;
 	const_shared_ptr<string> m_name;
-	const yy::location m_name_position;
+	const yy::location m_name_location;
 	const_shared_ptr<Expression> m_initializer_expression;
 	ModifierListRef m_modifier_list;
 	const yy::location m_modifier_list_location;

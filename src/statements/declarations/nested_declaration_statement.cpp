@@ -152,8 +152,8 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNamePosition().begin.line,
-						GetNamePosition().begin.column, *(GetName())), errors);
+						GetNameLocation().begin.line,
+						GetNameLocation().begin.column, *(GetName())), errors);
 	}
 
 	return errors;
@@ -166,7 +166,7 @@ const ErrorListRef NestedDeclarationStatement::execute(
 	if (GetInitializerExpression()
 			&& !GetInitializerExpression()->IsConstant()) {
 		Variable* temp_variable = new BasicVariable(GetName(),
-				GetNamePosition());
+				GetNameLocation());
 		auto errors = temp_variable->AssignValue(execution_context,
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
@@ -181,6 +181,6 @@ const ErrorListRef NestedDeclarationStatement::execute(
 
 const DeclarationStatement* NestedDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new NestedDeclarationStatement(GetPosition(), m_type,
-			m_type_position, GetName(), GetNamePosition(), expression);
+	return new NestedDeclarationStatement(GetLocation(), m_type,
+			m_type_position, GetName(), GetNameLocation(), expression);
 }

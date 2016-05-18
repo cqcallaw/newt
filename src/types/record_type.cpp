@@ -89,8 +89,8 @@ const_shared_ptr<Result> RecordType::Build(
 				declaration_errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::RECURSIVE_MEMBERS_MUST_BE_NULLABLE,
-								declaration->GetNamePosition().begin.line,
-								declaration->GetNamePosition().begin.column),
+								declaration->GetNameLocation().begin.line,
+								declaration->GetNameLocation().begin.column),
 						declaration_errors);
 			}
 		}

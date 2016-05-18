@@ -64,15 +64,15 @@ const ErrorListRef UnitDeclarationStatement::preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNamePosition().begin.line,
-								GetNamePosition().begin.column, *GetName()),
+								GetNameLocation().begin.line,
+								GetNameLocation().begin.column, *GetName()),
 						errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							GetNamePosition().begin.line,
-							GetNamePosition().begin.column,
+							GetNameLocation().begin.line,
+							GetNameLocation().begin.column,
 							m_type_specifier->ToString()), errors);
 		}
 	} else {

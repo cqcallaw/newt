@@ -91,8 +91,8 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::PREVIOUS_DECLARATION,
-							GetNamePosition().begin.line,
-							GetNamePosition().begin.column, *GetName()),
+							GetNameLocation().begin.line,
+							GetNameLocation().begin.column, *GetName()),
 					errors);
 		}
 	}
@@ -104,7 +104,7 @@ const ErrorListRef PrimitiveDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	if (GetInitializerExpression()) {
 		Variable* temp_variable = new BasicVariable(GetName(),
-				GetNamePosition());
+				GetNameLocation());
 		auto errors = temp_variable->AssignValue(execution_context,
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
@@ -117,6 +117,6 @@ const ErrorListRef PrimitiveDeclarationStatement::execute(
 
 const DeclarationStatement* PrimitiveDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new PrimitiveDeclarationStatement(GetPosition(), m_type,
-			m_type_position, GetName(), GetNamePosition(), expression);
+	return new PrimitiveDeclarationStatement(GetLocation(), m_type,
+			m_type_position, GetName(), GetNameLocation(), expression);
 }

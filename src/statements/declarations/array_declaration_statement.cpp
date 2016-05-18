@@ -110,8 +110,8 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNamePosition().begin.line,
-								GetNamePosition().begin.column, *GetName()),
+								GetNameLocation().begin.line,
+								GetNameLocation().begin.column, *GetName()),
 						errors);
 			}
 		}
@@ -152,6 +152,6 @@ const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetTypeSpecifier() co
 
 const DeclarationStatement* ArrayDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new ArrayDeclarationStatement(GetPosition(), m_type, m_type_position,
-			GetName(), GetNamePosition(), expression);
+	return new ArrayDeclarationStatement(GetLocation(), m_type, m_type_position,
+			GetName(), GetNameLocation(), expression);
 }

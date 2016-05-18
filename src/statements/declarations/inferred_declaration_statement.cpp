@@ -62,9 +62,9 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 	auto type = expression_type->GetType(type_table);
 	if (type) {
 		const_shared_ptr<Statement> temp_statement =
-				type->GetDeclarationStatement(GetPosition(), expression_type,
+				type->GetDeclarationStatement(GetLocation(), expression_type,
 						GetInitializerExpression()->GetPosition(), GetName(),
-						GetNamePosition(), GetInitializerExpression());
+						GetNameLocation(), GetInitializerExpression());
 		errors = temp_statement->preprocess(execution_context);
 	} else {
 		errors = GetInitializerExpression()->Validate(execution_context);
@@ -84,9 +84,9 @@ const ErrorListRef InferredDeclarationStatement::execute(
 	auto type = expression_type->GetType(type_table);
 	if (type) {
 		const_shared_ptr<Statement> temp_statement =
-				type->GetDeclarationStatement(GetPosition(), expression_type,
+				type->GetDeclarationStatement(GetLocation(), expression_type,
 						GetInitializerExpression()->GetPosition(), GetName(),
-						GetNamePosition(), GetInitializerExpression());
+						GetNameLocation(), GetInitializerExpression());
 		errors = temp_statement->execute(execution_context);
 	} else {
 		errors = GetInitializerExpression()->Validate(execution_context);
@@ -97,6 +97,6 @@ const ErrorListRef InferredDeclarationStatement::execute(
 
 const DeclarationStatement* InferredDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new InferredDeclarationStatement(GetPosition(), GetName(),
-			GetNamePosition(), expression);
+	return new InferredDeclarationStatement(GetLocation(), GetName(),
+			GetNameLocation(), expression);
 }

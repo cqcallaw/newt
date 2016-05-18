@@ -47,6 +47,6 @@ const ErrorListRef TypeAliasDeclarationStatement::execute(
 const DeclarationStatement* TypeAliasDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	//no-op
-	return new TypeAliasDeclarationStatement(GetPosition(), m_type,
-			m_type_position, GetName(), GetNamePosition());
+	return new TypeAliasDeclarationStatement(GetLocation(), m_type,
+			m_type_position, GetName(), GetNameLocation());
 }

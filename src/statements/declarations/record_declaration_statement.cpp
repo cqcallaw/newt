@@ -81,8 +81,8 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNamePosition().begin.line,
-						GetNamePosition().begin.column, *GetName()), errors);
+						GetNameLocation().begin.line,
+						GetNameLocation().begin.column, *GetName()), errors);
 	}
 
 	return errors;
@@ -96,8 +96,8 @@ const ErrorListRef RecordDeclarationStatement::execute(
 const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	//no-op
-	return new RecordDeclarationStatement(GetPosition(), m_type, GetName(),
-			GetNamePosition(), m_member_declaration_list,
+	return new RecordDeclarationStatement(GetLocation(), m_type, GetName(),
+			GetNameLocation(), m_member_declaration_list,
 			m_member_declaration_list_location, GetModifierList(),
 			GetModifierListLocation());
 }
@@ -105,7 +105,7 @@ const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpressio
 const_shared_ptr<RecordDeclarationStatement> RecordDeclarationStatement::WithModifiers(
 		ModifierListRef modifiers,
 		const yy::location modifiers_location) const {
-	return make_shared<RecordDeclarationStatement>(GetPosition(), m_type,
-			GetName(), GetNamePosition(), m_member_declaration_list,
+	return make_shared<RecordDeclarationStatement>(GetLocation(), m_type,
+			GetName(), GetNameLocation(), m_member_declaration_list,
 			m_member_declaration_list_location, modifiers, modifiers_location);
 }

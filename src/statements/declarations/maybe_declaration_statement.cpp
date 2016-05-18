@@ -103,8 +103,8 @@ const ErrorListRef MaybeDeclarationStatement::preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNamePosition().begin.line,
-								GetNamePosition().begin.column, *GetName()),
+								GetNameLocation().begin.line,
+								GetNameLocation().begin.column, *GetName()),
 						errors);
 			}
 		}
@@ -175,7 +175,7 @@ const ErrorListRef MaybeDeclarationStatement::execute(
 				auto set_result = execution_context->SetSymbol(*GetName(),
 						maybe_type_specifier, value, *type_table);
 
-				errors = ToErrorListRef(set_result, GetPosition(), GetName(),
+				errors = ToErrorListRef(set_result, GetLocation(), GetName(),
 						maybe_type_specifier, initializer_type_specifier);
 			}
 		}
@@ -192,8 +192,8 @@ const ErrorListRef MaybeDeclarationStatement::GetReturnStatementErrors(
 
 const DeclarationStatement* MaybeDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new MaybeDeclarationStatement(GetPosition(), m_type_specifier,
-			m_type_specifier_location, GetName(), GetNamePosition(), expression);
+	return new MaybeDeclarationStatement(GetLocation(), m_type_specifier,
+			m_type_specifier_location, GetName(), GetNameLocation(), expression);
 }
 
 const_shared_ptr<TypeSpecifier> MaybeDeclarationStatement::GetTypeSpecifier() const {

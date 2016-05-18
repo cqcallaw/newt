@@ -135,6 +135,6 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 
 const DeclarationStatement* ComplexInstantiationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new ComplexInstantiationStatement(GetPosition(), m_type_specifier,
-			m_type_position, GetName(), GetNamePosition(), expression);
+	return new ComplexInstantiationStatement(GetLocation(), m_type_specifier,
+			m_type_position, GetName(), GetNameLocation(), expression);
 }

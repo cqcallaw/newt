@@ -88,8 +88,8 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNamePosition().begin.line,
-						GetNamePosition().begin.column, *(GetName())), errors);
+						GetNameLocation().begin.line,
+						GetNameLocation().begin.column, *(GetName())), errors);
 	}
 
 	return errors;
@@ -99,7 +99,7 @@ const ErrorListRef FunctionDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	if (GetInitializerExpression()) {
 		Variable* temp_variable = new BasicVariable(GetName(),
-				GetNamePosition());
+				GetNameLocation());
 		auto errors = temp_variable->AssignValue(execution_context,
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
@@ -112,8 +112,8 @@ const ErrorListRef FunctionDeclarationStatement::execute(
 
 const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new FunctionDeclarationStatement(GetPosition(), m_type,
-			expression->GetPosition(), GetName(), GetNamePosition(), expression);
+	return new FunctionDeclarationStatement(GetLocation(), m_type,
+			expression->GetPosition(), GetName(), GetNameLocation(), expression);
 }
 
 const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetTypeSpecifier() const {

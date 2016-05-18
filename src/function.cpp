@@ -132,8 +132,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::NO_PARAMETER_DEFAULT,
-							declaration->GetPosition().begin.line,
-							declaration->GetPosition().begin.column,
+							declaration->GetLocation().begin.line,
+							declaration->GetLocation().begin.column,
 							*declaration->GetName()), errors);
 			break;
 		}

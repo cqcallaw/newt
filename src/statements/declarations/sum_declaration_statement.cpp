@@ -177,8 +177,8 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNamePosition().begin.line,
-						GetNamePosition().begin.column, *GetName()), errors);
+						GetNameLocation().begin.line,
+						GetNameLocation().begin.column, *GetName()), errors);
 	}
 
 	return errors;
@@ -192,8 +192,8 @@ const ErrorListRef SumDeclarationStatement::execute(
 const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 //no-op
-	return new SumDeclarationStatement(GetPosition(), m_type, GetName(),
-			GetNamePosition(), m_variant_list, m_variant_list_location);
+	return new SumDeclarationStatement(GetLocation(), m_type, GetName(),
+			GetNameLocation(), m_variant_list, m_variant_list_location);
 }
 
 const_shared_ptr<TypeSpecifier> SumDeclarationStatement::GetTypeSpecifier() const {
