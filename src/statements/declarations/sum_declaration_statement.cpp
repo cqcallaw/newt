@@ -42,17 +42,17 @@
 #include <placeholder_type.h>
 
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
-		const_shared_ptr<ComplexTypeSpecifier> type,
+		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<string> name, const yy::location name_location,
 		const DeclarationListRef variant_list,
 		const yy::location variant_list_location) :
 		DeclarationStatement(position, name, name_location,
 				make_shared<DefaultValueExpression>(
-						DefaultValueExpression(GetDefaultLocation(), type,
-								variant_list_location)),
+						DefaultValueExpression(GetDefaultLocation(),
+								type_specifier, variant_list_location)),
 				ModifierList::GetTerminator(), GetDefaultLocation()), m_variant_list(
 				variant_list), m_variant_list_location(variant_list_location), m_type(
-				make_shared<SumTypeSpecifier>(type)) {
+				make_shared<SumTypeSpecifier>(type_specifier)) {
 }
 
 SumDeclarationStatement::~SumDeclarationStatement() {
@@ -198,4 +198,8 @@ const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(
 
 const_shared_ptr<TypeSpecifier> SumDeclarationStatement::GetTypeSpecifier() const {
 	return m_type;
+}
+
+const yy::location SumDeclarationStatement::GetTypeSpecifierLocation() const {
+	return GetNameLocation();
 }

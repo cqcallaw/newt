@@ -121,8 +121,8 @@ const_shared_ptr<Result> SumType::Build(
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
-			auto as_sum = dynamic_pointer_cast<
-					const SumDeclarationStatement>(declaration);
+			auto as_sum = dynamic_pointer_cast<const SumDeclarationStatement>(
+					declaration);
 			if (as_sum) {
 				auto validation_errors = as_sum->preprocess(tmp_context);
 				errors = errors->Concatenate(errors, validation_errors);
@@ -160,7 +160,7 @@ const_shared_ptr<Result> SumType::Build(
 								make_shared<PrimitiveDeclarationStatement>(
 										as_alias->GetLocation(),
 										alias_as_primitive,
-										as_alias->GetTypePosition(),
+										as_alias->GetTypeSpecifierLocation(),
 										as_alias->GetName(),
 										as_alias->GetNameLocation());
 						DeclarationListRef parameter = DeclarationList::From(
@@ -224,8 +224,8 @@ const_shared_ptr<Result> SumType::Build(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::UNDECLARED_TYPE,
-													as_alias->GetTypePosition().begin.line,
-													as_alias->GetTypePosition().begin.column,
+													as_alias->GetTypeSpecifierLocation().begin.line,
+													as_alias->GetTypeSpecifierLocation().begin.column,
 													as_alias->GetTypeSpecifier()->ToString()),
 											errors);
 						}

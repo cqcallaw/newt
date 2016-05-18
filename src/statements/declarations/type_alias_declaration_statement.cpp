@@ -20,13 +20,14 @@
 #include <type_alias_declaration_statement.h>
 
 TypeAliasDeclarationStatement::TypeAliasDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position) :
+		const yy::location position,
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const yy::location type_specifier_location,
+		const_shared_ptr<string> name, const yy::location name_position) :
 		DeclarationStatement(position, name, name_position,
 				const_shared_ptr<Expression>(), ModifierList::GetTerminator(),
-				GetDefaultLocation()), m_type(type), m_type_position(
-				type_position) {
+				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_specifier_location(
+				type_specifier_location) {
 }
 
 TypeAliasDeclarationStatement::~TypeAliasDeclarationStatement() {
@@ -47,6 +48,6 @@ const ErrorListRef TypeAliasDeclarationStatement::execute(
 const DeclarationStatement* TypeAliasDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	//no-op
-	return new TypeAliasDeclarationStatement(GetLocation(), m_type,
-			m_type_position, GetName(), GetNameLocation());
+	return new TypeAliasDeclarationStatement(GetLocation(), m_type_specifier,
+			m_type_specifier_location, GetName(), GetNameLocation());
 }

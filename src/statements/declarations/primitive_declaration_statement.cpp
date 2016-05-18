@@ -27,15 +27,16 @@
 #include <variable_expression.h>
 
 PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
-		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
+		const yy::location position,
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const yy::location type_specifier_location,
+		const_shared_ptr<string> name, const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position, name, name_position,
 				initializer_expression, ModifierList::GetTerminator(),
-				GetDefaultLocation()), m_type(type), m_type_position(
-				type_position) {
-	assert(dynamic_pointer_cast<const PrimitiveTypeSpecifier>(type));
+				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_specifier_location(
+				type_specifier_location) {
+	assert(dynamic_pointer_cast<const PrimitiveTypeSpecifier>(type_specifier));
 }
 
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
@@ -51,19 +52,20 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 	}
 
 	auto as_primitive = std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-			m_type);
+			m_type_specifier);
 
 	if (as_primitive) {
 		if (GetInitializerExpression()) {
 			const_shared_ptr<TypeSpecifier> expression_type_specifier =
-					GetInitializerExpression()->GetTypeSpecifier(execution_context);
+					GetInitializerExpression()->GetTypeSpecifier(
+							execution_context);
 
 			auto expression_as_primitive = std::dynamic_pointer_cast<
 					const PrimitiveTypeSpecifier>(expression_type_specifier);
 
 			if (expression_as_primitive == nullptr
-					|| !expression_as_primitive->AnalyzeAssignmentTo(as_primitive,
-							execution_context->GetTypeTable())) {
+					|| !expression_as_primitive->AnalyzeAssignmentTo(
+							as_primitive, execution_context->GetTypeTable())) {
 				errors =
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
@@ -77,9 +79,9 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 		}
 
 		auto type_table = *execution_context->GetTypeTable();
-		auto type = m_type->GetType(type_table);
+		auto type = m_type_specifier->GetType(type_table);
 		auto value = type->GetDefaultValue(type_table);
-		symbol = type->GetSymbol(type_table, m_type, value);
+		symbol = type->GetSymbol(type_table, m_type_specifier, value);
 	} else {
 		assert(false);
 	}
@@ -117,6 +119,6 @@ const ErrorListRef PrimitiveDeclarationStatement::execute(
 
 const DeclarationStatement* PrimitiveDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new PrimitiveDeclarationStatement(GetLocation(), m_type,
-			m_type_position, GetName(), GetNameLocation(), expression);
+	return new PrimitiveDeclarationStatement(GetLocation(), m_type_specifier,
+			m_type_specifier_location, GetName(), GetNameLocation(), expression);
 }

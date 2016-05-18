@@ -46,10 +46,11 @@ public:
 			const_shared_ptr<Expression> expression) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
+	virtual const yy::location GetTypeSpecifierLocation() const;
 
 private:
-	const_shared_ptr<FunctionTypeSpecifier> m_type;
-	const yy::location m_type_position;
+	const_shared_ptr<FunctionTypeSpecifier> m_type_specifier;
+	const yy::location m_type_specifier_location;
 };
 
 #endif /* STATEMENTS_DECLARATIONS_FUNCTION_DECLARATION_STATEMENT_H_ */

@@ -36,13 +36,13 @@
 ArrayDeclarationStatement::ArrayDeclarationStatement(
 		const yy::location position,
 		const_shared_ptr<ArrayTypeSpecifier> type_specifier,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
+		const yy::location type_specifier_location,
+		const_shared_ptr<string> name, const yy::location name_location,
 		const_shared_ptr<Expression> initializer_expression) :
-		DeclarationStatement(position, name, name_position,
+		DeclarationStatement(position, name, name_location,
 				initializer_expression, ModifierList::GetTerminator(),
-				GetDefaultLocation()), m_type(type_specifier), m_type_position(
-				type_position) {
+				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_specifier_location(
+				type_specifier_location) {
 }
 
 const ErrorListRef ArrayDeclarationStatement::preprocess(
@@ -51,7 +51,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 
 	const_shared_ptr<ComplexTypeSpecifier> element_type_as_record =
 			dynamic_pointer_cast<const ComplexTypeSpecifier>(
-					m_type->GetElementTypeSpecifier());
+					m_type_specifier->GetElementTypeSpecifier());
 	if (element_type_as_record) {
 		//check that element type exists
 		const_shared_ptr<TypeTable> type_table =
@@ -63,8 +63,9 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 		if (!type) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							m_type_position.begin.line,
-							m_type_position.begin.column, type_name), errors);
+							m_type_specifier_location.begin.line,
+							m_type_specifier_location.begin.column, type_name),
+					errors);
 		}
 	}
 
@@ -79,7 +80,8 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							initializer_expression_type);
 			if (!as_array
-					|| !initializer_expression_type->AnalyzeAssignmentTo(m_type,
+					|| !initializer_expression_type->AnalyzeAssignmentTo(
+							m_type_specifier,
 							execution_context->GetTypeTable())) {
 				errors =
 						ErrorList::From(
@@ -87,14 +89,14 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 										Error::ASSIGNMENT_TYPE_ERROR,
 										initializer_expression->GetPosition().begin.line,
 										initializer_expression->GetPosition().begin.column,
-										m_type->ToString(),
+										m_type_specifier->ToString(),
 										initializer_expression_type->ToString()),
 								errors);
 			}
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
-			array = new Array(m_type->GetElementTypeSpecifier(),
+			array = new Array(m_type_specifier->GetElementTypeSpecifier(),
 					*execution_context->GetTypeTable());
 		}
 
@@ -136,10 +138,12 @@ const ErrorListRef ArrayDeclarationStatement::execute(
 			auto symbol_context = execution_context;
 			SetResult result = symbol_context->SetSymbol(*GetName(), array,
 					execution_context->GetTypeTable());
-			errors = ToErrorListRef(result,
-					GetInitializerExpression()->GetPosition(), GetName(),
-					symbol_context->GetSymbol(GetName(), SHALLOW)->GetTypeSpecifier(),
-					array->GetTypeSpecifier());
+			errors =
+					ToErrorListRef(result,
+							GetInitializerExpression()->GetPosition(),
+							GetName(),
+							symbol_context->GetSymbol(GetName(), SHALLOW)->GetTypeSpecifier(),
+							array->GetTypeSpecifier());
 		}
 	}
 
@@ -147,11 +151,15 @@ const ErrorListRef ArrayDeclarationStatement::execute(
 }
 
 const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetTypeSpecifier() const {
-	return m_type;
+	return m_type_specifier;
 }
 
 const DeclarationStatement* ArrayDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new ArrayDeclarationStatement(GetLocation(), m_type, m_type_position,
-			GetName(), GetNameLocation(), expression);
+	return new ArrayDeclarationStatement(GetLocation(), m_type_specifier,
+			m_type_specifier_location, GetName(), GetNameLocation(), expression);
+}
+
+const yy::location ArrayDeclarationStatement::GetTypeSpecifierLocation() const {
+	return m_type_specifier_location;
 }

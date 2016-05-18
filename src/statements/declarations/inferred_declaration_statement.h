@@ -43,6 +43,7 @@ public:
 			const_shared_ptr<Expression> expression) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
+	virtual const yy::location GetTypeSpecifierLocation() const;
 
 private:
 };

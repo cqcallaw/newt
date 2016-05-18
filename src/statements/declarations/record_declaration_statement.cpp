@@ -29,18 +29,20 @@
 #include <record.h>
 
 RecordDeclarationStatement::RecordDeclarationStatement(
-		const yy::location position, const_shared_ptr<RecordTypeSpecifier> type,
+		const yy::location position,
+		const_shared_ptr<RecordTypeSpecifier> type_specifier,
 		const_shared_ptr<string> name, const yy::location name_location,
 		DeclarationListRef member_declaration_list,
 		const yy::location member_declaration_list_location,
 		ModifierListRef modifier_list, const yy::location modifiers_location) :
 		DeclarationStatement(position, name, name_location,
 				make_shared<DefaultValueExpression>(
-						DefaultValueExpression(GetDefaultLocation(), type,
+						DefaultValueExpression(GetDefaultLocation(),
+								type_specifier,
 								member_declaration_list_location)),
 				modifier_list, modifiers_location), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_location(
-				member_declaration_list_location), m_type(type) {
+				member_declaration_list_location), m_type(type_specifier) {
 }
 
 RecordDeclarationStatement::~RecordDeclarationStatement() {

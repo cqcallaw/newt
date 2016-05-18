@@ -28,14 +28,15 @@
 #include <memory>
 
 NestedDeclarationStatement::NestedDeclarationStatement(
-		const yy::location position, const_shared_ptr<NestedTypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
+		const yy::location position,
+		const_shared_ptr<NestedTypeSpecifier> type_specifier,
+		const yy::location type_specifier_location,
+		const_shared_ptr<string> name, const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position, name, name_position,
 				initializer_expression, ModifierList::GetTerminator(),
-				GetDefaultLocation()), m_type(type), m_type_position(
-				type_position) {
+				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_specifier_location(
+				type_specifier_location) {
 }
 
 NestedDeclarationStatement::~NestedDeclarationStatement() {
@@ -48,7 +49,7 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 	auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		auto type_table = execution_context->GetTypeTable();
-		auto type = m_type->GetType(type_table);
+		auto type = m_type_specifier->GetType(type_table);
 
 		if (type) {
 			shared_ptr<const Symbol> symbol = Symbol::GetDefaultSymbol();
@@ -62,7 +63,7 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						symbol = type->GetSymbol(type_table, m_type,
+						symbol = type->GetSymbol(type_table, m_type_specifier,
 								result->GetData<void>());
 					}
 				}
@@ -86,7 +87,7 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 									Error::UNDECLARED_TYPE,
 									GetInitializerExpression()->GetPosition().begin.line,
 									GetInitializerExpression()->GetPosition().begin.column,
-									m_type->ToString()), errors);
+									m_type_specifier->ToString()), errors);
 		}
 
 //		auto parent_type_specifier = m_type->GetParent();
@@ -181,6 +182,6 @@ const ErrorListRef NestedDeclarationStatement::execute(
 
 const DeclarationStatement* NestedDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new NestedDeclarationStatement(GetLocation(), m_type,
-			m_type_position, GetName(), GetNameLocation(), expression);
+	return new NestedDeclarationStatement(GetLocation(), m_type_specifier,
+			m_type_specifier_location, GetName(), GetNameLocation(), expression);
 }

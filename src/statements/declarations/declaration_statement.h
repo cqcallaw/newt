@@ -47,8 +47,6 @@ public:
 		return ErrorList::GetTerminator();
 	}
 
-	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const = 0;
-
 	const yy::location GetLocation() const {
 		return m_location;
 	}
@@ -60,6 +58,10 @@ public:
 	const yy::location GetNameLocation() const {
 		return m_name_location;
 	}
+
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const = 0;
+
+	virtual const yy::location GetTypeSpecifierLocation() const = 0;
 
 	const_shared_ptr<Expression> GetInitializerExpression() const {
 		return m_initializer_expression;

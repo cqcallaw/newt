@@ -97,6 +97,10 @@ const_shared_ptr<TypeSpecifier> UnitDeclarationStatement::GetTypeSpecifier() con
 	return m_type_specifier;
 }
 
+const yy::location UnitDeclarationStatement::GetTypeSpecifierLocation() const {
+	return m_type_specifier_location;
+}
+
 const DeclarationStatement* UnitDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	return this; //no-op

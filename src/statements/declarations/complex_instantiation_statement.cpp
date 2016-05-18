@@ -36,13 +36,13 @@
 ComplexInstantiationStatement::ComplexInstantiationStatement(
 		const yy::location position,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
+		const yy::location type_specifier_location,
+		const_shared_ptr<string> name, const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position, name, name_position,
 				initializer_expression, ModifierList::GetTerminator(),
-				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_position(
-				type_position) {
+				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_specifier_location(
+				type_specifier_location) {
 }
 
 ComplexInstantiationStatement::~ComplexInstantiationStatement() {
@@ -82,24 +82,24 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								m_type_position.begin.line,
-								m_type_position.begin.column, *GetName()),
-						errors);
+								m_type_specifier_location.begin.line,
+								m_type_specifier_location.begin.column,
+								*GetName()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::NOT_A_COMPOUND_TYPE,
-							m_type_position.begin.line,
-							m_type_position.begin.column,
+							m_type_specifier_location.begin.line,
+							m_type_specifier_location.begin.column,
 							m_type_specifier->ToString()), errors);
 		}
 	} else {
 		//type does not exist
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						m_type_position.begin.line,
-						m_type_position.begin.column,
+						m_type_specifier_location.begin.line,
+						m_type_specifier_location.begin.column,
 						m_type_specifier->ToString()), errors);
 	}
 
@@ -125,16 +125,20 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 		//type does not exist
 		errors = ErrorList::From(
 				make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_TYPE,
-						m_type_position.begin.line,
-						m_type_position.begin.column,
+						m_type_specifier_location.begin.line,
+						m_type_specifier_location.begin.column,
 						m_type_specifier->ToString()), errors);
 	}
 
 	return errors;
 }
 
+const yy::location ComplexInstantiationStatement::GetTypeSpecifierLocation() const {
+	return m_type_specifier_location;
+}
+
 const DeclarationStatement* ComplexInstantiationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	return new ComplexInstantiationStatement(GetLocation(), m_type_specifier,
-			m_type_position, GetName(), GetNameLocation(), expression);
+			m_type_specifier_location, GetName(), GetNameLocation(), expression);
 }

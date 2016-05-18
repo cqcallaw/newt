@@ -32,9 +32,9 @@ class ArrayTypeSpecifier;
 class ArrayDeclarationStatement: public DeclarationStatement {
 public:
 	ArrayDeclarationStatement(const yy::location position,
-			const_shared_ptr<ArrayTypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
+			const_shared_ptr<ArrayTypeSpecifier> type_specifier,
+			const yy::location type_specifier_location,
+			const_shared_ptr<string> name, const yy::location name_location,
 			const_shared_ptr<Expression> initializer_expression = nullptr);
 
 	virtual ~ArrayDeclarationStatement();
@@ -49,10 +49,11 @@ public:
 			const_shared_ptr<Expression> expression) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
+	virtual const yy::location GetTypeSpecifierLocation() const;
 
 private:
-	const_shared_ptr<ArrayTypeSpecifier> m_type;
-	const yy::location m_type_position;
+	const_shared_ptr<ArrayTypeSpecifier> m_type_specifier;
+	const yy::location m_type_specifier_location;
 };
 
 #endif /* STATEMENTS_DECLARATIONS_ARRAY_DECLARATION_STATEMENT_H_ */

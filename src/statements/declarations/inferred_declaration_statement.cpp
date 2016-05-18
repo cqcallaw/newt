@@ -50,6 +50,10 @@ const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetTypeSpecifier()
 	}
 }
 
+const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() const {
+	return GetInitializerExpression()->GetPosition();
+}
+
 const ErrorListRef InferredDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();

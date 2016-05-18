@@ -199,3 +199,7 @@ const DeclarationStatement* MaybeDeclarationStatement::WithInitializerExpression
 const_shared_ptr<TypeSpecifier> MaybeDeclarationStatement::GetTypeSpecifier() const {
 	return m_type_specifier;
 }
+
+const yy::location MaybeDeclarationStatement::GetTypeSpecifierLocation() const {
+	return m_type_specifier_location;
+}

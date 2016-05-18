@@ -43,6 +43,7 @@ public:
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
+	virtual const yy::location GetTypeSpecifierLocation() const;
 
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
