@@ -1,0 +1,9 @@
+# test default values for function members
+
+a {
+	f:=() -> int { return 3 }
+}
+
+v:=@a
+
+r := v.f()
