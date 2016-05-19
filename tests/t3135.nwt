@@ -1,0 +1,7 @@
+# test members that try to alias each other
+a {
+	b:a.c,
+	c:a.b
+}
+
+v:=@a
