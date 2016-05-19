@@ -1,0 +1,10 @@
+# test that default values for function members
+# can't reference other members without a qualifier, alternate ordering
+
+a {
+	f:=() -> int { return b },
+	b:int = 3
+}
+
+v:=@a
+r := v.f()
