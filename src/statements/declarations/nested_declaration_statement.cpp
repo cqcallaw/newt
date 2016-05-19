@@ -81,13 +81,11 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 				}
 			}
 		} else {
-			errors =
-					ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::UNDECLARED_TYPE,
-									GetInitializerExpression()->GetPosition().begin.line,
-									GetInitializerExpression()->GetPosition().begin.column,
-									m_type_specifier->ToString()), errors);
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
+							m_type_specifier_location.begin.line,
+							m_type_specifier_location.begin.column,
+							m_type_specifier->ToString()), errors);
 		}
 
 //		auto parent_type_specifier = m_type->GetParent();
