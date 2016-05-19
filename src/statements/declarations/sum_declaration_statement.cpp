@@ -47,9 +47,8 @@ SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 		const DeclarationListRef variant_list,
 		const yy::location variant_list_location) :
 		DeclarationStatement(position, name, name_location,
-				make_shared<DefaultValueExpression>(
-						DefaultValueExpression(GetDefaultLocation(),
-								type_specifier, variant_list_location)),
+				make_shared<DefaultValueExpression>(GetDefaultLocation(),
+						type_specifier, variant_list_location),
 				ModifierList::GetTerminator(), GetDefaultLocation()), m_variant_list(
 				variant_list), m_variant_list_location(variant_list_location), m_type(
 				make_shared<SumTypeSpecifier>(type_specifier)) {

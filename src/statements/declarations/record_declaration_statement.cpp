@@ -36,10 +36,8 @@ RecordDeclarationStatement::RecordDeclarationStatement(
 		const yy::location member_declaration_list_location,
 		ModifierListRef modifier_list, const yy::location modifiers_location) :
 		DeclarationStatement(position, name, name_location,
-				make_shared<DefaultValueExpression>(
-						DefaultValueExpression(GetDefaultLocation(),
-								type_specifier,
-								member_declaration_list_location)),
+				make_shared<DefaultValueExpression>(GetDefaultLocation(),
+						type_specifier, member_declaration_list_location),
 				modifier_list, modifiers_location), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_location(
 				member_declaration_list_location), m_type(type_specifier) {
