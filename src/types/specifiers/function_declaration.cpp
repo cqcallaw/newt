@@ -56,9 +56,10 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 		ostringstream buf;
 		const_shared_ptr<TypeSpecifier> data = subject->GetData();
 		buf << "Arg" << count;
+		auto parameter_type = data->GetType(type_table);
 		result = DeclarationList::From(
-				data->GetType(type_table)->GetDeclarationStatement(
-						GetDefaultLocation(), data, GetDefaultLocation(),
+				parameter_type->GetDeclarationStatement(GetDefaultLocation(),
+						data, GetDefaultLocation(),
 						const_shared_ptr<string>(new string(buf.str())),
 						GetDefaultLocation(), nullptr), result);
 		count++;
