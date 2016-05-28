@@ -69,24 +69,9 @@ const_shared_ptr<Result> RecordType::Build(
 		auto declaration_errors = ErrorList::GetTerminator();
 		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
 
-		//enforce nullability of recursive members
 		auto declaration_type_specifier = declaration->GetTypeSpecifier();
-		auto existing_type = declaration_type_specifier->GetType(
-				context_type_table);
-		auto as_placeholder = dynamic_pointer_cast<const PlaceholderType>(
-				existing_type);
-		if (as_placeholder) {
-			auto as_maybe_specifier = dynamic_pointer_cast<
-					const MaybeTypeSpecifier>(declaration_type_specifier);
-			if (!as_maybe_specifier) {
-				declaration_errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::RECURSIVE_MEMBERS_MUST_BE_NULLABLE,
-								declaration->GetNameLocation().begin.line,
-								declaration->GetNameLocation().begin.column),
-						declaration_errors);
-			}
-		}
+		declaration_errors = declaration_type_specifier->ValidateDeclaration(
+				context->GetTypeTable(), declaration->GetNameLocation());
 
 		auto member_name = declaration->GetName();
 		auto existing_member_type = type_table->GetType<TypeDefinition>(

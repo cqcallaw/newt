@@ -23,6 +23,7 @@
 #include <maybe_type_specifier.h>
 #include <unit_type.h>
 #include <stack>
+#include <placeholder_type.h>
 
 const_shared_ptr<ComplexTypeSpecifier> ComplexTypeSpecifier::Build(
 		const_shared_ptr<ComplexTypeSpecifier> parent,
@@ -185,4 +186,20 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeWidening(
 	}
 
 	return INCOMPATIBLE;
+}
+
+const ErrorListRef ComplexTypeSpecifier::ValidateDeclaration(
+		const TypeTable& type_table, const yy::location position) const {
+	auto existing_type = GetType(type_table);
+	auto as_placeholder = dynamic_pointer_cast<const PlaceholderType>(
+			existing_type);
+	if (as_placeholder) {
+		return ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::RAW_RECURSIVE_REFERENCE,
+						position.begin.line, position.begin.column),
+				ErrorList::GetTerminator());
+	}
+
+	return ErrorList::GetTerminator();
 }

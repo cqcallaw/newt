@@ -1,0 +1,6 @@
+# test type alias with recursion of function parameter that isn't a maybe type
+a {
+	f:(a.f) -> int
+}
+
+v:=@a

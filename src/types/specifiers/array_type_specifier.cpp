@@ -68,3 +68,8 @@ const_shared_ptr<TypeDefinition> ArrayTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
 	return m_type;
 }
+
+const ErrorListRef ArrayTypeSpecifier::ValidateDeclaration(
+		const TypeTable& type_table, const yy::location position) const {
+	return m_element_type_specifier->ValidateDeclaration(type_table, position);
+}

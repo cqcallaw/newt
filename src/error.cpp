@@ -207,8 +207,8 @@ const string Error::get_error_message() const {
 	case EXTRANEOUS_DEFAULT_MATCH:
 		os << "Complete match; default match block well never execute.";
 		break;
-	case RECURSIVE_MEMBERS_MUST_BE_NULLABLE:
-		os << "Recursive members must be Maybe types.";
+	case RAW_RECURSIVE_REFERENCE:
+		os << "Specification of containing type requires Maybe type specifier.";
 		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";

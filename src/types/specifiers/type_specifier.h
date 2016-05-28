@@ -26,6 +26,7 @@
 #include <alias_resolution.h>
 #include <analysis_result.h>
 #include <type_definition.h>
+#include <error.h>
 
 class Expression;
 class DeclarationStatement;
@@ -45,6 +46,11 @@ public:
 	virtual const AnalysisResult AnalyzeAssignmentTo(
 			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const = 0;
+
+	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
+			const yy::location position) const {
+		return ErrorList::GetTerminator();
+	}
 
 	virtual bool operator==(const TypeSpecifier &other) const = 0;
 

@@ -1,5 +1,5 @@
 Parsing file ../tests/t3134.nwt...
-Semantic error on line 4, column 2: Recursive members must be Maybe types.
+Semantic error on line 4, column 2: Specification of containing type requires Maybe type specifier.
 Semantic error on line 7, column 5: Invalid type "a".
 Parsed file ../tests/t3134.nwt.
 2 errors found; giving up.

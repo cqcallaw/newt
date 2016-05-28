@@ -89,7 +89,7 @@ public:
 		MATCH_FAILURE,
 		DUPLICATE_MATCH_BLOCK,
 		EXTRANEOUS_DEFAULT_MATCH,
-		RECURSIVE_MEMBERS_MUST_BE_NULLABLE
+		RAW_RECURSIVE_REFERENCE
 	};
 
 	Error(ErrorClass error_class, ErrorCode code, int line_number,
