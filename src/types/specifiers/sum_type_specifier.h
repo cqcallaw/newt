@@ -26,26 +26,30 @@ class RecordTypeSpecifier;
 
 class SumTypeSpecifier: public ComplexTypeSpecifier {
 public:
-	SumTypeSpecifier(const_shared_ptr<std::string> type_name) :
+	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const yy::location location = GetDefaultLocation()) :
 			SumTypeSpecifier(type_name, nullptr,
-					NamespaceQualifierList::GetTerminator()) {
-	}
-
-	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
-			const_shared_ptr<ComplexTypeSpecifier> container) :
-			SumTypeSpecifier(type_name, container,
-					NamespaceQualifierList::GetTerminator()) {
-	}
-
-	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
-			const NamespaceQualifierListRef space) :
-			SumTypeSpecifier(type_name, nullptr, space) {
+					NamespaceQualifierList::GetTerminator(), location) {
 	}
 
 	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
-			const NamespaceQualifierListRef space) :
-			ComplexTypeSpecifier(type_name, container, space) {
+			const yy::location location = GetDefaultLocation()) :
+			SumTypeSpecifier(type_name, container,
+					NamespaceQualifierList::GetTerminator(), location) {
+	}
+
+	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const NamespaceQualifierListRef space, const yy::location location =
+					GetDefaultLocation()) :
+			SumTypeSpecifier(type_name, nullptr, space, location) {
+	}
+
+	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			const NamespaceQualifierListRef space, const yy::location location =
+					GetDefaultLocation()) :
+			ComplexTypeSpecifier(type_name, container, space, location) {
 	}
 
 	SumTypeSpecifier(const ComplexTypeSpecifier& complex);

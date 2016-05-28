@@ -37,9 +37,9 @@
 FunctionTypeSpecifier::FunctionTypeSpecifier(
 		TypeSpecifierListRef parameter_type_list,
 		const_shared_ptr<TypeSpecifier> return_type,
-		const yy::location return_type_location) :
-		m_parameter_type_list(parameter_type_list), m_return_type(return_type), m_return_type_location(
-				return_type_location) {
+		const yy::location return_type_location, const yy::location location) :
+		TypeSpecifier(location), m_parameter_type_list(parameter_type_list), m_return_type(
+				return_type), m_return_type_location(return_type_location) {
 }
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(const FunctionTypeSpecifier& other) :

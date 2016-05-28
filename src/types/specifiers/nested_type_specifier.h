@@ -27,11 +27,13 @@ class ComplexTypeSpecifier;
 class NestedTypeSpecifier: public TypeSpecifier {
 public:
 	NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,
-			const_shared_ptr<std::string> member_name);
+			const_shared_ptr<std::string> member_name,
+			const yy::location location = GetDefaultLocation());
 	virtual ~NestedTypeSpecifier();
 
 	virtual const std::string ToString() const;
-	virtual const AnalysisResult AnalyzeAssignmentTo(const_shared_ptr<TypeSpecifier> other,
+	virtual const AnalysisResult AnalyzeAssignmentTo(
+			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;

@@ -375,7 +375,7 @@ function_type_specifier:
 	LPAREN optional_anonymous_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
 		const TypeSpecifierListRef type_list = TypeSpecifierList::Reverse($2);
-		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @5);
+		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @5, @$);
 	}
 	;
 
@@ -383,12 +383,12 @@ function_type_specifier:
 complex_type_specifier:
 	IDENTIFIER
 	{
-		$$ = make_shared<RecordTypeSpecifier>($1);
+		$$ = make_shared<RecordTypeSpecifier>($1, @$);
 	}
 	| namespace_qualifier_list IDENTIFIER
 	{
 		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
-		$$ = make_shared<RecordTypeSpecifier>($2, namespace_qualifier_list);
+		$$ = make_shared<RecordTypeSpecifier>($2, namespace_qualifier_list, @$);
 	}
 	;
 
@@ -396,11 +396,11 @@ complex_type_specifier:
 nested_type_specifier:
 	complex_type_specifier PERIOD IDENTIFIER
 	{
-		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+		$$ = make_shared<NestedTypeSpecifier>($1, $3, @$);
 	}
 	| nested_type_specifier PERIOD IDENTIFIER
 	{
-		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+		$$ = make_shared<NestedTypeSpecifier>($1, $3, @$);
 	}
 	;
 

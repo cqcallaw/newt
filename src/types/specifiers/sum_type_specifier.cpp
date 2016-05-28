@@ -25,12 +25,13 @@
 #include <sum_type.h>
 
 SumTypeSpecifier::SumTypeSpecifier(const ComplexTypeSpecifier& complex) :
-		SumTypeSpecifier(complex.GetTypeName(), complex.GetNamespace()) {
+		SumTypeSpecifier(complex.GetTypeName(), complex.GetContainer(),
+				complex.GetNamespace(), complex.GetLocation()) {
 }
 
 SumTypeSpecifier::SumTypeSpecifier(
 		const_shared_ptr<ComplexTypeSpecifier> complex) :
-		SumTypeSpecifier(complex->GetTypeName(), complex->GetNamespace()) {
+		SumTypeSpecifier(*complex) {
 }
 
 const AnalysisResult SumTypeSpecifier::AnalyzeAssignmentTo(

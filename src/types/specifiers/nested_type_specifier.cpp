@@ -28,8 +28,8 @@
 #include <record_type_specifier.h>
 
 NestedTypeSpecifier::NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,
-		const_shared_ptr<std::string> member_name) :
-		m_parent(parent), m_member_name(member_name) {
+		const_shared_ptr<std::string> member_name, const yy::location location) :
+		TypeSpecifier(location), m_parent(parent), m_member_name(member_name) {
 }
 
 NestedTypeSpecifier::~NestedTypeSpecifier() {

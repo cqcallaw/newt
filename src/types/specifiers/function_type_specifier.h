@@ -30,7 +30,8 @@ class FunctionTypeSpecifier: public TypeSpecifier {
 public:
 	FunctionTypeSpecifier(TypeSpecifierListRef parameter_type_list,
 			const_shared_ptr<TypeSpecifier> return_type,
-			const yy::location m_return_type_location);
+			const yy::location return_type_location,
+			const yy::location location = GetDefaultLocation());
 	FunctionTypeSpecifier(const FunctionTypeSpecifier& other);
 	virtual ~FunctionTypeSpecifier();
 

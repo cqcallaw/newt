@@ -34,6 +34,10 @@ class Symbol;
 
 class TypeSpecifier {
 public:
+	TypeSpecifier(const yy::location location = GetDefaultLocation()) :
+			m_location(location) {
+	}
+
 	virtual ~TypeSpecifier() {
 	}
 
@@ -65,6 +69,13 @@ public:
 
 		return nullptr;
 	}
+
+	const yy::location GetLocation() const {
+		return m_location;
+	}
+
+private:
+	const yy::location m_location;
 };
 
 typedef const LinkedList<const TypeSpecifier, ALLOW_DUPLICATES> TypeSpecifierList;
