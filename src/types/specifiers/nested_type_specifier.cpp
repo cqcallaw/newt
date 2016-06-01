@@ -95,9 +95,8 @@ const ErrorListRef NestedTypeSpecifier::ValidateDeclaration(
 	if (as_placeholder) {
 		return ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::RAW_RECURSIVE_REFERENCE,
-						position.begin.line, position.begin.column),
-				ErrorList::GetTerminator());
+						Error::RAW_RECURSIVE_DECLARATION, position.begin.line,
+						position.begin.column), ErrorList::GetTerminator());
 	}
 
 	return ErrorList::GetTerminator();

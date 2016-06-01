@@ -196,7 +196,7 @@ const ErrorListRef ComplexTypeSpecifier::ValidateDeclaration(
 	if (as_placeholder) {
 		return ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::RAW_RECURSIVE_REFERENCE,
+						Error::RAW_RECURSIVE_DECLARATION,
 						position.begin.line, position.begin.column),
 				ErrorList::GetTerminator());
 	}
