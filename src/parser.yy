@@ -908,7 +908,7 @@ struct_body:
 	IDENTIFIER LBRACE declaration_list RBRACE
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1, @$);
 		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 
