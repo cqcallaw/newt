@@ -64,9 +64,9 @@ const AnalysisResult ArrayTypeSpecifier::AnalyzeAssignmentTo(
 	return INCOMPATIBLE;
 }
 
-const_shared_ptr<TypeDefinition> ArrayTypeSpecifier::GetType(
+const_shared_ptr<Result> ArrayTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	return m_type;
+	return make_shared<Result>(m_type, ErrorList::GetTerminator());
 }
 
 const ErrorListRef ArrayTypeSpecifier::ValidateDeclaration(

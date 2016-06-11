@@ -107,13 +107,24 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const_shared_ptr<TypeDefinition> FunctionTypeSpecifier::GetType(
+const_shared_ptr<Result> FunctionTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	auto default_declaration = FunctionDeclaration::FromTypeSpecifier(*this,
-			type_table);
-	return make_shared<const FunctionType>(
-			default_declaration->GetParameterList(), m_return_type,
-			m_return_type_location);
+	ErrorListRef errors = ErrorList::GetTerminator();
+
+	auto default_declaration_result = FunctionDeclaration::FromTypeSpecifier(
+			*this, type_table);
+	errors = default_declaration_result->GetErrors();
+
+	plain_shared_ptr<FunctionType> type = nullptr;
+	if (ErrorList::IsTerminator(errors)) {
+		auto default_declaration = default_declaration_result->GetData<
+				FunctionDeclaration>();
+		type = make_shared<const FunctionType>(
+				default_declaration->GetParameterList(), m_return_type,
+				m_return_type_location);
+	}
+
+	return make_shared<Result>(type, errors);
 }
 
 const ErrorListRef FunctionTypeSpecifier::ValidateDeclaration(

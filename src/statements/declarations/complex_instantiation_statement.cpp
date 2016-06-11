@@ -52,10 +52,13 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type = m_type_specifier->GetType(execution_context->GetTypeTable());
-	if (type) {
-		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
+	auto type_result = m_type_specifier->GetType(
+			execution_context->GetTypeTable());
 
+	errors = type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto type = type_result->GetData<TypeDefinition>();
+		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 		if (as_complex) {
 			auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 			if (existing == Symbol::GetDefaultSymbol()) {
@@ -94,13 +97,6 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 							m_type_specifier_location.begin.column,
 							m_type_specifier->ToString()), errors);
 		}
-	} else {
-		//type does not exist
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						m_type_specifier_location.begin.line,
-						m_type_specifier_location.begin.column,
-						m_type_specifier->ToString()), errors);
 	}
 
 	return errors;
@@ -114,20 +110,24 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<TypeDefinition> type = m_type_specifier->GetType(
+	auto type_result = m_type_specifier->GetType(
 			execution_context->GetTypeTable(), RESOLVE);
 
-	auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
-	if (as_complex) {
-		errors = as_complex->Instantiate(execution_context, m_type_specifier,
-				GetName(), GetInitializerExpression());
-	} else {
-		//type does not exist
-		errors = ErrorList::From(
-				make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_TYPE,
-						m_type_specifier_location.begin.line,
-						m_type_specifier_location.begin.column,
-						m_type_specifier->ToString()), errors);
+	errors = type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto type = type_result->GetData<TypeDefinition>();
+		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
+		if (as_complex) {
+			errors = as_complex->Instantiate(execution_context,
+					m_type_specifier, GetName(), GetInitializerExpression());
+		} else {
+			//type does not exist
+			errors = ErrorList::From(
+					make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_TYPE,
+							m_type_specifier_location.begin.line,
+							m_type_specifier_location.begin.column,
+							m_type_specifier->ToString()), errors);
+		}
 	}
 
 	return errors;

@@ -50,8 +50,9 @@ const std::string MaybeType::ValueToString(const TypeTable& type_table,
 	buffer << "{" << *tag << "}";
 	if (*tag == *MaybeTypeSpecifier::EMPTY_NAME) {
 	} else if (*tag == *MaybeTypeSpecifier::VARIANT_NAME) {
-		auto type = m_base_type_specifier->GetType(type_table, RESOLVE);
-		if (type) {
+		auto type_result = m_base_type_specifier->GetType(type_table, RESOLVE);
+		if (ErrorList::IsTerminator(type_result->GetErrors())) {
+			auto type = type_result->GetData<TypeDefinition>();
 			auto inner_value = sum_instance->GetValue();
 			buffer << type->GetValueSeparator(indent, inner_value.get());
 			buffer << type->ValueToString(type_table, indent + 1, inner_value);
@@ -80,7 +81,8 @@ const std::string MaybeType::GetValueSeparator(const Indent& indent,
 
 const_shared_ptr<TypeSpecifier> MaybeType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<ComplexTypeSpecifier> container,
+		yy::location location) const {
 	return make_shared<MaybeTypeSpecifier>(m_base_type_specifier);
 }
 

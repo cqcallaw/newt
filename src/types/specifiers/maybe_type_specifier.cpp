@@ -64,9 +64,9 @@ bool MaybeTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const_shared_ptr<TypeDefinition> MaybeTypeSpecifier::GetType(
+const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	return m_type;
+	return make_shared<Result>(m_type, ErrorList::GetTerminator());
 }
 
 const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(

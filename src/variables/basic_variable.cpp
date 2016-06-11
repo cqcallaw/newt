@@ -109,8 +109,14 @@ const ErrorListRef BasicVariable::AssignValue(
 	const_shared_ptr<TypeSpecifier> symbol_type_specifier =
 			symbol->GetTypeSpecifier();
 
-	auto symbol_type = symbol_type_specifier->GetType(
+	auto symbol_type_result = symbol_type_specifier->GetType(
 			output_context->GetTypeTable(), RESOLVE);
+	errors = symbol_type_result->GetErrors();
+	if (!ErrorList::IsTerminator(errors)) {
+		return errors;
+	}
+
+	auto symbol_type = symbol_type_result->GetData<TypeDefinition>();
 	auto symbol_value = symbol->GetValue();
 
 	const_shared_ptr<PrimitiveType> as_primitive = dynamic_pointer_cast<
@@ -249,9 +255,12 @@ const ErrorListRef BasicVariable::AssignValue(
 						symbol_specifier_as_complex;
 				if (container) {
 					//look up the symbol type in the _source_ context instead of the output context
-					auto symbol_type_outside = symbol_type_specifier->GetType(
-							context->GetTypeTable(), RESOLVE);
-					if (!symbol_type_outside) {
+					auto symbol_type_outside_result =
+							symbol_type_specifier->GetType(
+									context->GetTypeTable(), RESOLVE);
+
+					if (!ErrorList::IsTerminator(
+							symbol_type_outside_result->GetErrors())) {
 						//qualify the symbol type: it's an inline type
 						fully_qualified_symbol_type_specifier =
 								ComplexTypeSpecifier::Build(container,
@@ -329,30 +338,42 @@ const ErrorListRef BasicVariable::AssignValue(
 				plain_shared_ptr<void> data =
 						expression_evaluation->GetRawData();
 				auto base_type_specifier = as_maybe->GetBaseTypeSpecifier();
-				auto base_type = base_type_specifier->GetType(
+				auto base_type_result = base_type_specifier->GetType(
 						context->GetTypeTable(), RESOLVE);
-				auto base_as_sum = dynamic_pointer_cast<const SumType>(
-						base_type);
-				if (base_as_sum) {
-					//TODO: allow this widening process to be recursive
-					auto sum_type_specifier = static_pointer_cast<
-							const ComplexTypeSpecifier>(base_type_specifier);
-					auto base_tag = base_as_sum->MapSpecifierToVariant(
-							*sum_type_specifier, *expression_type_specifier);
-					assert(*base_tag != "");
-					data = make_shared<Sum>(base_tag, data);
-				} else {
-					//TODO: generalize this widening conversion process to more than sum types
-					assert(false);
-				}
 
-				new_sum = make_shared<Sum>(MaybeTypeSpecifier::VARIANT_NAME,
-						data);
+				auto base_type_errors = base_type_result->GetErrors();
+				if (ErrorList::IsTerminator(base_type_errors)) {
+					auto base_type =
+							base_type_result->GetData<TypeDefinition>();
+					auto base_as_sum = dynamic_pointer_cast<const SumType>(
+							base_type);
+					if (base_as_sum) {
+						//TODO: allow this widening process to be recursive
+						auto sum_type_specifier = static_pointer_cast<
+								const ComplexTypeSpecifier>(
+								base_type_specifier);
+						auto base_tag = base_as_sum->MapSpecifierToVariant(
+								*sum_type_specifier,
+								*expression_type_specifier);
+						assert(*base_tag != "");
+						data = make_shared<Sum>(base_tag, data);
+					} else {
+						//TODO: generalize this widening conversion process to more than sum types
+						assert(false);
+					}
+
+					new_sum = make_shared<Sum>(MaybeTypeSpecifier::VARIANT_NAME,
+							data);
+				} else {
+					errors = ErrorList::Concatenate(errors, base_type_errors);
+				}
 			} else {
 				assert(false);
 			}
 
-			errors = SetSymbol(output_context, as_maybe, new_sum);
+			if (ErrorList::IsTerminator(errors)) {
+				errors = SetSymbol(output_context, as_maybe, new_sum);
+			}
 		}
 	}
 

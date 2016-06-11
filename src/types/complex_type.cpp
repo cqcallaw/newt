@@ -60,8 +60,12 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 					initializer);
 		}
 	} else {
-		auto type = type_specifier->GetType(type_table);
-		value = type->GetDefaultValue(type_table);
+		auto type_result = type_specifier->GetType(type_table);
+		errors = type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type = type_result->GetData<TypeDefinition>();
+			value = type->GetDefaultValue(type_table);
+		}
 	}
 
 	if (ErrorList::IsTerminator(errors)) {

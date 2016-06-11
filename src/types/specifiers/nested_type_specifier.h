@@ -41,9 +41,8 @@ public:
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	const_shared_ptr<TypeSpecifier> GetParent() const {
 		return m_parent;

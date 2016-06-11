@@ -49,9 +49,11 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 	auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		auto type_table = execution_context->GetTypeTable();
-		auto type = m_type_specifier->GetType(type_table);
+		auto type_result = m_type_specifier->GetType(type_table);
 
-		if (type) {
+		errors = type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type = type_result->GetData<TypeDefinition>();
 			shared_ptr<const Symbol> symbol = Symbol::GetDefaultSymbol();
 			auto initializer_expression = GetInitializerExpression();
 			if (initializer_expression) {
@@ -80,12 +82,6 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 					assert(false);
 				}
 			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							m_type_specifier_location.begin.line,
-							m_type_specifier_location.begin.column,
-							m_type_specifier->ToString()), errors);
 		}
 
 //		auto parent_type_specifier = m_type->GetParent();

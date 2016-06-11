@@ -93,8 +93,10 @@ const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 
 const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
-	return PrimitiveTypeSpecifier::FromBasicType(m_type);
+		const_shared_ptr<ComplexTypeSpecifier> container,
+		yy::location location) const {
+	auto specifier = make_shared<PrimitiveTypeSpecifier>(m_type, location);
+	return specifier;
 }
 
 const std::string PrimitiveType::GetValueSeparator(const Indent& indent,

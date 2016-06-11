@@ -98,6 +98,14 @@ public:
 
 	const string ToString() const;
 
+	const ErrorCode GetCode() const {
+		return m_code;
+	}
+
+	const ErrorClass GetErrorClass() const {
+		return m_error_class;
+	}
+
 protected:
 	static void error_core(ostream &os, ErrorCode code, string s1 = "",
 			string s2 = "", string s3 = "");

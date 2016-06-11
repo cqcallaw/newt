@@ -48,9 +48,8 @@ public:
 		return m_element_type_specifier;
 	}
 
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_element_type_specifier;

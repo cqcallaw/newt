@@ -69,11 +69,12 @@ const_shared_ptr<Result> RecordType::Build(
 		auto declaration_errors = ErrorList::GetTerminator();
 		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
 
+		auto member_name = declaration->GetName();
+
 		auto declaration_type_specifier = declaration->GetTypeSpecifier();
 		declaration_errors = declaration_type_specifier->ValidateDeclaration(
 				context->GetTypeTable(), declaration->GetNameLocation());
 
-		auto member_name = declaration->GetName();
 		auto existing_member_type = type_table->GetType<TypeDefinition>(
 				member_name, SHALLOW, RETURN);
 
@@ -126,28 +127,37 @@ const_shared_ptr<Result> RecordType::Build(
 					const_shared_ptr<TypeSpecifier> type_specifier =
 							symbol->GetTypeSpecifier();
 
-					auto symbol_type = type_specifier->GetType(
+					auto symbol_type_result = type_specifier->GetType(
 							context_type_table);
-					auto as_recursive = dynamic_pointer_cast<
-							const PlaceholderType>(symbol_type);
-					plain_shared_ptr<AliasDefinition> alias = nullptr;
-					if (as_recursive) {
-						auto as_maybe_specifier = dynamic_pointer_cast<
-								const MaybeTypeSpecifier>(type_specifier);
-						if (as_maybe_specifier) {
-							alias = make_shared<AliasDefinition>(
-									context_type_table, type_specifier,
-									RECURSIVE, nullptr);
+					auto symbol_type_errors = symbol_type_result->GetErrors();
+					if (ErrorList::IsTerminator(symbol_type_errors)) {
+						auto symbol_type = symbol_type_result->GetData<
+								TypeDefinition>();
+						auto as_recursive = dynamic_pointer_cast<
+								const PlaceholderType>(symbol_type);
+						plain_shared_ptr<AliasDefinition> alias = nullptr;
+						if (as_recursive) {
+							auto as_maybe_specifier = dynamic_pointer_cast<
+									const MaybeTypeSpecifier>(type_specifier);
+							if (as_maybe_specifier) {
+								alias = make_shared<AliasDefinition>(
+										context_type_table, type_specifier,
+										RECURSIVE, nullptr);
+							} else {
+								assert(false);
+							}
 						} else {
-							assert(false);
+							auto value = symbol->GetValue();
+							alias = make_shared<AliasDefinition>(
+									context_type_table, type_specifier, DIRECT,
+									value);
 						}
-					} else {
-						auto value = symbol->GetValue();
-						alias = make_shared<AliasDefinition>(context_type_table,
-								type_specifier, DIRECT, value);
-					}
 
-					type_table->AddType(member_name, alias);
+						type_table->AddType(member_name, alias);
+					} else {
+						declaration_errors = ErrorList::Concatenate(
+								declaration_errors, symbol_type_errors);
+					}
 				}
 			}
 		} else {
@@ -251,8 +261,9 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 
 const_shared_ptr<TypeSpecifier> RecordType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
-	return make_shared<RecordTypeSpecifier>(name, container);
+		const_shared_ptr<ComplexTypeSpecifier> container,
+		yy::location location) const {
+	return make_shared<RecordTypeSpecifier>(name, container, location);
 }
 
 const SetResult RecordType::InstantiateCore(

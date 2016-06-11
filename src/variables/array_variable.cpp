@@ -86,57 +86,66 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 	ErrorListRef errors = base_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto base_type_specifier = m_base_variable->GetTypeSpecifier(context);
-		auto base_type = base_type_specifier->GetType(context->GetTypeTable());
+		auto base_type_result = base_type_specifier->GetType(
+				context->GetTypeTable());
 
-		auto base_type_as_array = dynamic_pointer_cast<const ArrayType>(
-				base_type);
-		if (base_type_as_array) {
-			array = base_evaluation->GetData<Array>();
-			const_shared_ptr<TypeSpecifier> index_expression_type =
-					m_expression->GetTypeSpecifier(context);
-			auto index_analysis = index_expression_type->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
-			if (index_analysis == EQUIVALENT || index_analysis == UNAMBIGUOUS) {
-				const_shared_ptr<Result> index_expression_evaluation =
-						m_expression->Evaluate(context);
-				errors = index_expression_evaluation->GetErrors();
-				if (ErrorList::IsTerminator(errors)) {
-					const int i = *(index_expression_evaluation->GetData<int>());
+		errors = base_type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto base_type = base_type_result->GetData<TypeDefinition>();
+			auto base_type_as_array = dynamic_pointer_cast<const ArrayType>(
+					base_type);
+			if (base_type_as_array) {
+				array = base_evaluation->GetData<Array>();
+				const_shared_ptr<TypeSpecifier> index_expression_type =
+						m_expression->GetTypeSpecifier(context);
+				auto index_analysis =
+						index_expression_type->AnalyzeAssignmentTo(
+								PrimitiveTypeSpecifier::GetInt(),
+								context->GetTypeTable());
+				if (index_analysis == EQUIVALENT
+						|| index_analysis == UNAMBIGUOUS) {
+					const_shared_ptr<Result> index_expression_evaluation =
+							m_expression->Evaluate(context);
+					errors = index_expression_evaluation->GetErrors();
+					if (ErrorList::IsTerminator(errors)) {
+						const int i =
+								*(index_expression_evaluation->GetData<int>());
 
-					if (i >= 0) {
-						array_index = i;
-						index_location = m_expression->GetPosition();
-					} else {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-												m_expression->GetPosition().begin.line,
-												m_expression->GetPosition().begin.column,
-												*(m_base_variable->ToString(
-														context)),
-												*AsString(i)), errors);
+						if (i >= 0) {
+							array_index = i;
+							index_location = m_expression->GetPosition();
+						} else {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+													m_expression->GetPosition().begin.line,
+													m_expression->GetPosition().begin.column,
+													*(m_base_variable->ToString(
+															context)),
+													*AsString(i)), errors);
+						}
 					}
+				} else {
+					ostringstream buffer;
+					buffer << "A " << index_expression_type->ToString()
+							<< " expression";
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
+									m_expression->GetPosition().begin.line,
+									m_expression->GetPosition().begin.column,
+									*(m_base_variable->ToString(context)),
+									buffer.str()), errors);
 				}
 			} else {
-				ostringstream buffer;
-				buffer << "A " << index_expression_type->ToString()
-						<< " expression";
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-								index_location.begin.line,
-								index_location.begin.column,
-								*(m_base_variable->ToString(context)),
-								buffer.str()), errors);
+								Error::VARIABLE_NOT_AN_ARRAY,
+								GetLocation().begin.line,
+								GetLocation().begin.column,
+								*(m_base_variable->ToString(context))), errors);
 			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::VARIABLE_NOT_AN_ARRAY,
-							GetLocation().begin.line,
-							GetLocation().begin.column,
-							*(m_base_variable->ToString(context))), errors);
 		}
 	}
 
@@ -401,14 +410,20 @@ const ErrorListRef ArrayVariable::SetSymbol(
 const_shared_ptr<TypeSpecifier> ArrayVariable::GetElementType(
 		const shared_ptr<ExecutionContext> context) const {
 	auto base_type_specifier = m_base_variable->GetTypeSpecifier(context);
-	auto base_type = base_type_specifier->GetType(context->GetTypeTable());
+	auto base_type_result = base_type_specifier->GetType(
+			context->GetTypeTable());
 
-	auto as_array = dynamic_pointer_cast<const ArrayType>(base_type);
-	if (as_array) {
-		return as_array->GetMemberTypeSpecifier();
-	} else {
-		return PrimitiveTypeSpecifier::GetNone();
+	auto errors = base_type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto base_type = base_type_result->GetData<TypeDefinition>();
+		auto base_type_as_array = dynamic_pointer_cast<const ArrayType>(
+				base_type);
+		if (base_type_as_array) {
+			return base_type_as_array->GetMemberTypeSpecifier();
+		}
 	}
+
+	return PrimitiveTypeSpecifier::GetNone();
 }
 
 const ErrorListRef ArrayVariable::SetSymbolCore(
@@ -485,17 +500,23 @@ const ErrorListRef ArrayVariable::Validate(
 		if (index_analysis == EQUIVALENT || index_analysis == UNAMBIGUOUS) {
 			auto base_type_specifier = m_base_variable->GetTypeSpecifier(
 					context);
-			auto base_type = base_type_specifier->GetType(
+			auto base_type_result = base_type_specifier->GetType(
 					context->GetTypeTable());
 
-			auto as_array = dynamic_pointer_cast<const ArrayType>(base_type);
-			if (!as_array) {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::VARIABLE_NOT_AN_ARRAY,
-								m_expression->GetPosition().begin.line,
-								m_expression->GetPosition().begin.column,
-								*(m_base_variable->ToString(context))), errors);
+			errors = base_type_result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto base_type = base_type_result->GetData<TypeDefinition>();
+				auto base_type_as_array = dynamic_pointer_cast<const ArrayType>(
+						base_type);
+				if (!base_type_as_array) {
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::VARIABLE_NOT_AN_ARRAY,
+									m_expression->GetPosition().begin.line,
+									m_expression->GetPosition().begin.column,
+									*(m_base_variable->ToString(context))),
+							errors);
+				}
 			}
 		} else {
 			ostringstream buffer;

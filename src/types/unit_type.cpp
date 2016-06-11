@@ -54,9 +54,10 @@ const std::string UnitType::GetValueSeparator(const Indent& indent,
 
 const_shared_ptr<TypeSpecifier> UnitType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<ComplexTypeSpecifier> container,
+		yy::location location) const {
 	return make_shared<ComplexTypeSpecifier>(name, container,
-			NamespaceQualifierList::GetTerminator());
+			NamespaceQualifierList::GetTerminator(), location);
 }
 
 const_shared_ptr<Symbol> UnitType::GetSymbol(const TypeTable& type_table,

@@ -22,11 +22,11 @@
 
 #include <defaults.h>
 #include <string>
-#include <linked_list.h>
 #include <alias_resolution.h>
 #include <analysis_result.h>
 #include <type_definition.h>
 #include <error.h>
+#include <result.h>
 
 class Expression;
 class DeclarationStatement;
@@ -58,9 +58,8 @@ public:
 		return !(*this == other);
 	}
 
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const = 0;
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const = 0;
 
 	virtual const AnalysisResult AnalyzeWidening(const TypeTable& type_table,
 			const TypeSpecifier& other) const {
@@ -68,8 +67,11 @@ public:
 	}
 
 	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const {
-		auto type = GetType(type_table, RESOLVE);
-		if (type) {
+		auto type_result = GetType(type_table, RESOLVE);
+
+		auto errors = type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type = type_result->GetData<TypeDefinition>();
 			return type->GetDefaultValue(type_table);
 		}
 

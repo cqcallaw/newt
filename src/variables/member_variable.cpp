@@ -46,12 +46,14 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 	shared_ptr<const void> value = nullptr;
 	auto type_table = *context->GetTypeTable();
 
-	auto type = container_type_specifier->GetType(type_table, RESOLVE);
-	if (type) {
-		auto member_name = m_member_variable->GetName();
+	auto type_result = container_type_specifier->GetType(type_table, RESOLVE);
 
+	auto errors = type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto type = type_result->GetData<TypeDefinition>();
 		auto as_record = dynamic_pointer_cast<const RecordType>(type);
 		if (as_record) {
+			auto member_name = m_member_variable->GetName();
 			auto member_type = as_record->GetDefinition()->GetType<
 					TypeDefinition>(*member_name, SHALLOW, RESOLVE);
 
@@ -392,30 +394,37 @@ const ErrorListRef MemberVariable::Validate(
 		const_shared_ptr<TypeSpecifier> container_type_specifier =
 				m_container->GetTypeSpecifier(context);
 
-		auto type = container_type_specifier->GetType(context->GetTypeTable(),
-				RESOLVE);
+		auto type_result = container_type_specifier->GetType(
+				context->GetTypeTable(), RESOLVE);
 
-		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
-		if (as_complex) {
-			auto member_definition = as_complex->GetDefinition()->GetType<
-					TypeDefinition>(m_member_variable->GetName(), SHALLOW,
-					RESOLVE);
-			if (!member_definition) {
+		errors = type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type = type_result->GetData<TypeDefinition>();
+			auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
+			if (as_complex) {
+				auto member_definition = as_complex->GetDefinition()->GetType<
+						TypeDefinition>(m_member_variable->GetName(), SHALLOW,
+						RESOLVE);
+				if (!member_definition) {
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::UNDECLARED_MEMBER,
+											m_member_variable->GetLocation().begin.line,
+											m_member_variable->GetLocation().begin.column,
+											*m_member_variable->ToString(
+													context),
+											container_type_specifier->ToString()),
+									errors);
+				}
+			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::UNDECLARED_MEMBER,
-								m_member_variable->GetLocation().begin.line,
-								m_member_variable->GetLocation().begin.column,
-								*m_member_variable->ToString(context),
-								container_type_specifier->ToString()), errors);
+								Error::NOT_A_COMPOUND_TYPE,
+								m_container->GetLocation().begin.line,
+								m_container->GetLocation().begin.column,
+								*m_container->ToString(context)), errors);
 			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::NOT_A_COMPOUND_TYPE,
-							m_container->GetLocation().begin.line,
-							m_container->GetLocation().begin.column,
-							*m_container->ToString(context)), errors);
 		}
 	} else {
 		auto as_sum_type = context->GetTypeTable()->GetType<SumType>(
