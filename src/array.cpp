@@ -19,68 +19,30 @@
 
 #include <array.h>
 #include <record.h>
+#include <primitive_type.h>
+#include <array_type.h>
+#include <record_type.h>
 
 const string Array::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream os;
 
-	const_shared_ptr<TypeSpecifier> element_type = GetElementTypeSpecifier();
 	int size = GetSize();
-
 	Indent child_indent = indent + 1;
 
-	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-					element_type);
-	if (as_primitive) {
-		const BasicType basic_type = as_primitive->GetBasicType();
-		switch (basic_type) {
-		case INT: {
-			for (int i = 0; i < size; i++) {
-				os << child_indent << "[" << i << "] "
-						<< *(GetValue<int>(i, type_table)) << endl;
-			}
-			break;
-		}
-		case DOUBLE: {
-			for (int i = 0; i < size; i++) {
-				os << child_indent << "[" << i << "] "
-						<< *(GetValue<double>(i, type_table)) << endl;
-			}
-			break;
-		}
-		case STRING: {
-			for (int i = 0; i < size; i++) {
-				os << child_indent << "[" << i << "] \""
-						<< *(GetValue<string>(i, type_table)) << "\"" << endl;
-			}
-			break;
-		}
-		default:
-			break;
-		}
-		os << "end array";
-	}
+	auto element_type_specifier = GetElementTypeSpecifier();
+	auto element_type_result = element_type_specifier->GetType(type_table,
+			RESOLVE);
 
-	const_shared_ptr<ArrayTypeSpecifier> as_array = std::dynamic_pointer_cast<
-			const ArrayTypeSpecifier>(element_type);
-	if (as_array) {
+	if (ErrorList::IsTerminator(element_type_result->GetErrors())) {
+		auto element_type = element_type_result->GetData<TypeDefinition>();
 		for (int i = 0; i < size; i++) {
-			auto sub_array = static_pointer_cast<const Array>(
-					GetValue<Array>(i, type_table));
-			os << child_indent << "[" << i << "]: " << endl
-					<< sub_array->ToString(type_table, child_indent);
-		}
-	}
-
-	const_shared_ptr<RecordTypeSpecifier> as_record = std::dynamic_pointer_cast<
-			const RecordTypeSpecifier>(element_type);
-	if (as_record) {
-		for (int i = 0; i < size; i++) {
-			auto instance = static_pointer_cast<const Record>(
-					GetValue<Record>(i, type_table));
-			os << child_indent << "[" << i << "]: " << endl
-					<< instance->ToString(type_table, child_indent + 1);
+			auto value = GetValue<void>(i, type_table);
+			auto value_string = element_type->ValueToString(type_table,
+					child_indent, value);
+			os << child_indent << "[" << i << "]";
+			os << element_type->GetValueSeparator(child_indent, value.get());
+			os << value_string << endl;
 		}
 	}
 

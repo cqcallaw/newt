@@ -11,16 +11,18 @@ circle my_circle:
 	int y: 0
 
 circle[] my_circles:
-	[0]: 
+	[0]
 		int radius: 0
 		int w: 20
 		int x: 10
 		int y: 0
-	[1]: 
+
+	[1]
 		int radius: 0
 		int w: 20
 		int x: 10
 		int y: 0
+
 
 
 Root Type Table:

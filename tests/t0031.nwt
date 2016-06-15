@@ -4,14 +4,14 @@ test {
 }
 
 mutable nested_container {
-	test: test[][]
+	member: test[][]
 }
 
 a: test[]
 a[1] = @test with { x = 12 }
 
 container: nested_container
-container.test[2] = a
+container.member[2] = a
 
 //container[] containers
 //containers[0] = @container

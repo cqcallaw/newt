@@ -8,13 +8,13 @@ int a_very_long_identifier: 0
 int an_identifier_with_digits_1234: 0
 int b: 0
 int[] nums2:
-end array
+
 string s1: ""
 string s2: ""
 string[] strings2:
-end array
+
 double[] values2:
-end array
+
 double x: 0
 double y: 0
 

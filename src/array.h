@@ -76,7 +76,7 @@ public:
 		}
 
 		const shared_ptr<const vector<shared_ptr<const void>>> wrapper = shared_ptr<const vector<shared_ptr<const void>>>(new_vector);
-		return const_shared_ptr<Array>(new Array(GetElementTypeSpecifier(), wrapper));
+		return make_shared<Array>(Array(GetElementTypeSpecifier(), wrapper));
 	}
 
 	const int GetSize() const {

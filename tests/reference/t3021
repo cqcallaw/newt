@@ -10,12 +10,15 @@ my_other_struct a:
 
 my_array_struct b:
 	my_struct[] arr:
-		[0]: 
+		[0]
 			double y: 0
-		[1]: 
+
+		[1]
 			double y: 0
-		[2]: 
+
+		[2]
 			double y: 42.1
+
 
 	int z: 0
 

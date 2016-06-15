@@ -64,7 +64,7 @@ int[] iii:
 	[4] 0
 	[5] 0
 	[6] 0
-end array
+
 int iiii: 2
 int myInt: 0
 double pi: 3.1415

@@ -7,7 +7,7 @@ int inc: 5
 int num_rects: 100
 int p: 110
 rectangle[] rects:
-	[0]: 
+	[0]
 		double blue: 0.29
 		double green: 0.22
 		int h: 50
@@ -15,7 +15,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 0
-	[1]: 
+
+	[1]
 		double blue: 0.51
 		double green: 0.14
 		int h: 50
@@ -23,7 +24,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 0
-	[2]: 
+
+	[2]
 		double blue: 0.59
 		double green: 0.37
 		int h: 50
@@ -31,7 +33,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 0
-	[3]: 
+
+	[3]
 		double blue: 0.98
 		double green: 0.76
 		int h: 50
@@ -39,7 +42,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 0
-	[4]: 
+
+	[4]
 		double blue: 0.4
 		double green: 0.6
 		int h: 50
@@ -47,7 +51,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 0
-	[5]: 
+
+	[5]
 		double blue: 0.5
 		double green: 0.98
 		int h: 50
@@ -55,7 +60,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 0
-	[6]: 
+
+	[6]
 		double blue: 0.35
 		double green: 0.59
 		int h: 50
@@ -63,7 +69,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 0
-	[7]: 
+
+	[7]
 		double blue: 0.5
 		double green: 0.85
 		int h: 50
@@ -71,7 +78,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 0
-	[8]: 
+
+	[8]
 		double blue: 0.77
 		double green: 0.14
 		int h: 50
@@ -79,7 +87,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 0
-	[9]: 
+
+	[9]
 		double blue: 0.99
 		double green: 0.57
 		int h: 50
@@ -87,7 +96,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 0
-	[10]: 
+
+	[10]
 		double blue: 0.81
 		double green: 0.49
 		int h: 50
@@ -95,7 +105,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 50
-	[11]: 
+
+	[11]
 		double blue: 0.38
 		double green: 0.68
 		int h: 50
@@ -103,7 +114,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 50
-	[12]: 
+
+	[12]
 		double blue: 0.97
 		double green: 0.97
 		int h: 50
@@ -111,7 +123,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 50
-	[13]: 
+
+	[13]
 		double blue: 0.49
 		double green: 0.42
 		int h: 50
@@ -119,7 +132,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 50
-	[14]: 
+
+	[14]
 		double blue: 0.8
 		double green: 0.85
 		int h: 50
@@ -127,7 +141,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 50
-	[15]: 
+
+	[15]
 		double blue: 0.49
 		double green: 0.33
 		int h: 50
@@ -135,7 +150,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 50
-	[16]: 
+
+	[16]
 		double blue: 0.06
 		double green: 0.42
 		int h: 50
@@ -143,7 +159,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 50
-	[17]: 
+
+	[17]
 		double blue: 0.69
 		double green: 0.58
 		int h: 50
@@ -151,7 +168,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 50
-	[18]: 
+
+	[18]
 		double blue: 0.78
 		double green: 0.93
 		int h: 50
@@ -159,7 +177,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 50
-	[19]: 
+
+	[19]
 		double blue: 0.53
 		double green: 0.37
 		int h: 50
@@ -167,7 +186,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 50
-	[20]: 
+
+	[20]
 		double blue: 0.78
 		double green: 0.54
 		int h: 50
@@ -175,7 +195,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 100
-	[21]: 
+
+	[21]
 		double blue: 0.26
 		double green: 0.44
 		int h: 50
@@ -183,7 +204,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 100
-	[22]: 
+
+	[22]
 		double blue: 0.68
 		double green: 0.38
 		int h: 50
@@ -191,7 +213,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 100
-	[23]: 
+
+	[23]
 		double blue: 0.08
 		double green: 0.81
 		int h: 50
@@ -199,7 +222,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 100
-	[24]: 
+
+	[24]
 		double blue: 0.41
 		double green: 0.67
 		int h: 50
@@ -207,7 +231,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 100
-	[25]: 
+
+	[25]
 		double blue: 0.09
 		double green: 0.68
 		int h: 50
@@ -215,7 +240,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 100
-	[26]: 
+
+	[26]
 		double blue: 0.38
 		double green: 0.2
 		int h: 50
@@ -223,7 +249,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 100
-	[27]: 
+
+	[27]
 		double blue: 0.37
 		double green: 0.47
 		int h: 50
@@ -231,7 +258,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 100
-	[28]: 
+
+	[28]
 		double blue: 0.64
 		double green: 0.32
 		int h: 50
@@ -239,7 +267,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 100
-	[29]: 
+
+	[29]
 		double blue: 0.27
 		double green: 0.21
 		int h: 50
@@ -247,7 +276,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 100
-	[30]: 
+
+	[30]
 		double blue: 0.58
 		double green: 0.4
 		int h: 50
@@ -255,7 +285,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 150
-	[31]: 
+
+	[31]
 		double blue: 0.33
 		double green: 0.42
 		int h: 50
@@ -263,7 +294,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 150
-	[32]: 
+
+	[32]
 		double blue: 0.66
 		double green: 0.64
 		int h: 50
@@ -271,7 +303,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 150
-	[33]: 
+
+	[33]
 		double blue: 0.71
 		double green: 0.53
 		int h: 50
@@ -279,7 +312,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 150
-	[34]: 
+
+	[34]
 		double blue: 0.64
 		double green: 0.46
 		int h: 50
@@ -287,7 +321,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 150
-	[35]: 
+
+	[35]
 		double blue: 0.48
 		double green: 0.12
 		int h: 50
@@ -295,7 +330,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 150
-	[36]: 
+
+	[36]
 		double blue: 0.9
 		double green: 0.36
 		int h: 50
@@ -303,7 +339,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 150
-	[37]: 
+
+	[37]
 		double blue: 0.55
 		double green: 0.52
 		int h: 50
@@ -311,7 +348,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 150
-	[38]: 
+
+	[38]
 		double blue: 0.96
 		double green: 0.98
 		int h: 50
@@ -319,7 +357,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 150
-	[39]: 
+
+	[39]
 		double blue: 0.8
 		double green: 0.23
 		int h: 50
@@ -327,7 +366,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 150
-	[40]: 
+
+	[40]
 		double blue: 0.87
 		double green: 0.81
 		int h: 50
@@ -335,7 +375,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 200
-	[41]: 
+
+	[41]
 		double blue: 0.62
 		double green: 0.88
 		int h: 50
@@ -343,7 +384,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 200
-	[42]: 
+
+	[42]
 		double blue: 0.9
 		double green: 0.36
 		int h: 50
@@ -351,7 +393,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 200
-	[43]: 
+
+	[43]
 		double blue: 0.23
 		double green: 0.97
 		int h: 50
@@ -359,7 +402,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 200
-	[44]: 
+
+	[44]
 		double blue: 0.39
 		double green: 0.31
 		int h: 50
@@ -367,7 +411,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 200
-	[45]: 
+
+	[45]
 		double blue: 0.92
 		double green: 0.14
 		int h: 50
@@ -375,7 +420,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 200
-	[46]: 
+
+	[46]
 		double blue: 0.15
 		double green: 0.5
 		int h: 50
@@ -383,7 +429,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 200
-	[47]: 
+
+	[47]
 		double blue: 0.32
 		double green: 0.81
 		int h: 50
@@ -391,7 +438,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 200
-	[48]: 
+
+	[48]
 		double blue: 0.47
 		double green: 0.52
 		int h: 50
@@ -399,7 +447,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 200
-	[49]: 
+
+	[49]
 		double blue: 0.2
 		double green: 0.23
 		int h: 50
@@ -407,7 +456,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 200
-	[50]: 
+
+	[50]
 		double blue: 0.21
 		double green: 0.19
 		int h: 50
@@ -415,7 +465,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 250
-	[51]: 
+
+	[51]
 		double blue: 0.28
 		double green: 0.92
 		int h: 50
@@ -423,7 +474,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 250
-	[52]: 
+
+	[52]
 		double blue: 0.04
 		double green: 0.53
 		int h: 50
@@ -431,7 +483,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 250
-	[53]: 
+
+	[53]
 		double blue: 0.95
 		double green: 0.53
 		int h: 50
@@ -439,7 +492,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 250
-	[54]: 
+
+	[54]
 		double blue: 0.32
 		double green: 0.23
 		int h: 50
@@ -447,7 +501,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 250
-	[55]: 
+
+	[55]
 		double blue: 0.63
 		double green: 0.68
 		int h: 50
@@ -455,7 +510,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 250
-	[56]: 
+
+	[56]
 		double blue: 0.1
 		double green: 0.28
 		int h: 50
@@ -463,7 +519,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 250
-	[57]: 
+
+	[57]
 		double blue: 0.74
 		double green: 0.32
 		int h: 50
@@ -471,7 +528,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 250
-	[58]: 
+
+	[58]
 		double blue: 0.28
 		double green: 0.5
 		int h: 50
@@ -479,7 +537,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 250
-	[59]: 
+
+	[59]
 		double blue: 0
 		double green: 0.8
 		int h: 50
@@ -487,7 +546,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 250
-	[60]: 
+
+	[60]
 		double blue: 0.41
 		double green: 0.41
 		int h: 50
@@ -495,7 +555,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 300
-	[61]: 
+
+	[61]
 		double blue: 0.04
 		double green: 0.76
 		int h: 50
@@ -503,7 +564,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 300
-	[62]: 
+
+	[62]
 		double blue: 0.59
 		double green: 0.66
 		int h: 50
@@ -511,7 +573,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 300
-	[63]: 
+
+	[63]
 		double blue: 0.43
 		double green: 0.06
 		int h: 50
@@ -519,7 +582,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 300
-	[64]: 
+
+	[64]
 		double blue: 0.76
 		double green: 0.96
 		int h: 50
@@ -527,7 +591,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 300
-	[65]: 
+
+	[65]
 		double blue: 0.73
 		double green: 0.56
 		int h: 50
@@ -535,7 +600,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 300
-	[66]: 
+
+	[66]
 		double blue: 0.19
 		double green: 0.91
 		int h: 50
@@ -543,7 +609,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 300
-	[67]: 
+
+	[67]
 		double blue: 0.96
 		double green: 0.04
 		int h: 50
@@ -551,7 +618,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 300
-	[68]: 
+
+	[68]
 		double blue: 0.17
 		double green: 0.18
 		int h: 50
@@ -559,7 +627,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 300
-	[69]: 
+
+	[69]
 		double blue: 0.47
 		double green: 0.28
 		int h: 50
@@ -567,7 +636,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 300
-	[70]: 
+
+	[70]
 		double blue: 0.08
 		double green: 0.81
 		int h: 50
@@ -575,7 +645,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 350
-	[71]: 
+
+	[71]
 		double blue: 0.25
 		double green: 0.36
 		int h: 50
@@ -583,7 +654,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 350
-	[72]: 
+
+	[72]
 		double blue: 0.58
 		double green: 0.58
 		int h: 50
@@ -591,7 +663,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 350
-	[73]: 
+
+	[73]
 		double blue: 0.83
 		double green: 0.13
 		int h: 50
@@ -599,7 +672,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 350
-	[74]: 
+
+	[74]
 		double blue: 0.74
 		double green: 0.85
 		int h: 50
@@ -607,7 +681,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 350
-	[75]: 
+
+	[75]
 		double blue: 0.89
 		double green: 0.51
 		int h: 50
@@ -615,7 +690,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 350
-	[76]: 
+
+	[76]
 		double blue: 0.46
 		double green: 0.54
 		int h: 50
@@ -623,7 +699,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 350
-	[77]: 
+
+	[77]
 		double blue: 0.74
 		double green: 0.19
 		int h: 50
@@ -631,7 +708,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 350
-	[78]: 
+
+	[78]
 		double blue: 0.39
 		double green: 0.77
 		int h: 50
@@ -639,7 +717,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 350
-	[79]: 
+
+	[79]
 		double blue: 0.75
 		double green: 0.04
 		int h: 50
@@ -647,7 +726,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 350
-	[80]: 
+
+	[80]
 		double blue: 0.27
 		double green: 0.15
 		int h: 50
@@ -655,7 +735,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 400
-	[81]: 
+
+	[81]
 		double blue: 0.8
 		double green: 0.58
 		int h: 50
@@ -663,7 +744,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 400
-	[82]: 
+
+	[82]
 		double blue: 0.27
 		double green: 0.28
 		int h: 50
@@ -671,7 +753,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 400
-	[83]: 
+
+	[83]
 		double blue: 0.3
 		double green: 0.39
 		int h: 50
@@ -679,7 +762,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 400
-	[84]: 
+
+	[84]
 		double blue: 0
 		double green: 0.74
 		int h: 50
@@ -687,7 +771,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 400
-	[85]: 
+
+	[85]
 		double blue: 0.3
 		double green: 0.45
 		int h: 50
@@ -695,7 +780,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 400
-	[86]: 
+
+	[86]
 		double blue: 0.19
 		double green: 0.16
 		int h: 50
@@ -703,7 +789,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 400
-	[87]: 
+
+	[87]
 		double blue: 0.22
 		double green: 0.61
 		int h: 50
@@ -711,7 +798,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 400
-	[88]: 
+
+	[88]
 		double blue: 0.52
 		double green: 0.72
 		int h: 50
@@ -719,7 +807,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 400
-	[89]: 
+
+	[89]
 		double blue: 0.45
 		double green: 0.45
 		int h: 50
@@ -727,7 +816,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 400
-	[90]: 
+
+	[90]
 		double blue: 0.4
 		double green: 0.39
 		int h: 50
@@ -735,7 +825,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 0
 		int y: 450
-	[91]: 
+
+	[91]
 		double blue: 0.01
 		double green: 0.59
 		int h: 50
@@ -743,7 +834,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 50
 		int y: 450
-	[92]: 
+
+	[92]
 		double blue: 0.42
 		double green: 0.19
 		int h: 50
@@ -751,7 +843,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 100
 		int y: 450
-	[93]: 
+
+	[93]
 		double blue: 0.99
 		double green: 0.7
 		int h: 50
@@ -759,7 +852,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 150
 		int y: 450
-	[94]: 
+
+	[94]
 		double blue: 0.1
 		double green: 0.48
 		int h: 50
@@ -767,7 +861,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 200
 		int y: 450
-	[95]: 
+
+	[95]
 		double blue: 0.29
 		double green: 0.79
 		int h: 50
@@ -775,7 +870,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 250
 		int y: 450
-	[96]: 
+
+	[96]
 		double blue: 0.39
 		double green: 0.02
 		int h: 50
@@ -783,7 +879,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 300
 		int y: 450
-	[97]: 
+
+	[97]
 		double blue: 0.19
 		double green: 0.98
 		int h: 50
@@ -791,7 +888,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 350
 		int y: 450
-	[98]: 
+
+	[98]
 		double blue: 0.86
 		double green: 0.68
 		int h: 50
@@ -799,7 +897,8 @@ rectangle[] rects:
 		int w: 50
 		int x: 400
 		int y: 450
-	[99]: 
+
+	[99]
 		double blue: 0.71
 		double green: 0.5
 		int h: 50
@@ -807,6 +906,7 @@ rectangle[] rects:
 		int w: 50
 		int x: 450
 		int y: 450
+
 
 
 Root Type Table:
