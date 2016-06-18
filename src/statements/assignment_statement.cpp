@@ -100,59 +100,74 @@ const ErrorListRef AssignmentStatement::preprocess(
 		const_shared_ptr<MemberVariable> member_variable = dynamic_pointer_cast<
 				const MemberVariable>(m_variable);
 		if (member_variable) {
-			const_shared_ptr<RecordTypeSpecifier> as_record =
-					dynamic_pointer_cast<const RecordTypeSpecifier>(
-							member_variable->GetContainer()->GetTypeSpecifier(
-									execution_context));
+			auto container_specifier =
+					member_variable->GetContainer()->GetTypeSpecifier(
+							execution_context);
+			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					container_specifier);
 
-			if (as_record) {
-				const_shared_ptr<RecordType> type =
-						execution_context->GetTypeTable()->GetType<RecordType>(
-								as_record, DEEP, RESOLVE);
+			if (as_complex) {
+				auto container_type =
+						execution_context->GetTypeTable()->GetType<
+								TypeDefinition>(as_complex, DEEP, RESOLVE);
 
-				if (type) {
-					if (type->GetModifiers() & Modifier::Type::MUTABLE) {
-						const_shared_ptr<TypeSpecifier> member_variable_type =
-								member_variable->GetTypeSpecifier(
-										execution_context);
+				if (container_type) {
+					const_shared_ptr<RecordType> type = dynamic_pointer_cast<
+							const RecordType>(container_type);
 
-						if (member_variable_type
-								!= PrimitiveTypeSpecifier::GetNone()) {
-							const_shared_ptr<TypeSpecifier> expression_type =
-									m_expression->GetTypeSpecifier(
+					if (type) {
+						if (type->GetModifiers() & Modifier::Type::MUTABLE) {
+							const_shared_ptr<TypeSpecifier> member_variable_type =
+									member_variable->GetTypeSpecifier(
 											execution_context);
 
-							if (!expression_type->AnalyzeAssignmentTo(
-									member_variable_type,
-									execution_context->GetTypeTable())) {
+							if (member_variable_type
+									!= PrimitiveTypeSpecifier::GetNone()) {
+								const_shared_ptr<TypeSpecifier> expression_type =
+										m_expression->GetTypeSpecifier(
+												execution_context);
+
+								if (!expression_type->AnalyzeAssignmentTo(
+										member_variable_type,
+										execution_context->GetTypeTable())) {
+									errors =
+											ErrorList::From(
+													make_shared<Error>(
+															Error::SEMANTIC,
+															Error::ASSIGNMENT_TYPE_ERROR,
+															member_variable->GetContainer()->GetLocation().begin.line,
+															member_variable->GetContainer()->GetLocation().begin.column,
+															member_variable_type->ToString(),
+															expression_type->ToString()),
+													errors);
+								}
+							} else {
 								errors =
 										ErrorList::From(
 												make_shared<Error>(
 														Error::SEMANTIC,
-														Error::ASSIGNMENT_TYPE_ERROR,
-														member_variable->GetContainer()->GetLocation().begin.line,
-														member_variable->GetContainer()->GetLocation().begin.column,
-														member_variable_type->ToString(),
-														expression_type->ToString()),
+														Error::UNDECLARED_MEMBER,
+														member_variable->GetMemberVariable()->GetLocation().begin.line,
+														member_variable->GetMemberVariable()->GetLocation().begin.column,
+														*member_variable->GetMemberVariable()->GetName(),
+														member_variable->GetContainer()->GetTypeSpecifier(
+																execution_context)->ToString()),
 												errors);
 							}
 						} else {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
-													Error::UNDECLARED_MEMBER,
-													member_variable->GetMemberVariable()->GetLocation().begin.line,
-													member_variable->GetMemberVariable()->GetLocation().begin.column,
-													*member_variable->GetMemberVariable()->GetName(),
-													member_variable->GetContainer()->GetTypeSpecifier(
-															execution_context)->ToString()),
-											errors);
+													Error::READONLY,
+													member_variable->GetContainer()->GetLocation().begin.line,
+													member_variable->GetContainer()->GetLocation().begin.column,
+													*variable_name), errors);
 						}
 					} else {
 						errors =
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
-												Error::READONLY,
+												Error::NOT_A_COMPOUND_TYPE,
 												member_variable->GetContainer()->GetLocation().begin.line,
 												member_variable->GetContainer()->GetLocation().begin.column,
 												*variable_name), errors);
