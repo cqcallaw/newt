@@ -1,0 +1,6 @@
+# test default values for function members that reference other members
+
+a {
+	b:int = 3,
+	f:=() -> int { return @a.b }
+}

@@ -83,7 +83,12 @@ const_shared_ptr<Result> NestedTypeSpecifier::GetType(
 			auto as_placeholder = dynamic_pointer_cast<const PlaceholderType>(
 					complex_parent);
 			if (as_placeholder) {
-				type = as_placeholder;
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::PARTIALLY_DECLARED_TYPE,
+								GetLocation().begin.line,
+								GetLocation().begin.column,
+								m_parent->ToString()), errors);
 			} else {
 				type = complex_parent->GetDefinition()->GetType<TypeDefinition>(
 						m_member_name, DEEP, resolution);
@@ -153,6 +158,12 @@ const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::Resolve(
 					auto as_complex_type = dynamic_pointer_cast<
 							const ComplexType>(type);
 					if (as_complex_type) {
+						auto as_placholder = dynamic_pointer_cast<
+								const PlaceholderType>(as_complex_type);
+						if (as_placholder) {
+							return PrimitiveTypeSpecifier::GetNone();
+						}
+
 						auto type_definition =
 								as_complex_type->GetDefinition()->GetType<
 										TypeDefinition>(
