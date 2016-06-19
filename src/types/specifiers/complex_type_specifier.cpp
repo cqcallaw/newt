@@ -101,12 +101,13 @@ bool ComplexTypeSpecifier::CompareContainers(
 
 const_shared_ptr<Result> ComplexTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	plain_shared_ptr<ComplexType> type = nullptr;
+	//we use an abstract TypeDefinition instead of the concrete ComplexType because the result of our search may be an alias of another type
+	plain_shared_ptr<TypeDefinition> type = nullptr;
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto container_type = GetContainerType(type_table);
 	if (container_type) {
-		type = container_type->GetDefinition()->GetType<ComplexType>(
+		type = container_type->GetDefinition()->GetType<TypeDefinition>(
 				GetTypeName(), SHALLOW, resolution);
 		if (!type) {
 			errors = ErrorList::From(
@@ -116,7 +117,8 @@ const_shared_ptr<Result> ComplexTypeSpecifier::GetType(
 							GetContainer()->ToString()), errors);
 		}
 	} else {
-		type = type_table.GetType<ComplexType>(GetTypeName(), DEEP, resolution);
+		type = type_table.GetType<TypeDefinition>(GetTypeName(), DEEP,
+				resolution);
 		if (!type) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,

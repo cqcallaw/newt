@@ -82,10 +82,11 @@ const_shared_ptr<Result> RecordType::Build(
 			//generate a temporary structure in which to perform evaluations
 			//of the member declaration statement
 			const shared_ptr<symbol_map> values = make_shared<symbol_map>();
+			auto member_type_table = make_shared<TypeTable>(context_type_table);
 			shared_ptr<ExecutionContext> struct_context =
 					ExecutionContext::GetEmptyChild(context,
-							context->GetModifiers(), EPHEMERAL, type_table,
-							values);
+							context->GetModifiers(), EPHEMERAL,
+							member_type_table, values);
 
 			if (ErrorList::IsTerminator(declaration_errors)) {
 				const_shared_ptr<Expression> initializer_expression =
@@ -159,6 +160,13 @@ const_shared_ptr<Result> RecordType::Build(
 								declaration_errors, symbol_type_errors);
 					}
 				}
+
+				//add a type definition if we have one (that is, no aliasing occurred)
+				auto member_definition = member_type_table->GetType<
+						TypeDefinition>(member_name, SHALLOW, RETURN);
+				if (member_definition) {
+					type_table->AddType(*member_name, member_definition);
+				}
 			}
 		} else {
 			declaration_errors = ErrorList::From(
@@ -199,12 +207,12 @@ const_shared_ptr<void> RecordType::GetDefaultValue(
 const_shared_ptr<Symbol> RecordType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value) const {
-	auto as_record_specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
-			type_specifier);
+	auto as_complex_specifier =
+			dynamic_pointer_cast<const ComplexTypeSpecifier>(type_specifier);
 
-	if (as_record_specifier) {
+	if (as_complex_specifier) {
 		auto as_record = static_pointer_cast<const Record>(value);
-		return make_shared<Symbol>(as_record_specifier, as_record);
+		return make_shared<Symbol>(as_complex_specifier, as_record);
 	}
 
 	return Symbol::GetDefaultSymbol();
@@ -272,7 +280,7 @@ const SetResult RecordType::InstantiateCore(
 		const_shared_ptr<TypeSpecifier> value_type_specifier,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Record>(data);
-	auto specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
+	auto specifier = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 			type_specifier);
 
 	if (specifier

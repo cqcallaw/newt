@@ -383,12 +383,12 @@ function_type_specifier:
 complex_type_specifier:
 	IDENTIFIER
 	{
-		$$ = make_shared<RecordTypeSpecifier>($1, @$);
+		$$ = make_shared<ComplexTypeSpecifier>($1, @$);
 	}
 	| namespace_qualifier_list IDENTIFIER
 	{
 		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
-		$$ = make_shared<RecordTypeSpecifier>($2, namespace_qualifier_list, @$);
+		$$ = make_shared<ComplexTypeSpecifier>($2, nullptr, namespace_qualifier_list, @$);
 	}
 	;
 
