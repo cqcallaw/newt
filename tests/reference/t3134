@@ -1,5 +1,5 @@
 Parsing file ../tests/t3134.nwt...
-Semantic error on line 4, column 2: Specification of containing type requires Maybe type specifier.
+Semantic error on line 4, column 4: Type "a" has not been fully defined.
 Semantic error on line 7, column 5: Invalid type "a".
 Parsed file ../tests/t3134.nwt.
 2 errors found; giving up.
