@@ -25,15 +25,18 @@
 #include <nested_type_specifier.h>
 #include <record_type_specifier.h>
 #include <sum_type_specifier.h>
+#include <placeholder_type.h>
 
 DefaultValueExpression::DefaultValueExpression(const yy::location position,
 		const_shared_ptr<TypeSpecifier> type, const yy::location type_position) :
-		Expression(position), m_type(type), m_type_position(type_position) {
+		Expression(position), m_type_specifier(type), m_type_position(
+				type_position) {
 }
 
 DefaultValueExpression::DefaultValueExpression(
 		const DefaultValueExpression* other) :
-		Expression(other->GetPosition()), m_type(other->m_type), m_type_position(
+		Expression(other->GetPosition()), m_type_specifier(
+				other->m_type_specifier), m_type_position(
 				other->m_type_position) {
 }
 
@@ -43,7 +46,7 @@ DefaultValueExpression::~DefaultValueExpression() {
 const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return NestedTypeSpecifier::Resolve(m_type,
+	return NestedTypeSpecifier::Resolve(m_type_specifier,
 			*execution_context->GetTypeTable());
 }
 
@@ -52,7 +55,7 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 	auto type_table = *execution_context->GetTypeTable();
 	//here we RETURN aliases instead of RESOLVING them so that
 	//the _alias'_ default value will be used instead of the aliased type's default value
-	auto type_result = m_type->GetType(type_table, RETURN);
+	auto type_result = m_type_specifier->GetType(type_table, RETURN);
 
 	plain_shared_ptr<void> return_value = nullptr;
 	auto errors = type_result->GetErrors();
@@ -69,15 +72,20 @@ const ErrorListRef DefaultValueExpression::Validate(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = *execution_context->GetTypeTable();
-	auto resolved_specifier = GetTypeSpecifier(execution_context);
-	auto type = resolved_specifier->GetType(type_table, RESOLVE);
+	auto type_result = m_type_specifier->GetType(type_table, RESOLVE);
 
-	if (!type) {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						m_type_position.begin.line,
-						m_type_position.begin.column, m_type->ToString()),
-				errors);
+	errors = type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto type = type_result->GetData<TypeDefinition>();
+		auto as_placeholder = dynamic_pointer_cast<const PlaceholderType>(type);
+		if (as_placeholder) {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::PARTIALLY_DECLARED_TYPE,
+							m_type_position.begin.line,
+							m_type_position.begin.column,
+							m_type_specifier->ToString()), errors);
+		}
 	}
 
 	return errors;
