@@ -24,6 +24,11 @@
 
 class ComplexTypeSpecifier;
 
+/**
+ * A nested type specifier.
+ * This weird type specifier exists because a qualified type specifier may specifier
+ * any concrete type--primitive, complex, or even an alias
+ */
 class NestedTypeSpecifier: public TypeSpecifier {
 public:
 	NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,
