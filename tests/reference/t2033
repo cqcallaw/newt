@@ -9,7 +9,7 @@ int[] nums:
 	[0] 0
 	[1] 0
 	[2] 42
-end array
+
 string s: "nums[i-j] = nums[2] = 42"
 
 Root Type Table:

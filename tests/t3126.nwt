@@ -1,0 +1,7 @@
+# test invalid nested child type
+top {
+	middle {
+	}
+}
+
+v:= @top.middle.bottom

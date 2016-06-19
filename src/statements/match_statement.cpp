@@ -41,10 +41,14 @@ const ErrorListRef MatchStatement::preprocess(
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier = m_source_expression->GetTypeSpecifier(
 				execution_context);
-		auto expression_type = expression_type_specifier->GetType(
+		auto expression_type_result = expression_type_specifier->GetType(
 				execution_context->GetTypeTable(), RESOLVE);
 
-		if (expression_type) {
+		errors = expression_type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto expression_type = expression_type_result->GetData<
+					TypeDefinition>();
+
 			auto sum_type = dynamic_pointer_cast<const SumType>(
 					expression_type);
 			if (sum_type) {
@@ -72,13 +76,14 @@ const ErrorListRef MatchStatement::preprocess(
 							match_names->insert(*match_name);
 							auto block_context =
 									ExecutionContext::GetEmptyChild(
-											execution_context, Modifier::MUTABLE,
-											EPHEMERAL);
+											execution_context,
+											Modifier::MUTABLE, EPHEMERAL);
 
 							auto variant_type_specifier =
 									variant_type->GetTypeSpecifier(
 											match->GetName(),
-											source_sum_specifier);
+											source_sum_specifier,
+											GetDefaultLocation());
 							const_shared_ptr<void> default_value =
 									variant_type->GetDefaultValue(*table);
 							const_shared_ptr<Symbol> default_symbol =
@@ -122,7 +127,8 @@ const ErrorListRef MatchStatement::preprocess(
 				if (*variant_names != *match_names) {
 					if (default_match_block) {
 						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::MUTABLE, EPHEMERAL);
+								execution_context, Modifier::MUTABLE,
+								EPHEMERAL);
 						auto block_errors = default_match_block->preprocess(
 								block_context);
 						errors = ErrorList::Concatenate(errors, block_errors);
@@ -164,12 +170,6 @@ const ErrorListRef MatchStatement::preprocess(
 								m_source_expression->GetPosition().begin.column,
 								expression_type_specifier->ToString()), errors);
 			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							m_source_expression->GetPosition().begin.line,
-							m_source_expression->GetPosition().begin.column,
-							expression_type_specifier->ToString()), errors);
 		}
 	}
 
@@ -182,10 +182,14 @@ const ErrorListRef MatchStatement::execute(
 
 	auto expression_type_specifier = m_source_expression->GetTypeSpecifier(
 			execution_context);
-	auto expression_type = expression_type_specifier->GetType(
+	auto expression_type_result = expression_type_specifier->GetType(
 			execution_context->GetTypeTable());
 
-	if (expression_type) {
+	errors = expression_type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type =
+				expression_type_result->GetData<TypeDefinition>();
+
 		auto sum_type = dynamic_pointer_cast<const SumType>(expression_type);
 		if (sum_type) {
 			auto source_sum_specifier = dynamic_pointer_cast<
@@ -214,13 +218,14 @@ const ErrorListRef MatchStatement::execute(
 						if (variant_type) {
 							auto block_context =
 									ExecutionContext::GetEmptyChild(
-											execution_context, Modifier::MUTABLE,
-											EPHEMERAL);
+											execution_context,
+											Modifier::MUTABLE, EPHEMERAL);
 
 							auto variant_type_specifier =
 									variant_type->GetTypeSpecifier(
 											match->GetName(),
-											source_sum_specifier);
+											source_sum_specifier,
+											GetDefaultLocation());
 							const_shared_ptr<Symbol> default_symbol =
 									variant_type->GetSymbol(
 											execution_context->GetTypeTable(),
@@ -255,7 +260,8 @@ const ErrorListRef MatchStatement::execute(
 				if (!matched) {
 					if (default_match_block) {
 						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::MUTABLE, EPHEMERAL);
+								execution_context, Modifier::MUTABLE,
+								EPHEMERAL);
 						auto block_errors = default_match_block->execute(
 								block_context);
 						errors = ErrorList::Concatenate(errors, block_errors);
@@ -279,12 +285,6 @@ const ErrorListRef MatchStatement::execute(
 							m_source_expression->GetPosition().begin.column,
 							expression_type_specifier->ToString()), errors);
 		}
-	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						m_source_expression->GetPosition().begin.line,
-						m_source_expression->GetPosition().begin.column,
-						expression_type_specifier->ToString()), errors);
 	}
 
 	return errors;

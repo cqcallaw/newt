@@ -41,13 +41,15 @@ public:
 
 	virtual bool operator==(const TypeSpecifier& other) const;
 
+	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
+			const yy::location position) const;
+
 	const_shared_ptr<TypeSpecifier> GetElementTypeSpecifier() const {
 		return m_element_type_specifier;
 	}
 
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_element_type_specifier;

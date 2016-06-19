@@ -25,12 +25,13 @@
 #include <sum_type.h>
 
 SumTypeSpecifier::SumTypeSpecifier(const ComplexTypeSpecifier& complex) :
-		SumTypeSpecifier(complex.GetTypeName(), complex.GetNamespace()) {
+		SumTypeSpecifier(complex.GetTypeName(), complex.GetContainer(),
+				complex.GetNamespace(), complex.GetLocation()) {
 }
 
 SumTypeSpecifier::SumTypeSpecifier(
 		const_shared_ptr<ComplexTypeSpecifier> complex) :
-		SumTypeSpecifier(complex->GetTypeName(), complex->GetNamespace()) {
+		SumTypeSpecifier(*complex) {
 }
 
 const AnalysisResult SumTypeSpecifier::AnalyzeAssignmentTo(
@@ -42,23 +43,27 @@ const AnalysisResult SumTypeSpecifier::AnalyzeAssignmentTo(
 		return complex_result;
 	}
 
-	auto other_type = other->GetType(type_table, RESOLVE);
-	auto other_type_as_sum = dynamic_pointer_cast<const SumType>(other_type);
-	if (other_type_as_sum) {
-		auto other_specifier_as_complex = dynamic_pointer_cast<
-				const ComplexTypeSpecifier>(other);
-		if (other_specifier_as_complex) {
-			auto analysis = other_type_as_sum->AnalyzeConversion(
-					*other_specifier_as_complex, *this);
-			return analysis;
-		}
+	auto other_type_result = other->GetType(type_table, RESOLVE);
+	if (ErrorList::IsTerminator(other_type_result->GetErrors())) {
+		auto other_type = other_type_result->GetData<TypeDefinition>();
+		auto other_type_as_sum = dynamic_pointer_cast<const SumType>(
+				other_type);
+		if (other_type_as_sum) {
+			auto other_specifier_as_complex = dynamic_pointer_cast<
+					const ComplexTypeSpecifier>(other);
+			if (other_specifier_as_complex) {
+				auto analysis = other_type_as_sum->AnalyzeConversion(
+						*other_specifier_as_complex, *this);
+				return analysis;
+			}
 
-		auto other_specifier_as_maybe = dynamic_pointer_cast<
-				const MaybeTypeSpecifier>(other);
-		if (other_specifier_as_maybe) {
-			return AnalyzeAssignmentTo(
-					other_specifier_as_maybe->GetBaseTypeSpecifier(),
-					type_table);
+			auto other_specifier_as_maybe = dynamic_pointer_cast<
+					const MaybeTypeSpecifier>(other);
+			if (other_specifier_as_maybe) {
+				return AnalyzeAssignmentTo(
+						other_specifier_as_maybe->GetBaseTypeSpecifier(),
+						type_table);
+			}
 		}
 	}
 

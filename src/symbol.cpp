@@ -124,9 +124,9 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 	if (value) {
 		if (type_specifier
 				&& type_specifier != PrimitiveTypeSpecifier::GetNone()) {
-			auto type = type_specifier->GetType(type_table, RESOLVE);
-
-			if (type) {
+			auto type_result = type_specifier->GetType(type_table, RESOLVE);
+			if (ErrorList::IsTerminator(type_result->GetErrors())) {
+				auto type = type_result->GetData<TypeDefinition>();
 				buffer << type->GetValueSeparator(indent, value.get());
 				buffer << type->ValueToString(type_table, indent, value);
 			} else {

@@ -2004,7 +2004,7 @@ int[] numbers:
 	[1998] 0
 	[1999] 0
 	[2000] 42
-end array
+
 string[] strings:
 	[0] ""
 	[1] ""
@@ -4007,7 +4007,7 @@ string[] strings:
 	[1998] ""
 	[1999] ""
 	[2000] "42"
-end array
+
 double[] values:
 	[0] 0
 	[1] 0
@@ -6010,7 +6010,7 @@ double[] values:
 	[1998] 0
 	[1999] 0
 	[2000] 42
-end array
+
 
 Root Type Table:
 ----------------

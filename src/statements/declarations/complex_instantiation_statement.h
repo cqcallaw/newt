@@ -40,11 +40,9 @@ public:
 			const_shared_ptr<Expression> initializer_expression = nullptr);
 	virtual ~ComplexInstantiationStatement();
 
-	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
 
-	const yy::location GetTypePosition() const {
-		return m_type_position;
-	}
+	virtual const yy::location GetTypeSpecifierLocation() const;
 
 	virtual const ErrorListRef preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const;
@@ -63,7 +61,7 @@ public:
 
 private:
 	const_shared_ptr<ComplexTypeSpecifier> m_type_specifier;
-	const yy::location m_type_position;
+	const yy::location m_type_specifier_location;
 };
 
 #endif /* STATEMENTS_DECLARATIONS_COMPLEX_INSTANTIATION_STATEMENT_H_ */

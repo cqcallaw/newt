@@ -48,9 +48,7 @@ public:
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
 
-	const yy::location GetTypeSpecifierLocation() const {
-		return m_type_specifier_location;
-	}
+	virtual const yy::location GetTypeSpecifierLocation() const;
 
 	const_shared_ptr<MaybeTypeSpecifier> GetMaybeTypeSpecifier() const {
 		return m_type_specifier;

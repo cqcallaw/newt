@@ -25,17 +25,17 @@
 class TypeAliasDeclarationStatement: public DeclarationStatement {
 public:
 	TypeAliasDeclarationStatement(const yy::location position,
-			const_shared_ptr<TypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position);
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const yy::location type_specifier_location,
+			const_shared_ptr<string> name, const yy::location name_position);
 	virtual ~TypeAliasDeclarationStatement();
 
-	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
-		return m_type;
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
+		return m_type_specifier;
 	}
 
-	const yy::location GetTypePosition() const {
-		return m_type_position;
+	virtual const yy::location GetTypeSpecifierLocation() const {
+		return m_type_specifier_location;
 	}
 
 	virtual const ErrorListRef preprocess(
@@ -48,8 +48,8 @@ public:
 			const_shared_ptr<Expression> expression) const;
 
 private:
-	const_shared_ptr<TypeSpecifier> m_type;
-	const yy::location m_type_position;
+	const_shared_ptr<TypeSpecifier> m_type_specifier;
+	const yy::location m_type_specifier_location;
 };
 
 #endif /* STATEMENTS_DECLARATIONS_TYPE_ALIAS_DECLARATION_STATEMENT_H_ */

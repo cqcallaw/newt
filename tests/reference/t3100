@@ -5,7 +5,7 @@ Root Symbol Table:
 ----------------
 my_struct i:
 	int[] arr:
-end array
+
 
 
 Root Type Table:
@@ -13,5 +13,5 @@ Root Type Table:
 my_struct:
 	<record>
 	arr:
-		int[] (end array)
+		int[] ()
 

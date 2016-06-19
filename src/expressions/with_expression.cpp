@@ -61,12 +61,14 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 				m_source_expression->GetTypeSpecifier(execution_context);
 
 		shared_ptr<const RecordType> type = nullptr;
-		shared_ptr<const TypeDefinition> member_definition =
-				source_type_specifier->GetType(
-						execution_context->GetTypeTable());
-		if (member_definition) {
+		auto source_type_result = source_type_specifier->GetType(
+				execution_context->GetTypeTable());
+
+		errors = source_type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto source_type = source_type_result->GetData<TypeDefinition>();
 			auto as_record = std::dynamic_pointer_cast<const RecordType>(
-					member_definition);
+					source_type);
 
 			if (as_record) {
 				type = as_record;
@@ -78,12 +80,6 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 								m_source_expression->GetPosition().begin.column,
 								source_type_specifier->ToString()), errors);
 			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							m_source_expression->GetPosition().begin.line,
-							m_source_expression->GetPosition().begin.column,
-							source_type_specifier->ToString()), errors);
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
@@ -168,12 +164,14 @@ const ErrorListRef WithExpression::Validate(
 				execution_context->GetTypeTable();
 		plain_shared_ptr<RecordType> source_type = nullptr;
 		plain_shared_ptr<RecordTypeSpecifier> record_type_specifier = nullptr;
-		shared_ptr<const TypeDefinition> base_source_type =
-				source_type_specifier->GetType(*type_table, RESOLVE);
+		auto source_type_result = source_type_specifier->GetType(*type_table,
+				RESOLVE);
 
-		if (base_source_type) {
+		errors = source_type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto base_type = source_type_result->GetData<TypeDefinition>();
 			auto as_record = std::dynamic_pointer_cast<const RecordType>(
-					base_source_type);
+					base_type);
 			if (as_record) {
 				source_type = as_record;
 				record_type_specifier = static_pointer_cast<
@@ -186,12 +184,6 @@ const ErrorListRef WithExpression::Validate(
 								m_source_expression->GetPosition().begin.column,
 								source_type_specifier->ToString()), errors);
 			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							m_source_expression->GetPosition().begin.line,
-							m_source_expression->GetPosition().begin.column,
-							source_type_specifier->ToString()), errors);
 		}
 
 		if (source_type && ErrorList::IsTerminator(errors)) {
@@ -215,7 +207,8 @@ const ErrorListRef WithExpression::Validate(
 
 						const_shared_ptr<TypeSpecifier> member_type_specifier =
 								member_definition->GetTypeSpecifier(member_name,
-										record_type_specifier);
+										record_type_specifier,
+										GetDefaultLocation());
 
 						auto assignability =
 								expression_type_specifier->AnalyzeAssignmentTo(

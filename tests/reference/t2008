@@ -15,17 +15,17 @@ double[] doubles:
 	[0] 0
 	[1] 1
 	[2] 2
-end array
+
 int[] ints:
 	[0] 0
 	[1] 1
 	[2] 2
-end array
+
 string[] strings:
 	[0] "zero"
 	[1] "one"
 	[2] "two"
-end array
+
 
 Root Type Table:
 ----------------

@@ -12,26 +12,30 @@ Root Symbol Table:
 ----------------
 int i: 4
 rectangle[] rects:
-	[0]: 
+	[0]
 		int h: 0
 		int w: 10
 		int x: 0
 		int y: 0
-	[1]: 
+
+	[1]
 		int h: 0
 		int w: 10
 		int x: 100
 		int y: 100
-	[2]: 
+
+	[2]
 		int h: 0
 		int w: 10
 		int x: 200
 		int y: 200
-	[3]: 
+
+	[3]
 		int h: 0
 		int w: 10
 		int x: 300
 		int y: 300
+
 
 int size: 4
 string str: "rects[3].y = 300"

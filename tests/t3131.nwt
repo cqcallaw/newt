@@ -1,0 +1,9 @@
+# test that default values for function members can't reference other members without a qualifier
+
+a {
+	b:int = 3,
+	f:=() -> int { return b }
+}
+
+v:=@a
+r := v.f()

@@ -50,24 +50,33 @@ const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetTypeSpecifier()
 	}
 }
 
+const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() const {
+	return GetInitializerExpression()->GetPosition();
+}
+
 const ErrorListRef InferredDeclarationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	ErrorListRef errors = GetInitializerExpression()->Validate(
+			execution_context);
+	if (ErrorList::IsTerminator(errors)) {
+		const_shared_ptr<TypeSpecifier> expression_type =
+				GetInitializerExpression()->GetTypeSpecifier(execution_context,
+						AliasResolution::RETURN);
 
-	const_shared_ptr<TypeSpecifier> expression_type =
-			GetInitializerExpression()->GetTypeSpecifier(execution_context,
-					AliasResolution::RETURN);
+		auto type_table = execution_context->GetTypeTable();
+		auto type_result = expression_type->GetType(type_table);
 
-	auto type_table = execution_context->GetTypeTable();
-	auto type = expression_type->GetType(type_table);
-	if (type) {
-		const_shared_ptr<Statement> temp_statement =
-				type->GetDeclarationStatement(GetPosition(), expression_type,
-						GetInitializerExpression()->GetPosition(), GetName(),
-						GetNamePosition(), GetInitializerExpression());
-		errors = temp_statement->preprocess(execution_context);
-	} else {
-		errors = GetInitializerExpression()->Validate(execution_context);
+		errors = ErrorList::Concatenate(errors, type_result->GetErrors());
+		if (ErrorList::IsTerminator(errors)) {
+			auto type = type_result->GetData<TypeDefinition>();
+			const_shared_ptr<Statement> temp_statement =
+					type->GetDeclarationStatement(GetLocation(),
+							expression_type,
+							GetInitializerExpression()->GetPosition(),
+							GetName(), GetNameLocation(),
+							GetInitializerExpression());
+			errors = temp_statement->preprocess(execution_context);
+		}
 	}
 
 	return errors;
@@ -81,15 +90,21 @@ const ErrorListRef InferredDeclarationStatement::execute(
 			GetInitializerExpression()->GetTypeSpecifier(execution_context);
 
 	auto type_table = execution_context->GetTypeTable();
-	auto type = expression_type->GetType(type_table);
-	if (type) {
+	auto type_result = expression_type->GetType(type_table);
+
+	auto type_errors = type_result->GetErrors();
+	if (ErrorList::IsTerminator(type_errors)) {
+		auto type = type_result->GetData<TypeDefinition>();
 		const_shared_ptr<Statement> temp_statement =
-				type->GetDeclarationStatement(GetPosition(), expression_type,
+				type->GetDeclarationStatement(GetLocation(), expression_type,
 						GetInitializerExpression()->GetPosition(), GetName(),
-						GetNamePosition(), GetInitializerExpression());
+						GetNameLocation(), GetInitializerExpression());
 		errors = temp_statement->execute(execution_context);
 	} else {
-		errors = GetInitializerExpression()->Validate(execution_context);
+		errors = type_errors;
+		auto initializer_errors = GetInitializerExpression()->Validate(
+				execution_context);
+		errors = ErrorList::Concatenate(errors, initializer_errors);
 	}
 
 	return errors;
@@ -97,6 +112,6 @@ const ErrorListRef InferredDeclarationStatement::execute(
 
 const DeclarationStatement* InferredDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new InferredDeclarationStatement(GetPosition(), GetName(),
-			GetNamePosition(), expression);
+	return new InferredDeclarationStatement(GetLocation(), GetName(),
+			GetNameLocation(), expression);
 }

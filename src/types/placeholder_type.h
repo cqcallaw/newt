@@ -40,9 +40,10 @@ public:
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
-			const_shared_ptr<ComplexTypeSpecifier> container) const {
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			yy::location location) const {
 		return make_shared<ComplexTypeSpecifier>(name, container,
-				NamespaceQualifierList::GetTerminator());
+				NamespaceQualifierList::GetTerminator(), location);
 	}
 
 	virtual const std::string ToString(const TypeTable& type_table,

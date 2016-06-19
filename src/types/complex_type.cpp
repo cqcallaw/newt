@@ -22,25 +22,10 @@
 #include <type_table.h>
 #include <sum_type_specifier.h>
 #include <record_type_specifier.h>
-#include <sum_type.h>
 #include <expression.h>
 #include <unit_type.h>
 
 ComplexType::~ComplexType() {
-}
-
-const_shared_ptr<TypeSpecifier> ComplexType::ToActualType(
-		const_shared_ptr<TypeSpecifier> original, const TypeTable& table) {
-	auto as_record = dynamic_pointer_cast<const RecordTypeSpecifier>(original);
-	if (as_record) {
-		//check to see if our "record" type is actually a sum type
-		auto sum_type = table.GetType<SumType>(as_record, DEEP, RESOLVE);
-		if (sum_type) {
-			return make_shared<SumTypeSpecifier>(as_record);
-		}
-	}
-
-	return original;
 }
 
 const_shared_ptr<Result> ComplexType::PreprocessSymbol(
@@ -60,8 +45,12 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 					initializer);
 		}
 	} else {
-		auto type = type_specifier->GetType(type_table);
-		value = type->GetDefaultValue(type_table);
+		auto type_result = type_specifier->GetType(type_table);
+		errors = type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type = type_result->GetData<TypeDefinition>();
+			value = type->GetDefaultValue(type_table);
+		}
 	}
 
 	if (ErrorList::IsTerminator(errors)) {

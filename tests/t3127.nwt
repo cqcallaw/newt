@@ -1,0 +1,7 @@
+# test invalid nested child type, no inference
+top {
+	middle {
+	}
+}
+
+v:top.middle= @top.middle.bottom

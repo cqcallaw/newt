@@ -1,4 +1,4 @@
-# test forward declaration of functions
+# test forward declaration of functions with invalid return
 b:()->int
 
 a := () -> int {

@@ -58,7 +58,8 @@ public:
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
-			const_shared_ptr<ComplexTypeSpecifier> container) const = 0;
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			yy::location location) const = 0;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,

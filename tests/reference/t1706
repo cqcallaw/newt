@@ -9,7 +9,7 @@ int[] nums:
 	[3] 0
 	[4] 0
 	[5] 0
-end array
+
 int should_be_zero: 0
 
 Root Type Table:

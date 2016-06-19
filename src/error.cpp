@@ -159,6 +159,9 @@ const string Error::get_error_message() const {
 	case UNDECLARED_TYPE:
 		os << "Invalid type \"" << m_s1 << "\".";
 		break;
+	case PARTIALLY_DECLARED_TYPE:
+		os << "Type \"" << m_s1 << "\" has not been fully defined.";
+		break;
 	case UNDECLARED_MEMBER:
 		os << "Type \"" << m_s2 << "\" does not contain a member named \""
 				<< m_s1 << "\".";
@@ -207,8 +210,8 @@ const string Error::get_error_message() const {
 	case EXTRANEOUS_DEFAULT_MATCH:
 		os << "Complete match; default match block well never execute.";
 		break;
-	case RECURSIVE_MEMBERS_MUST_BE_NULLABLE:
-		os << "Recursive members must be Maybe types.";
+	case RAW_RECURSIVE_DECLARATION:
+		os << "Specification of containing type requires Maybe type specifier.";
 		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";

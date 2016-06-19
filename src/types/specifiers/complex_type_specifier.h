@@ -27,16 +27,20 @@ class ComplexType;
 
 class ComplexTypeSpecifier: public TypeSpecifier {
 public:
-	ComplexTypeSpecifier(const_shared_ptr<std::string> type_name) :
+	ComplexTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const yy::location location = GetDefaultLocation()) :
 			ComplexTypeSpecifier(type_name, nullptr,
-					NamespaceQualifierList::GetTerminator()) {
+					NamespaceQualifierList::GetTerminator(), location) {
 	}
 
 	ComplexTypeSpecifier(const_shared_ptr<std::string> type_name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
-			const NamespaceQualifierListRef space) :
-			m_type_name(type_name), m_container(container), m_space(space) {
+			const NamespaceQualifierListRef space, const yy::location location =
+					GetDefaultLocation()) :
+			TypeSpecifier(location), m_type_name(type_name), m_container(
+					container), m_space(space) {
 	}
+
 	~ComplexTypeSpecifier() {
 	}
 
@@ -44,13 +48,15 @@ public:
 			const_shared_ptr<ComplexTypeSpecifier> parent,
 			const_shared_ptr<ComplexTypeSpecifier> child);
 
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const AnalysisResult AnalyzeAssignmentTo(
 			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
+
+	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
+			const yy::location position) const;
 
 	const_shared_ptr<ComplexType> GetContainerType(
 			const TypeTable& type_table) const;

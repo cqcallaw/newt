@@ -29,18 +29,18 @@
 #include <record.h>
 
 RecordDeclarationStatement::RecordDeclarationStatement(
-		const yy::location position, const_shared_ptr<RecordTypeSpecifier> type,
+		const yy::location position,
+		const_shared_ptr<RecordTypeSpecifier> type_specifier,
 		const_shared_ptr<string> name, const yy::location name_location,
 		DeclarationListRef member_declaration_list,
 		const yy::location member_declaration_list_location,
 		ModifierListRef modifier_list, const yy::location modifiers_location) :
 		DeclarationStatement(position, name, name_location,
-				make_shared<DefaultValueExpression>(
-						DefaultValueExpression(GetDefaultLocation(), type,
-								member_declaration_list_location)),
+				make_shared<DefaultValueExpression>(GetDefaultLocation(),
+						type_specifier, member_declaration_list_location),
 				modifier_list, modifiers_location), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_location(
-				member_declaration_list_location), m_type(type) {
+				member_declaration_list_location), m_type(type_specifier) {
 }
 
 RecordDeclarationStatement::~RecordDeclarationStatement() {
@@ -81,8 +81,8 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNamePosition().begin.line,
-						GetNamePosition().begin.column, *GetName()), errors);
+						GetNameLocation().begin.line,
+						GetNameLocation().begin.column, *GetName()), errors);
 	}
 
 	return errors;
@@ -96,8 +96,8 @@ const ErrorListRef RecordDeclarationStatement::execute(
 const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	//no-op
-	return new RecordDeclarationStatement(GetPosition(), m_type, GetName(),
-			GetNamePosition(), m_member_declaration_list,
+	return new RecordDeclarationStatement(GetLocation(), m_type, GetName(),
+			GetNameLocation(), m_member_declaration_list,
 			m_member_declaration_list_location, GetModifierList(),
 			GetModifierListLocation());
 }
@@ -105,7 +105,7 @@ const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpressio
 const_shared_ptr<RecordDeclarationStatement> RecordDeclarationStatement::WithModifiers(
 		ModifierListRef modifiers,
 		const yy::location modifiers_location) const {
-	return make_shared<RecordDeclarationStatement>(GetPosition(), m_type,
-			GetName(), GetNamePosition(), m_member_declaration_list,
+	return make_shared<RecordDeclarationStatement>(GetLocation(), m_type,
+			GetName(), GetNameLocation(), m_member_declaration_list,
 			m_member_declaration_list_location, modifiers, modifiers_location);
 }

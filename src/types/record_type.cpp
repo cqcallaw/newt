@@ -61,102 +61,124 @@ const_shared_ptr<Result> RecordType::Build(
 		const DeclarationListRef member_declarations) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	//generate a temporary structure in which to perform evaluations
-	//of the member declaration statements
-	const shared_ptr<symbol_map> values = make_shared<symbol_map>();
-
 	auto context_type_table = context->GetTypeTable();
 	auto type_table = make_shared<TypeTable>(context_type_table);
-	shared_ptr<ExecutionContext> struct_context =
-			ExecutionContext::GetEmptyChild(context, context->GetModifiers(),
-					EPHEMERAL, type_table, values);
 
 	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
 		auto declaration_errors = ErrorList::GetTerminator();
 		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
 
-		//enforce nullability of recursive members
+		auto member_name = declaration->GetName();
+
 		auto declaration_type_specifier = declaration->GetTypeSpecifier();
-		auto existing_type = declaration_type_specifier->GetType(
-				context_type_table);
-		auto as_recursive = dynamic_pointer_cast<const PlaceholderType>(
-				existing_type);
-		if (as_recursive) {
-			auto as_maybe_specifier = dynamic_pointer_cast<
-					const MaybeTypeSpecifier>(declaration_type_specifier);
-			if (!as_maybe_specifier) {
-				declaration_errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::RECURSIVE_MEMBERS_MUST_BE_NULLABLE,
-								declaration->GetNamePosition().begin.line,
-								declaration->GetNamePosition().begin.column),
-						declaration_errors);
-			}
-		}
+		declaration_errors = declaration_type_specifier->ValidateDeclaration(
+				context->GetTypeTable(), declaration->GetNameLocation());
 
-		if (ErrorList::IsTerminator(declaration_errors)) {
-			const_shared_ptr<Expression> initializer_expression =
-					declaration->GetInitializerExpression();
-			if (initializer_expression
-					&& !initializer_expression->IsConstant()) {
-				//if we have a non-constant initializer expression, generate an error
-				yy::location position = initializer_expression->GetPosition();
-				declaration_errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
-								position.begin.line, position.begin.column),
-						declaration_errors);
-			} else {
-				//otherwise (no initializer expression OR a valid initializer expression), preprocess
-				auto preprocess_errors = declaration->preprocess(
-						struct_context);
-				declaration_errors = ErrorList::Concatenate(declaration_errors,
-						preprocess_errors);
-			}
-		}
+		auto existing_member_type = type_table->GetType<TypeDefinition>(
+				member_name, SHALLOW, RETURN);
 
-		if (ErrorList::IsTerminator(declaration_errors)) {
-			//we've pre-processed this statement without issue
-			declaration_errors = ErrorList::Concatenate(declaration_errors,
-					declaration->execute(struct_context));
+		if (!existing_member_type) {
+			//generate a temporary structure in which to perform evaluations
+			//of the member declaration statement
+			const shared_ptr<symbol_map> values = make_shared<symbol_map>();
+			auto member_type_table = make_shared<TypeTable>(context_type_table);
+			shared_ptr<ExecutionContext> struct_context =
+					ExecutionContext::GetEmptyChild(context,
+							context->GetModifiers(), EPHEMERAL,
+							member_type_table, values);
+
+			if (ErrorList::IsTerminator(declaration_errors)) {
+				const_shared_ptr<Expression> initializer_expression =
+						declaration->GetInitializerExpression();
+				if (initializer_expression
+						&& !initializer_expression->IsConstant()) {
+					//if we have a non-constant initializer expression, generate an error
+					yy::location position =
+							initializer_expression->GetPosition();
+					declaration_errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
+									position.begin.line, position.begin.column),
+							declaration_errors);
+				} else {
+					//otherwise (no initializer expression OR a valid initializer expression);
+					//we're cleared to preprocess
+					auto preprocess_errors = declaration->preprocess(
+							struct_context);
+					declaration_errors = ErrorList::Concatenate(
+							declaration_errors, preprocess_errors);
+
+					if (ErrorList::IsTerminator(declaration_errors)) {
+						//we've pre-processed this statement without issue
+						declaration_errors = ErrorList::Concatenate(
+								declaration_errors,
+								declaration->execute(struct_context));
+					}
+				}
+			}
+
+			if (ErrorList::IsTerminator(declaration_errors)) {
+				symbol_map::iterator iter;
+				//extract member definitions into type aliases
+				for (iter = values->begin(); iter != values->end(); ++iter) {
+					const string member_name = iter->first;
+					auto symbol = iter->second;
+
+					const_shared_ptr<TypeSpecifier> type_specifier =
+							symbol->GetTypeSpecifier();
+
+					auto symbol_type_result = type_specifier->GetType(
+							context_type_table);
+					auto symbol_type_errors = symbol_type_result->GetErrors();
+					if (ErrorList::IsTerminator(symbol_type_errors)) {
+						auto symbol_type = symbol_type_result->GetData<
+								TypeDefinition>();
+						auto as_recursive = dynamic_pointer_cast<
+								const PlaceholderType>(symbol_type);
+						plain_shared_ptr<AliasDefinition> alias = nullptr;
+						if (as_recursive) {
+							auto as_maybe_specifier = dynamic_pointer_cast<
+									const MaybeTypeSpecifier>(type_specifier);
+							if (as_maybe_specifier) {
+								alias = make_shared<AliasDefinition>(
+										context_type_table, type_specifier,
+										RECURSIVE, nullptr);
+							} else {
+								assert(false);
+							}
+						} else {
+							auto value = symbol->GetValue();
+							alias = make_shared<AliasDefinition>(
+									context_type_table, type_specifier, DIRECT,
+									value);
+						}
+
+						type_table->AddType(member_name, alias);
+					} else {
+						declaration_errors = ErrorList::Concatenate(
+								declaration_errors, symbol_type_errors);
+					}
+				}
+
+				//add a type definition if we have one (that is, no aliasing occurred)
+				auto member_definition = member_type_table->GetType<
+						TypeDefinition>(member_name, SHALLOW, RETURN);
+				if (member_definition) {
+					type_table->AddType(*member_name, member_definition);
+				}
+			}
+		} else {
+			declaration_errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::PREVIOUS_DECLARATION,
+							declaration->GetNameLocation().begin.line,
+							declaration->GetNameLocation().begin.column,
+							*member_name), declaration_errors);
 		}
 
 		errors = ErrorList::Concatenate(declaration_errors, errors);
 		subject = subject->GetNext();
-	}
-
-	symbol_map::iterator iter;
-	if (ErrorList::IsTerminator(errors)) {
-		//extract member definitions into type aliases
-		for (iter = values->begin(); iter != values->end(); ++iter) {
-			const string member_name = iter->first;
-			auto symbol = iter->second;
-
-			const_shared_ptr<TypeSpecifier> type_specifier =
-					symbol->GetTypeSpecifier();
-
-			auto symbol_type = type_specifier->GetType(context_type_table);
-			auto as_recursive = dynamic_pointer_cast<const PlaceholderType>(
-					symbol_type);
-			plain_shared_ptr<AliasDefinition> alias = nullptr;
-			if (as_recursive) {
-				auto as_maybe_specifier = dynamic_pointer_cast<
-						const MaybeTypeSpecifier>(type_specifier);
-				if (as_maybe_specifier) {
-					alias = make_shared<AliasDefinition>(context_type_table,
-							type_specifier, RECURSIVE, nullptr);
-				} else {
-					assert(false);
-				}
-			} else {
-				auto value = symbol->GetValue();
-				alias = make_shared<AliasDefinition>(context_type_table,
-						type_specifier, DIRECT, value);
-			}
-
-			type_table->AddType(member_name, alias);
-		}
 	}
 
 	auto type = make_shared<RecordType>(type_table, modifiers);
@@ -185,12 +207,12 @@ const_shared_ptr<void> RecordType::GetDefaultValue(
 const_shared_ptr<Symbol> RecordType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value) const {
-	auto as_record_specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
-			type_specifier);
+	auto as_complex_specifier =
+			dynamic_pointer_cast<const ComplexTypeSpecifier>(type_specifier);
 
-	if (as_record_specifier) {
+	if (as_complex_specifier) {
 		auto as_record = static_pointer_cast<const Record>(value);
-		return make_shared<Symbol>(as_record_specifier, as_record);
+		return make_shared<Symbol>(as_complex_specifier, as_record);
 	}
 
 	return Symbol::GetDefaultSymbol();
@@ -207,8 +229,9 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 
 	const_shared_ptr<TypeSpecifier> initializer_expression_type =
 			initializer->GetTypeSpecifier(execution_context);
-	auto initializer_analysis = initializer_expression_type->AnalyzeAssignmentTo(
-			type_specifier, execution_context->GetTypeTable());
+	auto initializer_analysis =
+			initializer_expression_type->AnalyzeAssignmentTo(type_specifier,
+					execution_context->GetTypeTable());
 	if (initializer_analysis == EQUIVALENT) {
 		if (initializer->IsConstant()) {
 			const_shared_ptr<Result> result = initializer->Evaluate(
@@ -246,8 +269,9 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 
 const_shared_ptr<TypeSpecifier> RecordType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
-	return make_shared<RecordTypeSpecifier>(name, container);
+		const_shared_ptr<ComplexTypeSpecifier> container,
+		yy::location location) const {
+	return make_shared<RecordTypeSpecifier>(name, container, location);
 }
 
 const SetResult RecordType::InstantiateCore(
@@ -256,7 +280,7 @@ const SetResult RecordType::InstantiateCore(
 		const_shared_ptr<TypeSpecifier> value_type_specifier,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Record>(data);
-	auto specifier = dynamic_pointer_cast<const RecordTypeSpecifier>(
+	auto specifier = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 			type_specifier);
 
 	if (specifier

@@ -33,13 +33,12 @@ public:
 
 //	virtual const string ToString() const;
 
-	static const_shared_ptr<FunctionDeclaration> FromTypeSpecifier(
+	static const_shared_ptr<Result> FromTypeSpecifier(
 			const FunctionTypeSpecifier& type_specifier,
 			const TypeTable& type_table);
 
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	DeclarationListRef GetParameterList() const {
 		return m_parameter_list;

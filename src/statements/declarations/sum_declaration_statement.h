@@ -29,7 +29,7 @@ class Symbol;
 class SumDeclarationStatement: public DeclarationStatement {
 public:
 	SumDeclarationStatement(const yy::location position,
-			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const_shared_ptr<string> name, const yy::location name_location,
 			const DeclarationListRef variant_list,
 			const yy::location variant_list_location);
@@ -45,6 +45,7 @@ public:
 			const_shared_ptr<Expression> expression) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
+	virtual const yy::location GetTypeSpecifierLocation() const;
 
 private:
 	DeclarationListRef m_variant_list;

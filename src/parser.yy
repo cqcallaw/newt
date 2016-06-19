@@ -375,7 +375,7 @@ function_type_specifier:
 	LPAREN optional_anonymous_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
 		const TypeSpecifierListRef type_list = TypeSpecifierList::Reverse($2);
-		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @5);
+		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @5, @$);
 	}
 	;
 
@@ -383,12 +383,12 @@ function_type_specifier:
 complex_type_specifier:
 	IDENTIFIER
 	{
-		$$ = make_shared<RecordTypeSpecifier>($1);
+		$$ = make_shared<ComplexTypeSpecifier>($1, @$);
 	}
 	| namespace_qualifier_list IDENTIFIER
 	{
 		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
-		$$ = make_shared<RecordTypeSpecifier>($2, namespace_qualifier_list);
+		$$ = make_shared<ComplexTypeSpecifier>($2, nullptr, namespace_qualifier_list, @$);
 	}
 	;
 
@@ -396,17 +396,25 @@ complex_type_specifier:
 nested_type_specifier:
 	complex_type_specifier PERIOD IDENTIFIER
 	{
-		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+		$$ = make_shared<NestedTypeSpecifier>($1, $3, @$);
 	}
 	| nested_type_specifier PERIOD IDENTIFIER
 	{
-		$$ = make_shared<NestedTypeSpecifier>($1, $3);
+		$$ = make_shared<NestedTypeSpecifier>($1, $3, @$);
 	}
 	;
 
 //---------------------------------------------------------------------
 maybe_type_specifier:
-	type_specifier QMARK
+	primitive_type_specifier QMARK
+	{
+		$$ = make_shared<MaybeTypeSpecifier>($1);
+	}
+	| complex_type_specifier QMARK
+	{
+		$$ = make_shared<MaybeTypeSpecifier>($1);
+	}
+	| nested_type_specifier QMARK
 	{
 		$$ = make_shared<MaybeTypeSpecifier>($1);
 	}
@@ -427,6 +435,10 @@ type_specifier:
 		$$ = $1;
 	}
 	| nested_type_specifier
+	{
+		$$ = $1;
+	}
+	| maybe_type_specifier
 	{
 		$$ = $1;
 	}
@@ -896,7 +908,7 @@ struct_body:
 	IDENTIFIER LBRACE declaration_list RBRACE
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1, @$);
 		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 

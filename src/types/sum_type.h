@@ -51,7 +51,8 @@ public:
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
-			const_shared_ptr<ComplexTypeSpecifier> container) const;
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			yy::location location) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const TypeTable& type_table) const;

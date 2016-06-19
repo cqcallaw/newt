@@ -30,7 +30,8 @@ class FunctionTypeSpecifier: public TypeSpecifier {
 public:
 	FunctionTypeSpecifier(TypeSpecifierListRef parameter_type_list,
 			const_shared_ptr<TypeSpecifier> return_type,
-			const yy::location m_return_type_location);
+			const yy::location return_type_location,
+			const yy::location location = GetDefaultLocation());
 	FunctionTypeSpecifier(const FunctionTypeSpecifier& other);
 	virtual ~FunctionTypeSpecifier();
 
@@ -41,15 +42,17 @@ public:
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
+
+	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
+			const yy::location position) const;
 
 	TypeSpecifierListRef GetParameterTypeList() const {
 		return m_parameter_type_list;
 	}
 
-	const_shared_ptr<TypeSpecifier> GetReturnType() const {
+	const_shared_ptr<TypeSpecifier> GetReturnTypeSpecifier() const {
 		return m_return_type;
 	}
 

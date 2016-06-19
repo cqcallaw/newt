@@ -1,0 +1,9 @@
+# test mutually referential function member bodies
+
+a {
+	f:=() -> a.g? { return @a.g },
+	g:=() -> a.f? { return @a.f }
+}
+
+v:=@a
+r := v.f()

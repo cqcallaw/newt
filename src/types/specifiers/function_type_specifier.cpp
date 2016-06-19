@@ -37,9 +37,9 @@
 FunctionTypeSpecifier::FunctionTypeSpecifier(
 		TypeSpecifierListRef parameter_type_list,
 		const_shared_ptr<TypeSpecifier> return_type,
-		const yy::location return_type_location) :
-		m_parameter_type_list(parameter_type_list), m_return_type(return_type), m_return_type_location(
-				return_type_location) {
+		const yy::location return_type_location, const yy::location location) :
+		TypeSpecifier(location), m_parameter_type_list(parameter_type_list), m_return_type(
+				return_type), m_return_type_location(return_type_location) {
 }
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(const FunctionTypeSpecifier& other) :
@@ -82,7 +82,7 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	try {
 		const FunctionTypeSpecifier& as_function =
 				dynamic_cast<const FunctionTypeSpecifier&>(other);
-		if (*m_return_type == *as_function.GetReturnType()) {
+		if (*m_return_type == *as_function.GetReturnTypeSpecifier()) {
 			TypeSpecifierListRef subject = m_parameter_type_list;
 			TypeSpecifierListRef other_subject =
 					as_function.GetParameterTypeList();
@@ -107,11 +107,42 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const_shared_ptr<TypeDefinition> FunctionTypeSpecifier::GetType(
+const_shared_ptr<Result> FunctionTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	auto default_declaration = FunctionDeclaration::FromTypeSpecifier(*this,
-			type_table);
-	return make_shared<const FunctionType>(
-			default_declaration->GetParameterList(), m_return_type,
+	ErrorListRef errors = ErrorList::GetTerminator();
+
+	auto default_declaration_result = FunctionDeclaration::FromTypeSpecifier(
+			*this, type_table);
+	errors = default_declaration_result->GetErrors();
+
+	plain_shared_ptr<FunctionType> type = nullptr;
+	if (ErrorList::IsTerminator(errors)) {
+		auto default_declaration = default_declaration_result->GetData<
+				FunctionDeclaration>();
+		type = make_shared<const FunctionType>(
+				default_declaration->GetParameterList(), m_return_type,
+				m_return_type_location);
+	}
+
+	return make_shared<Result>(type, errors);
+}
+
+const ErrorListRef FunctionTypeSpecifier::ValidateDeclaration(
+		const TypeTable& type_table, const yy::location position) const {
+	ErrorListRef errors = ErrorList::GetTerminator();
+
+	auto subject = GetParameterTypeList();
+	while (!TypeSpecifierList::IsTerminator(subject)) {
+		auto parameter_type_specifier = subject->GetData();
+		auto parameter_errors = parameter_type_specifier->ValidateDeclaration(
+				type_table, parameter_type_specifier->GetLocation());
+		errors = ErrorList::Concatenate(errors, parameter_errors);
+		subject = subject->GetNext();
+	}
+
+	auto return_type_errors = m_return_type->ValidateDeclaration(type_table,
 			m_return_type_location);
+	errors = ErrorList::Concatenate(errors, return_type_errors);
+
+	return errors;
 }

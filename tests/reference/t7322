@@ -1,5 +1,5 @@
 Parsing file ../tests/t7322.nwt...
-Semantic error on line 5, column 3: Recursive members must be Maybe types.
+Semantic error on line 5, column 5: Type "a" has not been fully defined.
 Semantic error on line 9, column 5: Invalid type "a".
 Parsed file ../tests/t7322.nwt.
 2 errors found; giving up.

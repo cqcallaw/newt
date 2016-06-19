@@ -48,7 +48,7 @@ public:
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 private:
-	const_shared_ptr<TypeSpecifier> m_type;
+	const_shared_ptr<TypeSpecifier> m_type_specifier;
 	const yy::location m_type_position;
 };
 

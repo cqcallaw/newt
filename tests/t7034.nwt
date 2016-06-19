@@ -1,0 +1,14 @@
+# test type alias with recursive function parameter, initialization, and invocation with a widening conversion
+a {
+	b:int,
+	f:(a.b?) -> int
+}
+
+v:=@a with { 
+	f = (v:a.b?) -> int {
+		return 3
+	}
+}
+
+# t == 3, since the function returns a constant
+t:= v.f(10) 

@@ -143,13 +143,9 @@ bool PrimitiveTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const_shared_ptr<TypeDefinition> PrimitiveTypeSpecifier::GetType(
+const_shared_ptr<Result> PrimitiveTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
 	auto basic_type = GetBasicType();
-	if (basic_type != NONE) {
-		//TODO: cache these, or populate the default type table with them
-		return make_shared<PrimitiveType>(basic_type);
-	}
-
-	return nullptr;
+	auto result_type = PrimitiveType::FromBasicType(basic_type);
+	return make_shared<Result>(result_type, ErrorList::GetTerminator());
 }

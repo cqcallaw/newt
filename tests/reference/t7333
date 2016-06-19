@@ -1,0 +1,4 @@
+Parsing file ../tests/t7333.nwt...
+Semantic error on line 5, column 25: Type "a" has not been fully defined.
+Parsed file ../tests/t7333.nwt.
+1 error found; giving up.

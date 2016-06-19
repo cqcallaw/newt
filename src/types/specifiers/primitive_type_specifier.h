@@ -31,6 +31,11 @@ class Statement;
 
 class PrimitiveTypeSpecifier: public TypeSpecifier {
 public:
+	PrimitiveTypeSpecifier(const BasicType basic_type,
+			const yy::location location) :
+			TypeSpecifier(location), m_basic_type(basic_type) {
+	}
+
 	virtual ~PrimitiveTypeSpecifier() {
 	}
 
@@ -40,14 +45,14 @@ public:
 
 	const string ToString(const_shared_ptr<void> value) const;
 
-	virtual const AnalysisResult AnalyzeAssignmentTo(const_shared_ptr<TypeSpecifier> other,
+	virtual const AnalysisResult AnalyzeAssignmentTo(
+			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	const BasicType GetBasicType() const {
 		return m_basic_type;

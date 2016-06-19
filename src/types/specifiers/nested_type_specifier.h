@@ -24,21 +24,30 @@
 
 class ComplexTypeSpecifier;
 
+/**
+ * A nested type specifier.
+ * This weird type specifier exists because a qualified type specifier may specifier
+ * any concrete type--primitive, complex, or even an alias
+ */
 class NestedTypeSpecifier: public TypeSpecifier {
 public:
 	NestedTypeSpecifier(const_shared_ptr<TypeSpecifier> parent,
-			const_shared_ptr<std::string> member_name);
+			const_shared_ptr<std::string> member_name,
+			const yy::location location = GetDefaultLocation());
 	virtual ~NestedTypeSpecifier();
 
 	virtual const std::string ToString() const;
-	virtual const AnalysisResult AnalyzeAssignmentTo(const_shared_ptr<TypeSpecifier> other,
+	virtual const AnalysisResult AnalyzeAssignmentTo(
+			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;
+
+	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
+			const yy::location position) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
-	virtual const_shared_ptr<TypeDefinition> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	const_shared_ptr<TypeSpecifier> GetParent() const {
 		return m_parent;

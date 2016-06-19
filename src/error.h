@@ -75,6 +75,7 @@ public:
 		MEMBER_DEFAULTS_MUST_BE_CONSTANT,
 		READONLY,
 		UNDECLARED_TYPE,
+		PARTIALLY_DECLARED_TYPE,
 		UNDECLARED_MEMBER,
 		FUNCTION_RETURN_MISMATCH,
 		FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
@@ -89,13 +90,21 @@ public:
 		MATCH_FAILURE,
 		DUPLICATE_MATCH_BLOCK,
 		EXTRANEOUS_DEFAULT_MATCH,
-		RECURSIVE_MEMBERS_MUST_BE_NULLABLE
+		RAW_RECURSIVE_DECLARATION
 	};
 
 	Error(ErrorClass error_class, ErrorCode code, int line_number,
 			int column_number, string s1 = "", string s2 = "", string s3 = "");
 
 	const string ToString() const;
+
+	const ErrorCode GetCode() const {
+		return m_code;
+	}
+
+	const ErrorClass GetErrorClass() const {
+		return m_error_class;
+	}
 
 protected:
 	static void error_core(ostream &os, ErrorCode code, string s1 = "",

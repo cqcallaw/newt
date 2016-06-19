@@ -58,7 +58,8 @@ const std::string FunctionType::ValueToString(const TypeTable& type_table,
 
 const_shared_ptr<TypeSpecifier> FunctionType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<ComplexTypeSpecifier> container,
+		yy::location location) const {
 	return m_type_specifier;
 }
 
@@ -87,7 +88,7 @@ const_shared_ptr<Function> FunctionType::GetDefaultFunction(
 		const_shared_ptr<FunctionDeclaration> declaration,
 		const TypeTable& type_table) {
 	auto statement_block = GetDefaultStatementBlock(
-			declaration->GetReturnType(), type_table);
+			declaration->GetReturnTypeSpecifier(), type_table);
 	return make_shared<Function>(declaration, statement_block,
 			ExecutionContext::GetDefault());
 }

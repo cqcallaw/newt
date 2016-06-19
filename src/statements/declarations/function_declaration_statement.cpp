@@ -29,14 +29,14 @@
 
 FunctionDeclarationStatement::FunctionDeclarationStatement(
 		const yy::location position,
-		const_shared_ptr<FunctionTypeSpecifier> type,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
+		const_shared_ptr<FunctionTypeSpecifier> type_specifier,
+		const yy::location type_specifier_location,
+		const_shared_ptr<string> name, const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position, name, name_position,
 				initializer_expression, ModifierList::GetTerminator(),
-				GetDefaultLocation()), m_type(type), m_type_position(
-				type_position) {
+				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_specifier_location(
+				type_specifier_location) {
 }
 
 FunctionDeclarationStatement::~FunctionDeclarationStatement() {
@@ -53,7 +53,8 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (GetInitializerExpression()) {
 			const_shared_ptr<TypeSpecifier> expression_type =
-					GetInitializerExpression()->GetTypeSpecifier(execution_context);
+					GetInitializerExpression()->GetTypeSpecifier(
+							execution_context);
 			const_shared_ptr<FunctionTypeSpecifier> as_function =
 					std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 							expression_type);
@@ -73,7 +74,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
-			auto value = m_type->DefaultValue(*type_table);
+			auto value = m_type_specifier->DefaultValue(*type_table);
 
 			auto symbol = make_shared<Symbol>(
 					static_pointer_cast<const Function>(value));
@@ -88,8 +89,8 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNamePosition().begin.line,
-						GetNamePosition().begin.column, *(GetName())), errors);
+						GetNameLocation().begin.line,
+						GetNameLocation().begin.column, *(GetName())), errors);
 	}
 
 	return errors;
@@ -99,7 +100,7 @@ const ErrorListRef FunctionDeclarationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	if (GetInitializerExpression()) {
 		Variable* temp_variable = new BasicVariable(GetName(),
-				GetNamePosition());
+				GetNameLocation());
 		auto errors = temp_variable->AssignValue(execution_context,
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
@@ -112,10 +113,14 @@ const ErrorListRef FunctionDeclarationStatement::execute(
 
 const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new FunctionDeclarationStatement(GetPosition(), m_type,
-			expression->GetPosition(), GetName(), GetNamePosition(), expression);
+	return new FunctionDeclarationStatement(GetLocation(), m_type_specifier,
+			expression->GetPosition(), GetName(), GetNameLocation(), expression);
 }
 
 const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetTypeSpecifier() const {
-	return m_type;
+	return m_type_specifier;
+}
+
+const yy::location FunctionDeclarationStatement::GetTypeSpecifierLocation() const {
+	return m_type_specifier_location;
 }

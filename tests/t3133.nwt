@@ -1,0 +1,7 @@
+# test member that tries to alias a neighbor
+a {
+	b:int,
+	c:a.b
+}
+
+v:=@a

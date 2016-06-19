@@ -26,9 +26,9 @@
 class NestedDeclarationStatement: public DeclarationStatement {
 public:
 	NestedDeclarationStatement(const yy::location position,
-			const_shared_ptr<NestedTypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
+			const_shared_ptr<NestedTypeSpecifier> type_specifier,
+			const yy::location type_specifier_location,
+			const_shared_ptr<string> name, const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression = nullptr);
 	virtual ~NestedDeclarationStatement();
 
@@ -41,17 +41,17 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
 
-	const const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
-		return m_type;
+	virtual const const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
+		return m_type_specifier;
 	}
 
-	const yy::location GetTypePosition() const {
-		return m_type_position;
+	virtual const yy::location GetTypeSpecifierLocation() const {
+		return m_type_specifier_location;
 	}
 
 private:
-	const_shared_ptr<NestedTypeSpecifier> m_type;
-	const yy::location m_type_position;
+	const_shared_ptr<NestedTypeSpecifier> m_type_specifier;
+	const yy::location m_type_specifier_location;
 };
 
 #endif /* STATEMENTS_DECLARATIONS_NESTED_DECLARATION_STATEMENT_H_ */

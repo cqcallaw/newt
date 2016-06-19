@@ -4,7 +4,7 @@ Semantic error on line 3, column 13: Index value '1000' is out of bounds for arr
 Root Symbol Table:
 ----------------
 int[] nums:
-end array
+
 
 Root Type Table:
 ----------------

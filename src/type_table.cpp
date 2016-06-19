@@ -175,7 +175,7 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 
 		auto default_value = type->GetDefaultValue(*this);
 		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name),
-				container);
+				container, GetDefaultLocation());
 		auto default_symbol = type->GetSymbol(*this, type_specifier,
 				default_value);
 
@@ -211,7 +211,8 @@ const_shared_ptr<UnitType> TypeTable::GetNilType() {
 const_shared_ptr<ComplexTypeSpecifier> TypeTable::GetNilTypeSpecifier() {
 	const static const_shared_ptr<ComplexTypeSpecifier> value =
 			static_pointer_cast<const ComplexTypeSpecifier>(
-					GetNilType()->GetTypeSpecifier(GetNilName(), nullptr));
+					GetNilType()->GetTypeSpecifier(GetNilName(), nullptr,
+							GetDefaultLocation()));
 	return value;
 }
 

@@ -3,20 +3,27 @@ Parsed file ../tests/t0031.nwt.
 Root Symbol Table:
 ----------------
 test[] a:
-	[0]: 
+	[0]
 		int x: 10
-	[1]: 
+
+	[1]
 		int x: 12
 
+
 nested_container container:
-	test[][] test:
-		[0]: 
-		[1]: 
-		[2]: 
-			[0]: 
+	test[][] member:
+		[0]
+
+		[1]
+
+		[2]
+			[0]
 				int x: 10
-			[1]: 
+
+			[1]
 				int x: 12
+
+
 
 
 
@@ -24,7 +31,7 @@ Root Type Table:
 ----------------
 nested_container:
 	<record>
-	test:
+	member:
 		test[][] ()
 
 test:

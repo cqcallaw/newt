@@ -25,9 +25,6 @@
 
 class PrimitiveType: public TypeDefinition {
 public:
-	PrimitiveType(const BasicType type) :
-			m_type(type) {
-	}
 	virtual ~PrimitiveType();
 
 	virtual const std::string ToString(const TypeTable& type_table,
@@ -41,7 +38,8 @@ public:
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
-			const_shared_ptr<ComplexTypeSpecifier> container) const;
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			yy::location location) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const TypeTable& type_table) const;
@@ -59,12 +57,27 @@ public:
 
 	static const_shared_ptr<void> GetDefaultValue(const BasicType& basic_type);
 
+	static const_shared_ptr<PrimitiveType> FromBasicType(BasicType type);
+
+	static const_shared_ptr<PrimitiveType> GetNone();
+
+	static const_shared_ptr<PrimitiveType> GetBoolean();
+
+	static const_shared_ptr<PrimitiveType> GetInt();
+
+	static const_shared_ptr<PrimitiveType> GetDouble();
+
+	static const_shared_ptr<PrimitiveType> GetString();
+
 	const BasicType GetType() const {
 		return m_type;
 	}
 
 private:
 	const BasicType m_type;
+	PrimitiveType(const BasicType type) :
+			m_type(type) {
+	}
 };
 
 #endif /* PRIMITIVE_TYPE_H_ */

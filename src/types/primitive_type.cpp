@@ -93,8 +93,10 @@ const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 
 const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
-	return PrimitiveTypeSpecifier::FromBasicType(m_type);
+		const_shared_ptr<ComplexTypeSpecifier> container,
+		yy::location location) const {
+	auto specifier = make_shared<PrimitiveTypeSpecifier>(m_type, location);
+	return specifier;
 }
 
 const std::string PrimitiveType::GetValueSeparator(const Indent& indent,
@@ -109,4 +111,49 @@ const_shared_ptr<DeclarationStatement> PrimitiveType::GetDeclarationStatement(
 		const_shared_ptr<Expression> initializer_expression) const {
 	return make_shared<PrimitiveDeclarationStatement>(position, type,
 			type_position, name, name_position, initializer_expression);
+}
+
+const_shared_ptr<PrimitiveType> PrimitiveType::FromBasicType(BasicType type) {
+	switch (type) {
+	case BOOLEAN:
+		return GetBoolean();
+	case INT:
+		return GetInt();
+	case DOUBLE:
+		return GetDouble();
+	case STRING:
+		return GetString();
+	default:
+		return GetNone();
+	}
+}
+
+const_shared_ptr<PrimitiveType> PrimitiveType::GetNone() {
+	static const_shared_ptr<PrimitiveType> instance = const_shared_ptr<
+			PrimitiveType>(new PrimitiveType(BasicType::NONE));
+	return instance;
+}
+
+const_shared_ptr<PrimitiveType> PrimitiveType::GetBoolean() {
+	static const_shared_ptr<PrimitiveType> instance = const_shared_ptr<
+			PrimitiveType>(new PrimitiveType(BasicType::BOOLEAN));
+	return instance;
+}
+
+const_shared_ptr<PrimitiveType> PrimitiveType::GetInt() {
+	static const_shared_ptr<PrimitiveType> instance = const_shared_ptr<
+			PrimitiveType>(new PrimitiveType(BasicType::INT));
+	return instance;
+}
+
+const_shared_ptr<PrimitiveType> PrimitiveType::GetDouble() {
+	static const_shared_ptr<PrimitiveType> instance = const_shared_ptr<
+			PrimitiveType>(new PrimitiveType(BasicType::DOUBLE));
+	return instance;
+}
+
+const_shared_ptr<PrimitiveType> PrimitiveType::GetString() {
+	static const_shared_ptr<PrimitiveType> instance = const_shared_ptr<
+			PrimitiveType>(new PrimitiveType(BasicType::STRING));
+	return instance;
 }

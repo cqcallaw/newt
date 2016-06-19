@@ -28,7 +28,7 @@
 class RecordDeclarationStatement: public DeclarationStatement {
 public:
 	RecordDeclarationStatement(const yy::location position,
-			const_shared_ptr<RecordTypeSpecifier> type,
+			const_shared_ptr<RecordTypeSpecifier> type_specifier,
 			const_shared_ptr<string> name, const yy::location name_location,
 			DeclarationListRef member_declaration_list,
 			const yy::location member_declaration_list_location,
@@ -44,6 +44,10 @@ public:
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
 		return m_type;
+	}
+
+	virtual const yy::location GetTypeSpecifierLocation() const {
+		return GetNameLocation();
 	}
 
 	DeclarationListRef GetMemberDeclarationList() const {

@@ -1,11 +1,11 @@
 point {
 	x:int,
 	y:int,
-	translate:(int, int) -> point
+	translate:(int, int) -> point?
 }
 
 p:point = @point with {
-	translate = (x:int, y:int) -> point {
+	translate = (x:int, y:int) -> point? {
 		return @point with {
 			#N.B. the 'x' on the right-hand side references the function
 			#parameter, _not_ the struct member

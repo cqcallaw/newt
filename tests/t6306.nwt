@@ -1,0 +1,6 @@
+#test Maybe return type
+f:= () -> int? {
+	return 3
+}
+# v == 3
+v := f()

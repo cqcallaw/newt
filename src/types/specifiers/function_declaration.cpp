@@ -39,16 +39,18 @@ FunctionDeclaration::FunctionDeclaration(DeclarationListRef parameter_list,
 
 FunctionDeclaration::FunctionDeclaration(const FunctionDeclaration& other) :
 		FunctionTypeSpecifier(other.GetParameterTypeList(),
-				other.GetReturnType(), other.GetReturnTypeLocation()), m_parameter_list(
+				other.GetReturnTypeSpecifier(), other.GetReturnTypeLocation()), m_parameter_list(
 				other.m_parameter_list) {
 }
 
 FunctionDeclaration::~FunctionDeclaration() {
 }
 
-const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
+const_shared_ptr<Result> FunctionDeclaration::FromTypeSpecifier(
 		const FunctionTypeSpecifier& type_specifier,
 		const TypeTable& type_table) {
+	ErrorListRef errors = ErrorList::GetTerminator();
+
 	TypeSpecifierListRef subject = type_specifier.GetParameterTypeList();
 	DeclarationListRef result = DeclarationList::GetTerminator();
 	int count = 1;
@@ -56,47 +58,34 @@ const_shared_ptr<FunctionDeclaration> FunctionDeclaration::FromTypeSpecifier(
 		ostringstream buf;
 		const_shared_ptr<TypeSpecifier> data = subject->GetData();
 		buf << "Arg" << count;
-		result = DeclarationList::From(
-				data->GetType(type_table)->GetDeclarationStatement(
-						GetDefaultLocation(), data, GetDefaultLocation(),
-						const_shared_ptr<string>(new string(buf.str())),
-						GetDefaultLocation(), nullptr), result);
+		auto parameter_type_result = data->GetType(type_table);
+
+		auto parameter_errors = parameter_type_result->GetErrors();
+		if (ErrorList::IsTerminator(parameter_errors)) {
+			auto parameter_type =
+					parameter_type_result->GetData<TypeDefinition>();
+			result = DeclarationList::From(
+					parameter_type->GetDeclarationStatement(
+							GetDefaultLocation(), data, GetDefaultLocation(),
+							const_shared_ptr<string>(new string(buf.str())),
+							GetDefaultLocation(), nullptr), result);
+		} else {
+			errors = ErrorList::Concatenate(errors, parameter_errors);
+		}
 		count++;
 		subject = subject->GetNext();
 	}
 
-	DeclarationListRef declaration_list = DeclarationList::Reverse(result);
+	plain_shared_ptr<FunctionDeclaration> declaration = nullptr;
+	if (ErrorList::IsTerminator(errors)) {
+		DeclarationListRef declaration_list = DeclarationList::Reverse(result);
+		declaration = make_shared<FunctionDeclaration>(declaration_list,
+				type_specifier.GetReturnTypeSpecifier(),
+				type_specifier.GetReturnTypeLocation());
+	}
 
-	return make_shared<FunctionDeclaration>(declaration_list,
-			type_specifier.GetReturnType(),
-			type_specifier.GetReturnTypeLocation());
+	return make_shared<Result>(declaration, errors);
 }
-
-//const_shared_ptr<void> FunctionDeclaration::DefaultValue(
-//		const TypeTable& type_table) const {
-//	return GetDefaultFunctionDeclaration(*this, type_table);
-//}
-//
-//const_shared_ptr<DeclarationStatement> FunctionDeclaration::GetDeclarationStatement(
-//		const yy::location position, const_shared_ptr<TypeSpecifier> type,
-//		const yy::location type_position, const_shared_ptr<string> name,
-//		const yy::location name_position,
-//		const_shared_ptr<Expression> initializer_expression) const {
-//	return make_shared<FunctionDeclarationStatement>(position,
-//			static_pointer_cast<const FunctionTypeSpecifier>(type),
-//			type_position, name, name_position, initializer_expression);
-//}
-
-//const_shared_ptr<Function> FunctionDeclaration::GetDefaultFunctionDeclaration(
-//		const FunctionDeclaration& function_declaration,
-//		const TypeTable& type_table) {
-//	auto statement_block = GetDefaultStatementBlock(
-//			function_declaration.GetReturnType(), type_table);
-//
-//	return make_shared<const Function>(
-//			make_shared<FunctionDeclaration>(function_declaration),
-//			statement_block, ExecutionContext::GetDefault());
-//}
 
 TypeSpecifierListRef FunctionDeclaration::GetTypeList(
 		DeclarationListRef parameter_list) {
@@ -132,10 +121,10 @@ TypeSpecifierListRef FunctionDeclaration::GetTypeList(
 //	return buffer.str();
 //}
 
-const_shared_ptr<TypeDefinition> FunctionDeclaration::GetType(
+const_shared_ptr<Result> FunctionDeclaration::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
 	auto result = make_shared<const FunctionType>(m_parameter_list,
-			GetReturnType(), GetReturnTypeLocation());
+			GetReturnTypeSpecifier(), GetReturnTypeLocation());
 
-	return result;
+	return make_shared<Result>(result, ErrorList::GetTerminator());
 }

@@ -46,7 +46,8 @@ const ErrorListRef UnitDeclarationStatement::preprocess(
 		auto type_name = as_complex->GetTypeName();
 		plain_shared_ptr<TypeDefinition> type = nullptr;
 		if (as_complex->GetTypeName()->compare(*TypeTable::GetNilName()) != 0) {
-			type = m_type_specifier->GetType(type_table, RESOLVE);
+			auto type_result = m_type_specifier->GetType(type_table, RESOLVE);
+			type = type_result->GetData<TypeDefinition>();
 			if (!type) {
 				type = make_shared<UnitType>();
 				type_table->AddType(*type_name, type);
@@ -64,15 +65,15 @@ const ErrorListRef UnitDeclarationStatement::preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNamePosition().begin.line,
-								GetNamePosition().begin.column, *GetName()),
+								GetNameLocation().begin.line,
+								GetNameLocation().begin.column, *GetName()),
 						errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							GetNamePosition().begin.line,
-							GetNamePosition().begin.column,
+							GetNameLocation().begin.line,
+							GetNameLocation().begin.column,
 							m_type_specifier->ToString()), errors);
 		}
 	} else {
@@ -95,6 +96,10 @@ const ErrorListRef UnitDeclarationStatement::GetReturnStatementErrors(
 
 const_shared_ptr<TypeSpecifier> UnitDeclarationStatement::GetTypeSpecifier() const {
 	return m_type_specifier;
+}
+
+const yy::location UnitDeclarationStatement::GetTypeSpecifierLocation() const {
+	return m_type_specifier_location;
 }
 
 const DeclarationStatement* UnitDeclarationStatement::WithInitializerExpression(

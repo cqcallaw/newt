@@ -61,10 +61,7 @@ const_shared_ptr<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 					expression_type);
 	if (as_function) {
-		auto return_type = ComplexType::ToActualType(
-				as_function->GetReturnType(),
-				*execution_context->GetTypeTable());
-		return return_type;
+		return as_function->GetReturnTypeSpecifier();
 	} else {
 		return PrimitiveTypeSpecifier::GetNone();
 	}
@@ -177,38 +174,55 @@ const ErrorListRef InvokeExpression::Validate(
 					const_shared_ptr<Expression> argument_expression =
 							argument->GetData();
 					if (!DeclarationList::IsTerminator(parameter)) {
-						const_shared_ptr<DeclarationStatement> declaration =
-								parameter->GetData();
-
-						const_shared_ptr<TypeSpecifier> parameter_type =
-								declaration->GetTypeSpecifier();
-						const_shared_ptr<TypeSpecifier> argument_type =
-								argument_expression->GetTypeSpecifier(
+						auto argument_expression_errors =
+								argument_expression->Validate(
 										execution_context);
-						auto conversion_analysis =
-								argument_type->AnalyzeAssignmentTo(parameter_type,
-										execution_context->GetTypeTable());
-						if (conversion_analysis == AMBIGUOUS) {
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
-													argument_expression->GetPosition().begin.line,
-													argument_expression->GetPosition().begin.column,
-													argument_type->ToString(),
-													parameter_type->ToString()),
-											errors);
-						} else if (conversion_analysis == INCOMPATIBLE) {
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
-													argument_expression->GetPosition().begin.line,
-													argument_expression->GetPosition().begin.column,
-													argument_type->ToString(),
-													parameter_type->ToString()),
-											errors);
+
+						if (ErrorList::IsTerminator(
+								argument_expression_errors)) {
+							const_shared_ptr<DeclarationStatement> declaration =
+									parameter->GetData();
+
+							const_shared_ptr<TypeSpecifier> parameter_type_specifier =
+									declaration->GetTypeSpecifier();
+							const_shared_ptr<TypeSpecifier> argument_type_specifier =
+									argument_expression->GetTypeSpecifier(
+											execution_context);
+
+							auto debug = parameter_type_specifier->ToString();
+							auto debug2 = argument_type_specifier->ToString();
+							auto assignment_analysis =
+									argument_type_specifier->AnalyzeAssignmentTo(
+											parameter_type_specifier,
+											execution_context->GetTypeTable());
+							if (assignment_analysis == AMBIGUOUS) {
+								errors =
+										ErrorList::From(
+												make_shared<Error>(
+														Error::SEMANTIC,
+														Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
+														argument_expression->GetPosition().begin.line,
+														argument_expression->GetPosition().begin.column,
+														argument_type_specifier->ToString(),
+														parameter_type_specifier->ToString()),
+												errors);
+							} else if (assignment_analysis == INCOMPATIBLE) {
+								errors =
+										ErrorList::From(
+												make_shared<Error>(
+														Error::SEMANTIC,
+														Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
+														argument_expression->GetPosition().begin.line,
+														argument_expression->GetPosition().begin.column,
+														argument_type_specifier->ToString(),
+														parameter_type_specifier->ToString()),
+												errors);
+							}
+						} else {
+							errors = ErrorList::Concatenate(errors,
+									argument_expression_errors);
 						}
+
 						argument = argument->GetNext();
 						parameter = parameter->GetNext();
 					} else {
@@ -259,7 +273,8 @@ const ErrorListRef InvokeExpression::Validate(
 										execution_context);
 
 						auto conversion_analysis =
-								argument_type->AnalyzeAssignmentTo(parameter_type,
+								argument_type->AnalyzeAssignmentTo(
+										parameter_type,
 										execution_context->GetTypeTable());
 						if (conversion_analysis == AMBIGUOUS) {
 							errors =

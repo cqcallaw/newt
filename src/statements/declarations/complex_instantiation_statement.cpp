@@ -36,13 +36,13 @@
 ComplexInstantiationStatement::ComplexInstantiationStatement(
 		const yy::location position,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
-		const yy::location type_position, const_shared_ptr<string> name,
-		const yy::location name_position,
+		const yy::location type_specifier_location,
+		const_shared_ptr<string> name, const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) :
 		DeclarationStatement(position, name, name_position,
 				initializer_expression, ModifierList::GetTerminator(),
-				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_position(
-				type_position) {
+				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_specifier_location(
+				type_specifier_location) {
 }
 
 ComplexInstantiationStatement::~ComplexInstantiationStatement() {
@@ -52,10 +52,13 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type = m_type_specifier->GetType(execution_context->GetTypeTable());
-	if (type) {
-		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
+	auto type_result = m_type_specifier->GetType(
+			execution_context->GetTypeTable());
 
+	errors = type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto type = type_result->GetData<TypeDefinition>();
+		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 		if (as_complex) {
 			auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
 			if (existing == Symbol::GetDefaultSymbol()) {
@@ -82,25 +85,18 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								m_type_position.begin.line,
-								m_type_position.begin.column, *GetName()),
-						errors);
+								m_type_specifier_location.begin.line,
+								m_type_specifier_location.begin.column,
+								*GetName()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::NOT_A_COMPOUND_TYPE,
-							m_type_position.begin.line,
-							m_type_position.begin.column,
+							m_type_specifier_location.begin.line,
+							m_type_specifier_location.begin.column,
 							m_type_specifier->ToString()), errors);
 		}
-	} else {
-		//type does not exist
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						m_type_position.begin.line,
-						m_type_position.begin.column,
-						m_type_specifier->ToString()), errors);
 	}
 
 	return errors;
@@ -114,27 +110,35 @@ const ErrorListRef ComplexInstantiationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<TypeDefinition> type = m_type_specifier->GetType(
+	auto type_result = m_type_specifier->GetType(
 			execution_context->GetTypeTable(), RESOLVE);
 
-	auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
-	if (as_complex) {
-		errors = as_complex->Instantiate(execution_context, m_type_specifier,
-				GetName(), GetInitializerExpression());
-	} else {
-		//type does not exist
-		errors = ErrorList::From(
-				make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_TYPE,
-						m_type_position.begin.line,
-						m_type_position.begin.column,
-						m_type_specifier->ToString()), errors);
+	errors = type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto type = type_result->GetData<TypeDefinition>();
+		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
+		if (as_complex) {
+			errors = as_complex->Instantiate(execution_context,
+					m_type_specifier, GetName(), GetInitializerExpression());
+		} else {
+			//type does not exist
+			errors = ErrorList::From(
+					make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_TYPE,
+							m_type_specifier_location.begin.line,
+							m_type_specifier_location.begin.column,
+							m_type_specifier->ToString()), errors);
+		}
 	}
 
 	return errors;
 }
 
+const yy::location ComplexInstantiationStatement::GetTypeSpecifierLocation() const {
+	return m_type_specifier_location;
+}
+
 const DeclarationStatement* ComplexInstantiationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-	return new ComplexInstantiationStatement(GetPosition(), m_type_specifier,
-			m_type_position, GetName(), GetNamePosition(), expression);
+	return new ComplexInstantiationStatement(GetLocation(), m_type_specifier,
+			m_type_specifier_location, GetName(), GetNameLocation(), expression);
 }
