@@ -1,0 +1,13 @@
+Parsing file ../tests/t3032.nwt...
+Parsed file ../tests/t3032.nwt.
+Root Symbol Table:
+----------------
+int outside: 3
+
+Root Type Table:
+----------------
+a:
+	<record>
+	f:
+		() -> int (Body Location: 4.16-30)
+

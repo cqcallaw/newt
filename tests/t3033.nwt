@@ -1,0 +1,8 @@
+# test default values for function members with reference to closure context and invocation
+outside:int = 3
+a {
+	f:=() -> int { return outside }
+}
+
+v:=@a
+r := v.f()

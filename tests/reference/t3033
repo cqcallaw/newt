@@ -1,0 +1,18 @@
+Parsing file ../tests/t3033.nwt...
+Parsed file ../tests/t3033.nwt.
+Root Symbol Table:
+----------------
+int outside: 3
+int r: 3
+a v:
+	() -> int f:
+		Body Location: 4.16-30
+
+
+Root Type Table:
+----------------
+a:
+	<record>
+	f:
+		() -> int (Body Location: 4.16-30)
+

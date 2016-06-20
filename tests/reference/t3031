@@ -1,8 +1,12 @@
-Parsing file ../tests/t3030.nwt...
-Parsed file ../tests/t3030.nwt.
+Parsing file ../tests/t3031.nwt...
+Parsed file ../tests/t3031.nwt.
 Root Symbol Table:
 ----------------
-<empty>
+int r: 3
+a v:
+	() -> int f:
+		Body Location: 3.16-24
+
 
 Root Type Table:
 ----------------
