@@ -41,7 +41,7 @@ AssignmentStatement::AssignmentStatement(const_shared_ptr<Variable> variable,
 AssignmentStatement::~AssignmentStatement() {
 }
 
-const ErrorListRef AssignmentStatement::preprocess(
+const ErrorListRef AssignmentStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -216,7 +216,7 @@ const ErrorListRef AssignmentStatement::do_op(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
 						variable_column, *variable_name,
-						type_to_string(variable_type)), errors);
+						TypeToString(variable_type)), errors);
 		out = false;
 	}
 
@@ -245,7 +245,7 @@ const ErrorListRef AssignmentStatement::do_op(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
 						variable_column, *variable_name,
-						type_to_string(variable_type)), errors);
+						TypeToString(variable_type)), errors);
 		out = 0;
 	}
 
@@ -274,7 +274,7 @@ const ErrorListRef AssignmentStatement::do_op(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
 						variable_column, *variable_name,
-						type_to_string(variable_type)), errors);
+						TypeToString(variable_type)), errors);
 		out = 1.0;
 	}
 
@@ -336,7 +336,7 @@ const ErrorListRef AssignmentStatement::do_op(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
 						variable_column, *(variable_name),
-						type_to_string(variable_type)), errors);
+						TypeToString(variable_type)), errors);
 	}
 
 	return errors;
@@ -380,14 +380,14 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-							variable_column, type_to_string(INT),
+							variable_column, TypeToString(INT),
 							expression_type_specifier->ToString()), errors);
 		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-						variable_column, type_to_string(INT),
+						variable_column, TypeToString(INT),
 						expression_type_specifier->ToString()), errors);
 	}
 
@@ -439,14 +439,14 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-							variable_column, type_to_string(DOUBLE),
+							variable_column, TypeToString(DOUBLE),
 							expression_type_specifier->ToString()), errors);
 		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-						variable_column, type_to_string(DOUBLE),
+						variable_column, TypeToString(DOUBLE),
 						expression_type_specifier->ToString()), errors);
 	}
 
@@ -504,14 +504,14 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-							variable_column, type_to_string(STRING),
+							variable_column, TypeToString(STRING),
 							expression_type_specifier->ToString()), errors);
 		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-						variable_column, type_to_string(STRING),
+						variable_column, TypeToString(STRING),
 						expression_type_specifier->ToString()), errors);
 	}
 
@@ -519,7 +519,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 	return make_shared<Result>(wrapper, errors);
 }
 
-const ErrorListRef AssignmentStatement::execute(
+const ErrorListRef AssignmentStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 

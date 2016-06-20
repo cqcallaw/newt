@@ -48,7 +48,7 @@ ForStatement::ForStatement(const_shared_ptr<DeclarationStatement> initial,
 ForStatement::~ForStatement() {
 }
 
-const ErrorListRef ForStatement::preprocess(
+const ErrorListRef ForStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 
@@ -59,7 +59,7 @@ const ErrorListRef ForStatement::preprocess(
 					new_parent);
 
 	if (m_initial) {
-		errors = m_initial->preprocess(new_execution_context);
+		errors = m_initial->Preprocess(new_execution_context);
 		if (!ErrorList::IsTerminator(errors)) {
 			return errors;
 		}
@@ -73,7 +73,7 @@ const ErrorListRef ForStatement::preprocess(
 				execution_context->GetTypeTable());
 		if (loop_expression_analysis == EQUIVALENT
 				|| loop_expression_analysis == UNAMBIGUOUS) {
-			errors = m_statement_block->preprocess(new_execution_context);
+			errors = m_statement_block->Preprocess(new_execution_context);
 		} else {
 			yy::location position = m_loop_expression->GetPosition();
 			errors = ErrorList::From(
@@ -87,7 +87,7 @@ const ErrorListRef ForStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef ForStatement::execute(
+const ErrorListRef ForStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef initialization_errors;
 
@@ -98,7 +98,7 @@ const ErrorListRef ForStatement::execute(
 					new_parent);
 
 	if (m_initial) {
-		initialization_errors = m_initial->execute(new_execution_context);
+		initialization_errors = m_initial->Execute(new_execution_context);
 		if (!ErrorList::IsTerminator(initialization_errors)) {
 			return initialization_errors;
 		}
@@ -114,7 +114,7 @@ const ErrorListRef ForStatement::execute(
 	while (*(evaluation->GetData<bool>())) {
 		ErrorListRef iteration_errors = ErrorList::GetTerminator();
 		if (m_statement_block) {
-			iteration_errors = m_statement_block->execute(
+			iteration_errors = m_statement_block->Execute(
 					new_execution_context);
 		}
 		if (!ErrorList::IsTerminator(iteration_errors)) {
@@ -122,7 +122,7 @@ const ErrorListRef ForStatement::execute(
 		}
 
 		ErrorListRef assignment_errors;
-		assignment_errors = m_loop_assignment->execute(new_execution_context);
+		assignment_errors = m_loop_assignment->Execute(new_execution_context);
 		if (!ErrorList::IsTerminator(assignment_errors)) {
 			return assignment_errors;
 		}

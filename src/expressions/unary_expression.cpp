@@ -75,7 +75,7 @@ const ErrorListRef UnaryExpression::Validate(
 						Error::INVALID_RIGHT_OPERAND_TYPE,
 						expression->GetPosition().begin.line,
 						expression->GetPosition().begin.column,
-						operator_to_string(op)), result);
+						OperatorToString(op)), result);
 	}
 
 	return result;

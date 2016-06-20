@@ -38,10 +38,13 @@ public:
 	/**
 	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
 	 */
-	virtual const ErrorListRef preprocess(
+	virtual const ErrorListRef Preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const = 0;
 
-	virtual const ErrorListRef execute(
+	/**
+	 * Execute the statement. Here the interpreter carries out the rest of the statement instructions.
+	 */
+	virtual const ErrorListRef Execute(
 			shared_ptr<ExecutionContext> execution_context) const = 0;
 
 	virtual const ErrorListRef GetReturnStatementErrors(

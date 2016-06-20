@@ -66,7 +66,7 @@ const_shared_ptr<Result> ComparisonExpression::compute(const bool& left,
 	case GREATER_THAN_EQUAL:
 	default:
 		cerr << "Invalid boolean comparison operation '"
-				<< operator_to_string(GetOperator()) << "'. Operands: " << left
+				<< OperatorToString(GetOperator()) << "'. Operands: " << left
 				<< ", " << right << "\n";
 		assert(false);
 		return NULL;

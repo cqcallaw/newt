@@ -24,7 +24,8 @@
 #include <variable_expression.h>
 
 InvokeStatement::InvokeStatement(const_shared_ptr<Variable> variable,
-		ArgumentListRef argument_list, const yy::location argument_list_position) :
+		ArgumentListRef argument_list,
+		const yy::location argument_list_position) :
 		m_variable(variable), m_argument_list(argument_list), m_argument_list_position(
 				argument_list_position) {
 }
@@ -32,7 +33,7 @@ InvokeStatement::InvokeStatement(const_shared_ptr<Variable> variable,
 InvokeStatement::~InvokeStatement() {
 }
 
-const ErrorListRef InvokeStatement::preprocess(
+const ErrorListRef InvokeStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	//variable reference must be a reference to a function
 	//argument list length and types must match
@@ -47,7 +48,7 @@ const ErrorListRef InvokeStatement::preprocess(
 	return result;
 }
 
-const ErrorListRef InvokeStatement::execute(
+const ErrorListRef InvokeStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	const_shared_ptr<VariableExpression> variable_expression = make_shared<
 			VariableExpression>(m_variable->GetLocation(), m_variable);

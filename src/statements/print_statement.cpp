@@ -29,7 +29,7 @@ PrintStatement::PrintStatement(const int line_number,
 PrintStatement::~PrintStatement() {
 }
 
-const ErrorListRef PrintStatement::execute(
+const ErrorListRef PrintStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 

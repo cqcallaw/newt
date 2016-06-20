@@ -40,7 +40,7 @@ public:
 	}
 
 	virtual const string ToString() const {
-		return type_to_string(m_basic_type);
+		return TypeToString(m_basic_type);
 	}
 
 	const string ToString(const_shared_ptr<void> value) const;

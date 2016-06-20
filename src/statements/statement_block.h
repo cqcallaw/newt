@@ -31,9 +31,9 @@ public:
 	StatementBlock(StatementListRef statements, const yy::location location);
 	virtual ~StatementBlock();
 
-	const ErrorListRef preprocess(
+	const ErrorListRef Preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const;
-	const ErrorListRef execute(
+	const ErrorListRef Execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(

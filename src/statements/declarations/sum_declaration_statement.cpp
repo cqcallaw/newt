@@ -57,7 +57,7 @@ SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 SumDeclarationStatement::~SumDeclarationStatement() {
 }
 
-const ErrorListRef SumDeclarationStatement::preprocess(
+const ErrorListRef SumDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto type_table = execution_context->GetTypeTable();
@@ -183,7 +183,7 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef SumDeclarationStatement::execute(
+const ErrorListRef SumDeclarationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	return ErrorList::GetTerminator();
 }

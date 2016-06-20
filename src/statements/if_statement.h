@@ -40,10 +40,10 @@ public:
 		return m_expression;
 	}
 
-	virtual const ErrorListRef preprocess(
+	virtual const ErrorListRef Preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const ErrorListRef execute(
+	virtual const ErrorListRef Execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(

@@ -41,10 +41,10 @@ public:
 			const_shared_ptr<StatementBlock> statement_block);
 	virtual ~ForStatement();
 
-	virtual const ErrorListRef preprocess(
+	virtual const ErrorListRef Preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const ErrorListRef execute(
+	virtual const ErrorListRef Execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(

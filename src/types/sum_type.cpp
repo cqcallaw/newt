@@ -110,21 +110,21 @@ const_shared_ptr<Result> SumType::Build(
 			auto as_unit = dynamic_pointer_cast<const UnitDeclarationStatement>(
 					declaration);
 			if (as_unit) {
-				auto validation_errors = as_unit->preprocess(tmp_context);
+				auto validation_errors = as_unit->Preprocess(tmp_context);
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
 			auto as_record = dynamic_pointer_cast<
 					const RecordDeclarationStatement>(declaration);
 			if (as_record) {
-				auto validation_errors = as_record->preprocess(tmp_context);
+				auto validation_errors = as_record->Preprocess(tmp_context);
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
 			auto as_sum = dynamic_pointer_cast<const SumDeclarationStatement>(
 					declaration);
 			if (as_sum) {
-				auto validation_errors = as_sum->preprocess(tmp_context);
+				auto validation_errors = as_sum->Preprocess(tmp_context);
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
@@ -132,7 +132,7 @@ const_shared_ptr<Result> SumType::Build(
 					dynamic_pointer_cast<const MaybeDeclarationStatement>(
 							declaration);
 			if (as_maybe) {
-				auto validation_errors = as_maybe->preprocess(tmp_context);
+				auto validation_errors = as_maybe->Preprocess(tmp_context);
 				errors = errors->Concatenate(errors, validation_errors);
 				auto root_specifier =
 						as_maybe->GetMaybeTypeSpecifier()->GetBaseTypeSpecifier();

@@ -34,7 +34,7 @@ UnitDeclarationStatement::UnitDeclarationStatement(const yy::location location,
 UnitDeclarationStatement::~UnitDeclarationStatement() {
 }
 
-const ErrorListRef UnitDeclarationStatement::preprocess(
+const ErrorListRef UnitDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	auto errors = ErrorList::GetTerminator();
 
@@ -83,7 +83,7 @@ const ErrorListRef UnitDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef UnitDeclarationStatement::execute(
+const ErrorListRef UnitDeclarationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	return ErrorList::GetTerminator();
 }

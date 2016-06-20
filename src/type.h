@@ -33,7 +33,7 @@ enum BasicType {
 	NONE = 0, BOOLEAN = 1, INT = 2, DOUBLE = 4, STRING = 8
 };
 
-const string type_to_string(const BasicType type);
+const string TypeToString(const BasicType type);
 
 const BasicType FromString(const string& str);
 
@@ -57,6 +57,6 @@ enum OperatorType {
 	GREATER_THAN_EQUAL
 };
 
-string operator_to_string(OperatorType op);
+string OperatorToString(OperatorType op);
 
 #endif // #ifndef TYPE_H

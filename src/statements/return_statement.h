@@ -29,10 +29,10 @@ public:
 	ReturnStatement(const_shared_ptr<Expression> expression);
 	virtual ~ReturnStatement();
 
-	virtual const ErrorListRef preprocess(
+	virtual const ErrorListRef Preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const ErrorListRef execute(
+	virtual const ErrorListRef Execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(

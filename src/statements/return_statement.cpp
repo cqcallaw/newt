@@ -31,12 +31,12 @@ ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 ReturnStatement::~ReturnStatement() {
 }
 
-const ErrorListRef ReturnStatement::preprocess(
+const ErrorListRef ReturnStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	return m_expression->Validate(execution_context);
 }
 
-const ErrorListRef ReturnStatement::execute(
+const ErrorListRef ReturnStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 	auto result = m_expression->Evaluate(execution_context);

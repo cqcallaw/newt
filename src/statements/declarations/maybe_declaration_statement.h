@@ -33,10 +33,10 @@ public:
 			const_shared_ptr<Expression> initializer_expression = nullptr);
 	virtual ~MaybeDeclarationStatement();
 
-	virtual const ErrorListRef preprocess(
+	virtual const ErrorListRef Preprocess(
 			const std::shared_ptr<ExecutionContext> execution_context) const;
 
-	virtual const ErrorListRef execute(
+	virtual const ErrorListRef Execute(
 			std::shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(

@@ -253,7 +253,7 @@ const ErrorListRef BinaryExpression::Validate(
 						Error::INVALID_LEFT_OPERAND_TYPE,
 						left->GetPosition().begin.line,
 						left->GetPosition().begin.column,
-						operator_to_string(op)), result);
+						OperatorToString(op)), result);
 	}
 	const_shared_ptr<Expression> right = GetRight();
 	const_shared_ptr<TypeSpecifier> right_type = GetRight()->GetTypeSpecifier(
@@ -274,7 +274,7 @@ const ErrorListRef BinaryExpression::Validate(
 						Error::INVALID_RIGHT_OPERAND_TYPE,
 						right->GetPosition().begin.line,
 						right->GetPosition().begin.column,
-						operator_to_string(op)), result);
+						OperatorToString(op)), result);
 	}
 
 	return result;

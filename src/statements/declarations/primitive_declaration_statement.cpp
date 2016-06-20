@@ -42,7 +42,7 @@ PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
 }
 
-const ErrorListRef PrimitiveDeclarationStatement::preprocess(
+const ErrorListRef PrimitiveDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto symbol = Symbol::GetDefaultSymbol();
@@ -118,7 +118,7 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef PrimitiveDeclarationStatement::execute(
+const ErrorListRef PrimitiveDeclarationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	if (GetInitializerExpression()) {
 		Variable* temp_variable = new BasicVariable(GetName(),

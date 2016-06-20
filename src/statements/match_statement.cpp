@@ -33,7 +33,7 @@
 MatchStatement::~MatchStatement() {
 }
 
-const ErrorListRef MatchStatement::preprocess(
+const ErrorListRef MatchStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 	errors = m_source_expression->Validate(execution_context);
@@ -94,7 +94,7 @@ const ErrorListRef MatchStatement::preprocess(
 							block_context->InsertSymbol(*match_name,
 									default_symbol);
 
-							auto block_errors = match_body->preprocess(
+							auto block_errors = match_body->Preprocess(
 									block_context);
 							errors = ErrorList::Concatenate(errors,
 									block_errors);
@@ -129,7 +129,7 @@ const ErrorListRef MatchStatement::preprocess(
 						auto block_context = ExecutionContext::GetEmptyChild(
 								execution_context, Modifier::MUTABLE,
 								EPHEMERAL);
-						auto block_errors = default_match_block->preprocess(
+						auto block_errors = default_match_block->Preprocess(
 								block_context);
 						errors = ErrorList::Concatenate(errors, block_errors);
 					} else {
@@ -176,7 +176,7 @@ const ErrorListRef MatchStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef MatchStatement::execute(
+const ErrorListRef MatchStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors;
 
@@ -234,7 +234,7 @@ const ErrorListRef MatchStatement::execute(
 							block_context->InsertSymbol(match_name,
 									default_symbol);
 
-							auto block_errors = match_body->execute(
+							auto block_errors = match_body->Execute(
 									block_context);
 							errors = ErrorList::Concatenate(errors,
 									block_errors);
@@ -262,7 +262,7 @@ const ErrorListRef MatchStatement::execute(
 						auto block_context = ExecutionContext::GetEmptyChild(
 								execution_context, Modifier::MUTABLE,
 								EPHEMERAL);
-						auto block_errors = default_match_block->execute(
+						auto block_errors = default_match_block->Execute(
 								block_context);
 						errors = ErrorList::Concatenate(errors, block_errors);
 					} else {

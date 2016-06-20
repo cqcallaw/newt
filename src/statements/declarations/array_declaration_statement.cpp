@@ -45,7 +45,7 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(
 				type_specifier_location) {
 }
 
-const ErrorListRef ArrayDeclarationStatement::preprocess(
+const ErrorListRef ArrayDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -125,7 +125,7 @@ const ErrorListRef ArrayDeclarationStatement::preprocess(
 ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 }
 
-const ErrorListRef ArrayDeclarationStatement::execute(
+const ErrorListRef ArrayDeclarationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	if (GetInitializerExpression()) {

@@ -42,7 +42,7 @@ MaybeDeclarationStatement::MaybeDeclarationStatement(
 MaybeDeclarationStatement::~MaybeDeclarationStatement() {
 }
 
-const ErrorListRef MaybeDeclarationStatement::preprocess(
+const ErrorListRef MaybeDeclarationStatement::Preprocess(
 		const std::shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -121,7 +121,7 @@ const ErrorListRef MaybeDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef MaybeDeclarationStatement::execute(
+const ErrorListRef MaybeDeclarationStatement::Execute(
 		std::shared_ptr<ExecutionContext> execution_context) const {
 	auto errors = ErrorList::GetTerminator();
 

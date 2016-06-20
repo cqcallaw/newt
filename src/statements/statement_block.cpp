@@ -34,14 +34,14 @@ StatementBlock::StatementBlock(StatementListRef statements,
 StatementBlock::~StatementBlock() {
 }
 
-const ErrorListRef StatementBlock::preprocess(
+const ErrorListRef StatementBlock::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto subject = m_statements;
 	while (!StatementList::IsTerminator(subject)) {
 		const_shared_ptr<Statement> statement = subject->GetData();
 		//TODO: handle nested statement blocks
-		ErrorListRef statement_errors = statement->preprocess(
+		ErrorListRef statement_errors = statement->Preprocess(
 				execution_context);
 		errors = ErrorList::Concatenate(errors, statement_errors);
 
@@ -51,12 +51,12 @@ const ErrorListRef StatementBlock::preprocess(
 	return errors;
 }
 
-const ErrorListRef StatementBlock::execute(
+const ErrorListRef StatementBlock::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	auto subject = m_statements;
 	while (!StatementList::IsTerminator(subject)) {
 		const_shared_ptr<Statement> statement = subject->GetData();
-		auto errors = statement->execute(execution_context);
+		auto errors = statement->Execute(execution_context);
 		if (!ErrorList::IsTerminator(errors)
 				|| execution_context->GetReturnValue()
 						!= Symbol::GetDefaultSymbol()

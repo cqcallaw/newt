@@ -46,7 +46,7 @@ RecordDeclarationStatement::RecordDeclarationStatement(
 RecordDeclarationStatement::~RecordDeclarationStatement() {
 }
 
-const ErrorListRef RecordDeclarationStatement::preprocess(
+const ErrorListRef RecordDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -88,7 +88,7 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef RecordDeclarationStatement::execute(
+const ErrorListRef RecordDeclarationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	return ErrorList::GetTerminator();
 }

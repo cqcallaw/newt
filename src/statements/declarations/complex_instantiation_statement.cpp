@@ -48,7 +48,7 @@ ComplexInstantiationStatement::ComplexInstantiationStatement(
 ComplexInstantiationStatement::~ComplexInstantiationStatement() {
 }
 
-const ErrorListRef ComplexInstantiationStatement::preprocess(
+const ErrorListRef ComplexInstantiationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	auto type_result = m_type_specifier->GetType(
 			execution_context->GetTypeTable());
@@ -104,7 +104,7 @@ const_shared_ptr<TypeSpecifier> ComplexInstantiationStatement::GetTypeSpecifier(
 	return m_type_specifier;
 }
 
-const ErrorListRef ComplexInstantiationStatement::execute(
+const ErrorListRef ComplexInstantiationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	auto type_result = m_type_specifier->GetType(
 			execution_context->GetTypeTable(), RESOLVE);

@@ -42,7 +42,7 @@ FunctionDeclarationStatement::FunctionDeclarationStatement(
 FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 }
 
-const ErrorListRef FunctionDeclarationStatement::preprocess(
+const ErrorListRef FunctionDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -96,7 +96,7 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef FunctionDeclarationStatement::execute(
+const ErrorListRef FunctionDeclarationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	if (GetInitializerExpression()) {
 		Variable* temp_variable = new BasicVariable(GetName(),

@@ -30,12 +30,12 @@ public:
 			const_shared_ptr<Expression> expression);
 	virtual ~PrintStatement();
 
-	virtual const ErrorListRef preprocess(
+	virtual const ErrorListRef Preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const {
 		return m_expression->Validate(execution_context);
 	}
 
-	virtual const ErrorListRef execute(
+	virtual const ErrorListRef Execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
 	const_shared_ptr<Expression> GetExpression() const {

@@ -42,7 +42,7 @@ NestedDeclarationStatement::NestedDeclarationStatement(
 NestedDeclarationStatement::~NestedDeclarationStatement() {
 }
 
-const ErrorListRef NestedDeclarationStatement::preprocess(
+const ErrorListRef NestedDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -154,7 +154,7 @@ const ErrorListRef NestedDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef NestedDeclarationStatement::execute(
+const ErrorListRef NestedDeclarationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 

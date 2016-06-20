@@ -54,7 +54,7 @@ const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() cons
 	return GetInitializerExpression()->GetPosition();
 }
 
-const ErrorListRef InferredDeclarationStatement::preprocess(
+const ErrorListRef InferredDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = GetInitializerExpression()->Validate(
 			execution_context);
@@ -75,14 +75,14 @@ const ErrorListRef InferredDeclarationStatement::preprocess(
 							GetInitializerExpression()->GetPosition(),
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
-			errors = temp_statement->preprocess(execution_context);
+			errors = temp_statement->Preprocess(execution_context);
 		}
 	}
 
 	return errors;
 }
 
-const ErrorListRef InferredDeclarationStatement::execute(
+const ErrorListRef InferredDeclarationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
@@ -99,7 +99,7 @@ const ErrorListRef InferredDeclarationStatement::execute(
 				type->GetDeclarationStatement(GetLocation(), expression_type,
 						GetInitializerExpression()->GetPosition(), GetName(),
 						GetNameLocation(), GetInitializerExpression());
-		errors = temp_statement->execute(execution_context);
+		errors = temp_statement->Execute(execution_context);
 	} else {
 		errors = type_errors;
 		auto initializer_errors = GetInitializerExpression()->Validate(

@@ -43,7 +43,7 @@ IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 IfStatement::~IfStatement() {
 }
 
-const ErrorListRef IfStatement::preprocess(
+const ErrorListRef IfStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -60,7 +60,7 @@ const ErrorListRef IfStatement::preprocess(
 					execution_context->WithContents(m_block_context)->WithParent(
 							new_parent);
 
-			errors = m_block->preprocess(execution_context);
+			errors = m_block->Preprocess(execution_context);
 
 			if (m_else_block) {
 				//pre-process else block
@@ -70,7 +70,7 @@ const ErrorListRef IfStatement::preprocess(
 						execution_context->WithContents(m_else_block_context)->WithParent(
 								new_parent);
 
-				errors = m_else_block->preprocess(execution_context);
+				errors = m_else_block->Preprocess(execution_context);
 			}
 
 		} else {
@@ -88,7 +88,7 @@ const ErrorListRef IfStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef IfStatement::execute(
+const ErrorListRef IfStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -103,14 +103,14 @@ const ErrorListRef IfStatement::execute(
 		shared_ptr<ExecutionContext> new_execution_context =
 				m_block_context->WithParent(new_parent);
 
-		errors = m_block->execute(execution_context);
+		errors = m_block->Execute(execution_context);
 	} else if (m_else_block) {
 		SymbolContextListRef new_parent = SymbolContextList::From(
 				execution_context, execution_context->GetParent());
 		shared_ptr<ExecutionContext> new_execution_context =
 				m_else_block_context->WithParent(new_parent);
 
-		errors = m_else_block->execute(execution_context);
+		errors = m_else_block->Execute(execution_context);
 	}
 
 	return errors;

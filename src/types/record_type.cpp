@@ -105,7 +105,7 @@ const_shared_ptr<Result> RecordType::Build(
 				} else {
 					//otherwise (no initializer expression OR a valid initializer expression);
 					//we're cleared to preprocess
-					auto preprocess_errors = declaration->preprocess(
+					auto preprocess_errors = declaration->Preprocess(
 							struct_context);
 					declaration_errors = ErrorList::Concatenate(
 							declaration_errors, preprocess_errors);
@@ -114,7 +114,7 @@ const_shared_ptr<Result> RecordType::Build(
 						//we've pre-processed this statement without issue
 						declaration_errors = ErrorList::Concatenate(
 								declaration_errors,
-								declaration->execute(struct_context));
+								declaration->Execute(struct_context));
 					}
 				}
 			}

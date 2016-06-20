@@ -33,13 +33,13 @@ TypeAliasDeclarationStatement::TypeAliasDeclarationStatement(
 TypeAliasDeclarationStatement::~TypeAliasDeclarationStatement() {
 }
 
-const ErrorListRef TypeAliasDeclarationStatement::preprocess(
+const ErrorListRef TypeAliasDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	//no-op
 	return ErrorList::GetTerminator();
 }
 
-const ErrorListRef TypeAliasDeclarationStatement::execute(
+const ErrorListRef TypeAliasDeclarationStatement::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
 	//no-op
 	return ErrorList::GetTerminator();

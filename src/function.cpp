@@ -87,11 +87,11 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 								evaluated_expression);
 
 				auto preprocessing_errors = ErrorList::Concatenate(errors,
-						argument_declaration->preprocess(
+						argument_declaration->Preprocess(
 								function_execution_context));
 				if (ErrorList::IsTerminator(preprocessing_errors)) {
 					errors = ErrorList::Concatenate(errors,
-							argument_declaration->execute(
+							argument_declaration->Execute(
 									function_execution_context));
 				} else if (preprocessing_errors != errors) {
 					errors = ErrorList::Concatenate(errors,
@@ -124,9 +124,9 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 
 		if (declaration->GetInitializerExpression()) {
 			errors = ErrorList::Concatenate(errors,
-					declaration->preprocess(function_execution_context));
+					declaration->Preprocess(function_execution_context));
 			errors = ErrorList::Concatenate(errors,
-					declaration->execute(function_execution_context));
+					declaration->Execute(function_execution_context));
 			parameter = parameter->GetNext();
 		} else {
 			errors = ErrorList::From(
@@ -152,10 +152,10 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		//but the context setup in the function preprocessing is currently discarded.
 		//TODO: consider cloning function expression preprocess context instead of discarding it
 		errors = ErrorList::Concatenate(errors,
-				m_body->preprocess(final_execution_context));
+				m_body->Preprocess(final_execution_context));
 		if (ErrorList::IsTerminator(errors)) {
 			errors = ErrorList::Concatenate(errors,
-					m_body->execute(final_execution_context));
+					m_body->Execute(final_execution_context));
 			plain_shared_ptr<Symbol> evaluation_result =
 					final_execution_context->GetReturnValue();
 			final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles

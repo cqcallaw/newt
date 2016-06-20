@@ -96,11 +96,11 @@ const ErrorListRef FunctionExpression::Validate(
 		}
 
 		if (ErrorList::IsTerminator(parameter_errors)) {
-			auto preprocess_errors = declaration_statement->preprocess(
+			auto preprocess_errors = declaration_statement->Preprocess(
 					tmp_context);
 
 			if (ErrorList::IsTerminator(preprocess_errors)) {
-				auto execution_errors = declaration_statement->execute(
+				auto execution_errors = declaration_statement->Execute(
 						tmp_context);
 				if (!ErrorList::IsTerminator(execution_errors)) {
 					parameter_errors = ErrorList::Concatenate(parameter_errors,
@@ -119,7 +119,7 @@ const ErrorListRef FunctionExpression::Validate(
 
 	if (ErrorList::IsTerminator(errors)) {
 		errors = ErrorList::Concatenate(errors,
-				m_body->preprocess(tmp_context));
+				m_body->Preprocess(tmp_context));
 
 		errors = ErrorList::Concatenate(errors,
 				m_body->GetReturnStatementErrors(
