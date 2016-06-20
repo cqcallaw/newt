@@ -69,12 +69,10 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 
 const ErrorListRef DefaultValueExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	auto type_table = *execution_context->GetTypeTable();
 	auto type_result = m_type_specifier->GetType(type_table, RESOLVE);
 
-	errors = type_result->GetErrors();
+	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		auto as_placeholder = dynamic_pointer_cast<const PlaceholderType>(type);

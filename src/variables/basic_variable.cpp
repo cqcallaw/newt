@@ -98,8 +98,6 @@ const ErrorListRef BasicVariable::AssignValue(
 		const_shared_ptr<Expression> expression, const AssignmentType op,
 		const shared_ptr<ExecutionContext> output_context,
 		const_shared_ptr<ComplexTypeSpecifier> container) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	auto variable_name = GetName();
 	const int variable_line = GetLocation().begin.line;
 	const int variable_column = GetLocation().begin.column;
@@ -111,7 +109,7 @@ const ErrorListRef BasicVariable::AssignValue(
 
 	auto symbol_type_result = symbol_type_specifier->GetType(
 			output_context->GetTypeTable(), RESOLVE);
-	errors = symbol_type_result->GetErrors();
+	auto errors = symbol_type_result->GetErrors();
 	if (!ErrorList::IsTerminator(errors)) {
 		return errors;
 	}

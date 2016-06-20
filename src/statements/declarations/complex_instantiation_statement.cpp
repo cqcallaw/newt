@@ -50,12 +50,10 @@ ComplexInstantiationStatement::~ComplexInstantiationStatement() {
 
 const ErrorListRef ComplexInstantiationStatement::preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	auto type_result = m_type_specifier->GetType(
 			execution_context->GetTypeTable());
 
-	errors = type_result->GetErrors();
+	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
@@ -108,12 +106,10 @@ const_shared_ptr<TypeSpecifier> ComplexInstantiationStatement::GetTypeSpecifier(
 
 const ErrorListRef ComplexInstantiationStatement::execute(
 		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	auto type_result = m_type_specifier->GetType(
 			execution_context->GetTypeTable(), RESOLVE);
 
-	errors = type_result->GetErrors();
+	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);

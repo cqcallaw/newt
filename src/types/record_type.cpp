@@ -66,14 +66,15 @@ const_shared_ptr<Result> RecordType::Build(
 
 	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
-		auto declaration_errors = ErrorList::GetTerminator();
 		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
 
 		auto member_name = declaration->GetName();
 
 		auto declaration_type_specifier = declaration->GetTypeSpecifier();
-		declaration_errors = declaration_type_specifier->ValidateDeclaration(
-				context->GetTypeTable(), declaration->GetNameLocation());
+		auto declaration_errors =
+				declaration_type_specifier->ValidateDeclaration(
+						context->GetTypeTable(),
+						declaration->GetNameLocation());
 
 		auto existing_member_type = type_table->GetType<TypeDefinition>(
 				member_name, SHALLOW, RETURN);
