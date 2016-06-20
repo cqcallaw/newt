@@ -45,9 +45,17 @@ m%: newt $(TEST_PATH)%.nwt
 d%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	kdiff3 $(TEST_PATH)reference/$* $(TEST_PATH)output/$* 
 
-test-clean:
-	rm -rf $(TEST_PATH)output/*
-
 lint:
 	cppcheck $(INCLUDE_DIRS) --enable=all ../src/
+
+#add aditional rules to cleaning process
+clean: clean-parser clean-test
+
+clean-parser:
+	@echo 'Cleaning parser files...'
+	-$(RM) lexer.o parser.tab.o parser.tab.* parser.output lexer.* location.hh position.hh stack.hh
+	@echo 'Cleaned parser files.'
+	
+clean-test:
+	-$(RM) $(TEST_PATH)output/*
 	
