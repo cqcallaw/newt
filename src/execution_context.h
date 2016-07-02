@@ -84,6 +84,14 @@ public:
 		return m_parent;
 	}
 
+	void LinkToParent(const shared_ptr<ExecutionContext> parent) {
+		SymbolContextListRef new_parent = SymbolContextList::From(parent,
+				parent->GetParent());
+		auto new_typetable = GetTypeTable()->WithParent(parent->GetTypeTable());
+		m_parent = new_parent;
+		m_type_table = new_typetable;
+	}
+
 	virtual const shared_ptr<ExecutionContext> WithParent(
 			const SymbolContextListRef parent_context) const {
 		return shared_ptr<ExecutionContext>(
@@ -144,7 +152,7 @@ private:
 			const_shared_ptr<Symbol> return_value,
 			const_shared_ptr<int> exit_code, const LifeTime life_time);
 
-	const SymbolContextListRef m_parent;
+	SymbolContextListRef m_parent;
 	volatile_shared_ptr<TypeTable> m_type_table;
 	plain_shared_ptr<Symbol> m_return_value;
 	plain_shared_ptr<int> m_exit_code;

@@ -47,42 +47,31 @@ const ErrorListRef IfStatement::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	if (m_expression) {
-		auto expression_analysis = m_expression->GetTypeSpecifier(
-				execution_context)->AnalyzeAssignmentTo(
-				PrimitiveTypeSpecifier::GetInt(),
-				execution_context->GetTypeTable());
-		if (expression_analysis == EQUIVALENT
-				|| expression_analysis == UNAMBIGUOUS) {
-			SymbolContextListRef new_parent = SymbolContextList::From(
-					execution_context, execution_context->GetParent());
-			const shared_ptr<ExecutionContext> new_execution_context =
-					execution_context->WithContents(m_block_context)->WithParent(
-							new_parent);
+	assert(m_expression);
 
-			errors = m_block->Preprocess(execution_context);
+	auto expression_analysis =
+			m_expression->GetTypeSpecifier(execution_context)->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetInt(),
+					execution_context->GetTypeTable());
+	if (expression_analysis == EQUIVALENT
+			|| expression_analysis == UNAMBIGUOUS) {
 
-			if (m_else_block) {
-				//pre-process else block
-				new_parent = SymbolContextList::From(execution_context,
-						execution_context->GetParent());
-				const shared_ptr<ExecutionContext> new_execution_context =
-						execution_context->WithContents(m_else_block_context)->WithParent(
-								new_parent);
+		m_block_context->LinkToParent(execution_context);
 
-				errors = m_else_block->Preprocess(execution_context);
-			}
+		errors = m_block->Preprocess(m_block_context);
+		if (m_else_block) {
+			//pre-process else block
+			m_else_block_context->LinkToParent(execution_context);
 
-		} else {
-			yy::location position = m_expression->GetPosition();
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
-							position.begin.line, position.begin.column),
-					errors);
+			errors = m_else_block->Preprocess(m_else_block_context);
 		}
+
 	} else {
-		assert(false);
+		yy::location position = m_expression->GetPosition();
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
+						position.begin.line, position.begin.column), errors);
 	}
 
 	return errors;
@@ -98,19 +87,20 @@ const ErrorListRef IfStatement::Execute(
 	bool test = *(evaluation->GetData<bool>());
 
 	if (test) {
-		SymbolContextListRef new_parent = SymbolContextList::From(
-				execution_context, execution_context->GetParent());
-		shared_ptr<ExecutionContext> new_execution_context =
-				m_block_context->WithParent(new_parent);
+		assert(m_block_context->GetParent());
+		assert(m_block_context->GetParent()->GetData() == execution_context);
 
-		errors = m_block->Execute(execution_context);
+		errors = m_block->Execute(m_block_context);
+		execution_context->SetReturnValue(m_block_context->GetReturnValue());
 	} else if (m_else_block) {
-		SymbolContextListRef new_parent = SymbolContextList::From(
-				execution_context, execution_context->GetParent());
-		shared_ptr<ExecutionContext> new_execution_context =
-				m_else_block_context->WithParent(new_parent);
+		assert(m_else_block_context->GetParent());
+		assert(
+				m_else_block_context->GetParent()->GetData()
+						== execution_context);
 
-		errors = m_else_block->Execute(execution_context);
+		errors = m_else_block->Execute(m_else_block_context);
+		execution_context->SetReturnValue(
+				m_else_block_context->GetReturnValue());
 	}
 
 	return errors;
