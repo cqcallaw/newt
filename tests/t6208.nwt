@@ -1,0 +1,18 @@
+#test variable declaration doesn't leak into neighboring match block context
+result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+t:result= 7
+
+match(t)
+	value {
+		print("Value" + a)
+	}
+	| error {
+		a:int = 3
+		print("Error: " + a)
+	}

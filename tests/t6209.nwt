@@ -1,0 +1,21 @@
+#test variable declaration doesn't leak out of default match context into surrounding contexts
+result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+t:result= 7
+
+match(t)
+	_ {
+		a:int = 3
+		print("Value" + a)
+	}
+	| error {
+		print("Error")
+	}
+
+# 'a' should be undefined here
+b:= a

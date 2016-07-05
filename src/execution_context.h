@@ -35,6 +35,7 @@ enum LifeTime {
 typedef shared_ptr<SymbolContextList> SymbolContextListRef;
 
 class ExecutionContext: public SymbolTable {
+	friend class MatchStatement;
 public:
 	using SymbolContext::GetSymbol;
 	using SymbolContext::SetSymbol;
@@ -84,13 +85,7 @@ public:
 		return m_parent;
 	}
 
-	void LinkToParent(const shared_ptr<ExecutionContext> parent) {
-		SymbolContextListRef new_parent = SymbolContextList::From(parent,
-				parent->GetParent());
-		auto new_typetable = GetTypeTable()->WithParent(parent->GetTypeTable());
-		m_parent = new_parent;
-		m_type_table = new_typetable;
-	}
+	void LinkToParent(const shared_ptr<ExecutionContext> parent);
 
 	virtual const shared_ptr<ExecutionContext> WithParent(
 			const SymbolContextListRef parent_context) const {

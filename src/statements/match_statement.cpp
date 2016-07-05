@@ -30,6 +30,16 @@
 #include <nested_type_specifier.h>
 #include <unit_type.h>
 
+MatchStatement::MatchStatement(const yy::location statement_location,
+		const_shared_ptr<Expression> source_expression,
+		const MatchListRef match_list, const yy::location match_list_location) :
+		m_statement_location(statement_location), m_source_expression(
+				source_expression), m_match_list(match_list), m_match_list_location(
+				match_list_location), m_match_contexts(
+				GenerateMatchContexts(match_list)) {
+	assert(m_match_contexts);
+}
+
 MatchStatement::~MatchStatement() {
 }
 
@@ -60,77 +70,92 @@ const ErrorListRef MatchStatement::Preprocess(
 						std::set<std::string>>();
 
 				shared_ptr<const StatementBlock> default_match_block = nullptr;
+				shared_ptr<ExecutionContext> default_match_context = nullptr;
 
 				auto match_list = m_match_list;
+				auto match_context = m_match_contexts;
 				while (!MatchList::IsTerminator(match_list)) {
 					auto match = match_list->GetData();
 					auto match_name = match->GetName();
 					auto match_body = match->GetBlock();
 					auto table = sum_type->GetDefinition();
 
-					auto variant_type = table->GetType<TypeDefinition>(
-							match_name, SHALLOW, RESOLVE);
-					if (variant_type) {
-						if (match_names->find(*match_name)
-								== match_names->end()) {
-							match_names->insert(*match_name);
-							auto block_context =
-									ExecutionContext::GetEmptyChild(
-											execution_context,
-											Modifier::MUTABLE, EPHEMERAL);
+					if (*match_name == "_") {
+						// N.B. we must not do any preprocessing here, since an explicit match may still exist in the match list
+						// explicit matches always take precedence over default match blocks
+						auto matched_context = match_context->GetData();
+						assert(matched_context);
+						matched_context->LinkToParent(execution_context);
 
-							auto variant_type_specifier =
-									variant_type->GetTypeSpecifier(
-											match->GetName(),
-											source_sum_specifier,
-											GetDefaultLocation());
-							const_shared_ptr<void> default_value =
-									variant_type->GetDefaultValue(*table);
-							const_shared_ptr<Symbol> default_symbol =
-									variant_type->GetSymbol(
-											execution_context->GetTypeTable(),
-											variant_type_specifier,
-											default_value);
-							block_context->InsertSymbol(*match_name,
-									default_symbol);
+						default_match_context = matched_context;
+						default_match_block = match_body;
+					} else {
+						auto variant_type = table->GetType<TypeDefinition>(
+								match_name, SHALLOW, RESOLVE);
+						if (variant_type) {
+							if (match_names->find(*match_name)
+									== match_names->end()) {
+								match_names->insert(*match_name);
+								auto matched_context = match_context->GetData();
+								assert(matched_context);
+								matched_context->LinkToParent(
+										execution_context);
 
-							auto block_errors = match_body->Preprocess(
-									block_context);
-							errors = ErrorList::Concatenate(errors,
-									block_errors);
+								auto variant_type_specifier =
+										variant_type->GetTypeSpecifier(
+												match->GetName(),
+												source_sum_specifier,
+												GetDefaultLocation());
+								const_shared_ptr<void> default_value =
+										variant_type->GetDefaultValue(*table);
+								const_shared_ptr<Symbol> default_symbol =
+										variant_type->GetSymbol(
+												execution_context->GetTypeTable(),
+												variant_type_specifier,
+												default_value);
+								matched_context->InsertSymbol(*match_name,
+										default_symbol);
+
+								auto block_errors = match_body->Preprocess(
+										matched_context);
+								errors = ErrorList::Concatenate(errors,
+										block_errors);
+							} else {
+								errors =
+										ErrorList::From(
+												make_shared<Error>(
+														Error::SEMANTIC,
+														Error::DUPLICATE_MATCH_BLOCK,
+														match->GetNameLocation().begin.line,
+														match->GetNameLocation().begin.column,
+														*match_name), errors);
+							}
 						} else {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
-													Error::DUPLICATE_MATCH_BLOCK,
+													Error::UNDECLARED_TYPE,
 													match->GetNameLocation().begin.line,
 													match->GetNameLocation().begin.column,
-													*match_name), errors);
+													expression_type_specifier->ToString()
+															+ "."
+															+ *match_name),
+											errors);
 						}
-					} else if (*match_name == "_") {
-						default_match_block = match_body;
-					} else {
-						errors = ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::UNDECLARED_TYPE,
-										match->GetNameLocation().begin.line,
-										match->GetNameLocation().begin.column,
-										expression_type_specifier->ToString()
-												+ "." + *match_name), errors);
 					}
 
+					match_context = match_context->GetNext();
 					match_list = match_list->GetNext();
 				}
 
 				auto sum_table = sum_type->GetDefinition();
 				auto variant_names = sum_table->GetTypeNames();
 				if (*variant_names != *match_names) {
+					// make sure partial matches are made complete by a default match block
 					if (default_match_block) {
-						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::MUTABLE,
-								EPHEMERAL);
+						//we have a default match block; preprocess it
 						auto block_errors = default_match_block->Preprocess(
-								block_context);
+								default_match_context);
 						errors = ErrorList::Concatenate(errors, block_errors);
 					} else {
 						std::set<std::string> difference;
@@ -156,6 +181,7 @@ const ErrorListRef MatchStatement::Preprocess(
 										result), errors);
 					}
 				} else if (default_match_block) {
+					//make sure there aren't any extraneous default match blocks
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::EXTRANEOUS_DEFAULT_MATCH,
@@ -200,12 +226,15 @@ const ErrorListRef MatchStatement::Execute(
 			errors = result->GetErrors();
 
 			if (ErrorList::IsTerminator(errors)) {
-				auto as_sum = result->GetData<Sum>();
+				auto as_sum = result->GetData<Sum>(); //TODO: validate the assumption that this result yields a sum
 				auto tag = *as_sum->GetTag();
 
 				shared_ptr<const StatementBlock> default_match_block = nullptr;
+				shared_ptr<ExecutionContext> default_match_context = nullptr;
+
 				bool matched = false;
 				auto match_list = m_match_list;
+				auto match_context = m_match_contexts;
 				while (!MatchList::IsTerminator(match_list)) {
 					auto match = match_list->GetData();
 					auto match_name = *match->GetName();
@@ -216,26 +245,32 @@ const ErrorListRef MatchStatement::Execute(
 						auto variant_type = sum_type->GetDefinition()->GetType<
 								TypeDefinition>(match_name, SHALLOW, RESOLVE);
 						if (variant_type) {
-							auto block_context =
-									ExecutionContext::GetEmptyChild(
-											execution_context,
-											Modifier::MUTABLE, EPHEMERAL);
+							auto matched_context = match_context->GetData();
+							auto matched_parent =
+									matched_context->GetParent()->GetData();
+
+							assert(matched_parent == execution_context);
+							assert(
+									matched_parent->GetTypeTable()
+											== execution_context->GetTypeTable());
 
 							auto variant_type_specifier =
 									variant_type->GetTypeSpecifier(
 											match->GetName(),
 											source_sum_specifier,
 											GetDefaultLocation());
-							const_shared_ptr<Symbol> default_symbol =
-									variant_type->GetSymbol(
-											execution_context->GetTypeTable(),
-											variant_type_specifier,
-											as_sum->GetValue());
-							block_context->InsertSymbol(match_name,
-									default_symbol);
+
+							auto set_result = matched_context->SetSymbol(
+									match_name, variant_type_specifier,
+									as_sum->GetValue(),
+									execution_context->GetTypeTable());
+							assert(set_result == SET_SUCCESS);
 
 							auto block_errors = match_body->Execute(
-									block_context);
+									matched_context);
+							execution_context->SetReturnValue(
+									matched_context->GetReturnValue());
+
 							errors = ErrorList::Concatenate(errors,
 									block_errors);
 						} else {
@@ -251,19 +286,30 @@ const ErrorListRef MatchStatement::Execute(
 						}
 						break;
 					} else if (match_name == "_") {
+						auto matched_context = match_context->GetData();
+						auto matched_parent =
+								matched_context->GetParent()->GetData();
+
+						assert(matched_parent == execution_context);
+						assert(
+								matched_parent->GetTypeTable()
+										== execution_context->GetTypeTable());
+
+						default_match_context = matched_context;
 						default_match_block = match_body;
 					}
 
+					match_context = match_context->GetNext();
 					match_list = match_list->GetNext();
 				}
 
 				if (!matched) {
 					if (default_match_block) {
-						auto block_context = ExecutionContext::GetEmptyChild(
-								execution_context, Modifier::MUTABLE,
-								EPHEMERAL);
 						auto block_errors = default_match_block->Execute(
-								block_context);
+								default_match_context);
+						execution_context->SetReturnValue(
+								default_match_context->GetReturnValue());
+
 						errors = ErrorList::Concatenate(errors, block_errors);
 					} else {
 						errors =
@@ -305,4 +351,18 @@ const ErrorListRef MatchStatement::GetReturnStatementErrors(
 	}
 
 	return errors;
+}
+
+const MatchContextListRef MatchStatement::GenerateMatchContexts(
+		const MatchListRef match_list) {
+	auto subject = match_list;
+
+	MatchContextListRef result = MatchContextList::GetTerminator();
+	while (!MatchList::IsTerminator(subject)) {
+		auto context = make_shared<ExecutionContext>(Modifier::Type::MUTABLE);
+		result = MatchContextList::From(context, result);
+		subject = subject->GetNext();
+	}
+
+	return result;
 }

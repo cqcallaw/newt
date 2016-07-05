@@ -108,6 +108,7 @@ ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> context,
 		SymbolTable(*context), m_parent(parent_context), m_type_table(
 				type_table), m_return_value(return_value), m_exit_code(
 				exit_code), m_life_time(life_time) {
+	assert(m_type_table);
 }
 
 ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
@@ -119,6 +120,7 @@ ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
 		SymbolTable(modifiers, symbol_map), m_parent(parent_context), m_type_table(
 				type_table), m_return_value(return_value), m_exit_code(
 				exit_code), m_life_time(life_time) {
+	assert(m_type_table);
 }
 
 ExecutionContext::~ExecutionContext() {
@@ -130,4 +132,16 @@ const shared_ptr<ExecutionContext> ExecutionContext::GetDefault() {
 			SymbolContextList::GetTerminator(), TypeTable::GetDefault(),
 			PERSISTENT);
 	return instance;
+}
+
+void ExecutionContext::LinkToParent(const shared_ptr<ExecutionContext> parent) {
+	assert(m_type_table);
+	assert(parent->GetTypeTable());
+
+	SymbolContextListRef new_parent = SymbolContextList::From(parent,
+			parent->GetParent());
+
+	auto new_typetable = m_type_table->WithParent(parent->GetTypeTable());
+	m_parent = new_parent;
+	m_type_table = new_typetable;
 }

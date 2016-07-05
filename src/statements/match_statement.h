@@ -25,16 +25,15 @@
 
 class Expression;
 
+typedef const LinkedList<ExecutionContext, NO_DUPLICATES> MatchContextList;
+typedef std::shared_ptr<MatchContextList> MatchContextListRef;
+
 class MatchStatement: public Statement {
 public:
 	MatchStatement(const yy::location statement_location,
 			const_shared_ptr<Expression> source_expression,
 			const MatchListRef match_list,
-			const yy::location match_list_location) :
-			m_statement_location(statement_location), m_source_expression(
-					source_expression), m_match_list(match_list), m_match_list_location(
-					match_list_location) {
-	}
+			const yy::location match_list_location);
 	virtual ~MatchStatement();
 
 	const yy::location GetStatementLocation() const {
@@ -63,11 +62,15 @@ public:
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const shared_ptr<ExecutionContext> execution_context) const;
 
+	static const MatchContextListRef GenerateMatchContexts(
+			const MatchListRef match_list);
+
 private:
 	const yy::location m_statement_location;
 	const_shared_ptr<Expression> m_source_expression;
 	const MatchListRef m_match_list;
 	const yy::location m_match_list_location;
+	const MatchContextListRef m_match_contexts;
 };
 
 #endif /* STATEMENTS_MATCH_STATEMENT_H_ */

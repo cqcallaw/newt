@@ -1,0 +1,20 @@
+#test variable declaration in matching match clause doesn't leak
+result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+t:result= 7
+
+match(t)
+	value {
+		a:= 3
+		print("Value: " + a)
+	}
+	| error {
+		print("Error")
+	}
+
+b:= a
