@@ -29,12 +29,18 @@ PrintStatement::PrintStatement(const int line_number,
 PrintStatement::~PrintStatement() {
 }
 
+const ErrorListRef PrintStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	return m_expression->Validate(context);
+}
+
 const ErrorListRef PrintStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<Result> string_result = m_expression->ToString(
-			execution_context);
+	const_shared_ptr<Result> string_result = m_expression->ToString(context);
 	errors = string_result->GetErrors();
 
 	if (ErrorList::IsTerminator(errors)) {
@@ -42,4 +48,10 @@ const ErrorListRef PrintStatement::Execute(
 	}
 
 	return errors;
+}
+
+const ErrorListRef PrintStatement::GetReturnStatementErrors(
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const shared_ptr<ExecutionContext> execution_context) const {
+	return ErrorList::GetTerminator();
 }

@@ -35,12 +35,13 @@ ExitStatement::~ExitStatement() {
 }
 
 const ErrorListRef ExitStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_exit_expression) {
 		const_shared_ptr<TypeSpecifier> expression_type_specifier =
-				m_exit_expression->GetTypeSpecifier(execution_context);
+				m_exit_expression->GetTypeSpecifier(context);
 		const_shared_ptr<PrimitiveTypeSpecifier> expression_as_primitive =
 				std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 						expression_type_specifier);
@@ -48,14 +49,15 @@ const ErrorListRef ExitStatement::Preprocess(
 		if (expression_as_primitive == nullptr
 				|| !(expression_as_primitive->AnalyzeAssignmentTo(
 						PrimitiveTypeSpecifier::GetInt(),
-						execution_context->GetTypeTable()))) {
+						context->GetTypeTable()))) {
 			yy::location position = m_exit_expression->GetPosition();
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-							position.begin.line, position.begin.column,
-							m_exit_expression->GetTypeSpecifier(
-									execution_context)->ToString()), errors);
+			errors =
+					ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
+									position.begin.line, position.begin.column,
+									m_exit_expression->GetTypeSpecifier(context)->ToString()),
+							errors);
 		}
 	}
 
@@ -63,11 +65,12 @@ const ErrorListRef ExitStatement::Preprocess(
 }
 
 const ErrorListRef ExitStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	plain_shared_ptr<int> exit_code = make_shared<int>(0);
 	if (m_exit_expression) {
 		const_shared_ptr<Result> evaluation = m_exit_expression->Evaluate(
-				execution_context);
+				context, closure);
 
 		if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 			return evaluation->GetErrors();
@@ -76,6 +79,6 @@ const ErrorListRef ExitStatement::Execute(
 		}
 	}
 
-	execution_context->SetExitCode(exit_code);
+	context->SetExitCode(exit_code);
 	return ErrorList::GetTerminator();
 }

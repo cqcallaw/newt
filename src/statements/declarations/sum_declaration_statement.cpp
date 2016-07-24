@@ -58,9 +58,10 @@ SumDeclarationStatement::~SumDeclarationStatement() {
 }
 
 const ErrorListRef SumDeclarationStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 
 	if (!type_table->ContainsType(*m_type)) {
 		const_shared_ptr<Sum> default_value = make_shared<Sum>(
@@ -69,7 +70,7 @@ const ErrorListRef SumDeclarationStatement::Preprocess(
 		auto forward_declaration = make_shared<PlaceholderType>(GetName(),
 				placeholder_symbol);
 		type_table->AddType(*GetName(), forward_declaration);
-		auto result = SumType::Build(execution_context, m_variant_list, m_type);
+		auto result = SumType::Build(context, m_variant_list, m_type);
 
 		errors = result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
@@ -184,7 +185,8 @@ const ErrorListRef SumDeclarationStatement::Preprocess(
 }
 
 const ErrorListRef SumDeclarationStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	return ErrorList::GetTerminator();
 }
 

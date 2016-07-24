@@ -30,10 +30,12 @@ public:
 	virtual ~ReturnStatement();
 
 	virtual const ErrorListRef Preprocess(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const ErrorListRef Execute(
-			shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(
 			const_shared_ptr<TypeSpecifier> type_specifier,

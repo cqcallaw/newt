@@ -49,18 +49,18 @@ ComplexInstantiationStatement::~ComplexInstantiationStatement() {
 }
 
 const ErrorListRef ComplexInstantiationStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	auto type_result = m_type_specifier->GetType(
-			execution_context->GetTypeTable());
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	auto type_result = m_type_specifier->GetType(context->GetTypeTable());
 
 	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 		if (as_complex) {
-			auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
+			auto existing = context->GetSymbol(GetName(), SHALLOW);
 			if (existing == Symbol::GetDefaultSymbol()) {
-				auto result = as_complex->PreprocessSymbol(execution_context,
+				auto result = as_complex->PreprocessSymbol(context,
 						m_type_specifier, GetInitializerExpression());
 
 				errors = result->GetErrors();
@@ -69,7 +69,7 @@ const ErrorListRef ComplexInstantiationStatement::Preprocess(
 					if (symbol) {
 						auto name = *GetName();
 						const InsertResult insert_result =
-								execution_context->InsertSymbol(name, symbol);
+								context->InsertSymbol(name, symbol);
 
 						if (insert_result != INSERT_SUCCESS) {
 							assert(false);
@@ -105,17 +105,18 @@ const_shared_ptr<TypeSpecifier> ComplexInstantiationStatement::GetTypeSpecifier(
 }
 
 const ErrorListRef ComplexInstantiationStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
-	auto type_result = m_type_specifier->GetType(
-			execution_context->GetTypeTable(), RESOLVE);
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	auto type_result = m_type_specifier->GetType(context->GetTypeTable(),
+			RESOLVE);
 
 	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 		if (as_complex) {
-			errors = as_complex->Instantiate(execution_context,
-					m_type_specifier, GetName(), GetInitializerExpression());
+			errors = as_complex->Instantiate(context, m_type_specifier,
+					GetName(), GetInitializerExpression());
 		} else {
 			//type does not exist
 			errors = ErrorList::From(

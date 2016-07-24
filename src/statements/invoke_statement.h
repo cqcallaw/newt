@@ -33,10 +33,12 @@ public:
 	virtual ~InvokeStatement();
 
 	virtual const ErrorListRef Preprocess(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const ErrorListRef Execute(
-			shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(
 			const_shared_ptr<TypeSpecifier> type_specifier,
@@ -48,6 +50,7 @@ private:
 	const_shared_ptr<Variable> m_variable;
 	ArgumentListRef m_argument_list;
 	const yy::location m_argument_list_position;
+	const_shared_ptr<Expression> m_expression;
 };
 
 #endif /* STATEMENTS_INVOKE_STATEMENT_H_ */

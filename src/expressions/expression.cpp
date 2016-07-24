@@ -37,7 +37,8 @@ Expression::~Expression() {
 const_shared_ptr<Result> Expression::ToString(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buffer;
-	const_shared_ptr<Result> evaluation = Evaluate(execution_context);
+	const_shared_ptr<Result> evaluation = Evaluate(execution_context,
+			execution_context);
 	auto errors = evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type_specifier = GetTypeSpecifier(execution_context,

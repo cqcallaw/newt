@@ -82,8 +82,8 @@ const_shared_ptr<Result> SumType::Build(
 	const shared_ptr<TypeTable> definition = make_shared<TypeTable>(type_table);
 
 	auto parent = SymbolContextList::From(context, context->GetParent());
-	shared_ptr<ExecutionContext> tmp_context = make_shared<ExecutionContext>(
-			Modifier::NONE, parent, definition, EPHEMERAL);
+	auto tmp_context = make_shared<ExecutionContext>(Modifier::NONE, parent,
+			definition, EPHEMERAL);
 
 	auto constructors = make_shared<SymbolTable>();
 
@@ -110,21 +110,24 @@ const_shared_ptr<Result> SumType::Build(
 			auto as_unit = dynamic_pointer_cast<const UnitDeclarationStatement>(
 					declaration);
 			if (as_unit) {
-				auto validation_errors = as_unit->Preprocess(tmp_context);
+				auto validation_errors = as_unit->Preprocess(tmp_context,
+						context);
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
 			auto as_record = dynamic_pointer_cast<
 					const RecordDeclarationStatement>(declaration);
 			if (as_record) {
-				auto validation_errors = as_record->Preprocess(tmp_context);
+				auto validation_errors = as_record->Preprocess(tmp_context,
+						context);
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
 			auto as_sum = dynamic_pointer_cast<const SumDeclarationStatement>(
 					declaration);
 			if (as_sum) {
-				auto validation_errors = as_sum->Preprocess(tmp_context);
+				auto validation_errors = as_sum->Preprocess(tmp_context,
+						context);
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
@@ -132,7 +135,8 @@ const_shared_ptr<Result> SumType::Build(
 					dynamic_pointer_cast<const MaybeDeclarationStatement>(
 							declaration);
 			if (as_maybe) {
-				auto validation_errors = as_maybe->Preprocess(tmp_context);
+				auto validation_errors = as_maybe->Preprocess(tmp_context,
+						context);
 				errors = errors->Concatenate(errors, validation_errors);
 				auto root_specifier =
 						as_maybe->GetMaybeTypeSpecifier()->GetBaseTypeSpecifier();
@@ -351,7 +355,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 			//we can therefore assume that a new Sum must be created if we've hit this branch
 			//widening conversions of non-constant initializers must be handled in the execute stage
 			const_shared_ptr<Result> result = initializer->Evaluate(
-					execution_context);
+					execution_context, execution_context);
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
 				auto variant_name = MapSpecifierToVariant(*type_specifier,

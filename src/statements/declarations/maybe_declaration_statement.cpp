@@ -43,10 +43,11 @@ MaybeDeclarationStatement::~MaybeDeclarationStatement() {
 }
 
 const ErrorListRef MaybeDeclarationStatement::Preprocess(
-		const std::shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 	auto root_specifier = m_type_specifier->GetBaseTypeSpecifier();
 	auto root_type = root_specifier->GetType(type_table);
 	if (root_type) {
@@ -56,11 +57,11 @@ const ErrorListRef MaybeDeclarationStatement::Preprocess(
 		auto initializer = GetInitializerExpression();
 		if (initializer) {
 			auto initializer_type_specifier = initializer->GetTypeSpecifier(
-					execution_context, RESOLVE);
+					context, RESOLVE);
 			if (initializer_type_specifier->AnalyzeAssignmentTo(root_specifier,
 					*type_table)) {
 				if (initializer->IsConstant()) {
-					auto result = initializer->Evaluate(execution_context);
+					auto result = initializer->Evaluate(context, closure);
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
 						if (*initializer_type_specifier == *m_type_specifier) {
@@ -97,8 +98,7 @@ const ErrorListRef MaybeDeclarationStatement::Preprocess(
 		if (ErrorList::IsTerminator(errors)) {
 			auto symbol = make_shared<Symbol>(m_type_specifier, value);
 
-			auto insert_result = execution_context->InsertSymbol(*GetName(),
-					symbol);
+			auto insert_result = context->InsertSymbol(*GetName(), symbol);
 			if (insert_result == SYMBOL_EXISTS) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
@@ -122,13 +122,14 @@ const ErrorListRef MaybeDeclarationStatement::Preprocess(
 }
 
 const ErrorListRef MaybeDeclarationStatement::Execute(
-		std::shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	auto errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 	auto root_specifier = m_type_specifier->GetBaseTypeSpecifier();
 
-	auto existing = execution_context->GetSymbol(*GetName());
+	auto existing = context->GetSymbol(*GetName());
 	assert(existing);
 	auto maybe_type_specifier = dynamic_pointer_cast<const MaybeTypeSpecifier>(
 			existing->GetTypeSpecifier());
@@ -139,10 +140,10 @@ const ErrorListRef MaybeDeclarationStatement::Execute(
 		if (!initializer->IsConstant()) {
 			plain_shared_ptr<Sum> value = nullptr;
 			auto initializer_type_specifier = initializer->GetTypeSpecifier(
-					execution_context, RESOLVE);
+					context, RESOLVE);
 			if (initializer_type_specifier->AnalyzeAssignmentTo(root_specifier,
 					*type_table)) {
-				auto result = initializer->Evaluate(execution_context);
+				auto result = initializer->Evaluate(context, closure);
 				errors = result->GetErrors();
 				if (ErrorList::IsTerminator(errors)) {
 					if (*initializer_type_specifier == *maybe_type_specifier) {
@@ -172,7 +173,7 @@ const ErrorListRef MaybeDeclarationStatement::Execute(
 			}
 
 			if (ErrorList::IsTerminator(errors) && value) {
-				auto set_result = execution_context->SetSymbol(*GetName(),
+				auto set_result = context->SetSymbol(*GetName(),
 						maybe_type_specifier, value, *type_table);
 
 				errors = ToErrorListRef(set_result, GetLocation(), GetName(),

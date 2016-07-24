@@ -31,21 +31,19 @@ public:
 	virtual ~PrintStatement();
 
 	virtual const ErrorListRef Preprocess(
-			const shared_ptr<ExecutionContext> execution_context) const {
-		return m_expression->Validate(execution_context);
-	}
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const ErrorListRef Execute(
-			shared_ptr<ExecutionContext> execution_context) const;
-
-	const_shared_ptr<Expression> GetExpression() const {
-		return m_expression;
-	}
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const shared_ptr<ExecutionContext> execution_context) const {
-		return ErrorList::GetTerminator();
+			const shared_ptr<ExecutionContext> execution_context) const;
+
+	const_shared_ptr<Expression> GetExpression() const {
+		return m_expression;
 	}
 
 private:

@@ -33,8 +33,16 @@ public:
 
 	const ErrorListRef Preprocess(
 			const shared_ptr<ExecutionContext> execution_context) const;
+
+	const ErrorListRef Preprocess(
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
+
 	const ErrorListRef Execute(
 			shared_ptr<ExecutionContext> execution_context) const;
+
+	const ErrorListRef Execute(const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(
 			const_shared_ptr<TypeSpecifier> type_specifier,

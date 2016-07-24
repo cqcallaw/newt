@@ -36,13 +36,19 @@ StatementBlock::~StatementBlock() {
 
 const ErrorListRef StatementBlock::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context) const {
+	return Preprocess(execution_context, execution_context);
+}
+
+const ErrorListRef StatementBlock::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto subject = m_statements;
 	while (!StatementList::IsTerminator(subject)) {
 		const_shared_ptr<Statement> statement = subject->GetData();
 		//TODO: handle nested statement blocks
-		ErrorListRef statement_errors = statement->Preprocess(
-				execution_context);
+		ErrorListRef statement_errors = statement->Preprocess(context,
+				closure_context);
 		errors = ErrorList::Concatenate(errors, statement_errors);
 
 		subject = subject->GetNext();
@@ -53,14 +59,19 @@ const ErrorListRef StatementBlock::Preprocess(
 
 const ErrorListRef StatementBlock::Execute(
 		shared_ptr<ExecutionContext> execution_context) const {
+	return Execute(execution_context, execution_context);
+}
+
+const ErrorListRef StatementBlock::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure_context) const {
 	auto subject = m_statements;
 	while (!StatementList::IsTerminator(subject)) {
 		const_shared_ptr<Statement> statement = subject->GetData();
-		auto errors = statement->Execute(execution_context);
+		auto errors = statement->Execute(context, closure_context);
 		if (!ErrorList::IsTerminator(errors)
-				|| execution_context->GetReturnValue()
-						!= Symbol::GetDefaultSymbol()
-				|| execution_context->GetExitCode()) {
+				|| context->GetReturnValue() != Symbol::GetDefaultSymbol()
+				|| context->GetExitCode()) {
 			//we've either encountered an error, a return value has been set,
 			//or an exit code has been set
 			return errors;

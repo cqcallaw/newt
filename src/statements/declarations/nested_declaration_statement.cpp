@@ -43,12 +43,13 @@ NestedDeclarationStatement::~NestedDeclarationStatement() {
 }
 
 const ErrorListRef NestedDeclarationStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
+	auto existing = context->GetSymbol(GetName(), SHALLOW);
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
-		auto type_table = execution_context->GetTypeTable();
+		auto type_table = context->GetTypeTable();
 		auto type_result = m_type_specifier->GetType(type_table);
 
 		errors = type_result->GetErrors();
@@ -57,11 +58,11 @@ const ErrorListRef NestedDeclarationStatement::Preprocess(
 			shared_ptr<const Symbol> symbol = Symbol::GetDefaultSymbol();
 			auto initializer_expression = GetInitializerExpression();
 			if (initializer_expression) {
-				errors = initializer_expression->Validate(execution_context);
+				errors = initializer_expression->Validate(context);
 
 				if (ErrorList::IsTerminator(errors)) {
-					auto result = initializer_expression->Evaluate(
-							execution_context);
+					auto result = initializer_expression->Evaluate(context,
+							closure);
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
@@ -73,10 +74,8 @@ const ErrorListRef NestedDeclarationStatement::Preprocess(
 
 			if (ErrorList::IsTerminator(errors)
 					&& symbol != Symbol::GetDefaultSymbol()) {
-				volatile_shared_ptr<SymbolTable> symbol_table =
-						static_pointer_cast<SymbolTable>(execution_context);
-				InsertResult insert_result = symbol_table->InsertSymbol(
-						*GetName(), symbol);
+				InsertResult insert_result = context->InsertSymbol(*GetName(),
+						symbol);
 
 				if (insert_result != INSERT_SUCCESS) {
 					assert(false);
@@ -155,14 +154,15 @@ const ErrorListRef NestedDeclarationStatement::Preprocess(
 }
 
 const ErrorListRef NestedDeclarationStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (GetInitializerExpression()
 			&& !GetInitializerExpression()->IsConstant()) {
 		Variable* temp_variable = new BasicVariable(GetName(),
 				GetNameLocation());
-		auto errors = temp_variable->AssignValue(execution_context,
+		auto errors = temp_variable->AssignValue(context, closure,
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 

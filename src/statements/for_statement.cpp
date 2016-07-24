@@ -49,18 +49,19 @@ ForStatement::~ForStatement() {
 }
 
 const ErrorListRef ForStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors;
 
-	SymbolContextListRef context_parent = SymbolContextList::From(
-			execution_context, execution_context->GetParent());
+	SymbolContextListRef context_parent = SymbolContextList::From(context,
+			context->GetParent());
 	auto new_block_typetable = m_block_context->GetTypeTable()->WithParent(
-			execution_context->GetTypeTable());
+			context->GetTypeTable());
 
-	m_block_context->LinkToParent(execution_context);
+	m_block_context->LinkToParent(context);
 
 	if (m_initial) {
-		errors = m_initial->Preprocess(m_block_context);
+		errors = m_initial->Preprocess(m_block_context, m_block_context);
 		if (!ErrorList::IsTerminator(errors)) {
 			return errors;
 		}
@@ -69,9 +70,8 @@ const ErrorListRef ForStatement::Preprocess(
 	//can't nest this loop because m_initial might be empty
 	if (m_loop_expression) {
 		auto loop_expression_analysis = m_loop_expression->GetTypeSpecifier(
-				execution_context)->AnalyzeAssignmentTo(
-				PrimitiveTypeSpecifier::GetInt(),
-				execution_context->GetTypeTable());
+				context)->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetInt(),
+				context->GetTypeTable());
 		if (loop_expression_analysis == EQUIVALENT
 				|| loop_expression_analysis == UNAMBIGUOUS) {
 			errors = m_statement_block->Preprocess(m_block_context);
@@ -89,20 +89,22 @@ const ErrorListRef ForStatement::Preprocess(
 }
 
 const ErrorListRef ForStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef initialization_errors;
 
 	assert(m_block_context->GetParent());
-	assert(m_block_context->GetParent()->GetData() == execution_context);
+	assert(m_block_context->GetParent()->GetData() == context);
 
 	if (m_initial) {
-		initialization_errors = m_initial->Execute(m_block_context);
+		initialization_errors = m_initial->Execute(m_block_context,
+				m_block_context);
 		if (!ErrorList::IsTerminator(initialization_errors)) {
 			return initialization_errors;
 		}
 	}
 	plain_shared_ptr<Result> evaluation = m_loop_expression->Evaluate(
-			m_block_context);
+			m_block_context, closure);
 
 	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 
@@ -113,20 +115,20 @@ const ErrorListRef ForStatement::Execute(
 		ErrorListRef iteration_errors = ErrorList::GetTerminator();
 		if (m_statement_block) {
 			iteration_errors = m_statement_block->Execute(m_block_context);
-			execution_context->SetReturnValue(
-					m_block_context->GetReturnValue());
+			context->SetReturnValue(m_block_context->GetReturnValue());
 		}
 		if (!ErrorList::IsTerminator(iteration_errors)) {
 			return iteration_errors;
 		}
 
 		ErrorListRef assignment_errors;
-		assignment_errors = m_loop_assignment->Execute(m_block_context);
+		assignment_errors = m_loop_assignment->Execute(m_block_context,
+				m_block_context);
 		if (!ErrorList::IsTerminator(assignment_errors)) {
 			return assignment_errors;
 		}
 
-		evaluation = m_loop_expression->Evaluate(m_block_context);
+		evaluation = m_loop_expression->Evaluate(m_block_context, closure);
 
 		if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 			return evaluation->GetErrors();

@@ -42,11 +42,12 @@ AssignmentStatement::~AssignmentStatement() {
 }
 
 const ErrorListRef AssignmentStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<string> variable_name = m_variable->GetName();
-	auto symbol = execution_context->GetSymbol(variable_name, DEEP);
+	auto symbol = context->GetSymbol(variable_name, DEEP);
 
 	int variable_line = m_variable->GetLocation().begin.line;
 	int variable_column = m_variable->GetLocation().begin.column;
@@ -58,9 +59,9 @@ const ErrorListRef AssignmentStatement::Preprocess(
 				const BasicVariable>(m_variable);
 		if (basic_variable) {
 			const_shared_ptr<TypeSpecifier> expression_type_specifier =
-					m_expression->GetTypeSpecifier(execution_context);
+					m_expression->GetTypeSpecifier(context);
 			if (!expression_type_specifier->AnalyzeAssignmentTo(
-					symbol_type_specifier, execution_context->GetTypeTable())) {
+					symbol_type_specifier, context->GetTypeTable())) {
 				yy::location expression_position = m_expression->GetPosition();
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
@@ -75,15 +76,15 @@ const ErrorListRef AssignmentStatement::Preprocess(
 		const_shared_ptr<ArrayVariable> array_variable = dynamic_pointer_cast<
 				const ArrayVariable>(m_variable);
 		if (array_variable) {
-			errors = array_variable->Validate(execution_context);
+			errors = array_variable->Validate(context);
 
 			if (ErrorList::IsTerminator(errors)) {
 				const_shared_ptr<TypeSpecifier> expression_type =
-						m_expression->GetTypeSpecifier(execution_context);
+						m_expression->GetTypeSpecifier(context);
 				const_shared_ptr<TypeSpecifier> element_type =
-						array_variable->GetElementType(execution_context);
+						array_variable->GetElementType(context);
 				if (!expression_type->AnalyzeAssignmentTo(element_type,
-						execution_context->GetTypeTable())) {
+						context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
 					errors = ErrorList::From(
@@ -101,15 +102,13 @@ const ErrorListRef AssignmentStatement::Preprocess(
 				const MemberVariable>(m_variable);
 		if (member_variable) {
 			auto container_specifier =
-					member_variable->GetContainer()->GetTypeSpecifier(
-							execution_context);
+					member_variable->GetContainer()->GetTypeSpecifier(context);
 			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 					container_specifier);
 
 			if (as_complex) {
-				auto container_type =
-						execution_context->GetTypeTable()->GetType<
-								TypeDefinition>(as_complex, DEEP, RESOLVE);
+				auto container_type = context->GetTypeTable()->GetType<
+						TypeDefinition>(as_complex, DEEP, RESOLVE);
 
 				if (container_type) {
 					const_shared_ptr<RecordType> type = dynamic_pointer_cast<
@@ -118,18 +117,16 @@ const ErrorListRef AssignmentStatement::Preprocess(
 					if (type) {
 						if (type->GetModifiers() & Modifier::Type::MUTABLE) {
 							const_shared_ptr<TypeSpecifier> member_variable_type =
-									member_variable->GetTypeSpecifier(
-											execution_context);
+									member_variable->GetTypeSpecifier(context);
 
 							if (member_variable_type
 									!= PrimitiveTypeSpecifier::GetNone()) {
 								const_shared_ptr<TypeSpecifier> expression_type =
-										m_expression->GetTypeSpecifier(
-												execution_context);
+										m_expression->GetTypeSpecifier(context);
 
 								if (!expression_type->AnalyzeAssignmentTo(
 										member_variable_type,
-										execution_context->GetTypeTable())) {
+										context->GetTypeTable())) {
 									errors =
 											ErrorList::From(
 													make_shared<Error>(
@@ -151,7 +148,7 @@ const ErrorListRef AssignmentStatement::Preprocess(
 														member_variable->GetMemberVariable()->GetLocation().begin.column,
 														*member_variable->GetMemberVariable()->GetName(),
 														member_variable->GetContainer()->GetTypeSpecifier(
-																execution_context)->ToString()),
+																context)->ToString()),
 												errors);
 							}
 						} else {
@@ -350,7 +347,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 
 	int new_value = 0;
 	const_shared_ptr<Result> evaluation = expression->Evaluate(
-			execution_context);
+			execution_context, execution_context);
 	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
@@ -404,7 +401,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 
 	double new_value = 0;
 	const_shared_ptr<Result> evaluation = expression->Evaluate(
-			execution_context);
+			execution_context, execution_context);
 	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
@@ -463,7 +460,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 
 	string* new_value = nullptr;
 	const_shared_ptr<Result> evaluation = expression->Evaluate(
-			execution_context);
+			execution_context, execution_context);
 	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 		return evaluation;
 	}
@@ -520,7 +517,8 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 }
 
 const ErrorListRef AssignmentStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_variable == nullptr || m_expression == nullptr) {
@@ -531,10 +529,10 @@ const ErrorListRef AssignmentStatement::Execute(
 	int variable_line = m_variable->GetLocation().begin.line;
 	int variable_column = m_variable->GetLocation().begin.column;
 
-	auto symbol = execution_context->GetSymbol(variable_name, DEEP);
+	auto symbol = context->GetSymbol(variable_name, DEEP);
 
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
-		errors = m_variable->AssignValue(execution_context, m_expression,
+		errors = m_variable->AssignValue(context, closure, m_expression,
 				m_op_type);
 	} else {
 		errors = ErrorList::From(

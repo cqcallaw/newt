@@ -88,13 +88,15 @@ const_shared_ptr<Result> BasicVariable::Evaluate(
 
 const ErrorListRef BasicVariable::AssignValue(
 		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
-	return AssignValue(context, expression, op, context);
+	return AssignValue(context, closure, expression, op, context);
 }
 
 const ErrorListRef BasicVariable::AssignValue(
 		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<Expression> expression, const AssignmentType op,
 		const shared_ptr<ExecutionContext> output_context,
 		const_shared_ptr<ComplexTypeSpecifier> container) const {
@@ -180,7 +182,7 @@ const ErrorListRef BasicVariable::AssignValue(
 	if (as_array) {
 		//re-assigning an array reference
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
-				context);
+				context, context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
@@ -208,7 +210,7 @@ const ErrorListRef BasicVariable::AssignValue(
 		auto complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 				symbol_type_specifier);
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
-				context);
+				context, context);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
@@ -224,7 +226,7 @@ const ErrorListRef BasicVariable::AssignValue(
 			const FunctionType>(symbol_type);
 	if (as_function) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
-				context);
+				context, closure);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
@@ -238,7 +240,7 @@ const ErrorListRef BasicVariable::AssignValue(
 			symbol_type);
 	if (as_sum) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
-				context);
+				context, context);
 		errors = expression_evaluation->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {
@@ -305,7 +307,7 @@ const ErrorListRef BasicVariable::AssignValue(
 			symbol_type_specifier);
 	if (as_maybe) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
-				context);
+				context, context);
 		errors = expression_evaluation->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {

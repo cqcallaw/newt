@@ -47,10 +47,11 @@ RecordDeclarationStatement::~RecordDeclarationStatement() {
 }
 
 const ErrorListRef RecordDeclarationStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 
 	Modifier::Type modifiers = Modifier::NONE;
 	ModifierListRef modifier_list = GetModifierList();
@@ -69,7 +70,7 @@ const ErrorListRef RecordDeclarationStatement::Preprocess(
 				placeholder_symbol);
 		type_table->AddType(*GetName(), forward_declaration);
 
-		auto result = RecordType::Build(execution_context, modifiers,
+		auto result = RecordType::Build(context, modifiers,
 				m_member_declaration_list);
 		errors = result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
@@ -89,7 +90,8 @@ const ErrorListRef RecordDeclarationStatement::Preprocess(
 }
 
 const ErrorListRef RecordDeclarationStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	return ErrorList::GetTerminator();
 }
 

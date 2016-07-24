@@ -84,7 +84,7 @@ const_shared_ptr<Result> RecordType::Build(
 			//of the member declaration statement
 			const shared_ptr<symbol_map> values = make_shared<symbol_map>();
 			auto member_type_table = make_shared<TypeTable>(context_type_table);
-			shared_ptr<ExecutionContext> struct_context =
+			shared_ptr<ExecutionContext> tmp_context =
 					ExecutionContext::GetEmptyChild(context,
 							context->GetModifiers(), EPHEMERAL,
 							member_type_table, values);
@@ -106,7 +106,7 @@ const_shared_ptr<Result> RecordType::Build(
 					//otherwise (no initializer expression OR a valid initializer expression);
 					//we're cleared to preprocess
 					auto preprocess_errors = declaration->Preprocess(
-							struct_context);
+							tmp_context, context);
 					declaration_errors = ErrorList::Concatenate(
 							declaration_errors, preprocess_errors);
 
@@ -114,7 +114,7 @@ const_shared_ptr<Result> RecordType::Build(
 						//we've pre-processed this statement without issue
 						declaration_errors = ErrorList::Concatenate(
 								declaration_errors,
-								declaration->Execute(struct_context));
+								declaration->Execute(tmp_context, context));
 					}
 				}
 			}
@@ -236,7 +236,7 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 	if (initializer_analysis == EQUIVALENT) {
 		if (initializer->IsConstant()) {
 			const_shared_ptr<Result> result = initializer->Evaluate(
-					execution_context);
+					execution_context, execution_context);
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
 				instance = result->GetData<Record>();

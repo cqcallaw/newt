@@ -68,26 +68,27 @@ const_shared_ptr<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 }
 
 const_shared_ptr<Result> InvokeExpression::Evaluate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> value;
 
 	const_shared_ptr<TypeSpecifier> type_specifier =
-			m_expression->GetTypeSpecifier(execution_context);
+			m_expression->GetTypeSpecifier(context);
 	const_shared_ptr<FunctionTypeSpecifier> as_function =
 			std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 					type_specifier);
 
 	if (as_function) {
 		const_shared_ptr<Result> expression_result = m_expression->Evaluate(
-				execution_context);
+				context, closure);
 
 		errors = expression_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto function = expression_result->GetData<Function>();
 
 			const_shared_ptr<Result> eval_result = function->Evaluate(
-					m_argument_list, execution_context);
+					m_argument_list, context);
 
 			errors = eval_result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
@@ -246,7 +247,8 @@ const ErrorListRef InvokeExpression::Validate(
 
 					if (declaration->GetInitializerExpression()) {
 						errors = ErrorList::Concatenate(
-								declaration->Preprocess(tmp_context), errors);
+								declaration->Preprocess(tmp_context,
+										tmp_context), errors);
 					} else {
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,

@@ -44,26 +44,27 @@ IfStatement::~IfStatement() {
 }
 
 const ErrorListRef IfStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	assert(m_expression);
 
 	auto expression_analysis =
-			m_expression->GetTypeSpecifier(execution_context)->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetInt(),
-					execution_context->GetTypeTable());
+			m_expression->GetTypeSpecifier(context)->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
 	if (expression_analysis == EQUIVALENT
 			|| expression_analysis == UNAMBIGUOUS) {
 
-		m_block_context->LinkToParent(execution_context);
+		m_block_context->LinkToParent(context);
 
 		errors = m_block->Preprocess(m_block_context);
 		if (m_else_block) {
 			//pre-process else block
-			m_else_block_context->LinkToParent(execution_context);
+			m_else_block_context->LinkToParent(context);
 
 			errors = m_else_block->Preprocess(m_else_block_context);
+
 		}
 
 	} else {
@@ -78,29 +79,27 @@ const ErrorListRef IfStatement::Preprocess(
 }
 
 const ErrorListRef IfStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
-			execution_context);
+	const_shared_ptr<Result> evaluation = m_expression->Evaluate(context,
+			closure);
 	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *(evaluation->GetData<bool>());
 
 	if (test) {
 		assert(m_block_context->GetParent());
-		assert(m_block_context->GetParent()->GetData() == execution_context);
+		assert(m_block_context->GetParent()->GetData() == context);
 
 		errors = m_block->Execute(m_block_context);
-		execution_context->SetReturnValue(m_block_context->GetReturnValue());
+		context->SetReturnValue(m_block_context->GetReturnValue());
 	} else if (m_else_block) {
 		assert(m_else_block_context->GetParent());
-		assert(
-				m_else_block_context->GetParent()->GetData()
-						== execution_context);
+		assert(m_else_block_context->GetParent()->GetData() == context);
 
 		errors = m_else_block->Execute(m_else_block_context);
-		execution_context->SetReturnValue(
-				m_else_block_context->GetReturnValue());
+		context->SetReturnValue(m_else_block_context->GetReturnValue());
 	}
 
 	return errors;

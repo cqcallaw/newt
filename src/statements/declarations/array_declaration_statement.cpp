@@ -46,16 +46,17 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(
 }
 
 const ErrorListRef ArrayDeclarationStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
+
+	const_shared_ptr<TypeTable> type_table = context->GetTypeTable();
 
 	const_shared_ptr<ComplexTypeSpecifier> element_type_as_record =
 			dynamic_pointer_cast<const ComplexTypeSpecifier>(
 					m_type_specifier->GetElementTypeSpecifier());
 	if (element_type_as_record) {
 		//check that element type exists
-		const_shared_ptr<TypeTable> type_table =
-				execution_context->GetTypeTable();
 		const string type_name = *element_type_as_record->GetTypeName();
 		const_shared_ptr<ComplexType> type = type_table->GetType<ComplexType>(
 				type_name, DEEP, RETURN);
@@ -75,14 +76,13 @@ const ErrorListRef ArrayDeclarationStatement::Preprocess(
 		auto initializer_expression = GetInitializerExpression();
 		if (initializer_expression) {
 			const_shared_ptr<TypeSpecifier> initializer_expression_type =
-					initializer_expression->GetTypeSpecifier(execution_context);
+					initializer_expression->GetTypeSpecifier(context);
 			const_shared_ptr<ArrayTypeSpecifier> as_array =
 					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
 							initializer_expression_type);
 			if (!as_array
 					|| !initializer_expression_type->AnalyzeAssignmentTo(
-							m_type_specifier,
-							execution_context->GetTypeTable())) {
+							m_type_specifier, *type_table)) {
 				errors =
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
@@ -97,17 +97,13 @@ const ErrorListRef ArrayDeclarationStatement::Preprocess(
 
 		if (ErrorList::IsTerminator(errors)) {
 			array = new Array(m_type_specifier->GetElementTypeSpecifier(),
-					*execution_context->GetTypeTable());
+					*type_table);
 		}
-
-		volatile_shared_ptr<SymbolTable> symbol_table = static_pointer_cast<
-				SymbolTable>(execution_context);
 
 		if (array) {
 			auto wrapper = const_shared_ptr<Array>(array);
 			auto symbol = const_shared_ptr<Symbol>(new Symbol(wrapper));
-			InsertResult insert_result = symbol_table->InsertSymbol(*name,
-					symbol);
+			InsertResult insert_result = context->InsertSymbol(*name, symbol);
 			if (insert_result == SYMBOL_EXISTS) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
@@ -126,18 +122,19 @@ ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 }
 
 const ErrorListRef ArrayDeclarationStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	if (GetInitializerExpression()) {
 		const_shared_ptr<Result> initializer_result =
-				GetInitializerExpression()->Evaluate(execution_context);
+				GetInitializerExpression()->Evaluate(context, closure);
 		errors = initializer_result->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {
 			auto array = initializer_result->GetData<Array>();
-			auto symbol_context = execution_context;
+			auto symbol_context = context;
 			SetResult result = symbol_context->SetSymbol(*GetName(), array,
-					execution_context->GetTypeTable());
+					context->GetTypeTable());
 			errors =
 					ToErrorListRef(result,
 							GetInitializerExpression()->GetPosition(),

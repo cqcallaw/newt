@@ -39,8 +39,9 @@ const_shared_ptr<TypeSpecifier> VariableExpression::GetTypeSpecifier(
 }
 
 const_shared_ptr<Result> VariableExpression::Evaluate(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	return m_variable->Evaluate(execution_context);
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	return m_variable->Evaluate(context);
 }
 
 const ErrorListRef VariableExpression::Validate(

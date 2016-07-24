@@ -51,8 +51,9 @@ const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
 }
 
 const_shared_ptr<Result> DefaultValueExpression::Evaluate(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	auto type_table = *execution_context->GetTypeTable();
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	auto type_table = *context->GetTypeTable();
 	//here we RETURN aliases instead of RESOLVING them so that
 	//the _alias'_ default value will be used instead of the aliased type's default value
 	auto type_result = m_type_specifier->GetType(type_table, RETURN);

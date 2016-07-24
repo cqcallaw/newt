@@ -58,6 +58,7 @@ public:
 
 	virtual const ErrorListRef AssignValue(
 			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<Expression> expression,
 			const AssignmentType op) const = 0;
 

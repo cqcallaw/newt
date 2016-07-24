@@ -32,22 +32,22 @@ ReturnStatement::~ReturnStatement() {
 }
 
 const ErrorListRef ReturnStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	return m_expression->Validate(execution_context);
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	return m_expression->Validate(context);
 }
 
 const ErrorListRef ReturnStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
-	auto result = m_expression->Evaluate(execution_context);
+	auto result = m_expression->Evaluate(context, closure);
 
 	errors = result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		execution_context->SetReturnValue(
+		context->SetReturnValue(
 				const_shared_ptr<Symbol>(
-						new Symbol(
-								m_expression->GetTypeSpecifier(
-										execution_context),
+						new Symbol(m_expression->GetTypeSpecifier(context),
 								result->GetRawData())));
 	}
 

@@ -49,20 +49,21 @@ const_shared_ptr<TypeSpecifier> WithExpression::GetTypeSpecifier(
 }
 
 const_shared_ptr<Result> WithExpression::Evaluate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 	const_shared_ptr<Result> source_result = m_source_expression->Evaluate(
-			execution_context);
+			context, closure);
 
 	errors = source_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		plain_shared_ptr<Record> new_value;
 		const_shared_ptr<TypeSpecifier> source_type_specifier =
-				m_source_expression->GetTypeSpecifier(execution_context);
+				m_source_expression->GetTypeSpecifier(context);
 
 		shared_ptr<const RecordType> type = nullptr;
 		auto source_type_result = source_type_specifier->GetType(
-				execution_context->GetTypeTable());
+				context->GetTypeTable());
 
 		errors = source_type_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
@@ -96,14 +97,14 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 											| Modifier::Type::MUTABLE));
 			auto type_definition = type->GetDefinition();
 			auto temp_type_table = type_definition->Clone()->WithParent(
-					execution_context->GetTypeTable());
+					context->GetTypeTable());
 
 			volatile_shared_ptr<ExecutionContext> temp_execution_context =
 					make_shared<ExecutionContext>(new_symbol_context,
 							temp_type_table, EPHEMERAL);
 
 			auto resolved_specifier = NestedTypeSpecifier::Resolve(
-					source_type_specifier, execution_context->GetTypeTable());
+					source_type_specifier, context->GetTypeTable());
 			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 					resolved_specifier);
 			assert(as_complex);
@@ -117,7 +118,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 						instantiation->GetName(),
 						instantiation->GetNamePosition());
 				errors = ErrorList::Concatenate(errors,
-						variable->AssignValue(execution_context,
+						variable->AssignValue(context, closure,
 								instantiation->GetExpression(), ASSIGN,
 								temp_execution_context, as_complex));
 

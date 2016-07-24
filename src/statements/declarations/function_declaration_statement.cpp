@@ -43,25 +43,24 @@ FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 }
 
 const ErrorListRef FunctionDeclarationStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 
-	auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
+	auto existing = context->GetSymbol(GetName(), SHALLOW);
 
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (GetInitializerExpression()) {
 			const_shared_ptr<TypeSpecifier> expression_type =
-					GetInitializerExpression()->GetTypeSpecifier(
-							execution_context);
+					GetInitializerExpression()->GetTypeSpecifier(context);
 			const_shared_ptr<FunctionTypeSpecifier> as_function =
 					std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
 							expression_type);
 
 			if (as_function) {
-				errors = GetInitializerExpression()->Validate(
-						execution_context);
+				errors = GetInitializerExpression()->Validate(context);
 			} else {
 				errors =
 						ErrorList::From(
@@ -79,8 +78,8 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 			auto symbol = make_shared<Symbol>(
 					static_pointer_cast<const Function>(value));
 
-			InsertResult insert_result = execution_context->InsertSymbol(
-					*GetName(), symbol);
+			InsertResult insert_result = context->InsertSymbol(*GetName(),
+					symbol);
 
 			if (insert_result != INSERT_SUCCESS) {
 				assert(false);
@@ -97,11 +96,12 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 }
 
 const ErrorListRef FunctionDeclarationStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	if (GetInitializerExpression()) {
 		Variable* temp_variable = new BasicVariable(GetName(),
 				GetNameLocation());
-		auto errors = temp_variable->AssignValue(execution_context,
+		auto errors = temp_variable->AssignValue(context, closure,
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 

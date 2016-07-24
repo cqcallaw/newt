@@ -280,6 +280,7 @@ const ErrorListRef MemberVariable::SetSymbol(
 
 const ErrorListRef MemberVariable::AssignValue(
 		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
 	assert(context->GetModifiers() & Modifier::MUTABLE);
@@ -301,7 +302,8 @@ const ErrorListRef MemberVariable::AssignValue(
 			new_context = new_context->WithParent(new_parent_context);
 
 			const_shared_ptr<Variable> new_variable = GetMemberVariable();
-			errors = new_variable->AssignValue(new_context, expression, op);
+			errors = new_variable->AssignValue(new_context, closure, expression,
+					op);
 		} else {
 			//TODO: consider a more descriptive error message.
 			//the basic idea is that sum types don't have re-assignable members

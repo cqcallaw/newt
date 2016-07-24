@@ -88,10 +88,12 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 
 				auto preprocessing_errors = ErrorList::Concatenate(errors,
 						argument_declaration->Preprocess(
+								function_execution_context,
 								function_execution_context));
 				if (ErrorList::IsTerminator(preprocessing_errors)) {
 					errors = ErrorList::Concatenate(errors,
 							argument_declaration->Execute(
+									function_execution_context,
 									function_execution_context));
 				} else if (preprocessing_errors != errors) {
 					errors = ErrorList::Concatenate(errors,
@@ -124,9 +126,11 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 
 		if (declaration->GetInitializerExpression()) {
 			errors = ErrorList::Concatenate(errors,
-					declaration->Preprocess(function_execution_context));
+					declaration->Preprocess(function_execution_context,
+							function_execution_context));
 			errors = ErrorList::Concatenate(errors,
-					declaration->Execute(function_execution_context));
+					declaration->Execute(function_execution_context,
+							function_execution_context));
 			parameter = parameter->GetNext();
 		} else {
 			errors = ErrorList::From(

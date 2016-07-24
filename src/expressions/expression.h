@@ -43,11 +43,11 @@ public:
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
-			AliasResolution resolution =
-					AliasResolution::RESOLVE) const = 0;
+			AliasResolution resolution = AliasResolution::RESOLVE) const = 0;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const shared_ptr<ExecutionContext> execution_context) const = 0;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const = 0;
 
 	const_shared_ptr<Result> ToString(
 			const shared_ptr<ExecutionContext> execution_context) const;

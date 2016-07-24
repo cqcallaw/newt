@@ -74,7 +74,8 @@ const ErrorListRef ComplexType::Instantiate(
 		location = initializer->GetPosition();
 		initializer_type_specifier = initializer->GetTypeSpecifier(
 				execution_context);
-		auto result = initializer->Evaluate(execution_context);
+		auto result = initializer->Evaluate(execution_context,
+				execution_context);
 		errors = result->GetErrors();
 
 		if (ErrorList::IsTerminator(errors)) {

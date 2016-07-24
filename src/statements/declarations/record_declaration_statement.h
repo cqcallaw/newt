@@ -37,10 +37,12 @@ public:
 	virtual ~RecordDeclarationStatement();
 
 	virtual const ErrorListRef Preprocess(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const ErrorListRef Execute(
-			shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
 		return m_type;

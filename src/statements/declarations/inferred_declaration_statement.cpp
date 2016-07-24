@@ -55,15 +55,15 @@ const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() cons
 }
 
 const ErrorListRef InferredDeclarationStatement::Preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = GetInitializerExpression()->Validate(
-			execution_context);
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	ErrorListRef errors = GetInitializerExpression()->Validate(context);
 	if (ErrorList::IsTerminator(errors)) {
 		const_shared_ptr<TypeSpecifier> expression_type =
-				GetInitializerExpression()->GetTypeSpecifier(execution_context,
+				GetInitializerExpression()->GetTypeSpecifier(context,
 						AliasResolution::RETURN);
 
-		auto type_table = execution_context->GetTypeTable();
+		auto type_table = context->GetTypeTable();
 		auto type_result = expression_type->GetType(type_table);
 
 		errors = ErrorList::Concatenate(errors, type_result->GetErrors());
@@ -75,7 +75,7 @@ const ErrorListRef InferredDeclarationStatement::Preprocess(
 							GetInitializerExpression()->GetPosition(),
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
-			errors = temp_statement->Preprocess(execution_context);
+			errors = temp_statement->Preprocess(context, closure);
 		}
 	}
 
@@ -83,13 +83,14 @@ const ErrorListRef InferredDeclarationStatement::Preprocess(
 }
 
 const ErrorListRef InferredDeclarationStatement::Execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	const_shared_ptr<TypeSpecifier> expression_type =
-			GetInitializerExpression()->GetTypeSpecifier(execution_context);
+			GetInitializerExpression()->GetTypeSpecifier(context);
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 	auto type_result = expression_type->GetType(type_table);
 
 	auto type_errors = type_result->GetErrors();
@@ -99,11 +100,10 @@ const ErrorListRef InferredDeclarationStatement::Execute(
 				type->GetDeclarationStatement(GetLocation(), expression_type,
 						GetInitializerExpression()->GetPosition(), GetName(),
 						GetNameLocation(), GetInitializerExpression());
-		errors = temp_statement->Execute(execution_context);
+		errors = temp_statement->Execute(context, closure);
 	} else {
 		errors = type_errors;
-		auto initializer_errors = GetInitializerExpression()->Validate(
-				execution_context);
+		auto initializer_errors = GetInitializerExpression()->Validate(context);
 		errors = ErrorList::Concatenate(errors, initializer_errors);
 	}
 

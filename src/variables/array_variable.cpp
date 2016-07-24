@@ -62,7 +62,8 @@ const_shared_ptr<string> ArrayVariable::ToString(
 	buffer << *m_base_variable->ToString(context);
 	buffer << "[";
 
-	const_shared_ptr<Result> evaluation = m_expression->Evaluate(context);
+	const_shared_ptr<Result> evaluation = m_expression->Evaluate(context,
+			context);
 
 	auto errors = evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
@@ -106,7 +107,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 				if (index_analysis == EQUIVALENT
 						|| index_analysis == UNAMBIGUOUS) {
 					const_shared_ptr<Result> index_expression_evaluation =
-							m_expression->Evaluate(context);
+							m_expression->Evaluate(context, context);
 					errors = index_expression_evaluation->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
 						const int i =
@@ -234,6 +235,7 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 
 const ErrorListRef ArrayVariable::AssignValue(
 		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<Expression> expression,
 		const AssignmentType op) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
@@ -333,7 +335,7 @@ const ErrorListRef ArrayVariable::AssignValue(
 			} else {
 				if (op == AssignmentType::ASSIGN) {
 					const_shared_ptr<Result> result = expression->Evaluate(
-							context);
+							context, context);
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
 						auto element_type_result =
@@ -505,8 +507,8 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 		//wrap result in constant expression and assign it to the base variable
 		auto as_const_expression = make_shared<ConstantExpression>(
 				m_expression->GetPosition(), new_array);
-		errors = m_base_variable->AssignValue(context, as_const_expression,
-				AssignmentType::ASSIGN);
+		errors = m_base_variable->AssignValue(context, context,
+				as_const_expression, AssignmentType::ASSIGN);
 	}
 
 	return errors;

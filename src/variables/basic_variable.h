@@ -47,10 +47,12 @@ public:
 
 	virtual const ErrorListRef AssignValue(
 			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<Expression> expression,
 			const AssignmentType op) const;
 
 	const ErrorListRef AssignValue(const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<Expression> expression, const AssignmentType op,
 			const shared_ptr<ExecutionContext> output_context,
 			const_shared_ptr<ComplexTypeSpecifier> container = nullptr) const;
