@@ -85,7 +85,7 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	void* result = nullptr;
+	shared_ptr<void> result;
 
 	const_shared_ptr<TypeSpecifier> expression_type =
 			m_expression->GetTypeSpecifier(context);
@@ -102,15 +102,13 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
 			if (expression_analysis == EQUIVALENT
 					|| expression_analysis == UNAMBIGUOUS) {
-				int* value = new int;
-				*value = -(*(evaluation->GetData<int>()));
-				result = (void *) value;
+				int value = -(*(evaluation->GetData<int>()));
+				result = make_shared<int>(value);
 			} else if (expression_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetDouble(),
 					context->GetTypeTable())) {
-				double* value = new double;
-				*value = -(*(evaluation->GetData<double>()));
-				result = (void *) value;
+				double value = -(*(evaluation->GetData<double>()));
+				result = make_shared<double>(value);
 			} else {
 				assert(false);
 			}
@@ -121,21 +119,21 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 					PrimitiveTypeSpecifier::GetBoolean(),
 					context->GetTypeTable()) == EQUIVALENT) {
 				bool old_value = *(evaluation->GetData<bool>());
-				bool* value = new bool(!old_value);
-				result = (void *) value;
+				bool value = !old_value;
+				result = make_shared<bool>(value);
 			} else if (expression_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())
 					== EQUIVALENT) {
 				int old_value = *(evaluation->GetData<int>());
-				bool* value = new bool(!(old_value != 0));
-				result = (void *) value;
+				bool value = !(old_value != 0);
+				result = make_shared<bool>(value);
 				break;
 			} else if (expression_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetDouble(),
 					context->GetTypeTable()) == EQUIVALENT) {
 				double old_value = *(evaluation->GetData<double>());
-				bool* value = new bool(!(old_value != 0));
-				result = (void *) value;
+				bool value = !(old_value != 0);
+				result = make_shared<bool>(value);
 				break;
 			} else {
 				assert(false);
@@ -148,6 +146,6 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 		}
 	}
 
-	return make_shared<Result>(const_shared_ptr<void>(result), errors);
+	return make_shared<Result>(result, errors);
 }
 
