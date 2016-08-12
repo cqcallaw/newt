@@ -50,7 +50,6 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 	auto type_table = context->GetTypeTable();
 
 	auto existing = context->GetSymbol(GetName(), SHALLOW);
-
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (GetInitializerExpression()) {
 			const_shared_ptr<TypeSpecifier> expression_type =
@@ -60,6 +59,14 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 							expression_type);
 
 			if (as_function) {
+				//insert default value to allow for recursive invocations
+				auto value = m_type_specifier->DefaultValue(*type_table);
+				auto symbol = make_shared<Symbol>(
+						static_pointer_cast<const Function>(value));
+				InsertResult insert_result = context->InsertSymbol(*GetName(),
+						symbol);
+				assert(insert_result == INSERT_SUCCESS);
+
 				errors = GetInitializerExpression()->Validate(context);
 			} else {
 				errors =
@@ -70,20 +77,15 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 										GetInitializerExpression()->GetPosition().begin.column),
 								errors);
 			}
-		}
-
-		if (ErrorList::IsTerminator(errors)) {
+		} else {
+			// no initializer; initialize to default value
 			auto value = m_type_specifier->DefaultValue(*type_table);
 
 			auto symbol = make_shared<Symbol>(
 					static_pointer_cast<const Function>(value));
-
 			InsertResult insert_result = context->InsertSymbol(*GetName(),
 					symbol);
-
-			if (insert_result != INSERT_SUCCESS) {
-				assert(false);
-			}
+			assert(insert_result == INSERT_SUCCESS);
 		}
 	} else {
 		errors = ErrorList::From(
