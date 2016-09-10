@@ -20,7 +20,7 @@
 #ifndef RESULT_H_
 #define RESULT_H_
 
-class Error;
+#include <error.h>
 
 class Result {
 public:
@@ -53,6 +53,30 @@ public:
 
 private:
 	const_shared_ptr<void> m_data;
+	const ErrorListRef m_errors;
+};
+
+template<class T> class TResult {
+public:
+	TResult(const_shared_ptr<T> data) :
+			TResult(data, ErrorList::GetTerminator()) {
+	}
+
+	TResult(const_shared_ptr<T> data, const ErrorListRef errors) :
+			m_data(data), m_errors(errors) {
+		assert(m_data || m_errors);
+	}
+
+	const shared_ptr<const T> GetData() const {
+		return m_data;
+	}
+
+	const ErrorListRef GetErrors() const {
+		return m_errors;
+	}
+
+private:
+	const_shared_ptr<T> m_data;
 	const ErrorListRef m_errors;
 };
 

@@ -56,10 +56,10 @@ ConstantExpression::ConstantExpression(const ConstantExpression* other) :
 ConstantExpression::~ConstantExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> ConstantExpression::GetTypeSpecifier(
+TResult<TypeSpecifier> ConstantExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return m_type;
+	return TResult<TypeSpecifier>(m_type);
 }
 
 const_shared_ptr<Result> ConstantExpression::Evaluate(
@@ -84,10 +84,21 @@ const_shared_ptr<Result> ConstantExpression::GetConstantExpression(
 
 	auto errors = evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		result = const_shared_ptr<void>(
-				new ConstantExpression(expression->GetPosition(),
-						expression->GetTypeSpecifier(context),
-						evaluation->GetRawData()));
+		auto expression_type_specifier_result = expression->GetTypeSpecifier(
+				context);
+		auto expression_type_specifier_errors =
+				expression_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(expression_type_specifier_errors)) {
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
+			result = const_shared_ptr<void>(
+					new ConstantExpression(expression->GetPosition(),
+							expression_type_specifier,
+							evaluation->GetRawData()));
+		} else {
+			errors = ErrorList::Concatenate(errors,
+					expression_type_specifier_errors);
+		}
 	}
 
 	return make_shared<Result>(result, errors);

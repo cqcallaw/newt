@@ -44,7 +44,8 @@ FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 
 const ErrorListRef FunctionDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto type_table = context->GetTypeTable();
@@ -52,30 +53,46 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 	auto existing = context->GetSymbol(GetName(), SHALLOW);
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (GetInitializerExpression()) {
-			const_shared_ptr<TypeSpecifier> expression_type =
+			auto expression_type_specifier_result =
 					GetInitializerExpression()->GetTypeSpecifier(context);
-			const_shared_ptr<FunctionTypeSpecifier> as_function =
-					std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
-							expression_type);
 
-			if (as_function) {
-				//insert default value to allow for recursive invocations
-				auto value = m_type_specifier->DefaultValue(*type_table);
-				auto symbol = make_shared<Symbol>(
-						static_pointer_cast<const Function>(value));
-				InsertResult insert_result = context->InsertSymbol(*GetName(),
-						symbol);
-				assert(insert_result == INSERT_SUCCESS);
+			errors = expression_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto expression_type_specifier =
+						expression_type_specifier_result.GetData();
+				const_shared_ptr<FunctionTypeSpecifier> as_function =
+						std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
+								expression_type_specifier);
 
-				errors = GetInitializerExpression()->Validate(context);
-			} else {
-				errors =
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::NOT_A_FUNCTION,
-										GetInitializerExpression()->GetPosition().begin.line,
-										GetInitializerExpression()->GetPosition().begin.column),
-								errors);
+				if (as_function) {
+					// insert default value to allow for recursive invocations
+					auto child_context = context->GetEmptyChild(context,
+							Modifier::Type::MUTABLE, EPHEMERAL);
+
+					auto value = m_type_specifier->DefaultValue(*type_table);
+					auto symbol = make_shared<Symbol>(
+							static_pointer_cast<const Function>(value));
+					InsertResult insert_result = child_context->InsertSymbol(
+							*GetName(), symbol);
+					assert(insert_result == INSERT_SUCCESS);
+
+					errors = GetInitializerExpression()->Validate(
+							child_context);
+					if (ErrorList::IsTerminator(errors)) {
+						// passed validation; insert into output context
+						InsertResult insert_result = context->InsertSymbol(
+								*GetName(), symbol);
+						assert(insert_result == INSERT_SUCCESS);
+					}
+				} else {
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::NOT_A_FUNCTION,
+											GetInitializerExpression()->GetPosition().begin.line,
+											GetInitializerExpression()->GetPosition().begin.column),
+									errors);
+				}
 			}
 		} else {
 			// no initializer; initialize to default value

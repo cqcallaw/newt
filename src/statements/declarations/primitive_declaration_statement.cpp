@@ -44,7 +44,8 @@ PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
 
 const ErrorListRef PrimitiveDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto symbol = Symbol::GetDefaultSymbol();
 
@@ -65,28 +66,37 @@ const ErrorListRef PrimitiveDeclarationStatement::Preprocess(
 		auto type_table = context->GetTypeTable();
 
 		if (GetInitializerExpression()) {
-			const_shared_ptr<TypeSpecifier> expression_type_specifier =
+			auto expression_type_specifier_result =
 					GetInitializerExpression()->GetTypeSpecifier(context);
 
-			auto expression_as_primitive = std::dynamic_pointer_cast<
-					const PrimitiveTypeSpecifier>(expression_type_specifier);
-			if (expression_as_primitive == nullptr
-					|| !expression_as_primitive->AnalyzeAssignmentTo(
-							m_type_specifier, type_table)) {
-				//the type specifier isn't primitive
-				//-or-
-				//we cannot assign a value of the expression type to the variable type
-				errors =
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::INVALID_INITIALIZER_TYPE,
-										GetInitializerExpression()->GetPosition().begin.line,
-										GetInitializerExpression()->GetPosition().begin.column,
-										*GetName(),
-										m_type_specifier->ToString(),
-										expression_type_specifier->ToString()),
-								errors);
+			auto expression_type_specifier_result_errors =
+					expression_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(
+					expression_type_specifier_result_errors)) {
+				auto expression_type_specifier =
+						expression_type_specifier_result.GetData();
+				auto expression_as_primitive = std::dynamic_pointer_cast<
+						const PrimitiveTypeSpecifier>(
+						expression_type_specifier);
+				if (expression_as_primitive == nullptr
+						|| !expression_as_primitive->AnalyzeAssignmentTo(
+								m_type_specifier, type_table)) {
+					//the type specifier isn't primitive
+					//-or-
+					//we cannot assign a value of the expression type to the variable type
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::INVALID_INITIALIZER_TYPE,
+											GetInitializerExpression()->GetPosition().begin.line,
+											GetInitializerExpression()->GetPosition().begin.column,
+											*GetName(),
+											m_type_specifier->ToString(),
+											expression_type_specifier->ToString()),
+									errors);
+				}
 			}
+			//we purposefully ignore type specifier result errors here, as the initializer expression was validated at the top of the function
 		}
 
 		auto type_result = m_type_specifier->GetType(type_table);

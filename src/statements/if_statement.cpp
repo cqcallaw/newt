@@ -45,34 +45,46 @@ IfStatement::~IfStatement() {
 
 const ErrorListRef IfStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	assert(m_expression);
 
-	auto expression_analysis =
-			m_expression->GetTypeSpecifier(context)->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
-	if (expression_analysis == EQUIVALENT
-			|| expression_analysis == UNAMBIGUOUS) {
+	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+			context);
 
-		m_block_context->LinkToParent(context);
+	auto errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+		auto expression_analysis =
+				expression_type_specifier->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetInt(),
+						context->GetTypeTable());
+		if (expression_analysis == EQUIVALENT
+				|| expression_analysis == UNAMBIGUOUS) {
 
-		errors = m_block->Preprocess(m_block_context);
-		if (m_else_block) {
-			//pre-process else block
-			m_else_block_context->LinkToParent(context);
+			m_block_context->LinkToParent(context);
 
-			errors = m_else_block->Preprocess(m_else_block_context);
+			errors = m_block->Preprocess(m_block_context,
+					return_type_specifier);
+			if (m_else_block) {
+				//pre-process else block
+				m_else_block_context->LinkToParent(context);
 
+				errors = ErrorList::Concatenate(errors,
+						m_else_block->Preprocess(m_else_block_context,
+								return_type_specifier));
+
+			}
+
+		} else {
+			yy::location position = m_expression->GetPosition();
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
+							position.begin.line, position.begin.column),
+					errors);
 		}
-
-	} else {
-		yy::location position = m_expression->GetPosition();
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
-						position.begin.line, position.begin.column), errors);
 	}
 
 	return errors;
@@ -102,18 +114,5 @@ const ErrorListRef IfStatement::Execute(
 		context->SetReturnValue(m_else_block_context->GetReturnValue());
 	}
 
-	return errors;
-}
-
-const ErrorListRef IfStatement::GetReturnStatementErrors(
-		const_shared_ptr<TypeSpecifier> type_specifier,
-		const shared_ptr<ExecutionContext> execution_context) const {
-	auto errors = m_block->GetReturnStatementErrors(type_specifier,
-			execution_context);
-	if (m_else_block) {
-		errors = ErrorList::Concatenate(errors,
-				m_else_block->GetReturnStatementErrors(type_specifier,
-						execution_context));
-	}
 	return errors;
 }

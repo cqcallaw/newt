@@ -47,7 +47,8 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(
 
 const ErrorListRef ArrayDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const_shared_ptr<TypeTable> type_table = context->GetTypeTable();
@@ -75,23 +76,30 @@ const ErrorListRef ArrayDeclarationStatement::Preprocess(
 		auto name = GetName();
 		auto initializer_expression = GetInitializerExpression();
 		if (initializer_expression) {
-			const_shared_ptr<TypeSpecifier> initializer_expression_type =
+			auto initializer_expression_type_result =
 					initializer_expression->GetTypeSpecifier(context);
-			const_shared_ptr<ArrayTypeSpecifier> as_array =
-					std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
-							initializer_expression_type);
-			if (!as_array
-					|| !initializer_expression_type->AnalyzeAssignmentTo(
-							m_type_specifier, *type_table)) {
-				errors =
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::ASSIGNMENT_TYPE_ERROR,
-										initializer_expression->GetPosition().begin.line,
-										initializer_expression->GetPosition().begin.column,
-										m_type_specifier->ToString(),
-										initializer_expression_type->ToString()),
-								errors);
+
+			errors = initializer_expression_type_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto initializer_expression_type =
+						initializer_expression_type_result.GetData();
+
+				const_shared_ptr<ArrayTypeSpecifier> as_array =
+						std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
+								initializer_expression_type);
+				if (!as_array
+						|| !initializer_expression_type->AnalyzeAssignmentTo(
+								m_type_specifier, *type_table)) {
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::ASSIGNMENT_TYPE_ERROR,
+											initializer_expression->GetPosition().begin.line,
+											initializer_expression->GetPosition().begin.column,
+											m_type_specifier->ToString(),
+											initializer_expression_type->ToString()),
+									errors);
+				}
 			}
 		}
 

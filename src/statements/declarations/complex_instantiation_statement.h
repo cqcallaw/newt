@@ -46,7 +46,8 @@ public:
 
 	virtual const ErrorListRef Preprocess(
 			const shared_ptr<ExecutionContext> context,
-			const shared_ptr<ExecutionContext> closure) const;
+			const shared_ptr<ExecutionContext> closure,
+			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;
 
 	virtual const ErrorListRef Execute(
 			const shared_ptr<ExecutionContext> context,

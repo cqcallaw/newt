@@ -39,7 +39,8 @@ InvokeStatement::~InvokeStatement() {
 
 const ErrorListRef InvokeStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	//variable reference must be a reference to a function
 	//argument list length and types must match
 	auto result = m_expression->Validate(context);

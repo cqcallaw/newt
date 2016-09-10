@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 		shared_ptr<ExecutionContext> root_context =
 				make_shared<ExecutionContext>(Modifier::Type::MUTABLE);
 		ErrorListRef semantic_errors = main_statement_block->Preprocess(
-				root_context);
+				root_context, nullptr);
 
 		if (ErrorList::IsTerminator(semantic_errors)) {
 			if (debug) {

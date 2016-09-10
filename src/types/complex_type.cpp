@@ -72,16 +72,22 @@ const ErrorListRef ComplexType::Instantiate(
 	plain_shared_ptr<TypeSpecifier> initializer_type_specifier = nullptr;
 	if (initializer && !initializer->IsConstant()) {
 		location = initializer->GetPosition();
-		initializer_type_specifier = initializer->GetTypeSpecifier(
-				execution_context);
-		auto result = initializer->Evaluate(execution_context,
-				execution_context);
-		errors = result->GetErrors();
 
+		auto initializer_type_specifier_result = initializer->GetTypeSpecifier(
+				execution_context);
+		errors = initializer_type_specifier_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			set_result = InstantiateCore(execution_context, type_specifier,
-					initializer_type_specifier, *instance_name,
-					result->GetData<void>());
+			auto initializer_type_specifier =
+					initializer_type_specifier_result.GetData();
+			auto result = initializer->Evaluate(execution_context,
+					execution_context);
+			errors = result->GetErrors();
+
+			if (ErrorList::IsTerminator(errors)) {
+				set_result = InstantiateCore(execution_context, type_specifier,
+						initializer_type_specifier, *instance_name,
+						result->GetData<void>());
+			}
 		}
 	}
 

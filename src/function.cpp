@@ -156,7 +156,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		//but the context setup in the function preprocessing is currently discarded.
 		//TODO: consider cloning function expression preprocess context instead of discarding it
 		errors = ErrorList::Concatenate(errors,
-				m_body->Preprocess(final_execution_context));
+				m_body->Preprocess(final_execution_context,
+						m_declaration->GetReturnTypeSpecifier()));
 		if (ErrorList::IsTerminator(errors)) {
 			errors = ErrorList::Concatenate(errors,
 					m_body->Execute(final_execution_context));

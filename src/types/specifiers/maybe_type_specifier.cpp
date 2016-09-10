@@ -71,30 +71,34 @@ const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
 
 const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
 		const TypeTable& type_table, const TypeSpecifier& other) const {
-	auto resolved = NestedTypeSpecifier::Resolve(m_base_type_specifier,
+	auto resolved_result = NestedTypeSpecifier::Resolve(m_base_type_specifier,
 			type_table);
 
-	auto base_equivalence = *resolved == other;
-	auto empty_equivalence = *TypeTable::GetNilTypeSpecifier() == other;
-	auto ambiguous_equivalence = *resolved == *TypeTable::GetNilTypeSpecifier();
-	if (ambiguous_equivalence) {
-		return AMBIGUOUS; //we have type "nil?"
-	} else if (base_equivalence || empty_equivalence) {
-		return UNAMBIGUOUS;
+	if (ErrorList::IsTerminator(resolved_result.GetErrors())) {
+		auto resolved = resolved_result.GetData();
+		auto base_equivalence = *resolved == other;
+		auto empty_equivalence = *TypeTable::GetNilTypeSpecifier() == other;
+		auto ambiguous_equivalence = *resolved
+				== *TypeTable::GetNilTypeSpecifier();
+		if (ambiguous_equivalence) {
+			return AMBIGUOUS; //we have type "nil?"
+		} else if (base_equivalence || empty_equivalence) {
+			return UNAMBIGUOUS;
+		}
+
+		auto base_analysis = resolved->AnalyzeWidening(type_table, other);
+		auto empty_analysis = other.AnalyzeAssignmentTo(
+				TypeTable::GetNilTypeSpecifier(), type_table);
+		if (base_analysis && empty_analysis) {
+			return AMBIGUOUS;
+		} else if (base_analysis) {
+			return base_analysis;
+		} else if (empty_analysis) {
+			return empty_analysis;
+		}
 	}
 
-	auto base_analysis = resolved->AnalyzeWidening(type_table, other);
-	auto empty_analysis = other.AnalyzeAssignmentTo(
-			TypeTable::GetNilTypeSpecifier(), type_table);
-	if (base_analysis && empty_analysis) {
-		return AMBIGUOUS;
-	} else if (base_analysis) {
-		return base_analysis;
-	} else if (empty_analysis) {
-		return empty_analysis;
-	} else {
-		return INCOMPATIBLE;
-	}
+	return INCOMPATIBLE;
 }
 
 const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(

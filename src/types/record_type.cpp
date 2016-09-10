@@ -223,45 +223,50 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
 
 	plain_shared_ptr<Record> instance = nullptr;
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
-	const_shared_ptr<TypeSpecifier> initializer_expression_type =
-			initializer->GetTypeSpecifier(execution_context);
-	auto initializer_analysis =
-			initializer_expression_type->AnalyzeAssignmentTo(type_specifier,
-					execution_context->GetTypeTable());
-	if (initializer_analysis == EQUIVALENT) {
-		if (initializer->IsConstant()) {
-			const_shared_ptr<Result> result = initializer->Evaluate(
-					execution_context, execution_context);
-			errors = result->GetErrors();
-			if (ErrorList::IsTerminator(errors)) {
-				instance = result->GetData<Record>();
+	auto initializer_expression_type_result = initializer->GetTypeSpecifier(
+			execution_context);
+
+	auto errors = initializer_expression_type_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto initializer_expression_type =
+				initializer_expression_type_result.GetData();
+		auto initializer_analysis =
+				initializer_expression_type->AnalyzeAssignmentTo(type_specifier,
+						execution_context->GetTypeTable());
+		if (initializer_analysis == EQUIVALENT) {
+			if (initializer->IsConstant()) {
+				const_shared_ptr<Result> result = initializer->Evaluate(
+						execution_context, execution_context);
+				errors = result->GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					instance = result->GetData<Record>();
+				}
+			} else {
+				instance = Record::GetDefaultInstance(*this);
 			}
 		} else {
-			instance = Record::GetDefaultInstance(*this);
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::ASSIGNMENT_TYPE_ERROR,
+							initializer->GetPosition().begin.line,
+							initializer->GetPosition().begin.column,
+							type_specifier->ToString(),
+							initializer_expression_type->ToString()), errors);
 		}
-	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::ASSIGNMENT_TYPE_ERROR,
-						initializer->GetPosition().begin.line,
-						initializer->GetPosition().begin.column,
-						type_specifier->ToString(),
-						initializer_expression_type->ToString()), errors);
-	}
 
-	if (ErrorList::IsTerminator(errors)) {
-		auto as_complex_specifier = dynamic_pointer_cast<
-				const ComplexTypeSpecifier>(type_specifier);
-		if (as_complex_specifier) {
-			symbol = make_shared<Symbol>(as_complex_specifier, instance);
-		} else {
-			//TODO: error handling
-			assert(false);
+		if (ErrorList::IsTerminator(errors)) {
+			auto as_complex_specifier = dynamic_pointer_cast<
+					const ComplexTypeSpecifier>(type_specifier);
+			if (as_complex_specifier) {
+				symbol = make_shared<Symbol>(as_complex_specifier, instance);
+			} else {
+				//TODO: error handling
+				assert(false);
+			}
 		}
 	}
 

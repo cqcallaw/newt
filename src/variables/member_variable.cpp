@@ -37,34 +37,50 @@ MemberVariable::MemberVariable(const_shared_ptr<Variable> container,
 MemberVariable::~MemberVariable() {
 }
 
-const_shared_ptr<TypeSpecifier> MemberVariable::GetTypeSpecifier(
+TResult<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> context,
 		AliasResolution resolution) const {
-	const_shared_ptr<TypeSpecifier> container_type_specifier =
-			m_container->GetTypeSpecifier(context);
+	shared_ptr<const TypeSpecifier> result = PrimitiveTypeSpecifier::GetNone();
+	auto container_type_specifier_result = m_container->GetTypeSpecifier(
+			context);
 
-	shared_ptr<const void> value = nullptr;
-	auto type_table = *context->GetTypeTable();
-
-	auto type_result = container_type_specifier->GetType(type_table, RESOLVE);
-
-	auto errors = type_result->GetErrors();
+	auto errors = container_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto type = type_result->GetData<TypeDefinition>();
-		auto as_record = dynamic_pointer_cast<const RecordType>(type);
-		if (as_record) {
-			auto member_name = m_member_variable->GetName();
-			auto member_type = as_record->GetDefinition()->GetType<
-					TypeDefinition>(*member_name, SHALLOW, RESOLVE);
+		auto container_type_specifier =
+				container_type_specifier_result.GetData();
 
-			if (member_type) {
-				auto output = make_shared<NestedTypeSpecifier>(
-						container_type_specifier, member_name);
+		auto type_table = *context->GetTypeTable();
+		auto type_result = container_type_specifier->GetType(type_table,
+				RESOLVE);
 
-				if (resolution == AliasResolution::RETURN) {
-					return output;
+		errors = type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type = type_result->GetData<TypeDefinition>();
+			auto as_record = dynamic_pointer_cast<const RecordType>(type);
+			if (as_record) {
+				auto member_name = m_member_variable->GetName();
+				auto member_type = as_record->GetDefinition()->GetType<
+						TypeDefinition>(*member_name, SHALLOW, RESOLVE);
+
+				if (member_type) {
+					auto output = make_shared<NestedTypeSpecifier>(
+							container_type_specifier, member_name);
+
+					if (resolution == AliasResolution::RETURN) {
+						result = output;
+					} else {
+						return NestedTypeSpecifier::Resolve(output, type_table);
+					}
 				} else {
-					return NestedTypeSpecifier::Resolve(output, type_table);
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::UNDECLARED_MEMBER,
+											GetMemberVariable()->GetLocation().begin.line,
+											GetMemberVariable()->GetLocation().begin.column,
+											*(GetMemberVariable()->GetName()),
+											container_type_specifier->ToString()),
+									errors);
 				}
 			}
 		}
@@ -80,10 +96,19 @@ const_shared_ptr<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 		if (constructor_symbol != Symbol::GetDefaultSymbol()) {
 			auto type_specifier = constructor_symbol->GetTypeSpecifier();
 			return type_specifier;
+		} else {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::UNDECLARED_MEMBER,
+							GetMemberVariable()->GetLocation().begin.line,
+							GetMemberVariable()->GetLocation().begin.column,
+							*(GetMemberVariable()->GetName()),
+							*m_container->GetName()),
+					ErrorList::GetTerminator());
 		}
 	}
 
-	return PrimitiveTypeSpecifier::GetNone();
+	return TResult<TypeSpecifier>(result, errors);
 }
 
 const_shared_ptr<string> MemberVariable::ToString(
@@ -98,9 +123,14 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 		const shared_ptr<ExecutionContext> context) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<TypeSpecifier> container_type_specifier =
-			m_container->GetTypeSpecifier(context);
-	if (container_type_specifier != PrimitiveTypeSpecifier::GetNone()) {
+	auto container_type_specifier_result = m_container->GetTypeSpecifier(
+			context);
+
+	// N.B. we are explicitly ignoring any errors in the container's GetTypeSpecifier invocation
+	auto container_type_specifier = container_type_specifier_result.GetData();
+
+	if (container_type_specifier
+			&& container_type_specifier != PrimitiveTypeSpecifier::GetNone()) {
 		const_shared_ptr<Result> container_result = m_container->Evaluate(
 				context);
 
@@ -147,135 +177,173 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<bool> value) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
-	errors = container_result->GetErrors();
+	auto errors = container_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		SetResult set_result = NO_SET_RESULT;
+		auto container_type_result = m_container->GetTypeSpecifier(context);
 
-		const_shared_ptr<TypeSpecifier> container_type =
-				m_container->GetTypeSpecifier(context);
-		const_shared_ptr<RecordTypeSpecifier> as_record =
-				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-						container_type);
+		errors = container_type_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto container_type = container_type_result.GetData();
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+							container_type);
 
-		if (as_record) {
-			auto instance = container_result->GetData<Record>();
-			const std::string member_name = *(m_member_variable->GetName());
-			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value, context->GetTypeTable());
-		} else {
-			set_result = INCOMPATIBLE_TYPE;
+			if (as_record) {
+				auto instance = container_result->GetData<Record>();
+				const std::string member_name = *(m_member_variable->GetName());
+				set_result = instance->GetDefinition()->SetSymbol(member_name,
+						value, context->GetTypeTable());
+			} else {
+				set_result = INCOMPATIBLE_TYPE;
+			}
+
+			auto member_variable_type_specifier_result =
+					m_member_variable->GetTypeSpecifier(context);
+
+			errors = member_variable_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto member_variable_type_specifier =
+						member_variable_type_specifier_result.GetData();
+				errors = ToErrorListRef(set_result,
+						member_variable_type_specifier,
+						PrimitiveTypeSpecifier::GetBoolean());
+			}
 		}
-
-		return ToErrorListRef(set_result,
-				m_member_variable->GetTypeSpecifier(context),
-				PrimitiveTypeSpecifier::GetBoolean());
-	} else {
-		return errors;
 	}
+
+	return errors;
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<int> value) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
-
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
-	SetResult set_result = NO_SET_RESULT;
+	auto errors = container_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		SetResult set_result = NO_SET_RESULT;
+		auto container_type_result = m_container->GetTypeSpecifier(context);
 
-	errors = container_result->GetErrors();
-	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type =
-				m_container->GetTypeSpecifier(context);
-		const_shared_ptr<RecordTypeSpecifier> as_record =
-				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-						container_type);
+		errors = container_type_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto container_type = container_type_result.GetData();
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+							container_type);
 
-		if (as_record) {
-			auto instance = container_result->GetData<Record>();
-			const std::string member_name = *(m_member_variable->GetName());
-			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value, context->GetTypeTable());
-		} else {
-			set_result = INCOMPATIBLE_TYPE;
+			if (as_record) {
+				auto instance = container_result->GetData<Record>();
+				const std::string member_name = *(m_member_variable->GetName());
+				set_result = instance->GetDefinition()->SetSymbol(member_name,
+						value, context->GetTypeTable());
+			} else {
+				set_result = INCOMPATIBLE_TYPE;
+			}
+
+			auto member_variable_type_specifier_result =
+					m_member_variable->GetTypeSpecifier(context);
+
+			errors = member_variable_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto member_variable_type_specifier =
+						member_variable_type_specifier_result.GetData();
+				errors = ToErrorListRef(set_result,
+						member_variable_type_specifier,
+						PrimitiveTypeSpecifier::GetInt());
+			}
 		}
-	} else {
-		return errors;
 	}
 
-	return ToErrorListRef(set_result,
-			m_member_variable->GetTypeSpecifier(context),
-			PrimitiveTypeSpecifier::GetInt());
+	return errors;
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<double> value) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
-
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
-	SetResult set_result = NO_SET_RESULT;
+	auto errors = container_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		SetResult set_result = NO_SET_RESULT;
+		auto container_type_result = m_container->GetTypeSpecifier(context);
 
-	errors = container_result->GetErrors();
-	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type =
-				m_container->GetTypeSpecifier(context);
-		const_shared_ptr<RecordTypeSpecifier> as_record = dynamic_pointer_cast<
-				const RecordTypeSpecifier>(container_type);
+		errors = container_type_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto container_type = container_type_result.GetData();
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+							container_type);
 
-		if (as_record) {
-			auto instance = container_result->GetData<Record>();
-			const std::string member_name = *(m_member_variable->GetName());
-			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value, context->GetTypeTable());
-		} else {
-			set_result = INCOMPATIBLE_TYPE;
+			if (as_record) {
+				auto instance = container_result->GetData<Record>();
+				const std::string member_name = *(m_member_variable->GetName());
+				set_result = instance->GetDefinition()->SetSymbol(member_name,
+						value, context->GetTypeTable());
+			} else {
+				set_result = INCOMPATIBLE_TYPE;
+			}
+
+			auto member_variable_type_specifier_result =
+					m_member_variable->GetTypeSpecifier(context);
+
+			errors = member_variable_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto member_variable_type_specifier =
+						member_variable_type_specifier_result.GetData();
+				errors = ToErrorListRef(set_result,
+						member_variable_type_specifier,
+						PrimitiveTypeSpecifier::GetDouble());
+			}
 		}
-	} else {
-		return errors;
 	}
 
-	return ToErrorListRef(set_result,
-			m_member_variable->GetTypeSpecifier(context),
-			PrimitiveTypeSpecifier::GetDouble());
+	return errors;
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<std::string> value) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
-
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
-	SetResult set_result = NO_SET_RESULT;
+	auto errors = container_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		SetResult set_result = NO_SET_RESULT;
+		auto container_type_result = m_container->GetTypeSpecifier(context);
 
-	errors = container_result->GetErrors();
-	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type =
-				m_container->GetTypeSpecifier(context);
-		const_shared_ptr<RecordTypeSpecifier> as_record =
-				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-						container_type);
+		errors = container_type_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto container_type = container_type_result.GetData();
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+							container_type);
 
-		if (as_record) {
-			auto instance = container_result->GetData<Record>();
-			const std::string member_name = *(m_member_variable->GetName());
-			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value, context->GetTypeTable());
-		} else {
-			set_result = INCOMPATIBLE_TYPE;
+			if (as_record) {
+				auto instance = container_result->GetData<Record>();
+				const std::string member_name = *(m_member_variable->GetName());
+				set_result = instance->GetDefinition()->SetSymbol(member_name,
+						value, context->GetTypeTable());
+			} else {
+				set_result = INCOMPATIBLE_TYPE;
+			}
+
+			auto member_variable_type_specifier_result =
+					m_member_variable->GetTypeSpecifier(context);
+
+			errors = member_variable_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto member_variable_type_specifier =
+						member_variable_type_specifier_result.GetData();
+				errors = ToErrorListRef(set_result,
+						member_variable_type_specifier,
+						PrimitiveTypeSpecifier::GetString());
+			}
 		}
-	} else {
-		return errors;
 	}
 
-	return ToErrorListRef(set_result,
-			m_member_variable->GetTypeSpecifier(context),
-			PrimitiveTypeSpecifier::GetString());
+	return errors;
 }
 
 const ErrorListRef MemberVariable::AssignValue(
@@ -323,109 +391,144 @@ const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Record> value) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
-
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
 	SetResult set_result = NO_SET_RESULT;
 
-	errors = container_result->GetErrors();
-	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type =
-				m_container->GetTypeSpecifier(context);
-		const_shared_ptr<RecordTypeSpecifier> as_record =
-				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-						container_type);
+	auto errors = container_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto container_type_specifier_result = m_container->GetTypeSpecifier(
+				context);
 
-		if (as_record) {
-			auto instance = container_result->GetData<Record>();
-			const std::string member_name = *(m_member_variable->GetName());
-			set_result = instance->GetDefinition()->SetSymbol(member_name, type,
-					value, context->GetTypeTable());
-		} else {
-			set_result = INCOMPATIBLE_TYPE;
+		errors = container_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto container_type_specifier =
+					container_type_specifier_result.GetData();
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+							container_type_specifier);
+
+			if (as_record) {
+				auto instance = container_result->GetData<Record>();
+				const std::string member_name = *(m_member_variable->GetName());
+				set_result = instance->GetDefinition()->SetSymbol(member_name,
+						type, value, context->GetTypeTable());
+			} else {
+				set_result = INCOMPATIBLE_TYPE;
+			}
 		}
-	} else {
-		return errors;
+
+		auto member_variable_type_specifier_result =
+				m_member_variable->GetTypeSpecifier(context);
+		errors = member_variable_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto member_variable_type_specifier =
+					member_variable_type_specifier_result.GetData();
+			errors = ToErrorListRef(set_result, member_variable_type_specifier,
+					type);
+		}
 	}
 
-	return ToErrorListRef(set_result,
-			m_member_variable->GetTypeSpecifier(context), type);
+	return errors;
 }
 
 const ErrorListRef MemberVariable::SetSymbol(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<Array> value) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
-
 	const_shared_ptr<Result> container_result = m_container->Evaluate(context);
 
 	SetResult set_result = NO_SET_RESULT;
 
-	errors = container_result->GetErrors();
-	if (ErrorList::Reverse(errors)) {
-		const_shared_ptr<TypeSpecifier> container_type =
-				m_container->GetTypeSpecifier(context);
-		const_shared_ptr<RecordTypeSpecifier> as_record =
-				std::dynamic_pointer_cast<const RecordTypeSpecifier>(
-						container_type);
+	auto errors = container_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto container_type_specifier_result = m_container->GetTypeSpecifier(
+				context);
 
-		if (as_record) {
-			auto instance = container_result->GetData<Record>();
-			const std::string member_name = *(m_member_variable->GetName());
-			set_result = instance->GetDefinition()->SetSymbol(member_name,
-					value, context->GetTypeTable());
-		} else {
-			set_result = INCOMPATIBLE_TYPE;
+		errors = container_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto container_type_specifier =
+					container_type_specifier_result.GetData();
+			const_shared_ptr<RecordTypeSpecifier> as_record =
+					std::dynamic_pointer_cast<const RecordTypeSpecifier>(
+							container_type_specifier);
+
+			if (as_record) {
+				auto instance = container_result->GetData<Record>();
+				const std::string member_name = *(m_member_variable->GetName());
+				set_result = instance->GetDefinition()->SetSymbol(member_name,
+						value, context->GetTypeTable());
+			} else {
+				set_result = INCOMPATIBLE_TYPE;
+			}
+
+			auto container_type_specifier_result =
+					m_container->GetTypeSpecifier(context);
+
+			errors = container_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto member_variable_type_specifier_result =
+						m_member_variable->GetTypeSpecifier(context);
+				errors = member_variable_type_specifier_result.GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					auto member_variable_type_specifier =
+							member_variable_type_specifier_result.GetData();
+					errors = ToErrorListRef(set_result,
+							member_variable_type_specifier,
+							value->GetTypeSpecifier());
+				}
+			}
 		}
-	} else {
-		return errors;
 	}
 
-	return ToErrorListRef(set_result,
-			m_member_variable->GetTypeSpecifier(context),
-			value->GetTypeSpecifier());
+	return errors;
 }
 
 const ErrorListRef MemberVariable::Validate(
 		const shared_ptr<ExecutionContext> context) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
+	auto errors = ErrorList::GetTerminator();
 
 	auto symbol = context->GetSymbol(m_container->GetName(), DEEP);
 	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
-		const_shared_ptr<TypeSpecifier> container_type_specifier =
-				m_container->GetTypeSpecifier(context);
+		auto container_type_specifier_result = m_container->GetTypeSpecifier(
+				context);
 
-		auto type_result = container_type_specifier->GetType(
-				context->GetTypeTable(), RESOLVE);
-
-		errors = type_result->GetErrors();
+		errors = container_type_specifier_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto type = type_result->GetData<TypeDefinition>();
-			auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
-			if (as_complex) {
-				auto member_definition = as_complex->GetDefinition()->GetType<
-						TypeDefinition>(m_member_variable->GetName(), SHALLOW,
-						RESOLVE);
-				if (!member_definition) {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::UNDECLARED_MEMBER,
-											m_member_variable->GetLocation().begin.line,
-											m_member_variable->GetLocation().begin.column,
-											*m_member_variable->ToString(
-													context),
-											container_type_specifier->ToString()),
-									errors);
+			auto container_type_specifier =
+					container_type_specifier_result.GetData();
+
+			auto container_type_result = container_type_specifier->GetType(
+					context->GetTypeTable(), RESOLVE);
+
+			errors = container_type_result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto type = container_type_result->GetData<TypeDefinition>();
+				auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
+				if (as_complex) {
+					auto member_definition =
+							as_complex->GetDefinition()->GetType<TypeDefinition>(
+									m_member_variable->GetName(), SHALLOW,
+									RESOLVE);
+					if (!member_definition) {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::UNDECLARED_MEMBER,
+												m_member_variable->GetLocation().begin.line,
+												m_member_variable->GetLocation().begin.column,
+												*m_member_variable->ToString(
+														context),
+												container_type_specifier->ToString()),
+										errors);
+					}
+				} else {
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::NOT_A_COMPOUND_TYPE,
+									m_container->GetLocation().begin.line,
+									m_container->GetLocation().begin.column,
+									*m_container->ToString(context)), errors);
 				}
-			} else {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::NOT_A_COMPOUND_TYPE,
-								m_container->GetLocation().begin.line,
-								m_container->GetLocation().begin.column,
-								*m_container->ToString(context)), errors);
 			}
 		}
 	} else {

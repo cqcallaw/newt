@@ -44,10 +44,16 @@ InferredDeclarationStatement::~InferredDeclarationStatement() {
 
 const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetTypeSpecifier() const {
 	if (GetInitializerExpression()->IsConstant()) {
-		return GetInitializerExpression()->GetTypeSpecifier(nullptr);
-	} else {
-		return PrimitiveTypeSpecifier::GetNone();
+		auto initializer_type_specifier_result =
+				GetInitializerExpression()->GetTypeSpecifier(nullptr);
+
+		if (ErrorList::IsTerminator(
+				initializer_type_specifier_result.GetErrors())) {
+			return initializer_type_specifier_result.GetData();
+		}
 	}
+
+	return PrimitiveTypeSpecifier::GetNone();
 }
 
 const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() const {
@@ -56,26 +62,29 @@ const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() cons
 
 const ErrorListRef InferredDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors = GetInitializerExpression()->Validate(context);
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
+	auto expression_type_specifier_result =
+			GetInitializerExpression()->GetTypeSpecifier(context,
+					AliasResolution::RETURN);
+
+	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		const_shared_ptr<TypeSpecifier> expression_type =
-				GetInitializerExpression()->GetTypeSpecifier(context,
-						AliasResolution::RETURN);
-
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
 		auto type_table = context->GetTypeTable();
-		auto type_result = expression_type->GetType(type_table);
-
+		auto type_result = expression_type_specifier->GetType(type_table);
 		errors = ErrorList::Concatenate(errors, type_result->GetErrors());
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = type_result->GetData<TypeDefinition>();
 			const_shared_ptr<Statement> temp_statement =
 					type->GetDeclarationStatement(GetLocation(),
-							expression_type,
+							expression_type_specifier,
 							GetInitializerExpression()->GetPosition(),
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
-			errors = temp_statement->Preprocess(context, closure);
+			errors = temp_statement->Preprocess(context, closure,
+					return_type_specifier);
 		}
 	}
 
@@ -85,26 +94,32 @@ const ErrorListRef InferredDeclarationStatement::Preprocess(
 const ErrorListRef InferredDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
-
-	const_shared_ptr<TypeSpecifier> expression_type =
+	auto expression_type_specifier_result =
 			GetInitializerExpression()->GetTypeSpecifier(context);
 
-	auto type_table = context->GetTypeTable();
-	auto type_result = expression_type->GetType(type_table);
+	auto errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+		auto type_table = context->GetTypeTable();
+		auto type_result = expression_type_specifier->GetType(type_table);
 
-	auto type_errors = type_result->GetErrors();
-	if (ErrorList::IsTerminator(type_errors)) {
-		auto type = type_result->GetData<TypeDefinition>();
-		const_shared_ptr<Statement> temp_statement =
-				type->GetDeclarationStatement(GetLocation(), expression_type,
-						GetInitializerExpression()->GetPosition(), GetName(),
-						GetNameLocation(), GetInitializerExpression());
-		errors = temp_statement->Execute(context, closure);
-	} else {
-		errors = type_errors;
-		auto initializer_errors = GetInitializerExpression()->Validate(context);
-		errors = ErrorList::Concatenate(errors, initializer_errors);
+		auto type_errors = type_result->GetErrors();
+		if (ErrorList::IsTerminator(type_errors)) {
+			auto type = type_result->GetData<TypeDefinition>();
+			const_shared_ptr<Statement> temp_statement =
+					type->GetDeclarationStatement(GetLocation(),
+							expression_type_specifier,
+							GetInitializerExpression()->GetPosition(),
+							GetName(), GetNameLocation(),
+							GetInitializerExpression());
+			errors = temp_statement->Execute(context, closure);
+		} else {
+			errors = type_errors;
+			auto initializer_errors = GetInitializerExpression()->Validate(
+					context);
+			errors = ErrorList::Concatenate(errors, initializer_errors);
+		}
 	}
 
 	return errors;

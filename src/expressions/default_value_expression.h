@@ -32,7 +32,7 @@ public:
 
 	virtual ~DefaultValueExpression();
 
-	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+	virtual TResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 

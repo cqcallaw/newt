@@ -37,10 +37,10 @@ FunctionExpression::FunctionExpression(const yy::location position,
 FunctionExpression::~FunctionExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
+TResult<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return m_declaration;
+	return TResult<TypeSpecifier>(m_declaration, ErrorList::GetTerminator());
 }
 
 const_shared_ptr<Result> FunctionExpression::Evaluate(
@@ -119,11 +119,8 @@ const ErrorListRef FunctionExpression::Validate(
 
 	if (ErrorList::IsTerminator(errors)) {
 		errors = ErrorList::Concatenate(errors,
-				m_body->Preprocess(tmp_context));
-
-		errors = ErrorList::Concatenate(errors,
-				m_body->GetReturnStatementErrors(
-						m_declaration->GetReturnTypeSpecifier(), tmp_context));
+				m_body->Preprocess(tmp_context,
+						m_declaration->GetReturnTypeSpecifier()));
 	}
 
 	return errors;

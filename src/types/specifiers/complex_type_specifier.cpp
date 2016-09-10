@@ -133,43 +133,51 @@ const_shared_ptr<Result> ComplexTypeSpecifier::GetType(
 const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	auto resolved_other = NestedTypeSpecifier::Resolve(other, type_table);
+	auto resolved_other_result = NestedTypeSpecifier::Resolve(other,
+			type_table);
 
-	const_shared_ptr<ComplexTypeSpecifier> as_complex =
-			std::dynamic_pointer_cast<const ComplexTypeSpecifier>(
-					resolved_other);
-	if (as_complex) {
-		try {
-			auto container = GetContainer();
-			auto other_container = as_complex->GetContainer();
-			if (container && other_container && *container == *other_container
-					&& as_complex->GetTypeName()->compare(*GetTypeName())
-							== 0) {
-				return AnalysisResult::EQUIVALENT;
-			} else if (as_complex->GetTypeName()->compare(*GetTypeName())
-					== 0) {
-				return AnalysisResult::EQUIVALENT;
+	auto errors = resolved_other_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto resolved_other = resolved_other_result.GetData();
+
+		const_shared_ptr<ComplexTypeSpecifier> as_complex =
+				std::dynamic_pointer_cast<const ComplexTypeSpecifier>(
+						resolved_other);
+		if (as_complex) {
+			try {
+				auto container = GetContainer();
+				auto other_container = as_complex->GetContainer();
+				if (container && other_container
+						&& *container == *other_container
+						&& as_complex->GetTypeName()->compare(*GetTypeName())
+								== 0) {
+					return AnalysisResult::EQUIVALENT;
+				} else if (as_complex->GetTypeName()->compare(*GetTypeName())
+						== 0) {
+					return AnalysisResult::EQUIVALENT;
+				}
+
+				return as_complex->AnalyzeWidening(type_table, *this);
+
+			} catch (std::bad_cast& e) {
+			}
+		}
+
+		const_shared_ptr<MaybeTypeSpecifier> as_maybe =
+				std::dynamic_pointer_cast<const MaybeTypeSpecifier>(
+						resolved_other);
+		if (as_maybe) {
+			if (*this == *TypeTable::GetNilTypeSpecifier()) {
+				return UNAMBIGUOUS;
 			}
 
-			return as_complex->AnalyzeWidening(type_table, *this);
-
-		} catch (std::bad_cast& e) {
-		}
-	}
-
-	const_shared_ptr<MaybeTypeSpecifier> as_maybe = std::dynamic_pointer_cast<
-			const MaybeTypeSpecifier>(resolved_other);
-	if (as_maybe) {
-		if (*this == *TypeTable::GetNilTypeSpecifier()) {
-			return UNAMBIGUOUS;
-		}
-
-		auto base_analysis = AnalyzeAssignmentTo(
-				as_maybe->GetBaseTypeSpecifier(), type_table);
-		if (base_analysis == EQUIVALENT) {
-			return UNAMBIGUOUS;
-		} else if (base_analysis == UNAMBIGUOUS) {
-			return UNAMBIGUOUS_NESTED;
+			auto base_analysis = AnalyzeAssignmentTo(
+					as_maybe->GetBaseTypeSpecifier(), type_table);
+			if (base_analysis == EQUIVALENT) {
+				return UNAMBIGUOUS;
+			} else if (base_analysis == UNAMBIGUOUS) {
+				return UNAMBIGUOUS_NESTED;
+			}
 		}
 	}
 

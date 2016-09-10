@@ -31,7 +31,8 @@ PrintStatement::~PrintStatement() {
 
 const ErrorListRef PrintStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	return m_expression->Validate(context);
 }
 
@@ -48,10 +49,4 @@ const ErrorListRef PrintStatement::Execute(
 	}
 
 	return errors;
-}
-
-const ErrorListRef PrintStatement::GetReturnStatementErrors(
-		const_shared_ptr<TypeSpecifier> type_specifier,
-		const shared_ptr<ExecutionContext> execution_context) const {
-	return ErrorList::GetTerminator();
 }

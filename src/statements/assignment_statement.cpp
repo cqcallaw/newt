@@ -43,48 +43,31 @@ AssignmentStatement::~AssignmentStatement() {
 
 const ErrorListRef AssignmentStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	const_shared_ptr<string> variable_name = m_variable->GetName();
 	auto symbol = context->GetSymbol(variable_name, DEEP);
 
 	int variable_line = m_variable->GetLocation().begin.line;
 	int variable_column = m_variable->GetLocation().begin.column;
 
+	auto errors = ErrorList::GetTerminator();
 	if (symbol != Symbol::GetDefaultSymbol()) {
 		const_shared_ptr<TypeSpecifier> symbol_type_specifier =
 				symbol->GetTypeSpecifier();
-		const_shared_ptr<BasicVariable> basic_variable = dynamic_pointer_cast<
-				const BasicVariable>(m_variable);
-		if (basic_variable) {
-			const_shared_ptr<TypeSpecifier> expression_type_specifier =
-					m_expression->GetTypeSpecifier(context);
-			if (!expression_type_specifier->AnalyzeAssignmentTo(
-					symbol_type_specifier, context->GetTypeTable())) {
-				yy::location expression_position = m_expression->GetPosition();
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::ASSIGNMENT_TYPE_ERROR,
-								expression_position.begin.line,
-								expression_position.begin.column,
-								symbol_type_specifier->ToString(),
-								expression_type_specifier->ToString()), errors);
-			}
-		}
 
-		const_shared_ptr<ArrayVariable> array_variable = dynamic_pointer_cast<
-				const ArrayVariable>(m_variable);
-		if (array_variable) {
-			errors = array_variable->Validate(context);
+		auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+				context);
 
-			if (ErrorList::IsTerminator(errors)) {
-				const_shared_ptr<TypeSpecifier> expression_type =
-						m_expression->GetTypeSpecifier(context);
-				const_shared_ptr<TypeSpecifier> element_type =
-						array_variable->GetElementType(context);
-				if (!expression_type->AnalyzeAssignmentTo(element_type,
-						context->GetTypeTable())) {
+		errors = expression_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
+			const_shared_ptr<BasicVariable> basic_variable =
+					dynamic_pointer_cast<const BasicVariable>(m_variable);
+			if (basic_variable) {
+				if (!expression_type_specifier->AnalyzeAssignmentTo(
+						symbol_type_specifier, context->GetTypeTable())) {
 					yy::location expression_position =
 							m_expression->GetPosition();
 					errors = ErrorList::From(
@@ -92,50 +75,121 @@ const ErrorListRef AssignmentStatement::Preprocess(
 									Error::ASSIGNMENT_TYPE_ERROR,
 									expression_position.begin.line,
 									expression_position.begin.column,
-									element_type->ToString(),
-									expression_type->ToString()), errors);
+									symbol_type_specifier->ToString(),
+									expression_type_specifier->ToString()),
+							errors);
 				}
 			}
-		}
 
-		const_shared_ptr<MemberVariable> member_variable = dynamic_pointer_cast<
-				const MemberVariable>(m_variable);
-		if (member_variable) {
-			auto container_specifier =
-					member_variable->GetContainer()->GetTypeSpecifier(context);
-			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-					container_specifier);
+			const_shared_ptr<ArrayVariable> array_variable =
+					dynamic_pointer_cast<const ArrayVariable>(m_variable);
+			if (array_variable) {
+				errors = array_variable->Validate(context);
 
-			if (as_complex) {
-				auto container_type = context->GetTypeTable()->GetType<
-						TypeDefinition>(as_complex, DEEP, RESOLVE);
+				if (ErrorList::IsTerminator(errors)) {
+					const_shared_ptr<TypeSpecifier> element_type =
+							array_variable->GetElementType(context);
+					if (!expression_type_specifier->AnalyzeAssignmentTo(
+							element_type, context->GetTypeTable())) {
+						yy::location expression_position =
+								m_expression->GetPosition();
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::ASSIGNMENT_TYPE_ERROR,
+										expression_position.begin.line,
+										expression_position.begin.column,
+										element_type->ToString(),
+										expression_type_specifier->ToString()),
+								errors);
+					}
+				}
+			}
 
-				if (container_type) {
-					const_shared_ptr<RecordType> type = dynamic_pointer_cast<
-							const RecordType>(container_type);
+			const_shared_ptr<MemberVariable> member_variable =
+					dynamic_pointer_cast<const MemberVariable>(m_variable);
+			if (member_variable) {
+				auto container_specifier_result =
+						member_variable->GetContainer()->GetTypeSpecifier(
+								context);
 
-					if (type) {
-						if (type->GetModifiers() & Modifier::Type::MUTABLE) {
-							const_shared_ptr<TypeSpecifier> member_variable_type =
-									member_variable->GetTypeSpecifier(context);
+				errors = ErrorList::Concatenate(errors,
+						container_specifier_result.GetErrors());
+				if (ErrorList::IsTerminator(errors)) {
+					auto container_specifier =
+							container_specifier_result.GetData();
 
-							if (member_variable_type
-									!= PrimitiveTypeSpecifier::GetNone()) {
-								const_shared_ptr<TypeSpecifier> expression_type =
-										m_expression->GetTypeSpecifier(context);
+					auto as_complex = dynamic_pointer_cast<
+							const ComplexTypeSpecifier>(container_specifier);
 
-								if (!expression_type->AnalyzeAssignmentTo(
-										member_variable_type,
-										context->GetTypeTable())) {
+					if (as_complex) {
+						auto container_type = context->GetTypeTable()->GetType<
+								TypeDefinition>(as_complex, DEEP, RESOLVE);
+
+						if (container_type) {
+							const_shared_ptr<RecordType> type =
+									dynamic_pointer_cast<const RecordType>(
+											container_type);
+
+							if (type) {
+								if (type->GetModifiers()
+										& Modifier::Type::MUTABLE) {
+									auto member_variable_type_specifer_result =
+											member_variable->GetTypeSpecifier(
+													context);
+
+									auto member_variable_type_specifer_result_errors =
+											member_variable_type_specifer_result.GetErrors();
+									if (ErrorList::IsTerminator(
+											member_variable_type_specifer_result_errors)) {
+										auto member_variable_type_specifier =
+												member_variable_type_specifer_result.GetData();
+
+										auto expression_type_specifier_result =
+												m_expression->GetTypeSpecifier(
+														context);
+
+										auto expression_type_specifier_result_errors =
+												expression_type_specifier_result.GetErrors();
+
+										if (ErrorList::IsTerminator(
+												expression_type_specifier_result_errors)) {
+											auto expression_type_specifier =
+													expression_type_specifier_result.GetData();
+											if (!expression_type_specifier->AnalyzeAssignmentTo(
+													member_variable_type_specifier,
+													context->GetTypeTable())) {
+												errors =
+														ErrorList::From(
+																make_shared<
+																		Error>(
+																		Error::SEMANTIC,
+																		Error::ASSIGNMENT_TYPE_ERROR,
+																		member_variable->GetContainer()->GetLocation().begin.line,
+																		member_variable->GetContainer()->GetLocation().begin.column,
+																		member_variable_type_specifier->ToString(),
+																		expression_type_specifier->ToString()),
+																errors);
+											}
+										} else {
+											errors =
+													ErrorList::Concatenate(
+															errors,
+															expression_type_specifier_result_errors);
+										}
+									} else {
+										errors =
+												ErrorList::Concatenate(errors,
+														member_variable_type_specifer_result_errors);
+									}
+								} else {
 									errors =
 											ErrorList::From(
 													make_shared<Error>(
 															Error::SEMANTIC,
-															Error::ASSIGNMENT_TYPE_ERROR,
+															Error::READONLY,
 															member_variable->GetContainer()->GetLocation().begin.line,
 															member_variable->GetContainer()->GetLocation().begin.column,
-															member_variable_type->ToString(),
-															expression_type->ToString()),
+															*variable_name),
 													errors);
 								}
 							} else {
@@ -143,19 +197,17 @@ const ErrorListRef AssignmentStatement::Preprocess(
 										ErrorList::From(
 												make_shared<Error>(
 														Error::SEMANTIC,
-														Error::UNDECLARED_MEMBER,
-														member_variable->GetMemberVariable()->GetLocation().begin.line,
-														member_variable->GetMemberVariable()->GetLocation().begin.column,
-														*member_variable->GetMemberVariable()->GetName(),
-														member_variable->GetContainer()->GetTypeSpecifier(
-																context)->ToString()),
+														Error::NOT_A_COMPOUND_TYPE,
+														member_variable->GetContainer()->GetLocation().begin.line,
+														member_variable->GetContainer()->GetLocation().begin.column,
+														*variable_name),
 												errors);
 							}
 						} else {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
-													Error::READONLY,
+													Error::UNDECLARED_TYPE,
 													member_variable->GetContainer()->GetLocation().begin.line,
 													member_variable->GetContainer()->GetLocation().begin.column,
 													*variable_name), errors);
@@ -169,23 +221,7 @@ const ErrorListRef AssignmentStatement::Preprocess(
 												member_variable->GetContainer()->GetLocation().begin.column,
 												*variable_name), errors);
 					}
-				} else {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::UNDECLARED_TYPE,
-											member_variable->GetContainer()->GetLocation().begin.line,
-											member_variable->GetContainer()->GetLocation().begin.column,
-											*variable_name), errors);
 				}
-			} else {
-				errors =
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::NOT_A_COMPOUND_TYPE,
-										member_variable->GetContainer()->GetLocation().begin.line,
-										member_variable->GetContainer()->GetLocation().begin.column,
-										*variable_name), errors);
 			}
 		}
 	} else {
@@ -352,40 +388,47 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		return evaluation;
 	}
 
-	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			expression->GetTypeSpecifier(execution_context);
-	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-					expression_type_specifier);
+	auto expression_type_specifier_result = expression->GetTypeSpecifier(
+			execution_context);
 
-	if (as_primitive) {
-		const BasicType basic_type = as_primitive->GetBasicType();
-		switch (basic_type) {
-		case BOOLEAN: {
-			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value, *(evaluation->GetData<bool>()), op,
-					execution_context, new_value);
-			break;
-		}
-		case INT: {
-			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value, *(evaluation->GetData<int>()), op,
-					execution_context, new_value);
-			break;
-		}
-		default:
+	errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+
+		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
+				dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+						expression_type_specifier);
+
+		if (as_primitive) {
+			const BasicType basic_type = as_primitive->GetBasicType();
+			switch (basic_type) {
+			case BOOLEAN: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value, *(evaluation->GetData<bool>()),
+						op, execution_context, new_value);
+				break;
+			}
+			case INT: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value, *(evaluation->GetData<int>()),
+						op, execution_context, new_value);
+				break;
+			}
+			default:
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+								variable_column, TypeToString(INT),
+								expression_type_specifier->ToString()), errors);
+			}
+		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 							variable_column, TypeToString(INT),
 							expression_type_specifier->ToString()), errors);
 		}
-	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-						variable_column, TypeToString(INT),
-						expression_type_specifier->ToString()), errors);
 	}
 
 	const_shared_ptr<int> wrapper = make_shared<int>(new_value);
@@ -406,45 +449,52 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		return evaluation;
 	}
 
-	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			expression->GetTypeSpecifier(execution_context);
-	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-					expression_type_specifier);
+	auto expression_type_specifier_result = expression->GetTypeSpecifier(
+			execution_context);
 
-	if (as_primitive) {
-		const BasicType basic_type = as_primitive->GetBasicType();
-		switch (basic_type) {
-		case BOOLEAN:
-			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value, *(evaluation->GetData<bool>()), op,
-					execution_context, new_value);
-			break;
-		case INT: {
-			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value, *(evaluation->GetData<int>()), op,
-					execution_context, new_value);
-			break;
-		}
-		case DOUBLE: {
-			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value, *(evaluation->GetData<double>()),
-					op, execution_context, new_value);
-			break;
-		}
-		default:
+	errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
+				dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+						expression_type_specifier);
+
+		if (as_primitive) {
+			const BasicType basic_type = as_primitive->GetBasicType();
+			switch (basic_type) {
+			case BOOLEAN:
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value, *(evaluation->GetData<bool>()),
+						op, execution_context, new_value);
+				break;
+			case INT: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value, *(evaluation->GetData<int>()),
+						op, execution_context, new_value);
+				break;
+			}
+			case DOUBLE: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value,
+						*(evaluation->GetData<double>()), op, execution_context,
+						new_value);
+				break;
+			}
+			default:
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+								variable_column, TypeToString(DOUBLE),
+								expression_type_specifier->ToString()), errors);
+			}
+		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 							variable_column, TypeToString(DOUBLE),
 							expression_type_specifier->ToString()), errors);
 		}
-	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-						variable_column, TypeToString(DOUBLE),
-						expression_type_specifier->ToString()), errors);
 	}
 
 	const_shared_ptr<void> wrapper = make_shared<double>(new_value);
@@ -465,51 +515,58 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 		return evaluation;
 	}
 
-	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			expression->GetTypeSpecifier(execution_context);
-	const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
-			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-					expression_type_specifier);
+	auto expression_type_specifier_result = expression->GetTypeSpecifier(
+			execution_context);
 
-	if (as_primitive) {
-		const BasicType basic_type = as_primitive->GetBasicType();
-		switch (basic_type) {
-		case BOOLEAN:
-			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value, *(evaluation->GetData<bool>()), op,
-					execution_context, new_value);
-			break;
-		case INT: {
-			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value, *(evaluation->GetData<int>()), op,
-					execution_context, new_value);
-			break;
-		}
-		case DOUBLE: {
-			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value, *(evaluation->GetData<double>()),
-					op, execution_context, new_value);
-			break;
-		}
-		case STRING: {
-			errors = do_op(variable_name, variable_type, variable_line,
-					variable_column, value, evaluation->GetData<string>(), op,
-					execution_context, new_value);
-			break;
-		}
-		default:
+	errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+
+		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
+				dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+						expression_type_specifier);
+		if (as_primitive) {
+			const BasicType basic_type = as_primitive->GetBasicType();
+			switch (basic_type) {
+			case BOOLEAN:
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value, *(evaluation->GetData<bool>()),
+						op, execution_context, new_value);
+				break;
+			case INT: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value, *(evaluation->GetData<int>()),
+						op, execution_context, new_value);
+				break;
+			}
+			case DOUBLE: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value,
+						*(evaluation->GetData<double>()), op, execution_context,
+						new_value);
+				break;
+			}
+			case STRING: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value, evaluation->GetData<string>(),
+						op, execution_context, new_value);
+				break;
+			}
+			default:
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+								variable_column, TypeToString(STRING),
+								expression_type_specifier->ToString()), errors);
+			}
+		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
 							variable_column, TypeToString(STRING),
 							expression_type_specifier->ToString()), errors);
 		}
-	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-						variable_column, TypeToString(STRING),
-						expression_type_specifier->ToString()), errors);
 	}
 
 	auto wrapper = const_shared_ptr<void>(new_value);

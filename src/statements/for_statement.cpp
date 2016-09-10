@@ -50,7 +50,8 @@ ForStatement::~ForStatement() {
 
 const ErrorListRef ForStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors;
 
 	SymbolContextListRef context_parent = SymbolContextList::From(context,
@@ -61,7 +62,7 @@ const ErrorListRef ForStatement::Preprocess(
 	m_block_context->LinkToParent(context);
 
 	if (m_initial) {
-		errors = m_initial->Preprocess(m_block_context, m_block_context);
+		errors = m_initial->Preprocess(m_block_context, m_block_context, return_type_specifier);
 		if (!ErrorList::IsTerminator(errors)) {
 			return errors;
 		}
@@ -69,19 +70,28 @@ const ErrorListRef ForStatement::Preprocess(
 
 	//can't nest this loop because m_initial might be empty
 	if (m_loop_expression) {
-		auto loop_expression_analysis = m_loop_expression->GetTypeSpecifier(
-				context)->AnalyzeAssignmentTo(PrimitiveTypeSpecifier::GetInt(),
-				context->GetTypeTable());
-		if (loop_expression_analysis == EQUIVALENT
-				|| loop_expression_analysis == UNAMBIGUOUS) {
-			errors = m_statement_block->Preprocess(m_block_context);
-		} else {
-			yy::location position = m_loop_expression->GetPosition();
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
-							position.begin.line, position.begin.column),
-					errors);
+		auto loop_expression_type_specifier_result =
+				m_loop_expression->GetTypeSpecifier(context);
+
+		errors = loop_expression_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto loop_expression_type_specifier =
+					loop_expression_type_specifier_result.GetData();
+			auto loop_expression_analysis =
+					loop_expression_type_specifier->AnalyzeAssignmentTo(
+							PrimitiveTypeSpecifier::GetInt(),
+							context->GetTypeTable());
+			if (loop_expression_analysis == EQUIVALENT
+					|| loop_expression_analysis == UNAMBIGUOUS) {
+				errors = m_statement_block->Preprocess(m_block_context, return_type_specifier);
+			} else {
+				yy::location position = m_loop_expression->GetPosition();
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
+								position.begin.line, position.begin.column),
+						errors);
+			}
 		}
 	}
 
@@ -136,13 +146,6 @@ const ErrorListRef ForStatement::Execute(
 	}
 
 	return ErrorList::GetTerminator();
-}
-
-const ErrorListRef ForStatement::GetReturnStatementErrors(
-		const_shared_ptr<TypeSpecifier> type_specifier,
-		const shared_ptr<ExecutionContext> execution_context) const {
-	return m_statement_block->GetReturnStatementErrors(type_specifier,
-			execution_context);
 }
 
 ForStatement::ForStatement(const_shared_ptr<Statement> initial,

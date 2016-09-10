@@ -27,10 +27,11 @@ LogicExpression::LogicExpression(const yy::location position,
 	assert(op == OR || op == AND);
 }
 
-const_shared_ptr<TypeSpecifier> LogicExpression::GetTypeSpecifier(
+TResult<TypeSpecifier> LogicExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return PrimitiveTypeSpecifier::GetBoolean();
+	return TResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetBoolean(),
+			ErrorList::GetTerminator());
 }
 
 const ErrorListRef LogicExpression::Validate(

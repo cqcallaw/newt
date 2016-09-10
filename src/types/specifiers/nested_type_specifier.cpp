@@ -137,7 +137,7 @@ const ErrorListRef NestedTypeSpecifier::ValidateDeclaration(
 	return errors;
 }
 
-const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::Resolve(
+TResult<TypeSpecifier> NestedTypeSpecifier::Resolve(
 		const_shared_ptr<TypeSpecifier> source, const TypeTable& type_table) {
 	auto as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(source);
 
@@ -145,40 +145,48 @@ const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::Resolve(
 		auto parent_type_result = as_nested->GetParent()->GetType(type_table,
 				RESOLVE);
 		if (ErrorList::IsTerminator(parent_type_result->GetErrors())) {
-			auto resolved_parent = Resolve(as_nested->GetParent(), type_table);
+			auto resolved_parent_result = Resolve(as_nested->GetParent(),
+					type_table);
 
-			auto resolved_parent_as_complex = dynamic_pointer_cast<
-					const ComplexTypeSpecifier>(resolved_parent);
-			if (resolved_parent_as_complex) {
-				auto parent_type_result = resolved_parent_as_complex->GetType(
-						type_table);
+			if (ErrorList::IsTerminator(resolved_parent_result.GetErrors())) {
+				auto resolved_parent = resolved_parent_result.GetData();
+				auto resolved_parent_as_complex = dynamic_pointer_cast<
+						const ComplexTypeSpecifier>(resolved_parent);
+				if (resolved_parent_as_complex) {
+					auto parent_type_result =
+							resolved_parent_as_complex->GetType(type_table);
 
-				if (ErrorList::IsTerminator(parent_type_result->GetErrors())) {
-					auto type = parent_type_result->GetData<TypeDefinition>();
-					auto as_complex_type = dynamic_pointer_cast<
-							const ComplexType>(type);
-					if (as_complex_type) {
-						auto as_placholder = dynamic_pointer_cast<
-								const PlaceholderType>(as_complex_type);
-						if (as_placholder) {
-							return PrimitiveTypeSpecifier::GetNone();
-						}
+					if (ErrorList::IsTerminator(
+							parent_type_result->GetErrors())) {
+						auto type =
+								parent_type_result->GetData<TypeDefinition>();
+						auto as_complex_type = dynamic_pointer_cast<
+								const ComplexType>(type);
+						if (as_complex_type) {
+							auto as_placholder = dynamic_pointer_cast<
+									const PlaceholderType>(as_complex_type);
+							if (as_placholder) {
+								return TResult<TypeSpecifier>(
+										PrimitiveTypeSpecifier::GetNone());
+							}
 
-						auto type_definition =
-								as_complex_type->GetDefinition()->GetType<
-										TypeDefinition>(
-										as_nested->m_member_name, DEEP, RETURN);
-						auto as_alias = dynamic_pointer_cast<
-								const AliasDefinition>(type_definition);
-						if (as_alias) {
-							return as_alias->GetOriginal();
-						} else {
-							auto type = parent_type_result->GetData<
-									TypeDefinition>();
-							return type->GetTypeSpecifier(
-									as_nested->m_member_name,
-									resolved_parent_as_complex,
-									source->GetLocation());
+							auto type_definition =
+									as_complex_type->GetDefinition()->GetType<
+											TypeDefinition>(
+											as_nested->m_member_name, DEEP,
+											RETURN);
+							auto as_alias = dynamic_pointer_cast<
+									const AliasDefinition>(type_definition);
+							if (as_alias) {
+								return as_alias->GetOriginal();
+							} else {
+								auto type = parent_type_result->GetData<
+										TypeDefinition>();
+								return type->GetTypeSpecifier(
+										as_nested->m_member_name,
+										resolved_parent_as_complex,
+										source->GetLocation());
+							}
 						}
 					}
 				}

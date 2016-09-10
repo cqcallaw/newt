@@ -41,10 +41,16 @@ const_shared_ptr<Result> Expression::ToString(
 			execution_context);
 	auto errors = evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto type_specifier = GetTypeSpecifier(execution_context,
+		auto type_specifier_result = GetTypeSpecifier(execution_context,
 				AliasResolution::RESOLVE);
-		auto type_result = type_specifier->GetType(
-				execution_context->GetTypeTable(), AliasResolution::RESOLVE);
+
+		errors = type_specifier_result.GetErrors();
+
+		if (ErrorList::IsTerminator(errors)) {
+			auto type_specifier = type_specifier_result.GetData();
+			auto type_result = type_specifier->GetType(
+					execution_context->GetTypeTable(),
+					AliasResolution::RESOLVE);
 
 //		//TODO: replace this type switching logic with calls to TypeDefinition::ValueToString()
 //		auto type_table = execution_context->GetTypeTable();
@@ -57,42 +63,45 @@ const_shared_ptr<Result> Expression::ToString(
 //			assert(false);
 //		}
 
-		errors = type_result->GetErrors();
-		if (ErrorList::IsTerminator(errors)) {
-			auto type = type_result->GetData<TypeDefinition>();
-			auto as_primitive = std::dynamic_pointer_cast<const PrimitiveType>(
-					type);
-			if (as_primitive) {
-				const BasicType basic_type = as_primitive->GetType();
-				switch (basic_type) {
-				case BOOLEAN:
-					buffer << *(evaluation->GetData<bool>());
-					break;
-				case INT:
-					buffer << *(evaluation->GetData<int>());
-					break;
-				case DOUBLE:
-					buffer << *(evaluation->GetData<double>());
-					break;
-				case STRING:
-					buffer << *(evaluation->GetData<string>());
-					break;
-				default:
-					assert(false);
+			errors = type_result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto type = type_result->GetData<TypeDefinition>();
+				auto as_primitive = std::dynamic_pointer_cast<
+						const PrimitiveType>(type);
+				if (as_primitive) {
+					const BasicType basic_type = as_primitive->GetType();
+					switch (basic_type) {
+					case BOOLEAN:
+						buffer << *(evaluation->GetData<bool>());
+						break;
+					case INT:
+						buffer << *(evaluation->GetData<int>());
+						break;
+					case DOUBLE:
+						buffer << *(evaluation->GetData<double>());
+						break;
+					case STRING:
+						buffer << *(evaluation->GetData<string>());
+						break;
+					default:
+						assert(false);
+					}
 				}
-			}
 
-			//TODO: array printing
+				//TODO: array printing
 
-			auto as_record = std::dynamic_pointer_cast<const RecordType>(type);
-			if (as_record) {
-				auto instance = evaluation->GetData<Record>();
+				auto as_record = std::dynamic_pointer_cast<const RecordType>(
+						type);
+				if (as_record) {
+					auto instance = evaluation->GetData<Record>();
 
-				buffer << "{" << endl;
-				buffer
-						<< instance->ToString(
-								*execution_context->GetTypeTable(), Indent(1));
-				buffer << "}" << endl;
+					buffer << "{" << endl;
+					buffer
+							<< instance->ToString(
+									*execution_context->GetTypeTable(),
+									Indent(1));
+					buffer << "}" << endl;
+				}
 			}
 		}
 	} else {

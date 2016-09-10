@@ -50,7 +50,8 @@ ComplexInstantiationStatement::~ComplexInstantiationStatement() {
 
 const ErrorListRef ComplexInstantiationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<ExecutionContext> closure) const {
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto type_result = m_type_specifier->GetType(context->GetTypeTable());
 
 	auto errors = type_result->GetErrors();
