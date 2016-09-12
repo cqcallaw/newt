@@ -30,22 +30,22 @@ UnaryExpression::UnaryExpression(const yy::location position,
 	assert(expression != NULL);
 }
 
-TResult<TypeSpecifier> UnaryExpression::compute_result_type(
+TypedResult<TypeSpecifier> UnaryExpression::compute_result_type(
 		const_shared_ptr<TypeSpecifier> input_type, const OperatorType op) {
 	switch (op) {
 	case UNARY_MINUS:
-		return TResult<TypeSpecifier>(input_type, ErrorList::GetTerminator());
+		return TypedResult<TypeSpecifier>(input_type, ErrorList::GetTerminator());
 	case NOT:
-		return TResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetBoolean(),
+		return TypedResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetBoolean(),
 				ErrorList::GetTerminator());
 	default:
 		assert(false);
-		return TResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetNone(),
+		return TypedResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetNone(),
 				ErrorList::GetTerminator());
 	}
 }
 
-TResult<TypeSpecifier> UnaryExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> UnaryExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	auto type_specifier_result = m_expression->GetTypeSpecifier(

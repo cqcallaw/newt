@@ -42,7 +42,7 @@ WithExpression::WithExpression(const yy::location position,
 WithExpression::~WithExpression() {
 }
 
-TResult<TypeSpecifier> WithExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> WithExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return m_source_expression->GetTypeSpecifier(execution_context, resolution);

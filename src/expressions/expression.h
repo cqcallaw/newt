@@ -41,7 +41,7 @@ public:
 		return m_position;
 	}
 
-	virtual TResult<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const = 0;
 
@@ -49,7 +49,7 @@ public:
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const = 0;
 
-	TResult<string> ToString(
+	TypedResult<string> ToString(
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const = 0;

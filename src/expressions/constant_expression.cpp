@@ -56,10 +56,10 @@ ConstantExpression::ConstantExpression(const ConstantExpression* other) :
 ConstantExpression::~ConstantExpression() {
 }
 
-TResult<TypeSpecifier> ConstantExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> ConstantExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return TResult<TypeSpecifier>(m_type);
+	return TypedResult<TypeSpecifier>(m_type);
 }
 
 const_shared_ptr<Result> ConstantExpression::Evaluate(

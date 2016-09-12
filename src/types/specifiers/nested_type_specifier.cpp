@@ -137,7 +137,7 @@ const ErrorListRef NestedTypeSpecifier::ValidateDeclaration(
 	return errors;
 }
 
-TResult<TypeSpecifier> NestedTypeSpecifier::Resolve(
+TypedResult<TypeSpecifier> NestedTypeSpecifier::Resolve(
 		const_shared_ptr<TypeSpecifier> source, const TypeTable& type_table) {
 	auto as_nested = dynamic_pointer_cast<const NestedTypeSpecifier>(source);
 
@@ -166,7 +166,7 @@ TResult<TypeSpecifier> NestedTypeSpecifier::Resolve(
 							auto as_placholder = dynamic_pointer_cast<
 									const PlaceholderType>(as_complex_type);
 							if (as_placholder) {
-								return TResult<TypeSpecifier>(
+								return TypedResult<TypeSpecifier>(
 										PrimitiveTypeSpecifier::GetNone());
 							}
 

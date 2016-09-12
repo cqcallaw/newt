@@ -51,7 +51,7 @@ InvokeExpression::InvokeExpression(const yy::location position,
 InvokeExpression::~InvokeExpression() {
 }
 
-TResult<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	shared_ptr<const TypeSpecifier> result = PrimitiveTypeSpecifier::GetNone();
@@ -76,7 +76,7 @@ TResult<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 		}
 	}
 
-	return TResult<TypeSpecifier>(result, errors);
+	return TypedResult<TypeSpecifier>(result, errors);
 }
 
 const_shared_ptr<Result> InvokeExpression::Evaluate(
@@ -119,7 +119,7 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 	return make_shared<Result>(value, errors);
 }
 
-TResult<string> InvokeExpression::ToString(
+TypedResult<string> InvokeExpression::ToString(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buf;
 	auto expression_result = m_expression->ToString(execution_context);
@@ -144,7 +144,7 @@ TResult<string> InvokeExpression::ToString(
 			}
 		}
 		buf << ")";
-		return TResult<string>(const_shared_ptr<string>(new string(buf.str())),
+		return TypedResult<string>(const_shared_ptr<string>(new string(buf.str())),
 				errors);
 	} else {
 		return expression_result;

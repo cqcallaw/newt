@@ -34,7 +34,7 @@ Expression::Expression(const yy::location position) :
 Expression::~Expression() {
 }
 
-TResult<string> Expression::ToString(
+TypedResult<string> Expression::ToString(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buffer;
 	const_shared_ptr<Result> evaluation = Evaluate(execution_context,
@@ -104,9 +104,9 @@ TResult<string> Expression::ToString(
 			}
 		}
 	} else {
-		return TResult<string>(nullptr, errors);
+		return TypedResult<string>(nullptr, errors);
 	}
 
-	return TResult<string>(const_shared_ptr<string>(new string(buffer.str())),
+	return TypedResult<string>(const_shared_ptr<string>(new string(buffer.str())),
 			errors);
 }

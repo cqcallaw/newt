@@ -43,7 +43,7 @@ DefaultValueExpression::DefaultValueExpression(
 DefaultValueExpression::~DefaultValueExpression() {
 }
 
-TResult<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return NestedTypeSpecifier::Resolve(m_type_specifier,

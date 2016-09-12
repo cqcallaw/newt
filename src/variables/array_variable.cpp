@@ -35,7 +35,7 @@ ArrayVariable::ArrayVariable(const_shared_ptr<Variable> base_variable,
 				base_variable), m_expression(expression) {
 }
 
-TResult<TypeSpecifier> ArrayVariable::GetTypeSpecifier(
+TypedResult<TypeSpecifier> ArrayVariable::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> context,
 		AliasResolution resolution) const {
 	auto base_type_specifier_result = m_base_variable->GetTypeSpecifier(
@@ -62,7 +62,7 @@ TResult<TypeSpecifier> ArrayVariable::GetTypeSpecifier(
 		}
 	}
 
-	return TResult<TypeSpecifier>(nullptr, errors);
+	return TypedResult<TypeSpecifier>(nullptr, errors);
 }
 
 const_shared_ptr<string> ArrayVariable::ToString(

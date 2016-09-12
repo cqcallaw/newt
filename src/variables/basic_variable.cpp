@@ -55,14 +55,14 @@ const_shared_ptr<string> BasicVariable::ToString(
 	return make_shared<string>(buffer.str());
 }
 
-TResult<TypeSpecifier> BasicVariable::GetTypeSpecifier(
+TypedResult<TypeSpecifier> BasicVariable::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> context,
 		AliasResolution resolution) const {
 	auto symbol = context->GetSymbol(GetName(), DEEP);
 	if (symbol) {
-		return TResult<TypeSpecifier>(symbol->GetTypeSpecifier());
+		return TypedResult<TypeSpecifier>(symbol->GetTypeSpecifier());
 	} else {
-		return TResult<TypeSpecifier>(nullptr,
+		return TypedResult<TypeSpecifier>(nullptr,
 				ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::UNDECLARED_VARIABLE,

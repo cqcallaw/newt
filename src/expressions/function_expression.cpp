@@ -37,10 +37,10 @@ FunctionExpression::FunctionExpression(const yy::location position,
 FunctionExpression::~FunctionExpression() {
 }
 
-TResult<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return TResult<TypeSpecifier>(m_declaration, ErrorList::GetTerminator());
+	return TypedResult<TypeSpecifier>(m_declaration, ErrorList::GetTerminator());
 }
 
 const_shared_ptr<Result> FunctionExpression::Evaluate(

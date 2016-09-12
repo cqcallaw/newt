@@ -29,7 +29,7 @@ BinaryExpression::BinaryExpression(const yy::location position,
 	assert(right != NULL);
 }
 
-TResult<TypeSpecifier> BinaryExpression::ComputeResultType(
+TypedResult<TypeSpecifier> BinaryExpression::ComputeResultType(
 		const_shared_ptr<Expression> left, const_shared_ptr<Expression> right,
 		const OperatorType op,
 		const shared_ptr<ExecutionContext> execution_context) {
@@ -70,19 +70,19 @@ TResult<TypeSpecifier> BinaryExpression::ComputeResultType(
 				if (op == EQUAL || op == NOT_EQUAL || op == LESS_THAN
 						|| op == LESS_THAN_EQUAL || op == GREATER_THAN
 						|| op == GREATER_THAN_EQUAL || op == AND || op == OR) {
-					return TResult<TypeSpecifier>(
+					return TypedResult<TypeSpecifier>(
 							PrimitiveTypeSpecifier::GetBoolean(), errors);
 				}
 
 				if (op == MOD) {
-					return TResult<TypeSpecifier>(
+					return TypedResult<TypeSpecifier>(
 							PrimitiveTypeSpecifier::GetInt(), errors);
 				}
 
 				if (right_basic_type >= left_basic_type) {
-					return TResult<TypeSpecifier>(right_as_primitive, errors);
+					return TypedResult<TypeSpecifier>(right_as_primitive, errors);
 				} else {
-					return TResult<TypeSpecifier>(left_as_primitive, errors);
+					return TypedResult<TypeSpecifier>(left_as_primitive, errors);
 				}
 			} else {
 				errors = ErrorList::From(
@@ -99,7 +99,7 @@ TResult<TypeSpecifier> BinaryExpression::ComputeResultType(
 		}
 	}
 
-	return TResult<TypeSpecifier>(nullptr, errors);
+	return TypedResult<TypeSpecifier>(nullptr, errors);
 }
 
 const_shared_ptr<Result> BinaryExpression::Evaluate(
@@ -271,7 +271,7 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 	return make_shared<Result>(nullptr, errors);
 }
 
-TResult<TypeSpecifier> BinaryExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> BinaryExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return ComputeResultType(m_left, m_right, m_operator, execution_context);

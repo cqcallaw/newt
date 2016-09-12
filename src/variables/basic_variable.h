@@ -35,7 +35,7 @@ public:
 
 	static const_shared_ptr<Variable> GetDefaultVariable();
 
-	virtual TResult<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 

@@ -33,10 +33,10 @@ ComparisonExpression::ComparisonExpression(const yy::location position,
 							| GREATER_THAN_EQUAL));
 }
 
-TResult<TypeSpecifier> ComparisonExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> ComparisonExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return TResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetBoolean());
+	return TypedResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetBoolean());
 }
 
 const ErrorListRef ComparisonExpression::Validate(

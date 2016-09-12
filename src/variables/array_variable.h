@@ -33,7 +33,7 @@ public:
 			const_shared_ptr<Expression> expression);
 	virtual ~ArrayVariable();
 
-	virtual TResult<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 

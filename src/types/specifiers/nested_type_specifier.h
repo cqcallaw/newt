@@ -57,7 +57,7 @@ public:
 		return m_member_name;
 	}
 
-	static TResult<TypeSpecifier> Resolve(
+	static TypedResult<TypeSpecifier> Resolve(
 			const_shared_ptr<TypeSpecifier> source,
 			const TypeTable& type_table);
 

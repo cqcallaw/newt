@@ -29,7 +29,7 @@ public:
 			const_shared_ptr<Variable> member_variable);
 	virtual ~MemberVariable();
 
-	virtual TResult<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 

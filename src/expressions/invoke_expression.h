@@ -30,7 +30,7 @@ public:
 			const yy::location argument_list_position);
 	virtual ~InvokeExpression();
 
-	virtual TResult<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
@@ -38,7 +38,7 @@ public:
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
 
-	TResult<string> ToString(
+	TypedResult<string> ToString(
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const {

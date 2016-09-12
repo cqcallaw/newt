@@ -37,7 +37,7 @@ MemberVariable::MemberVariable(const_shared_ptr<Variable> container,
 MemberVariable::~MemberVariable() {
 }
 
-TResult<TypeSpecifier> MemberVariable::GetTypeSpecifier(
+TypedResult<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> context,
 		AliasResolution resolution) const {
 	shared_ptr<const TypeSpecifier> result = PrimitiveTypeSpecifier::GetNone();
@@ -108,7 +108,7 @@ TResult<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 		}
 	}
 
-	return TResult<TypeSpecifier>(result, errors);
+	return TypedResult<TypeSpecifier>(result, errors);
 }
 
 const_shared_ptr<string> MemberVariable::ToString(

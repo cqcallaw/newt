@@ -29,7 +29,7 @@ public:
 	VariableExpression(const yy::location position,
 			const_shared_ptr<Variable> variable);
 
-	virtual TResult<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 

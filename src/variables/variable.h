@@ -38,7 +38,7 @@ public:
 	virtual const_shared_ptr<std::string> ToString(
 			const shared_ptr<ExecutionContext> context) const = 0;
 
-	virtual TResult<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const = 0;
 

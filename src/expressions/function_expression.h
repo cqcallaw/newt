@@ -32,7 +32,7 @@ public:
 			const_shared_ptr<StatementBlock> body);
 	virtual ~FunctionExpression();
 
-	virtual TResult<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 

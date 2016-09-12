@@ -30,7 +30,7 @@ public:
 			const_shared_ptr<Expression> left,
 			const_shared_ptr<Expression> right);
 
-	virtual TResult<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
@@ -48,7 +48,7 @@ public:
 		return m_right;
 	}
 
-	static TResult<TypeSpecifier> ComputeResultType(
+	static TypedResult<TypeSpecifier> ComputeResultType(
 			const_shared_ptr<Expression> left,
 			const_shared_ptr<Expression> right, const OperatorType op,
 			const shared_ptr<ExecutionContext> execution_context);

@@ -56,13 +56,13 @@ private:
 	const ErrorListRef m_errors;
 };
 
-template<class T> class TResult {
+template<class T> class TypedResult {
 public:
-	TResult(const_shared_ptr<T> data) :
-			TResult(data, ErrorList::GetTerminator()) {
+	TypedResult(const_shared_ptr<T> data) :
+			TypedResult(data, ErrorList::GetTerminator()) {
 	}
 
-	TResult(const_shared_ptr<T> data, const ErrorListRef errors) :
+	TypedResult(const_shared_ptr<T> data, const ErrorListRef errors) :
 			m_data(data), m_errors(errors) {
 		assert(m_data || m_errors);
 	}
