@@ -193,7 +193,7 @@ const ErrorListRef SumDeclarationStatement::Execute(
 
 const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-//no-op
+	//no-op
 	return new SumDeclarationStatement(GetLocation(), m_type, GetName(),
 			GetNameLocation(), m_variant_list, m_variant_list_location);
 }
