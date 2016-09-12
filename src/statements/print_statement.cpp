@@ -41,11 +41,10 @@ const ErrorListRef PrintStatement::Execute(
 		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<Result> string_result = m_expression->ToString(context);
-	errors = string_result->GetErrors();
-
+	auto string_result = m_expression->ToString(context);
+	errors = string_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		std::cout << *(string_result->GetData<string>()) << "\n";
+		std::cout << *(string_result.GetData()) << "\n";
 	}
 
 	return errors;

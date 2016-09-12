@@ -34,7 +34,7 @@ Expression::Expression(const yy::location position) :
 Expression::~Expression() {
 }
 
-const_shared_ptr<Result> Expression::ToString(
+TResult<string> Expression::ToString(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buffer;
 	const_shared_ptr<Result> evaluation = Evaluate(execution_context,
@@ -45,7 +45,6 @@ const_shared_ptr<Result> Expression::ToString(
 				AliasResolution::RESOLVE);
 
 		errors = type_specifier_result.GetErrors();
-
 		if (ErrorList::IsTerminator(errors)) {
 			auto type_specifier = type_specifier_result.GetData();
 			auto type_result = type_specifier->GetType(
@@ -105,9 +104,9 @@ const_shared_ptr<Result> Expression::ToString(
 			}
 		}
 	} else {
-		return evaluation;
+		return TResult<string>(nullptr, errors);
 	}
 
-	return make_shared<Result>(const_shared_ptr<void>(new string(buffer.str())),
+	return TResult<string>(const_shared_ptr<string>(new string(buffer.str())),
 			errors);
 }

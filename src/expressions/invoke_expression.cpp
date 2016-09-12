@@ -119,34 +119,33 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 	return make_shared<Result>(value, errors);
 }
 
-const_shared_ptr<Result> InvokeExpression::ToString(
+TResult<string> InvokeExpression::ToString(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ostringstream buf;
-	const_shared_ptr<Result> expression_result = m_expression->ToString(
-			execution_context);
+	auto expression_result = m_expression->ToString(execution_context);
 
-	if (expression_result->GetErrors()) {
-		buf << *(expression_result->GetData<string>());
+	if (expression_result.GetErrors()) {
+		buf << *(expression_result.GetData());
 		buf << "(";
 		ErrorListRef errors =
 
 		ErrorList::GetTerminator();
 		ArgumentListRef argument = m_argument_list;
 		while (!ArgumentList::IsTerminator(argument)) {
-			const_shared_ptr<Result> argument_result =
-					argument->GetData()->ToString(execution_context);
+			auto argument_result = argument->GetData()->ToString(
+					execution_context);
 			errors = ErrorList::Concatenate(errors,
-					argument_result->GetErrors());
+					argument_result.GetErrors());
 			if (ErrorList::IsTerminator(errors)) {
-				buf << *(argument_result->GetData<string>());
+				buf << *(argument_result.GetData());
 				if (!ArgumentList::IsTerminator(argument->GetNext())) {
 					buf << ",";
 				}
 			}
 		}
 		buf << ")";
-		return make_shared<Result>(
-				const_shared_ptr<void>(new string(buf.str())), errors);
+		return TResult<string>(const_shared_ptr<string>(new string(buf.str())),
+				errors);
 	} else {
 		return expression_result;
 	}

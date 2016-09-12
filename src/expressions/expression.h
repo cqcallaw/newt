@@ -49,7 +49,7 @@ public:
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const = 0;
 
-	const_shared_ptr<Result> ToString(
+	TResult<string> ToString(
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const = 0;
