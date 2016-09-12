@@ -1,0 +1,4 @@
+Parsing file ../tests/t8100.nwt...
+Semantic error on line 5, column 1: 'factorial' has been already been declared in the current scope.
+Parsed file ../tests/t8100.nwt.
+1 error found; giving up.
