@@ -1,0 +1,23 @@
+Parsing file ../tests/t8002.nwt...
+Parsed file ../tests/t8002.nwt.
+Root Symbol Table:
+----------------
+list l: {terminator} <unit>
+int r: 0
+(list) -> int sum:
+	Body Location: 11.24-18.3
+
+Root Type Table:
+----------------
+list:
+	<sum>
+	item:
+		<record>
+		data:
+			int (0)
+		next:
+			list? ({empty})
+
+	terminator:
+		<unit>
+
