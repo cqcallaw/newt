@@ -31,6 +31,7 @@
 #include <sum.h>
 #include <sum_type.h>
 #include <unit_type.h>
+#include <basic_variable.h>
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
@@ -69,40 +70,34 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	while (!ArgumentList::IsTerminator(argument)) {
 		const_shared_ptr<Expression> argument_expression = argument->GetData();
 		if (!DeclarationList::IsTerminator(parameter)) {
-			const_shared_ptr<DeclarationStatement> declaration =
+			const_shared_ptr<DeclarationStatement> parameter_declaration =
 					parameter->GetData();
 
-			const_shared_ptr<Result> argument_evaluation =
-					ConstantExpression::GetConstantExpression(
-							argument_expression, invocation_context);
-			auto evaluation_errors = argument_evaluation->GetErrors();
-			if (ErrorList::IsTerminator(evaluation_errors)) {
-				//generate a declaration statement for the function execution context.
-				//it's tempting to just stuff a value into the symbol table,
-				//but this simplistic approach ignores widening conversions
-				auto evaluated_expression = argument_evaluation->GetData<
-						Expression>();
-				const DeclarationStatement* argument_declaration =
-						declaration->WithInitializerExpression(
-								evaluated_expression);
+			auto parameter_preprocess_errors =
+					parameter_declaration->Preprocess(
+							function_execution_context, closure_reference);
+			if (ErrorList::IsTerminator(parameter_preprocess_errors)) {
+				auto parameter_execute_errors = parameter_declaration->Execute(
+						function_execution_context, closure_reference);
+				if (ErrorList::IsTerminator(parameter_execute_errors)) {
+					auto argument_variable = make_shared<const BasicVariable>(
+							parameter_declaration->GetName(),
+							argument_expression->GetPosition());
 
-				auto preprocessing_errors = ErrorList::Concatenate(errors,
-						argument_declaration->Preprocess(
-								function_execution_context,
-								function_execution_context));
-				if (ErrorList::IsTerminator(preprocessing_errors)) {
+					auto assign_errors = argument_variable->AssignValue(
+							invocation_context, closure_reference,
+							argument_expression, ASSIGN,
+							function_execution_context);
+					if (!ErrorList::IsTerminator(assign_errors)) {
+						errors = ErrorList::Concatenate(errors, assign_errors);
+					}
+				} else {
 					errors = ErrorList::Concatenate(errors,
-							argument_declaration->Execute(
-									function_execution_context,
-									function_execution_context));
-				} else if (preprocessing_errors != errors) {
-					errors = ErrorList::Concatenate(errors,
-							preprocessing_errors);
+							parameter_execute_errors);
 				}
-
-				delete argument_declaration;
 			} else {
-				errors = ErrorList::Concatenate(errors, evaluation_errors);
+				errors = ErrorList::Concatenate(errors,
+						parameter_preprocess_errors);
 			}
 
 			argument = argument->GetNext();
@@ -149,10 +144,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	auto final_execution_context = function_execution_context->WithParent(
 			parent_context);
 
-	//TODO: determine if it is necessary to merge type tables
-
 	if (ErrorList::IsTerminator(errors)) {
-		//performing preprocessing here duplicates work with the function express processing,
+		//performing preprocessing here duplicates work with the function expression processing,
 		//but the context setup in the function preprocessing is currently discarded.
 		//TODO: consider cloning function expression preprocess context instead of discarding it
 		errors = ErrorList::Concatenate(errors,
