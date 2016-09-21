@@ -1,0 +1,13 @@
+Parsing file ../tests/t6400.nwt...
+Parsed file ../tests/t6400.nwt.
+Semantic error on line 5, column 7: Cannot assign an expression of type 'int?' to a variable of type 'int'.
+Root Symbol Table:
+----------------
+(int) -> int f:
+	Body Location: 3.22-30
+int r: 0
+int? v:
+	{value} 3
+
+Root Type Table:
+----------------
