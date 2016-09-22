@@ -50,7 +50,7 @@ const AnalysisResult MaybeTypeSpecifier::AnalyzeAssignmentTo(
 			type_table) >= UNAMBIGUOUS) {
 		return AnalysisResult::UNAMBIGUOUS;
 	} else {
-		return m_base_type_specifier->AnalyzeAssignmentTo(other, type_table);
+		return AnalysisResult::INCOMPATIBLE;
 	}
 }
 

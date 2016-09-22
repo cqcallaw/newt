@@ -65,29 +65,30 @@ const ErrorListRef MaybeDeclarationStatement::Preprocess(
 				auto initializer_type_specifier =
 						initializer_type_specifier_result.GetData();
 				if (initializer_type_specifier->AnalyzeAssignmentTo(
-						root_specifier, *type_table)) {
-					if (initializer->IsConstant()) {
-						auto result = initializer->Evaluate(context, closure);
-						errors = result->GetErrors();
-						if (ErrorList::IsTerminator(errors)) {
-							if (*initializer_type_specifier
-									== *m_type_specifier) {
-								//direct assignment
-								value = result->GetData<Sum>();
-							} else {
-								//widening conversion
-								value = make_shared<Sum>(
-										MaybeTypeSpecifier::VARIANT_NAME,
-										result->GetRawData());
+						m_type_specifier, *type_table)) {
+					if (*initializer_type_specifier
+							!= *TypeTable::GetNilTypeSpecifier()) {
+						if (initializer->IsConstant()) {
+							auto result = initializer->Evaluate(context,
+									closure);
+							errors = result->GetErrors();
+							if (ErrorList::IsTerminator(errors)) {
+								if (*initializer_type_specifier
+										== *m_type_specifier) {
+									//direct assignment
+									value = result->GetData<Sum>();
+								} else {
+									//widening conversion
+									value = make_shared<Sum>(
+											MaybeTypeSpecifier::VARIANT_NAME,
+											result->GetRawData());
+								}
 							}
+						} else {
+							value = static_pointer_cast<const Sum>(
+									m_type_specifier->DefaultValue(type_table));
 						}
-					} else {
-						value = static_pointer_cast<const Sum>(
-								m_type_specifier->DefaultValue(type_table));
 					}
-				} else if (initializer_type_specifier->AnalyzeAssignmentTo(
-						TypeTable::GetNilTypeSpecifier(), *type_table)) {
-					//do nothing; our default value is fine
 				} else {
 					errors =
 							ErrorList::From(
@@ -155,24 +156,24 @@ const ErrorListRef MaybeDeclarationStatement::Execute(
 				auto initializer_type_specifier =
 						initializer_type_specifier_result.GetData();
 				if (initializer_type_specifier->AnalyzeAssignmentTo(
-						root_specifier, *type_table)) {
-					auto result = initializer->Evaluate(context, closure);
-					errors = result->GetErrors();
-					if (ErrorList::IsTerminator(errors)) {
-						if (*initializer_type_specifier
-								== *maybe_type_specifier) {
-							//direct assignment
-							value = result->GetData<Sum>();
-						} else {
-							//widening conversion
-							value = make_shared<Sum>(
-									MaybeTypeSpecifier::VARIANT_NAME,
-									result->GetRawData());
+						m_type_specifier, *type_table)) {
+					if (*initializer_type_specifier
+							!= *TypeTable::GetNilTypeSpecifier()) {
+						auto result = initializer->Evaluate(context, closure);
+						errors = result->GetErrors();
+						if (ErrorList::IsTerminator(errors)) {
+							if (*initializer_type_specifier
+									== *maybe_type_specifier) {
+								//direct assignment
+								value = result->GetData<Sum>();
+							} else {
+								//widening conversion
+								value = make_shared<Sum>(
+										MaybeTypeSpecifier::VARIANT_NAME,
+										result->GetRawData());
+							}
 						}
 					}
-				} else if (initializer_type_specifier->AnalyzeAssignmentTo(
-						TypeTable::GetNilTypeSpecifier(), *type_table)) {
-					//no-op: we don't need to re-assign the nil value
 				} else {
 					errors =
 							ErrorList::From(
