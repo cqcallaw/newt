@@ -1,7 +1,7 @@
 #Tests
 TEST_PATH = ../tests/
 #ref: http://stackoverflow.com/a/2706067/577298
-TEST_FILES = $(wildcard $(TEST_PATH)*.nwt)
+TEST_FILES = $(sort $(wildcard $(TEST_PATH)*.nwt))
 TESTS = $(patsubst $(TEST_PATH)%.nwt,%,$(TEST_FILES))
 WTESTS = $(patsubst $(TEST_PATH)%.nwt,w%,$(TEST_FILES))
 MTESTS = $(patsubst $(TEST_PATH)%.nwt,m%,$(TEST_FILES))
