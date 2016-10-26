@@ -78,6 +78,7 @@ const std::string AliasDefinition::GetTagSeparator(const Indent& indent,
 
 const_shared_ptr<TypeDefinition> AliasDefinition::GetOrigin() const {
 	const_shared_ptr<TypeTable> ptr = m_origin_table.lock();
+	assert(ptr);
 	auto type_result = m_original->GetType(*ptr);
 
 	if (ErrorList::IsTerminator(type_result->GetErrors())) {

@@ -50,8 +50,9 @@ const ErrorListRef MaybeDeclarationStatement::Preprocess(
 
 	auto type_table = context->GetTypeTable();
 	auto root_specifier = m_type_specifier->GetBaseTypeSpecifier();
-	auto root_type = root_specifier->GetType(type_table);
-	if (root_type) {
+	auto root_type_result = root_specifier->GetType(type_table);
+	errors = root_type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
 		plain_shared_ptr<Sum> value = make_shared<Sum>(
 				MaybeTypeSpecifier::EMPTY_NAME,
 				TypeTable::GetNilType()->GetValue());
@@ -64,6 +65,7 @@ const ErrorListRef MaybeDeclarationStatement::Preprocess(
 			if (ErrorList::IsTerminator(errors)) {
 				auto initializer_type_specifier =
 						initializer_type_specifier_result.GetData();
+
 				if (initializer_type_specifier->AnalyzeAssignmentTo(
 						m_type_specifier, *type_table)) {
 					if (*initializer_type_specifier
@@ -82,6 +84,10 @@ const ErrorListRef MaybeDeclarationStatement::Preprocess(
 									value = make_shared<Sum>(
 											MaybeTypeSpecifier::VARIANT_NAME,
 											result->GetRawData());
+
+									auto type = m_type_specifier->GetType(
+											type_table, RESOLVE)->GetData<
+											SumType>();
 								}
 							}
 						} else {
@@ -118,15 +124,8 @@ const ErrorListRef MaybeDeclarationStatement::Preprocess(
 			}
 		}
 
-	} else {
-		//type does not exist
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						m_type_specifier_location.begin.line,
-						m_type_specifier_location.begin.column,
-						m_type_specifier->GetBaseTypeSpecifier()->ToString()),
-				errors);
 	}
+
 	return errors;
 }
 

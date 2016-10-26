@@ -256,149 +256,154 @@ const ErrorListRef BasicVariable::AssignValue(
 	const_shared_ptr<SumType> as_sum = std::dynamic_pointer_cast<const SumType>(
 			symbol_type);
 	if (as_sum) {
-		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
-				context, context);
-		errors = expression_evaluation->GetErrors();
-
-		if (ErrorList::IsTerminator(errors)) {
-			auto expression_type_specifier_result =
-					expression->GetTypeSpecifier(context);
+		auto as_maybe = dynamic_pointer_cast<const MaybeTypeSpecifier>(
+				symbol_type_specifier);
+		if (as_maybe) {
+			//handle Maybe types specially. TODO: this logic is ugly and brittle and should be refactored
+			const_shared_ptr<Result> expression_evaluation =
+					expression->Evaluate(context, context);
+			errors = expression_evaluation->GetErrors();
 
 			if (ErrorList::IsTerminator(errors)) {
-				auto expression_type_specifier =
-						expression_type_specifier_result.GetData();
-				auto symbol_specifier_as_complex = dynamic_pointer_cast<
-						const ComplexTypeSpecifier>(symbol_type_specifier);
-				if (symbol_specifier_as_complex) {
+				auto expression_type_specifier_result =
+						expression->GetTypeSpecifier(context);
 
-					shared_ptr<const ComplexTypeSpecifier> fully_qualified_symbol_type_specifier =
-							symbol_specifier_as_complex;
-					if (container) {
-						//look up the symbol type in the _source_ context instead of the output context
-						auto symbol_type_outside_result =
-								symbol_type_specifier->GetType(
-										context->GetTypeTable(), RESOLVE);
+				errors = expression_type_specifier_result.GetErrors();
 
-						if (!ErrorList::IsTerminator(
-								symbol_type_outside_result->GetErrors())) {
-							//qualify the symbol type: it's an inline type
-							fully_qualified_symbol_type_specifier =
-									ComplexTypeSpecifier::Build(container,
-											symbol_specifier_as_complex);
-						}
-					}
-
+				if (ErrorList::IsTerminator(errors)) {
+					auto expression_type_specifier =
+							expression_type_specifier_result.GetData();
 					plain_shared_ptr<Sum> new_sum = nullptr;
 					auto assignment_analysis =
 							expression_type_specifier->AnalyzeAssignmentTo(
-									fully_qualified_symbol_type_specifier,
-									output_context->GetTypeTable());
+									symbol_type_specifier,
+									context->GetTypeTable());
+
 					if (assignment_analysis == EQUIVALENT) {
 						new_sum = expression_evaluation->GetData<Sum>();
 					} else if (assignment_analysis == UNAMBIGUOUS) {
-						auto tag = as_sum->MapSpecifierToVariant(
-								*fully_qualified_symbol_type_specifier,
-								*expression_type_specifier);
-						new_sum = make_shared<Sum>(tag,
-								expression_evaluation->GetRawData());
+						plain_shared_ptr<void> data =
+								expression_evaluation->GetRawData();
+						if (expression_type_specifier->AnalyzeAssignmentTo(
+								TypeTable::GetNilTypeSpecifier(),
+								context->GetTypeTable()) == EQUIVALENT) {
+							new_sum = make_shared<Sum>(
+									MaybeTypeSpecifier::EMPTY_NAME, data);
+						} else {
+							new_sum = make_shared<Sum>(
+									MaybeTypeSpecifier::VARIANT_NAME, data);
+						}
+					} else if (assignment_analysis == UNAMBIGUOUS_NESTED) {
+						//do the requisite widening
+						plain_shared_ptr<void> data =
+								expression_evaluation->GetRawData();
+						auto base_type_specifier =
+								as_maybe->GetBaseTypeSpecifier();
+						auto base_type_result = base_type_specifier->GetType(
+								context->GetTypeTable(), RESOLVE);
+
+						auto base_type_errors = base_type_result->GetErrors();
+						if (ErrorList::IsTerminator(base_type_errors)) {
+							auto base_type = base_type_result->GetData<
+									TypeDefinition>();
+							auto base_as_sum = dynamic_pointer_cast<
+									const SumType>(base_type);
+							if (base_as_sum) {
+								//TODO: allow this widening process to be recursive
+								auto sum_type_specifier = static_pointer_cast<
+										const ComplexTypeSpecifier>(
+										base_type_specifier);
+								auto base_tag =
+										base_as_sum->MapSpecifierToVariant(
+												*sum_type_specifier,
+												*expression_type_specifier);
+								assert(*base_tag != "");
+								data = make_shared<Sum>(base_tag, data);
+							} else {
+								//TODO: generalize this widening conversion process to more than sum types
+								assert(false);
+							}
+
+							new_sum = make_shared<Sum>(
+									MaybeTypeSpecifier::VARIANT_NAME, data);
+						} else {
+							errors = ErrorList::Concatenate(errors,
+									base_type_errors);
+						}
 					} else {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::ASSIGNMENT_TYPE_ERROR,
-												variable_line, variable_column,
-												fully_qualified_symbol_type_specifier->ToString(),
-												expression_type_specifier->ToString()),
-										errors);
+						assert(false);
 					}
 
 					if (ErrorList::IsTerminator(errors)) {
-						errors = SetSymbol(output_context,
-								symbol_specifier_as_complex, new_sum);
+						errors = SetSymbol(output_context, as_maybe, new_sum);
 					}
-				} else {
-					assert(false);
 				}
 			}
-		}
-	}
-
-	auto as_maybe = dynamic_pointer_cast<const MaybeTypeSpecifier>(
-			symbol_type_specifier);
-	if (as_maybe) {
-		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
-				context, context);
-		errors = expression_evaluation->GetErrors();
-
-		if (ErrorList::IsTerminator(errors)) {
-			auto expression_type_specifier_result =
-					expression->GetTypeSpecifier(context);
-
-			errors = expression_type_specifier_result.GetErrors();
+		} else {
+			const_shared_ptr<Result> expression_evaluation =
+					expression->Evaluate(context, context);
+			errors = expression_evaluation->GetErrors();
 
 			if (ErrorList::IsTerminator(errors)) {
-				auto expression_type_specifier =
-						expression_type_specifier_result.GetData();
-				plain_shared_ptr<Sum> new_sum = nullptr;
-				auto assignment_analysis =
-						expression_type_specifier->AnalyzeAssignmentTo(
-								symbol_type_specifier, context->GetTypeTable());
-
-				if (assignment_analysis == EQUIVALENT) {
-					new_sum = expression_evaluation->GetData<Sum>();
-				} else if (assignment_analysis == UNAMBIGUOUS) {
-					plain_shared_ptr<void> data =
-							expression_evaluation->GetRawData();
-					if (expression_type_specifier->AnalyzeAssignmentTo(
-							TypeTable::GetNilTypeSpecifier(),
-							context->GetTypeTable()) == EQUIVALENT) {
-						new_sum = make_shared<Sum>(
-								MaybeTypeSpecifier::EMPTY_NAME, data);
-					} else {
-						new_sum = make_shared<Sum>(
-								MaybeTypeSpecifier::VARIANT_NAME, data);
-					}
-				} else if (assignment_analysis == UNAMBIGUOUS_NESTED) {
-					//do the requisite widening
-					plain_shared_ptr<void> data =
-							expression_evaluation->GetRawData();
-					auto base_type_specifier = as_maybe->GetBaseTypeSpecifier();
-					auto base_type_result = base_type_specifier->GetType(
-							context->GetTypeTable(), RESOLVE);
-
-					auto base_type_errors = base_type_result->GetErrors();
-					if (ErrorList::IsTerminator(base_type_errors)) {
-						auto base_type = base_type_result->GetData<
-								TypeDefinition>();
-						auto base_as_sum = dynamic_pointer_cast<const SumType>(
-								base_type);
-						if (base_as_sum) {
-							//TODO: allow this widening process to be recursive
-							auto sum_type_specifier = static_pointer_cast<
-									const ComplexTypeSpecifier>(
-									base_type_specifier);
-							auto base_tag = base_as_sum->MapSpecifierToVariant(
-									*sum_type_specifier,
-									*expression_type_specifier);
-							assert(*base_tag != "");
-							data = make_shared<Sum>(base_tag, data);
-						} else {
-							//TODO: generalize this widening conversion process to more than sum types
-							assert(false);
-						}
-
-						new_sum = make_shared<Sum>(
-								MaybeTypeSpecifier::VARIANT_NAME, data);
-					} else {
-						errors = ErrorList::Concatenate(errors,
-								base_type_errors);
-					}
-				} else {
-					assert(false);
-				}
+				auto expression_type_specifier_result =
+						expression->GetTypeSpecifier(context);
 
 				if (ErrorList::IsTerminator(errors)) {
-					errors = SetSymbol(output_context, as_maybe, new_sum);
+					auto expression_type_specifier =
+							expression_type_specifier_result.GetData();
+					auto symbol_specifier_as_complex = dynamic_pointer_cast<
+							const ComplexTypeSpecifier>(symbol_type_specifier);
+					if (symbol_specifier_as_complex) {
+
+						shared_ptr<const ComplexTypeSpecifier> fully_qualified_symbol_type_specifier =
+								symbol_specifier_as_complex;
+						if (container) {
+							//look up the symbol type in the _source_ context instead of the output context
+							auto symbol_type_outside_result =
+									symbol_type_specifier->GetType(
+											context->GetTypeTable(), RESOLVE);
+
+							if (!ErrorList::IsTerminator(
+									symbol_type_outside_result->GetErrors())) {
+								//qualify the symbol type: it's an inline type
+								fully_qualified_symbol_type_specifier =
+										ComplexTypeSpecifier::Build(container,
+												symbol_specifier_as_complex);
+							}
+						}
+
+						plain_shared_ptr<Sum> new_sum = nullptr;
+						auto assignment_analysis =
+								expression_type_specifier->AnalyzeAssignmentTo(
+										fully_qualified_symbol_type_specifier,
+										output_context->GetTypeTable());
+						if (assignment_analysis == EQUIVALENT) {
+							new_sum = expression_evaluation->GetData<Sum>();
+						} else if (assignment_analysis == UNAMBIGUOUS) {
+							auto tag = as_sum->MapSpecifierToVariant(
+									*fully_qualified_symbol_type_specifier,
+									*expression_type_specifier);
+							new_sum = make_shared<Sum>(tag,
+									expression_evaluation->GetRawData());
+						} else {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::ASSIGNMENT_TYPE_ERROR,
+													variable_line,
+													variable_column,
+													fully_qualified_symbol_type_specifier->ToString(),
+													expression_type_specifier->ToString()),
+											errors);
+						}
+
+						if (ErrorList::IsTerminator(errors)) {
+							errors = SetSymbol(output_context,
+									symbol_specifier_as_complex, new_sum);
+						}
+					} else {
+						assert(false);
+					}
 				}
 			}
 		}

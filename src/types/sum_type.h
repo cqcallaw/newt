@@ -81,7 +81,8 @@ public:
 	}
 
 	static const_shared_ptr<Result> Build(
-			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> output,
+			const shared_ptr<ExecutionContext> closure,
 			const DeclarationListRef member_declarations,
 			const_shared_ptr<SumTypeSpecifier> sum_type_specifier);
 
@@ -96,6 +97,10 @@ public:
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
 			const_shared_ptr<std::string> member_name) const;
 
+	const_shared_ptr<MaybeType> GetMaybeType() const {
+		return m_maybe_type;
+	}
+
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
@@ -108,16 +113,19 @@ protected:
 			const_shared_ptr<TypeSpecifier> value_type_specifier,
 			const std::string& instance_name,
 			const_shared_ptr<void> data) const;
-private:
+
 	SumType(const_shared_ptr<TypeTable> type_table,
 			const_shared_ptr<DeclarationStatement> first_declaration,
-			const_shared_ptr<SymbolTable> constructors) :
+			const_shared_ptr<SymbolTable> constructors,
+			const_shared_ptr<MaybeType> maybe_type) :
 			m_definition(type_table), m_first_declaration(first_declaration), m_constructors(
-					constructors) {
+					constructors), m_maybe_type(maybe_type) {
 	}
+private:
 	const_shared_ptr<TypeTable> m_definition;
 	const_shared_ptr<DeclarationStatement> m_first_declaration;
 	const_shared_ptr<SymbolTable> m_constructors;
+	const_shared_ptr<MaybeType> m_maybe_type;
 };
 
 #endif /* SUM_TYPE_H_ */

@@ -36,8 +36,6 @@ class TypeTable;
 using namespace std;
 class RecordType: public ComplexType {
 public:
-	RecordType(const_shared_ptr<TypeTable> definition,
-			const Modifier::Type modifiers);
 	virtual ~RecordType();
 	const_shared_ptr<TypeDefinition> GetMember(const std::string& name) const;
 
@@ -79,9 +77,11 @@ public:
 	}
 
 	static const_shared_ptr<Result> Build(
-			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> output,
+			const shared_ptr<ExecutionContext> closure,
 			const Modifier::Type modifiers,
-			const DeclarationListRef member_declarations);
+			const DeclarationListRef member_declarations,
+			const_shared_ptr<RecordTypeSpecifier> type_specifier);
 
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;
@@ -91,6 +91,10 @@ public:
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			yy::location location) const;
+
+	const_shared_ptr<MaybeType> GetMaybeType() const {
+		return m_maybe_type;
+	}
 
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
@@ -105,9 +109,14 @@ protected:
 			const std::string& instance_name,
 			const_shared_ptr<void> data) const;
 
+	RecordType(const_shared_ptr<TypeTable> definition,
+			const Modifier::Type modifiers,
+			const_shared_ptr<MaybeType> maybe_type);
+
 private:
 	const_shared_ptr<TypeTable> m_definition;
 	const Modifier::Type m_modifiers;
+	const_shared_ptr<MaybeType> m_maybe_type;
 };
 
 #endif /* COMPOUND_TYPE_H_ */

@@ -31,11 +31,13 @@
 #include <symbol_context.h>
 #include <record.h>
 #include <placeholder_type.h>
+#include <maybe_type.h>
 #include <unit_type.h>
 
 RecordType::RecordType(const_shared_ptr<TypeTable> definition,
-		const Modifier::Type modifiers) :
-		m_definition(definition), m_modifiers(modifiers) {
+		const Modifier::Type modifiers, const_shared_ptr<MaybeType> maybe_type) :
+		m_definition(definition), m_modifiers(modifiers), m_maybe_type(
+				maybe_type) {
 }
 
 const_shared_ptr<TypeDefinition> RecordType::GetMember(
@@ -56,13 +58,16 @@ const string RecordType::ToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<Result> RecordType::Build(
-		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> output,
+		const shared_ptr<ExecutionContext> closure,
 		const Modifier::Type modifiers,
-		const DeclarationListRef member_declarations) {
+		const DeclarationListRef member_declarations,
+		const_shared_ptr<RecordTypeSpecifier> type_specifier) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto context_type_table = context->GetTypeTable();
-	auto type_table = make_shared<TypeTable>(context_type_table);
+	auto output_type_table = output->GetTypeTable();
+	auto closure_type_table = closure->GetTypeTable();
+	auto type_table = make_shared<TypeTable>(output_type_table);
 
 	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
@@ -73,8 +78,7 @@ const_shared_ptr<Result> RecordType::Build(
 		auto declaration_type_specifier = declaration->GetTypeSpecifier();
 		auto declaration_errors =
 				declaration_type_specifier->ValidateDeclaration(
-						context->GetTypeTable(),
-						declaration->GetNameLocation());
+						output_type_table, declaration->GetNameLocation());
 
 		auto existing_member_type = type_table->GetType<TypeDefinition>(
 				member_name, SHALLOW, RETURN);
@@ -83,10 +87,10 @@ const_shared_ptr<Result> RecordType::Build(
 			//generate a temporary structure in which to perform evaluations
 			//of the member declaration statement
 			const shared_ptr<symbol_map> values = make_shared<symbol_map>();
-			auto member_type_table = make_shared<TypeTable>(context_type_table);
+			auto member_type_table = make_shared<TypeTable>(output_type_table);
 			shared_ptr<ExecutionContext> tmp_context =
-					ExecutionContext::GetEmptyChild(context,
-							context->GetModifiers(), EPHEMERAL,
+					ExecutionContext::GetEmptyChild(output,
+							output->GetModifiers(), EPHEMERAL,
 							member_type_table, values);
 
 			if (ErrorList::IsTerminator(declaration_errors)) {
@@ -106,7 +110,7 @@ const_shared_ptr<Result> RecordType::Build(
 					//otherwise (no initializer expression OR a valid initializer expression);
 					//we're cleared to preprocess
 					auto preprocess_errors = declaration->Preprocess(
-							tmp_context, context);
+							tmp_context, closure);
 					declaration_errors = ErrorList::Concatenate(
 							declaration_errors, preprocess_errors);
 
@@ -114,7 +118,7 @@ const_shared_ptr<Result> RecordType::Build(
 						//we've pre-processed this statement without issue
 						declaration_errors = ErrorList::Concatenate(
 								declaration_errors,
-								declaration->Execute(tmp_context, context));
+								declaration->Execute(tmp_context, closure));
 					}
 				}
 			}
@@ -130,7 +134,7 @@ const_shared_ptr<Result> RecordType::Build(
 							symbol->GetTypeSpecifier();
 
 					auto symbol_type_result = type_specifier->GetType(
-							context_type_table);
+							output_type_table);
 					auto symbol_type_errors = symbol_type_result->GetErrors();
 					if (ErrorList::IsTerminator(symbol_type_errors)) {
 						auto symbol_type = symbol_type_result->GetData<
@@ -143,7 +147,7 @@ const_shared_ptr<Result> RecordType::Build(
 									const MaybeTypeSpecifier>(type_specifier);
 							if (as_maybe_specifier) {
 								alias = make_shared<AliasDefinition>(
-										context_type_table, type_specifier,
+										closure_type_table, type_specifier,
 										RECURSIVE, nullptr);
 							} else {
 								assert(false);
@@ -151,7 +155,7 @@ const_shared_ptr<Result> RecordType::Build(
 						} else {
 							auto value = symbol->GetValue();
 							alias = make_shared<AliasDefinition>(
-									context_type_table, type_specifier, DIRECT,
+									closure_type_table, type_specifier, DIRECT,
 									value);
 						}
 
@@ -182,7 +186,13 @@ const_shared_ptr<Result> RecordType::Build(
 		subject = subject->GetNext();
 	}
 
-	auto type = make_shared<RecordType>(type_table, modifiers);
+	auto maybe_type_result = MaybeType::Build(closure, type_specifier);
+	errors = ErrorList::Concatenate(maybe_type_result->GetErrors(), errors);
+	auto maybe_type = maybe_type_result->GetData<MaybeType>();
+
+	auto type = const_shared_ptr<RecordType>(
+			new RecordType(type_table, modifiers, maybe_type));
+
 	return make_shared<Result>(ErrorList::IsTerminator(errors) ? type : nullptr,
 			errors);
 }

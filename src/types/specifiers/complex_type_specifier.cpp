@@ -140,6 +140,23 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 	if (ErrorList::IsTerminator(errors)) {
 		auto resolved_other = resolved_other_result.GetData();
 
+		const_shared_ptr<MaybeTypeSpecifier> as_maybe =
+				std::dynamic_pointer_cast<const MaybeTypeSpecifier>(
+						resolved_other);
+		if (as_maybe) {
+			if (*this == *TypeTable::GetNilTypeSpecifier()) {
+				return UNAMBIGUOUS;
+			}
+
+			auto base_analysis = AnalyzeAssignmentTo(
+					as_maybe->GetBaseTypeSpecifier(), type_table);
+			if (base_analysis == EQUIVALENT) {
+				return UNAMBIGUOUS;
+			} else if (base_analysis == UNAMBIGUOUS) {
+				return UNAMBIGUOUS_NESTED;
+			}
+		}
+
 		const_shared_ptr<ComplexTypeSpecifier> as_complex =
 				std::dynamic_pointer_cast<const ComplexTypeSpecifier>(
 						resolved_other);
@@ -160,23 +177,6 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 				return as_complex->AnalyzeWidening(type_table, *this);
 
 			} catch (std::bad_cast& e) {
-			}
-		}
-
-		const_shared_ptr<MaybeTypeSpecifier> as_maybe =
-				std::dynamic_pointer_cast<const MaybeTypeSpecifier>(
-						resolved_other);
-		if (as_maybe) {
-			if (*this == *TypeTable::GetNilTypeSpecifier()) {
-				return UNAMBIGUOUS;
-			}
-
-			auto base_analysis = AnalyzeAssignmentTo(
-					as_maybe->GetBaseTypeSpecifier(), type_table);
-			if (base_analysis == EQUIVALENT) {
-				return UNAMBIGUOUS;
-			} else if (base_analysis == UNAMBIGUOUS) {
-				return UNAMBIGUOUS_NESTED;
 			}
 		}
 	}

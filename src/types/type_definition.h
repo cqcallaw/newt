@@ -71,7 +71,6 @@ public:
 			const_shared_ptr<std::string> name,
 			const yy::location name_position,
 			const_shared_ptr<Expression> initializer_expression) const = 0;
-
 };
 
 #endif /* TYPE_DEFINITION_H_ */

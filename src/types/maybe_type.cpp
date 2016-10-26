@@ -22,9 +22,14 @@
 #include <unit_type.h>
 #include <sum.h>
 #include <maybe_declaration_statement.h>
+#include <type_alias_declaration_statement.h>
 
-MaybeType::MaybeType(const_shared_ptr<TypeSpecifier> base_type_specifier) :
-		m_base_type_specifier(base_type_specifier) {
+MaybeType::MaybeType(const_shared_ptr<TypeTable> type_table,
+		const_shared_ptr<DeclarationStatement> first_declaration,
+		const_shared_ptr<SymbolTable> constructors,
+		const_shared_ptr<TypeSpecifier> base_type_specifier) :
+		SumType(type_table, first_declaration, constructors, nullptr), m_base_type_specifier(
+				base_type_specifier) {
 }
 
 MaybeType::~MaybeType() {
@@ -36,16 +41,10 @@ const_shared_ptr<void> MaybeType::GetDefaultValue(
 	return make_shared<Sum>(MaybeTypeSpecifier::EMPTY_NAME, value);
 }
 
-const std::string MaybeType::ToString(const TypeTable& type_table,
-		const Indent& indent) const {
-	return (indent + 1).ToString() + m_base_type_specifier->ToString() + "?";
-}
-
 const std::string MaybeType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
 	auto sum_instance = static_pointer_cast<const Sum>(value);
-	//buffer << sum_instance->ToString(*this, *m_definition, indent);
 	auto tag = sum_instance->GetTag();
 	buffer << "{" << *tag << "}";
 	if (*tag == *MaybeTypeSpecifier::EMPTY_NAME) {
@@ -90,7 +89,8 @@ const_shared_ptr<Symbol> MaybeType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value) const {
 	auto cast = static_pointer_cast<const Sum>(value);
-	auto specifier = make_shared<MaybeTypeSpecifier>(m_base_type_specifier);
+	const_shared_ptr<MaybeTypeSpecifier> specifier = make_shared<
+			MaybeTypeSpecifier>(m_base_type_specifier);
 	return make_shared<Symbol>(specifier, cast);
 }
 
@@ -107,4 +107,54 @@ const_shared_ptr<DeclarationStatement> MaybeType::GetDeclarationStatement(
 	return make_shared<MaybeDeclarationStatement>(position,
 			static_pointer_cast<const MaybeTypeSpecifier>(type), type_position,
 			name, name_position, initializer_expression);
+}
+
+const_shared_ptr<Result> MaybeType::Build(
+		const shared_ptr<ExecutionContext> context,
+		const_shared_ptr<TypeSpecifier> base_type_specifier) {
+	auto parent_type_table = context->GetTypeTable();
+
+	auto definition = make_shared<TypeTable>(parent_type_table);
+
+	auto constructors = make_shared<SymbolTable>(); //TODO: generate type constructors
+
+	auto empty_alias = make_shared<AliasDefinition>(parent_type_table,
+			TypeTable::GetNilTypeSpecifier(), DIRECT);
+	definition->AddType(*MaybeTypeSpecifier::EMPTY_NAME, empty_alias);
+	auto value_alias = make_shared<AliasDefinition>(parent_type_table,
+			base_type_specifier, DIRECT);
+	definition->AddType(*MaybeTypeSpecifier::VARIANT_NAME, value_alias);
+	auto empty_alias_declaration = make_shared<TypeAliasDeclarationStatement>(
+			GetDefaultLocation(), TypeTable::GetNilTypeSpecifier(),
+			GetDefaultLocation(), make_shared<string>("empty"),
+			GetDefaultLocation());
+
+	auto maybe_type = const_shared_ptr<MaybeType>(
+			new MaybeType(definition, empty_alias_declaration, constructors,
+					base_type_specifier));
+	return make_shared<Result>(maybe_type, ErrorList::GetTerminator());
+}
+
+const_shared_ptr<Result> MaybeType::Build(
+		const_shared_ptr<TypeSpecifier> base_type_specifier) {
+	shared_ptr<TypeTable> parent_type_table = nullptr;
+	shared_ptr<TypeTable> definition = make_shared<TypeTable>();
+
+	auto constructors = make_shared<SymbolTable>(); //TODO: generate type constructors
+
+	auto empty_alias = make_shared<AliasDefinition>(parent_type_table,
+			TypeTable::GetNilTypeSpecifier(), DIRECT);
+	definition->AddType(*MaybeTypeSpecifier::EMPTY_NAME, empty_alias);
+	auto value_alias = make_shared<AliasDefinition>(parent_type_table,
+			base_type_specifier, DIRECT);
+	definition->AddType(*MaybeTypeSpecifier::VARIANT_NAME, value_alias);
+	auto empty_alias_declaration = make_shared<TypeAliasDeclarationStatement>(
+			GetDefaultLocation(), TypeTable::GetNilTypeSpecifier(),
+			GetDefaultLocation(), make_shared<string>("empty"),
+			GetDefaultLocation());
+
+	auto maybe_type = const_shared_ptr<MaybeType>(
+			new MaybeType(definition, empty_alias_declaration, constructors,
+					base_type_specifier));
+	return make_shared<Result>(maybe_type, ErrorList::GetTerminator());
 }

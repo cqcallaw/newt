@@ -73,15 +73,18 @@ const std::string SumType::ValueToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<Result> SumType::Build(
-		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> output,
+		const shared_ptr<ExecutionContext> closure,
 		const DeclarationListRef member_declarations,
 		const_shared_ptr<SumTypeSpecifier> sum_type_specifier) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type_table = context->GetTypeTable();
-	const shared_ptr<TypeTable> definition = make_shared<TypeTable>(type_table);
+	auto output_type_table = output->GetTypeTable();
+	auto closure_type_table = closure->GetTypeTable();
+	const shared_ptr<TypeTable> definition = make_shared<TypeTable>(
+			output_type_table);
 
-	auto parent = SymbolContextList::From(context, context->GetParent());
+	auto parent = SymbolContextList::From(output, output->GetParent());
 	auto tmp_context = make_shared<ExecutionContext>(Modifier::NONE, parent,
 			definition, EPHEMERAL);
 
@@ -111,7 +114,7 @@ const_shared_ptr<Result> SumType::Build(
 					declaration);
 			if (as_unit) {
 				auto validation_errors = as_unit->Preprocess(tmp_context,
-						context);
+						output);
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
@@ -119,7 +122,7 @@ const_shared_ptr<Result> SumType::Build(
 					const RecordDeclarationStatement>(declaration);
 			if (as_record) {
 				auto validation_errors = as_record->Preprocess(tmp_context,
-						context);
+						output);
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
@@ -127,21 +130,8 @@ const_shared_ptr<Result> SumType::Build(
 					declaration);
 			if (as_sum) {
 				auto validation_errors = as_sum->Preprocess(tmp_context,
-						context);
+						output);
 				errors = errors->Concatenate(errors, validation_errors);
-			}
-
-			auto as_maybe =
-					dynamic_pointer_cast<const MaybeDeclarationStatement>(
-							declaration);
-			if (as_maybe) {
-				auto validation_errors = as_maybe->Preprocess(tmp_context,
-						context);
-				errors = errors->Concatenate(errors, validation_errors);
-				auto root_specifier =
-						as_maybe->GetMaybeTypeSpecifier()->GetBaseTypeSpecifier();
-				auto maybe_type = make_shared<MaybeType>(root_specifier);
-				definition->AddType(*variant_name, maybe_type);
 			}
 
 			auto as_alias = dynamic_pointer_cast<
@@ -157,8 +147,8 @@ const_shared_ptr<Result> SumType::Build(
 					auto alias_as_primitive = dynamic_pointer_cast<
 							const PrimitiveTypeSpecifier>(alias_type_specifier);
 					if (alias_as_primitive) {
-						auto alias = make_shared<AliasDefinition>(type_table,
-								alias_as_primitive, DIRECT);
+						auto alias = make_shared<AliasDefinition>(
+								closure_type_table, alias_as_primitive, DIRECT);
 						definition->AddType(alias_type_name, alias);
 
 						const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
@@ -193,7 +183,7 @@ const_shared_ptr<Result> SumType::Build(
 								make_shared<StatementBlock>(statement_list,
 										as_alias->GetNameLocation());
 
-						auto weak = weak_ptr<ExecutionContext>(context);
+						auto weak = weak_ptr<ExecutionContext>(output);
 						const_shared_ptr<Function> function = make_shared<
 								Function>(function_signature, statement_block,
 								weak);
@@ -217,22 +207,20 @@ const_shared_ptr<Result> SumType::Build(
 					auto original_as_complex = dynamic_pointer_cast<
 							const ComplexTypeSpecifier>(alias_type_specifier);
 					if (original_as_complex) {
-						auto original_name = original_as_complex->GetTypeName();
-						auto original = type_table->GetType<ComplexType>(
-								original_name, DEEP, RETURN);
-						if (original) {
+						auto original_name_result =
+								original_as_complex->GetType(closure_type_table,
+										RETURN);
+						auto original_name_result_errors =
+								original_name_result->GetErrors();
+						if (ErrorList::IsTerminator(
+								original_name_result_errors)) {
 							auto alias = make_shared<AliasDefinition>(
-									type_table, original_as_complex, DIRECT);
+									closure_type_table, original_as_complex,
+									DIRECT);
 							definition->AddType(alias_type_name, alias);
 						} else {
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::UNDECLARED_TYPE,
-													as_alias->GetTypeSpecifierLocation().begin.line,
-													as_alias->GetTypeSpecifierLocation().begin.column,
-													alias_type_specifier->ToString()),
-											errors);
+							errors = ErrorList::Concatenate(errors,
+									original_name_result_errors);
 						}
 					}
 				} else {
@@ -250,13 +238,18 @@ const_shared_ptr<Result> SumType::Build(
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
-		auto type = const_shared_ptr<SumType>(
-				new SumType(definition, member_declarations->GetData(),
-						constructors));
-		return make_shared<Result>(type, errors);
-	} else {
-		return make_shared<Result>(nullptr, errors);
+		auto maybe_type_result = MaybeType::Build(closure, sum_type_specifier);
+		errors = maybe_type_result->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto maybe_type = maybe_type_result->GetData<MaybeType>();
+			auto type = const_shared_ptr<SumType>(
+					new SumType(definition, member_declarations->GetData(),
+							constructors, maybe_type));
+			return make_shared<Result>(type, errors);
+		}
 	}
+
+	return make_shared<Result>(nullptr, errors);
 }
 
 const AnalysisResult SumType::AnalyzeConversion(
@@ -313,7 +306,8 @@ const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 
 const_shared_ptr<void> SumType::GetDefaultValue(
 		const TypeTable& type_table) const {
-	return Sum::GetDefaultInstance(*this);
+	auto result = Sum::GetDefaultInstance(*this);
+	return result;
 }
 
 const_shared_ptr<Result> SumType::PreprocessSymbolCore(

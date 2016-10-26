@@ -20,8 +20,10 @@
 #include <maybe_type_specifier.h>
 #include <nested_type_specifier.h>
 #include <maybe_type.h>
+#include <primitive_type.h>
 #include <unit_type.h>
 #include <placeholder_type.h>
+#include <sum.h>
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::VARIANT_NAME = make_shared<
 		std::string>("value");
@@ -30,8 +32,9 @@ const_shared_ptr<std::string> MaybeTypeSpecifier::EMPTY_NAME = make_shared<
 
 MaybeTypeSpecifier::MaybeTypeSpecifier(
 		const_shared_ptr<TypeSpecifier> base_type_specifier) :
-		m_base_type_specifier(base_type_specifier), m_type(
-				make_shared<MaybeType>(base_type_specifier)) {
+		SumTypeSpecifier(
+				make_shared<string>(base_type_specifier->ToString() + "?")), m_base_type_specifier(
+				base_type_specifier) {
 }
 
 MaybeTypeSpecifier::~MaybeTypeSpecifier() {
@@ -62,11 +65,6 @@ bool MaybeTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	} catch (std::bad_cast& e) {
 		return false;
 	}
-}
-
-const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
-		const TypeTable& type_table, AliasResolution resolution) const {
-	return make_shared<Result>(m_type, ErrorList::GetTerminator());
 }
 
 const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
@@ -103,7 +101,8 @@ const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
 
 const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
-	return TypeTable::GetNilType()->GetDefaultValue(type_table);
+	return make_shared<Sum>(EMPTY_NAME,
+			TypeTable::GetNilType()->GetDefaultValue(type_table));
 }
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(
@@ -116,4 +115,60 @@ const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(
 		return EMPTY_NAME;
 	}
 	return const_shared_ptr<std::string>();
+}
+
+const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	auto base_type_result = GetBaseTypeSpecifier()->GetType(type_table,
+			RESOLVE);
+
+	shared_ptr<const void> result = nullptr;
+	auto errors = base_type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto base_type = base_type_result->GetData<TypeDefinition>();
+
+		auto as_complex = dynamic_pointer_cast<const ComplexType>(base_type);
+		if (as_complex) {
+			result = as_complex->GetMaybeType();
+		}
+
+		auto as_primitive = dynamic_pointer_cast<const PrimitiveType>(
+				base_type);
+		if (as_primitive) {
+			//result = as_primitive->GetMaybeType();
+			auto type = as_primitive->GetType();
+			switch (type) {
+			case BOOLEAN: {
+				static const_shared_ptr<MaybeType> boolean_maybe_type =
+						MaybeType::Build(PrimitiveTypeSpecifier::GetBoolean())->GetData<
+								MaybeType>();
+				return make_shared<Result>(boolean_maybe_type,
+						ErrorList::GetTerminator());
+			}
+			case INT: {
+				static const_shared_ptr<MaybeType> int_maybe_type =
+						MaybeType::Build(PrimitiveTypeSpecifier::GetInt())->GetData<
+								MaybeType>();
+				return make_shared<Result>(int_maybe_type,
+						ErrorList::GetTerminator());
+			}
+			case DOUBLE: {
+				static const_shared_ptr<MaybeType> double_maybe_type =
+						MaybeType::Build(PrimitiveTypeSpecifier::GetDouble())->GetData<
+								MaybeType>();
+				return make_shared<Result>(double_maybe_type,
+						ErrorList::GetTerminator());
+			}
+			case STRING:
+				static const_shared_ptr<MaybeType> string_maybe_type =
+						MaybeType::Build(PrimitiveTypeSpecifier::GetString())->GetData<
+								MaybeType>();
+				return make_shared<Result>(string_maybe_type,
+						ErrorList::GetTerminator());
+			default:
+				return make_shared<Result>(result, errors);
+			}
+		}
+	}
+	return make_shared<Result>(result, errors);
 }

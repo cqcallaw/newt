@@ -157,3 +157,4 @@ const_shared_ptr<PrimitiveType> PrimitiveType::GetString() {
 			PrimitiveType>(new PrimitiveType(BasicType::STRING));
 	return instance;
 }
+

@@ -22,12 +22,14 @@
 #include <expression.h>
 #include <sum_type_specifier.h>
 #include <sum_type.h>
+#include <maybe_type.h>
 #include <sum.h>
 #include <execution_context.h>
 #include <symbol.h>
 #include <iterator>
 #include <sstream>
 #include <nested_type_specifier.h>
+#include <maybe_type_specifier.h>
 #include <unit_type.h>
 
 MatchStatement::MatchStatement(const yy::location statement_location,
@@ -67,9 +69,15 @@ const ErrorListRef MatchStatement::Preprocess(
 				auto expression_type = expression_type_result->GetData<
 						TypeDefinition>();
 
+				shared_ptr<const TypeTable> type_definition;
+
 				auto sum_type = dynamic_pointer_cast<const SumType>(
 						expression_type);
 				if (sum_type) {
+					type_definition = sum_type->GetDefinition();
+				}
+
+				if (type_definition) {
 					auto source_sum_specifier = dynamic_pointer_cast<
 							const ComplexTypeSpecifier>(
 							expression_type_specifier);
@@ -88,7 +96,6 @@ const ErrorListRef MatchStatement::Preprocess(
 						auto match = match_list->GetData();
 						auto match_name = match->GetName();
 						auto match_body = match->GetBlock();
-						auto table = sum_type->GetDefinition();
 
 						if (*match_name == "_") {
 							// N.B. we must not do any preprocessing here, since an explicit match may still exist in the match list
@@ -100,8 +107,9 @@ const ErrorListRef MatchStatement::Preprocess(
 							default_match_context = matched_context;
 							default_match_block = match_body;
 						} else {
-							auto variant_type = table->GetType<TypeDefinition>(
-									match_name, SHALLOW, RESOLVE);
+							auto variant_type = type_definition->GetType<
+									TypeDefinition>(match_name, SHALLOW,
+									RESOLVE);
 							if (variant_type) {
 								if (match_names->find(*match_name)
 										== match_names->end()) {
@@ -118,7 +126,7 @@ const ErrorListRef MatchStatement::Preprocess(
 													GetDefaultLocation());
 									const_shared_ptr<void> default_value =
 											variant_type->GetDefaultValue(
-													*table);
+													*type_definition);
 									const_shared_ptr<Symbol> default_symbol =
 											variant_type->GetSymbol(
 													context->GetTypeTable(),
@@ -163,8 +171,7 @@ const ErrorListRef MatchStatement::Preprocess(
 						match_list = match_list->GetNext();
 					}
 
-					auto sum_table = sum_type->GetDefinition();
-					auto variant_names = sum_table->GetTypeNames();
+					auto variant_names = type_definition->GetTypeNames();
 					if (*variant_names != *match_names) {
 						// make sure partial matches are made complete by a default match block
 						if (default_match_block) {

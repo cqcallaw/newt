@@ -30,6 +30,7 @@ class TypeTable;
 class Result;
 class ExecutionContext;
 class Expression;
+class MaybeType;
 
 class ComplexType: public TypeDefinition {
 public:
@@ -54,6 +55,8 @@ public:
 	virtual const AnalysisResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& unaliased_other) const = 0;
+
+	virtual const_shared_ptr<MaybeType> GetMaybeType() const = 0;
 
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(

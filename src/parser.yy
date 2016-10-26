@@ -1074,7 +1074,7 @@ variant:
 	}
 	| IDENTIFIER COLON maybe_type_specifier
 	{
-		$$ = make_shared<MaybeDeclarationStatement>(@$, $3, @3, $1, @1);
+		$$ = make_shared<TypeAliasDeclarationStatement>(@$, $3, @3, $1, @1);
 	}
 	| IDENTIFIER
 	{

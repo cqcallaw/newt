@@ -20,20 +20,16 @@
 #ifndef TYPES_MAYBE_TYPE_H_
 #define TYPES_MAYBE_TYPE_H_
 
-#include <type_definition.h>
+#include <sum_type.h>
 
 class UnitType;
 
-class MaybeType: public TypeDefinition {
+class MaybeType: public SumType {
 public:
-	MaybeType(const_shared_ptr<TypeSpecifier> base_type_specifier);
 	virtual ~MaybeType();
 
 	virtual const_shared_ptr<void> GetDefaultValue(
 			const TypeTable& type_table) const;
-
-	virtual const std::string ToString(const TypeTable& type_table,
-			const Indent& indent) const;
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value) const;
@@ -64,7 +60,19 @@ public:
 		return m_base_type_specifier;
 	}
 
+	static const_shared_ptr<Result> Build(
+			const shared_ptr<ExecutionContext> context,
+			const_shared_ptr<TypeSpecifier> base_type_specifier);
+
+	static const_shared_ptr<Result> Build(
+			const_shared_ptr<TypeSpecifier> base_type_specifier);
+
 private:
+	MaybeType(const_shared_ptr<TypeTable> type_table,
+			const_shared_ptr<DeclarationStatement> first_declaration,
+			const_shared_ptr<SymbolTable> constructors,
+			const_shared_ptr<TypeSpecifier> base_type_specifier);
+
 	const_shared_ptr<TypeSpecifier> m_base_type_specifier;
 	const_shared_ptr<UnitType> m_empty;
 };
