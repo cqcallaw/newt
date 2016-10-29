@@ -135,7 +135,6 @@ const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
 		auto as_primitive = dynamic_pointer_cast<const PrimitiveType>(
 				base_type);
 		if (as_primitive) {
-			//result = as_primitive->GetMaybeType();
 			auto type = as_primitive->GetType();
 			switch (type) {
 			case BOOLEAN: {

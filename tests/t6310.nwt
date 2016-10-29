@@ -1,0 +1,6 @@
+# test match of Maybe type
+v:int?
+
+match(v)
+	empty { }
+	| value { print(value) }

@@ -1,12 +1,12 @@
-Parsing file ../tests/t8002.nwt...
-Parsed file ../tests/t8002.nwt.
+Parsing file ../tests/t8010.nwt...
+Parsed file ../tests/t8010.nwt.
 Root Symbol Table:
 ----------------
 list l:
-	int data: 0
+	int data: 2
 	list? next: {empty}
 
-int r: 0
+int r: 2
 (list?) -> int sum:
 	Body Location: 7.24-14.3
 

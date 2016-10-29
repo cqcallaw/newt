@@ -17,6 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <primitive_type_specifier.h>
 #include <maybe_type_specifier.h>
 #include <maybe_type.h>
 #include <unit_type.h>
@@ -136,8 +137,8 @@ const_shared_ptr<Result> MaybeType::Build(
 }
 
 const_shared_ptr<Result> MaybeType::Build(
-		const_shared_ptr<TypeSpecifier> base_type_specifier) {
-	shared_ptr<TypeTable> parent_type_table = nullptr;
+		const_shared_ptr<PrimitiveTypeSpecifier> base_type_specifier) {
+	static shared_ptr<TypeTable> parent_type_table = make_shared<TypeTable>();
 	shared_ptr<TypeTable> definition = make_shared<TypeTable>();
 
 	auto constructors = make_shared<SymbolTable>(); //TODO: generate type constructors

@@ -14,5 +14,6 @@ sum:= (l:list?)-> int {
 		}
 }
 
-l:list= @list
+l:list= @list with { data = 2 }
+
 r:= sum(l)

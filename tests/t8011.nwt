@@ -23,5 +23,5 @@ sum := (l:list?)-> int {
 		}
 }
 
-l:list= @list.terminator
+l:list= @list.item with { data = 2 }
 r:= sum(l)

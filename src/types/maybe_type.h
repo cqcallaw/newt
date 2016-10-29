@@ -23,6 +23,7 @@
 #include <sum_type.h>
 
 class UnitType;
+class PrimitiveTypeSpecifier;
 
 class MaybeType: public SumType {
 public:
@@ -65,7 +66,7 @@ public:
 			const_shared_ptr<TypeSpecifier> base_type_specifier);
 
 	static const_shared_ptr<Result> Build(
-			const_shared_ptr<TypeSpecifier> base_type_specifier);
+			const_shared_ptr<PrimitiveTypeSpecifier> base_type_specifier);
 
 private:
 	MaybeType(const_shared_ptr<TypeTable> type_table,

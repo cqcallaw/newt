@@ -1,0 +1,7 @@
+# test match of Maybe type
+
+v:int?= 3
+
+match(v)
+	empty { }
+	| value { print(value) }
