@@ -31,23 +31,32 @@ const string PrimitiveTypeSpecifier::ToString(
 	ostringstream buffer;
 	const BasicType type = GetBasicType();
 	switch (type) {
-	case BasicType::BOOLEAN:
-	case BasicType::INT: {
-		const_shared_ptr<int> default_value = static_pointer_cast<const int>(
+	case BasicType::BOOLEAN: {
+		const_shared_ptr<bool> cast_value = static_pointer_cast<const bool>(
 				value);
-		buffer << *default_value;
+		if (*cast_value == true) {
+			buffer << "true";
+		} else {
+			buffer << "false";
+		}
+		break;
+	}
+	case BasicType::INT: {
+		const_shared_ptr<int> cast_value = static_pointer_cast<const int>(
+				value);
+		buffer << *cast_value;
 		break;
 	}
 	case BasicType::DOUBLE: {
-		const_shared_ptr<double> default_value = static_pointer_cast<
+		const_shared_ptr<double> cast_value = static_pointer_cast<
 				const double>(value);
-		buffer << *default_value;
+		buffer << *cast_value;
 		break;
 	}
 	case BasicType::STRING: {
-		const_shared_ptr<string> default_value = static_pointer_cast<
+		const_shared_ptr<string> cast_value = static_pointer_cast<
 				const string>(value);
-		buffer << "\"" << *default_value << "\"";
+		buffer << "\"" << *cast_value << "\"";
 		break;
 	}
 	default:
