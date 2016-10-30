@@ -67,7 +67,7 @@ const ErrorListRef FunctionExpression::Validate(
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	//generate a temporary context for validation
-	auto new_parent = SymbolContextList::From(execution_context,
+	auto new_parent = ExecutionContextList::From(execution_context,
 			execution_context->GetParent());
 	shared_ptr<ExecutionContext> tmp_context = make_shared<ExecutionContext>(
 			Modifier::Type::NONE, new_parent, execution_context->GetTypeTable(),

@@ -10,6 +10,7 @@ CPP_SRCS += \
 ../src/driver.cpp \
 ../src/error.cpp \
 ../src/execution_context.cpp \
+../src/execution_context_list.cpp \
 ../src/function.cpp \
 ../src/indent.cpp \
 ../src/member_instantiation.cpp \
@@ -18,7 +19,6 @@ CPP_SRCS += \
 ../src/sum.cpp \
 ../src/symbol.cpp \
 ../src/symbol_context.cpp \
-../src/symbol_context_list.cpp \
 ../src/symbol_table.cpp \
 ../src/type.cpp \
 ../src/type_table.cpp \
@@ -32,6 +32,7 @@ OBJS += \
 ./src/driver.o \
 ./src/error.o \
 ./src/execution_context.o \
+./src/execution_context_list.o \
 ./src/function.o \
 ./src/indent.o \
 ./src/member_instantiation.o \
@@ -40,7 +41,6 @@ OBJS += \
 ./src/sum.o \
 ./src/symbol.o \
 ./src/symbol_context.o \
-./src/symbol_context_list.o \
 ./src/symbol_table.o \
 ./src/type.o \
 ./src/type_table.o \
@@ -54,6 +54,7 @@ CPP_DEPS += \
 ./src/driver.d \
 ./src/error.d \
 ./src/execution_context.d \
+./src/execution_context_list.d \
 ./src/function.d \
 ./src/indent.d \
 ./src/member_instantiation.d \
@@ -62,7 +63,6 @@ CPP_DEPS += \
 ./src/sum.d \
 ./src/symbol.d \
 ./src/symbol_context.d \
-./src/symbol_context_list.d \
 ./src/symbol_table.d \
 ./src/type.d \
 ./src/type_table.d \

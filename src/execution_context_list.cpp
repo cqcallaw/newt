@@ -17,19 +17,19 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <symbol_context_list.h>
 #include <execution_context.h>
+#include <execution_context_list.h>
 
-shared_ptr<SymbolContextList> SymbolContextList::From(
+shared_ptr<ExecutionContextList> ExecutionContextList::From(
 		const shared_ptr<ExecutionContext> context,
-		const shared_ptr<SymbolContextList> context_parent) {
+		const shared_ptr<ExecutionContextList> context_parent) {
 	if (context->GetLifeTime() == PERSISTENT) {
 		weak_ptr<ExecutionContext> weak = context;
-		return shared_ptr<SymbolContextList>(
-				new SymbolContextList(weak, context_parent));
+		return shared_ptr<ExecutionContextList>(
+				new ExecutionContextList(weak, context_parent));
 	} else {
-		return shared_ptr<SymbolContextList>(
-				new SymbolContextList(context, context_parent));
+		return shared_ptr<ExecutionContextList>(
+				new ExecutionContextList(context, context_parent));
 	}
 
 }

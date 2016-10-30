@@ -58,7 +58,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 
 	assert(closure_reference);
 
-	auto parent_context = SymbolContextList::From(invocation_context,
+	auto parent_context = ExecutionContextList::From(invocation_context,
 			invocation_context->GetParent());
 	shared_ptr<ExecutionContext> function_execution_context = make_shared<
 			ExecutionContext>(Modifier::MUTABLE, parent_context,
@@ -139,7 +139,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	}
 
 	//juggle the references so the evaluation context is a child of the closure context
-	parent_context = SymbolContextList::From(closure_reference,
+	parent_context = ExecutionContextList::From(closure_reference,
 			closure_reference->GetParent());
 	auto final_execution_context = function_execution_context->WithParent(
 			parent_context);

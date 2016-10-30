@@ -21,6 +21,7 @@
 #include <defaults.h>
 #include <error.h>
 #include <execution_context.h>
+#include <execution_context_list.h>
 #include <function.h>
 #include <function_declaration.h>
 #include <function_type_specifier.h>
@@ -34,7 +35,6 @@
 #include <result.h>
 #include <sum_type.h>
 #include <sum_type_specifier.h>
-#include <symbol_context_list.h>
 #include <specifiers/type_specifier.h>
 #include <type_table.h>
 #include <memory>
@@ -167,7 +167,7 @@ const ErrorListRef InvokeExpression::Validate(
 
 			if (as_function) {
 				//generate a temporary context for validation
-				auto new_parent = SymbolContextList::From(execution_context,
+				auto new_parent = ExecutionContextList::From(execution_context,
 						execution_context->GetParent());
 				shared_ptr<ExecutionContext> tmp_context = make_shared<
 						ExecutionContext>(Modifier::Type::NONE, new_parent,

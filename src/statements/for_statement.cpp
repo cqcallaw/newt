@@ -54,7 +54,7 @@ const ErrorListRef ForStatement::Preprocess(
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors;
 
-	SymbolContextListRef context_parent = SymbolContextList::From(context,
+	ExecutionContextListRef context_parent = ExecutionContextList::From(context,
 			context->GetParent());
 	auto new_block_typetable = m_block_context->GetTypeTable()->WithParent(
 			context->GetTypeTable());

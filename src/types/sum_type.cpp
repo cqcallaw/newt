@@ -84,7 +84,7 @@ const_shared_ptr<Result> SumType::Build(
 	const shared_ptr<TypeTable> definition = make_shared<TypeTable>(
 			output_type_table);
 
-	auto parent = SymbolContextList::From(output, output->GetParent());
+	auto parent = ExecutionContextList::From(output, output->GetParent());
 	auto tmp_context = make_shared<ExecutionContext>(Modifier::NONE, parent,
 			definition, EPHEMERAL);
 

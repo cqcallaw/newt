@@ -31,8 +31,8 @@ enum LifeTime {
 	PERSISTENT, EPHEMERAL
 };
 
-#include <symbol_context_list.h>
-typedef shared_ptr<SymbolContextList> SymbolContextListRef;
+#include <execution_context_list.h>
+typedef shared_ptr<ExecutionContextList> ExecutionContextListRef;
 
 class ExecutionContext: public SymbolTable {
 	friend class MatchStatement;
@@ -46,7 +46,7 @@ public:
 			volatile_shared_ptr<TypeTable> type_table,
 			const LifeTime life_time);
 	ExecutionContext(const Modifier::Type modifiers,
-			const SymbolContextListRef parent_context,
+			const ExecutionContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table,
 			const LifeTime life_time);
 	virtual ~ExecutionContext();
@@ -74,21 +74,21 @@ public:
 			const Modifier::Type modifiers, const LifeTime life_time,
 			volatile_shared_ptr<TypeTable> type_table,
 			const shared_ptr<symbol_map> map) {
-		auto new_parent = SymbolContextList::From(parent, parent->GetParent());
+		auto new_parent = ExecutionContextList::From(parent, parent->GetParent());
 		return shared_ptr<ExecutionContext>(
 				new ExecutionContext(modifiers, map, new_parent, type_table,
 						Symbol::GetDefaultSymbol(),
 						plain_shared_ptr<int>(nullptr), life_time));
 	}
 
-	const SymbolContextListRef GetParent() const {
+	const ExecutionContextListRef GetParent() const {
 		return m_parent;
 	}
 
 	void LinkToParent(const shared_ptr<ExecutionContext> parent);
 
 	virtual const shared_ptr<ExecutionContext> WithParent(
-			const SymbolContextListRef parent_context) const {
+			const ExecutionContextListRef parent_context) const {
 		return shared_ptr<ExecutionContext>(
 				new ExecutionContext(GetModifiers(), GetTable(), parent_context,
 						m_type_table, m_return_value, m_exit_code, m_life_time));
@@ -136,18 +136,18 @@ protected:
 private:
 	ExecutionContext(const Modifier::Type modifiers,
 			const shared_ptr<symbol_map>,
-			const SymbolContextListRef parent_context,
+			const ExecutionContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table,
 			const_shared_ptr<Symbol> return_value,
 			const_shared_ptr<int> exit_code, const LifeTime life_time);
 
 	ExecutionContext(const shared_ptr<SymbolContext> context,
-			const SymbolContextListRef parent_context,
+			const ExecutionContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table,
 			const_shared_ptr<Symbol> return_value,
 			const_shared_ptr<int> exit_code, const LifeTime life_time);
 
-	SymbolContextListRef m_parent;
+	ExecutionContextListRef m_parent;
 	volatile_shared_ptr<TypeTable> m_type_table;
 	plain_shared_ptr<Symbol> m_return_value;
 	plain_shared_ptr<int> m_exit_code;

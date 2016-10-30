@@ -17,8 +17,8 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SYMBOL_CONTEXT_LIST_H_
-#define SYMBOL_CONTEXT_LIST_H_
+#ifndef EXECUTION_CONTEXT_LIST_H_
+#define EXECUTION_CONTEXT_LIST_H_
 
 using namespace std;
 
@@ -29,9 +29,9 @@ using namespace std;
 
 class ExecutionContext;
 
-class SymbolContextList {
+class ExecutionContextList {
 public:
-	virtual ~SymbolContextList() {
+	virtual ~ExecutionContextList() {
 	}
 
 	shared_ptr<ExecutionContext> GetData() const {
@@ -46,30 +46,30 @@ public:
 		return !m_data;
 	}
 
-	shared_ptr<SymbolContextList> GetNext() const {
+	shared_ptr<ExecutionContextList> GetNext() const {
 		return m_next;
 	}
 
-	static shared_ptr<SymbolContextList> From(
+	static shared_ptr<ExecutionContextList> From(
 			const shared_ptr<ExecutionContext> context,
-			const shared_ptr<SymbolContextList> context_parent);
+			const shared_ptr<ExecutionContextList> context_parent);
 
-	static const bool IsTerminator(shared_ptr<SymbolContextList> subject) {
+	static const bool IsTerminator(shared_ptr<ExecutionContextList> subject) {
 		return subject == GetTerminator();
 	}
 
-	static shared_ptr<SymbolContextList> GetTerminator() {
-		static shared_ptr<SymbolContextList> terminator;
+	static shared_ptr<ExecutionContextList> GetTerminator() {
+		static shared_ptr<ExecutionContextList> terminator;
 		return terminator;
 	}
 
 private:
-	SymbolContextList(const shared_ptr<ExecutionContext> data) :
-			SymbolContextList(data, GetTerminator()) {
+	ExecutionContextList(const shared_ptr<ExecutionContext> data) :
+			ExecutionContextList(data, GetTerminator()) {
 	}
 
-	SymbolContextList(const shared_ptr<ExecutionContext> data,
-			const shared_ptr<SymbolContextList> next) :
+	ExecutionContextList(const shared_ptr<ExecutionContext> data,
+			const shared_ptr<ExecutionContextList> next) :
 			m_data(data), m_weak_data(shared_ptr<ExecutionContext>(nullptr)), m_next(
 					next) {
 		if (m_next) {
@@ -77,12 +77,12 @@ private:
 		}
 	}
 
-	SymbolContextList(const weak_ptr<ExecutionContext> data) :
-			SymbolContextList(data, GetTerminator()) {
+	ExecutionContextList(const weak_ptr<ExecutionContext> data) :
+			ExecutionContextList(data, GetTerminator()) {
 	}
 
-	SymbolContextList(const weak_ptr<ExecutionContext> data,
-			const shared_ptr<SymbolContextList> next) :
+	ExecutionContextList(const weak_ptr<ExecutionContext> data,
+			const shared_ptr<ExecutionContextList> next) :
 			m_data(nullptr), m_weak_data(data), m_next(next) {
 		if (m_next) {
 			assert(m_weak_data.lock() != m_next->GetData());
@@ -91,7 +91,7 @@ private:
 
 	shared_ptr<ExecutionContext> m_data;
 	weak_ptr<ExecutionContext> m_weak_data;
-	shared_ptr<SymbolContextList> m_next;
+	shared_ptr<ExecutionContextList> m_next;
 };
 
-#endif /* SYMBOL_CONTEXT_LIST_H_ */
+#endif /* EXECUTION_CONTEXT_LIST_H_ */

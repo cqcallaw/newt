@@ -364,7 +364,7 @@ const ErrorListRef MemberVariable::AssignValue(
 			shared_ptr<SymbolContext> definition =
 					struct_value->GetDefinition();
 
-			const auto new_parent_context = SymbolContextList::From(context,
+			const auto new_parent_context = ExecutionContextList::From(context,
 					context->GetParent());
 			auto new_context = context->WithContents(definition);
 			new_context = new_context->WithParent(new_parent_context);
