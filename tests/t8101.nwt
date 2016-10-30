@@ -1,0 +1,6 @@
+# test invocation of recursive function with incorrect argument type
+fun := (a:int)-> int {
+	return fun("ahaha!")
+}
+
+v := fun(3)
