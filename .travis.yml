@@ -1,6 +1,18 @@
 sudo: required
 dist: trusty
-language: cpp
+language: generic
+
+matrix:
+  include:
+    - os: linux
+      env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
+      addons:
+        apt:
+          packages:
+            - gcc-5
+            - g++-5
+          sources:
+            - ubuntu-toolchain-r-test
 
 branches:
   except:
