@@ -37,22 +37,22 @@ FunctionExpression::FunctionExpression(const yy::location position,
 FunctionExpression::~FunctionExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return m_declaration;
+	return TypedResult<TypeSpecifier>(m_declaration, ErrorList::GetTerminator());
 }
 
 const_shared_ptr<Result> FunctionExpression::Evaluate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	shared_ptr<const Function> function;
-	if (execution_context->GetLifeTime() == PERSISTENT) {
+	if (closure->GetLifeTime() == PERSISTENT) {
 		function = make_shared<Function>(m_declaration, m_body,
-				weak_ptr<ExecutionContext>(execution_context));
+				weak_ptr<ExecutionContext>(closure));
 	} else {
-		function = make_shared<Function>(m_declaration, m_body,
-				execution_context);
+		function = make_shared<Function>(m_declaration, m_body, closure);
 	}
 
 	return make_shared<Result>(function, errors);
@@ -96,12 +96,12 @@ const ErrorListRef FunctionExpression::Validate(
 		}
 
 		if (ErrorList::IsTerminator(parameter_errors)) {
-			auto preprocess_errors = declaration_statement->preprocess(
-					tmp_context);
+			auto preprocess_errors = declaration_statement->Preprocess(
+					tmp_context, tmp_context);
 
 			if (ErrorList::IsTerminator(preprocess_errors)) {
-				auto execution_errors = declaration_statement->execute(
-						tmp_context);
+				auto execution_errors = declaration_statement->Execute(
+						tmp_context, tmp_context);
 				if (!ErrorList::IsTerminator(execution_errors)) {
 					parameter_errors = ErrorList::Concatenate(parameter_errors,
 							execution_errors);
@@ -119,11 +119,8 @@ const ErrorListRef FunctionExpression::Validate(
 
 	if (ErrorList::IsTerminator(errors)) {
 		errors = ErrorList::Concatenate(errors,
-				m_body->preprocess(tmp_context));
-
-		errors = ErrorList::Concatenate(errors,
-				m_body->GetReturnStatementErrors(
-						m_declaration->GetReturnTypeSpecifier(), tmp_context));
+				m_body->Preprocess(tmp_context,
+						m_declaration->GetReturnTypeSpecifier()));
 	}
 
 	return errors;

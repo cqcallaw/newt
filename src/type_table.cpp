@@ -26,6 +26,13 @@
 #include <memory>
 #include <symbol_context.h>
 
+TypeTable::TypeTable(const shared_ptr<TypeTable> parent) :
+		TypeTable(make_shared<type_map>(), parent) {
+}
+
+TypeTable::~TypeTable() {
+}
+
 const shared_ptr<TypeTable> TypeTable::Clone() const {
 	auto new_map = make_shared<type_map>();
 	new_map->insert(m_table->begin(), m_table->end());
@@ -125,6 +132,8 @@ const std::string TypeTable::MapSpecifierToName(
 		plain_shared_ptr<ComplexTypeSpecifier> other_container =
 				other_as_complex.GetContainer();
 		other_complex_name = other_as_complex.GetTypeName();
+		auto debug = other.ToString();
+		auto debug2 = current.ToString();
 		if (other_container) {
 			if (*other_container == current) {
 				//the container is the same, so we can just use the other type name
@@ -215,4 +224,3 @@ const_shared_ptr<ComplexTypeSpecifier> TypeTable::GetNilTypeSpecifier() {
 							GetDefaultLocation()));
 	return value;
 }
-

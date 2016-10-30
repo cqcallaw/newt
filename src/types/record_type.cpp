@@ -31,11 +31,13 @@
 #include <symbol_context.h>
 #include <record.h>
 #include <placeholder_type.h>
+#include <maybe_type.h>
 #include <unit_type.h>
 
 RecordType::RecordType(const_shared_ptr<TypeTable> definition,
-		const Modifier::Type modifiers) :
-		m_definition(definition), m_modifiers(modifiers) {
+		const Modifier::Type modifiers, const_shared_ptr<MaybeType> maybe_type) :
+		m_definition(definition), m_modifiers(modifiers), m_maybe_type(
+				maybe_type) {
 }
 
 const_shared_ptr<TypeDefinition> RecordType::GetMember(
@@ -56,24 +58,27 @@ const string RecordType::ToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<Result> RecordType::Build(
-		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> output,
+		const shared_ptr<ExecutionContext> closure,
 		const Modifier::Type modifiers,
-		const DeclarationListRef member_declarations) {
+		const DeclarationListRef member_declarations,
+		const_shared_ptr<RecordTypeSpecifier> type_specifier) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto context_type_table = context->GetTypeTable();
-	auto type_table = make_shared<TypeTable>(context_type_table);
+	auto output_type_table = output->GetTypeTable();
+	auto closure_type_table = closure->GetTypeTable();
+	auto type_table = make_shared<TypeTable>(output_type_table);
 
 	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
-		auto declaration_errors = ErrorList::GetTerminator();
 		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
 
 		auto member_name = declaration->GetName();
 
 		auto declaration_type_specifier = declaration->GetTypeSpecifier();
-		declaration_errors = declaration_type_specifier->ValidateDeclaration(
-				context->GetTypeTable(), declaration->GetNameLocation());
+		auto declaration_errors =
+				declaration_type_specifier->ValidateDeclaration(
+						output_type_table, declaration->GetNameLocation());
 
 		auto existing_member_type = type_table->GetType<TypeDefinition>(
 				member_name, SHALLOW, RETURN);
@@ -82,10 +87,10 @@ const_shared_ptr<Result> RecordType::Build(
 			//generate a temporary structure in which to perform evaluations
 			//of the member declaration statement
 			const shared_ptr<symbol_map> values = make_shared<symbol_map>();
-			auto member_type_table = make_shared<TypeTable>(context_type_table);
-			shared_ptr<ExecutionContext> struct_context =
-					ExecutionContext::GetEmptyChild(context,
-							context->GetModifiers(), EPHEMERAL,
+			auto member_type_table = make_shared<TypeTable>(output_type_table);
+			shared_ptr<ExecutionContext> tmp_context =
+					ExecutionContext::GetEmptyChild(output,
+							output->GetModifiers(), EPHEMERAL,
 							member_type_table, values);
 
 			if (ErrorList::IsTerminator(declaration_errors)) {
@@ -104,8 +109,8 @@ const_shared_ptr<Result> RecordType::Build(
 				} else {
 					//otherwise (no initializer expression OR a valid initializer expression);
 					//we're cleared to preprocess
-					auto preprocess_errors = declaration->preprocess(
-							struct_context);
+					auto preprocess_errors = declaration->Preprocess(
+							tmp_context, closure);
 					declaration_errors = ErrorList::Concatenate(
 							declaration_errors, preprocess_errors);
 
@@ -113,7 +118,7 @@ const_shared_ptr<Result> RecordType::Build(
 						//we've pre-processed this statement without issue
 						declaration_errors = ErrorList::Concatenate(
 								declaration_errors,
-								declaration->execute(struct_context));
+								declaration->Execute(tmp_context, closure));
 					}
 				}
 			}
@@ -129,7 +134,7 @@ const_shared_ptr<Result> RecordType::Build(
 							symbol->GetTypeSpecifier();
 
 					auto symbol_type_result = type_specifier->GetType(
-							context_type_table);
+							output_type_table);
 					auto symbol_type_errors = symbol_type_result->GetErrors();
 					if (ErrorList::IsTerminator(symbol_type_errors)) {
 						auto symbol_type = symbol_type_result->GetData<
@@ -142,7 +147,7 @@ const_shared_ptr<Result> RecordType::Build(
 									const MaybeTypeSpecifier>(type_specifier);
 							if (as_maybe_specifier) {
 								alias = make_shared<AliasDefinition>(
-										context_type_table, type_specifier,
+										closure_type_table, type_specifier,
 										RECURSIVE, nullptr);
 							} else {
 								assert(false);
@@ -150,7 +155,7 @@ const_shared_ptr<Result> RecordType::Build(
 						} else {
 							auto value = symbol->GetValue();
 							alias = make_shared<AliasDefinition>(
-									context_type_table, type_specifier, DIRECT,
+									closure_type_table, type_specifier, DIRECT,
 									value);
 						}
 
@@ -181,7 +186,13 @@ const_shared_ptr<Result> RecordType::Build(
 		subject = subject->GetNext();
 	}
 
-	auto type = make_shared<RecordType>(type_table, modifiers);
+	auto maybe_type_result = MaybeType::Build(closure, type_specifier);
+	errors = ErrorList::Concatenate(maybe_type_result->GetErrors(), errors);
+	auto maybe_type = maybe_type_result->GetData<MaybeType>();
+
+	auto type = const_shared_ptr<RecordType>(
+			new RecordType(type_table, modifiers, maybe_type));
+
 	return make_shared<Result>(ErrorList::IsTerminator(errors) ? type : nullptr,
 			errors);
 }
@@ -222,45 +233,50 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
 
 	plain_shared_ptr<Record> instance = nullptr;
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
-	const_shared_ptr<TypeSpecifier> initializer_expression_type =
-			initializer->GetTypeSpecifier(execution_context);
-	auto initializer_analysis =
-			initializer_expression_type->AnalyzeAssignmentTo(type_specifier,
-					execution_context->GetTypeTable());
-	if (initializer_analysis == EQUIVALENT) {
-		if (initializer->IsConstant()) {
-			const_shared_ptr<Result> result = initializer->Evaluate(
-					execution_context);
-			errors = result->GetErrors();
-			if (ErrorList::IsTerminator(errors)) {
-				instance = result->GetData<Record>();
+	auto initializer_expression_type_result = initializer->GetTypeSpecifier(
+			execution_context);
+
+	auto errors = initializer_expression_type_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto initializer_expression_type =
+				initializer_expression_type_result.GetData();
+		auto initializer_analysis =
+				initializer_expression_type->AnalyzeAssignmentTo(type_specifier,
+						execution_context->GetTypeTable());
+		if (initializer_analysis == EQUIVALENT) {
+			if (initializer->IsConstant()) {
+				const_shared_ptr<Result> result = initializer->Evaluate(
+						execution_context, execution_context);
+				errors = result->GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					instance = result->GetData<Record>();
+				}
+			} else {
+				instance = Record::GetDefaultInstance(*this);
 			}
 		} else {
-			instance = Record::GetDefaultInstance(*this);
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::ASSIGNMENT_TYPE_ERROR,
+							initializer->GetPosition().begin.line,
+							initializer->GetPosition().begin.column,
+							type_specifier->ToString(),
+							initializer_expression_type->ToString()), errors);
 		}
-	} else {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::ASSIGNMENT_TYPE_ERROR,
-						initializer->GetPosition().begin.line,
-						initializer->GetPosition().begin.column,
-						type_specifier->ToString(),
-						initializer_expression_type->ToString()), errors);
-	}
 
-	if (ErrorList::IsTerminator(errors)) {
-		auto as_complex_specifier = dynamic_pointer_cast<
-				const ComplexTypeSpecifier>(type_specifier);
-		if (as_complex_specifier) {
-			symbol = make_shared<Symbol>(as_complex_specifier, instance);
-		} else {
-			//TODO: error handling
-			assert(false);
+		if (ErrorList::IsTerminator(errors)) {
+			auto as_complex_specifier = dynamic_pointer_cast<
+					const ComplexTypeSpecifier>(type_specifier);
+			if (as_complex_specifier) {
+				symbol = make_shared<Symbol>(as_complex_specifier, instance);
+			} else {
+				//TODO: error handling
+				assert(false);
+			}
 		}
 	}
 

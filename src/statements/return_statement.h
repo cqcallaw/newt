@@ -29,11 +29,14 @@ public:
 	ReturnStatement(const_shared_ptr<Expression> expression);
 	virtual ~ReturnStatement();
 
-	virtual const ErrorListRef preprocess(
-			const shared_ptr<ExecutionContext> execution_context) const;
+	virtual const ErrorListRef Preprocess(
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure,
+			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;
 
-	virtual const ErrorListRef execute(
-			shared_ptr<ExecutionContext> execution_context) const;
+	virtual const ErrorListRef Execute(
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const ErrorListRef GetReturnStatementErrors(
 			const_shared_ptr<TypeSpecifier> type_specifier,

@@ -31,8 +31,9 @@
 class PlaceholderType: public ComplexType {
 public:
 	PlaceholderType(const_shared_ptr<string> type_name,
-			const_shared_ptr<Symbol> symbol) :
-			m_type_name(type_name), m_symbol(symbol) {
+			const_shared_ptr<Symbol> symbol,
+			const_shared_ptr<MaybeType> maybe_type) :
+			m_type_name(type_name), m_symbol(symbol), m_maybe_type(maybe_type) {
 	}
 
 	virtual ~PlaceholderType() {
@@ -115,6 +116,10 @@ public:
 		return m_type_name;
 	}
 
+	const_shared_ptr<MaybeType> GetMaybeType() const {
+		return m_maybe_type;
+	}
+
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
@@ -136,6 +141,7 @@ protected:
 private:
 	const_shared_ptr<string> m_type_name;
 	const_shared_ptr<Symbol> m_symbol;
+	const_shared_ptr<MaybeType> m_maybe_type;
 };
 
 #endif /* TYPES_PLACEHOLDER_TYPE_H_ */

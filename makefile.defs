@@ -21,8 +21,5 @@ lexer-clean:
 lexer.cpp: ../src/lexer.l
 	flex ../src/lexer.l
 
-#prepend the parser build onto the CDT auto-generated build
+#make sure our parser builds before the CDT auto-generated build
 OBJS := lexer.o parser.tab.o $(OBJS)
-
-#add generated files to C++_DEPS so the auto-generated clean rule will remove them
-C++_DEPS += parser.tab.* parser.output lexer.* location.hh position.hh stack.hh

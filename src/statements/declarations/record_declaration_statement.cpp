@@ -23,6 +23,7 @@
 #include <type_table.h>
 #include <execution_context.h>
 #include <placeholder_type.h>
+#include <maybe_type.h>
 #include <record_type.h>
 #include <default_value_expression.h>
 #include <defaults.h>
@@ -46,11 +47,13 @@ RecordDeclarationStatement::RecordDeclarationStatement(
 RecordDeclarationStatement::~RecordDeclarationStatement() {
 }
 
-const ErrorListRef RecordDeclarationStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef RecordDeclarationStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 
 	Modifier::Type modifiers = Modifier::NONE;
 	ModifierListRef modifier_list = GetModifierList();
@@ -65,18 +68,25 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 		const_shared_ptr<Record> default_value = make_shared<Record>(
 				make_shared<SymbolContext>(Modifier::Type::NONE));
 		auto placeholder_symbol = make_shared<Symbol>(m_type, default_value);
-		auto forward_declaration = make_shared<PlaceholderType>(GetName(),
-				placeholder_symbol);
-		type_table->AddType(*GetName(), forward_declaration);
-
-		auto result = RecordType::Build(execution_context, modifiers,
-				m_member_declaration_list);
-		errors = result->GetErrors();
+		auto placeholder_maybe_result = MaybeType::Build(closure,
+				GetTypeSpecifier());
+		errors = placeholder_maybe_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto type = result->GetData<RecordType>();
-			type_table->AddType(*GetName(), type);
-		} else {
-			type_table->RemovePlaceholderType(GetName());
+			auto placeholder_maybe =
+					placeholder_maybe_result->GetData<MaybeType>();
+			auto forward_declaration = make_shared<PlaceholderType>(GetName(),
+					placeholder_symbol, placeholder_maybe);
+			type_table->AddType(*GetName(), forward_declaration);
+
+			auto result = RecordType::Build(context, closure, modifiers,
+					m_member_declaration_list, m_type);
+			errors = result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto type = result->GetData<RecordType>();
+				type_table->AddType(*GetName(), type);
+			} else {
+				type_table->RemovePlaceholderType(GetName());
+			}
 		}
 	} else {
 		errors = ErrorList::From(
@@ -88,8 +98,9 @@ const ErrorListRef RecordDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef RecordDeclarationStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef RecordDeclarationStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	return ErrorList::GetTerminator();
 }
 

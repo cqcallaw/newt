@@ -38,7 +38,7 @@ public:
 	virtual const_shared_ptr<std::string> ToString(
 			const shared_ptr<ExecutionContext> context) const = 0;
 
-	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const = 0;
 
@@ -58,6 +58,7 @@ public:
 
 	virtual const ErrorListRef AssignValue(
 			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<Expression> expression,
 			const AssignmentType op) const = 0;
 

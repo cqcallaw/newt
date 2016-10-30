@@ -42,49 +42,67 @@ FunctionDeclarationStatement::FunctionDeclarationStatement(
 FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 }
 
-const ErrorListRef FunctionDeclarationStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef FunctionDeclarationStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 
-	auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
-
+	auto existing = context->GetSymbol(GetName(), SHALLOW);
 	if (existing == nullptr || existing == Symbol::GetDefaultSymbol()) {
 		if (GetInitializerExpression()) {
-			const_shared_ptr<TypeSpecifier> expression_type =
-					GetInitializerExpression()->GetTypeSpecifier(
-							execution_context);
-			const_shared_ptr<FunctionTypeSpecifier> as_function =
-					std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
-							expression_type);
+			auto expression_type_specifier_result =
+					GetInitializerExpression()->GetTypeSpecifier(context);
 
-			if (as_function) {
-				errors = GetInitializerExpression()->Validate(
-						execution_context);
-			} else {
-				errors =
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::NOT_A_FUNCTION,
-										GetInitializerExpression()->GetPosition().begin.line,
-										GetInitializerExpression()->GetPosition().begin.column),
-								errors);
+			errors = expression_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto expression_type_specifier =
+						expression_type_specifier_result.GetData();
+				const_shared_ptr<FunctionTypeSpecifier> as_function =
+						std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
+								expression_type_specifier);
+
+				if (as_function) {
+					// insert default value to allow for recursive invocations
+					auto child_context = context->GetEmptyChild(context,
+							Modifier::Type::MUTABLE, EPHEMERAL);
+
+					auto value = m_type_specifier->DefaultValue(*type_table);
+					auto symbol = make_shared<Symbol>(
+							static_pointer_cast<const Function>(value));
+					InsertResult insert_result = child_context->InsertSymbol(
+							*GetName(), symbol);
+					assert(insert_result == INSERT_SUCCESS);
+
+					errors = GetInitializerExpression()->Validate(
+							child_context);
+					if (ErrorList::IsTerminator(errors)) {
+						// passed validation; insert into output context
+						InsertResult insert_result = context->InsertSymbol(
+								*GetName(), symbol);
+						assert(insert_result == INSERT_SUCCESS);
+					}
+				} else {
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::NOT_A_FUNCTION,
+											GetInitializerExpression()->GetPosition().begin.line,
+											GetInitializerExpression()->GetPosition().begin.column),
+									errors);
+				}
 			}
-		}
-
-		if (ErrorList::IsTerminator(errors)) {
+		} else {
+			// no initializer; initialize to default value
 			auto value = m_type_specifier->DefaultValue(*type_table);
 
 			auto symbol = make_shared<Symbol>(
 					static_pointer_cast<const Function>(value));
-
-			InsertResult insert_result = execution_context->InsertSymbol(
-					*GetName(), symbol);
-
-			if (insert_result != INSERT_SUCCESS) {
-				assert(false);
-			}
+			InsertResult insert_result = context->InsertSymbol(*GetName(),
+					symbol);
+			assert(insert_result == INSERT_SUCCESS);
 		}
 	} else {
 		errors = ErrorList::From(
@@ -96,12 +114,13 @@ const ErrorListRef FunctionDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef FunctionDeclarationStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef FunctionDeclarationStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	if (GetInitializerExpression()) {
 		Variable* temp_variable = new BasicVariable(GetName(),
 				GetNameLocation());
-		auto errors = temp_variable->AssignValue(execution_context,
+		auto errors = temp_variable->AssignValue(context, closure,
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 

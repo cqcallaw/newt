@@ -41,12 +41,6 @@ public:
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const = 0;
 
-	virtual const ErrorListRef GetReturnStatementErrors(
-			const_shared_ptr<TypeSpecifier> type_specifier,
-			const shared_ptr<ExecutionContext> execution_context) const {
-		return ErrorList::GetTerminator();
-	}
-
 	const yy::location GetLocation() const {
 		return m_location;
 	}

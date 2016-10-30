@@ -60,22 +60,28 @@ const string PrimitiveTypeSpecifier::ToString(
 const AnalysisResult PrimitiveTypeSpecifier::AnalyzeAssignmentTo(
 		const_shared_ptr<TypeSpecifier> other,
 		const TypeTable& type_table) const {
-	auto resolved = NestedTypeSpecifier::Resolve(other, type_table);
+	auto resolved_other_result = NestedTypeSpecifier::Resolve(other,
+			type_table);
 
-	auto widening_analysis = resolved->AnalyzeWidening(type_table, *this);
-	if (widening_analysis != AnalysisResult::INCOMPATIBLE) {
-		return widening_analysis;
-	}
+	if (ErrorList::IsTerminator(resolved_other_result.GetErrors())) {
+		auto resolved_other = resolved_other_result.GetData();
 
-	auto other_as_primitive =
-			dynamic_pointer_cast<const PrimitiveTypeSpecifier>(resolved);
-	if (other_as_primitive) {
-		const BasicType other_type = other_as_primitive->GetBasicType();
-		if (other_type != BasicType::NONE) {
-			if (m_basic_type == other_type) {
-				return AnalysisResult::EQUIVALENT;
-			} else if (m_basic_type < other_type) {
-				return AnalysisResult::UNAMBIGUOUS;
+		auto widening_analysis = resolved_other->AnalyzeWidening(type_table,
+				*this);
+		if (widening_analysis != AnalysisResult::INCOMPATIBLE) {
+			return widening_analysis;
+		}
+
+		auto other_as_primitive = dynamic_pointer_cast<
+				const PrimitiveTypeSpecifier>(resolved_other);
+		if (other_as_primitive) {
+			const BasicType other_type = other_as_primitive->GetBasicType();
+			if (other_type != BasicType::NONE) {
+				if (m_basic_type == other_type) {
+					return AnalysisResult::EQUIVALENT;
+				} else if (m_basic_type < other_type) {
+					return AnalysisResult::UNAMBIGUOUS;
+				}
 			}
 		}
 	}

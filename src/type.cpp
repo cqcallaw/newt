@@ -25,7 +25,7 @@
 
 using namespace std;
 
-const string type_to_string(const BasicType type) {
+const string TypeToString(const BasicType type) {
 	switch (type) {
 	case NONE:
 		return "NONE";
@@ -46,11 +46,11 @@ const string type_to_string(const BasicType type) {
 }
 
 ostream &operator<<(ostream &os, const BasicType &type) {
-	os << type_to_string(type);
+	os << TypeToString(type);
 	return os;
 }
 
-string operator_to_string(OperatorType op) {
+string OperatorToString(OperatorType op) {
 	switch (op) {
 	case PLUS:
 		return "+";

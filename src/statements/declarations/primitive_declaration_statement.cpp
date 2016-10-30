@@ -42,14 +42,16 @@ PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
 }
 
-const ErrorListRef PrimitiveDeclarationStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef PrimitiveDeclarationStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto symbol = Symbol::GetDefaultSymbol();
 
 	//validate the contents of our initialization expression
 	if (GetInitializerExpression()) {
-		errors = GetInitializerExpression()->Validate(execution_context);
+		errors = GetInitializerExpression()->Validate(context);
 	}
 
 	assert(
@@ -61,34 +63,42 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 		//this prevents extraneous and confusing error messages by invalid type-inferred variable declaration
 
 		//validate assignment of initializer type to our variable type
-		if (GetInitializerExpression()) {
-			const_shared_ptr<TypeSpecifier> expression_type_specifier =
-					GetInitializerExpression()->GetTypeSpecifier(
-							execution_context);
+		auto type_table = context->GetTypeTable();
 
-			auto expression_as_primitive = std::dynamic_pointer_cast<
-					const PrimitiveTypeSpecifier>(expression_type_specifier);
-			if (expression_as_primitive == nullptr
-					|| !expression_as_primitive->AnalyzeAssignmentTo(
-							m_type_specifier,
-							execution_context->GetTypeTable())) {
-				//the type specifier isn't primitive
-				//-or-
-				//we cannot assign a value of the expression type to the variable type
-				errors =
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::INVALID_INITIALIZER_TYPE,
-										GetInitializerExpression()->GetPosition().begin.line,
-										GetInitializerExpression()->GetPosition().begin.column,
-										*GetName(),
-										m_type_specifier->ToString(),
-										expression_type_specifier->ToString()),
-								errors);
+		if (GetInitializerExpression()) {
+			auto expression_type_specifier_result =
+					GetInitializerExpression()->GetTypeSpecifier(context);
+
+			auto expression_type_specifier_result_errors =
+					expression_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(
+					expression_type_specifier_result_errors)) {
+				auto expression_type_specifier =
+						expression_type_specifier_result.GetData();
+				auto expression_as_primitive = std::dynamic_pointer_cast<
+						const PrimitiveTypeSpecifier>(
+						expression_type_specifier);
+				if (expression_as_primitive == nullptr
+						|| !expression_as_primitive->AnalyzeAssignmentTo(
+								m_type_specifier, type_table)) {
+					//the type specifier isn't primitive
+					//-or-
+					//we cannot assign a value of the expression type to the variable type
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::INVALID_INITIALIZER_TYPE,
+											GetInitializerExpression()->GetPosition().begin.line,
+											GetInitializerExpression()->GetPosition().begin.column,
+											*GetName(),
+											m_type_specifier->ToString(),
+											expression_type_specifier->ToString()),
+									errors);
+				}
 			}
+			//we purposefully ignore type specifier result errors here, as the initializer expression was validated at the top of the function
 		}
 
-		auto type_table = *execution_context->GetTypeTable();
 		auto type_result = m_type_specifier->GetType(type_table);
 
 		auto type_errors = type_result->GetErrors();
@@ -102,8 +112,8 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 
 		if (symbol != Symbol::GetDefaultSymbol()) {
 			//we've successfully generated a symbol for insertion
-			InsertResult insert_result = execution_context->InsertSymbol(
-					*GetName(), symbol);
+			InsertResult insert_result = context->InsertSymbol(*GetName(),
+					symbol);
 			if (insert_result == SYMBOL_EXISTS) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
@@ -118,12 +128,13 @@ const ErrorListRef PrimitiveDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef PrimitiveDeclarationStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef PrimitiveDeclarationStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	if (GetInitializerExpression()) {
 		Variable* temp_variable = new BasicVariable(GetName(),
 				GetNameLocation());
-		auto errors = temp_variable->AssignValue(execution_context,
+		auto errors = temp_variable->AssignValue(context, closure,
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 

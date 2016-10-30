@@ -37,6 +37,7 @@ const_shared_ptr<TypeSpecifier> ArrayType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
 		const_shared_ptr<ComplexTypeSpecifier> container,
 		yy::location location) const {
+	//TODO: cache this value, if possible
 	auto result = make_shared<ArrayTypeSpecifier>(m_member_type_specifier);
 	return result;
 }

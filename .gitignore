@@ -9,3 +9,5 @@ tests/output
 .settings
 stack.hh
 *.orig
+*.gcno
+*.gcda

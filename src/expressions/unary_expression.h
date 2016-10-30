@@ -27,13 +27,13 @@ public:
 	UnaryExpression(const yy::location position, const OperatorType op,
 			const_shared_ptr<Expression> expression);
 
-	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
-			AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const bool IsConstant() const {
 		return m_operator == UNARY_MINUS && m_expression->IsConstant();
@@ -43,7 +43,7 @@ public:
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 private:
-	static const_shared_ptr<TypeSpecifier> compute_result_type(
+	static TypedResult<TypeSpecifier> compute_result_type(
 			const_shared_ptr<TypeSpecifier> input_type, const OperatorType op);
 	const_shared_ptr<Expression> m_expression;
 	const OperatorType m_operator;

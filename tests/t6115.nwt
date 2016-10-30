@@ -1,0 +1,19 @@
+#test return statement in match block
+result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+f:= (t:result) -> int {
+	match(t)
+	value {
+		return 0
+	}
+	| error {
+		return 1
+	}
+}
+
+out:= f(@result.error)

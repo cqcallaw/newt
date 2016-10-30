@@ -40,6 +40,7 @@
 #include <with_expression.h>
 #include <function_type.h>
 #include <placeholder_type.h>
+#include <maybe_type.h>
 
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
@@ -57,26 +58,37 @@ SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 SumDeclarationStatement::~SumDeclarationStatement() {
 }
 
-const ErrorListRef SumDeclarationStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef SumDeclarationStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 
 	if (!type_table->ContainsType(*m_type)) {
 		const_shared_ptr<Sum> default_value = make_shared<Sum>(
 				make_shared<string>("placeholder tag"), make_shared<int>(0));
 		auto placeholder_symbol = make_shared<Symbol>(m_type, default_value);
-		auto forward_declaration = make_shared<PlaceholderType>(GetName(),
-				placeholder_symbol);
-		type_table->AddType(*GetName(), forward_declaration);
-		auto result = SumType::Build(execution_context, m_variant_list, m_type);
+		auto placeholder_maybe_result = MaybeType::Build(closure,
+				GetTypeSpecifier());
 
-		errors = result->GetErrors();
+		errors = placeholder_maybe_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto type = result->GetData<SumType>();
-			type_table->AddType(*GetName(), type);
-		} else {
-			type_table->RemovePlaceholderType(GetName());
+			auto placeholder_maybe =
+					placeholder_maybe_result->GetData<MaybeType>();
+			auto forward_declaration = make_shared<PlaceholderType>(GetName(),
+					placeholder_symbol, placeholder_maybe);
+			type_table->AddType(*GetName(), forward_declaration);
+			auto result = SumType::Build(context, closure, m_variant_list,
+					m_type);
+
+			errors = result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto type = result->GetData<SumType>();
+				type_table->AddType(*GetName(), type);
+			} else {
+				type_table->RemovePlaceholderType(GetName());
+			}
 		}
 
 //// this section of code is the seed of kwargs-based type constructors for record types
@@ -183,14 +195,15 @@ const ErrorListRef SumDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef SumDeclarationStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef SumDeclarationStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	return ErrorList::GetTerminator();
 }
 
 const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
-//no-op
+	//no-op
 	return new SumDeclarationStatement(GetLocation(), m_type, GetName(),
 			GetNameLocation(), m_variant_list, m_variant_list_location);
 }

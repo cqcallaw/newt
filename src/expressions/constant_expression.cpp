@@ -56,14 +56,15 @@ ConstantExpression::ConstantExpression(const ConstantExpression* other) :
 ConstantExpression::~ConstantExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> ConstantExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> ConstantExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return m_type;
+	return TypedResult<TypeSpecifier>(m_type);
 }
 
 const_shared_ptr<Result> ConstantExpression::Evaluate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	return make_shared<Result>(m_value, ErrorList::GetTerminator());
 }
 
@@ -76,17 +77,28 @@ const_shared_ptr<ConstantExpression> ConstantExpression::GetDefaultExpression(
 
 const_shared_ptr<Result> ConstantExpression::GetConstantExpression(
 		const_shared_ptr<Expression> expression,
-		const shared_ptr<ExecutionContext> execution_context) {
-	const_shared_ptr<Result> evaluation = expression->Evaluate(
-			execution_context);
+		const shared_ptr<ExecutionContext> context) {
+	const_shared_ptr<Result> evaluation = expression->Evaluate(context,
+			context);
 	plain_shared_ptr<void> result;
 
 	auto errors = evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		result = const_shared_ptr<void>(
-				new ConstantExpression(expression->GetPosition(),
-						expression->GetTypeSpecifier(execution_context),
-						evaluation->GetRawData()));
+		auto expression_type_specifier_result = expression->GetTypeSpecifier(
+				context);
+		auto expression_type_specifier_errors =
+				expression_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(expression_type_specifier_errors)) {
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
+			result = const_shared_ptr<void>(
+					new ConstantExpression(expression->GetPosition(),
+							expression_type_specifier,
+							evaluation->GetRawData()));
+		} else {
+			errors = ErrorList::Concatenate(errors,
+					expression_type_specifier_errors);
+		}
 	}
 
 	return make_shared<Result>(result, errors);

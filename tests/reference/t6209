@@ -1,0 +1,4 @@
+Parsing file ../tests/t6209.nwt...
+Semantic error on line 21, column 5: Undeclared variable 'a'
+Parsed file ../tests/t6209.nwt.
+1 error found; giving up.

@@ -30,124 +30,140 @@ UnaryExpression::UnaryExpression(const yy::location position,
 	assert(expression != NULL);
 }
 
-const_shared_ptr<TypeSpecifier> UnaryExpression::compute_result_type(
+TypedResult<TypeSpecifier> UnaryExpression::compute_result_type(
 		const_shared_ptr<TypeSpecifier> input_type, const OperatorType op) {
 	switch (op) {
 	case UNARY_MINUS:
-		return input_type;
+		return TypedResult<TypeSpecifier>(input_type, ErrorList::GetTerminator());
 	case NOT:
-		return PrimitiveTypeSpecifier::GetBoolean();
+		return TypedResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetBoolean(),
+				ErrorList::GetTerminator());
 	default:
 		assert(false);
-		return PrimitiveTypeSpecifier::GetNone();
+		return TypedResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetNone(),
+				ErrorList::GetTerminator());
 	}
 }
 
-const_shared_ptr<TypeSpecifier> UnaryExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> UnaryExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return compute_result_type(
-			m_expression->GetTypeSpecifier(execution_context, resolution),
-			m_operator);
+	auto type_specifier_result = m_expression->GetTypeSpecifier(
+			execution_context, resolution);
+
+	if (ErrorList::IsTerminator(type_specifier_result.GetErrors())) {
+		auto type_specifier = type_specifier_result.GetData();
+		return compute_result_type(type_specifier, m_operator);
+	} else {
+		return type_specifier_result;
+	}
 }
 
 const ErrorListRef UnaryExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef result = ErrorList::GetTerminator();
+	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const OperatorType op = m_operator;
-	const_shared_ptr<Expression> expression = m_expression;
 
-	ErrorListRef expression_errors = expression->Validate(execution_context);
+	ErrorListRef expression_errors = m_expression->Validate(execution_context);
 	if (!ErrorList::IsTerminator(expression_errors)) {
-		result = ErrorList::Concatenate(result, expression_errors);
-		return result;
+		errors = ErrorList::Concatenate(errors, expression_errors);
+		return errors;
 	}
 
-	const_shared_ptr<TypeSpecifier> expression_type =
-			expression->GetTypeSpecifier(execution_context);
-	auto operand_analysis = expression_type->AnalyzeAssignmentTo(
-			PrimitiveTypeSpecifier::GetDouble(),
-			execution_context->GetTypeTable());
-	if (operand_analysis != EQUIVALENT && operand_analysis != UNAMBIGUOUS) {
-		result = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::INVALID_RIGHT_OPERAND_TYPE,
-						expression->GetPosition().begin.line,
-						expression->GetPosition().begin.column,
-						operator_to_string(op)), result);
+	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+			execution_context);
+	errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+		auto operand_analysis = expression_type_specifier->AnalyzeAssignmentTo(
+				PrimitiveTypeSpecifier::GetDouble(),
+				execution_context->GetTypeTable());
+		if (operand_analysis != EQUIVALENT && operand_analysis != UNAMBIGUOUS) {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::INVALID_RIGHT_OPERAND_TYPE,
+							m_expression->GetPosition().begin.line,
+							m_expression->GetPosition().begin.column,
+							OperatorToString(op)), errors);
+		}
 	}
 
-	return result;
+	return errors;
 }
 
 const_shared_ptr<Result> UnaryExpression::Evaluate(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-	void* result = nullptr;
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	shared_ptr<void> result;
 
-	const_shared_ptr<TypeSpecifier> expression_type =
-			m_expression->GetTypeSpecifier(execution_context);
-	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
-			execution_context);
-	ErrorListRef evaluation_errors = evaluation->GetErrors();
+	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+			context);
+	auto errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+		const_shared_ptr<Result> evaluation = m_expression->Evaluate(context,
+				closure);
+		ErrorListRef evaluation_errors = evaluation->GetErrors();
 
-	if (!ErrorList::IsTerminator(evaluation_errors)) {
-		errors = evaluation_errors;
-	} else {
-		switch (m_operator) {
-		case UNARY_MINUS: {
-			auto expression_analysis = expression_type->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetInt(),
-					execution_context->GetTypeTable());
-			if (expression_analysis == EQUIVALENT
-					|| expression_analysis == UNAMBIGUOUS) {
-				int* value = new int;
-				*value = -(*(evaluation->GetData<int>()));
-				result = (void *) value;
-			} else if (expression_type->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetDouble(),
-					execution_context->GetTypeTable())) {
-				double* value = new double;
-				*value = -(*(evaluation->GetData<double>()));
-				result = (void *) value;
-			} else {
+		if (!ErrorList::IsTerminator(evaluation_errors)) {
+			errors = evaluation_errors;
+		} else {
+			switch (m_operator) {
+			case UNARY_MINUS: {
+				auto expression_analysis =
+						expression_type_specifier->AnalyzeAssignmentTo(
+								PrimitiveTypeSpecifier::GetInt(),
+								context->GetTypeTable());
+				if (expression_analysis == EQUIVALENT
+						|| expression_analysis == UNAMBIGUOUS) {
+					int value = -(*(evaluation->GetData<int>()));
+					result = make_shared<int>(value);
+				} else if (expression_type_specifier->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetDouble(),
+						context->GetTypeTable())) {
+					double value = -(*(evaluation->GetData<double>()));
+					result = make_shared<double>(value);
+				} else {
+					assert(false);
+				}
+				break;
+			}
+			case NOT: {
+				if (expression_type_specifier->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetBoolean(),
+						context->GetTypeTable()) == EQUIVALENT) {
+					bool old_value = *(evaluation->GetData<bool>());
+					bool value = !old_value;
+					result = make_shared<bool>(value);
+				} else if (expression_type_specifier->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetInt(),
+						context->GetTypeTable()) == EQUIVALENT) {
+					int old_value = *(evaluation->GetData<int>());
+					bool value = !(old_value != 0);
+					result = make_shared<bool>(value);
+					break;
+				} else if (expression_type_specifier->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetDouble(),
+						context->GetTypeTable()) == EQUIVALENT) {
+					double old_value = *(evaluation->GetData<double>());
+					bool value = !(old_value != 0);
+					result = make_shared<bool>(value);
+					break;
+				} else {
+					assert(false);
+				}
+				break;
+
+			}
+			default:
 				assert(false);
 			}
-			break;
-		}
-		case NOT: {
-			if (expression_type->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetBoolean(),
-					execution_context->GetTypeTable()) == EQUIVALENT) {
-				bool old_value = *(evaluation->GetData<bool>());
-				bool* value = new bool(!old_value);
-				result = (void *) value;
-			} else if (expression_type->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetInt(),
-					execution_context->GetTypeTable()) == EQUIVALENT) {
-				int old_value = *(evaluation->GetData<int>());
-				bool* value = new bool(!(old_value != 0));
-				result = (void *) value;
-				break;
-			} else if (expression_type->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetDouble(),
-					execution_context->GetTypeTable()) == EQUIVALENT) {
-				double old_value = *(evaluation->GetData<double>());
-				bool* value = new bool(!(old_value != 0));
-				result = (void *) value;
-				break;
-			} else {
-				assert(false);
-			}
-			break;
-
-		}
-		default:
-			assert(false);
 		}
 	}
 
-	return make_shared<Result>(const_shared_ptr<void>(result), errors);
+	return make_shared<Result>(result, errors);
 }
 

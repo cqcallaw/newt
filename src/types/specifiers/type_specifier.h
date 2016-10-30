@@ -66,7 +66,7 @@ public:
 		return INCOMPATIBLE;
 	}
 
-	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const {
+	virtual const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const {
 		auto type_result = GetType(type_table, RESOLVE);
 
 		auto errors = type_result->GetErrors();

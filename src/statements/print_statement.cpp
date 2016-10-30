@@ -29,16 +29,22 @@ PrintStatement::PrintStatement(const int line_number,
 PrintStatement::~PrintStatement() {
 }
 
-const ErrorListRef PrintStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef PrintStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
+	return m_expression->Validate(context);
+}
+
+const ErrorListRef PrintStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
 
-	const_shared_ptr<Result> string_result = m_expression->ToString(
-			execution_context);
-	errors = string_result->GetErrors();
-
+	auto string_result = m_expression->ToString(context);
+	errors = string_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		std::cout << *(string_result->GetData<string>()) << "\n";
+		std::cout << *(string_result.GetData()) << "\n";
 	}
 
 	return errors;

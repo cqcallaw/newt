@@ -190,13 +190,14 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 	auto result = m_table->find(identifier);
 
 	if (result != m_table->end()) {
-		auto symbol = result->second;
-		if (symbol->GetTypeSpecifier()->AnalyzeAssignmentTo(type, type_table)
-				== EQUIVALENT) {
+		auto existing_symbol = result->second;
+		if (existing_symbol->GetTypeSpecifier()->AnalyzeAssignmentTo(type,
+				type_table) == EQUIVALENT) {
 			if (!(m_modifiers & Modifier::MUTABLE)) {
 				return MUTATION_DISALLOWED;
 			} else {
-				auto new_symbol = symbol->WithValue(type, value, type_table);
+				auto new_symbol = existing_symbol->WithValue(type, value,
+						type_table);
 
 				//TODO: error checking
 				m_table->erase(identifier);

@@ -43,7 +43,7 @@ DefaultValueExpression::DefaultValueExpression(
 DefaultValueExpression::~DefaultValueExpression() {
 }
 
-const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return NestedTypeSpecifier::Resolve(m_type_specifier,
@@ -51,8 +51,9 @@ const_shared_ptr<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
 }
 
 const_shared_ptr<Result> DefaultValueExpression::Evaluate(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	auto type_table = *execution_context->GetTypeTable();
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	auto type_table = *context->GetTypeTable();
 	//here we RETURN aliases instead of RESOLVING them so that
 	//the _alias'_ default value will be used instead of the aliased type's default value
 	auto type_result = m_type_specifier->GetType(type_table, RETURN);
@@ -69,12 +70,10 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 
 const ErrorListRef DefaultValueExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	auto type_table = *execution_context->GetTypeTable();
 	auto type_result = m_type_specifier->GetType(type_table, RESOLVE);
 
-	errors = type_result->GetErrors();
+	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		auto as_placeholder = dynamic_pointer_cast<const PlaceholderType>(type);

@@ -41,15 +41,15 @@ public:
 		return m_position;
 	}
 
-	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
-			AliasResolution resolution =
-					AliasResolution::RESOLVE) const = 0;
+			AliasResolution resolution = AliasResolution::RESOLVE) const = 0;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const shared_ptr<ExecutionContext> execution_context) const = 0;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const = 0;
 
-	const_shared_ptr<Result> ToString(
+	TypedResult<string> ToString(
 			const shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const bool IsConstant() const = 0;

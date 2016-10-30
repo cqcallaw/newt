@@ -35,11 +35,14 @@ public:
 			const_shared_ptr<Expression> initializer_expression = nullptr);
 	virtual ~PrimitiveDeclarationStatement();
 
-	virtual const ErrorListRef preprocess(
-			const shared_ptr<ExecutionContext> execution_context) const;
+	virtual const ErrorListRef Preprocess(
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure,
+			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;
 
-	virtual const ErrorListRef execute(
-			shared_ptr<ExecutionContext> execution_context) const;
+	virtual const ErrorListRef Execute(
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;

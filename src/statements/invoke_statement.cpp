@@ -24,38 +24,34 @@
 #include <variable_expression.h>
 
 InvokeStatement::InvokeStatement(const_shared_ptr<Variable> variable,
-		ArgumentListRef argument_list, const yy::location argument_list_position) :
+		ArgumentListRef argument_list,
+		const yy::location argument_list_position) :
 		m_variable(variable), m_argument_list(argument_list), m_argument_list_position(
-				argument_list_position) {
+				argument_list_position), m_expression(
+				make_shared<InvokeExpression>(m_variable->GetLocation(),
+						make_shared<VariableExpression>(
+								m_variable->GetLocation(), m_variable),
+						m_argument_list, m_argument_list_position)) {
 }
 
 InvokeStatement::~InvokeStatement() {
 }
 
-const ErrorListRef InvokeStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef InvokeStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	//variable reference must be a reference to a function
 	//argument list length and types must match
-	const_shared_ptr<VariableExpression> variable_expression = make_shared<
-			VariableExpression>(m_variable->GetLocation(), m_variable);
-	const InvokeExpression* expression = new InvokeExpression(
-			m_variable->GetLocation(), variable_expression, m_argument_list,
-			m_argument_list_position);
-	auto result = expression->Validate(execution_context);
-	delete expression;
+	auto result = m_expression->Validate(context);
 
 	return result;
 }
 
-const ErrorListRef InvokeStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
-	const_shared_ptr<VariableExpression> variable_expression = make_shared<
-			VariableExpression>(m_variable->GetLocation(), m_variable);
-	const InvokeExpression* expression = new InvokeExpression(
-			m_variable->GetLocation(), variable_expression, m_argument_list,
-			m_argument_list_position);
-	auto result = expression->Evaluate(execution_context);
-	delete expression;
+const ErrorListRef InvokeStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	auto result = m_expression->Evaluate(context, closure);
 
 	return result->GetErrors();
 }

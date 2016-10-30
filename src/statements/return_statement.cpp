@@ -31,51 +31,101 @@ ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 ReturnStatement::~ReturnStatement() {
 }
 
-const ErrorListRef ReturnStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	return m_expression->Validate(execution_context);
+const ErrorListRef ReturnStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
+	auto errors = m_expression->Validate(context);
+
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+				context);
+		errors = expression_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
+
+			auto assignment_analysis =
+					expression_type_specifier->AnalyzeAssignmentTo(
+							return_type_specifier, context->GetTypeTable());
+			if (assignment_analysis == AnalysisResult::AMBIGUOUS) {
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::AMBIGUOUS_WIDENING_CONVERSION,
+								m_expression->GetPosition().begin.line,
+								m_expression->GetPosition().begin.column,
+								return_type_specifier->ToString(),
+								expression_type_specifier->ToString()), errors);
+			} else if (assignment_analysis == AnalysisResult::INCOMPATIBLE) {
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::FUNCTION_RETURN_MISMATCH,
+								m_expression->GetPosition().begin.line,
+								m_expression->GetPosition().begin.column),
+						errors);
+			}
+		}
+	}
+
+	return errors;
 }
 
-const ErrorListRef ReturnStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef ReturnStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors(ErrorList::GetTerminator());
-	auto result = m_expression->Evaluate(execution_context);
+	auto result = m_expression->Evaluate(context, closure);
 
 	errors = result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		execution_context->SetReturnValue(
-				const_shared_ptr<Symbol>(
-						new Symbol(
-								m_expression->GetTypeSpecifier(
-										execution_context),
-								result->GetRawData())));
+		auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+				context);
+
+		errors = expression_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
+			context->SetReturnValue(
+					const_shared_ptr<Symbol>(
+							new Symbol(expression_type_specifier,
+									result->GetRawData())));
+		}
 	}
 
 	return errors;
 }
 
 const ErrorListRef ReturnStatement::GetReturnStatementErrors(
-		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<TypeSpecifier> return_type_specifier,
 		const shared_ptr<ExecutionContext> execution_context) const {
 	auto errors = ErrorList::GetTerminator();
-	const_shared_ptr<TypeSpecifier> expression_type_specifier =
-			m_expression->GetTypeSpecifier(execution_context);
-	auto assignment_analysis = expression_type_specifier->AnalyzeAssignmentTo(
-			type_specifier, execution_context->GetTypeTable());
-	if (assignment_analysis == AnalysisResult::AMBIGUOUS) {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::AMBIGUOUS_WIDENING_CONVERSION,
-						m_expression->GetPosition().begin.line,
-						m_expression->GetPosition().begin.column,
-						type_specifier->ToString(),
-						expression_type_specifier->ToString()), errors);
-	} else if (assignment_analysis == AnalysisResult::INCOMPATIBLE) {
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC,
-						Error::FUNCTION_RETURN_MISMATCH,
-						m_expression->GetPosition().begin.line,
-						m_expression->GetPosition().begin.column), errors);
+	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+			execution_context);
+
+	errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+
+		auto assignment_analysis =
+				expression_type_specifier->AnalyzeAssignmentTo(
+						return_type_specifier,
+						execution_context->GetTypeTable());
+		if (assignment_analysis == AnalysisResult::AMBIGUOUS) {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::AMBIGUOUS_WIDENING_CONVERSION,
+							m_expression->GetPosition().begin.line,
+							m_expression->GetPosition().begin.column,
+							return_type_specifier->ToString(),
+							expression_type_specifier->ToString()), errors);
+		} else if (assignment_analysis == AnalysisResult::INCOMPATIBLE) {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::FUNCTION_RETURN_MISMATCH,
+							m_expression->GetPosition().begin.line,
+							m_expression->GetPosition().begin.column), errors);
+		}
 	}
 
 	return errors;

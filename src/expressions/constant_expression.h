@@ -42,13 +42,13 @@ public:
 	static const_shared_ptr<ConstantExpression> GetDefaultExpression(
 			const_shared_ptr<TypeSpecifier> type, const TypeTable& type_table);
 
-	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
-			AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const_shared_ptr<Result> Evaluate(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const bool IsConstant() const {
 		return true;

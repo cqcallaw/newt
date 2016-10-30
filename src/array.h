@@ -62,11 +62,11 @@ public:
 		if (index < GetSize()) {
 			new_vector->at(index) = value;
 		} else {
-			int old_size = new_vector->size();
+			size_t old_size = new_vector->size();
 			new_vector->resize(index);
 
 			//fill with default values
-			for (int i = old_size; i < new_vector->size(); i++) {
+			for (size_t i = old_size; i < new_vector->size(); i++) {
 				const_shared_ptr<void> default_value =
 						GetElementTypeSpecifier()->DefaultValue(type_table);
 				new_vector->at(i) = default_value;

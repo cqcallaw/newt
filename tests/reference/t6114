@@ -1,0 +1,19 @@
+Parsing file ../tests/t6114.nwt...
+Parsed file ../tests/t6114.nwt.
+Default match
+Root Symbol Table:
+----------------
+result r: {value} 0
+
+Root Type Table:
+----------------
+result:
+	<sum>
+	error:
+		<record>
+		message:
+			string ("")
+
+	value:
+		int
+

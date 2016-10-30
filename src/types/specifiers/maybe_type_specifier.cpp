@@ -20,8 +20,10 @@
 #include <maybe_type_specifier.h>
 #include <nested_type_specifier.h>
 #include <maybe_type.h>
+#include <primitive_type.h>
 #include <unit_type.h>
 #include <placeholder_type.h>
+#include <sum.h>
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::VARIANT_NAME = make_shared<
 		std::string>("value");
@@ -30,8 +32,9 @@ const_shared_ptr<std::string> MaybeTypeSpecifier::EMPTY_NAME = make_shared<
 
 MaybeTypeSpecifier::MaybeTypeSpecifier(
 		const_shared_ptr<TypeSpecifier> base_type_specifier) :
-		m_base_type_specifier(base_type_specifier), m_type(
-				make_shared<MaybeType>(base_type_specifier)) {
+		SumTypeSpecifier(
+				make_shared<string>(base_type_specifier->ToString() + "?")), m_base_type_specifier(
+				base_type_specifier) {
 }
 
 MaybeTypeSpecifier::~MaybeTypeSpecifier() {
@@ -50,7 +53,7 @@ const AnalysisResult MaybeTypeSpecifier::AnalyzeAssignmentTo(
 			type_table) >= UNAMBIGUOUS) {
 		return AnalysisResult::UNAMBIGUOUS;
 	} else {
-		return m_base_type_specifier->AnalyzeAssignmentTo(other, type_table);
+		return AnalysisResult::INCOMPATIBLE;
 	}
 }
 
@@ -64,42 +67,42 @@ bool MaybeTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 	}
 }
 
-const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
-		const TypeTable& type_table, AliasResolution resolution) const {
-	return make_shared<Result>(m_type, ErrorList::GetTerminator());
-}
-
 const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
 		const TypeTable& type_table, const TypeSpecifier& other) const {
-	auto resolved = NestedTypeSpecifier::Resolve(m_base_type_specifier,
+	auto resolved_result = NestedTypeSpecifier::Resolve(m_base_type_specifier,
 			type_table);
 
-	auto base_equivalence = *resolved == other;
-	auto empty_equivalence = *TypeTable::GetNilTypeSpecifier() == other;
-	auto ambiguous_equivalence = *resolved == *TypeTable::GetNilTypeSpecifier();
-	if (ambiguous_equivalence) {
-		return AMBIGUOUS; //we have type "nil?"
-	} else if (base_equivalence || empty_equivalence) {
-		return UNAMBIGUOUS;
+	if (ErrorList::IsTerminator(resolved_result.GetErrors())) {
+		auto resolved = resolved_result.GetData();
+		auto base_equivalence = *resolved == other;
+		auto empty_equivalence = *TypeTable::GetNilTypeSpecifier() == other;
+		auto ambiguous_equivalence = *resolved
+				== *TypeTable::GetNilTypeSpecifier();
+		if (ambiguous_equivalence) {
+			return AMBIGUOUS; //we have type "nil?"
+		} else if (base_equivalence || empty_equivalence) {
+			return UNAMBIGUOUS;
+		}
+
+		auto base_analysis = resolved->AnalyzeWidening(type_table, other);
+		auto empty_analysis = other.AnalyzeAssignmentTo(
+				TypeTable::GetNilTypeSpecifier(), type_table);
+		if (base_analysis && empty_analysis) {
+			return AMBIGUOUS;
+		} else if (base_analysis) {
+			return base_analysis;
+		} else if (empty_analysis) {
+			return empty_analysis;
+		}
 	}
 
-	auto base_analysis = resolved->AnalyzeWidening(type_table, other);
-	auto empty_analysis = other.AnalyzeAssignmentTo(
-			TypeTable::GetNilTypeSpecifier(), type_table);
-	if (base_analysis && empty_analysis) {
-		return AMBIGUOUS;
-	} else if (base_analysis) {
-		return base_analysis;
-	} else if (empty_analysis) {
-		return empty_analysis;
-	} else {
-		return INCOMPATIBLE;
-	}
+	return INCOMPATIBLE;
 }
 
 const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
-	return TypeTable::GetNilType()->GetDefaultValue(type_table);
+	return make_shared<Sum>(EMPTY_NAME,
+			TypeTable::GetNilType()->GetDefaultValue(type_table));
 }
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(
@@ -112,4 +115,59 @@ const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(
 		return EMPTY_NAME;
 	}
 	return const_shared_ptr<std::string>();
+}
+
+const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
+		const TypeTable& type_table, AliasResolution resolution) const {
+	auto base_type_result = GetBaseTypeSpecifier()->GetType(type_table,
+			RESOLVE);
+
+	shared_ptr<const void> result = nullptr;
+	auto errors = base_type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto base_type = base_type_result->GetData<TypeDefinition>();
+
+		auto as_complex = dynamic_pointer_cast<const ComplexType>(base_type);
+		if (as_complex) {
+			result = as_complex->GetMaybeType();
+		}
+
+		auto as_primitive = dynamic_pointer_cast<const PrimitiveType>(
+				base_type);
+		if (as_primitive) {
+			auto type = as_primitive->GetType();
+			switch (type) {
+			case BOOLEAN: {
+				static const_shared_ptr<MaybeType> boolean_maybe_type =
+						MaybeType::Build(PrimitiveTypeSpecifier::GetBoolean())->GetData<
+								MaybeType>();
+				return make_shared<Result>(boolean_maybe_type,
+						ErrorList::GetTerminator());
+			}
+			case INT: {
+				static const_shared_ptr<MaybeType> int_maybe_type =
+						MaybeType::Build(PrimitiveTypeSpecifier::GetInt())->GetData<
+								MaybeType>();
+				return make_shared<Result>(int_maybe_type,
+						ErrorList::GetTerminator());
+			}
+			case DOUBLE: {
+				static const_shared_ptr<MaybeType> double_maybe_type =
+						MaybeType::Build(PrimitiveTypeSpecifier::GetDouble())->GetData<
+								MaybeType>();
+				return make_shared<Result>(double_maybe_type,
+						ErrorList::GetTerminator());
+			}
+			case STRING:
+				static const_shared_ptr<MaybeType> string_maybe_type =
+						MaybeType::Build(PrimitiveTypeSpecifier::GetString())->GetData<
+								MaybeType>();
+				return make_shared<Result>(string_maybe_type,
+						ErrorList::GetTerminator());
+			default:
+				return make_shared<Result>(result, errors);
+			}
+		}
+	}
+	return make_shared<Result>(result, errors);
 }

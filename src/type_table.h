@@ -38,12 +38,9 @@ class Indent;
 
 class TypeTable {
 public:
-	TypeTable(const shared_ptr<TypeTable> parent = nullptr) :
-			TypeTable(make_shared<type_map>(), parent) {
-	}
+	TypeTable(const shared_ptr<TypeTable> parent = nullptr);
 
-	virtual ~TypeTable() {
-	}
+	virtual ~TypeTable();
 
 	const shared_ptr<TypeTable> Clone() const;
 

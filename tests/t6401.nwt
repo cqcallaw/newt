@@ -1,0 +1,6 @@
+# test invalid passing of maybe type as argument
+t { b:int }
+
+f := (a:t) -> int { return a.b }
+v:t? = @t
+r:= f(v)

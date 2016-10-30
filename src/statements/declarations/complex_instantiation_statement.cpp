@@ -48,21 +48,20 @@ ComplexInstantiationStatement::ComplexInstantiationStatement(
 ComplexInstantiationStatement::~ComplexInstantiationStatement() {
 }
 
-const ErrorListRef ComplexInstantiationStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+const ErrorListRef ComplexInstantiationStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
+	auto type_result = m_type_specifier->GetType(context->GetTypeTable());
 
-	auto type_result = m_type_specifier->GetType(
-			execution_context->GetTypeTable());
-
-	errors = type_result->GetErrors();
+	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 		if (as_complex) {
-			auto existing = execution_context->GetSymbol(GetName(), SHALLOW);
+			auto existing = context->GetSymbol(GetName(), SHALLOW);
 			if (existing == Symbol::GetDefaultSymbol()) {
-				auto result = as_complex->PreprocessSymbol(execution_context,
+				auto result = as_complex->PreprocessSymbol(context,
 						m_type_specifier, GetInitializerExpression());
 
 				errors = result->GetErrors();
@@ -71,7 +70,7 @@ const ErrorListRef ComplexInstantiationStatement::preprocess(
 					if (symbol) {
 						auto name = *GetName();
 						const InsertResult insert_result =
-								execution_context->InsertSymbol(name, symbol);
+								context->InsertSymbol(name, symbol);
 
 						if (insert_result != INSERT_SUCCESS) {
 							assert(false);
@@ -106,20 +105,19 @@ const_shared_ptr<TypeSpecifier> ComplexInstantiationStatement::GetTypeSpecifier(
 	return m_type_specifier;
 }
 
-const ErrorListRef ComplexInstantiationStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+const ErrorListRef ComplexInstantiationStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
+	auto type_result = m_type_specifier->GetType(context->GetTypeTable(),
+			RESOLVE);
 
-	auto type_result = m_type_specifier->GetType(
-			execution_context->GetTypeTable(), RESOLVE);
-
-	errors = type_result->GetErrors();
+	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(type);
 		if (as_complex) {
-			errors = as_complex->Instantiate(execution_context,
-					m_type_specifier, GetName(), GetInitializerExpression());
+			errors = as_complex->Instantiate(context, m_type_specifier,
+					GetName(), GetInitializerExpression());
 		} else {
 			//type does not exist
 			errors = ErrorList::From(

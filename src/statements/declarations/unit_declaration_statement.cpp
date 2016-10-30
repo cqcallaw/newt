@@ -34,11 +34,13 @@ UnitDeclarationStatement::UnitDeclarationStatement(const yy::location location,
 UnitDeclarationStatement::~UnitDeclarationStatement() {
 }
 
-const ErrorListRef UnitDeclarationStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef UnitDeclarationStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 
 	auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 			m_type_specifier);
@@ -59,8 +61,8 @@ const ErrorListRef UnitDeclarationStatement::preprocess(
 		if (type) {
 			auto symbol = type->GetSymbol(type_table, m_type_specifier,
 					nullptr);
-			InsertResult insert_result = execution_context->InsertSymbol(
-					*GetName(), symbol);
+			InsertResult insert_result = context->InsertSymbol(*GetName(),
+					symbol);
 			if (insert_result == SYMBOL_EXISTS) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
@@ -83,8 +85,9 @@ const ErrorListRef UnitDeclarationStatement::preprocess(
 	return errors;
 }
 
-const ErrorListRef UnitDeclarationStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef UnitDeclarationStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	return ErrorList::GetTerminator();
 }
 

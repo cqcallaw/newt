@@ -1,0 +1,5 @@
+# test default values for function members with reference to closure context
+outside:int = 3
+a {
+	f:=() -> int { return outside }
+}

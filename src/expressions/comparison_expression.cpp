@@ -33,10 +33,10 @@ ComparisonExpression::ComparisonExpression(const yy::location position,
 							| GREATER_THAN_EQUAL));
 }
 
-const_shared_ptr<TypeSpecifier> ComparisonExpression::GetTypeSpecifier(
+TypedResult<TypeSpecifier> ComparisonExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return PrimitiveTypeSpecifier::GetBoolean();
+	return TypedResult<TypeSpecifier>(PrimitiveTypeSpecifier::GetBoolean());
 }
 
 const ErrorListRef ComparisonExpression::Validate(
@@ -66,7 +66,7 @@ const_shared_ptr<Result> ComparisonExpression::compute(const bool& left,
 	case GREATER_THAN_EQUAL:
 	default:
 		cerr << "Invalid boolean comparison operation '"
-				<< operator_to_string(GetOperator()) << "'. Operands: " << left
+				<< OperatorToString(GetOperator()) << "'. Operands: " << left
 				<< ", " << right << "\n";
 		assert(false);
 		return NULL;

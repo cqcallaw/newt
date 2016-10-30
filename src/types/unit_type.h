@@ -23,7 +23,7 @@
 #include <complex_type.h>
 #include <unit.h>
 
-class UnitType: public ComplexType {
+class UnitType: public TypeDefinition {
 public:
 	UnitType();
 	virtual ~UnitType();

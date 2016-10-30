@@ -1,9 +1,4 @@
-# test default values for function members
-
+# test default values for function members, no invocation
 a {
 	f:=() -> int { return 3 }
 }
-
-v:=@a
-
-r := v.f()

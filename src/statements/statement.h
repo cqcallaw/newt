@@ -38,15 +38,17 @@ public:
 	/**
 	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
 	 */
-	virtual const ErrorListRef preprocess(
-			const shared_ptr<ExecutionContext> execution_context) const = 0;
+	virtual const ErrorListRef Preprocess(
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure,
+			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const = 0;
 
-	virtual const ErrorListRef execute(
-			shared_ptr<ExecutionContext> execution_context) const = 0;
-
-	virtual const ErrorListRef GetReturnStatementErrors(
-			const_shared_ptr<TypeSpecifier> type_specifier,
-			const shared_ptr<ExecutionContext> execution_context) const = 0;
+	/**
+	 * Execute the statement. Here the interpreter carries out the rest of the statement instructions.
+	 */
+	virtual const ErrorListRef Execute(
+			const shared_ptr<ExecutionContext> context,
+			const shared_ptr<ExecutionContext> closure) const = 0;
 };
 
 typedef const LinkedList<const Statement, NO_DUPLICATES> StatementList;

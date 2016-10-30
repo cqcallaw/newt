@@ -20,11 +20,11 @@
 #ifndef TYPES_SPECIFIERS_MAYBE_TYPE_SPECIFIER_H_ORIG_
 #define TYPES_SPECIFIERS_MAYBE_TYPE_SPECIFIER_H_ORIG_
 
-#include <type_specifier.h>
+#include <sum_type_specifier.h>
 
 class MaybeType;
 
-class MaybeTypeSpecifier: public TypeSpecifier {
+class MaybeTypeSpecifier: public SumTypeSpecifier {
 public:
 	MaybeTypeSpecifier(const_shared_ptr<TypeSpecifier> base_type_specifier);
 	virtual ~MaybeTypeSpecifier();
@@ -36,10 +36,6 @@ public:
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
-	virtual const_shared_ptr<Result> GetType(
-			const TypeTable& type_table, AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
-
 	virtual const AnalysisResult AnalyzeWidening(const TypeTable& type_table,
 			const TypeSpecifier& other) const;
 
@@ -48,6 +44,9 @@ public:
 	const_shared_ptr<TypeSpecifier> GetBaseTypeSpecifier() const {
 		return m_base_type_specifier;
 	}
+
+	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	const_shared_ptr<std::string> MapSpecifierToVariant(
 			const TypeSpecifier& type_specifier,
@@ -58,7 +57,6 @@ public:
 
 private:
 	const_shared_ptr<TypeSpecifier> m_base_type_specifier;
-	const_shared_ptr<MaybeType> m_type;
 };
 
 #endif /* TYPES_SPECIFIERS_MAYBE_TYPE_SPECIFIER_H_ORIG_ */

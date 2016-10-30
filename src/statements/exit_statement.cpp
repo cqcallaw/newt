@@ -34,40 +34,49 @@ ExitStatement::ExitStatement(const_shared_ptr<Expression> exit_expression) :
 ExitStatement::~ExitStatement() {
 }
 
-const ErrorListRef ExitStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef ExitStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	if (m_exit_expression) {
-		const_shared_ptr<TypeSpecifier> expression_type_specifier =
-				m_exit_expression->GetTypeSpecifier(execution_context);
-		const_shared_ptr<PrimitiveTypeSpecifier> expression_as_primitive =
-				std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-						expression_type_specifier);
+		auto expression_type_specifier_result =
+				m_exit_expression->GetTypeSpecifier(context);
 
-		if (expression_as_primitive == nullptr
-				|| !(expression_as_primitive->AnalyzeAssignmentTo(
-						PrimitiveTypeSpecifier::GetInt(),
-						execution_context->GetTypeTable()))) {
-			yy::location position = m_exit_expression->GetPosition();
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-							position.begin.line, position.begin.column,
-							m_exit_expression->GetTypeSpecifier(
-									execution_context)->ToString()), errors);
+		errors = expression_type_specifier_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
+
+			const_shared_ptr<PrimitiveTypeSpecifier> expression_as_primitive =
+					std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+							expression_type_specifier);
+
+			if (expression_as_primitive == nullptr
+					|| !(expression_as_primitive->AnalyzeAssignmentTo(
+							PrimitiveTypeSpecifier::GetInt(),
+							context->GetTypeTable()))) {
+				yy::location position = m_exit_expression->GetPosition();
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
+								position.begin.line, position.begin.column,
+								expression_type_specifier->ToString()), errors);
+			}
 		}
 	}
 
 	return errors;
 }
 
-const ErrorListRef ExitStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef ExitStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	plain_shared_ptr<int> exit_code = make_shared<int>(0);
 	if (m_exit_expression) {
 		const_shared_ptr<Result> evaluation = m_exit_expression->Evaluate(
-				execution_context);
+				context, closure);
 
 		if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
 			return evaluation->GetErrors();
@@ -76,6 +85,6 @@ const ErrorListRef ExitStatement::execute(
 		}
 	}
 
-	execution_context->SetExitCode(exit_code);
+	context->SetExitCode(exit_code);
 	return ErrorList::GetTerminator();
 }

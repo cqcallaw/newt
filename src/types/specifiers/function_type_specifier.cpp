@@ -109,11 +109,9 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 
 const_shared_ptr<Result> FunctionTypeSpecifier::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
 	auto default_declaration_result = FunctionDeclaration::FromTypeSpecifier(
 			*this, type_table);
-	errors = default_declaration_result->GetErrors();
+	auto errors = default_declaration_result->GetErrors();
 
 	plain_shared_ptr<FunctionType> type = nullptr;
 	if (ErrorList::IsTerminator(errors)) {

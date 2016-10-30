@@ -1,0 +1,4 @@
+Parsing file ../tests/t6400.nwt...
+Semantic error on line 5, column 7: Parameter type mismatch: can't assign 'int?' to 'int'
+Parsed file ../tests/t6400.nwt.
+1 error found; giving up.

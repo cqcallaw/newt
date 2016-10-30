@@ -1,0 +1,18 @@
+#test variable declaration in match block
+result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+r := @result
+
+match(r)
+	value {
+		a:= "Value"
+		print(a)
+	}
+	| error {
+		print("Error: " + error.message)
+	}

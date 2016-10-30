@@ -43,34 +43,38 @@ IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 IfStatement::~IfStatement() {
 }
 
-const ErrorListRef IfStatement::preprocess(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+const ErrorListRef IfStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
+	assert(m_expression);
 
-	if (m_expression) {
-		auto expression_analysis = m_expression->GetTypeSpecifier(
-				execution_context)->AnalyzeAssignmentTo(
-				PrimitiveTypeSpecifier::GetInt(),
-				execution_context->GetTypeTable());
+	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+			context);
+
+	auto errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+		auto expression_analysis =
+				expression_type_specifier->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetInt(),
+						context->GetTypeTable());
 		if (expression_analysis == EQUIVALENT
 				|| expression_analysis == UNAMBIGUOUS) {
-			SymbolContextListRef new_parent = SymbolContextList::From(
-					execution_context, execution_context->GetParent());
-			const shared_ptr<ExecutionContext> new_execution_context =
-					execution_context->WithContents(m_block_context)->WithParent(
-							new_parent);
 
-			errors = m_block->preprocess(execution_context);
+			m_block_context->LinkToParent(context);
 
+			errors = m_block->Preprocess(m_block_context,
+					return_type_specifier);
 			if (m_else_block) {
 				//pre-process else block
-				new_parent = SymbolContextList::From(execution_context,
-						execution_context->GetParent());
-				const shared_ptr<ExecutionContext> new_execution_context =
-						execution_context->WithContents(m_else_block_context)->WithParent(
-								new_parent);
+				m_else_block_context->LinkToParent(context);
 
-				errors = m_else_block->preprocess(execution_context);
+				errors = ErrorList::Concatenate(errors,
+						m_else_block->Preprocess(m_else_block_context,
+								return_type_specifier));
+
 			}
 
 		} else {
@@ -81,50 +85,34 @@ const ErrorListRef IfStatement::preprocess(
 							position.begin.line, position.begin.column),
 					errors);
 		}
-	} else {
-		assert(false);
 	}
 
 	return errors;
 }
 
-const ErrorListRef IfStatement::execute(
-		shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef IfStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<Result> evaluation = m_expression->Evaluate(
-			execution_context);
+	const_shared_ptr<Result> evaluation = m_expression->Evaluate(context,
+			closure);
 	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *(evaluation->GetData<bool>());
 
 	if (test) {
-		SymbolContextListRef new_parent = SymbolContextList::From(
-				execution_context, execution_context->GetParent());
-		shared_ptr<ExecutionContext> new_execution_context =
-				m_block_context->WithParent(new_parent);
+		assert(m_block_context->GetParent());
+		assert(m_block_context->GetParent()->GetData() == context);
 
-		errors = m_block->execute(execution_context);
+		errors = m_block->Execute(m_block_context);
+		context->SetReturnValue(m_block_context->GetReturnValue());
 	} else if (m_else_block) {
-		SymbolContextListRef new_parent = SymbolContextList::From(
-				execution_context, execution_context->GetParent());
-		shared_ptr<ExecutionContext> new_execution_context =
-				m_else_block_context->WithParent(new_parent);
+		assert(m_else_block_context->GetParent());
+		assert(m_else_block_context->GetParent()->GetData() == context);
 
-		errors = m_else_block->execute(execution_context);
+		errors = m_else_block->Execute(m_else_block_context);
+		context->SetReturnValue(m_else_block_context->GetReturnValue());
 	}
 
-	return errors;
-}
-
-const ErrorListRef IfStatement::GetReturnStatementErrors(
-		const_shared_ptr<TypeSpecifier> type_specifier,
-		const shared_ptr<ExecutionContext> execution_context) const {
-	auto errors = m_block->GetReturnStatementErrors(type_specifier,
-			execution_context);
-	if (m_else_block) {
-		errors = ErrorList::Concatenate(errors,
-				m_else_block->GetReturnStatementErrors(type_specifier,
-						execution_context));
-	}
 	return errors;
 }

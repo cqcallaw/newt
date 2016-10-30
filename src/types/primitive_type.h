@@ -23,6 +23,8 @@
 #include <type_definition.h>
 #include <type.h>
 
+class MaybeType;
+
 class PrimitiveType: public TypeDefinition {
 public:
 	virtual ~PrimitiveType();
@@ -75,6 +77,7 @@ public:
 
 private:
 	const BasicType m_type;
+
 	PrimitiveType(const BasicType type) :
 			m_type(type) {
 	}

@@ -1,0 +1,18 @@
+# test recursive function with a recursive data type
+list {
+	data:int,
+	next:list?
+}
+
+sum := (l:list?) -> int {
+	match (l)
+		empty {
+			return 0
+		}
+		| value {
+			return value.data + sum(value.next)
+		}
+}
+
+l:list= @list with { data = 2, next = @list with { data = 3 } }
+r:= sum(l)

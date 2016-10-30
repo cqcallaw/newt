@@ -29,7 +29,7 @@
 
 using namespace std;
 
-int get_exit_code(bool debug, int exit_code) {
+int GetExitCode(bool debug, int exit_code) {
 	if (debug) {
 		//return "success" so the test infrastructure doesn't barf
 		return EXIT_SUCCESS;
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 			cout << "s";
 		cout << " found; giving up." << endl;
 
-		return get_exit_code(debug, EXIT_FAILURE);
+		return GetExitCode(debug, EXIT_FAILURE);
 	}
 
 	int exit_code = EXIT_SUCCESS;
@@ -88,15 +88,15 @@ int main(int argc, char *argv[]) {
 		auto main_statement_block = driver.GetStatementBlock();
 		shared_ptr<ExecutionContext> root_context =
 				make_shared<ExecutionContext>(Modifier::Type::MUTABLE);
-		ErrorListRef semantic_errors = main_statement_block->preprocess(
-				root_context);
+		ErrorListRef semantic_errors = main_statement_block->Preprocess(
+				root_context, const_shared_ptr<TypeSpecifier>());
 
 		if (ErrorList::IsTerminator(semantic_errors)) {
 			if (debug) {
 				cout << "Parsed file " << filename << "." << endl;
 			}
 
-			ErrorListRef execution_errors = main_statement_block->execute(
+			ErrorListRef execution_errors = main_statement_block->Execute(
 					root_context);
 
 			bool has_execution_errors = false;
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
 				exit_code = *root_context->GetExitCode();
 			}
 
-			return get_exit_code(debug,
+			return GetExitCode(debug,
 					has_execution_errors ? EXIT_FAILURE : exit_code);
 		} else {
 			//reverse linked list of errors, which comes to us in reverse order
@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
 						<< endl;
 			}
 
-			return get_exit_code(debug, EXIT_FAILURE);
+			return GetExitCode(debug, EXIT_FAILURE);
 		}
 	}
 }

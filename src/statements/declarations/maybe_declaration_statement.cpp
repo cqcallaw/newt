@@ -42,63 +42,78 @@ MaybeDeclarationStatement::MaybeDeclarationStatement(
 MaybeDeclarationStatement::~MaybeDeclarationStatement() {
 }
 
-const ErrorListRef MaybeDeclarationStatement::preprocess(
-		const std::shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef MaybeDeclarationStatement::Preprocess(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 	auto root_specifier = m_type_specifier->GetBaseTypeSpecifier();
-	auto root_type = root_specifier->GetType(type_table);
-	if (root_type) {
+	auto root_type_result = root_specifier->GetType(type_table);
+	errors = root_type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
 		plain_shared_ptr<Sum> value = make_shared<Sum>(
 				MaybeTypeSpecifier::EMPTY_NAME,
 				TypeTable::GetNilType()->GetValue());
 		auto initializer = GetInitializerExpression();
 		if (initializer) {
-			auto initializer_type_specifier = initializer->GetTypeSpecifier(
-					execution_context, RESOLVE);
-			if (initializer_type_specifier->AnalyzeAssignmentTo(root_specifier,
-					*type_table)) {
-				if (initializer->IsConstant()) {
-					auto result = initializer->Evaluate(execution_context);
-					errors = result->GetErrors();
-					if (ErrorList::IsTerminator(errors)) {
-						if (*initializer_type_specifier == *m_type_specifier) {
-							//direct assignment
-							value = result->GetData<Sum>();
+			auto initializer_type_specifier_result =
+					initializer->GetTypeSpecifier(context, RESOLVE);
+
+			errors = initializer_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto initializer_type_specifier =
+						initializer_type_specifier_result.GetData();
+
+				if (initializer_type_specifier->AnalyzeAssignmentTo(
+						m_type_specifier, *type_table)) {
+					if (*initializer_type_specifier
+							!= *TypeTable::GetNilTypeSpecifier()) {
+						if (initializer->IsConstant()) {
+							auto result = initializer->Evaluate(context,
+									closure);
+							errors = result->GetErrors();
+							if (ErrorList::IsTerminator(errors)) {
+								if (*initializer_type_specifier
+										== *m_type_specifier) {
+									//direct assignment
+									value = result->GetData<Sum>();
+								} else {
+									//widening conversion
+									value = make_shared<Sum>(
+											MaybeTypeSpecifier::VARIANT_NAME,
+											result->GetRawData());
+
+									auto type = m_type_specifier->GetType(
+											type_table, RESOLVE)->GetData<
+											SumType>();
+								}
+							}
 						} else {
-							//widening conversion
-							value = make_shared<Sum>(
-									MaybeTypeSpecifier::VARIANT_NAME,
-									result->GetRawData());
+							value = static_pointer_cast<const Sum>(
+									m_type_specifier->DefaultValue(type_table));
 						}
 					}
 				} else {
-					value = static_pointer_cast<const Sum>(
-							m_type_specifier->DefaultValue(type_table));
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::INVALID_INITIALIZER_TYPE,
+											GetInitializerExpression()->GetPosition().begin.line,
+											GetInitializerExpression()->GetPosition().begin.column,
+											*GetName(),
+											m_type_specifier->ToString(),
+											initializer_type_specifier->ToString()),
+									errors);
 				}
-			} else if (initializer_type_specifier->AnalyzeAssignmentTo(
-					TypeTable::GetNilTypeSpecifier(), *type_table)) {
-				//do nothing; our default value is fine
-			} else {
-				errors =
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::INVALID_INITIALIZER_TYPE,
-										GetInitializerExpression()->GetPosition().begin.line,
-										GetInitializerExpression()->GetPosition().begin.column,
-										*GetName(),
-										m_type_specifier->ToString(),
-										initializer_type_specifier->ToString()),
-								errors);
 			}
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
 			auto symbol = make_shared<Symbol>(m_type_specifier, value);
 
-			auto insert_result = execution_context->InsertSymbol(*GetName(),
-					symbol);
+			auto insert_result = context->InsertSymbol(*GetName(), symbol);
 			if (insert_result == SYMBOL_EXISTS) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
@@ -109,26 +124,20 @@ const ErrorListRef MaybeDeclarationStatement::preprocess(
 			}
 		}
 
-	} else {
-		//type does not exist
-		errors = ErrorList::From(
-				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-						m_type_specifier_location.begin.line,
-						m_type_specifier_location.begin.column,
-						m_type_specifier->GetBaseTypeSpecifier()->ToString()),
-				errors);
 	}
+
 	return errors;
 }
 
-const ErrorListRef MaybeDeclarationStatement::execute(
-		std::shared_ptr<ExecutionContext> execution_context) const {
+const ErrorListRef MaybeDeclarationStatement::Execute(
+		const shared_ptr<ExecutionContext> context,
+		const shared_ptr<ExecutionContext> closure) const {
 	auto errors = ErrorList::GetTerminator();
 
-	auto type_table = execution_context->GetTypeTable();
+	auto type_table = context->GetTypeTable();
 	auto root_specifier = m_type_specifier->GetBaseTypeSpecifier();
 
-	auto existing = execution_context->GetSymbol(*GetName());
+	auto existing = context->GetSymbol(*GetName());
 	assert(existing);
 	auto maybe_type_specifier = dynamic_pointer_cast<const MaybeTypeSpecifier>(
 			existing->GetTypeSpecifier());
@@ -138,45 +147,53 @@ const ErrorListRef MaybeDeclarationStatement::execute(
 	if (initializer) {
 		if (!initializer->IsConstant()) {
 			plain_shared_ptr<Sum> value = nullptr;
-			auto initializer_type_specifier = initializer->GetTypeSpecifier(
-					execution_context, RESOLVE);
-			if (initializer_type_specifier->AnalyzeAssignmentTo(root_specifier,
-					*type_table)) {
-				auto result = initializer->Evaluate(execution_context);
-				errors = result->GetErrors();
-				if (ErrorList::IsTerminator(errors)) {
-					if (*initializer_type_specifier == *maybe_type_specifier) {
-						//direct assignment
-						value = result->GetData<Sum>();
-					} else {
-						//widening conversion
-						value = make_shared<Sum>(
-								MaybeTypeSpecifier::VARIANT_NAME,
-								result->GetRawData());
+			auto initializer_type_specifier_result =
+					initializer->GetTypeSpecifier(context, RESOLVE);
+
+			errors = initializer_type_specifier_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto initializer_type_specifier =
+						initializer_type_specifier_result.GetData();
+				if (initializer_type_specifier->AnalyzeAssignmentTo(
+						m_type_specifier, *type_table)) {
+					if (*initializer_type_specifier
+							!= *TypeTable::GetNilTypeSpecifier()) {
+						auto result = initializer->Evaluate(context, closure);
+						errors = result->GetErrors();
+						if (ErrorList::IsTerminator(errors)) {
+							if (*initializer_type_specifier
+									== *maybe_type_specifier) {
+								//direct assignment
+								value = result->GetData<Sum>();
+							} else {
+								//widening conversion
+								value = make_shared<Sum>(
+										MaybeTypeSpecifier::VARIANT_NAME,
+										result->GetRawData());
+							}
+						}
 					}
+				} else {
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::RUNTIME,
+											Error::INVALID_INITIALIZER_TYPE,
+											GetInitializerExpression()->GetPosition().begin.line,
+											GetInitializerExpression()->GetPosition().begin.column,
+											*GetName(),
+											maybe_type_specifier->ToString(),
+											initializer_type_specifier->ToString()),
+									errors);
 				}
-			} else if (initializer_type_specifier->AnalyzeAssignmentTo(
-					TypeTable::GetNilTypeSpecifier(), *type_table)) {
-				//no-op: we don't need to re-assign the nil value
-			} else {
-				errors =
-						ErrorList::From(
-								make_shared<Error>(Error::RUNTIME,
-										Error::INVALID_INITIALIZER_TYPE,
-										GetInitializerExpression()->GetPosition().begin.line,
-										GetInitializerExpression()->GetPosition().begin.column,
-										*GetName(),
-										maybe_type_specifier->ToString(),
-										initializer_type_specifier->ToString()),
-								errors);
-			}
 
-			if (ErrorList::IsTerminator(errors) && value) {
-				auto set_result = execution_context->SetSymbol(*GetName(),
-						maybe_type_specifier, value, *type_table);
+				if (ErrorList::IsTerminator(errors) && value) {
+					auto set_result = context->SetSymbol(*GetName(),
+							maybe_type_specifier, value, *type_table);
 
-				errors = ToErrorListRef(set_result, GetLocation(), GetName(),
-						maybe_type_specifier, initializer_type_specifier);
+					errors = ToErrorListRef(set_result, GetLocation(),
+							GetName(), maybe_type_specifier,
+							initializer_type_specifier);
+				}
 			}
 		}
 	}

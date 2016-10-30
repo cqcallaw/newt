@@ -31,6 +31,7 @@
 #include <sum.h>
 #include <sum_type.h>
 #include <unit_type.h>
+#include <basic_variable.h>
 
 Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body,
@@ -69,38 +70,34 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	while (!ArgumentList::IsTerminator(argument)) {
 		const_shared_ptr<Expression> argument_expression = argument->GetData();
 		if (!DeclarationList::IsTerminator(parameter)) {
-			const_shared_ptr<DeclarationStatement> declaration =
+			const_shared_ptr<DeclarationStatement> parameter_declaration =
 					parameter->GetData();
 
-			const_shared_ptr<Result> argument_evaluation =
-					ConstantExpression::GetConstantExpression(
-							argument_expression, invocation_context);
-			auto evaluation_errors = argument_evaluation->GetErrors();
-			if (ErrorList::IsTerminator(evaluation_errors)) {
-				//generate a declaration statement for the function execution context.
-				//it's tempting to just stuff a value into the symbol table,
-				//but this simplistic approach ignores widening conversions
-				auto evaluated_expression = argument_evaluation->GetData<
-						Expression>();
-				const DeclarationStatement* argument_declaration =
-						declaration->WithInitializerExpression(
-								evaluated_expression);
+			auto parameter_preprocess_errors =
+					parameter_declaration->Preprocess(
+							function_execution_context, closure_reference);
+			if (ErrorList::IsTerminator(parameter_preprocess_errors)) {
+				auto parameter_execute_errors = parameter_declaration->Execute(
+						function_execution_context, closure_reference);
+				if (ErrorList::IsTerminator(parameter_execute_errors)) {
+					auto argument_variable = make_shared<const BasicVariable>(
+							parameter_declaration->GetName(),
+							argument_expression->GetPosition());
 
-				auto preprocessing_errors = ErrorList::Concatenate(errors,
-						argument_declaration->preprocess(
-								function_execution_context));
-				if (ErrorList::IsTerminator(preprocessing_errors)) {
+					auto assign_errors = argument_variable->AssignValue(
+							invocation_context, closure_reference,
+							argument_expression, ASSIGN,
+							function_execution_context);
+					if (!ErrorList::IsTerminator(assign_errors)) {
+						errors = ErrorList::Concatenate(errors, assign_errors);
+					}
+				} else {
 					errors = ErrorList::Concatenate(errors,
-							argument_declaration->execute(
-									function_execution_context));
-				} else if (preprocessing_errors != errors) {
-					errors = ErrorList::Concatenate(errors,
-							preprocessing_errors);
+							parameter_execute_errors);
 				}
-
-				delete argument_declaration;
 			} else {
-				errors = ErrorList::Concatenate(errors, evaluation_errors);
+				errors = ErrorList::Concatenate(errors,
+						parameter_preprocess_errors);
 			}
 
 			argument = argument->GetNext();
@@ -124,9 +121,11 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 
 		if (declaration->GetInitializerExpression()) {
 			errors = ErrorList::Concatenate(errors,
-					declaration->preprocess(function_execution_context));
+					declaration->Preprocess(function_execution_context,
+							function_execution_context));
 			errors = ErrorList::Concatenate(errors,
-					declaration->execute(function_execution_context));
+					declaration->Execute(function_execution_context,
+							function_execution_context));
 			parameter = parameter->GetNext();
 		} else {
 			errors = ErrorList::From(
@@ -145,96 +144,104 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	auto final_execution_context = function_execution_context->WithParent(
 			parent_context);
 
-	//TODO: determine if it is necessary to merge type tables
-
 	if (ErrorList::IsTerminator(errors)) {
-		//performing preprocessing here duplicates work with the function express processing,
+		//performing preprocessing here duplicates work with the function expression processing,
 		//but the context setup in the function preprocessing is currently discarded.
 		//TODO: consider cloning function expression preprocess context instead of discarding it
 		errors = ErrorList::Concatenate(errors,
-				m_body->preprocess(final_execution_context));
+				m_body->Preprocess(final_execution_context,
+						m_declaration->GetReturnTypeSpecifier()));
 		if (ErrorList::IsTerminator(errors)) {
-			errors = ErrorList::Concatenate(errors,
-					m_body->execute(final_execution_context));
-			plain_shared_ptr<Symbol> evaluation_result =
-					final_execution_context->GetReturnValue();
-			final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+			auto execute_errors = m_body->Execute(final_execution_context);
 
-			plain_shared_ptr<void> result = evaluation_result->GetValue();
-			auto invocation_type_table = invocation_context->GetTypeTable();
+			if (ErrorList::IsTerminator(execute_errors)) {
+				plain_shared_ptr<Symbol> evaluation_result =
+						final_execution_context->GetReturnValue();
+				assert(evaluation_result);
+				final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
-			auto return_type_specifier =
-					m_declaration->GetReturnTypeSpecifier();
-			auto evaluation_result_type = evaluation_result->GetTypeSpecifier();
+				plain_shared_ptr<void> result = evaluation_result->GetValue();
+				auto invocation_type_table = invocation_context->GetTypeTable();
 
-			auto assignment_analysis =
-					evaluation_result_type->AnalyzeAssignmentTo(
-							return_type_specifier, invocation_type_table);
-			switch (assignment_analysis) {
-			case UNAMBIGUOUS:
-			case UNAMBIGUOUS_NESTED: {
-				//we're returning a narrower type than the return type; perform widening
+				auto return_type_specifier =
+						m_declaration->GetReturnTypeSpecifier();
+				auto evaluation_result_type =
+						evaluation_result->GetTypeSpecifier();
 
-				auto return_type_result = return_type_specifier->GetType(
-						invocation_context->GetTypeTable(), RESOLVE);
+				auto assignment_analysis =
+						evaluation_result_type->AnalyzeAssignmentTo(
+								return_type_specifier, invocation_type_table);
+				switch (assignment_analysis) {
+				case UNAMBIGUOUS:
+				case UNAMBIGUOUS_NESTED: {
+					//we're returning a narrower type than the return type; perform widening
 
-				auto return_type_errors = return_type_result->GetErrors();
-				if (ErrorList::IsTerminator(return_type_errors)) {
-					auto return_type = return_type_result->GetData<
-							TypeDefinition>();
+					auto return_type_result = return_type_specifier->GetType(
+							invocation_context->GetTypeTable(), RESOLVE);
 
-					auto as_sum = dynamic_pointer_cast<const SumType>(
-							return_type);
-					if (as_sum) {
-						auto return_type_specifier_as_complex =
-								dynamic_pointer_cast<const ComplexTypeSpecifier>(
-										return_type_specifier);
-						assert(return_type_specifier_as_complex);
+					auto return_type_errors = return_type_result->GetErrors();
+					if (ErrorList::IsTerminator(return_type_errors)) {
+						auto return_type = return_type_result->GetData<
+								TypeDefinition>();
 
-						auto as_sum_specifier = SumTypeSpecifier(
-								return_type_specifier_as_complex);
-						plain_shared_ptr<string> tag =
-								as_sum->MapSpecifierToVariant(as_sum_specifier,
-										*evaluation_result_type);
+						auto as_sum = dynamic_pointer_cast<const SumType>(
+								return_type);
+						if (as_sum) {
+							auto return_type_specifier_as_complex =
+									dynamic_pointer_cast<
+											const ComplexTypeSpecifier>(
+											return_type_specifier);
+							assert(return_type_specifier_as_complex);
 
-						result = make_shared<Sum>(tag,
-								evaluation_result->GetValue());
-					}
+							auto as_sum_specifier = SumTypeSpecifier(
+									return_type_specifier_as_complex);
+							plain_shared_ptr<string> tag =
+									as_sum->MapSpecifierToVariant(
+											as_sum_specifier,
+											*evaluation_result_type);
 
-					auto as_maybe_specifier = dynamic_pointer_cast<
-							const MaybeTypeSpecifier>(return_type_specifier);
-					if (as_maybe_specifier) {
-						if (*evaluation_result_type
-								== *TypeTable::GetNilTypeSpecifier()) {
-							result = make_shared<Sum>(
-									MaybeTypeSpecifier::EMPTY_NAME,
-									evaluation_result->GetValue());
-						} else {
-							result = make_shared<Sum>(
-									MaybeTypeSpecifier::VARIANT_NAME,
+							result = make_shared<Sum>(tag,
 									evaluation_result->GetValue());
 						}
-					}
-					break;
-				} else {
-					errors = ErrorList::Concatenate(errors, return_type_errors);
-				}
-			}
-			case AMBIGUOUS:
-				assert(false); // our semantic analysis should have caught this already
-				break;
-			case EQUIVALENT:
-			default:
-				break;
-			}
 
-			return make_shared<Result>(result, errors);
-		} else {
-			return make_shared<Result>(nullptr, errors);
+						auto as_maybe_specifier = dynamic_pointer_cast<
+								const MaybeTypeSpecifier>(
+								return_type_specifier);
+						if (as_maybe_specifier) {
+							if (*evaluation_result_type
+									== *TypeTable::GetNilTypeSpecifier()) {
+								result = make_shared<Sum>(
+										MaybeTypeSpecifier::EMPTY_NAME,
+										evaluation_result->GetValue());
+							} else {
+								result = make_shared<Sum>(
+										MaybeTypeSpecifier::VARIANT_NAME,
+										evaluation_result->GetValue());
+							}
+						}
+						break;
+					} else {
+						errors = ErrorList::Concatenate(errors,
+								return_type_errors);
+					}
+				}
+				case AMBIGUOUS:
+					assert(false); // our semantic analysis should have caught this already
+					break;
+				case EQUIVALENT:
+				default:
+					break;
+				}
+
+				return make_shared<Result>(result, errors);
+			} else {
+				errors = ErrorList::Concatenate(errors, execute_errors);
+			}
 		}
-	} else {
-		return make_shared<Result>(nullptr, errors);
 	}
+
+	// default behavior: we have no result
+	return make_shared<Result>(nullptr, errors);
 }
 
 const string Function::ToString(const TypeTable& type_table,

@@ -1,0 +1,5 @@
+Parsing file ../tests/t8101.nwt...
+Semantic error on line 3, column 13: Parameter type mismatch: can't assign 'string' to 'int'
+Semantic error on line 6, column 6: Undeclared variable 'fun'
+Parsed file ../tests/t8101.nwt.
+2 errors found; giving up.
