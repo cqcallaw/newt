@@ -1,0 +1,28 @@
+# test mutual recursion (from the Wikipedia article on mutual recursion)
+#N.B. this test doesn't work for negative numbers
+
+is_even:(int) -> bool
+is_odd:(int) -> bool
+
+is_even = (n:int) -> bool {
+	if (n == 0) {
+		return true
+	} else {
+		return is_odd(n - 1)
+	}
+}
+
+is_odd = (n:int) -> bool {
+	if (n == 0) {
+		return false
+	} else {
+		return is_even(n - 1)
+	}
+}
+
+zero_is_even:=is_even(0)
+zero_is_odd:=is_odd(0)
+one_is_even:=is_even(1)
+one_is_odd:=is_odd(1)
+five_is_even:=is_even(5)
+five_is_odd:=is_odd(5)

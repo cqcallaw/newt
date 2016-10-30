@@ -1,0 +1,17 @@
+Parsing file ../tests/t8102.nwt...
+Parsed file ../tests/t8102.nwt.
+Root Symbol Table:
+----------------
+boolean five_is_even: 0
+boolean five_is_odd: 1
+(int) -> boolean is_even:
+	Body Location: 7.28-12.2
+(int) -> boolean is_odd:
+	Body Location: 15.27-20.2
+boolean one_is_even: 0
+boolean one_is_odd: 1
+boolean zero_is_even: 1
+boolean zero_is_odd: 0
+
+Root Type Table:
+----------------
