@@ -28,6 +28,8 @@
 
 using namespace std;
 
+size_t INVOCATION_DEPTH = 1024;
+
 SymbolTable::SymbolTable() :
 		SymbolContext(Modifier::NONE) {
 }

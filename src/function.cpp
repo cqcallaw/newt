@@ -53,7 +53,17 @@ Function::~Function() {
 const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		const shared_ptr<ExecutionContext> invocation_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-
+	if (invocation_context->GetDepth() > INVOCATION_DEPTH) {
+		std::stringstream ss;
+		ss << INVOCATION_DEPTH;
+		std::string as_string = ss.str();
+		errors = ErrorList::From(
+				make_shared<Error>(Error::RUNTIME, Error::MAX_INVOCATION_DEPTH,
+						m_declaration->GetLocation().begin.line,
+						m_declaration->GetLocation().begin.column, as_string),
+				errors);
+		make_shared<Result>(nullptr, errors);
+	}
 	auto closure_reference = GetClosureReference();
 
 	assert(closure_reference);
@@ -62,7 +72,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			invocation_context->GetParent());
 	shared_ptr<ExecutionContext> function_execution_context = make_shared<
 			ExecutionContext>(Modifier::MUTABLE, parent_context,
-			closure_reference->GetTypeTable(), EPHEMERAL);
+			closure_reference->GetTypeTable(), EPHEMERAL,
+			invocation_context->GetDepth() + 1);
 
 	//populate evaluation context with results of argument evaluation
 	ArgumentListRef argument = argument_list;
@@ -142,7 +153,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	parent_context = ExecutionContextList::From(closure_reference,
 			closure_reference->GetParent());
 	auto final_execution_context = function_execution_context->WithParent(
-			parent_context);
+			parent_context, false);
 
 	if (ErrorList::IsTerminator(errors)) {
 		//performing preprocessing here duplicates work with the function expression processing,
@@ -152,7 +163,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				m_body->Preprocess(final_execution_context,
 						m_declaration->GetReturnTypeSpecifier()));
 		if (ErrorList::IsTerminator(errors)) {
-			auto execute_errors = m_body->Execute(final_execution_context);
+			auto execute_errors = m_body->Execute(final_execution_context,
+					final_execution_context);
 
 			if (ErrorList::IsTerminator(execute_errors)) {
 				plain_shared_ptr<Symbol> evaluation_result =
@@ -175,7 +187,6 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				case UNAMBIGUOUS:
 				case UNAMBIGUOUS_NESTED: {
 					//we're returning a narrower type than the return type; perform widening
-
 					auto return_type_result = return_type_specifier->GetType(
 							invocation_context->GetTypeTable(), RESOLVE);
 

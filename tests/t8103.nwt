@@ -1,0 +1,6 @@
+# test infinite recursion
+fun := (a:int)-> int {
+	return fun(a)
+}
+
+v := fun(3)

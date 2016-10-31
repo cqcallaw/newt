@@ -86,7 +86,7 @@ const_shared_ptr<Result> SumType::Build(
 
 	auto parent = ExecutionContextList::From(output, output->GetParent());
 	auto tmp_context = make_shared<ExecutionContext>(Modifier::NONE, parent,
-			definition, EPHEMERAL);
+			definition, EPHEMERAL, output->GetDepth() + 1);
 
 	auto constructors = make_shared<SymbolTable>();
 
@@ -164,7 +164,8 @@ const_shared_ptr<Result> SumType::Build(
 
 						auto function_signature = make_shared<
 								FunctionDeclaration>(parameter,
-								sum_type_specifier, GetDefaultLocation());
+								sum_type_specifier, GetDefaultLocation(),
+								GetDefaultLocation());
 
 						const_shared_ptr<Expression> return_expression =
 								make_shared<VariableExpression>(

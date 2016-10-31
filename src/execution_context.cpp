@@ -26,28 +26,29 @@ ExecutionContext::ExecutionContext() :
 		ExecutionContext(Modifier::Type::NONE, make_shared<symbol_map>(),
 				ExecutionContextList::GetTerminator(), make_shared<TypeTable>(),
 				Symbol::GetDefaultSymbol(), plain_shared_ptr<int>(nullptr),
-				PERSISTENT) {
+				PERSISTENT, 0) {
 }
 
 ExecutionContext::ExecutionContext(const Modifier::Type modifiers) :
 		ExecutionContext(modifiers, make_shared<symbol_map>(),
 				ExecutionContextList::GetTerminator(), make_shared<TypeTable>(),
 				Symbol::GetDefaultSymbol(), plain_shared_ptr<int>(nullptr),
-				PERSISTENT) {
+				PERSISTENT, 0) {
 }
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> existing,
 		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
 		ExecutionContext(existing, ExecutionContextList::GetTerminator(),
 				type_table, Symbol::GetDefaultSymbol(),
-				plain_shared_ptr<int>(nullptr), life_time) {
+				plain_shared_ptr<int>(nullptr), life_time, 0) {
 }
 
 ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
 		const ExecutionContextListRef parent_context,
-		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
+		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
+		size_t depth) :
 		ExecutionContext(modifiers, make_shared<symbol_map>(), parent_context,
 				type_table, Symbol::GetDefaultSymbol(),
-				plain_shared_ptr<int>(nullptr), life_time) {
+				plain_shared_ptr<int>(nullptr), life_time, depth) {
 }
 
 const_shared_ptr<Symbol> ExecutionContext::GetSymbol(const string& identifier,
@@ -97,17 +98,27 @@ const shared_ptr<ExecutionContext> ExecutionContext::WithContents(
 		const shared_ptr<SymbolContext> contents) const {
 	return shared_ptr<ExecutionContext>(
 			new ExecutionContext(contents, m_parent, m_type_table,
-					m_return_value, m_exit_code, m_life_time));
+					m_return_value, m_exit_code, m_life_time, m_depth));
+}
+
+const shared_ptr<ExecutionContext> ExecutionContext::WithParent(
+		const ExecutionContextListRef parent_context, bool modify_depth) const {
+	return shared_ptr<ExecutionContext>(
+			new ExecutionContext(GetModifiers(), GetTable(), parent_context,
+					m_type_table, m_return_value, m_exit_code, m_life_time,
+					modify_depth && parent_context ?
+							parent_context->GetData()->GetDepth() + 1 :
+							GetDepth()));
 }
 
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> context,
 		const ExecutionContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table,
 		const_shared_ptr<Symbol> return_value, const_shared_ptr<int> exit_code,
-		const LifeTime life_time) :
+		const LifeTime life_time, size_t depth) :
 		SymbolTable(*context), m_parent(parent_context), m_type_table(
 				type_table), m_return_value(return_value), m_exit_code(
-				exit_code), m_life_time(life_time) {
+				exit_code), m_life_time(life_time), m_depth(depth) {
 	assert(m_type_table);
 }
 
@@ -116,10 +127,10 @@ ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
 		const ExecutionContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table,
 		const_shared_ptr<Symbol> return_value, const_shared_ptr<int> exit_code,
-		const LifeTime life_time) :
+		const LifeTime life_time, size_t depth) :
 		SymbolTable(modifiers, symbol_map), m_parent(parent_context), m_type_table(
 				type_table), m_return_value(return_value), m_exit_code(
-				exit_code), m_life_time(life_time) {
+				exit_code), m_life_time(life_time), m_depth(depth) {
 	assert(m_type_table);
 }
 
@@ -130,7 +141,7 @@ const shared_ptr<ExecutionContext> ExecutionContext::GetDefault() {
 	static const shared_ptr<ExecutionContext> instance = make_shared<
 			ExecutionContext>(Modifier::NONE,
 			ExecutionContextList::GetTerminator(), TypeTable::GetDefault(),
-			PERSISTENT);
+			PERSISTENT, 0);
 	return instance;
 }
 
@@ -144,4 +155,5 @@ void ExecutionContext::LinkToParent(const shared_ptr<ExecutionContext> parent) {
 	auto new_typetable = m_type_table->WithParent(parent->GetTypeTable());
 	m_parent = new_parent;
 	m_type_table = new_typetable;
+	m_depth = parent->GetDepth() + 1;
 }

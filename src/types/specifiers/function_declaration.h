@@ -27,11 +27,10 @@ class FunctionDeclaration: public FunctionTypeSpecifier {
 public:
 	FunctionDeclaration(DeclarationListRef parameter_list,
 			const_shared_ptr<TypeSpecifier> return_type,
-			const yy::location return_type_location);
+			const yy::location return_type_location,
+			const yy::location location);
 	FunctionDeclaration(const FunctionDeclaration& other);
 	virtual ~FunctionDeclaration();
-
-//	virtual const string ToString() const;
 
 	static const_shared_ptr<Result> FromTypeSpecifier(
 			const FunctionTypeSpecifier& type_specifier,

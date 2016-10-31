@@ -213,6 +213,9 @@ const string Error::get_error_message() const {
 	case RAW_RECURSIVE_DECLARATION:
 		os << "Specification of containing type requires Maybe type specifier.";
 		break;
+	case MAX_INVOCATION_DEPTH:
+		os << "Max invocation depth " << m_s1 << " exceeded.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

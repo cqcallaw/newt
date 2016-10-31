@@ -35,7 +35,8 @@ FunctionType::FunctionType(DeclarationListRef parameter_type_list,
 		const yy::location m_return_type_location) :
 		m_type_specifier(
 				make_shared<FunctionDeclaration>(parameter_type_list,
-						return_type, m_return_type_location)) {
+						return_type, m_return_type_location,
+						GetDefaultLocation())) {
 }
 
 const_shared_ptr<void> FunctionType::GetDefaultValue(

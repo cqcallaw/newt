@@ -71,7 +71,7 @@ const ErrorListRef FunctionExpression::Validate(
 			execution_context->GetParent());
 	shared_ptr<ExecutionContext> tmp_context = make_shared<ExecutionContext>(
 			Modifier::Type::NONE, new_parent, execution_context->GetTypeTable(),
-			execution_context->GetLifeTime());
+			execution_context->GetLifeTime(), execution_context->GetDepth() + 1);
 
 	DeclarationListRef declaration = m_declaration->GetParameterList();
 	while (!DeclarationList::IsTerminator(declaration)) {

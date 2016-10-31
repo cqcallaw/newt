@@ -47,12 +47,9 @@ public:
 			const LifeTime life_time);
 	ExecutionContext(const Modifier::Type modifiers,
 			const ExecutionContextListRef parent_context,
-			volatile_shared_ptr<TypeTable> type_table,
-			const LifeTime life_time);
+			volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
+			size_t depth);
 	virtual ~ExecutionContext();
-
-	const shared_ptr<ExecutionContext> WithContents(
-			const shared_ptr<SymbolContext> contents) const;
 
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
 			const shared_ptr<ExecutionContext> parent,
@@ -74,24 +71,28 @@ public:
 			const Modifier::Type modifiers, const LifeTime life_time,
 			volatile_shared_ptr<TypeTable> type_table,
 			const shared_ptr<symbol_map> map) {
-		auto new_parent = ExecutionContextList::From(parent, parent->GetParent());
+		auto new_parent = ExecutionContextList::From(parent,
+				parent->GetParent());
 		return shared_ptr<ExecutionContext>(
 				new ExecutionContext(modifiers, map, new_parent, type_table,
 						Symbol::GetDefaultSymbol(),
-						plain_shared_ptr<int>(nullptr), life_time));
+						plain_shared_ptr<int>(nullptr), life_time,
+						parent->GetDepth() + 1));
 	}
+
+	const shared_ptr<ExecutionContext> WithContents(
+			const shared_ptr<SymbolContext> contents) const;
+
+	virtual const shared_ptr<ExecutionContext> WithParent(
+			const ExecutionContextListRef parent_context, bool modify_depth =
+					true) const;
 
 	const ExecutionContextListRef GetParent() const {
 		return m_parent;
 	}
 
-	void LinkToParent(const shared_ptr<ExecutionContext> parent);
-
-	virtual const shared_ptr<ExecutionContext> WithParent(
-			const ExecutionContextListRef parent_context) const {
-		return shared_ptr<ExecutionContext>(
-				new ExecutionContext(GetModifiers(), GetTable(), parent_context,
-						m_type_table, m_return_value, m_exit_code, m_life_time));
+	const size_t GetDepth() const {
+		return m_depth;
 	}
 
 	volatile_shared_ptr<TypeTable> GetTypeTable() const {
@@ -128,6 +129,8 @@ public:
 	const void print(ostream &os, const TypeTable& type_table,
 			const Indent& indent, const SearchType search_type = SHALLOW) const;
 
+	void LinkToParent(const shared_ptr<ExecutionContext> parent);
+
 protected:
 	virtual SetResult SetSymbol(const std::string& identifier,
 			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
@@ -139,19 +142,22 @@ private:
 			const ExecutionContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table,
 			const_shared_ptr<Symbol> return_value,
-			const_shared_ptr<int> exit_code, const LifeTime life_time);
+			const_shared_ptr<int> exit_code, const LifeTime life_time,
+			size_t depth);
 
 	ExecutionContext(const shared_ptr<SymbolContext> context,
 			const ExecutionContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table,
 			const_shared_ptr<Symbol> return_value,
-			const_shared_ptr<int> exit_code, const LifeTime life_time);
+			const_shared_ptr<int> exit_code, const LifeTime life_time,
+			size_t depth);
 
 	ExecutionContextListRef m_parent;
 	volatile_shared_ptr<TypeTable> m_type_table;
 	plain_shared_ptr<Symbol> m_return_value;
 	plain_shared_ptr<int> m_exit_code;
 	const LifeTime m_life_time;
+	size_t m_depth;
 };
 
 #endif /* EXECUTION_CONTEXT_H_ */

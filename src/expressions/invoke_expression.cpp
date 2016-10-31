@@ -144,8 +144,8 @@ TypedResult<string> InvokeExpression::ToString(
 			}
 		}
 		buf << ")";
-		return TypedResult<string>(const_shared_ptr<string>(new string(buf.str())),
-				errors);
+		return TypedResult<string>(
+				const_shared_ptr<string>(new string(buf.str())), errors);
 	} else {
 		return expression_result;
 	}
@@ -172,7 +172,8 @@ const ErrorListRef InvokeExpression::Validate(
 				shared_ptr<ExecutionContext> tmp_context = make_shared<
 						ExecutionContext>(Modifier::Type::NONE, new_parent,
 						execution_context->GetTypeTable(),
-						execution_context->GetLifeTime());
+						execution_context->GetLifeTime(),
+						execution_context->GetDepth() + 1);
 
 				ArgumentListRef argument = m_argument_list;
 

@@ -788,7 +788,7 @@ function_declaration:
 	LPAREN optional_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
 		const DeclarationListRef parameter_list = DeclarationList::Reverse($2);
-		$$ = make_shared<FunctionDeclaration>(parameter_list, $5, @5);
+		$$ = make_shared<FunctionDeclaration>(parameter_list, $5, @5, @$);
 	}
 	;
 
