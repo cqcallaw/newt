@@ -1,0 +1,6 @@
+fun := (a:int) -> nil {
+	print(a)
+	return 3
+}
+
+fun(3)

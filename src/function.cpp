@@ -167,84 +167,97 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 					final_execution_context);
 
 			if (ErrorList::IsTerminator(execute_errors)) {
-				plain_shared_ptr<Symbol> evaluation_result =
-						final_execution_context->GetReturnValue();
-				assert(evaluation_result);
-				final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+				if (*m_declaration->GetReturnTypeSpecifier()
+						== *TypeTable::GetNilTypeSpecifier()) {
+					return make_shared<Result>(
+							TypeTable::GetNilType()->GetDefaultValue(
+									closure_reference->GetTypeTable()), errors);
+				} else {
+					plain_shared_ptr<Symbol> evaluation_result =
+							final_execution_context->GetReturnValue();
+					assert(evaluation_result);
+					final_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
-				plain_shared_ptr<void> result = evaluation_result->GetValue();
-				auto invocation_type_table = invocation_context->GetTypeTable();
+					plain_shared_ptr<void> result =
+							evaluation_result->GetValue();
+					auto invocation_type_table =
+							invocation_context->GetTypeTable();
 
-				auto return_type_specifier =
-						m_declaration->GetReturnTypeSpecifier();
-				auto evaluation_result_type =
-						evaluation_result->GetTypeSpecifier();
+					auto return_type_specifier =
+							m_declaration->GetReturnTypeSpecifier();
+					auto evaluation_result_type =
+							evaluation_result->GetTypeSpecifier();
 
-				auto assignment_analysis =
-						evaluation_result_type->AnalyzeAssignmentTo(
-								return_type_specifier, invocation_type_table);
-				switch (assignment_analysis) {
-				case UNAMBIGUOUS:
-				case UNAMBIGUOUS_NESTED: {
-					//we're returning a narrower type than the return type; perform widening
-					auto return_type_result = return_type_specifier->GetType(
-							invocation_context->GetTypeTable(), RESOLVE);
+					auto assignment_analysis =
+							evaluation_result_type->AnalyzeAssignmentTo(
+									return_type_specifier,
+									invocation_type_table);
+					switch (assignment_analysis) {
+					case UNAMBIGUOUS:
+					case UNAMBIGUOUS_NESTED: {
+						//we're returning a narrower type than the return type; perform widening
+						auto return_type_result =
+								return_type_specifier->GetType(
+										invocation_context->GetTypeTable(),
+										RESOLVE);
 
-					auto return_type_errors = return_type_result->GetErrors();
-					if (ErrorList::IsTerminator(return_type_errors)) {
-						auto return_type = return_type_result->GetData<
-								TypeDefinition>();
+						auto return_type_errors =
+								return_type_result->GetErrors();
+						if (ErrorList::IsTerminator(return_type_errors)) {
+							auto return_type = return_type_result->GetData<
+									TypeDefinition>();
 
-						auto as_sum = dynamic_pointer_cast<const SumType>(
-								return_type);
-						if (as_sum) {
-							auto return_type_specifier_as_complex =
-									dynamic_pointer_cast<
-											const ComplexTypeSpecifier>(
-											return_type_specifier);
-							assert(return_type_specifier_as_complex);
+							auto as_sum = dynamic_pointer_cast<const SumType>(
+									return_type);
+							if (as_sum) {
+								auto return_type_specifier_as_complex =
+										dynamic_pointer_cast<
+												const ComplexTypeSpecifier>(
+												return_type_specifier);
+								assert(return_type_specifier_as_complex);
 
-							auto as_sum_specifier = SumTypeSpecifier(
-									return_type_specifier_as_complex);
-							plain_shared_ptr<string> tag =
-									as_sum->MapSpecifierToVariant(
-											as_sum_specifier,
-											*evaluation_result_type);
+								auto as_sum_specifier = SumTypeSpecifier(
+										return_type_specifier_as_complex);
+								plain_shared_ptr<string> tag =
+										as_sum->MapSpecifierToVariant(
+												as_sum_specifier,
+												*evaluation_result_type);
 
-							result = make_shared<Sum>(tag,
-									evaluation_result->GetValue());
-						}
-
-						auto as_maybe_specifier = dynamic_pointer_cast<
-								const MaybeTypeSpecifier>(
-								return_type_specifier);
-						if (as_maybe_specifier) {
-							if (*evaluation_result_type
-									== *TypeTable::GetNilTypeSpecifier()) {
-								result = make_shared<Sum>(
-										MaybeTypeSpecifier::EMPTY_NAME,
-										evaluation_result->GetValue());
-							} else {
-								result = make_shared<Sum>(
-										MaybeTypeSpecifier::VARIANT_NAME,
+								result = make_shared<Sum>(tag,
 										evaluation_result->GetValue());
 							}
-						}
-						break;
-					} else {
-						errors = ErrorList::Concatenate(errors,
-								return_type_errors);
-					}
-				}
-				case AMBIGUOUS:
-					assert(false); // our semantic analysis should have caught this already
-					break;
-				case EQUIVALENT:
-				default:
-					break;
-				}
 
-				return make_shared<Result>(result, errors);
+							auto as_maybe_specifier = dynamic_pointer_cast<
+									const MaybeTypeSpecifier>(
+									return_type_specifier);
+							if (as_maybe_specifier) {
+								if (*evaluation_result_type
+										== *TypeTable::GetNilTypeSpecifier()) {
+									result = make_shared<Sum>(
+											MaybeTypeSpecifier::EMPTY_NAME,
+											evaluation_result->GetValue());
+								} else {
+									result = make_shared<Sum>(
+											MaybeTypeSpecifier::VARIANT_NAME,
+											evaluation_result->GetValue());
+								}
+							}
+							break;
+						} else {
+							errors = ErrorList::Concatenate(errors,
+									return_type_errors);
+						}
+					}
+					case AMBIGUOUS:
+						assert(false); // our semantic analysis should have caught this already
+						break;
+					case EQUIVALENT:
+					default:
+						break;
+					}
+
+					return make_shared<Result>(result, errors);
+				}
 			} else {
 				errors = ErrorList::Concatenate(errors, execute_errors);
 			}
