@@ -23,19 +23,17 @@
 #include <memory>
 #include <linked_list.h>
 #include <string>
-#include <match.h>
+#include <defaults.h>
 
 class StatementBlock;
 
 class Match {
 public:
 	Match(const_shared_ptr<std::string> name, const yy::location name_location,
-			const_shared_ptr<StatementBlock> block) :
-			m_name(name), m_name_location(name_location), m_block(block) {
-	}
-
-	virtual ~Match() {
-	}
+			const_shared_ptr<std::string> alias,
+			const yy::location alias_location,
+			const_shared_ptr<StatementBlock> block);
+	virtual ~Match();
 
 	const_shared_ptr<StatementBlock> GetBlock() const {
 		return m_block;
@@ -49,9 +47,21 @@ public:
 		return m_name_location;
 	}
 
+	const_shared_ptr<std::string> GetAlias() const {
+		return m_alias;
+	}
+
+	const yy::location GetAliasLocation() const {
+		return m_alias_location;
+	}
+
+	static const_shared_ptr<std::string> DEFAULT_MATCH_NAME;
+
 private:
 	const_shared_ptr<std::string> m_name;
 	const yy::location m_name_location;
+	const_shared_ptr<std::string> m_alias;
+	const yy::location m_alias_location;
 	const_shared_ptr<StatementBlock> m_block;
 };
 

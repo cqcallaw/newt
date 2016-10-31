@@ -1,0 +1,20 @@
+# test match aliasing
+result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+f:= (t:result) -> int {
+	match(t)
+	value as val {
+		return val
+	}
+	| error as err {
+		return -1
+	}
+}
+
+error_result := f(@result.error)
+value_result := f(3)

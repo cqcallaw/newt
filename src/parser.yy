@@ -619,11 +619,15 @@ match_condition_list:
 match_condition:
 	IDENTIFIER statement_block
 	{
-		$$ = make_shared<Match>($1, @1, $2);
+		$$ = make_shared<Match>($1, @1, $1, @1, $2);
+	}
+	| IDENTIFIER AS IDENTIFIER statement_block
+	{
+		$$ = make_shared<Match>($1, @1, $3, @3, $4);
 	}
 	| UNDERSCORE statement_block
 	{
-		$$ = make_shared<Match>(make_shared<std::string>("_"), @1, $2);
+		$$ = make_shared<Match>(Match::DEFAULT_MATCH_NAME, @1, Match::DEFAULT_MATCH_NAME, GetDefaultLocation(), $2);
 	}
 	;
 	

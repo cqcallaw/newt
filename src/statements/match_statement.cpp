@@ -95,9 +95,10 @@ const ErrorListRef MatchStatement::Preprocess(
 					while (!MatchList::IsTerminator(match_list)) {
 						auto match = match_list->GetData();
 						auto match_name = match->GetName();
+						auto alias_name = match->GetAlias();
 						auto match_body = match->GetBlock();
 
-						if (*match_name == "_") {
+						if (*match_name == *Match::DEFAULT_MATCH_NAME) {
 							// N.B. we must not do any preprocessing here, since an explicit match may still exist in the match list
 							// explicit matches always take precedence over default match blocks
 							auto matched_context = match_context->GetData();
@@ -132,7 +133,7 @@ const ErrorListRef MatchStatement::Preprocess(
 													context->GetTypeTable(),
 													variant_type_specifier,
 													default_value);
-									matched_context->InsertSymbol(*match_name,
+									matched_context->InsertSymbol(*alias_name,
 											default_symbol);
 
 									auto block_errors = match_body->Preprocess(
@@ -299,8 +300,9 @@ const ErrorListRef MatchStatement::Execute(
 												source_sum_specifier,
 												GetDefaultLocation());
 
+								auto alias_name = *(match->GetAlias());
 								auto set_result = matched_context->SetSymbol(
-										match_name, variant_type_specifier,
+										alias_name, variant_type_specifier,
 										as_sum->GetValue(),
 										context->GetTypeTable());
 								assert(set_result == SET_SUCCESS);
@@ -326,7 +328,7 @@ const ErrorListRef MatchStatement::Execute(
 												errors);
 							}
 							break;
-						} else if (match_name == "_") {
+						} else if (match_name == *Match::DEFAULT_MATCH_NAME) {
 							auto matched_context = match_context->GetData();
 							auto matched_parent =
 									matched_context->GetParent()->GetData();
