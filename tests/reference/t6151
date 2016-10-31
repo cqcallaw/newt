@@ -1,0 +1,22 @@
+Parsing file ../tests/t6151.nwt...
+Parsed file ../tests/t6151.nwt.
+Root Symbol Table:
+----------------
+int error_result: -1
+(result) -> int f:
+	Body Location: 11.24-18.2
+int val: 5
+int value_result: 3
+
+Root Type Table:
+----------------
+result:
+	<sum>
+	error:
+		<record>
+		message:
+			string ("")
+
+	value:
+		int
+

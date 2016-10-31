@@ -1,0 +1,22 @@
+# test match aliasing that shadows variable in parent context
+result {
+	value:int
+	| error {
+		message:string
+	}
+}
+
+val := 5
+
+f:= (t:result) -> int {
+	match(t)
+	value as val {
+		return val
+	}
+	| error as err {
+		return -1
+	}
+}
+
+error_result := f(@result.error)
+value_result := f(3)
