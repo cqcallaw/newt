@@ -1,10 +1,10 @@
-# test recursive function with a recursive data type
+# test linked-list processing
 list {
 	data:int,
 	next:list?
 }
 
-sum := (l:list?) -> int {
+sum:= (l:list?) -> int {
 	match (l)
 		empty {
 			return 0
@@ -14,5 +14,11 @@ sum := (l:list?) -> int {
 		}
 }
 
-l:list= @list with { data = 2, next = @list with { data = 3 } }
+l:list = @list with {
+	data = 2,
+	next = @list with {
+		data = 3
+	}
+}
+
 r:= sum(l)

@@ -1,4 +1,4 @@
-# test recursive function with a recursive data type
+# test recursive function with default value of a recursive data type, second variant
 list {
 	terminator
 	| item {
