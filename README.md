@@ -223,7 +223,7 @@ Match aliasing is particularly useful for nested match blocks.
 
 #### Unit Types and Enumerations
 
-Sum types may contain members that are declared without a type. These type members are unit types (that is, types capable of taking on a single value). Thus, the semantic concept of an enumeration an be expressed as a sum type of unit types:
+Sum types may contain members that are declared without a type. These type members are unit types (that is, types capable of taking on a single value). Thus, the semantic concept of an enumeration can be expressed as a sum type of unit types:
 
 ```
 color {
