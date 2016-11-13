@@ -90,7 +90,7 @@ The default value of a type is fixed and constant for the lifetime of a program'
 ## Compound Types
 
 ### Record Types
-newt supports compound types analagous to C's structs. Unlike C's structs, the data is not stored contiguously in memory. In newt, these are called _record types_.
+newt supports compound types analagous to C's structs, though unlike C's structs, data is not stored contiguously in memory. In newt, these are called _record types_.
 
 ```
 person {
@@ -99,13 +99,14 @@ person {
 }
 ```
 
-newt's record types are instantiated from another instance of a record type, or the record type's default value, using the `with` operator:
+Instances of newt's record types from another instance of a record type (which may be the record type's default value) using the `with` operator:
 
 ```
 	p1:person = @person with { age = 25, name = "Joe" }
 	p2 = p1 with { age = 26 }
 ```
 
+#### Member Mutation
 Records are immutable by default:
 
 ```
@@ -126,7 +127,7 @@ mutable point {
 	y:int
 }
 point:point = @point
-point.x = 50 # valid
+point.x = 50
 ```
 
 ### Sum Types
