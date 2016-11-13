@@ -148,12 +148,85 @@ f:= (...) -> result { ... }
 
 The previous example also serves to demonstrate the manner in which complex types may be declared as members of a containing complex type. `result.error` is a discrete type definition, and is _not_ considered equivalent to any other definition named `error`, even if the structure of the other type is identical. `result.value`, on the other hand, is an _alias_ for the built-in `double` type, and variables of type `result.value` may be assigned to values of type `double`.
 
+#### Instantiating Sum Types
+
+Sum type instantiation is similar to record type instantiation, with the important caveat that type inference can be less intuitive for variables of sum types. Here is an example of a valid sum type instantiation:
+
+```
+res:result= @result.error with { code = 3, message = "No more room on disk!" }
+```
+
+Note that the type of the variable is specified. If we had allowed the variable type to be inferred, the variable type would have been the narrower `result.error`.
+
+Variables that are of a sum type's member type can automatically be assigned to the wider sum type:
+
+```
+res:result
+error:= @result.error with { code = 3, message = "No more room on disk!" }
+res = error
+
+# widening works for return values too
+f:= (...) -> result {
+   # ...
+   return @result.error with { code = 3, message = "No more room on disk!" }   
+}
+```
+
+#### Matching
+
+A value that is of a sum type may be any of the sum type's member types, so before the value can be used, the member type of the value must be identified. This is done with a `match` statement, as follows:
+
+```
+result {
+    value:double
+    | error {
+       int:code,
+       string:message
+    }
+}
+
+res := get_result_from_function()
+
+match (res)
+    value {
+        print("value: " + value)
+    }
+    | error {
+        print("error: " + error.message)
+    }
+```
+
+A match statement must provide match blocks that cover all the members of the sum type. If explicit coverage is not appropriate, a catch-all default block may be used:
+
+```
+match (res)
+    value {
+        print("value: " + value)
+    }
+    | _ {
+        print("default block.")
+    }
+```
+
+Match blocks may optionally alias the name of discrete matches:
+```
+match (res)
+    value as v {
+        print("value: " + v)
+    }
+    | _ {
+        print("default block.")
+    }
+```
+
+Match aliasing is particularly useful for nested match blocks.
+
 #### Unit Types and Enumerations
 
 Sum types may contain members that are declared without a type. These type members are unit types (that is, types capable of taking on a single value). Thus, the semantic concept of an enumeration an be expressed as a sum type of unit types:
 
 ```
-colors {
+color {
     red
     | blue
     | green
@@ -189,7 +262,7 @@ a:= (a: int, b:int) -> int {
 }
 ```
 
-Higher order functions are also supported. That is, functions may be passed as function arguments:
+Higher order functions are also supported; that is, functions may be passed as function arguments:
 
 ```
 f:= (a:int, b:(int) -> int) -> int {
