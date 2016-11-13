@@ -62,7 +62,7 @@ The following types are built-in:
 * int (default value: 0)
 * double (default value: 0.0)
 * string (default value: "")
-
+* nil (default unit type)
 
 ## Variable Assignment
 ```
@@ -147,6 +147,37 @@ f:= (...) -> result { ... }
 ```
 
 The previous example also serves to demonstrate the manner in which complex types may be declared as members of a containing complex type. `result.error` is a discrete type definition, and is _not_ considered equivalent to any other definition named `error`, even if the structure of the other type is identical. `result.value`, on the other hand, is an _alias_ for the built-in `double` type, and variables of type `result.value` may be assigned to values of type `double`.
+
+#### Unit Types and Enumerations
+
+Sum types may contain members that are declared without a type. These type members are unit types (that is, types capable of taking on a single value). Thus, the semantic concept of an enumeration an be expressed as a sum type of unit types:
+
+```
+colors {
+    red
+    | blue
+    | green
+    | yellow
+    | orange
+}
+```
+
+#### Maybe Types
+
+One sum type is common enough to warrent special syntax, that of the "Maybe" type. This type is expressed as type indentifier followed by a question mark ('?'):
+
+```
+a:int? = 3
+```
+
+This type captures the semantic concept of a nullable value, and is semantically equivalent to the following sum type:
+
+```
+maybe_int {
+    int:value
+    | empty
+}
+```
 
 ## Functions
 
