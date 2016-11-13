@@ -257,10 +257,12 @@ maybe_int {
 
 Complex (e.g. record or sum) types may contain members that reference the containing type, provided the reference is wrapped in a Maybe type:
 
+```
 list {
     head:int
     tail:list?
 }
+```
 
 The Maybe-wrapping constraint exists because all types in newt must have a default value, and a clean method for computing the default value of the containing type is not yet known.
 
