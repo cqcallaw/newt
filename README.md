@@ -106,6 +106,7 @@ Instances of newt's record types from another instance of a record type (which m
 	p2 = p1 with { age = 26 }
 ```
 
+
 #### Member Mutation
 Records are immutable by default:
 
@@ -251,6 +252,17 @@ maybe_int {
     | empty
 }
 ```
+
+### Recursive Types
+
+Complex (e.g. record or sum) types may contain members that reference the containing type, provided the reference is wrapped in a Maybe type:
+
+list {
+    head:int
+    tail:list?
+}
+
+The Maybe-wrapping constraint exists because all types in newt must have a default value, and a clean method for computing the default value of the containing type is not yet known.
 
 ## Functions
 
