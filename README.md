@@ -22,7 +22,7 @@ newt also aims to automate immutability, as immutable data structures have been 
 newt exists because it was believed that the state of the art of software-authoring software could be improved. The language specification and implementation are offered as evidence that an improved solution exists.
 
 # Building
-newt requires flex (tested with version 2.5.35), Bison (tested with version 3.0.2), and g++ (tested with 4.8.4) to build. To build a release binary, type the following from the commandline:
+newt requires flex (tested with version 2.6.0), Bison (tested with version 3.0.4), and g++ (tested with 5.4.0) to build. To build a release binary, type the following from the commandline:
 
 ```
 $ make -C Release all
@@ -44,7 +44,7 @@ print("Hello, World!")
 
 ## Comments
 ```
-print("Hello, World!") #prints "Hello, World!"
+print("Hello, World!") # prints "Hello, World!"
 ```
 
 ## Variable Declaration
