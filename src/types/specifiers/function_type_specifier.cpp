@@ -86,7 +86,8 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 			TypeSpecifierListRef subject = m_parameter_type_list;
 			TypeSpecifierListRef other_subject =
 					as_function.GetParameterTypeList();
-			while (!TypeSpecifierList::IsTerminator(subject)) {
+			while (!TypeSpecifierList::IsTerminator(subject)
+					&& !TypeSpecifierList::IsTerminator(other_subject)) {
 				const_shared_ptr<TypeSpecifier> type = subject->GetData();
 				const_shared_ptr<TypeSpecifier> other_type =
 						other_subject->GetData();
@@ -96,6 +97,12 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 				} else {
 					return false;
 				}
+			}
+
+			if (!TypeSpecifierList::IsTerminator(subject)
+					|| !TypeSpecifierList::IsTerminator(other_subject)) {
+				// parameter length mismatch
+				return false;
 			}
 
 			return true;

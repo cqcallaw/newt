@@ -1,0 +1,3 @@
+a:(int, int) -> int = (a:int) -> int {
+	return(a)
+}

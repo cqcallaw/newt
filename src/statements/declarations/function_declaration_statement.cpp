@@ -65,24 +65,40 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 								expression_type_specifier);
 
 				if (as_function) {
-					// insert default value to allow for recursive invocations
-					auto child_context = context->GetEmptyChild(context,
-							Modifier::Type::MUTABLE, EPHEMERAL);
+					auto assignment_analysis = as_function->AnalyzeAssignmentTo(
+							m_type_specifier, type_table);
+					if (assignment_analysis == EQUIVALENT) {
+						// insert default value to allow for recursive invocations
+						auto child_context = context->GetEmptyChild(context,
+								Modifier::Type::MUTABLE, EPHEMERAL);
 
-					auto value = m_type_specifier->DefaultValue(*type_table);
-					auto symbol = make_shared<Symbol>(
-							static_pointer_cast<const Function>(value));
-					InsertResult insert_result = child_context->InsertSymbol(
-							*GetName(), symbol);
-					assert(insert_result == INSERT_SUCCESS);
-
-					errors = GetInitializerExpression()->Validate(
-							child_context);
-					if (ErrorList::IsTerminator(errors)) {
-						// passed validation; insert into output context
-						InsertResult insert_result = context->InsertSymbol(
-								*GetName(), symbol);
+						auto value = m_type_specifier->DefaultValue(
+								*type_table);
+						auto symbol = make_shared<Symbol>(
+								static_pointer_cast<const Function>(value));
+						InsertResult insert_result =
+								child_context->InsertSymbol(*GetName(), symbol);
 						assert(insert_result == INSERT_SUCCESS);
+
+						errors = GetInitializerExpression()->Validate(
+								child_context);
+						if (ErrorList::IsTerminator(errors)) {
+							// passed validation; insert into output context
+							InsertResult insert_result = context->InsertSymbol(
+									*GetName(), symbol);
+							assert(insert_result == INSERT_SUCCESS);
+						}
+					} else {
+						//TODO: consider widening conversions
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::ASSIGNMENT_TYPE_ERROR,
+												GetInitializerExpression()->GetPosition().begin.line,
+												GetInitializerExpression()->GetPosition().begin.column,
+												m_type_specifier->ToString(),
+												as_function->ToString()),
+										errors);
 					}
 				} else {
 					errors =
