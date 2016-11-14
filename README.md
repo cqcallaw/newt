@@ -27,10 +27,19 @@ newt requires flex (tested with version 2.6.0), Bison (tested with version 3.0.4
 ```
 $ make -C Release all
 ```
+The build process will generate an executable, `newt` in the Release subdirectory.
 
 To run the test suite:
 ```
 $ make -C Release test
+```
+
+# Program Execution
+
+The `newt` executable generated the build system is a program interpreter that takes newt script input files as an arguments, and executes them on behalf of the user:
+
+```
+$ Release/newt test.nwt
 ```
 
 # Syntax
