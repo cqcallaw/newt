@@ -66,7 +66,7 @@ const ErrorListRef InferredDeclarationStatement::Preprocess(
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto expression_type_specifier_result =
 			GetInitializerExpression()->GetTypeSpecifier(context,
-					AliasResolution::RETURN);
+					AliasResolution::RESOLVE);
 
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {

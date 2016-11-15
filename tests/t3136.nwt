@@ -1,0 +1,5 @@
+coord {
+	x:int
+}
+
+c:= @coord.x with { x = 3 }

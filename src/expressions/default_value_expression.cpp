@@ -46,8 +46,12 @@ DefaultValueExpression::~DefaultValueExpression() {
 TypedResult<TypeSpecifier> DefaultValueExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return NestedTypeSpecifier::Resolve(m_type_specifier,
-			*execution_context->GetTypeTable());
+	if (resolution == RESOLVE) {
+		return NestedTypeSpecifier::Resolve(m_type_specifier,
+				*execution_context->GetTypeTable());
+	} else {
+		return m_type_specifier;
+	}
 }
 
 const_shared_ptr<Result> DefaultValueExpression::Evaluate(

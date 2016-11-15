@@ -1,0 +1,4 @@
+Parsing file ../tests/t3136.nwt...
+Semantic error on line 5, column 5: 'coord.x' does not reference a compound type.
+Parsed file ../tests/t3136.nwt.
+1 error found; giving up.

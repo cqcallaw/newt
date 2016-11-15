@@ -174,7 +174,8 @@ const ErrorListRef WithExpression::Validate(
 
 	if (ErrorList::IsTerminator(errors)) {
 		auto source_type_specifier_result =
-				m_source_expression->GetTypeSpecifier(execution_context);
+				m_source_expression->GetTypeSpecifier(execution_context,
+						RETURN);
 
 		errors = source_type_specifier_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
