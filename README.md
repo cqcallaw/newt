@@ -35,7 +35,6 @@ $ make -C Release test
 ```
 
 # Program Execution
-
 The `newt` executable generated the build system is a program interpreter that takes newt script input files as an arguments, and executes them on behalf of the user:
 
 ```
@@ -43,7 +42,6 @@ $ Release/newt test.nwt
 ```
 
 # Syntax
-
 newt's syntax is a blend of C-style language constructs and notation from more succinct grammars. The grammar does not include semi-colon statement terminators. Whitespace is not significant; blocks are surrounded by curly braces.
 
 ## Hello, World!
@@ -57,7 +55,6 @@ print("Hello, World!") # prints "Hello, World!"
 ```
 
 ## Variable Declaration
-
 Variable declaration is a departure from the C-style syntax. Variables are declared by first specifying the variable name, followed by a colon, followed by the variable's type specifier. Variables may be initialized using an appropriate (that is, type-compatible) value. If the variable initializer is specified, the type specifier may be omitted, allowing the variable's type to be inferred.
 
 ```
@@ -108,13 +105,18 @@ person {
 }
 ```
 
-Instances of newt's record types from another instance of a record type (which may be the record type's default value) using the `with` operator:
+#### Instantiation
+New instances of record types are created by applying a transformation to an existing type instance. The `with` operator followed by a list transformations yields the new instance, as follows:
+
+```
+	person2 = person1 with { age = 26 }
+```
+
+If no instances of the record type exist, the default value of the record type may be used:
 
 ```
 	p1:person = @person with { age = 25, name = "Joe" }
-	p2 = p1 with { age = 26 }
 ```
-
 
 #### Member Mutation
 Records are immutable by default:
@@ -141,7 +143,6 @@ point.x = 50
 ```
 
 ### Sum Types
-
 newt provides support for [sum types](https://en.wikipedia.org/wiki/Tagged_union), that is, data structures that can hold a value which may be one--and only one--of several different, but fixed, types. For example, one might model the return type of a function that returns a value _or_ an error as follows:
 
 ```
@@ -159,7 +160,6 @@ f:= (...) -> result { ... }
 The previous example also serves to demonstrate the manner in which complex types may be declared as members of a containing complex type. `result.error` is a discrete type definition, and is _not_ considered equivalent to any other definition named `error`, even if the structure of the other type is identical. `result.value`, on the other hand, is an _alias_ for the built-in `double` type, and variables of type `result.value` may be assigned to values of type `double`.
 
 #### Instantiating Sum Types
-
 Sum type instantiation is similar to record type instantiation, with the important caveat that type inference can be less intuitive for variables of sum types. Here is an example of a valid sum type instantiation:
 
 ```
@@ -183,7 +183,6 @@ f:= (...) -> result {
 ```
 
 #### Matching
-
 A value that is of a sum type may be any of the sum type's member types, so before the value can be used, the member type of the value must be identified. This is done with a `match` statement, as follows:
 
 ```
