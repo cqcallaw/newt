@@ -38,7 +38,9 @@ $ make -C Release test
 The `newt` executable generated the build system is a program interpreter that takes newt script input files as an arguments, and executes them on behalf of the user:
 
 ```
-$ Release/newt test.nwt
+$ Release/newt hello.nwt
+Welcome to newt!
+$
 ```
 
 # Syntax
