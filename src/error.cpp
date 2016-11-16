@@ -216,6 +216,9 @@ const string Error::get_error_message() const {
 	case MAX_INVOCATION_DEPTH:
 		os << "Max invocation depth " << m_s1 << " exceeded.";
 		break;
+	case INVALID_WITH_OPERAND:
+		os << "Invalid source expression type '" << m_s1 << "' for 'with' operation: source must be of a record type.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

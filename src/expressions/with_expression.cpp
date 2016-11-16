@@ -82,7 +82,7 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 					errors =
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
-											Error::NOT_A_COMPOUND_TYPE,
+											Error::INVALID_WITH_OPERAND,
 											m_source_expression->GetPosition().begin.line,
 											m_source_expression->GetPosition().begin.column,
 											source_type_specifier->ToString()),
@@ -201,7 +201,7 @@ const ErrorListRef WithExpression::Validate(
 					errors =
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
-											Error::NOT_A_COMPOUND_TYPE,
+											Error::INVALID_WITH_OPERAND,
 											m_source_expression->GetPosition().begin.line,
 											m_source_expression->GetPosition().begin.column,
 											source_type_specifier->ToString()),

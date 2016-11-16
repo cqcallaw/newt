@@ -93,6 +93,7 @@ public:
 		EXTRANEOUS_DEFAULT_MATCH,
 		RAW_RECURSIVE_DECLARATION,
 		MAX_INVOCATION_DEPTH,
+		INVALID_WITH_OPERAND
 	};
 
 	Error(ErrorClass error_class, ErrorCode code, int line_number,
