@@ -145,15 +145,32 @@ point.x = 50
 ```
 
 ### Sum Types
-newt provides support for [sum types](https://en.wikipedia.org/wiki/Tagged_union), that is, data structures that can hold a value which may be one--and only one--of several different, but fixed, types. For example, one might model the return type of a function that returns a value _or_ an error as follows:
+newt provides support for [sum types](https://en.wikipedia.org/wiki/Tagged_union), that is, data structures that can hold a value which may be one--and only one--of several different, but fixed, types. For example, one might model a generic color as either RGB _or_ HSL values:
+
+```
+color {
+	rgb {
+		r:int,
+		g:int,
+		b:int,
+	}
+	| hsl {
+		h:double,
+		s:double,
+		l:double,
+	}
+}
+```
+
+One might also model the return type of a function that returns a value _or_ an error as follows:
 
 ```
 result {
-    value:double
-    | error {
-       int:code,
-       string:message
-    }
+	value:double
+	| error {
+		int:code,
+		string:message
+	}
 }
 
 f:= (...) -> result { ... }
@@ -260,6 +277,28 @@ This type captures the semantic concept of a nullable value, and is semantically
 maybe_int {
     int:value
     | empty
+}
+```
+
+### Complex Type Nesting
+
+Complex types may be arbitarily nested. It is thus possible to expand the previous generic color type to include an alpha channel as follows:
+
+```
+color {
+	value {
+		rgb {
+			r:int,
+			g:int,
+			b:int,
+		}
+		| hsl {
+			h:double,
+			s:double,
+			l:double,
+		}
+	},
+	alpha:int
 }
 ```
 
