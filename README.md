@@ -280,7 +280,7 @@ maybe_int {
 }
 ```
 
-### Complex Type Nesting
+### Type Nesting
 
 Complex types may be arbitarily nested. It is thus possible to expand the previous generic color type to include an alpha channel as follows:
 
