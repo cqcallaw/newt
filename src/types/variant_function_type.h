@@ -17,63 +17,58 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TYPE_DEFINITION_H_
-#define TYPE_DEFINITION_H_
+#ifndef TYPES_VARIANT_FUNCTION_TYPE_H_
+#define TYPES_VARIANT_FUNCTION_TYPE_H_
 
-#include <string>
-#include <defaults.h>
+#include <type_definition.h>
+#include <function_variant.h>
 
-class TypeTable;
-class Indent;
-class TypeSpecifier;
-class ComplexTypeSpecifier;
-class Symbol;
-class DeclarationStatement;
-class Expression;
+class Function;
 
-class TypeDefinition {
+class VariantFunctionType: public TypeDefinition {
 public:
-	TypeDefinition() {
-	}
-
-	virtual ~TypeDefinition() {
-	}
+	VariantFunctionType(const FunctionVariantListRef variant_list);
+	virtual ~VariantFunctionType();
 
 	virtual const_shared_ptr<void> GetDefaultValue(
-			const TypeTable& type_table) const = 0;
+			const TypeTable& type_table) const;
 
 	virtual const std::string ToString(const TypeTable& type_table,
-			const Indent& indent) const = 0;
+			const Indent& indent) const;
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
-			const Indent& indent, const_shared_ptr<void> value) const = 0;
+			const Indent& indent, const_shared_ptr<void> value) const;
 
 	virtual const std::string GetValueSeparator(const Indent& indent,
-			const void* value) const = 0;
+			const void* value) const;
 
-	virtual const std::string GetTagSeparator(const Indent& indent,
-			const void* value) const {
-		return "";
-	}
+	/*virtual const std::string GetTagSeparator(const Indent& indent,
+	 const void* value) const {
+	 return "";
+	 }*/
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
-			yy::location location) const = 0;
+			yy::location location) const;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void> value) const = 0;
+			const_shared_ptr<void> value) const;
 
-	/**
-	 * Return the concrete (un-inferred) declaration statement for this type
-	 */
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
-			const yy::location position, const_shared_ptr<TypeSpecifier> type,
+			const yy::location location, const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position,
 			const_shared_ptr<std::string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const = 0;
+			const yy::location name_location,
+			const_shared_ptr<Expression> initializer_expression) const;
+protected:
+	static const_shared_ptr<Function> GetDefaultFunction(
+			const FunctionVariantListRef variant_list,
+			const TypeTable& type_table);
+
+private:
+	const FunctionVariantListRef m_variant_list;
 };
 
-#endif /* TYPE_DEFINITION_H_ */
+#endif /* TYPES_VARIANT_FUNCTION_TYPE_H_ */

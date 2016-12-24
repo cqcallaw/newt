@@ -21,15 +21,12 @@
 #define EXPRESSIONS_FUNCTION_EXPRESSION_H_
 
 #include <expression.h>
-
-class FunctionDeclaration;
-class StatementBlock;
+#include <function_variant.h>
 
 class FunctionExpression: public Expression {
 public:
-	FunctionExpression(const yy::location position,
-			const_shared_ptr<FunctionDeclaration> type,
-			const_shared_ptr<StatementBlock> body);
+	FunctionExpression(const yy::location location,
+			const FunctionVariantListRef variant_list);
 	virtual ~FunctionExpression();
 
 	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
@@ -45,9 +42,12 @@ public:
 	virtual const ErrorListRef Validate(
 			const shared_ptr<ExecutionContext> execution_context) const;
 
+	const_shared_ptr<FunctionVariantList> GetVariantList() const {
+		return m_variant_list;
+	}
+
 private:
-	const_shared_ptr<FunctionDeclaration> m_declaration;
-	const_shared_ptr<StatementBlock> m_body;
+	const FunctionVariantListRef m_variant_list;
 };
 
 #endif /* EXPRESSIONS_FUNCTION_EXPRESSION_H_ */

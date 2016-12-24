@@ -62,6 +62,6 @@ private:
 };
 
 typedef const LinkedList<const Expression, NO_DUPLICATES> ArgumentList;
-typedef shared_ptr<ArgumentList> ArgumentListRef;
+typedef shared_ptr<const ArgumentList> ArgumentListRef;
 
 #endif /* EXPRESSION_H_ */

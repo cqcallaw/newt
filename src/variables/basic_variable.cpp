@@ -31,6 +31,7 @@
 #include <primitive_type.h>
 #include <array_type.h>
 #include <function_type.h>
+#include <variant_function_type.h>
 #include <maybe_type_specifier.h>
 #include "assert.h"
 #include "expression.h"
@@ -107,6 +108,7 @@ const ErrorListRef BasicVariable::AssignValue(
 		const_shared_ptr<Expression> expression, const AssignmentType op,
 		const shared_ptr<ExecutionContext> output_context,
 		const_shared_ptr<ComplexTypeSpecifier> container) const {
+	//TODO: clean up this horrific casting logic
 	auto variable_name = GetName();
 	const int variable_line = GetLocation().begin.line;
 	const int variable_column = GetLocation().begin.column;
@@ -244,6 +246,19 @@ const ErrorListRef BasicVariable::AssignValue(
 	if (as_function) {
 		const_shared_ptr<Result> expression_evaluation = expression->Evaluate(
 				context, closure);
+
+		errors = expression_evaluation->GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto function = expression_evaluation->GetData<Function>();
+
+			errors = SetSymbol(output_context, function);
+		}
+	}
+
+	const_shared_ptr<VariantFunctionType> as_variant_function =
+			std::dynamic_pointer_cast<const VariantFunctionType>(symbol_type);
+	if (as_variant_function) {
+		auto expression_evaluation = expression->Evaluate(context, closure);
 
 		errors = expression_evaluation->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
@@ -483,7 +498,7 @@ const ErrorListRef BasicVariable::SetSymbol(
 	auto symbol = context->GetSymbol(*GetName(), DEEP);
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
-			symbol->GetTypeSpecifier(), value->GetType());
+			symbol->GetTypeSpecifier(), value->GetTypeSpecifier());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(

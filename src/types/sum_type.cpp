@@ -185,9 +185,10 @@ const_shared_ptr<Result> SumType::Build(
 										as_alias->GetNameLocation());
 
 						auto weak = weak_ptr<ExecutionContext>(output);
-						const_shared_ptr<Function> function = make_shared<
-								Function>(function_signature, statement_block,
-								weak);
+
+						const_shared_ptr<Function> function = Function::Build(
+								GetDefaultLocation(), function_signature,
+								statement_block, weak);
 
 						auto symbol = make_shared<Symbol>(function);
 						auto insert_result = constructors->InsertSymbol(

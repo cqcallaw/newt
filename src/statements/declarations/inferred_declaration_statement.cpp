@@ -72,6 +72,9 @@ const ErrorListRef InferredDeclarationStatement::Preprocess(
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier =
 				expression_type_specifier_result.GetData();
+
+		assert(expression_type_specifier != PrimitiveTypeSpecifier::GetNone());
+
 		auto type_table = context->GetTypeTable();
 		auto type_result = expression_type_specifier->GetType(type_table);
 		errors = ErrorList::Concatenate(errors, type_result->GetErrors());

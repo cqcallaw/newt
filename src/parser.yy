@@ -48,6 +48,9 @@
 #include <member_instantiation.h>
 #include <dimension.h>
 
+#include <function_expression.h>
+#include <function_variant.h>
+
 #include <type.h>
 #include <specifiers/type_specifier.h>
 #include <specifiers/function_type_specifier.h>
@@ -89,7 +92,6 @@ class Driver;
 #include <variable_expression.h>
 #include <with_expression.h>
 #include <default_value_expression.h>
-#include <function_expression.h>
 #include <invoke_expression.h>
 
 #include <print_statement.h>
@@ -168,6 +170,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	PERCENT             "%"
 	PLUS                "+"
 	MINUS               "-"
+	AMPERSAND           "&"
 
 	LESS                "<"
 	GREATER             ">"
@@ -233,7 +236,9 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 
 %type <plain_shared_ptr<Expression>> expression
 %type <plain_shared_ptr<Expression>> variable_expression
-%type <plain_shared_ptr<Expression>> function_expression
+%type <plain_shared_ptr<FunctionExpression>> function_expression
+%type <plain_shared_ptr<FunctionVariant>> function_variant
+%type <FunctionVariantListRef> function_variant_list
 %type <plain_shared_ptr<Expression>> invoke_expression
 %type <plain_shared_ptr<Expression>> optional_initializer
 
@@ -323,7 +328,7 @@ variable_declaration:
 	}
 	| IDENTIFIER COLON function_type_specifier optional_initializer
 	{
-		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, @3, $1, @1, $4);
+		$$ = make_shared<FunctionDeclarationStatement>(@$, $3, $1, @1, $4);
 	}
 	| IDENTIFIER COLON nested_type_specifier optional_initializer
 	{
@@ -798,9 +803,33 @@ function_declaration:
 
 //---------------------------------------------------------------------
 function_expression:
+	function_variant_list
+	{
+		// put function variants in order
+		const FunctionVariantListRef function_variant_list = FunctionVariantList::Reverse($1);
+		$$ = make_shared<FunctionExpression>(@$, function_variant_list);
+	}
+	;
+
+function_variant:
 	function_declaration statement_block
 	{
-		$$ = make_shared<FunctionExpression>(@1, $1, $2);
+		auto variant = make_shared<FunctionVariant>(@$, $1, $2);
+		$$ = variant; 
+		//$$ = FunctionVariantList::From(variant, FunctionVariantList::GetTerminator());
+	}
+	;
+
+function_variant_list:
+	function_variant_list AMPERSAND function_variant
+	{
+		//auto variant = make_shared<FunctionVariant>(@$, $3, $4); 
+		$$ = FunctionVariantList::From($3, $1);
+	}
+	| function_variant
+	{
+		//auto variant = make_shared<FunctionVariant>(@$, $1, $2); 
+		$$ = FunctionVariantList::From($1, FunctionVariantList::GetTerminator());
 	}
 	;
 

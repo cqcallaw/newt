@@ -1,0 +1,26 @@
+# test function overloading
+coordinate {
+	cartesian {
+		x:int,
+		y:int
+	}
+	| polar {
+		r:double,
+		t:double
+	}
+}
+
+translate := (c:coordinate, x:int, y:int) -> coordinate {
+	match(c)
+		cartesian {
+		}
+		| polar {
+		}
+}
+& (c:coordinate, x:int, y:int) -> coordinate {
+	match(c)
+		cartesian {
+		}
+		| polar {
+		}
+}
