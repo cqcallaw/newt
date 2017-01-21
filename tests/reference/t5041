@@ -1,0 +1,14 @@
+Parsing file ../tests/t5041.nwt...
+Parsed file ../tests/t5041.nwt.
+Root Symbol Table:
+----------------
+(...) -> double, int add:
+	(int, int) -> int:
+		Location: 2.8-4.1
+	(double, double) -> double:
+		Location: 5.3-7.1
+
+double res: 3
+
+Root Type Table:
+----------------

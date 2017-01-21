@@ -84,9 +84,6 @@ private:
 
 	const shared_ptr<ExecutionContext> GetClosureReference() const;
 
-	const_shared_ptr<FunctionVariant> GetFunctionVariant(
-			ArgumentListRef argument_list) const;
-
 	const yy::location m_location;
 	const FunctionVariantListRef m_variant_list;
 	const shared_ptr<ExecutionContext> m_closure;

@@ -60,10 +60,12 @@ const string VariantFunctionSpecifier::ToString() const {
 			if (return_value_set.size() == 1) {
 				buffer << *return_value_set.begin();
 			} else {
-				//ref: http://stackoverflow.com/a/13809757/577298
-				std::transform(return_value_set.begin(), return_value_set.end(),
-						std::ostream_iterator<std::string>(buffer, ", "),
-						[](const string &p) {return p;});
+				auto it = return_value_set.begin();
+				for (uint i = 0; i < return_value_set.size() - 1; ++i) {
+					buffer << *it << ", ";
+					++it;
+				}
+				buffer << *it;
 			}
 		}
 	}
@@ -77,6 +79,22 @@ const AnalysisResult VariantFunctionSpecifier::AnalyzeAssignmentTo(
 	if (*this == *other) {
 		return EQUIVALENT;
 	} else {
+		if (FunctionVariantList::IsTerminator(m_variant_list->GetNext())) {
+			//single-item variant list; test FunctionTypeSpecifier assignment
+			auto as_variant_function_specifier = dynamic_pointer_cast<
+					const FunctionTypeSpecifier>(other);
+
+			if (as_variant_function_specifier) {
+				auto variant = m_variant_list->GetData();
+				auto declaration = variant->GetDeclaration();
+
+				auto result =
+						as_variant_function_specifier->AnalyzeAssignmentTo(
+								declaration, type_table);
+				return result;
+			}
+		}
+
 		return INCOMPATIBLE;
 	}
 }
@@ -173,32 +191,4 @@ const ErrorListRef VariantFunctionSpecifier::ValidateDeclaration(
 	}
 
 	return errors;
-}
-
-const TypedResult<FunctionVariant> VariantFunctionSpecifier::GetVariant(
-		const ArgumentListRef argument_list,
-		const yy::location argument_list_location) {
-	auto arg_num = 0;
-	auto argument_subject = argument_list;
-	while (!ArgumentList::IsTerminator(argument_subject)) {
-		auto argument = argument_subject->GetData();
-		//auto argument_type = argument->GetTypeSpecifier()
-		auto variant_subject = m_variant_list;
-		while (!FunctionVariantList::IsTerminator(variant_subject)) {
-			auto variant = variant_subject->GetData();
-
-			variant_subject = variant_subject->GetNext();
-		}
-
-		argument_subject = argument_subject->GetNext();
-		arg_num++;
-	}
-
-	return TypedResult<FunctionVariant>(nullptr,
-			ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::NO_FUNCTION_VARIANT_MATCH,
-							argument_list_location.begin.line,
-							argument_list_location.begin.column, ToString()),
-					ErrorList::GetTerminator()));
 }

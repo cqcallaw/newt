@@ -348,7 +348,7 @@ const string Function::ToString(const TypeTable& type_table,
 	} else {
 		while (!FunctionVariantList::IsTerminator(subject)) {
 			auto variant = subject->GetData();
-			buffer << variant->ToString(indent + 1) << endl;
+			buffer << variant->ToString(indent) << endl;
 			subject = subject->GetNext();
 		}
 	}
@@ -365,89 +365,171 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 		const yy::location argument_list_location,
 		const FunctionVariantListRef variant_list,
 		const shared_ptr<ExecutionContext> context) {
-	// N.B. that the variant list is assumed to be unambiguous; the first unambiguous match is returned
-	// N.B. that the parameter list is expected to be valid (no duplicates, optional parameter following any required parameters, etc.)
-	auto errors = ErrorList::GetTerminator();
+	// ref: http://stackoverflow.com/a/14336566/577298
+
+	auto errors = ErrorList::From(
+			make_shared<Error>(Error::SEMANTIC,
+					Error::NO_FUNCTION_VARIANT_MATCH,
+					argument_list_location.begin.line,
+					argument_list_location.begin.column),
+			ErrorList::GetTerminator());
 
 	auto variant_subject = variant_list;
+
+	uint best_variant_score = std::numeric_limits<unsigned int>::max();
+	auto same_score = false;
+
+	shared_ptr<const FunctionVariant> best_variant = nullptr;
 	while (!FunctionVariantList::IsTerminator(variant_subject)) {
 		auto variant = variant_subject->GetData();
-
-		auto compatibility = AnalysisResult::INCOMPATIBLE;
+		uint variant_score = 0;
+		auto variant_errors = ErrorList::GetTerminator();
 
 		auto argument_subject = argument_list;
 		auto parameter_subject = variant->GetDeclaration()->GetParameterList();
-
 		if (ArgumentList::IsTerminator(argument_subject)) {
 			if (DeclarationList::IsTerminator(parameter_subject)) {
 				//trivial accept with empty argument & parameter lists
-				return TypedResult<FunctionVariant>(variant,
-						ErrorList::GetTerminator());
-			}
-
-			auto parameter = parameter_subject->GetData();
-			if (parameter->GetInitializerExpression()) {
-				//trivial accept with empty argument & all default parameters
-				return TypedResult<FunctionVariant>(variant,
-						ErrorList::GetTerminator());
-			}
-		}
-
-		while (!ArgumentList::IsTerminator(argument_subject)
-				&& !DeclarationList::IsTerminator(parameter_subject)) {
-			auto argument = argument_subject->GetData();
-
-			auto argument_type_specifier_result = argument->GetTypeSpecifier(
-					context, RESOLVE);
-			auto argument_type_errors =
-					argument_type_specifier_result.GetErrors();
-			if (ErrorList::IsTerminator(argument_type_errors)) {
-				auto argument_type_specifier =
-						argument_type_specifier_result.GetData();
-
-				auto parameter = parameter_subject->GetData();
-				auto parameter_type_specifier = parameter->GetTypeSpecifier();
-
-				auto variant_compatibility =
-						argument_type_specifier->AnalyzeAssignmentTo(
-								parameter_type_specifier,
-								context->GetTypeTable());
-
-				if (variant_compatibility == AnalysisResult::INCOMPATIBLE
-						|| variant_compatibility == AnalysisResult::AMBIGUOUS) {
-					compatibility = AnalysisResult::INCOMPATIBLE;
-					break; //function variant does not match.
-				} else {
-					compatibility = variant_compatibility;
-				}
+				variant_score = 0;
 			} else {
-				errors = ErrorList::Concatenate(errors, argument_type_errors);
-				compatibility = AnalysisResult::INCOMPATIBLE;
-				break; //?
+				auto parameter = parameter_subject->GetData();
+				if (parameter->GetInitializerExpression()) {
+					//trivial accept with empty argument & all default parameters
+					variant_score = 0;
+				}
+			}
+		} else {
+			while (!ArgumentList::IsTerminator(argument_subject)
+					&& !DeclarationList::IsTerminator(parameter_subject)) {
+				auto argument = argument_subject->GetData();
+
+				auto argument_type_specifier_result =
+						argument->GetTypeSpecifier(context, RESOLVE);
+				auto argument_type_errors =
+						argument_type_specifier_result.GetErrors();
+				if (ErrorList::IsTerminator(argument_type_errors)) {
+					auto argument_type_specifier =
+							argument_type_specifier_result.GetData();
+
+					auto parameter = parameter_subject->GetData();
+					auto parameter_type_specifier =
+							parameter->GetTypeSpecifier();
+
+					auto argument_assignment_compatibility =
+							argument_type_specifier->AnalyzeAssignmentTo(
+									parameter_type_specifier,
+									context->GetTypeTable());
+
+					switch (argument_assignment_compatibility) {
+					case AnalysisResult::INCOMPATIBLE: {
+						variant_score = std::numeric_limits<unsigned int>::max()
+								- 2;
+						variant_errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
+												argument->GetPosition().begin.line,
+												argument->GetPosition().begin.column,
+												argument_type_specifier->ToString(),
+												parameter_type_specifier->ToString()),
+										variant_errors);
+						break; //function variant does not match.
+					}
+					case AnalysisResult::AMBIGUOUS: {
+						variant_score = std::numeric_limits<unsigned int>::max()
+								- 1;
+						variant_errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
+												argument->GetPosition().begin.line,
+												argument->GetPosition().begin.column,
+												argument_type_specifier->ToString(),
+												parameter_type_specifier->ToString()),
+										variant_errors);
+						break; //function variant does not match.
+					}
+					case AnalysisResult::UNAMBIGUOUS:
+					case AnalysisResult::UNAMBIGUOUS_NESTED: {
+						variant_score += 2;
+						break;
+					}
+					default: {
+						//EQUIVALENT: don't modify score
+					}
+					}
+				} else {
+					errors = ErrorList::Concatenate(errors,
+							argument_type_errors);
+					variant_score = std::numeric_limits<unsigned int>::max();
+					break;
+				}
+
+				argument_subject = argument_subject->GetNext();
+				parameter_subject = parameter_subject->GetNext();
 			}
 
-			argument_subject = argument_subject->GetNext();
-			parameter_subject = parameter_subject->GetNext();
+			// check for too many arguments
+			if (!ArgumentList::IsTerminator(argument_subject)) {
+				auto argument = argument_subject->GetData();
+				variant_errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::TOO_MANY_ARGUMENTS,
+								argument->GetPosition().begin.line,
+								argument->GetPosition().begin.column,
+								variant->GetDeclaration()->ToString()),
+						variant_errors);
+			}
+
+			// handle default parameters
+			while (!DeclarationList::IsTerminator(parameter_subject)) {
+				auto parameter = parameter_subject->GetData();
+				if (parameter->GetInitializerExpression()) {
+					variant_score += 3;
+					parameter_subject = parameter_subject->GetNext();
+				} else {
+					auto declaration = parameter->GetName();
+					//error: non-default parameter
+					//variant_score = std::numeric_limits<unsigned int>::max();
+					variant_errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::NO_PARAMETER_DEFAULT,
+									argument_list_location.end.line,
+									argument_list_location.end.column,
+									*parameter->GetName()), variant_errors);
+					break;
+				}
+			}
 		}
 
-		if (ArgumentList::IsTerminator(argument_subject)
-				&& (compatibility == EQUIVALENT || compatibility == UNAMBIGUOUS
-						|| compatibility == UNAMBIGUOUS_NESTED)) {
-			return TypedResult<FunctionVariant>(variant,
-					ErrorList::GetTerminator());
+		if (variant_score < std::numeric_limits<unsigned int>::max()) {
+			if (variant_score < best_variant_score) {
+				best_variant = variant;
+				best_variant_score = variant_score;
+				same_score = false;
+				errors = variant_errors;
+				variant_errors = ErrorList::GetTerminator();
+			} else if (best_variant_score == variant_score) {
+				same_score = true;
+			}
 		}
 
 		variant_subject = variant_subject->GetNext();
 	}
 
-	//default action: no match
-	return TypedResult<FunctionVariant>(nullptr,
-			ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::NO_FUNCTION_VARIANT_MATCH,
-							argument_list_location.begin.line,
-							argument_list_location.begin.column),
-					ErrorList::GetTerminator()));
+	if (same_score) {
+		return TypedResult<FunctionVariant>(nullptr,
+				ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::MULTIPLE_FUNCTION_VARIANT_MATCHES,
+								argument_list_location.begin.line,
+								argument_list_location.begin.column),
+						ErrorList::GetTerminator()));
+	} else if (errors) {
+		return TypedResult<FunctionVariant>(nullptr, errors);
+	} else {
+		return TypedResult<FunctionVariant>(best_variant, errors);
+	}
 }
 
 const shared_ptr<ExecutionContext> Function::GetClosureReference() const {
@@ -456,9 +538,4 @@ const shared_ptr<ExecutionContext> Function::GetClosureReference() const {
 	} else {
 		return m_weak_closure.lock();
 	}
-}
-
-const_shared_ptr<FunctionVariant> Function::GetFunctionVariant(
-		ArgumentListRef argument_list) const {
-	return m_variant_list->GetData();
 }

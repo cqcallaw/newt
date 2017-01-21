@@ -5,7 +5,7 @@ add := (x:int, y:int) -> int {
 & (x:double, y:double) -> double {
 	return x + y 
 }
-& add := (x:double, y:int) -> double {
+& (x:double, y:int) -> double {
 	return x + y + 10000
 }
 

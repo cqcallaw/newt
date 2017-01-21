@@ -33,8 +33,8 @@ FunctionVariant::~FunctionVariant() {
 
 const string FunctionVariant::ToString(const Indent &indent) const {
 	ostringstream buffer;
-	buffer << GetDeclaration()->ToString() << endl;
-	buffer << indent << "Location: ";
+	buffer << indent << GetDeclaration()->ToString() << ":"<< endl;
+	buffer << indent + 1 << "Location: ";
 	if (GetLocation() != GetDefaultLocation()) {
 		buffer << GetLocation();
 	} else {

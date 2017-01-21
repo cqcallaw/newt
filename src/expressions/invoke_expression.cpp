@@ -191,14 +191,15 @@ TypedResult<string> InvokeExpression::ToString(
 
 const ErrorListRef InvokeExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
-	auto type_specifier_result = m_expression->GetTypeSpecifier(
+	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
 			execution_context);
 
-	auto errors = type_specifier_result.GetErrors();
+	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		errors = m_expression->Validate(execution_context);
 		if (ErrorList::IsTerminator(errors)) {
-			auto type_specifier = type_specifier_result.GetData();
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
 			//generate a temporary context for validation
 			auto new_parent = ExecutionContextList::From(execution_context,
 					execution_context->GetParent());
@@ -208,19 +209,19 @@ const ErrorListRef InvokeExpression::Validate(
 					execution_context->GetLifeTime(),
 					execution_context->GetDepth() + 1);
 
-			ArgumentListRef argument = m_argument_list;
+			auto argument_subject = m_argument_list;
 			auto is_function = false;
 			DeclarationListRef parameter_list = nullptr;
 
 			auto as_function_declaration = std::dynamic_pointer_cast<
-					const FunctionDeclaration>(type_specifier);
+					const FunctionDeclaration>(expression_type_specifier);
 			if (as_function_declaration) {
 				is_function = true;
 				parameter_list = as_function_declaration->GetParameterList();
 			}
 
 			auto as_variant_function = std::dynamic_pointer_cast<
-					const VariantFunctionSpecifier>(type_specifier);
+					const VariantFunctionSpecifier>(expression_type_specifier);
 			if (as_variant_function) {
 				is_function = true;
 				auto variant_result = Function::GetVariant(m_argument_list,
@@ -230,6 +231,7 @@ const ErrorListRef InvokeExpression::Validate(
 				auto variant_result_errors = variant_result.GetErrors();
 				if (ErrorList::IsTerminator(variant_result_errors)) {
 					auto variant = variant_result.GetData();
+
 					parameter_list =
 							variant->GetDeclaration()->GetParameterList();
 				} else {
@@ -240,11 +242,33 @@ const ErrorListRef InvokeExpression::Validate(
 				}
 			}
 
+			auto as_function_type_specifier = std::dynamic_pointer_cast<
+					const FunctionTypeSpecifier>(expression_type_specifier);
+			if (as_function_type_specifier) {
+				is_function = true;
+				//generate placeholder parameter names
+				auto temp_declaration_result =
+						FunctionDeclaration::FromTypeSpecifier(
+								*as_function_type_specifier,
+								*execution_context->GetTypeTable());
+				auto temp_declaration_errors =
+						temp_declaration_result->GetErrors();
+				if (ErrorList::IsTerminator(temp_declaration_errors)) {
+					auto temp_declaration = temp_declaration_result->GetData<
+							FunctionDeclaration>();
+					parameter_list = temp_declaration->GetParameterList();
+				} else {
+					errors = ErrorList::Concatenate(errors,
+							temp_declaration_errors);
+
+					return errors;
+				}
+			}
+
 			if (is_function) {
 				auto parameter_subject = parameter_list;
-				while (!ArgumentList::IsTerminator(argument)) {
-					const_shared_ptr<Expression> argument_expression =
-							argument->GetData();
+				while (!ArgumentList::IsTerminator(argument_subject)) {
+					auto argument_expression = argument_subject->GetData();
 					if (!DeclarationList::IsTerminator(parameter_subject)) {
 						auto argument_expression_errors =
 								argument_expression->Validate(
@@ -252,7 +276,7 @@ const ErrorListRef InvokeExpression::Validate(
 
 						if (ErrorList::IsTerminator(
 								argument_expression_errors)) {
-							auto declaration = parameter_list->GetData();
+							auto declaration = parameter_subject->GetData();
 							auto parameter_type_specifier =
 									declaration->GetTypeSpecifier();
 							auto argument_type_specifier_result =
@@ -266,6 +290,7 @@ const ErrorListRef InvokeExpression::Validate(
 									argument_type_specifier_errors)) {
 								auto argument_type_specifier =
 										argument_type_specifier_result.GetData();
+
 								auto assignment_analysis =
 										argument_type_specifier->AnalyzeAssignmentTo(
 												parameter_type_specifier,
@@ -303,7 +328,7 @@ const ErrorListRef InvokeExpression::Validate(
 									argument_expression_errors);
 						}
 
-						argument = argument->GetNext();
+						argument_subject = argument_subject->GetNext();
 						parameter_subject = parameter_subject->GetNext();
 					} else {
 						//argument list is longer than parameter list
@@ -313,7 +338,7 @@ const ErrorListRef InvokeExpression::Validate(
 												Error::TOO_MANY_ARGUMENTS,
 												argument_expression->GetPosition().begin.line,
 												argument_expression->GetPosition().begin.column,
-												type_specifier->ToString()),
+												expression_type_specifier->ToString()),
 										errors);
 						break;
 					}
@@ -338,78 +363,7 @@ const ErrorListRef InvokeExpression::Validate(
 
 					parameter_subject = parameter_subject->GetNext();
 				}
-				//}
-
-				/*else {
-				 TypeSpecifierListRef type_parameter_list =
-				 as_function->GetParameterTypeList();
-
-				 while (!ArgumentList::IsTerminator(argument)) {
-				 const_shared_ptr<Expression> argument_expression =
-				 argument->GetData();
-				 if (!TypeSpecifierList::IsTerminator(type_parameter_list)) {
-				 const_shared_ptr<TypeSpecifier> parameter_type =
-				 type_parameter_list->GetData();
-				 auto argument_type_specifier_result =
-				 argument_expression->GetTypeSpecifier(
-				 execution_context);
-
-				 auto argument_type_specifier_errors =
-				 argument_type_specifier_result.GetErrors();
-				 if (ErrorList::IsTerminator(
-				 argument_type_specifier_errors)) {
-				 auto argument_type_specifier =
-				 argument_type_specifier_result.GetData();
-				 auto conversion_analysis =
-				 argument_type_specifier->AnalyzeAssignmentTo(
-				 parameter_type,
-				 execution_context->GetTypeTable());
-				 if (conversion_analysis == AMBIGUOUS) {
-				 errors =
-				 ErrorList::From(
-				 make_shared<Error>(
-				 Error::SEMANTIC,
-				 Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
-				 argument_expression->GetPosition().begin.line,
-				 argument_expression->GetPosition().begin.column,
-				 argument_type_specifier->ToString(),
-				 parameter_type->ToString()),
-				 errors);
-				 } else if (conversion_analysis == INCOMPATIBLE) {
-				 errors =
-				 ErrorList::From(
-				 make_shared<Error>(
-				 Error::SEMANTIC,
-				 Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
-				 argument_expression->GetPosition().begin.line,
-				 argument_expression->GetPosition().begin.column,
-				 argument_type_specifier->ToString(),
-				 parameter_type->ToString()),
-				 errors);
-				 }
-				 } else {
-				 errors = ErrorList::Concatenate(errors,
-				 argument_type_specifier_errors);
-				 }
-
-				 argument = argument->GetNext();
-				 type_parameter_list = type_parameter_list->GetNext();
-				 } else {
-				 //argument list is longer than parameter list
-				 errors =
-				 ErrorList::From(
-				 make_shared<Error>(Error::SEMANTIC,
-				 Error::TOO_MANY_ARGUMENTS,
-				 argument_expression->GetPosition().begin.line,
-				 argument_expression->GetPosition().begin.column,
-				 type_specifier->ToString()),
-				 errors);
-				 break;
-				 }
-				 }*/
-			}
-			//}
-			else {
+			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::NOT_A_FUNCTION,

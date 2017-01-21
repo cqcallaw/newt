@@ -6,4 +6,4 @@ add := (x:int, y:int) -> int {
 	return x + y 
 }
 
-res:= add(1.0, 2)
+res:= add(1.0, 5)

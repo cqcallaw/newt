@@ -767,6 +767,7 @@ expression:
 	}
 	;
 
+//---------------------------------------------------------------------
 variable_expression:
 	variable_reference
 	{
@@ -774,6 +775,7 @@ variable_expression:
 	}
 	;
 
+//---------------------------------------------------------------------
 invoke_expression:
 	variable_expression LPAREN optional_argument_list RPAREN
 	{
@@ -811,6 +813,7 @@ function_expression:
 	}
 	;
 
+//---------------------------------------------------------------------
 function_variant:
 	function_declaration statement_block
 	{
@@ -820,6 +823,7 @@ function_variant:
 	}
 	;
 
+//---------------------------------------------------------------------
 function_variant_list:
 	function_variant_list AMPERSAND function_variant
 	{

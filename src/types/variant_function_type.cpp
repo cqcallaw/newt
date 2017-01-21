@@ -45,7 +45,7 @@ const std::string VariantFunctionType::ToString(const TypeTable& type_table,
 	auto subject = m_variant_list;
 	while (!FunctionVariantList::IsTerminator(subject)) {
 		auto variant = subject->GetData();
-		buffer << variant->ToString(indent + 1) << endl;
+		buffer << variant->ToString(indent) << endl;
 		subject = subject->GetNext();
 	}
 	return buffer.str();
@@ -55,12 +55,12 @@ const std::string VariantFunctionType::ValueToString(
 		const TypeTable& type_table, const Indent& indent,
 		const_shared_ptr<void> value) const {
 	auto as_function = static_pointer_cast<const Function>(value);
-	return as_function->ToString(type_table, Indent(0));
+	return as_function->ToString(type_table, indent + 1);
 }
 
 const std::string VariantFunctionType::GetValueSeparator(const Indent& indent,
 		const void* value) const {
-	return "\n" + (indent + 1).ToString();
+	return "\n";
 }
 
 const_shared_ptr<TypeSpecifier> VariantFunctionType::GetTypeSpecifier(

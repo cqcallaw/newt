@@ -48,10 +48,6 @@ public:
 		return m_variant_list;
 	}
 
-	const TypedResult<FunctionVariant> GetVariant(
-			const ArgumentListRef argument_list,
-			const yy::location argument_list_location);
-
 private:
 	const FunctionVariantListRef m_variant_list;
 };

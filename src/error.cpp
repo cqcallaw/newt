@@ -227,6 +227,9 @@ const string Error::get_error_message() const {
 	case NO_FUNCTION_VARIANT_MATCH:
 		os << "No function variant match.";
 		break;
+	case MULTIPLE_FUNCTION_VARIANT_MATCHES:
+		os << "Multiple function variant matches.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;
