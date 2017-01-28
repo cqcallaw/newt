@@ -230,6 +230,9 @@ const string Error::get_error_message() const {
 	case MULTIPLE_FUNCTION_VARIANT_MATCHES:
 		os << "Multiple function variant matches.";
 		break;
+	case CANNOT_REFERENCE_SUM_VARIANT_AS_DATA:
+		os << "Sum type variants may not be referenced as data.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;
