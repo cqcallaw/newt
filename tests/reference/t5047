@@ -1,0 +1,14 @@
+Parsing file ../tests/t5047.nwt...
+Parsed file ../tests/t5047.nwt.
+Root Symbol Table:
+----------------
+(...) -> int fun:
+	(int) -> int:
+		Location: 2.8-4.1
+	() -> int:
+		Location: 5.3-7.1
+
+int res: 3
+
+Root Type Table:
+----------------

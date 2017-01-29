@@ -1,0 +1,9 @@
+# test function overloading with one default parameter
+fun := (x:int = 3) -> int {
+	return x + 1
+}
+& () -> int {
+	return 2
+}
+
+res := fun(2)

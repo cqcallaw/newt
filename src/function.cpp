@@ -395,7 +395,7 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 				auto parameter = parameter_subject->GetData();
 				if (parameter->GetInitializerExpression()) {
 					//trivial accept with empty argument & all default parameters
-					variant_score = 0;
+					variant_score = 3;
 				}
 			}
 		} else {
@@ -479,6 +479,7 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 								argument->GetPosition().begin.column,
 								variant->GetDeclaration()->ToString()),
 						variant_errors);
+				variant_score = std::numeric_limits<unsigned int>::max();
 			}
 
 			// handle default parameters
