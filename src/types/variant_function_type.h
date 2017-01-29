@@ -42,11 +42,6 @@ public:
 	virtual const std::string GetValueSeparator(const Indent& indent,
 			const void* value) const;
 
-	/*virtual const std::string GetTagSeparator(const Indent& indent,
-	 const void* value) const {
-	 return "";
-	 }*/
-
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
