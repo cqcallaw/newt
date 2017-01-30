@@ -216,6 +216,23 @@ const string Error::get_error_message() const {
 	case MAX_INVOCATION_DEPTH:
 		os << "Max invocation depth " << m_s1 << " exceeded.";
 		break;
+	case INVALID_WITH_OPERAND:
+		os << "Invalid source expression type '" << m_s1
+				<< "' for 'with' operation: source must be of a record type.";
+		break;
+	case FUNCTION_VARIANT_WITH_DUPLICATE_SIGNATURE:
+		os << "Function variant duplicates function variant with signature '"
+				<< m_s1 << "' located at " << m_s2 << ".";
+		break;
+	case NO_FUNCTION_VARIANT_MATCH:
+		os << "No function variant match.";
+		break;
+	case MULTIPLE_FUNCTION_VARIANT_MATCHES:
+		os << "Multiple function variant matches.";
+		break;
+	case CANNOT_REFERENCE_SUM_VARIANT_AS_DATA:
+		os << "Sum type variants may not be referenced as data.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

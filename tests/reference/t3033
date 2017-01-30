@@ -14,5 +14,7 @@ Root Type Table:
 a:
 	<record>
 	f:
-		() -> int (Body Location: 4.16-30)
+		() -> int (
+			Body Location: 4.16-30
+		)
 

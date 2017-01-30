@@ -22,6 +22,8 @@
 #include <primitive_type_specifier.h>
 #include <array_type_specifier.h>
 #include <record_type.h>
+#include <function_type.h>
+#include <variant_function_type.h>
 #include <symbol.h>
 #include <primitive_type.h>
 
@@ -107,8 +109,6 @@ const std::string AliasDefinition::ToString(const TypeTable& type_table,
 	os << m_original->ToString();
 
 	if (m_default_value) {
-		string default_value = ValueToString(type_table, child_indent,
-				m_default_value);
 		os << " (";
 
 		auto origin = GetOrigin();
@@ -117,9 +117,25 @@ const std::string AliasDefinition::ToString(const TypeTable& type_table,
 			os << endl;
 		}
 
-		os << default_value;
+		auto as_function = dynamic_pointer_cast<const FunctionType>(origin);
+		if (as_function) {
+			os << endl;
+		}
+
+		auto as_variant_function = dynamic_pointer_cast<
+				const VariantFunctionType>(origin);
+		if (as_variant_function) {
+			os << endl;
+		}
+
+		os << ValueToString(type_table, child_indent, m_default_value);
 
 		if (as_record) {
+			os << child_indent;
+		}
+
+		if (as_function || as_variant_function) {
+			os << endl;
 			os << child_indent;
 		}
 		os << ")";

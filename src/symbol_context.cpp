@@ -160,7 +160,7 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<Function> value, const TypeTable& type_table) {
-	return SetSymbol(identifier, value->GetType(),
+	return SetSymbol(identifier, value->GetTypeSpecifier(),
 			static_pointer_cast<const void>(value), type_table);
 }
 

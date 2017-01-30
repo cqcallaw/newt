@@ -28,22 +28,63 @@
 #include <defaults.h>
 #include <sum_type_specifier.h>
 #include <maybe_type_specifier.h>
+#include <variant_function_specifier.h>
 #include <sum.h>
 #include <sum_type.h>
 #include <unit_type.h>
 #include <basic_variable.h>
 
-Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
-		const_shared_ptr<StatementBlock> body,
+const_shared_ptr<Function> Function::Build(const yy::location location,
+		FunctionVariantListRef variant_list,
+		const shared_ptr<ExecutionContext> closure) {
+	if (closure->GetLifeTime() == PERSISTENT) {
+		return make_shared<Function>(
+				Function(location, variant_list,
+						weak_ptr<ExecutionContext>(closure)));
+	} else {
+		return make_shared<Function>(Function(location, variant_list, closure));
+	}
+}
+
+const_shared_ptr<Function> Function::Build(const yy::location location,
+		const_shared_ptr<FunctionDeclaration> declaration,
+		const_shared_ptr<StatementBlock> statement_block,
+		const shared_ptr<ExecutionContext> closure) {
+	auto variant = make_shared<FunctionVariant>(location, declaration,
+			statement_block);
+	auto list = FunctionVariantList::From(variant,
+			FunctionVariantList::GetTerminator());
+	return Build(location, list, closure);
+}
+
+const_shared_ptr<Function> Function::Build(const yy::location location,
+		const_shared_ptr<FunctionDeclaration> declaration,
+		const_shared_ptr<StatementBlock> statement_block,
+		const weak_ptr<ExecutionContext> closure) {
+	auto variant = make_shared<FunctionVariant>(location, declaration,
+			statement_block);
+	auto list = FunctionVariantList::From(variant,
+			FunctionVariantList::GetTerminator());
+	return Build(location, list, closure);
+}
+
+const_shared_ptr<Function> Function::Build(const yy::location location,
+		FunctionVariantListRef variant_list,
+		const weak_ptr<ExecutionContext> closure) {
+	return make_shared<Function>(Function(location, variant_list, closure));
+}
+
+Function::Function(const yy::location location,
+		const FunctionVariantListRef variant_list,
 		const shared_ptr<ExecutionContext> closure) :
-		m_declaration(declaration), m_body(body), m_closure(closure), m_weak_closure(
+		m_location(location), m_variant_list(variant_list), m_closure(closure), m_weak_closure(
 				shared_ptr<ExecutionContext>(nullptr)) {
 }
 
-Function::Function(const_shared_ptr<FunctionDeclaration> declaration,
-		const_shared_ptr<StatementBlock> body,
+Function::Function(const yy::location location,
+		const FunctionVariantListRef variant_list,
 		const weak_ptr<ExecutionContext> weak_closure) :
-		m_declaration(declaration), m_body(body), m_closure(nullptr), m_weak_closure(
+		m_location(location), m_variant_list(variant_list), m_closure(nullptr), m_weak_closure(
 				weak_closure) {
 }
 
@@ -51,6 +92,7 @@ Function::~Function() {
 }
 
 const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
+		const yy::location argument_list_location,
 		const shared_ptr<ExecutionContext> invocation_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	if (invocation_context->GetDepth() > INVOCATION_DEPTH) {
@@ -59,10 +101,9 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		std::string as_string = ss.str();
 		errors = ErrorList::From(
 				make_shared<Error>(Error::RUNTIME, Error::MAX_INVOCATION_DEPTH,
-						m_declaration->GetLocation().begin.line,
-						m_declaration->GetLocation().begin.column, as_string),
-				errors);
-		make_shared<Result>(nullptr, errors);
+						GetLocation().begin.line, GetLocation().begin.column,
+						as_string), errors);
+		return make_shared<Result>(nullptr, errors);
 	}
 	auto closure_reference = GetClosureReference();
 
@@ -70,14 +111,27 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 
 	auto parent_context = ExecutionContextList::From(invocation_context,
 			invocation_context->GetParent());
+
 	shared_ptr<ExecutionContext> function_execution_context = make_shared<
 			ExecutionContext>(Modifier::MUTABLE, parent_context,
 			closure_reference->GetTypeTable(), EPHEMERAL,
 			invocation_context->GetDepth() + 1);
 
+	//auto variant = GetFunctionVariant(argument_list);
+	auto variant_result = GetVariant(argument_list, argument_list_location,
+			m_variant_list, invocation_context);
+	errors = ErrorList::Concatenate(errors, variant_result.GetErrors());
+	if (!ErrorList::IsTerminator(errors)) {
+		return make_shared<Result>(nullptr, errors);
+	}
+
+	auto variant = variant_result.GetData();
+	auto declaration = variant->GetDeclaration();
+	auto body = variant->GetBody();
+
 	//populate evaluation context with results of argument evaluation
 	ArgumentListRef argument = argument_list;
-	DeclarationListRef parameter = m_declaration->GetParameterList();
+	DeclarationListRef parameter = declaration->GetParameterList();
 	while (!ArgumentList::IsTerminator(argument)) {
 		const_shared_ptr<Expression> argument_expression = argument->GetData();
 		if (!DeclarationList::IsTerminator(parameter)) {
@@ -120,7 +174,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 							Error::TOO_MANY_ARGUMENTS,
 							argument_expression->GetPosition().begin.line,
 							argument_expression->GetPosition().begin.column,
-							m_declaration->ToString()), errors);
+							declaration->ToString()), errors);
 			break;
 		}
 	}
@@ -160,14 +214,14 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		//but the context setup in the function preprocessing is currently discarded.
 		//TODO: consider cloning function expression preprocess context instead of discarding it
 		errors = ErrorList::Concatenate(errors,
-				m_body->Preprocess(final_execution_context,
-						m_declaration->GetReturnTypeSpecifier()));
+				body->Preprocess(final_execution_context,
+						declaration->GetReturnTypeSpecifier()));
 		if (ErrorList::IsTerminator(errors)) {
-			auto execute_errors = m_body->Execute(final_execution_context,
+			auto execute_errors = body->Execute(final_execution_context,
 					final_execution_context);
 
 			if (ErrorList::IsTerminator(execute_errors)) {
-				if (*m_declaration->GetReturnTypeSpecifier()
+				if (*declaration->GetReturnTypeSpecifier()
 						== *TypeTable::GetNilTypeSpecifier()) {
 					return make_shared<Result>(
 							TypeTable::GetNilType()->GetDefaultValue(
@@ -184,7 +238,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 							invocation_context->GetTypeTable();
 
 					auto return_type_specifier =
-							m_declaration->GetReturnTypeSpecifier();
+							declaration->GetReturnTypeSpecifier();
 					auto evaluation_result_type =
 							evaluation_result->GetTypeSpecifier();
 
@@ -264,29 +318,265 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		}
 	}
 
-	// default behavior: we have no result
+// default behavior: we have no result
 	return make_shared<Result>(nullptr, errors);
 }
 
 const string Function::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
 	ostringstream buffer;
-	buffer << indent << "Body Location: ";
-	if (m_body->GetLocation() != GetDefaultLocation()) {
-		buffer << m_body->GetLocation();
+	auto subject = m_variant_list;
+
+	if (FunctionVariantList::IsTerminator(subject->GetNext())) {
+		auto variant = subject->GetData();
+		auto body = variant->GetBody();
+		buffer << indent << "Body Location: ";
+		if (body->GetLocation() != GetDefaultLocation()) {
+			buffer << body->GetLocation();
+		} else {
+			buffer << "[default location]";
+		}
+
+		//	buffer << indent << "Address: " << this << endl;
+		//	if (m_closure) {
+		//		buffer << indent << "Strongly referenced closure address: "
+		//				<< m_closure.get() << endl;
+		//	} else {
+		//		buffer << indent << "Weakly referenced closure address: "
+		//				<< m_weak_closure.lock().get() << endl;
+		//	}
 	} else {
-		buffer << "[default location]";
+		while (!FunctionVariantList::IsTerminator(subject)) {
+			auto variant = subject->GetData();
+			buffer << variant->ToString(indent) << endl;
+			subject = subject->GetNext();
+		}
 	}
-//	buffer << indent << "Address: " << this << endl;
-//	if (m_closure) {
-//		buffer << indent << "Strongly referenced closure address: "
-//				<< m_closure.get() << endl;
-//	} else {
-//		buffer << indent << "Weakly referenced closure address: "
-//				<< m_weak_closure.lock().get() << endl;
-//	}
 
 	return buffer.str();
+}
+
+const_shared_ptr<TypeSpecifier> Function::GetTypeSpecifier() const {
+	return make_shared<VariantFunctionSpecifier>(m_location, m_variant_list);
+}
+
+const TypedResult<FunctionVariant> Function::GetVariant(
+		const ArgumentListRef argument_list,
+		const yy::location argument_list_location,
+		const FunctionVariantListRef variant_list,
+		const shared_ptr<ExecutionContext> context) {
+	// ref: http://stackoverflow.com/a/14336566/577298
+
+	auto errors = ErrorList::From(
+			make_shared<Error>(Error::SEMANTIC,
+					Error::NO_FUNCTION_VARIANT_MATCH,
+					argument_list_location.begin.line,
+					argument_list_location.begin.column),
+			ErrorList::GetTerminator());
+
+	auto variant_subject = variant_list;
+
+	uint best_variant_score = std::numeric_limits<unsigned int>::max();
+	auto same_score = false;
+
+	shared_ptr<const FunctionVariant> best_variant = nullptr;
+	while (!FunctionVariantList::IsTerminator(variant_subject)) {
+		auto variant = variant_subject->GetData();
+		uint variant_score = std::numeric_limits<unsigned int>::max();
+		auto variant_errors = ErrorList::GetTerminator();
+
+		auto argument_subject = argument_list;
+		auto parameter_subject = variant->GetDeclaration()->GetParameterList();
+		if (ArgumentList::IsTerminator(argument_subject)) {
+			if (DeclarationList::IsTerminator(parameter_subject)) {
+				// trivial accept with empty argument & parameter lists
+				variant_score = 0;
+			} else {
+				auto parameter = parameter_subject->GetData();
+				if (parameter->GetInitializerExpression()) {
+					// trivial accept with empty argument & all default parameters
+					variant_score = 3;
+				} else {
+					// non-default parameters encountered
+					while (!DeclarationList::IsTerminator(parameter_subject)) {
+						auto parameter = parameter_subject->GetData();
+						if (parameter->GetInitializerExpression()) {
+							variant_score += 3;
+							parameter_subject = parameter_subject->GetNext();
+						} else {
+							auto declaration = parameter->GetName();
+
+							variant_errors = ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::NO_PARAMETER_DEFAULT,
+											argument_list_location.end.line,
+											argument_list_location.end.column,
+											*parameter->GetName()),
+									variant_errors);
+						}
+
+						parameter_subject = parameter_subject->GetNext();
+					}
+
+					variant_score += 10;
+				}
+			}
+		} else if (DeclarationList::IsTerminator(parameter_subject)) {
+			if (ArgumentList::IsTerminator(argument_subject)) {
+				// trivial accept with empty argument & parameter lists
+				variant_score = 0;
+			} else {
+				auto argument = argument_subject->GetData();
+				variant_errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::TOO_MANY_ARGUMENTS,
+								argument->GetPosition().begin.line,
+								argument->GetPosition().begin.column,
+								variant->GetDeclaration()->ToString()),
+						variant_errors);
+				variant_score = 100;
+			}
+		} else {
+			while (!ArgumentList::IsTerminator(argument_subject)
+					&& !DeclarationList::IsTerminator(parameter_subject)) {
+				auto argument = argument_subject->GetData();
+
+				auto argument_type_specifier_result =
+						argument->GetTypeSpecifier(context, RESOLVE);
+				auto argument_type_errors =
+						argument_type_specifier_result.GetErrors();
+				if (ErrorList::IsTerminator(argument_type_errors)) {
+					auto argument_type_specifier =
+							argument_type_specifier_result.GetData();
+
+					auto parameter = parameter_subject->GetData();
+					auto parameter_type_specifier =
+							parameter->GetTypeSpecifier();
+
+					auto argument_assignment_compatibility =
+							argument_type_specifier->AnalyzeAssignmentTo(
+									parameter_type_specifier,
+									context->GetTypeTable());
+
+					switch (argument_assignment_compatibility) {
+					case AnalysisResult::INCOMPATIBLE: {
+						variant_score += 20;
+						variant_errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
+												argument->GetPosition().begin.line,
+												argument->GetPosition().begin.column,
+												argument_type_specifier->ToString(),
+												parameter_type_specifier->ToString()),
+										variant_errors);
+						break; // function variant does not match.
+					}
+					case AnalysisResult::AMBIGUOUS: {
+						variant_score += 30;
+						variant_errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
+												argument->GetPosition().begin.line,
+												argument->GetPosition().begin.column,
+												argument_type_specifier->ToString(),
+												parameter_type_specifier->ToString()),
+										variant_errors);
+						break; // function variant does not match.
+					}
+					case AnalysisResult::UNAMBIGUOUS:
+					case AnalysisResult::UNAMBIGUOUS_NESTED: {
+						variant_score += 2;
+						break;
+					}
+					default: {
+						// EQUIVALENT
+						if (variant_score
+								== std::numeric_limits<unsigned int>::max()) {
+							variant_score = 0;
+						} // otherwise, do nothing
+					}
+					}
+				} else {
+					errors = ErrorList::Concatenate(errors,
+							argument_type_errors);
+					variant_score = std::numeric_limits<unsigned int>::max();
+					break;
+				}
+
+				argument_subject = argument_subject->GetNext();
+				parameter_subject = parameter_subject->GetNext();
+			}
+
+			if (variant_score < std::numeric_limits<unsigned int>::max()) {
+				// we have what might be a legitimate match; perform additional checks
+
+				// check for too many arguments
+				if (!ArgumentList::IsTerminator(argument_subject)) {
+					auto argument = argument_subject->GetData();
+					variant_errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::TOO_MANY_ARGUMENTS,
+									argument->GetPosition().begin.line,
+									argument->GetPosition().begin.column,
+									variant->GetDeclaration()->ToString()),
+							variant_errors);
+					variant_score += 100;
+				}
+
+				// handle default parameters
+				while (!DeclarationList::IsTerminator(parameter_subject)) {
+					auto parameter = parameter_subject->GetData();
+					if (parameter->GetInitializerExpression()) {
+						variant_score += 3;
+					} else {
+						auto declaration = parameter->GetName();
+						// error: non-default parameter
+						// variant_score = std::numeric_limits<unsigned int>::max();
+						variant_errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::NO_PARAMETER_DEFAULT,
+										argument_list_location.end.line,
+										argument_list_location.end.column,
+										*parameter->GetName()), variant_errors);
+
+						variant_score += 200;
+					}
+
+					parameter_subject = parameter_subject->GetNext();
+				}
+			}
+		}
+
+		if (variant_score < std::numeric_limits<unsigned int>::max()) {
+			if (variant_score < best_variant_score) {
+				best_variant = variant;
+				best_variant_score = variant_score;
+				same_score = false;
+				errors = variant_errors;
+				variant_errors = ErrorList::GetTerminator();
+			} else if (best_variant_score == variant_score) {
+				same_score = true;
+			}
+		}
+
+		variant_subject = variant_subject->GetNext();
+	}
+
+	if (same_score) {
+		return TypedResult<FunctionVariant>(nullptr,
+				ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::MULTIPLE_FUNCTION_VARIANT_MATCHES,
+								argument_list_location.begin.line,
+								argument_list_location.begin.column),
+						ErrorList::GetTerminator()));
+	} else if (errors) {
+		return TypedResult<FunctionVariant>(nullptr, errors);
+	} else {
+		return TypedResult<FunctionVariant>(best_variant, errors);
+	}
 }
 
 const shared_ptr<ExecutionContext> Function::GetClosureReference() const {

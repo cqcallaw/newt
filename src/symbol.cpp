@@ -69,7 +69,7 @@ Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 }
 
 Symbol::Symbol(const_shared_ptr<Function> value) :
-		Symbol(value->GetType(), static_pointer_cast<const void>(value)) {
+		Symbol(value->GetTypeSpecifier(), static_pointer_cast<const void>(value)) {
 }
 
 Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,

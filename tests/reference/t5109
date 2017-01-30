@@ -28,7 +28,9 @@ Root Type Table:
 point:
 	<record>
 	translate:
-		(int, int) -> point? (Body Location: [default location])
+		(int, int) -> point? (
+			Body Location: [default location]
+		)
 	x:
 		int (0)
 	y:

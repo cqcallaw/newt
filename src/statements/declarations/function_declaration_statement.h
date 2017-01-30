@@ -25,15 +25,20 @@
 
 class StatementBlock;
 class Expression;
+class VariantFunctionSpecifier;
 class FunctionTypeSpecifier;
 
 class FunctionDeclarationStatement: public DeclarationStatement {
 public:
-	FunctionDeclarationStatement(const yy::location position,
-			const_shared_ptr<FunctionTypeSpecifier> type,
-			const yy::location type_position, const_shared_ptr<string> name,
-			const yy::location name_position,
-			const_shared_ptr<Expression> expression);
+	FunctionDeclarationStatement(const yy::location location,
+			const_shared_ptr<FunctionTypeSpecifier> type_specifier,
+			const_shared_ptr<string> name, const yy::location name_location,
+			const_shared_ptr<Expression> initializer_expression);
+
+	FunctionDeclarationStatement(const yy::location location,
+			const_shared_ptr<VariantFunctionSpecifier> type_specifier,
+			const_shared_ptr<string> name, const yy::location name_location,
+			const_shared_ptr<Expression> initializer_expression);
 	virtual ~FunctionDeclarationStatement();
 
 	virtual const ErrorListRef Preprocess(
@@ -52,8 +57,12 @@ public:
 	virtual const yy::location GetTypeSpecifierLocation() const;
 
 private:
-	const_shared_ptr<FunctionTypeSpecifier> m_type_specifier;
-	const yy::location m_type_specifier_location;
+	FunctionDeclarationStatement(const yy::location location,
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<string> name, const yy::location name_location,
+			const_shared_ptr<Expression> initializer_expression);
+
+	const_shared_ptr<TypeSpecifier> m_type_specifier;
 };
 
 #endif /* STATEMENTS_DECLARATIONS_FUNCTION_DECLARATION_STATEMENT_H_ */

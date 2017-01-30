@@ -27,11 +27,11 @@
 #include <complex_type.h>
 #include <declaration_statement.h>
 #include <inferred_declaration_statement.h>
+#include <variant_function_specifier.h>
 
-FunctionExpression::FunctionExpression(const yy::location position,
-		const_shared_ptr<FunctionDeclaration> declaration,
-		const_shared_ptr<StatementBlock> body) :
-		Expression(position), m_declaration(declaration), m_body(body) {
+FunctionExpression::FunctionExpression(const yy::location location,
+		FunctionVariantListRef variant_list) :
+		Expression(location), m_variant_list(variant_list) {
 }
 
 FunctionExpression::~FunctionExpression() {
@@ -40,21 +40,23 @@ FunctionExpression::~FunctionExpression() {
 TypedResult<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
-	return TypedResult<TypeSpecifier>(m_declaration, ErrorList::GetTerminator());
+	if (FunctionVariantList::IsTerminator(m_variant_list->GetNext())) {
+		return TypedResult<TypeSpecifier>(
+				m_variant_list->GetData()->GetDeclaration(),
+				ErrorList::GetTerminator());
+	} else {
+		// overloaded function
+		return TypedResult<TypeSpecifier>(
+				make_shared<VariantFunctionSpecifier>(GetPosition(),
+						m_variant_list), ErrorList::GetTerminator());
+	}
 }
 
 const_shared_ptr<Result> FunctionExpression::Evaluate(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	shared_ptr<const Function> function;
-	if (closure->GetLifeTime() == PERSISTENT) {
-		function = make_shared<Function>(m_declaration, m_body,
-				weak_ptr<ExecutionContext>(closure));
-	} else {
-		function = make_shared<Function>(m_declaration, m_body, closure);
-	}
-
+	auto function = Function::Build(GetPosition(), m_variant_list, closure);
 	return make_shared<Result>(function, errors);
 }
 
@@ -66,61 +68,99 @@ const ErrorListRef FunctionExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	//generate a temporary context for validation
-	auto new_parent = ExecutionContextList::From(execution_context,
-			execution_context->GetParent());
-	shared_ptr<ExecutionContext> tmp_context = make_shared<ExecutionContext>(
-			Modifier::Type::NONE, new_parent, execution_context->GetTypeTable(),
-			execution_context->GetLifeTime(), execution_context->GetDepth() + 1);
+	auto subject = m_variant_list;
+	while (!FunctionVariantList::IsTerminator(subject)) {
+		auto variant = m_variant_list->GetData();
+		auto declaration = variant->GetDeclaration();
+		auto body = variant->GetBody();
 
-	DeclarationListRef declaration = m_declaration->GetParameterList();
-	while (!DeclarationList::IsTerminator(declaration)) {
-		auto declaration_statement = declaration->GetData();
+		// check that this variant doesn't conflict with any subsequent definitions
+		// for this, we assume the function variants are in order
+		auto duplication_subject = subject->GetNext();
+		while (!FunctionVariantList::IsTerminator(duplication_subject)) {
+			auto duplication_subject_variant = duplication_subject->GetData();
+			auto duplication_subject_declaration =
+					duplication_subject_variant->GetDeclaration();
+			auto assignment_result =
+					duplication_subject_declaration->AnalyzeAssignmentTo(
+							declaration, execution_context->GetTypeTable());
 
-		ErrorListRef parameter_errors = ErrorList::GetTerminator();
-		//validate the constancy of parameter declarations of an inferred type
-		const_shared_ptr<InferredDeclarationStatement> as_inferred =
-				dynamic_pointer_cast<const InferredDeclarationStatement>(
-						declaration_statement);
-		if (as_inferred) {
-			auto init_expression = as_inferred->GetInitializerExpression();
-			if (!init_expression->IsConstant()) {
-				parameter_errors =
+			if (assignment_result == EQUIVALENT) {
+				ostringstream out;
+				out << variant->GetLocation();
+				errors =
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
-										Error::FUNCTION_PARAMETER_DEFAULT_MUST_BE_CONSTANT,
-										init_expression->GetPosition().begin.line,
-										init_expression->GetPosition().begin.column),
-								parameter_errors);
+										Error::FUNCTION_VARIANT_WITH_DUPLICATE_SIGNATURE,
+										duplication_subject_variant->GetLocation().begin.line,
+										duplication_subject_variant->GetLocation().begin.column,
+										declaration->ToString(), out.str()),
+								errors);
 			}
+
+			duplication_subject = duplication_subject->GetNext();
 		}
 
-		if (ErrorList::IsTerminator(parameter_errors)) {
-			auto preprocess_errors = declaration_statement->Preprocess(
-					tmp_context, tmp_context);
+		//generate a temporary context for validation
+		auto new_parent = ExecutionContextList::From(execution_context,
+				execution_context->GetParent());
+		shared_ptr<ExecutionContext> tmp_context =
+				make_shared<ExecutionContext>(Modifier::Type::NONE, new_parent,
+						execution_context->GetTypeTable(),
+						execution_context->GetLifeTime(),
+						execution_context->GetDepth() + 1);
 
-			if (ErrorList::IsTerminator(preprocess_errors)) {
-				auto execution_errors = declaration_statement->Execute(
+		DeclarationListRef parameter_subject = declaration->GetParameterList();
+		while (!DeclarationList::IsTerminator(parameter_subject)) {
+			auto declaration_statement = parameter_subject->GetData();
+
+			ErrorListRef parameter_errors = ErrorList::GetTerminator();
+			//validate the constancy of parameter declarations of an inferred type
+			const_shared_ptr<InferredDeclarationStatement> as_inferred =
+					dynamic_pointer_cast<const InferredDeclarationStatement>(
+							declaration_statement);
+			if (as_inferred) {
+				auto init_expression = as_inferred->GetInitializerExpression();
+				if (!init_expression->IsConstant()) {
+					parameter_errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::FUNCTION_PARAMETER_DEFAULT_MUST_BE_CONSTANT,
+											init_expression->GetPosition().begin.line,
+											init_expression->GetPosition().begin.column),
+									parameter_errors);
+				}
+			}
+
+			if (ErrorList::IsTerminator(parameter_errors)) {
+				auto preprocess_errors = declaration_statement->Preprocess(
 						tmp_context, tmp_context);
-				if (!ErrorList::IsTerminator(execution_errors)) {
+
+				if (ErrorList::IsTerminator(preprocess_errors)) {
+					auto execution_errors = declaration_statement->Execute(
+							tmp_context, tmp_context);
+					if (!ErrorList::IsTerminator(execution_errors)) {
+						parameter_errors = ErrorList::Concatenate(
+								parameter_errors, execution_errors);
+					}
+				} else {
 					parameter_errors = ErrorList::Concatenate(parameter_errors,
-							execution_errors);
+							preprocess_errors);
 				}
 			} else {
-				parameter_errors = ErrorList::Concatenate(parameter_errors,
-						preprocess_errors);
+				errors = ErrorList::Concatenate(errors, parameter_errors);
 			}
-		} else {
-			errors = ErrorList::Concatenate(errors, parameter_errors);
+
+			parameter_subject = parameter_subject->GetNext();
 		}
 
-		declaration = declaration->GetNext();
-	}
+		if (ErrorList::IsTerminator(errors)) {
+			errors = ErrorList::Concatenate(errors,
+					body->Preprocess(tmp_context,
+							declaration->GetReturnTypeSpecifier()));
+		}
 
-	if (ErrorList::IsTerminator(errors)) {
-		errors = ErrorList::Concatenate(errors,
-				m_body->Preprocess(tmp_context,
-						m_declaration->GetReturnTypeSpecifier()));
+		subject = subject->GetNext();
 	}
 
 	return errors;

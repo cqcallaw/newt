@@ -44,21 +44,22 @@ TypedResult<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 	auto container_type_specifier_result = m_container->GetTypeSpecifier(
 			context);
 
+	auto type_table = *context->GetTypeTable();
 	auto errors = container_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto container_type_specifier =
 				container_type_specifier_result.GetData();
 
-		auto type_table = *context->GetTypeTable();
-		auto type_result = container_type_specifier->GetType(type_table,
-				RESOLVE);
-
-		errors = type_result->GetErrors();
+		auto container_type_result = container_type_specifier->GetType(
+				type_table, RESOLVE);
+		errors = container_type_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto type = type_result->GetData<TypeDefinition>();
-			auto as_record = dynamic_pointer_cast<const RecordType>(type);
+			auto container_type =
+					container_type_result->GetData<TypeDefinition>();
+			auto as_record = dynamic_pointer_cast<const RecordType>(
+					container_type);
+			auto member_name = m_member_variable->GetName();
 			if (as_record) {
-				auto member_name = m_member_variable->GetName();
 				auto member_type = as_record->GetDefinition()->GetType<
 						TypeDefinition>(*member_name, SHALLOW, RESOLVE);
 
@@ -83,10 +84,23 @@ TypedResult<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 									errors);
 				}
 			}
+
+			auto as_sum = dynamic_pointer_cast<const SumType>(container_type);
+			if (as_sum) {
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::CANNOT_REFERENCE_SUM_VARIANT_AS_DATA,
+								GetMemberVariable()->GetLocation().begin.line,
+								GetMemberVariable()->GetLocation().begin.column,
+								*(GetMemberVariable()->GetName()),
+								container_type_specifier->ToString()), errors);
+			}
 		}
 	}
 
-	//try type constructor lookup
+	// try type constructor lookup
+	// here we lookup the container as a type specifier instead of a symbol specifier;
+	// this is valid semantics for sum type type constructors
 	auto as_sum = context->GetTypeTable()->GetType<SumType>(
 			m_container->GetName(), DEEP, RESOLVE);
 	if (as_sum) {

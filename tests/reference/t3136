@@ -1,0 +1,4 @@
+Parsing file ../tests/t3136.nwt...
+Semantic error on line 5, column 5: Invalid source expression type 'coord.x' for 'with' operation: source must be of a record type.
+Parsed file ../tests/t3136.nwt.
+1 error found; giving up.

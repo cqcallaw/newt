@@ -26,17 +26,36 @@
 #include <function_declaration_statement.h>
 #include <execution_context.h>
 #include <function.h>
+#include <variant_function_specifier.h>
 
 FunctionDeclarationStatement::FunctionDeclarationStatement(
-		const yy::location position,
+		const yy::location location,
 		const_shared_ptr<FunctionTypeSpecifier> type_specifier,
-		const yy::location type_specifier_location,
-		const_shared_ptr<string> name, const yy::location name_position,
+		const_shared_ptr<string> name, const yy::location name_location,
 		const_shared_ptr<Expression> initializer_expression) :
-		DeclarationStatement(position, name, name_position,
+		DeclarationStatement(location, name, name_location,
 				initializer_expression, ModifierList::GetTerminator(),
-				GetDefaultLocation()), m_type_specifier(type_specifier), m_type_specifier_location(
-				type_specifier_location) {
+				GetDefaultLocation()), m_type_specifier(type_specifier) {
+}
+
+FunctionDeclarationStatement::FunctionDeclarationStatement(
+		const yy::location location,
+		const_shared_ptr<VariantFunctionSpecifier> type_specifier,
+		const_shared_ptr<string> name, const yy::location name_location,
+		const_shared_ptr<Expression> initializer_expression) :
+		DeclarationStatement(location, name, name_location,
+				initializer_expression, ModifierList::GetTerminator(),
+				GetDefaultLocation()), m_type_specifier(type_specifier) {
+}
+
+FunctionDeclarationStatement::FunctionDeclarationStatement(
+		const yy::location location,
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<string> name, const yy::location name_location,
+		const_shared_ptr<Expression> initializer_expression) :
+		DeclarationStatement(location, name, name_location,
+				initializer_expression, ModifierList::GetTerminator(),
+				GetDefaultLocation()), m_type_specifier(type_specifier) {
 }
 
 FunctionDeclarationStatement::~FunctionDeclarationStatement() {
@@ -60,15 +79,16 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 			if (ErrorList::IsTerminator(errors)) {
 				auto expression_type_specifier =
 						expression_type_specifier_result.GetData();
-				const_shared_ptr<FunctionTypeSpecifier> as_function =
-						std::dynamic_pointer_cast<const FunctionTypeSpecifier>(
-								expression_type_specifier);
+				auto as_function = std::dynamic_pointer_cast<
+						const FunctionTypeSpecifier>(expression_type_specifier);
+				auto as_variant_function = std::dynamic_pointer_cast<
+						const VariantFunctionSpecifier>(
+						expression_type_specifier);
 
-				if (as_function) {
-					// insert default value to allow for recursive invocations
+				if (as_function || as_variant_function) {
+					// insert default value to enable validation of recursive invocations
 					auto child_context = context->GetEmptyChild(context,
 							Modifier::Type::MUTABLE, EPHEMERAL);
-
 					auto value = m_type_specifier->DefaultValue(*type_table);
 					auto symbol = make_shared<Symbol>(
 							static_pointer_cast<const Function>(value));
@@ -79,10 +99,26 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 					errors = GetInitializerExpression()->Validate(
 							child_context);
 					if (ErrorList::IsTerminator(errors)) {
-						// passed validation; insert into output context
-						InsertResult insert_result = context->InsertSymbol(
-								*GetName(), symbol);
-						assert(insert_result == INSERT_SUCCESS);
+						auto assignment_analysis =
+								expression_type_specifier->AnalyzeAssignmentTo(
+										m_type_specifier, type_table);
+						if (assignment_analysis == EQUIVALENT) {
+							// passed validation; insert into output context
+							InsertResult insert_result = context->InsertSymbol(
+									*GetName(), symbol);
+							assert(insert_result == INSERT_SUCCESS);
+						} else {
+							//TODO: consider widening conversions
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::ASSIGNMENT_TYPE_ERROR,
+													GetInitializerExpression()->GetPosition().begin.line,
+													GetInitializerExpression()->GetPosition().begin.column,
+													m_type_specifier->ToString(),
+													expression_type_specifier->ToString()),
+											errors);
+						}
 					}
 				} else {
 					errors =
@@ -133,7 +169,7 @@ const ErrorListRef FunctionDeclarationStatement::Execute(
 const DeclarationStatement* FunctionDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	return new FunctionDeclarationStatement(GetLocation(), m_type_specifier,
-			expression->GetPosition(), GetName(), GetNameLocation(), expression);
+			GetName(), GetNameLocation(), expression);
 }
 
 const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetTypeSpecifier() const {
@@ -141,5 +177,5 @@ const_shared_ptr<TypeSpecifier> FunctionDeclarationStatement::GetTypeSpecifier()
 }
 
 const yy::location FunctionDeclarationStatement::GetTypeSpecifierLocation() const {
-	return m_type_specifier_location;
+	return m_type_specifier->GetLocation();
 }

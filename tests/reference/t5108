@@ -15,7 +15,9 @@ Root Type Table:
 point:
 	<record>
 	squared:
-		(int) -> int (Body Location: [default location])
+		(int) -> int (
+			Body Location: [default location]
+		)
 	x:
 		int (0)
 	y:

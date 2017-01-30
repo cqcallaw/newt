@@ -21,6 +21,7 @@
 #define FUNCTION_H_
 
 #include <expression.h>
+#include <function_variant.h>
 
 class FunctionDeclaration;
 class StatementBlock;
@@ -29,35 +30,62 @@ class ExecutionContext;
 
 class Function {
 public:
-	Function(const_shared_ptr<FunctionDeclaration> declaration,
-			const_shared_ptr<StatementBlock> body,
+	static const_shared_ptr<Function> Build(const yy::location location,
+			const_shared_ptr<FunctionDeclaration> declaration,
+			const_shared_ptr<StatementBlock> statement_block,
 			const shared_ptr<ExecutionContext> closure);
 
-	Function(const_shared_ptr<FunctionDeclaration> declaration,
-			const_shared_ptr<StatementBlock> body,
-			const weak_ptr<ExecutionContext> weak_closure);
+	static const_shared_ptr<Function> Build(const yy::location location,
+			const_shared_ptr<FunctionDeclaration> declaration,
+			const_shared_ptr<StatementBlock> statement_block,
+			const weak_ptr<ExecutionContext> closure);
+
+	static const_shared_ptr<Function> Build(const yy::location location,
+			FunctionVariantListRef variant_list,
+			const shared_ptr<ExecutionContext> closure);
+
+	static const_shared_ptr<Function> Build(const yy::location location,
+			FunctionVariantListRef variant_list,
+			const weak_ptr<ExecutionContext> closure);
 
 	virtual ~Function();
 
-	const_shared_ptr<FunctionDeclaration> GetType() const {
-		return m_declaration;
-	}
-
 	const_shared_ptr<Result> Evaluate(ArgumentListRef argument_list,
+			const yy::location argument_list_location,
 			const shared_ptr<ExecutionContext> invocation_context) const;
 
 	const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
-	const_shared_ptr<StatementBlock> GetBody() const {
-		return m_body;
+	const FunctionVariantListRef GetVariantList() const {
+		return m_variant_list;
 	}
 
+	const yy::location GetLocation() const {
+		return m_location;
+	}
+
+	const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const;
+
+	static const TypedResult<FunctionVariant> GetVariant(
+			const ArgumentListRef argument_list,
+			const yy::location argument_list_location,
+			const FunctionVariantListRef variant_list,
+			const shared_ptr<ExecutionContext>);
+
 private:
+	Function(const yy::location location,
+			const FunctionVariantListRef m_variant_list,
+			const shared_ptr<ExecutionContext> closure);
+
+	Function(const yy::location location,
+			const FunctionVariantListRef m_variant_list,
+			const weak_ptr<ExecutionContext> weak_closure);
+
 	const shared_ptr<ExecutionContext> GetClosureReference() const;
 
-	const_shared_ptr<FunctionDeclaration> m_declaration;
-	const_shared_ptr<StatementBlock> m_body;
+	const yy::location m_location;
+	const FunctionVariantListRef m_variant_list;
 	const shared_ptr<ExecutionContext> m_closure;
 	const weak_ptr<ExecutionContext> m_weak_closure;
 };

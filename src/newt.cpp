@@ -29,6 +29,22 @@
 
 using namespace std;
 
+void print_help() {
+	cout << "Usage: newt [options] file" << endl;
+	cout << "Options:" << endl;
+	cout << "  --help           : Display this information" << endl;
+	cout << "Debug Options:" << endl;
+	cout
+			<< "  --debug          : Print debug information during script execution"
+			<< endl;
+	cout
+			<< "  --trace-scanning : Print scanning information during script execution"
+			<< endl;
+	cout
+			<< "  --trace-scanning : Print parsing information during script execution"
+			<< endl;
+}
+
 int GetExitCode(bool debug, int exit_code) {
 	if (debug) {
 		//return "success" so the test infrastructure doesn't barf
@@ -44,6 +60,11 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
+	if (strcmp(argv[1], "--help") == 0) {
+		print_help();
+		return 0;
+	}
+
 	bool debug = false;
 	TRACE trace = NO_TRACE;
 	for (int i = 1; i < argc - 1; i++) {
@@ -57,6 +78,11 @@ int main(int argc, char *argv[]) {
 
 		if (strcmp(argv[i], "--trace-parsing") == 0) {
 			trace = TRACE(trace | PARSING);
+		}
+
+		if (strcmp(argv[i], "--help") == 0) {
+			print_help();
+			return 0;
 		}
 	}
 

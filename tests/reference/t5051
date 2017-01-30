@@ -1,0 +1,35 @@
+Parsing file ../tests/t5051.nwt...
+Parsed file ../tests/t5051.nwt.
+Root Symbol Table:
+----------------
+coordinate res:
+{polar}
+	double r: 0
+	double t: 0
+
+(...) -> coordinate translate:
+	(coordinate, int, int) -> coordinate:
+		Location: 13.14-21.1
+	(coordinate, double, double) -> coordinate:
+		Location: 22.3-31.1
+
+
+Root Type Table:
+----------------
+coordinate:
+	<sum>
+	cartesian:
+		<record>
+		x:
+			int (0)
+		y:
+			int (0)
+
+	polar:
+		<record>
+		r:
+			double (0)
+		t:
+			double (0)
+
+

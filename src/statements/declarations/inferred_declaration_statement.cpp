@@ -66,12 +66,15 @@ const ErrorListRef InferredDeclarationStatement::Preprocess(
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto expression_type_specifier_result =
 			GetInitializerExpression()->GetTypeSpecifier(context,
-					AliasResolution::RETURN);
+					AliasResolution::RESOLVE);
 
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier =
 				expression_type_specifier_result.GetData();
+
+		assert(expression_type_specifier != PrimitiveTypeSpecifier::GetNone());
+
 		auto type_table = context->GetTypeTable();
 		auto type_result = expression_type_specifier->GetType(type_table);
 		errors = ErrorList::Concatenate(errors, type_result->GetErrors());

@@ -26,7 +26,7 @@ class InvokeExpression: public Expression {
 public:
 	InvokeExpression(const yy::location position,
 			const_shared_ptr<Expression> expression,
-			ArgumentListRef argument_list,
+			const ArgumentListRef argument_list,
 			const yy::location argument_list_position);
 	virtual ~InvokeExpression();
 
@@ -56,14 +56,14 @@ public:
 		return m_argument_list;
 	}
 
-	const yy::location GetArgumentListRefPosition() const {
-		return m_argument_list_position;
+	const yy::location GetArgumentListRefLocation() const {
+		return m_argument_list_location;
 	}
 
 private:
 	const_shared_ptr<Expression> m_expression;
-	ArgumentListRef m_argument_list;
-	const yy::location m_argument_list_position;
+	const ArgumentListRef m_argument_list;
+	const yy::location m_argument_list_location;
 };
 
 #endif /* STATEMENTS_INVOKE_STATEMENT_H_ */

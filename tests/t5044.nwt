@@ -1,0 +1,12 @@
+# test function overloading with multiple acceptable variants, out of order
+add := (x:int, y:int) -> int {
+	return x + y
+}
+& (x:double, y:double) -> double {
+	return x + y 
+}
+& (x:double, y:int) -> double {
+	return x + y + 10000
+}
+
+res:= add(1.0, 2)

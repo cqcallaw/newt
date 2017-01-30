@@ -17,7 +17,7 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <function_type_specifier.h>
+#include <variant_function_specifier.h>
 #include <function_declaration.h>
 #include <function_type.h>
 #include <function.h>
@@ -81,8 +81,8 @@ const_shared_ptr<DeclarationStatement> FunctionType::GetDeclarationStatement(
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) const {
 	return make_shared<FunctionDeclarationStatement>(position,
-			static_pointer_cast<const FunctionTypeSpecifier>(type),
-			type_position, name, name_position, initializer_expression);
+			static_pointer_cast<const VariantFunctionSpecifier>(type), name,
+			name_position, initializer_expression);
 }
 
 const_shared_ptr<Function> FunctionType::GetDefaultFunction(
@@ -90,7 +90,7 @@ const_shared_ptr<Function> FunctionType::GetDefaultFunction(
 		const TypeTable& type_table) {
 	auto statement_block = GetDefaultStatementBlock(
 			declaration->GetReturnTypeSpecifier(), type_table);
-	return make_shared<Function>(declaration, statement_block,
+	return Function::Build(GetDefaultLocation(), declaration, statement_block,
 			ExecutionContext::GetDefault());
 }
 

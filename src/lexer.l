@@ -103,6 +103,7 @@ blank   [ \t\r]
 "&&"            return yy::newt_parser::make_AND(loc);
 "||"            return yy::newt_parser::make_OR(loc);
 "|"             return yy::newt_parser::make_PIPE(loc);
+"&"             return yy::newt_parser::make_AMPERSAND(loc);
 "mutable"       return yy::newt_parser::make_MUTABLE(loc);
 "with"          return yy::newt_parser::make_WITH(loc);
 "return"        return yy::newt_parser::make_RETURN(loc);
@@ -153,7 +154,7 @@ int Driver::scan_begin(const std::string& file_name,
 	if (file_name.empty() || file_name == "-")
 		yyin = stdin;
 	else if (!(yyin = fopen(file_name.c_str(), "r"))) {
-		error("Cannot open " + file_name + ": " + strerror(errno));
+		error("Cannot open " + file_name + ": " + strerror(errno) + "\n");
 		return EXIT_FAILURE;
 	}
 

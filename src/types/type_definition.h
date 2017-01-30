@@ -65,6 +65,9 @@ public:
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void> value) const = 0;
 
+	/**
+	 * Return the concrete (un-inferred) declaration statement for this type
+	 */
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position,

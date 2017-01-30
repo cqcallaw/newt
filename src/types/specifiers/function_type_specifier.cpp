@@ -18,6 +18,7 @@
  */
 
 #include <function_type_specifier.h>
+#include <variant_function_specifier.h>
 #include <typeinfo>
 #include <sstream>
 #include <assert.h>
@@ -73,6 +74,20 @@ const AnalysisResult FunctionTypeSpecifier::AnalyzeAssignmentTo(
 		const TypeTable& type_table) const {
 	if (*this == *other) {
 		return EQUIVALENT;
+	} else {
+		auto as_variant_specifier = dynamic_pointer_cast<
+				const VariantFunctionSpecifier>(other);
+		if (as_variant_specifier) {
+			auto variant_list = as_variant_specifier->GetVariantList();
+			if (FunctionVariantList::IsTerminator(variant_list->GetNext())) {
+				//single-item variant list; test FunctionTypeSpecifier assignment
+				auto variant = variant_list->GetData();
+				auto declaration = variant->GetDeclaration();
+
+				auto result = AnalyzeAssignmentTo(declaration, type_table);
+				return result;
+			}
+		}
 	}
 
 	return INCOMPATIBLE;
@@ -86,7 +101,8 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 			TypeSpecifierListRef subject = m_parameter_type_list;
 			TypeSpecifierListRef other_subject =
 					as_function.GetParameterTypeList();
-			while (!TypeSpecifierList::IsTerminator(subject)) {
+			while (!TypeSpecifierList::IsTerminator(subject)
+					&& !TypeSpecifierList::IsTerminator(other_subject)) {
 				const_shared_ptr<TypeSpecifier> type = subject->GetData();
 				const_shared_ptr<TypeSpecifier> other_type =
 						other_subject->GetData();
@@ -96,6 +112,12 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 				} else {
 					return false;
 				}
+			}
+
+			if (!TypeSpecifierList::IsTerminator(subject)
+					|| !TypeSpecifierList::IsTerminator(other_subject)) {
+				// parameter length mismatch
+				return false;
 			}
 
 			return true;

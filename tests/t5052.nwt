@@ -1,0 +1,33 @@
+# test function overloading
+coordinate {
+	cartesian {
+		x:int,
+		y:int
+	}
+	| polar {
+		r:double,
+		t:double
+	}
+}
+
+translate := (c:coordinate, x:int, y:int) -> coordinate {
+	match(c)
+		cartesian {
+			return cartesian with { x = cartesian.x + x, y = cartesian.y + y }
+		}
+		| polar {
+			return polar
+		}
+}
+& (c:coordinate, r:double, t:double) -> coordinate {
+	match(c)
+		cartesian {
+			return cartesian
+		}
+		| polar {
+			# TODO: make this math right
+			return polar with { r = polar.r + r, t = polar.t + t }
+		}
+}
+
+res:= translate(@coordinate.polar, 3.2, 5.1)
