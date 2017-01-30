@@ -382,21 +382,59 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 	shared_ptr<const FunctionVariant> best_variant = nullptr;
 	while (!FunctionVariantList::IsTerminator(variant_subject)) {
 		auto variant = variant_subject->GetData();
-		uint variant_score = 0;
+		uint variant_score = std::numeric_limits<unsigned int>::max();
 		auto variant_errors = ErrorList::GetTerminator();
 
 		auto argument_subject = argument_list;
 		auto parameter_subject = variant->GetDeclaration()->GetParameterList();
 		if (ArgumentList::IsTerminator(argument_subject)) {
 			if (DeclarationList::IsTerminator(parameter_subject)) {
-				//trivial accept with empty argument & parameter lists
+				// trivial accept with empty argument & parameter lists
 				variant_score = 0;
 			} else {
 				auto parameter = parameter_subject->GetData();
 				if (parameter->GetInitializerExpression()) {
-					//trivial accept with empty argument & all default parameters
+					// trivial accept with empty argument & all default parameters
 					variant_score = 3;
+				} else {
+					// non-default parameters encountered
+					while (!DeclarationList::IsTerminator(parameter_subject)) {
+						auto parameter = parameter_subject->GetData();
+						if (parameter->GetInitializerExpression()) {
+							variant_score += 3;
+							parameter_subject = parameter_subject->GetNext();
+						} else {
+							auto declaration = parameter->GetName();
+
+							variant_errors = ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::NO_PARAMETER_DEFAULT,
+											argument_list_location.end.line,
+											argument_list_location.end.column,
+											*parameter->GetName()),
+									variant_errors);
+						}
+
+						parameter_subject = parameter_subject->GetNext();
+					}
+
+					variant_score += 10;
 				}
+			}
+		} else if (DeclarationList::IsTerminator(parameter_subject)) {
+			if (ArgumentList::IsTerminator(argument_subject)) {
+				// trivial accept with empty argument & parameter lists
+				variant_score = 0;
+			} else {
+				auto argument = argument_subject->GetData();
+				variant_errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::TOO_MANY_ARGUMENTS,
+								argument->GetPosition().begin.line,
+								argument->GetPosition().begin.column,
+								variant->GetDeclaration()->ToString()),
+						variant_errors);
+				variant_score = 100;
 			}
 		} else {
 			while (!ArgumentList::IsTerminator(argument_subject)
@@ -422,8 +460,7 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 
 					switch (argument_assignment_compatibility) {
 					case AnalysisResult::INCOMPATIBLE: {
-						variant_score = std::numeric_limits<unsigned int>::max()
-								- 2;
+						variant_score += 20;
 						variant_errors =
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
@@ -433,11 +470,10 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 												argument_type_specifier->ToString(),
 												parameter_type_specifier->ToString()),
 										variant_errors);
-						break; //function variant does not match.
+						break; // function variant does not match.
 					}
 					case AnalysisResult::AMBIGUOUS: {
-						variant_score = std::numeric_limits<unsigned int>::max()
-								- 1;
+						variant_score += 30;
 						variant_errors =
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
@@ -447,7 +483,7 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 												argument_type_specifier->ToString(),
 												parameter_type_specifier->ToString()),
 										variant_errors);
-						break; //function variant does not match.
+						break; // function variant does not match.
 					}
 					case AnalysisResult::UNAMBIGUOUS:
 					case AnalysisResult::UNAMBIGUOUS_NESTED: {
@@ -455,7 +491,11 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 						break;
 					}
 					default: {
-						//EQUIVALENT: don't modify score
+						// EQUIVALENT
+						if (variant_score
+								== std::numeric_limits<unsigned int>::max()) {
+							variant_score = 0;
+						} // otherwise, do nothing
 					}
 					}
 				} else {
@@ -469,36 +509,42 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 				parameter_subject = parameter_subject->GetNext();
 			}
 
-			// check for too many arguments
-			if (!ArgumentList::IsTerminator(argument_subject)) {
-				auto argument = argument_subject->GetData();
-				variant_errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::TOO_MANY_ARGUMENTS,
-								argument->GetPosition().begin.line,
-								argument->GetPosition().begin.column,
-								variant->GetDeclaration()->ToString()),
-						variant_errors);
-				variant_score = std::numeric_limits<unsigned int>::max();
-			}
+			if (variant_score < std::numeric_limits<unsigned int>::max()) {
+				// we have what might be a legitimate match; perform additional checks
 
-			// handle default parameters
-			while (!DeclarationList::IsTerminator(parameter_subject)) {
-				auto parameter = parameter_subject->GetData();
-				if (parameter->GetInitializerExpression()) {
-					variant_score += 3;
-					parameter_subject = parameter_subject->GetNext();
-				} else {
-					auto declaration = parameter->GetName();
-					//error: non-default parameter
-					//variant_score = std::numeric_limits<unsigned int>::max();
+				// check for too many arguments
+				if (!ArgumentList::IsTerminator(argument_subject)) {
+					auto argument = argument_subject->GetData();
 					variant_errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
-									Error::NO_PARAMETER_DEFAULT,
-									argument_list_location.end.line,
-									argument_list_location.end.column,
-									*parameter->GetName()), variant_errors);
-					break;
+									Error::TOO_MANY_ARGUMENTS,
+									argument->GetPosition().begin.line,
+									argument->GetPosition().begin.column,
+									variant->GetDeclaration()->ToString()),
+							variant_errors);
+					variant_score += 100;
+				}
+
+				// handle default parameters
+				while (!DeclarationList::IsTerminator(parameter_subject)) {
+					auto parameter = parameter_subject->GetData();
+					if (parameter->GetInitializerExpression()) {
+						variant_score += 3;
+					} else {
+						auto declaration = parameter->GetName();
+						// error: non-default parameter
+						// variant_score = std::numeric_limits<unsigned int>::max();
+						variant_errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::NO_PARAMETER_DEFAULT,
+										argument_list_location.end.line,
+										argument_list_location.end.column,
+										*parameter->GetName()), variant_errors);
+
+						variant_score += 200;
+					}
+
+					parameter_subject = parameter_subject->GetNext();
 				}
 			}
 		}
