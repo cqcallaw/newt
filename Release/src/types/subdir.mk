@@ -12,7 +12,8 @@ CPP_SRCS += \
 ../src/types/primitive_type.cpp \
 ../src/types/record_type.cpp \
 ../src/types/sum_type.cpp \
-../src/types/unit_type.cpp 
+../src/types/unit_type.cpp \
+../src/types/variant_function_type.cpp 
 
 OBJS += \
 ./src/types/alias_definition.o \
@@ -23,7 +24,8 @@ OBJS += \
 ./src/types/primitive_type.o \
 ./src/types/record_type.o \
 ./src/types/sum_type.o \
-./src/types/unit_type.o 
+./src/types/unit_type.o \
+./src/types/variant_function_type.o 
 
 CPP_DEPS += \
 ./src/types/alias_definition.d \
@@ -34,7 +36,8 @@ CPP_DEPS += \
 ./src/types/primitive_type.d \
 ./src/types/record_type.d \
 ./src/types/sum_type.d \
-./src/types/unit_type.d 
+./src/types/unit_type.d \
+./src/types/variant_function_type.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

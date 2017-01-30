@@ -12,6 +12,7 @@ CPP_SRCS += \
 ../src/execution_context.cpp \
 ../src/execution_context_list.cpp \
 ../src/function.cpp \
+../src/function_variant.cpp \
 ../src/indent.cpp \
 ../src/match.cpp \
 ../src/member_instantiation.cpp \
@@ -35,6 +36,7 @@ OBJS += \
 ./src/execution_context.o \
 ./src/execution_context_list.o \
 ./src/function.o \
+./src/function_variant.o \
 ./src/indent.o \
 ./src/match.o \
 ./src/member_instantiation.o \
@@ -58,6 +60,7 @@ CPP_DEPS += \
 ./src/execution_context.d \
 ./src/execution_context_list.d \
 ./src/function.d \
+./src/function_variant.d \
 ./src/indent.d \
 ./src/match.d \
 ./src/member_instantiation.d \
