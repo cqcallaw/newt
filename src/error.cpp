@@ -122,10 +122,6 @@ const string Error::get_error_message() const {
 		os << "Invalid array type '" << m_s1 << "' for variable '" << m_s2
 				<< "'.";
 		break;
-	case LHS_OF_PERIOD_MUST_BE_OBJECT:
-		os << "Variable '" << m_s1 << "' is not an object."
-				<< "  Only objects may be on the left of a period.";
-		break;
 	case MINUS_ASSIGNMENT_TYPE_ERROR:
 		os << "Cannot -= an expression of type '" << m_s2
 				<< "' from a variable of type '" << m_s1 << "'.";
