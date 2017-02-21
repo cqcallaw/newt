@@ -31,7 +31,7 @@ public:
 	ExitStatement(const_shared_ptr<Expression> exit_expression);
 	virtual ~ExitStatement();
 
-	virtual const ErrorListRef Preprocess(
+	virtual const PreprocessResult Preprocess(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;

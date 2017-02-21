@@ -1,0 +1,7 @@
+# test that missing return from an if branch fails
+f := () -> int {
+	if (42 != 42) {
+		return 1
+	} else {
+	} 
+}

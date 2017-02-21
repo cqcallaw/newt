@@ -41,7 +41,7 @@ AssignmentStatement::AssignmentStatement(const_shared_ptr<Variable> variable,
 AssignmentStatement::~AssignmentStatement() {
 }
 
-const ErrorListRef AssignmentStatement::Preprocess(
+const PreprocessResult AssignmentStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -231,7 +231,7 @@ const ErrorListRef AssignmentStatement::Preprocess(
 				errors);
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef AssignmentStatement::do_op(

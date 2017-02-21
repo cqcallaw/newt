@@ -45,13 +45,14 @@ MatchStatement::MatchStatement(const yy::location statement_location,
 MatchStatement::~MatchStatement() {
 }
 
-const ErrorListRef MatchStatement::Preprocess(
+const PreprocessResult MatchStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors;
 	errors = m_source_expression->Validate(context);
 
+	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier_result =
 				m_source_expression->GetTypeSpecifier(context);
@@ -83,8 +84,7 @@ const ErrorListRef MatchStatement::Preprocess(
 							expression_type_specifier);
 					assert(source_sum_specifier);
 
-					shared_ptr<std::set<std::string>> match_names = make_shared<
-							std::set<std::string>>();
+					auto match_names = make_shared<std::set<std::string>>();
 
 					shared_ptr<const StatementBlock> default_match_block =
 							nullptr;
@@ -92,6 +92,7 @@ const ErrorListRef MatchStatement::Preprocess(
 
 					auto match_list = m_match_list;
 					auto match_context = m_match_contexts;
+					auto initial_state = true;
 					while (!MatchList::IsTerminator(match_list)) {
 						auto match = match_list->GetData();
 						auto match_name = match->GetName();
@@ -136,11 +137,22 @@ const ErrorListRef MatchStatement::Preprocess(
 									matched_context->InsertSymbol(*alias_name,
 											default_symbol);
 
-									auto block_errors = match_body->Preprocess(
-											matched_context,
-											return_type_specifier);
-									errors = ErrorList::Concatenate(errors,
-											block_errors);
+									auto match_preprocess_result =
+											match_body->Preprocess(
+													matched_context,
+													return_type_specifier);
+									auto match_return_coverage =
+											match_preprocess_result.GetReturnCoverage();
+
+									return_coverage = CoverageTransition(
+											return_coverage,
+											match_return_coverage,
+											initial_state);
+									initial_state = false;
+
+									errors =
+											ErrorList::Concatenate(errors,
+													match_preprocess_result.GetErrors());
 								} else {
 									errors =
 											ErrorList::From(
@@ -152,7 +164,6 @@ const ErrorListRef MatchStatement::Preprocess(
 															*match_name),
 													errors);
 								}
-
 							} else {
 								errors =
 										ErrorList::From(
@@ -168,6 +179,7 @@ const ErrorListRef MatchStatement::Preprocess(
 							}
 						}
 
+						initial_state = false;
 						match_context = match_context->GetNext();
 						match_list = match_list->GetNext();
 					}
@@ -177,11 +189,19 @@ const ErrorListRef MatchStatement::Preprocess(
 						// make sure partial matches are made complete by a default match block
 						if (default_match_block) {
 							//we have a default match block; preprocess it
-							auto block_errors = default_match_block->Preprocess(
-									default_match_context,
-									return_type_specifier);
-							errors = ErrorList::Concatenate(errors,
-									block_errors);
+							auto default_block_preprocess_result =
+									default_match_block->Preprocess(
+											default_match_context,
+											return_type_specifier);
+
+							return_coverage =
+									CoverageTransition(return_coverage,
+											default_block_preprocess_result.GetReturnCoverage(),
+											initial_state);
+
+							errors =
+									ErrorList::Concatenate(errors,
+											default_block_preprocess_result.GetErrors());
 						} else {
 							std::set<std::string> difference;
 							std::set_difference(variant_names->begin(),
@@ -230,7 +250,7 @@ const ErrorListRef MatchStatement::Preprocess(
 		}
 	}
 
-	return errors;
+	return PreprocessResult(return_coverage, errors);
 }
 
 const ErrorListRef MatchStatement::Execute(
@@ -393,4 +413,48 @@ const MatchContextListRef MatchStatement::GenerateMatchContexts(
 	}
 
 	return result;
+}
+
+const PreprocessResult::ReturnCoverage MatchStatement::CoverageTransition(
+		PreprocessResult::ReturnCoverage current,
+		PreprocessResult::ReturnCoverage input, bool is_start) {
+	if (is_start) {
+		return input;
+	} else {
+		switch (current) {
+		case PreprocessResult::ReturnCoverage::FULL: {
+			switch (input) {
+			case PreprocessResult::ReturnCoverage::FULL: {
+				return PreprocessResult::ReturnCoverage::FULL;
+			}
+			case PreprocessResult::ReturnCoverage::PARTIAL: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			case PreprocessResult::ReturnCoverage::NONE:
+			default: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			}
+			break;
+		}
+		case PreprocessResult::ReturnCoverage::PARTIAL: {
+			return PreprocessResult::ReturnCoverage::PARTIAL;
+		}
+		case PreprocessResult::ReturnCoverage::NONE:
+		default: {
+			switch (input) {
+			case PreprocessResult::ReturnCoverage::FULL: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			case PreprocessResult::ReturnCoverage::PARTIAL: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			case PreprocessResult::ReturnCoverage::NONE:
+			default: {
+				return PreprocessResult::ReturnCoverage::NONE;
+			}
+			}
+		}
+		}
+	}
 }

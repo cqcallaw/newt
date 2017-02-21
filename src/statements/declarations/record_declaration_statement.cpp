@@ -47,7 +47,7 @@ RecordDeclarationStatement::RecordDeclarationStatement(
 RecordDeclarationStatement::~RecordDeclarationStatement() {
 }
 
-const ErrorListRef RecordDeclarationStatement::Preprocess(
+const PreprocessResult RecordDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -95,7 +95,7 @@ const ErrorListRef RecordDeclarationStatement::Preprocess(
 						GetNameLocation().begin.column, *GetName()), errors);
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef RecordDeclarationStatement::Execute(

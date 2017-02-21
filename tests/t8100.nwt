@@ -1,6 +1,6 @@
 # test invalid re-declaration of recursive function
 
-factorial:= (a:int)-> int { }
+factorial:= (a:int)-> int { return 3 }
 
 factorial:= (a:int)-> int {
 	if (a <= 1) {

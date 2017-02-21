@@ -37,7 +37,7 @@ InvokeStatement::InvokeStatement(const_shared_ptr<Variable> variable,
 InvokeStatement::~InvokeStatement() {
 }
 
-const ErrorListRef InvokeStatement::Preprocess(
+const PreprocessResult InvokeStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -45,7 +45,7 @@ const ErrorListRef InvokeStatement::Preprocess(
 	//argument list length and types must match
 	auto result = m_expression->Validate(context);
 
-	return result;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, result);
 }
 
 const ErrorListRef InvokeStatement::Execute(

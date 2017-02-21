@@ -113,24 +113,27 @@ const_shared_ptr<Result> SumType::Build(
 			auto as_unit = dynamic_pointer_cast<const UnitDeclarationStatement>(
 					declaration);
 			if (as_unit) {
-				auto validation_errors = as_unit->Preprocess(tmp_context,
+				auto validation_result = as_unit->Preprocess(tmp_context,
 						output);
+				auto validation_errors = validation_result.GetErrors();
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
 			auto as_record = dynamic_pointer_cast<
 					const RecordDeclarationStatement>(declaration);
 			if (as_record) {
-				auto validation_errors = as_record->Preprocess(tmp_context,
+				auto validation_result = as_record->Preprocess(tmp_context,
 						output);
+				auto validation_errors = validation_result.GetErrors();
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 
 			auto as_sum = dynamic_pointer_cast<const SumDeclarationStatement>(
 					declaration);
 			if (as_sum) {
-				auto validation_errors = as_sum->Preprocess(tmp_context,
+				auto validation_result = as_sum->Preprocess(tmp_context,
 						output);
+				auto validation_errors = validation_result.GetErrors();
 				errors = errors->Concatenate(errors, validation_errors);
 			}
 

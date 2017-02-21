@@ -1,0 +1,3 @@
+# test that empty function return nil doesn't generate return coverage errors
+f := () -> nil {
+}

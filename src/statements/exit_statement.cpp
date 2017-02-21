@@ -34,7 +34,7 @@ ExitStatement::ExitStatement(const_shared_ptr<Expression> exit_expression) :
 ExitStatement::~ExitStatement() {
 }
 
-const ErrorListRef ExitStatement::Preprocess(
+const PreprocessResult ExitStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -67,7 +67,7 @@ const ErrorListRef ExitStatement::Preprocess(
 		}
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef ExitStatement::Execute(

@@ -42,7 +42,7 @@ PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
 PrimitiveDeclarationStatement::~PrimitiveDeclarationStatement() {
 }
 
-const ErrorListRef PrimitiveDeclarationStatement::Preprocess(
+const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -125,7 +125,7 @@ const ErrorListRef PrimitiveDeclarationStatement::Preprocess(
 		}
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef PrimitiveDeclarationStatement::Execute(

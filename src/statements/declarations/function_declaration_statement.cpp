@@ -61,7 +61,7 @@ FunctionDeclarationStatement::FunctionDeclarationStatement(
 FunctionDeclarationStatement::~FunctionDeclarationStatement() {
 }
 
-const ErrorListRef FunctionDeclarationStatement::Preprocess(
+const PreprocessResult FunctionDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -147,7 +147,7 @@ const ErrorListRef FunctionDeclarationStatement::Preprocess(
 						GetNameLocation().begin.column, *(GetName())), errors);
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef FunctionDeclarationStatement::Execute(

@@ -48,7 +48,7 @@ ComplexInstantiationStatement::ComplexInstantiationStatement(
 ComplexInstantiationStatement::~ComplexInstantiationStatement() {
 }
 
-const ErrorListRef ComplexInstantiationStatement::Preprocess(
+const PreprocessResult ComplexInstantiationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -98,7 +98,7 @@ const ErrorListRef ComplexInstantiationStatement::Preprocess(
 		}
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const_shared_ptr<TypeSpecifier> ComplexInstantiationStatement::GetTypeSpecifier() const {

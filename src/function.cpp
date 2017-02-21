@@ -138,9 +138,11 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			const_shared_ptr<DeclarationStatement> parameter_declaration =
 					parameter->GetData();
 
-			auto parameter_preprocess_errors =
+			auto parameter_preprocess_result =
 					parameter_declaration->Preprocess(
 							function_execution_context, closure_reference);
+			auto parameter_preprocess_errors =
+					parameter_preprocess_result.GetErrors();
 			if (ErrorList::IsTerminator(parameter_preprocess_errors)) {
 				auto parameter_execute_errors = parameter_declaration->Execute(
 						function_execution_context, closure_reference);
@@ -187,7 +189,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		if (declaration->GetInitializerExpression()) {
 			errors = ErrorList::Concatenate(errors,
 					declaration->Preprocess(function_execution_context,
-							function_execution_context));
+							function_execution_context).GetErrors());
 			errors = ErrorList::Concatenate(errors,
 					declaration->Execute(function_execution_context,
 							function_execution_context));
@@ -215,7 +217,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		//TODO: consider cloning function expression preprocess context instead of discarding it
 		errors = ErrorList::Concatenate(errors,
 				body->Preprocess(final_execution_context,
-						declaration->GetReturnTypeSpecifier()));
+						declaration->GetReturnTypeSpecifier()).GetErrors());
 		if (ErrorList::IsTerminator(errors)) {
 			auto execute_errors = body->Execute(final_execution_context,
 					final_execution_context);

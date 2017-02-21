@@ -1,0 +1,4 @@
+# test that function returning a wider type is invalid
+f := () -> int {
+	return 4.2
+}

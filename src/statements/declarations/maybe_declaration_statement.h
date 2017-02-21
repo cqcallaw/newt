@@ -33,7 +33,7 @@ public:
 			const_shared_ptr<Expression> initializer_expression = nullptr);
 	virtual ~MaybeDeclarationStatement();
 
-	virtual const ErrorListRef Preprocess(
+	virtual const PreprocessResult Preprocess(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;
@@ -41,10 +41,6 @@ public:
 	virtual const ErrorListRef Execute(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
-
-	virtual const ErrorListRef GetReturnStatementErrors(
-			const_shared_ptr<TypeSpecifier> type_specifier,
-			const std::shared_ptr<ExecutionContext> execution_context) const;
 
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;

@@ -42,7 +42,7 @@ MaybeDeclarationStatement::MaybeDeclarationStatement(
 MaybeDeclarationStatement::~MaybeDeclarationStatement() {
 }
 
-const ErrorListRef MaybeDeclarationStatement::Preprocess(
+const PreprocessResult MaybeDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -126,7 +126,7 @@ const ErrorListRef MaybeDeclarationStatement::Preprocess(
 
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef MaybeDeclarationStatement::Execute(
@@ -199,12 +199,6 @@ const ErrorListRef MaybeDeclarationStatement::Execute(
 	}
 
 	return errors;
-}
-
-const ErrorListRef MaybeDeclarationStatement::GetReturnStatementErrors(
-		const_shared_ptr<TypeSpecifier> type_specifier,
-		const std::shared_ptr<ExecutionContext> execution_context) const {
-	return ErrorList::GetTerminator();
 }
 
 const DeclarationStatement* MaybeDeclarationStatement::WithInitializerExpression(

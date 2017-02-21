@@ -229,6 +229,10 @@ const string Error::get_error_message() const {
 	case CANNOT_REFERENCE_SUM_VARIANT_AS_DATA:
 		os << "Sum type variants may not be referenced as data.";
 		break;
+	case MISSING_RETURN_COVERAGE:
+		os
+				<< "Control reaches end of non-void function without complete return coverage.";
+		break;
 	default:
 		os << "Unknown error passed to Error::error_core.";
 		break;

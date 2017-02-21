@@ -1,0 +1,8 @@
+# test that both branches of an if statement provide full return coverage
+f := () -> int {
+	if (42 != 42) {
+		return 3
+	} else {
+		return 1
+	}
+}

@@ -1,0 +1,3 @@
+# test that function without a valid return statement generates an error
+f := () -> int {
+}

@@ -44,7 +44,7 @@ public:
 
 	virtual const yy::location GetTypeSpecifierLocation() const;
 
-	virtual const ErrorListRef Preprocess(
+	virtual const PreprocessResult Preprocess(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;
@@ -55,12 +55,6 @@ public:
 
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
-
-	virtual const ErrorListRef GetReturnStatementErrors(
-			const_shared_ptr<TypeSpecifier> type_specifier,
-			const shared_ptr<ExecutionContext> execution_context) const {
-		return ErrorList::GetTerminator();
-	}
 
 private:
 	const_shared_ptr<ComplexTypeSpecifier> m_type_specifier;

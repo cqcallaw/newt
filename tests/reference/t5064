@@ -1,0 +1,9 @@
+Parsing file ../tests/t5064.nwt...
+Parsed file ../tests/t5064.nwt.
+Root Symbol Table:
+----------------
+() -> nil f:
+	Body Location: 2.17
+
+Root Type Table:
+----------------
