@@ -1,0 +1,8 @@
+# test that missing return from a branch doesn't generate an error if there's a subsequent return
+f := () -> int {
+	if (42 != 42) {
+	} else {
+		return 1
+	}
+	return 2
+}

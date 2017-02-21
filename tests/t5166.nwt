@@ -1,0 +1,22 @@
+# test match statement partial return coverage
+coordinate {
+	cartesian {
+		x:int,
+		y:int
+	}
+	| polar {
+		r:double,
+		t:double
+	}
+}
+
+translate := (c:coordinate, x:int, y:int) -> coordinate {
+	match(c)
+		cartesian {
+		}
+		| polar {
+			return polar
+		}
+}
+
+res:= translate(@coordinate.polar, 3, 5)

@@ -29,11 +29,12 @@ PrintStatement::PrintStatement(const int line_number,
 PrintStatement::~PrintStatement() {
 }
 
-const ErrorListRef PrintStatement::Preprocess(
+const PreprocessResult PrintStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	return m_expression->Validate(context);
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE,
+			m_expression->Validate(context));
 }
 
 const ErrorListRef PrintStatement::Execute(

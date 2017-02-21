@@ -34,7 +34,7 @@ UnitDeclarationStatement::UnitDeclarationStatement(const yy::location location,
 UnitDeclarationStatement::~UnitDeclarationStatement() {
 }
 
-const ErrorListRef UnitDeclarationStatement::Preprocess(
+const PreprocessResult UnitDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -82,18 +82,12 @@ const ErrorListRef UnitDeclarationStatement::Preprocess(
 		assert(false);
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef UnitDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	return ErrorList::GetTerminator();
-}
-
-const ErrorListRef UnitDeclarationStatement::GetReturnStatementErrors(
-		const_shared_ptr<TypeSpecifier> type_specifier,
-		const shared_ptr<ExecutionContext> execution_context) const {
 	return ErrorList::GetTerminator();
 }
 

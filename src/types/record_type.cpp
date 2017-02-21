@@ -109,8 +109,9 @@ const_shared_ptr<Result> RecordType::Build(
 				} else {
 					//otherwise (no initializer expression OR a valid initializer expression);
 					//we're cleared to preprocess
-					auto preprocess_errors = declaration->Preprocess(
+					auto preprocess_result = declaration->Preprocess(
 							tmp_context, closure);
+					auto preprocess_errors = preprocess_result.GetErrors();
 					declaration_errors = ErrorList::Concatenate(
 							declaration_errors, preprocess_errors);
 

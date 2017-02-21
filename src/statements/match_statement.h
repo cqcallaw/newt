@@ -52,7 +52,7 @@ public:
 		return m_match_list_location;
 	}
 
-	virtual const ErrorListRef Preprocess(
+	virtual const PreprocessResult Preprocess(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;
@@ -63,6 +63,10 @@ public:
 
 	static const MatchContextListRef GenerateMatchContexts(
 			const MatchListRef match_list);
+
+	static const PreprocessResult::ReturnCoverage CoverageTransition(
+			PreprocessResult::ReturnCoverage current,
+			PreprocessResult::ReturnCoverage input, bool is_start);
 
 private:
 	const yy::location m_statement_location;

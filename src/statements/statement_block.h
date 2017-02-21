@@ -31,11 +31,11 @@ public:
 	StatementBlock(StatementListRef statements, const yy::location location);
 	virtual ~StatementBlock();
 
-	const ErrorListRef Preprocess(
+	const PreprocessResult Preprocess(
 			const shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<TypeSpecifier> return_type_specifier) const;
 
-	const ErrorListRef Preprocess(const shared_ptr<ExecutionContext> context,
+	const PreprocessResult Preprocess(const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier) const;
 

@@ -31,7 +31,7 @@ ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 ReturnStatement::~ReturnStatement() {
 }
 
-const ErrorListRef ReturnStatement::Preprocess(
+const PreprocessResult ReturnStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -67,7 +67,7 @@ const ErrorListRef ReturnStatement::Preprocess(
 		}
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::FULL, errors);
 }
 
 const ErrorListRef ReturnStatement::Execute(
@@ -89,42 +89,6 @@ const ErrorListRef ReturnStatement::Execute(
 					const_shared_ptr<Symbol>(
 							new Symbol(expression_type_specifier,
 									result->GetRawData())));
-		}
-	}
-
-	return errors;
-}
-
-const ErrorListRef ReturnStatement::GetReturnStatementErrors(
-		const_shared_ptr<TypeSpecifier> return_type_specifier,
-		const shared_ptr<ExecutionContext> execution_context) const {
-	auto errors = ErrorList::GetTerminator();
-	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
-			execution_context);
-
-	errors = expression_type_specifier_result.GetErrors();
-	if (ErrorList::IsTerminator(errors)) {
-		auto expression_type_specifier =
-				expression_type_specifier_result.GetData();
-
-		auto assignment_analysis =
-				expression_type_specifier->AnalyzeAssignmentTo(
-						return_type_specifier,
-						execution_context->GetTypeTable());
-		if (assignment_analysis == AnalysisResult::AMBIGUOUS) {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::AMBIGUOUS_WIDENING_CONVERSION,
-							m_expression->GetPosition().begin.line,
-							m_expression->GetPosition().begin.column,
-							return_type_specifier->ToString(),
-							expression_type_specifier->ToString()), errors);
-		} else if (assignment_analysis == AnalysisResult::INCOMPATIBLE) {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::FUNCTION_RETURN_MISMATCH,
-							m_expression->GetPosition().begin.line,
-							m_expression->GetPosition().begin.column), errors);
 		}
 	}
 

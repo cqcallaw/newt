@@ -42,7 +42,7 @@ NestedDeclarationStatement::NestedDeclarationStatement(
 NestedDeclarationStatement::~NestedDeclarationStatement() {
 }
 
-const ErrorListRef NestedDeclarationStatement::Preprocess(
+const PreprocessResult NestedDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -151,7 +151,7 @@ const ErrorListRef NestedDeclarationStatement::Preprocess(
 						GetNameLocation().begin.column, *(GetName())), errors);
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef NestedDeclarationStatement::Execute(

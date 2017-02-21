@@ -1,0 +1,5 @@
+Parsing file ../tests/t5166.nwt...
+Semantic error on line 20, column 2: Control reaches end of non-void function without complete return coverage.
+Semantic error on line 22, column 7: Undeclared variable 'translate'
+Parsed file ../tests/t5166.nwt.
+2 errors found; giving up.

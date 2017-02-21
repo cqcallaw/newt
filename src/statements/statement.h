@@ -23,9 +23,9 @@
 #include "analysis_result.h"
 #include <defaults.h>
 #include <error.h>
+#include <result.h>
 
 class ExecutionContext;
-class Result;
 class TypeSpecifier;
 
 class Statement {
@@ -38,7 +38,7 @@ public:
 	/**
 	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
 	 */
-	virtual const ErrorListRef Preprocess(
+	virtual const PreprocessResult Preprocess(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const = 0;

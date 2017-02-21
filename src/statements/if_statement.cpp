@@ -26,6 +26,7 @@
 #include <type.h>
 #include <error.h>
 #include <execution_context.h>
+#include <match_statement.h>
 
 IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block) :
@@ -43,7 +44,7 @@ IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 IfStatement::~IfStatement() {
 }
 
-const ErrorListRef IfStatement::Preprocess(
+const PreprocessResult IfStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -52,6 +53,7 @@ const ErrorListRef IfStatement::Preprocess(
 	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
 			context);
 
+	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier =
@@ -65,18 +67,30 @@ const ErrorListRef IfStatement::Preprocess(
 
 			m_block_context->LinkToParent(context);
 
-			errors = m_block->Preprocess(m_block_context,
+			auto block_result = m_block->Preprocess(m_block_context,
 					return_type_specifier);
+			auto block_return_coverage = block_result.GetReturnCoverage();
+
+			return_coverage = MatchStatement::CoverageTransition(
+					return_coverage, block_return_coverage, true);
+			errors = block_result.GetErrors();
 			if (m_else_block) {
 				//pre-process else block
 				m_else_block_context->LinkToParent(context);
 
+				auto else_block_result = m_else_block->Preprocess(
+						m_else_block_context, return_type_specifier);
+				auto else_block_return_coverage =
+						else_block_result.GetReturnCoverage();
 				errors = ErrorList::Concatenate(errors,
-						m_else_block->Preprocess(m_else_block_context,
-								return_type_specifier));
+						else_block_result.GetErrors());
 
+				return_coverage = MatchStatement::CoverageTransition(
+						return_coverage, else_block_return_coverage, false);
+			} else {
+				// an "if" block on its own can only provide partial coverage
+				return_coverage = PreprocessResult::ReturnCoverage::PARTIAL;
 			}
-
 		} else {
 			yy::location position = m_expression->GetPosition();
 			errors = ErrorList::From(
@@ -87,7 +101,7 @@ const ErrorListRef IfStatement::Preprocess(
 		}
 	}
 
-	return errors;
+	return PreprocessResult(return_coverage, errors);
 }
 
 const ErrorListRef IfStatement::Execute(
@@ -97,7 +111,7 @@ const ErrorListRef IfStatement::Execute(
 
 	const_shared_ptr<Result> evaluation = m_expression->Evaluate(context,
 			closure);
-	//NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
+	// NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *(evaluation->GetData<bool>());
 
 	if (test) {

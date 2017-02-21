@@ -48,11 +48,11 @@ ForStatement::ForStatement(const_shared_ptr<DeclarationStatement> initial,
 ForStatement::~ForStatement() {
 }
 
-const ErrorListRef ForStatement::Preprocess(
+const PreprocessResult ForStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	ErrorListRef errors;
+	auto errors = ErrorList::GetTerminator();
 
 	ExecutionContextListRef context_parent = ExecutionContextList::From(context,
 			context->GetParent());
@@ -62,13 +62,17 @@ const ErrorListRef ForStatement::Preprocess(
 	m_block_context->LinkToParent(context);
 
 	if (m_initial) {
-		errors = m_initial->Preprocess(m_block_context, m_block_context, return_type_specifier);
+		auto initial_preprocess_result = m_initial->Preprocess(m_block_context,
+				m_block_context, return_type_specifier);
+		errors = initial_preprocess_result.GetErrors();
 		if (!ErrorList::IsTerminator(errors)) {
-			return errors;
+			return PreprocessResult(PreprocessResult::ReturnCoverage::NONE,
+					errors);
 		}
 	}
 
-	//can't nest this loop because m_initial might be empty
+	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
+	//can't nest this logic because m_initial might be empty
 	if (m_loop_expression) {
 		auto loop_expression_type_specifier_result =
 				m_loop_expression->GetTypeSpecifier(context);
@@ -83,7 +87,10 @@ const ErrorListRef ForStatement::Preprocess(
 							context->GetTypeTable());
 			if (loop_expression_analysis == EQUIVALENT
 					|| loop_expression_analysis == UNAMBIGUOUS) {
-				errors = m_statement_block->Preprocess(m_block_context, return_type_specifier);
+				auto block_preprocess_result = m_statement_block->Preprocess(
+						m_block_context, return_type_specifier);
+				return_coverage = block_preprocess_result.GetReturnCoverage();
+				errors = block_preprocess_result.GetErrors();
 			} else {
 				yy::location position = m_loop_expression->GetPosition();
 				errors = ErrorList::From(
@@ -95,7 +102,7 @@ const ErrorListRef ForStatement::Preprocess(
 		}
 	}
 
-	return errors;
+	return PreprocessResult(return_coverage, errors);
 }
 
 const ErrorListRef ForStatement::Execute(

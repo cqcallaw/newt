@@ -1,0 +1,5 @@
+# test function with invocation, without return statement
+fun := (a:int) -> int {
+}
+
+v:= fun(3)

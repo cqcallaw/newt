@@ -351,7 +351,7 @@ const ErrorListRef InvokeExpression::Validate(
 					if (declaration->GetInitializerExpression()) {
 						errors = ErrorList::Concatenate(
 								declaration->Preprocess(tmp_context,
-										tmp_context), errors);
+										tmp_context).GetErrors(), errors);
 					} else {
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,

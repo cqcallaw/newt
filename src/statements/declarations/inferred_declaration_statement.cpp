@@ -60,7 +60,7 @@ const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() cons
 	return GetInitializerExpression()->GetPosition();
 }
 
-const ErrorListRef InferredDeclarationStatement::Preprocess(
+const PreprocessResult InferredDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -86,12 +86,13 @@ const ErrorListRef InferredDeclarationStatement::Preprocess(
 							GetInitializerExpression()->GetPosition(),
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
-			errors = temp_statement->Preprocess(context, closure,
-					return_type_specifier);
+			auto preprocess_result = temp_statement->Preprocess(context,
+					closure, return_type_specifier);
+			errors = preprocess_result.GetErrors();
 		}
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef InferredDeclarationStatement::Execute(

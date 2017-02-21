@@ -80,4 +80,31 @@ private:
 	const ErrorListRef m_errors;
 };
 
+class PreprocessResult {
+public:
+	enum ReturnCoverage {
+		NONE, PARTIAL, FULL
+	};
+
+	PreprocessResult(ReturnCoverage return_coverage, const ErrorListRef errors) :
+			m_return_coverage(return_coverage), m_errors(errors) {
+
+	}
+
+	virtual ~PreprocessResult() {
+	}
+
+	const ReturnCoverage GetReturnCoverage() const {
+		return m_return_coverage;
+	}
+
+	const ErrorListRef GetErrors() const {
+		return m_errors;
+	}
+
+private:
+	const ReturnCoverage m_return_coverage;
+	const ErrorListRef m_errors;
+};
+
 #endif /* RESULT_H_ */

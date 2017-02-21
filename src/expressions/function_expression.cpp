@@ -133,8 +133,9 @@ const ErrorListRef FunctionExpression::Validate(
 			}
 
 			if (ErrorList::IsTerminator(parameter_errors)) {
-				auto preprocess_errors = declaration_statement->Preprocess(
+				auto preprocess_result = declaration_statement->Preprocess(
 						tmp_context, tmp_context);
+				auto preprocess_errors = preprocess_result.GetErrors();
 
 				if (ErrorList::IsTerminator(preprocess_errors)) {
 					auto execution_errors = declaration_statement->Execute(
@@ -155,9 +156,26 @@ const ErrorListRef FunctionExpression::Validate(
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
+			auto return_type_specifier = declaration->GetReturnTypeSpecifier();
+			auto body_process_result = body->Preprocess(tmp_context,
+					return_type_specifier);
 			errors = ErrorList::Concatenate(errors,
-					body->Preprocess(tmp_context,
-							declaration->GetReturnTypeSpecifier()));
+					body_process_result.GetErrors());
+
+			if (ErrorList::IsTerminator(errors)
+					&& return_type_specifier->AnalyzeAssignmentTo(
+							TypeTable::GetNilTypeSpecifier(),
+							execution_context->GetTypeTable()) != EQUIVALENT) {
+				// we have a non-nil return type and no other errors; check return coverage
+				if (body_process_result.GetReturnCoverage()
+						!= PreprocessResult::ReturnCoverage::FULL) {
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::MISSING_RETURN_COVERAGE,
+									GetPosition().end.line,
+									GetPosition().end.column), errors);
+				}
+			}
 		}
 
 		subject = subject->GetNext();

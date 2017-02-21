@@ -23,6 +23,8 @@
 #include "statement.h"
 #include <execution_context.h>
 #include <specifiers/type_specifier.h>
+#include <return_statement.h>
+#include <if_statement.h>
 
 using namespace std;
 
@@ -34,30 +36,34 @@ StatementBlock::StatementBlock(StatementListRef statements,
 StatementBlock::~StatementBlock() {
 }
 
-const ErrorListRef StatementBlock::Preprocess(
+const PreprocessResult StatementBlock::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	return Preprocess(execution_context, execution_context,
 			return_type_specifier);
 }
 
-const ErrorListRef StatementBlock::Preprocess(
+const PreprocessResult StatementBlock::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure_context,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	auto errors = ErrorList::GetTerminator();
 	auto subject = m_statements;
+	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	while (!StatementList::IsTerminator(subject)) {
 		const_shared_ptr<Statement> statement = subject->GetData();
 		//TODO: handle nested statement blocks
-		ErrorListRef statement_errors = statement->Preprocess(context,
-				closure_context, return_type_specifier);
-		errors = ErrorList::Concatenate(errors, statement_errors);
+		auto statement_result = statement->Preprocess(context, closure_context,
+				return_type_specifier);
+
+		auto statement_return_coverage = statement_result.GetReturnCoverage();
+		return_coverage = max(return_coverage, statement_return_coverage);
+		errors = ErrorList::Concatenate(errors, statement_result.GetErrors());
 
 		subject = subject->GetNext();
 	}
 
-	return errors;
+	return PreprocessResult(return_coverage, errors);
 }
 
 const ErrorListRef StatementBlock::Execute(

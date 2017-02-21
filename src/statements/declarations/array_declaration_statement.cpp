@@ -45,7 +45,7 @@ ArrayDeclarationStatement::ArrayDeclarationStatement(
 				type_specifier_location) {
 }
 
-const ErrorListRef ArrayDeclarationStatement::Preprocess(
+const PreprocessResult ArrayDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -123,7 +123,7 @@ const ErrorListRef ArrayDeclarationStatement::Preprocess(
 		}
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 ArrayDeclarationStatement::~ArrayDeclarationStatement() {

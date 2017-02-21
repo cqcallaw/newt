@@ -58,7 +58,7 @@ SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 SumDeclarationStatement::~SumDeclarationStatement() {
 }
 
-const ErrorListRef SumDeclarationStatement::Preprocess(
+const PreprocessResult SumDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -192,7 +192,7 @@ const ErrorListRef SumDeclarationStatement::Preprocess(
 						GetNameLocation().begin.column, *GetName()), errors);
 	}
 
-	return errors;
+	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
 const ErrorListRef SumDeclarationStatement::Execute(

@@ -1,0 +1,31 @@
+Parsing file ../tests/t5067.nwt...
+Parsed file ../tests/t5067.nwt.
+Root Symbol Table:
+----------------
+coordinate res:
+{cartesian}
+	int x: 0
+	int y: 0
+
+(coordinate, int, int) -> coordinate translate:
+	Body Location: 13.58-20.3
+
+Root Type Table:
+----------------
+coordinate:
+	<sum>
+	cartesian:
+		<record>
+		x:
+			int (0)
+		y:
+			int (0)
+
+	polar:
+		<record>
+		r:
+			double (0)
+		t:
+			double (0)
+
+
