@@ -100,7 +100,7 @@ const_shared_ptr<Result> RecordType::Build(
 						&& !initializer_expression->IsConstant()) {
 					//if we have a non-constant initializer expression, generate an error
 					yy::location position =
-							initializer_expression->GetPosition();
+							initializer_expression->GetLocation();
 					declaration_errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
@@ -263,8 +263,8 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR,
-							initializer->GetPosition().begin.line,
-							initializer->GetPosition().begin.column,
+							initializer->GetLocation().begin.line,
+							initializer->GetLocation().begin.column,
 							type_specifier->ToString(),
 							initializer_expression_type->ToString()), errors);
 		}

@@ -92,7 +92,7 @@ const PreprocessResult IfStatement::Preprocess(
 				return_coverage = PreprocessResult::ReturnCoverage::PARTIAL;
 			}
 		} else {
-			yy::location position = m_expression->GetPosition();
+			yy::location position = m_expression->GetLocation();
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,

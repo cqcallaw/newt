@@ -83,8 +83,8 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::INVALID_WITH_OPERAND,
-											m_source_expression->GetPosition().begin.line,
-											m_source_expression->GetPosition().begin.column,
+											m_source_expression->GetLocation().begin.line,
+											m_source_expression->GetLocation().begin.column,
 											source_type_specifier->ToString()),
 									errors);
 				}
@@ -202,8 +202,8 @@ const ErrorListRef WithExpression::Validate(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::INVALID_WITH_OPERAND,
-											m_source_expression->GetPosition().begin.line,
-											m_source_expression->GetPosition().begin.column,
+											m_source_expression->GetLocation().begin.line,
+											m_source_expression->GetLocation().begin.column,
 											source_type_specifier->ToString()),
 									errors);
 				}
@@ -254,8 +254,8 @@ const ErrorListRef WithExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::AMBIGUOUS_WIDENING_CONVERSION,
-															instantiation->GetExpression()->GetPosition().begin.line,
-															instantiation->GetExpression()->GetPosition().begin.column,
+															instantiation->GetExpression()->GetLocation().begin.line,
+															instantiation->GetExpression()->GetLocation().begin.column,
 															member_type_specifier->ToString(),
 															expression_type_specifier->ToString()),
 													errors);
@@ -265,8 +265,8 @@ const ErrorListRef WithExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::ASSIGNMENT_TYPE_ERROR,
-															instantiation->GetExpression()->GetPosition().begin.line,
-															instantiation->GetExpression()->GetPosition().begin.column,
+															instantiation->GetExpression()->GetLocation().begin.line,
+															instantiation->GetExpression()->GetLocation().begin.column,
 															member_type_specifier->ToString(),
 															expression_type_specifier->ToString()),
 													errors);

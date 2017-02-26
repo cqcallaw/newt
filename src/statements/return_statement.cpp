@@ -52,16 +52,16 @@ const PreprocessResult ReturnStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::AMBIGUOUS_WIDENING_CONVERSION,
-								m_expression->GetPosition().begin.line,
-								m_expression->GetPosition().begin.column,
+								m_expression->GetLocation().begin.line,
+								m_expression->GetLocation().begin.column,
 								return_type_specifier->ToString(),
 								expression_type_specifier->ToString()), errors);
 			} else if (assignment_analysis == AnalysisResult::INCOMPATIBLE) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::FUNCTION_RETURN_MISMATCH,
-								m_expression->GetPosition().begin.line,
-								m_expression->GetPosition().begin.column),
+								m_expression->GetLocation().begin.line,
+								m_expression->GetLocation().begin.column),
 						errors);
 			}
 		}

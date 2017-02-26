@@ -84,8 +84,8 @@ const ErrorListRef UnaryExpression::Validate(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::INVALID_RIGHT_OPERAND_TYPE,
-							m_expression->GetPosition().begin.line,
-							m_expression->GetPosition().begin.column,
+							m_expression->GetLocation().begin.line,
+							m_expression->GetLocation().begin.column,
 							OperatorToString(op)), errors);
 		}
 	}

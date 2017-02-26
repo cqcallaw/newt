@@ -57,7 +57,7 @@ const PreprocessResult ExitStatement::Preprocess(
 					|| !(expression_as_primitive->AnalyzeAssignmentTo(
 							PrimitiveTypeSpecifier::GetInt(),
 							context->GetTypeTable()))) {
-				yy::location position = m_exit_expression->GetPosition();
+				yy::location position = m_exit_expression->GetLocation();
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::EXIT_STATUS_MUST_BE_AN_INTEGER,

@@ -35,7 +35,7 @@ DefaultValueExpression::DefaultValueExpression(const yy::location position,
 
 DefaultValueExpression::DefaultValueExpression(
 		const DefaultValueExpression* other) :
-		Expression(other->GetPosition()), m_type_specifier(
+		Expression(other->GetLocation()), m_type_specifier(
 				other->m_type_specifier), m_type_position(
 				other->m_type_position) {
 }

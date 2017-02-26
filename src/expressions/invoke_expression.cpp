@@ -93,8 +93,8 @@ TypedResult<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::NOT_A_FUNCTION, GetPosition().begin.line,
-								GetPosition().begin.column), errors);
+								Error::NOT_A_FUNCTION, GetLocation().begin.line,
+								GetLocation().begin.column), errors);
 			}
 		}
 	}
@@ -148,8 +148,8 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::NOT_A_FUNCTION,
-							GetPosition().begin.line,
-							GetPosition().begin.column), errors);
+							GetLocation().begin.line,
+							GetLocation().begin.column), errors);
 		}
 
 	}
@@ -301,8 +301,8 @@ const ErrorListRef InvokeExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
-															argument_expression->GetPosition().begin.line,
-															argument_expression->GetPosition().begin.column,
+															argument_expression->GetLocation().begin.line,
+															argument_expression->GetLocation().begin.column,
 															argument_type_specifier->ToString(),
 															parameter_type_specifier->ToString()),
 													errors);
@@ -313,8 +313,8 @@ const ErrorListRef InvokeExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
-															argument_expression->GetPosition().begin.line,
-															argument_expression->GetPosition().begin.column,
+															argument_expression->GetLocation().begin.line,
+															argument_expression->GetLocation().begin.column,
 															argument_type_specifier->ToString(),
 															parameter_type_specifier->ToString()),
 													errors);
@@ -336,8 +336,8 @@ const ErrorListRef InvokeExpression::Validate(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::TOO_MANY_ARGUMENTS,
-												argument_expression->GetPosition().begin.line,
-												argument_expression->GetPosition().begin.column,
+												argument_expression->GetLocation().begin.line,
+												argument_expression->GetLocation().begin.column,
 												expression_type_specifier->ToString()),
 										errors);
 						break;
@@ -367,8 +367,8 @@ const ErrorListRef InvokeExpression::Validate(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::NOT_A_FUNCTION,
-								m_expression->GetPosition().begin.line,
-								m_expression->GetPosition().begin.column),
+								m_expression->GetLocation().begin.line,
+								m_expression->GetLocation().begin.column),
 						errors);
 			}
 		}

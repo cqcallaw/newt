@@ -113,8 +113,8 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
-													GetInitializerExpression()->GetPosition().begin.line,
-													GetInitializerExpression()->GetPosition().begin.column,
+													GetInitializerExpression()->GetLocation().begin.line,
+													GetInitializerExpression()->GetLocation().begin.column,
 													m_type_specifier->ToString(),
 													expression_type_specifier->ToString()),
 											errors);
@@ -125,8 +125,8 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::NOT_A_FUNCTION,
-											GetInitializerExpression()->GetPosition().begin.line,
-											GetInitializerExpression()->GetPosition().begin.column),
+											GetInitializerExpression()->GetLocation().begin.line,
+											GetInitializerExpression()->GetLocation().begin.column),
 									errors);
 				}
 			}

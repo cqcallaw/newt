@@ -98,7 +98,7 @@ const_shared_ptr<Result> SumType::Build(
 				declaration->GetInitializerExpression();
 		if (initializer_expression && !initializer_expression->IsConstant()) {
 			//if we have a non-constant initializer expression, generate an error
-			yy::location position = initializer_expression->GetPosition();
+			yy::location position = initializer_expression->GetLocation();
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
@@ -371,8 +371,8 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::AMBIGUOUS_WIDENING_CONVERSION,
-							initializer->GetPosition().begin.line,
-							initializer->GetPosition().begin.column,
+							initializer->GetLocation().begin.line,
+							initializer->GetLocation().begin.column,
 							type_specifier->ToString(),
 							initializer_expression_type_specifier->ToString()),
 					errors);
@@ -380,8 +380,8 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR,
-							initializer->GetPosition().begin.line,
-							initializer->GetPosition().begin.column,
+							initializer->GetLocation().begin.line,
+							initializer->GetLocation().begin.column,
 							type_specifier->ToString(),
 							initializer_expression_type_specifier->ToString()),
 					errors);

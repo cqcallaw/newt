@@ -49,13 +49,6 @@ TypedResult<TypeSpecifier> BinaryExpression::ComputeResultType(
 					std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
 							right_type_specifier_result.GetData());
 
-			/*if (left_as_primitive == nullptr || right_as_primitive == nullptr
-			 || left_as_primitive == PrimitiveTypeSpecifier::GetNone()
-			 || right_as_primitive
-			 == PrimitiveTypeSpecifier::GetNone()) {
-			 return PrimitiveTypeSpecifier::GetNone();
-			 }*/
-
 			if (left_as_primitive
 					&& left_as_primitive != PrimitiveTypeSpecifier::GetNone()
 					&& right_as_primitive
@@ -88,14 +81,9 @@ TypedResult<TypeSpecifier> BinaryExpression::ComputeResultType(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_TYPE_COMBINATION,
-								right->GetPosition().begin.line,
-								right->GetPosition().begin.column), errors);
+								right->GetLocation().begin.line,
+								right->GetLocation().begin.column), errors);
 			}
-
-			/*cerr << "Invalid type combination <" << left_type << "> and <"
-			 << right_type << ">\n";
-			 assert(false);
-			 return PrimitiveTypeSpecifier::GetNone();*/
 		}
 	}
 
@@ -126,8 +114,8 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 	if (ErrorList::IsTerminator(errors)) {
 		errors = right_type_specifier_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			yy::location left_position = left->GetPosition();
-			yy::location right_position = right->GetPosition();
+			yy::location left_position = left->GetLocation();
+			yy::location right_position = right->GetLocation();
 
 			auto type_table = context->GetTypeTable();
 
@@ -300,8 +288,8 @@ const ErrorListRef BinaryExpression::Validate(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_LEFT_OPERAND_TYPE,
-								left->GetPosition().begin.line,
-								left->GetPosition().begin.column,
+								left->GetLocation().begin.line,
+								left->GetLocation().begin.column,
 								OperatorToString(op)), errors);
 			}
 		} else {
@@ -326,8 +314,8 @@ const ErrorListRef BinaryExpression::Validate(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_RIGHT_OPERAND_TYPE,
-								right->GetPosition().begin.line,
-								right->GetPosition().begin.column,
+								right->GetLocation().begin.line,
+								right->GetLocation().begin.column,
 								OperatorToString(op)), errors);
 			}
 		} else {

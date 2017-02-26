@@ -100,8 +100,8 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::INVALID_INITIALIZER_TYPE,
-											GetInitializerExpression()->GetPosition().begin.line,
-											GetInitializerExpression()->GetPosition().begin.column,
+											GetInitializerExpression()->GetLocation().begin.line,
+											GetInitializerExpression()->GetLocation().begin.column,
 											*GetName(),
 											m_type_specifier->ToString(),
 											initializer_type_specifier->ToString()),
@@ -178,8 +178,8 @@ const ErrorListRef MaybeDeclarationStatement::Execute(
 							ErrorList::From(
 									make_shared<Error>(Error::RUNTIME,
 											Error::INVALID_INITIALIZER_TYPE,
-											GetInitializerExpression()->GetPosition().begin.line,
-											GetInitializerExpression()->GetPosition().begin.column,
+											GetInitializerExpression()->GetLocation().begin.line,
+											GetInitializerExpression()->GetLocation().begin.column,
 											*GetName(),
 											maybe_type_specifier->ToString(),
 											initializer_type_specifier->ToString()),

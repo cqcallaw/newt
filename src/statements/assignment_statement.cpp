@@ -69,7 +69,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 				if (!expression_type_specifier->AnalyzeAssignmentTo(
 						symbol_type_specifier, context->GetTypeTable())) {
 					yy::location expression_position =
-							m_expression->GetPosition();
+							m_expression->GetLocation();
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::ASSIGNMENT_TYPE_ERROR,
@@ -92,7 +92,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 					if (!expression_type_specifier->AnalyzeAssignmentTo(
 							element_type, context->GetTypeTable())) {
 						yy::location expression_position =
-								m_expression->GetPosition();
+								m_expression->GetLocation();
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::ASSIGNMENT_TYPE_ERROR,

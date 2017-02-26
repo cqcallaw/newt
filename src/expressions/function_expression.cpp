@@ -47,7 +47,7 @@ TypedResult<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
 	} else {
 		// overloaded function
 		return TypedResult<TypeSpecifier>(
-				make_shared<VariantFunctionSpecifier>(GetPosition(),
+				make_shared<VariantFunctionSpecifier>(GetLocation(),
 						m_variant_list), ErrorList::GetTerminator());
 	}
 }
@@ -56,7 +56,7 @@ const_shared_ptr<Result> FunctionExpression::Evaluate(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	auto function = Function::Build(GetPosition(), m_variant_list, closure);
+	auto function = Function::Build(GetLocation(), m_variant_list, closure);
 	return make_shared<Result>(function, errors);
 }
 
@@ -126,8 +126,8 @@ const ErrorListRef FunctionExpression::Validate(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::FUNCTION_PARAMETER_DEFAULT_MUST_BE_CONSTANT,
-											init_expression->GetPosition().begin.line,
-											init_expression->GetPosition().begin.column),
+											init_expression->GetLocation().begin.line,
+											init_expression->GetLocation().begin.column),
 									parameter_errors);
 				}
 			}
@@ -172,8 +172,8 @@ const ErrorListRef FunctionExpression::Validate(
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::MISSING_RETURN_COVERAGE,
-									GetPosition().end.line,
-									GetPosition().end.column), errors);
+									GetLocation().end.line,
+									GetLocation().end.column), errors);
 				}
 			}
 		}

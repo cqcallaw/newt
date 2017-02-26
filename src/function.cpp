@@ -149,7 +149,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				if (ErrorList::IsTerminator(parameter_execute_errors)) {
 					auto argument_variable = make_shared<const BasicVariable>(
 							parameter_declaration->GetName(),
-							argument_expression->GetPosition());
+							argument_expression->GetLocation());
 
 					auto assign_errors = argument_variable->AssignValue(
 							invocation_context, closure_reference,
@@ -174,8 +174,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::TOO_MANY_ARGUMENTS,
-							argument_expression->GetPosition().begin.line,
-							argument_expression->GetPosition().begin.column,
+							argument_expression->GetLocation().begin.line,
+							argument_expression->GetLocation().begin.column,
 							declaration->ToString()), errors);
 			break;
 		}
@@ -432,8 +432,8 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 				variant_errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::TOO_MANY_ARGUMENTS,
-								argument->GetPosition().begin.line,
-								argument->GetPosition().begin.column,
+								argument->GetLocation().begin.line,
+								argument->GetLocation().begin.column,
 								variant->GetDeclaration()->ToString()),
 						variant_errors);
 				variant_score = 100;
@@ -467,8 +467,8 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
-												argument->GetPosition().begin.line,
-												argument->GetPosition().begin.column,
+												argument->GetLocation().begin.line,
+												argument->GetLocation().begin.column,
 												argument_type_specifier->ToString(),
 												parameter_type_specifier->ToString()),
 										variant_errors);
@@ -480,8 +480,8 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
-												argument->GetPosition().begin.line,
-												argument->GetPosition().begin.column,
+												argument->GetLocation().begin.line,
+												argument->GetLocation().begin.column,
 												argument_type_specifier->ToString(),
 												parameter_type_specifier->ToString()),
 										variant_errors);
@@ -520,8 +520,8 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 					variant_errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::TOO_MANY_ARGUMENTS,
-									argument->GetPosition().begin.line,
-									argument->GetPosition().begin.column,
+									argument->GetLocation().begin.line,
+									argument->GetLocation().begin.column,
 									variant->GetDeclaration()->ToString()),
 							variant_errors);
 					variant_score += 100;

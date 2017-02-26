@@ -57,7 +57,7 @@ const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetTypeSpecifier()
 }
 
 const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() const {
-	return GetInitializerExpression()->GetPosition();
+	return GetInitializerExpression()->GetLocation();
 }
 
 const PreprocessResult InferredDeclarationStatement::Preprocess(
@@ -83,7 +83,7 @@ const PreprocessResult InferredDeclarationStatement::Preprocess(
 			const_shared_ptr<Statement> temp_statement =
 					type->GetDeclarationStatement(GetLocation(),
 							expression_type_specifier,
-							GetInitializerExpression()->GetPosition(),
+							GetInitializerExpression()->GetLocation(),
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
 			auto preprocess_result = temp_statement->Preprocess(context,
@@ -114,7 +114,7 @@ const ErrorListRef InferredDeclarationStatement::Execute(
 			const_shared_ptr<Statement> temp_statement =
 					type->GetDeclarationStatement(GetLocation(),
 							expression_type_specifier,
-							GetInitializerExpression()->GetPosition(),
+							GetInitializerExpression()->GetLocation(),
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
 			errors = temp_statement->Execute(context, closure);

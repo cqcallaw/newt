@@ -27,8 +27,8 @@
 #include <primitive_type.h>
 #include <record_type.h>
 
-Expression::Expression(const yy::location position) :
-		m_position(position) {
+Expression::Expression(const yy::location location) :
+		m_location(location) {
 }
 
 Expression::~Expression() {
@@ -107,6 +107,6 @@ TypedResult<string> Expression::ToString(
 		return TypedResult<string>(nullptr, errors);
 	}
 
-	return TypedResult<string>(const_shared_ptr<string>(new string(buffer.str())),
-			errors);
+	return TypedResult<string>(
+			const_shared_ptr<string>(new string(buffer.str())), errors);
 }

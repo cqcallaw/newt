@@ -94,8 +94,8 @@ const PreprocessResult ArrayDeclarationStatement::Preprocess(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::ASSIGNMENT_TYPE_ERROR,
-											initializer_expression->GetPosition().begin.line,
-											initializer_expression->GetPosition().begin.column,
+											initializer_expression->GetLocation().begin.line,
+											initializer_expression->GetLocation().begin.column,
 											m_type_specifier->ToString(),
 											initializer_expression_type->ToString()),
 									errors);
@@ -145,7 +145,7 @@ const ErrorListRef ArrayDeclarationStatement::Execute(
 					context->GetTypeTable());
 			errors =
 					ToErrorListRef(result,
-							GetInitializerExpression()->GetPosition(),
+							GetInitializerExpression()->GetLocation(),
 							GetName(),
 							symbol_context->GetSymbol(GetName(), SHALLOW)->GetTypeSpecifier(),
 							array->GetTypeSpecifier());

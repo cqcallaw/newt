@@ -92,7 +92,7 @@ const PreprocessResult ForStatement::Preprocess(
 				return_coverage = block_preprocess_result.GetReturnCoverage();
 				errors = block_preprocess_result.GetErrors();
 			} else {
-				yy::location position = m_loop_expression->GetPosition();
+				yy::location position = m_loop_expression->GetLocation();
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,

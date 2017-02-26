@@ -124,6 +124,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 								index_expression_type->AnalyzeAssignmentTo(
 										PrimitiveTypeSpecifier::GetInt(),
 										context->GetTypeTable());
+						auto expression_location = m_expression->GetLocation();
 						if (index_analysis == EQUIVALENT
 								|| index_analysis == UNAMBIGUOUS) {
 							const_shared_ptr<Result> index_expression_evaluation =
@@ -136,16 +137,15 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 
 								if (i >= 0) {
 									array_index = i;
-									index_location =
-											m_expression->GetPosition();
+									index_location = expression_location;
 								} else {
 									errors =
 											ErrorList::From(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-															m_expression->GetPosition().begin.line,
-															m_expression->GetPosition().begin.column,
+															expression_location.begin.line,
+															expression_location.begin.column,
 															*(m_base_variable->ToString(
 																	context)),
 															*AsString(i)),
@@ -160,8 +160,8 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-													m_expression->GetPosition().begin.line,
-													m_expression->GetPosition().begin.column,
+													expression_location.begin.line,
+													expression_location.begin.column,
 													*(m_base_variable->ToString(
 															context)),
 													buffer.str()), errors);
@@ -553,7 +553,7 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 
 		//wrap result in constant expression and assign it to the base variable
 		auto as_const_expression = make_shared<ConstantExpression>(
-				m_expression->GetPosition(), new_array);
+				m_expression->GetLocation(), new_array);
 		errors = m_base_variable->AssignValue(context, context,
 				as_const_expression, AssignmentType::ASSIGN);
 	}
@@ -596,8 +596,8 @@ const ErrorListRef ArrayVariable::Validate(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::VARIABLE_NOT_AN_ARRAY,
-													m_expression->GetPosition().begin.line,
-													m_expression->GetPosition().begin.column,
+													m_expression->GetLocation().begin.line,
+													m_expression->GetLocation().begin.column,
 													*(m_base_variable->ToString(
 															context))), errors);
 						}
@@ -610,8 +610,8 @@ const ErrorListRef ArrayVariable::Validate(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-								m_expression->GetPosition().begin.line,
-								m_expression->GetPosition().begin.column,
+								m_expression->GetLocation().begin.line,
+								m_expression->GetLocation().begin.column,
 								*(m_base_variable->ToString(context)),
 								buffer.str()), errors);
 			}

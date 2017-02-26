@@ -241,8 +241,8 @@ const PreprocessResult MatchStatement::Preprocess(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::MATCH_REQUIRES_SUM,
-											m_source_expression->GetPosition().begin.line,
-											m_source_expression->GetPosition().begin.column,
+											m_source_expression->GetLocation().begin.line,
+											m_source_expression->GetLocation().begin.column,
 											expression_type_specifier->ToString()),
 									errors);
 				}
@@ -380,8 +380,8 @@ const ErrorListRef MatchStatement::Execute(
 									ErrorList::From(
 											make_shared<Error>(Error::RUNTIME,
 													Error::MATCH_FAILURE,
-													m_source_expression->GetPosition().begin.line,
-													m_source_expression->GetPosition().begin.column,
+													m_source_expression->GetLocation().begin.line,
+													m_source_expression->GetLocation().begin.column,
 													expression_type_specifier->ToString()),
 											errors);
 						}
@@ -391,8 +391,8 @@ const ErrorListRef MatchStatement::Execute(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::MATCH_REQUIRES_SUM,
-								m_source_expression->GetPosition().begin.line,
-								m_source_expression->GetPosition().begin.column,
+								m_source_expression->GetLocation().begin.line,
+								m_source_expression->GetLocation().begin.column,
 								expression_type_specifier->ToString()), errors);
 			}
 		}

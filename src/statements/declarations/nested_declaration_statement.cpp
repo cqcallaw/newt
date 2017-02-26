@@ -140,8 +140,8 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 //					ErrorList::From(
 //							make_shared<Error>(Error::SEMANTIC,
 //									Error::UNDECLARED_TYPE,
-//									GetInitializerExpression()->GetPosition().begin.line,
-//									GetInitializerExpression()->GetPosition().begin.column,
+//									GetInitializerExpression()->GetLocation().begin.line,
+//									GetInitializerExpression()->GetLocation().begin.column,
 //									m_type->ToString()), errors);
 //		}
 	} else {
