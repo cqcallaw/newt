@@ -60,6 +60,9 @@ const_shared_ptr<Symbol> PrimitiveType::GetSymbol(const TypeTable& type_table,
 		return make_shared<Symbol>(static_pointer_cast<const double>(value));
 	case BasicType::STRING:
 		return make_shared<Symbol>(static_pointer_cast<const string>(value));
+	case BasicType::BYTE:
+		return make_shared<Symbol>(
+				static_pointer_cast<const std::uint8_t>(value));
 	default:
 		assert(false);
 		return nullptr;
@@ -85,6 +88,10 @@ const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 		static const_shared_ptr<void> default_string_value = const_shared_ptr<
 				void>(new string(""));
 		return default_string_value;
+	case BasicType::BYTE:
+		static const_shared_ptr<void> default_byte_value =
+				const_shared_ptr<void>(new std::uint8_t('\0'));
+		return default_byte_value;
 	default:
 		assert(false);
 		return nullptr;
@@ -123,6 +130,8 @@ const_shared_ptr<PrimitiveType> PrimitiveType::FromBasicType(BasicType type) {
 		return GetDouble();
 	case STRING:
 		return GetString();
+	case BYTE:
+		return GetByte();
 	default:
 		return GetNone();
 	}
@@ -158,3 +167,8 @@ const_shared_ptr<PrimitiveType> PrimitiveType::GetString() {
 	return instance;
 }
 
+const_shared_ptr<PrimitiveType> PrimitiveType::GetByte() {
+	static const_shared_ptr<PrimitiveType> instance = const_shared_ptr<
+			PrimitiveType>(new PrimitiveType(BasicType::BYTE));
+	return instance;
+}

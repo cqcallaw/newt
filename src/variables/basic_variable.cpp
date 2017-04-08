@@ -145,6 +145,18 @@ const ErrorListRef BasicVariable::AssignValue(
 			}
 			break;
 		}
+		case BYTE: {
+			const_shared_ptr<Result> result = AssignmentStatement::do_op(
+					variable_name, basic_type, variable_line, variable_column,
+					*(static_pointer_cast<const std::uint8_t>(symbol_value)),
+					expression, op, context);
+			errors = result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				errors = SetSymbol(output_context,
+						result->GetData<std::uint8_t>());
+			}
+			break;
+		}
 		case INT: {
 			const_shared_ptr<Result> result = AssignmentStatement::do_op(
 					variable_name, basic_type, variable_line, variable_column,
@@ -434,6 +446,15 @@ const ErrorListRef BasicVariable::SetSymbol(
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
 			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetBoolean());
+}
+
+const ErrorListRef BasicVariable::SetSymbol(
+		const shared_ptr<ExecutionContext> context,
+		const_shared_ptr<std::uint8_t> value) const {
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetByte());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(

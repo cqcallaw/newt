@@ -48,6 +48,7 @@ public:
 	Symbol(const_shared_ptr<int> value);
 	Symbol(const_shared_ptr<double> value);
 	Symbol(const_shared_ptr<string> value);
+	Symbol(const_shared_ptr<const std::uint8_t> value);
 	Symbol(const_shared_ptr<Array> value);
 	Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 			const_shared_ptr<Record> value);
@@ -56,8 +57,7 @@ public:
 			const_shared_ptr<Sum> value);
 	Symbol(const_shared_ptr<MaybeTypeSpecifier> type,
 			const_shared_ptr<Sum> value);
-	Symbol(const_shared_ptr<TypeSpecifier> type,
-			const_shared_ptr<Unit> value);
+	Symbol(const_shared_ptr<TypeSpecifier> type, const_shared_ptr<Unit> value);
 
 	virtual ~Symbol();
 

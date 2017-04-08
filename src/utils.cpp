@@ -19,12 +19,21 @@
 
 #include "utils.h"
 #include <sstream>
+#include <iomanip>
 
 using namespace std;
 
 const_shared_ptr<string> AsString(const bool& value) {
 	ostringstream buffer;
 	buffer << value;
+	const_shared_ptr<string> converted = make_shared<string>(buffer.str());
+	return converted;
+}
+
+const_shared_ptr<string> AsString(const std::uint8_t& value) {
+	ostringstream buffer;
+	buffer << "0x" << std::setfill('0') << std::setw(2) << std::hex << uppercase
+			<< unsigned(value);
 	const_shared_ptr<string> converted = make_shared<string>(buffer.str());
 	return converted;
 }

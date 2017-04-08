@@ -26,6 +26,12 @@ ConstantExpression::ConstantExpression(const yy::location position,
 }
 
 ConstantExpression::ConstantExpression(const yy::location position,
+		const std::uint8_t value) :
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetByte(),
+				const_shared_ptr<void>(new std::uint8_t(value))) {
+}
+
+ConstantExpression::ConstantExpression(const yy::location position,
 		const int value) :
 		ConstantExpression(position, PrimitiveTypeSpecifier::GetInt(),
 				const_shared_ptr<void>(new int(value))) {

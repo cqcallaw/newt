@@ -35,6 +35,9 @@ protected:
 	virtual const_shared_ptr<Result> compute(const bool& left,
 			const bool& right, yy::location left_position,
 			yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const std::uint8_t& left,
+			const std::uint8_t& right, yy::location left_position,
+			yy::location right_position) const;
 	virtual const_shared_ptr<Result> compute(const int& left, const int& right,
 			yy::location left_position, yy::location right_position) const;
 	virtual const_shared_ptr<Result> compute(const double& left,

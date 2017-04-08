@@ -27,6 +27,8 @@ using namespace std;
 
 const_shared_ptr<string> AsString(const bool& value);
 
+const_shared_ptr<string> AsString(const std::uint8_t& value);
+
 const_shared_ptr<string> AsString(const int& value);
 
 const_shared_ptr<string> AsString(const double& value);
@@ -34,6 +36,8 @@ const_shared_ptr<string> AsString(const double& value);
 const_shared_ptr<string> AsString(bool* value);
 
 const_shared_ptr<string> AsString(int* value);
+
+const_shared_ptr<string> AsString(std::uint8_t* value);
 
 const_shared_ptr<string> AsString(double* value);
 

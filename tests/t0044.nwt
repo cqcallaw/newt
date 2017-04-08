@@ -1,0 +1,14 @@
+# test addition of byte to other numeric types
+a:byte = 0xEF
+b:bool = true
+c:int = 2
+d:double = 4
+
+res_bool_addition_left := a + b
+res_bool_addition_right := b + a
+
+res_int_addition_left := a + c
+res_int_addition_right := c + a
+
+res_double_addition_left := a + d
+res_double_addition_right := d + a

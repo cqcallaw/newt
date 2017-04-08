@@ -25,6 +25,7 @@
 #include <typeinfo>
 #include <expression.h>
 #include <memory>
+#include <iomanip>
 
 const string PrimitiveTypeSpecifier::ToString(
 		const_shared_ptr<void> value) const {
@@ -41,6 +42,13 @@ const string PrimitiveTypeSpecifier::ToString(
 		}
 		break;
 	}
+	case BasicType::BYTE: {
+		const_shared_ptr<std::uint8_t> cast_value = static_pointer_cast<
+				const std::uint8_t>(value);
+		buffer << "0x" << std::setfill('0') << std::setw(2) << std::hex
+				<< uppercase << unsigned(*cast_value);
+		break;
+	}
 	case BasicType::INT: {
 		const_shared_ptr<int> cast_value = static_pointer_cast<const int>(
 				value);
@@ -48,14 +56,14 @@ const string PrimitiveTypeSpecifier::ToString(
 		break;
 	}
 	case BasicType::DOUBLE: {
-		const_shared_ptr<double> cast_value = static_pointer_cast<
-				const double>(value);
+		const_shared_ptr<double> cast_value = static_pointer_cast<const double>(
+				value);
 		buffer << *cast_value;
 		break;
 	}
 	case BasicType::STRING: {
-		const_shared_ptr<string> cast_value = static_pointer_cast<
-				const string>(value);
+		const_shared_ptr<string> cast_value = static_pointer_cast<const string>(
+				value);
 		buffer << "\"" << *cast_value << "\"";
 		break;
 	}
@@ -132,11 +140,20 @@ const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetString() {
 	return instance;
 }
 
+const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::GetByte() {
+	static const_shared_ptr<PrimitiveTypeSpecifier> instance = const_shared_ptr<
+			PrimitiveTypeSpecifier>(
+			new PrimitiveTypeSpecifier(BasicType::BYTE));
+	return instance;
+}
+
 const_shared_ptr<PrimitiveTypeSpecifier> PrimitiveTypeSpecifier::FromBasicType(
 		BasicType type) {
 	switch (type) {
 	case BOOLEAN:
 		return GetBoolean();
+	case BYTE:
+		return GetByte();
 	case INT:
 		return GetInt();
 	case DOUBLE:

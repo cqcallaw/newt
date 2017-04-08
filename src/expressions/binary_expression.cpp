@@ -73,7 +73,8 @@ TypedResult<TypeSpecifier> BinaryExpression::ComputeResultType(
 				}
 
 				if (right_basic_type >= left_basic_type) {
-					return TypedResult<TypeSpecifier>(right_as_primitive, errors);
+					return TypedResult<TypeSpecifier>(right_as_primitive,
+							errors);
 				} else {
 					return TypedResult<TypeSpecifier>(left_as_primitive, errors);
 				}
@@ -122,6 +123,8 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 			auto left_type = left_type_specifier_result.GetData();
 			auto right_type = right_type_specifier_result.GetData();
 
+			// This logic is essentially a big muxer.
+			// It works in tandem with C++ type widening to convert operands to the same data type
 			if (left_type->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetBoolean(), type_table)
 					== EQUIVALENT) {
@@ -131,6 +134,50 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 						PrimitiveTypeSpecifier::GetBoolean(), type_table)
 						== EQUIVALENT) {
 					bool right_value = *(right_result->GetData<bool>());
+					return compute(left_value, right_value, left_position,
+							right_position);
+				} else if (right_type->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetByte(), type_table)
+						== EQUIVALENT) {
+					auto right_value = *(right_result->GetData<std::uint8_t>());
+					return compute(left_value, right_value, left_position,
+							right_position);
+				} else if (right_type->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetInt(), type_table)
+						== EQUIVALENT) {
+					int right_value = *(right_result->GetData<int>());
+					return compute(left_value, right_value, left_position,
+							right_position);
+				} else if (right_type->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetDouble(), type_table)
+						== EQUIVALENT) {
+					double right_value = *(right_result->GetData<double>());
+					return compute(left_value, right_value, left_position,
+							right_position);
+				} else if (right_type->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetString(), type_table)
+						== EQUIVALENT) {
+					string right_value = *(right_result->GetData<string>());
+					return compute(left_value, right_value, left_position,
+							right_position);
+				} else {
+					assert(false);
+				}
+			} else if (left_type->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetByte(), type_table)
+					== EQUIVALENT) {
+				auto left_value = *(left_result->GetData<std::uint8_t>());
+
+				if (right_type->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetBoolean(), type_table)
+						== EQUIVALENT) {
+					bool right_value = *(right_result->GetData<bool>());
+					return compute(left_value, right_value, left_position,
+							right_position);
+				} else if (right_type->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetByte(), type_table)
+						== EQUIVALENT) {
+					auto right_value = *(right_result->GetData<std::uint8_t>());
 					return compute(left_value, right_value, left_position,
 							right_position);
 				} else if (right_type->AnalyzeAssignmentTo(
@@ -166,6 +213,12 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 					return compute(left_value, right_value, left_position,
 							right_position);
 				} else if (right_type->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetByte(), type_table)
+						== EQUIVALENT) {
+					auto right_value = *(right_result->GetData<std::uint8_t>());
+					return compute(left_value, right_value, left_position,
+							right_position);
+				} else if (right_type->AnalyzeAssignmentTo(
 						PrimitiveTypeSpecifier::GetInt(), type_table)
 						== EQUIVALENT) {
 					int right_value = *(right_result->GetData<int>());
@@ -198,6 +251,12 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 					return compute(left_value, right_value, left_position,
 							right_position);
 				} else if (right_type->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetByte(), type_table)
+						== EQUIVALENT) {
+					auto right_value = *(right_result->GetData<std::uint8_t>());
+					return compute(left_value, right_value, left_position,
+							right_position);
+				} else if (right_type->AnalyzeAssignmentTo(
 						PrimitiveTypeSpecifier::GetInt(), type_table)
 						== EQUIVALENT) {
 					int right_value = *(right_result->GetData<int>());
@@ -227,6 +286,12 @@ const_shared_ptr<Result> BinaryExpression::Evaluate(
 						PrimitiveTypeSpecifier::GetBoolean(), type_table)
 						== EQUIVALENT) {
 					bool right_value = *(right_result->GetData<bool>());
+					return compute(left_value, right_value, left_position,
+							right_position);
+				} else if (right_type->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetByte(), type_table)
+						== EQUIVALENT) {
+					auto right_value = *(right_result->GetData<std::uint8_t>());
 					return compute(left_value, right_value, left_position,
 							right_position);
 				} else if (right_type->AnalyzeAssignmentTo(
@@ -329,10 +394,17 @@ const ErrorListRef BinaryExpression::Validate(
 	return errors;
 }
 
+// Boolean
 const_shared_ptr<Result> BinaryExpression::compute(const bool& left,
 		const int& right, yy::location left_position,
 		yy::location right_position) const {
 	int converted_left = left;
+	return compute(converted_left, right, left_position, right_position);
+}
+const_shared_ptr<Result> BinaryExpression::compute(const bool& left,
+		const std::uint8_t& right, yy::location left_position,
+		yy::location right_position) const {
+	std::uint8_t converted_left = left;
 	return compute(converted_left, right, left_position, right_position);
 }
 const_shared_ptr<Result> BinaryExpression::compute(const bool& left,
@@ -347,8 +419,40 @@ const_shared_ptr<Result> BinaryExpression::compute(const bool& left,
 	return compute(*AsString(left), right, left_position, right_position);
 }
 
+// Byte
+const_shared_ptr<Result> BinaryExpression::compute(const std::uint8_t& left,
+		const bool& right, yy::location left_position,
+		yy::location right_position) const {
+	std::uint8_t converted_right = right;
+	return compute(left, converted_right, left_position, right_position);
+}
+const_shared_ptr<Result> BinaryExpression::compute(const std::uint8_t& left,
+		const int& right, yy::location left_position,
+		yy::location right_position) const {
+	int converted_left = left;
+	return compute(converted_left, right, left_position, right_position);
+}
+const_shared_ptr<Result> BinaryExpression::compute(const std::uint8_t& left,
+		const double& right, yy::location left_position,
+		yy::location right_position) const {
+	double converted_left = left;
+	return compute(converted_left, right, left_position, right_position);
+}
+const_shared_ptr<Result> BinaryExpression::compute(const std::uint8_t& left,
+		const string& right, yy::location left_position,
+		yy::location right_position) const {
+	return compute(*AsString(left), right, left_position, right_position);
+}
+
+// Integer
 const_shared_ptr<Result> BinaryExpression::compute(const int& left,
 		const bool& right, yy::location left_position,
+		yy::location right_position) const {
+	int converted_right = right;
+	return compute(left, converted_right, left_position, right_position);
+}
+const_shared_ptr<Result> BinaryExpression::compute(const int& left,
+		const std::uint8_t& right, yy::location left_position,
 		yy::location right_position) const {
 	int converted_right = right;
 	return compute(left, converted_right, left_position, right_position);
@@ -365,8 +469,15 @@ const_shared_ptr<Result> BinaryExpression::compute(const int& left,
 	return compute(*AsString(left), right, left_position, right_position);
 }
 
+// Double
 const_shared_ptr<Result> BinaryExpression::compute(const double& left,
 		const bool& right, yy::location left_position,
+		yy::location right_position) const {
+	double converted_right = right;
+	return compute(left, converted_right, left_position, right_position);
+}
+const_shared_ptr<Result> BinaryExpression::compute(const double& left,
+		const std::uint8_t& right, yy::location left_position,
 		yy::location right_position) const {
 	double converted_right = right;
 	return compute(left, converted_right, left_position, right_position);
@@ -383,10 +494,18 @@ const_shared_ptr<Result> BinaryExpression::compute(const double& left,
 	return compute(*AsString(left), right, left_position, right_position);
 }
 
+// String
 const_shared_ptr<Result> BinaryExpression::compute(const string& left,
 		const bool& right, yy::location left_position,
 		yy::location right_position) const {
 	return compute(left, *AsString(right), left_position, right_position);
+}
+const_shared_ptr<Result> BinaryExpression::compute(const string& left,
+		const std::uint8_t& right, yy::location left_position,
+		yy::location right_position) const {
+	std::uint8_t converted_right = right;
+	return compute(left, *AsString(converted_right), left_position,
+			right_position);
 }
 const_shared_ptr<Result> BinaryExpression::compute(const string& left,
 		const int& right, yy::location left_position,

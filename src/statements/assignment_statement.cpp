@@ -258,6 +258,29 @@ const ErrorListRef AssignmentStatement::do_op(
 
 const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
+		int variable_line, int variable_column, const std::uint8_t old_value,
+		const std::uint8_t expression_value, const AssignmentType op,
+		const shared_ptr<ExecutionContext> execution_context,
+		std::uint8_t& out) {
+	ErrorListRef errors = ErrorList::GetTerminator();
+	switch (op) {
+	case ASSIGN:
+		out = expression_value;
+		break;
+	default:
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC,
+						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
+						variable_column, *variable_name,
+						TypeToString(variable_type)), errors);
+		out = 0;
+	}
+
+	return errors;
+}
+
+const ErrorListRef AssignmentStatement::do_op(
+		const_shared_ptr<string> variable_name, const BasicType variable_type,
 		int variable_line, int variable_column, const int old_value,
 		const int expression_value, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context, int& out) {
@@ -409,6 +432,13 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 						op, execution_context, new_value);
 				break;
 			}
+			case BYTE: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value,
+						*(evaluation->GetData<std::uint8_t>()), op,
+						execution_context, new_value);
+				break;
+			}
 			case INT: {
 				errors = do_op(variable_name, variable_type, variable_line,
 						variable_column, value, *(evaluation->GetData<int>()),
@@ -468,6 +498,13 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 						variable_column, value, *(evaluation->GetData<bool>()),
 						op, execution_context, new_value);
 				break;
+			case BYTE: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value,
+						*(evaluation->GetData<std::uint8_t>()), op,
+						execution_context, new_value);
+				break;
+			}
 			case INT: {
 				errors = do_op(variable_name, variable_type, variable_line,
 						variable_column, value, *(evaluation->GetData<int>()),
@@ -534,6 +571,13 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 						variable_column, value, *(evaluation->GetData<bool>()),
 						op, execution_context, new_value);
 				break;
+			case BYTE: {
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value,
+						*(evaluation->GetData<std::uint8_t>()), op,
+						execution_context, new_value);
+				break;
+			}
 			case INT: {
 				errors = do_op(variable_name, variable_type, variable_line,
 						variable_column, value, *(evaluation->GetData<int>()),
@@ -573,6 +617,65 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 	return make_shared<Result>(wrapper, errors);
 }
 
+const_shared_ptr<Result> AssignmentStatement::do_op(
+		const_shared_ptr<string> variable_name, const BasicType variable_type,
+		int variable_line, int variable_column, const std::uint8_t value,
+		const_shared_ptr<Expression> expression, const AssignmentType op,
+		const shared_ptr<ExecutionContext> execution_context) {
+	ErrorListRef errors;
+
+	std::uint8_t new_value = '\0';
+	const_shared_ptr<Result> evaluation = expression->Evaluate(
+			execution_context, execution_context);
+	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
+		return evaluation;
+	}
+
+	auto expression_type_specifier_result = expression->GetTypeSpecifier(
+			execution_context);
+
+	errors = expression_type_specifier_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+
+		const_shared_ptr<PrimitiveTypeSpecifier> as_primitive =
+				dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
+						expression_type_specifier);
+		if (as_primitive) {
+			const BasicType basic_type = as_primitive->GetBasicType();
+			switch (basic_type) {
+			case BOOLEAN:
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value, *(evaluation->GetData<bool>()),
+						op, execution_context, new_value);
+				break;
+			case BYTE:
+				errors = do_op(variable_name, variable_type, variable_line,
+						variable_column, value,
+						*(evaluation->GetData<std::uint8_t>()), op,
+						execution_context, new_value);
+				break;
+			default:
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+								variable_column, TypeToString(STRING),
+								expression_type_specifier->ToString()), errors);
+			}
+		} else {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
+							variable_column, TypeToString(STRING),
+							expression_type_specifier->ToString()), errors);
+		}
+	}
+
+	auto wrapper = make_shared<std::uint8_t>(new_value);
+	return make_shared<Result>(wrapper, errors);
+}
+
 const ErrorListRef AssignmentStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
@@ -600,3 +703,4 @@ const ErrorListRef AssignmentStatement::Execute(
 
 	return errors;
 }
+

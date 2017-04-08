@@ -129,6 +129,11 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 			static_pointer_cast<const void>(value), type_table);
 }
 SetResult SymbolContext::SetSymbol(const string& identifier,
+		const_shared_ptr<std::uint8_t> value, const TypeTable& type_table) {
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetByte(),
+			static_pointer_cast<const void>(value), type_table);
+}
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<int> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetInt(),
 			static_pointer_cast<const void>(value), type_table);
@@ -147,7 +152,6 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Record> value, const TypeTable& type_table) {
-
 	return SetSymbol(identifier, type, static_pointer_cast<const void>(value),
 			type_table);
 }

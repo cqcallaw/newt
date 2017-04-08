@@ -139,6 +139,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %token
 	END         0         "end of file"
 	BOOLEAN               "bool"
+	BYTE                  "byte"
 	INT                   "int"
 	DOUBLE                "double"
 	STRING                "string"
@@ -205,6 +206,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %token <bool> FALSE "boolean false"
 %token <plain_shared_ptr<std::string>> IDENTIFIER "identifier"
 %token <int> INT_CONSTANT "int constant"
+%token <std::uint8_t> BYTE_CONSTANT "byte constant"
 %token <double> DOUBLE_CONSTANT "double constant"
 %token <plain_shared_ptr<std::string>> STRING_CONSTANT "string constant"
 
@@ -360,6 +362,10 @@ primitive_type_specifier:
 	BOOLEAN
 	{
 		$$ = PrimitiveTypeSpecifier::GetBoolean();
+	}
+	| BYTE
+	{
+		$$ = PrimitiveTypeSpecifier::GetByte();
 	}
 	| INT
 	{
@@ -668,10 +674,6 @@ expression:
 	{
 		$$ = $1;
 	}
-	| INT_CONSTANT
-	{
-		$$ = make_shared<const ConstantExpression>(@1, $1);
-	}
 	| TRUE
 	{
 		$$ = make_shared<const ConstantExpression>(@1, true);
@@ -679,6 +681,14 @@ expression:
 	| FALSE
 	{
 		$$ = make_shared<const ConstantExpression>(@1, false);
+	}
+	| BYTE_CONSTANT
+	{
+		$$ = make_shared<const ConstantExpression>(@1, $1);
+	}
+	| INT_CONSTANT
+	{
+		$$ = make_shared<const ConstantExpression>(@1, $1);
 	}
 	| DOUBLE_CONSTANT
 	{

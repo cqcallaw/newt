@@ -36,6 +36,7 @@ static yy::location loc;
 %option nounput batch debug noinput
 
 id      [_a-zA-Z][a-zA-Z_0-9]*
+byte    0x([0-9A-F][0-9A-F])
 int     [0-9]+
 double  ([0-9]+\.[0-9]+|[0-9]+\.|\.[0-9]+)
 str     \"(\\.|[^\"])*\"
@@ -59,6 +60,7 @@ blank   [ \t\r]
 #.*$            // ignore comments
 
 "bool"          return yy::newt_parser::make_BOOLEAN(loc);
+"byte"          return yy::newt_parser::make_BYTE(loc);
 "int"           return yy::newt_parser::make_INT(loc);
 "double"        return yy::newt_parser::make_DOUBLE(loc);
 "string"        return yy::newt_parser::make_STRING(loc);
@@ -115,6 +117,44 @@ blank   [ \t\r]
 
 "_"             return yy::newt_parser::make_UNDERSCORE(loc);
 
+{byte} {
+	uint len = strlen(yytext);
+
+	std::uint8_t n = 0;
+
+	char high_order_char = yytext[2];
+	std::uint8_t high = 0;
+	if (high_order_char < 'A') {
+		// assume that our regex worked, and we're in the 0-9 range
+		high = high_order_char - '0';
+	} else if (high_order_char < 'a') {
+		// assume that our regex worked, and we're in the A-F range
+		high = high_order_char - 'A' + 10;
+	} else {
+		// assume that our regex worked, and we're in the a-f range
+		high = high_order_char - 'a' + 10;
+	}
+
+	high = high * 16;
+
+	char low_order_char = yytext[3];
+	std::uint8_t low = 0;
+	if (low_order_char < 'A') {
+		// assume that our regex worked, and we're in the 0-9 range
+		low = low_order_char - '0';
+	} else if (low_order_char < 'a') {
+		// assume that our regex worked, and we're in the A-F range
+		low = low_order_char - 'A' + 10;
+	} else {
+		// assume that our regex worked, and we're in the a-f range
+		low = low_order_char - 'a' + 10;
+	}
+
+	n = high + low;
+
+	return yy::newt_parser::make_BYTE_CONSTANT(n, loc);
+}
+
 {int} {
 	errno = 0;
 	long n = strtol (yytext, nullptr, 10);
@@ -134,7 +174,7 @@ blank   [ \t\r]
 }
 
 {str} {
-	int len = strlen(yytext);
+	uint len = strlen(yytext);
 	return yy::newt_parser::make_STRING_CONSTANT(make_shared<const std::string>(yytext + 1, len - 2), loc);
 } 
 

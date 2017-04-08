@@ -1,0 +1,4 @@
+# test byte concatenation to string
+a:byte = 0xEF
+
+print("a byte: " + a)

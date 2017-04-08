@@ -78,6 +78,8 @@ public:
 
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<bool> value,
 			const TypeTable& type_table);
+	SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<std::uint8_t> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<int> value,
 			const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,

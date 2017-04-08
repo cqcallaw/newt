@@ -72,6 +72,10 @@ protected:
 
 	virtual const ErrorListRef SetSymbol(
 			const shared_ptr<ExecutionContext> context,
+			const_shared_ptr<std::uint8_t> value) const;
+
+	virtual const ErrorListRef SetSymbol(
+			const shared_ptr<ExecutionContext> context,
 			const_shared_ptr<double> value) const;
 
 	virtual const ErrorListRef SetSymbol(

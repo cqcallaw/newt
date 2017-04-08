@@ -71,6 +71,8 @@ public:
 
 	static const_shared_ptr<PrimitiveType> GetString();
 
+	static const_shared_ptr<PrimitiveType> GetByte();
+
 	const BasicType GetType() const {
 		return m_type;
 	}

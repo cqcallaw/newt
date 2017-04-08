@@ -48,6 +48,11 @@ Symbol::Symbol(const_shared_ptr<int> value) :
 				static_pointer_cast<const void>(value)) {
 }
 
+Symbol::Symbol(const_shared_ptr<const std::uint8_t> value) :
+		Symbol(PrimitiveTypeSpecifier::GetByte(),
+				static_pointer_cast<const void>(value)) {
+}
+
 Symbol::Symbol(const_shared_ptr<double> value) :
 		Symbol(PrimitiveTypeSpecifier::GetDouble(),
 				static_pointer_cast<const void>(value)) {
@@ -69,7 +74,8 @@ Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 }
 
 Symbol::Symbol(const_shared_ptr<Function> value) :
-		Symbol(value->GetTypeSpecifier(), static_pointer_cast<const void>(value)) {
+		Symbol(value->GetTypeSpecifier(),
+				static_pointer_cast<const void>(value)) {
 }
 
 Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
@@ -81,6 +87,7 @@ Symbol::Symbol(const_shared_ptr<MaybeTypeSpecifier> type,
 		const_shared_ptr<Sum> value) :
 		Symbol(type, static_pointer_cast<const void>(value)) {
 }
+
 Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 		const_shared_ptr<Unit> value) :
 		Symbol(type, static_pointer_cast<const void>(value)) {

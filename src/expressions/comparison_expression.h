@@ -32,8 +32,7 @@ public:
 
 	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
-			AliasResolution resolution =
-					AliasResolution::RESOLVE) const;
+			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const ErrorListRef Validate(
 			const shared_ptr<ExecutionContext> execution_context) const;
@@ -41,6 +40,9 @@ public:
 protected:
 	virtual const_shared_ptr<Result> compute(const bool& left,
 			const bool& right, yy::location left_position,
+			yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const std::uint8_t& left,
+			const std::uint8_t& right, yy::location left_position,
 			yy::location right_position) const;
 	virtual const_shared_ptr<Result> compute(const int& left, const int& right,
 			yy::location left_position, yy::location right_position) const;

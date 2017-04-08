@@ -1,0 +1,23 @@
+Parsing file ../tests/t0045.nwt...
+Parsed file ../tests/t0045.nwt.
+Root Symbol Table:
+----------------
+byte a: 0x01
+boolean b: true
+int c: 0
+double d: 4
+boolean res_bool_add_left: true
+boolean res_bool_add_right: true
+boolean res_bool_or_left: true
+boolean res_bool_or_right: true
+boolean res_double_add_left: true
+boolean res_double_add_right: true
+boolean res_double_or_left: true
+boolean res_double_or_right: true
+boolean res_int_add_left: false
+boolean res_int_add_right: false
+boolean res_int_or_left: true
+boolean res_int_or_right: true
+
+Root Type Table:
+----------------

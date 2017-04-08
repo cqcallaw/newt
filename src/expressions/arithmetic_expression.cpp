@@ -117,6 +117,40 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const double& left,
 	return make_shared<Result>(const_shared_ptr<const void>(result), errors);
 }
 
+const_shared_ptr<Result> ArithmeticExpression::compute(const std::uint8_t& left,
+		const std::uint8_t& right, yy::location left_position,
+		yy::location right_position) const {
+	ErrorListRef errors = ErrorList::GetTerminator();
+
+	uint8_t* result = new uint8_t;
+	switch (GetOperator()) {
+	case PLUS:
+		*result = left + right;
+		break;
+	case MULTIPLY:
+		*result = left * right;
+		break;
+	case DIVIDE:
+		if (right == 0.0) {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
+							right_position.begin.line,
+							right_position.begin.column), errors);
+			*result = 0;
+		} else {
+			*result = left / right;
+		}
+		break;
+	case MINUS:
+		*result = left - right;
+		break;
+	default:
+		break;
+	}
+
+	return make_shared<Result>(const_shared_ptr<const void>(result), errors);
+}
+
 const_shared_ptr<Result> ArithmeticExpression::compute(const string& left,
 		const string& right, yy::location left_position,
 		yy::location right_position) const {
