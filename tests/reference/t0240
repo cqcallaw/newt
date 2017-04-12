@@ -1,0 +1,4 @@
+Parsing file ../tests/t0240.nwt...
+Parse error on line 3, column 1: syntax error, unexpected end of file.
+Parsed file ../tests/t0240.nwt.
+1 error found; giving up.
