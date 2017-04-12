@@ -127,12 +127,9 @@ blank   [ \t\r]
 	if (high_order_char < 'A') {
 		// assume that our regex worked, and we're in the 0-9 range
 		high = high_order_char - '0';
-	} else if (high_order_char < 'a') {
+	} else {
 		// assume that our regex worked, and we're in the A-F range
 		high = high_order_char - 'A' + 10;
-	} else {
-		// assume that our regex worked, and we're in the a-f range
-		high = high_order_char - 'a' + 10;
 	}
 
 	high = high * 16;
@@ -142,12 +139,9 @@ blank   [ \t\r]
 	if (low_order_char < 'A') {
 		// assume that our regex worked, and we're in the 0-9 range
 		low = low_order_char - '0';
-	} else if (low_order_char < 'a') {
+	} else {
 		// assume that our regex worked, and we're in the A-F range
 		low = low_order_char - 'A' + 10;
-	} else {
-		// assume that our regex worked, and we're in the a-f range
-		low = low_order_char - 'a' + 10;
 	}
 
 	n = high + low;
