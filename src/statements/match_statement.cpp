@@ -31,6 +31,7 @@
 #include <nested_type_specifier.h>
 #include <maybe_type_specifier.h>
 #include <unit_type.h>
+#include <return_statement.h>
 
 MatchStatement::MatchStatement(const yy::location statement_location,
 		const_shared_ptr<Expression> source_expression,
@@ -144,10 +145,11 @@ const PreprocessResult MatchStatement::Preprocess(
 									auto match_return_coverage =
 											match_preprocess_result.GetReturnCoverage();
 
-									return_coverage = CoverageTransition(
-											return_coverage,
-											match_return_coverage,
-											initial_state);
+									return_coverage =
+											ReturnStatement::CoverageTransition(
+													return_coverage,
+													match_return_coverage,
+													initial_state);
 									initial_state = false;
 
 									errors =
@@ -195,7 +197,8 @@ const PreprocessResult MatchStatement::Preprocess(
 											return_type_specifier);
 
 							return_coverage =
-									CoverageTransition(return_coverage,
+									ReturnStatement::CoverageTransition(
+											return_coverage,
 											default_block_preprocess_result.GetReturnCoverage(),
 											initial_state);
 
@@ -415,46 +418,3 @@ const MatchContextListRef MatchStatement::GenerateMatchContexts(
 	return result;
 }
 
-const PreprocessResult::ReturnCoverage MatchStatement::CoverageTransition(
-		PreprocessResult::ReturnCoverage current,
-		PreprocessResult::ReturnCoverage input, bool is_start) {
-	if (is_start) {
-		return input;
-	} else {
-		switch (current) {
-		case PreprocessResult::ReturnCoverage::FULL: {
-			switch (input) {
-			case PreprocessResult::ReturnCoverage::FULL: {
-				return PreprocessResult::ReturnCoverage::FULL;
-			}
-			case PreprocessResult::ReturnCoverage::PARTIAL: {
-				return PreprocessResult::ReturnCoverage::PARTIAL;
-			}
-			case PreprocessResult::ReturnCoverage::NONE:
-			default: {
-				return PreprocessResult::ReturnCoverage::PARTIAL;
-			}
-			}
-			break;
-		}
-		case PreprocessResult::ReturnCoverage::PARTIAL: {
-			return PreprocessResult::ReturnCoverage::PARTIAL;
-		}
-		case PreprocessResult::ReturnCoverage::NONE:
-		default: {
-			switch (input) {
-			case PreprocessResult::ReturnCoverage::FULL: {
-				return PreprocessResult::ReturnCoverage::PARTIAL;
-			}
-			case PreprocessResult::ReturnCoverage::PARTIAL: {
-				return PreprocessResult::ReturnCoverage::PARTIAL;
-			}
-			case PreprocessResult::ReturnCoverage::NONE:
-			default: {
-				return PreprocessResult::ReturnCoverage::NONE;
-			}
-			}
-		}
-		}
-	}
-}

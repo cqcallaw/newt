@@ -38,6 +38,10 @@ public:
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
 
+	static const PreprocessResult::ReturnCoverage CoverageTransition(
+			PreprocessResult::ReturnCoverage current,
+			PreprocessResult::ReturnCoverage input, bool is_start);
+
 private:
 	const_shared_ptr<Expression> m_expression;
 };

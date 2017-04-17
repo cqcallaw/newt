@@ -26,7 +26,7 @@
 #include <type.h>
 #include <error.h>
 #include <execution_context.h>
-#include <match_statement.h>
+#include <return_statement.h>
 
 IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block) :
@@ -71,7 +71,7 @@ const PreprocessResult IfStatement::Preprocess(
 					return_type_specifier);
 			auto block_return_coverage = block_result.GetReturnCoverage();
 
-			return_coverage = MatchStatement::CoverageTransition(
+			return_coverage = ReturnStatement::CoverageTransition(
 					return_coverage, block_return_coverage, true);
 			errors = block_result.GetErrors();
 			if (m_else_block) {
@@ -85,7 +85,7 @@ const PreprocessResult IfStatement::Preprocess(
 				errors = ErrorList::Concatenate(errors,
 						else_block_result.GetErrors());
 
-				return_coverage = MatchStatement::CoverageTransition(
+				return_coverage = ReturnStatement::CoverageTransition(
 						return_coverage, else_block_return_coverage, false);
 			} else {
 				// an "if" block on its own can only provide partial coverage

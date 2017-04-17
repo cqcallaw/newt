@@ -64,10 +64,6 @@ public:
 	static const MatchContextListRef GenerateMatchContexts(
 			const MatchListRef match_list);
 
-	static const PreprocessResult::ReturnCoverage CoverageTransition(
-			PreprocessResult::ReturnCoverage current,
-			PreprocessResult::ReturnCoverage input, bool is_start);
-
 private:
 	const yy::location m_statement_location;
 	const_shared_ptr<Expression> m_source_expression;

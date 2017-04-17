@@ -94,3 +94,47 @@ const ErrorListRef ReturnStatement::Execute(
 
 	return errors;
 }
+
+const PreprocessResult::ReturnCoverage ReturnStatement::CoverageTransition(
+		PreprocessResult::ReturnCoverage current,
+		PreprocessResult::ReturnCoverage input, bool is_start) {
+	if (is_start) {
+		return input;
+	} else {
+		switch (current) {
+		case PreprocessResult::ReturnCoverage::FULL: {
+			switch (input) {
+			case PreprocessResult::ReturnCoverage::FULL: {
+				return PreprocessResult::ReturnCoverage::FULL;
+			}
+			case PreprocessResult::ReturnCoverage::PARTIAL: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			case PreprocessResult::ReturnCoverage::NONE:
+			default: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			}
+			break;
+		}
+		case PreprocessResult::ReturnCoverage::PARTIAL: {
+			return PreprocessResult::ReturnCoverage::PARTIAL;
+		}
+		case PreprocessResult::ReturnCoverage::NONE:
+		default: {
+			switch (input) {
+			case PreprocessResult::ReturnCoverage::FULL: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			case PreprocessResult::ReturnCoverage::PARTIAL: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			case PreprocessResult::ReturnCoverage::NONE:
+			default: {
+				return PreprocessResult::ReturnCoverage::NONE;
+			}
+			}
+		}
+		}
+	}
+}
