@@ -68,9 +68,13 @@ const ErrorListRef FunctionExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
+	//generate a temporary context for validation
+	auto new_parent = ExecutionContextList::From(execution_context,
+			execution_context->GetParent());
+
 	auto subject = m_variant_list;
 	while (!FunctionVariantList::IsTerminator(subject)) {
-		auto variant = m_variant_list->GetData();
+		auto variant = subject->GetData();
 		auto declaration = variant->GetDeclaration();
 		auto body = variant->GetBody();
 
@@ -101,14 +105,11 @@ const ErrorListRef FunctionExpression::Validate(
 			duplication_subject = duplication_subject->GetNext();
 		}
 
-		//generate a temporary context for validation
-		auto new_parent = ExecutionContextList::From(execution_context,
-				execution_context->GetParent());
-		shared_ptr<ExecutionContext> tmp_context =
-				make_shared<ExecutionContext>(Modifier::Type::NONE, new_parent,
-						execution_context->GetTypeTable(),
-						execution_context->GetLifeTime(),
-						execution_context->GetDepth() + 1);
+		auto variant_context = make_shared<ExecutionContext>(
+				Modifier::Type::NONE, new_parent,
+				execution_context->GetTypeTable(),
+				execution_context->GetLifeTime(),
+				execution_context->GetDepth() + 1);
 
 		DeclarationListRef parameter_subject = declaration->GetParameterList();
 		while (!DeclarationList::IsTerminator(parameter_subject)) {
@@ -134,12 +135,12 @@ const ErrorListRef FunctionExpression::Validate(
 
 			if (ErrorList::IsTerminator(parameter_errors)) {
 				auto preprocess_result = declaration_statement->Preprocess(
-						tmp_context, tmp_context);
+						variant_context, variant_context);
 				auto preprocess_errors = preprocess_result.GetErrors();
 
 				if (ErrorList::IsTerminator(preprocess_errors)) {
 					auto execution_errors = declaration_statement->Execute(
-							tmp_context, tmp_context);
+							variant_context, variant_context);
 					if (!ErrorList::IsTerminator(execution_errors)) {
 						parameter_errors = ErrorList::Concatenate(
 								parameter_errors, execution_errors);
@@ -157,7 +158,7 @@ const ErrorListRef FunctionExpression::Validate(
 
 		if (ErrorList::IsTerminator(errors)) {
 			auto return_type_specifier = declaration->GetReturnTypeSpecifier();
-			auto body_process_result = body->Preprocess(tmp_context,
+			auto body_process_result = body->Preprocess(variant_context,
 					return_type_specifier);
 			errors = ErrorList::Concatenate(errors,
 					body_process_result.GetErrors());
