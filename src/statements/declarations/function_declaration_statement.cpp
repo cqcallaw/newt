@@ -87,17 +87,20 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 
 				if (as_function || as_variant_function) {
 					// insert default value to enable validation of recursive invocations
-					auto child_context = context->GetEmptyChild(context,
-							Modifier::Type::MUTABLE, EPHEMERAL);
+					// we create this default value in a validation context to avoid polluting the real name space
+					// the validation context is "PERSISTENT" so that strong references aren't made to it
+					auto validation_context = context->GetEmptyChild(context,
+							Modifier::Type::MUTABLE, PERSISTENT);
 					auto value = m_type_specifier->DefaultValue(*type_table);
 					auto symbol = make_shared<Symbol>(
 							static_pointer_cast<const Function>(value));
-					InsertResult insert_result = child_context->InsertSymbol(
-							*GetName(), symbol);
+					InsertResult insert_result =
+							validation_context->InsertSymbol(*GetName(),
+									symbol);
 					assert(insert_result == INSERT_SUCCESS);
 
 					errors = GetInitializerExpression()->Validate(
-							child_context);
+							validation_context);
 					if (ErrorList::IsTerminator(errors)) {
 						auto assignment_analysis =
 								expression_type_specifier->AnalyzeAssignmentTo(

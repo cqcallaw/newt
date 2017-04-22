@@ -65,6 +65,9 @@ const PreprocessResult IfStatement::Preprocess(
 		if (expression_analysis == EQUIVALENT
 				|| expression_analysis == UNAMBIGUOUS) {
 
+			// the preprocessed statement block context must persist, as it will contain initialized variables, etc.
+			// thus we have the context member variables, but these cannot be linked to a context until preprocessing begins
+			// N.B. that this linkage setup introduces a dependency between preprocess and execute stages
 			m_block_context->LinkToParent(context);
 
 			auto block_result = m_block->Preprocess(m_block_context,
@@ -79,7 +82,7 @@ const PreprocessResult IfStatement::Preprocess(
 				m_else_block_context->LinkToParent(context);
 
 				auto else_block_result = m_else_block->Preprocess(
-						m_else_block_context, return_type_specifier);
+						m_else_block_context, closure, return_type_specifier);
 				auto else_block_return_coverage =
 						else_block_result.GetReturnCoverage();
 				errors = ErrorList::Concatenate(errors,
@@ -118,13 +121,13 @@ const ErrorListRef IfStatement::Execute(
 		assert(m_block_context->GetParent());
 		assert(m_block_context->GetParent()->GetData() == context);
 
-		errors = m_block->Execute(m_block_context);
+		errors = m_block->Execute(m_block_context, closure);
 		context->SetReturnValue(m_block_context->GetReturnValue());
 	} else if (m_else_block) {
 		assert(m_else_block_context->GetParent());
 		assert(m_else_block_context->GetParent()->GetData() == context);
 
-		errors = m_else_block->Execute(m_else_block_context);
+		errors = m_else_block->Execute(m_else_block_context, closure);
 		context->SetReturnValue(m_else_block_context->GetReturnValue());
 	}
 

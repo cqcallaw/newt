@@ -1,0 +1,13 @@
+Parsing file ../tests/t5053.nwt...
+Parsed file ../tests/t5053.nwt.
+Root Symbol Table:
+----------------
+(...) -> nil func:
+	(int) -> nil:
+		Location: 3.9-6.1
+	() -> nil:
+		Location: 7.3-8.1
+
+
+Root Type Table:
+----------------
