@@ -4,7 +4,7 @@ Root Symbol Table:
 ----------------
 () -> int? f:
 	Body Location: 2.17-3.13
-int? v: {empty}
+int? v: {nil}
 
 Root Type Table:
 ----------------

@@ -53,8 +53,7 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 	auto root_type_result = root_specifier->GetType(type_table);
 	errors = root_type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		plain_shared_ptr<Sum> value = make_shared<Sum>(
-				MaybeTypeSpecifier::EMPTY_NAME,
+		plain_shared_ptr<Sum> value = make_shared<Sum>(TypeTable::GetNilName(),
 				TypeTable::GetNilType()->GetValue());
 		auto initializer = GetInitializerExpression();
 		if (initializer) {

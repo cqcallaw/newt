@@ -7,7 +7,7 @@ list l:
 	list? next:
 		{value}
 			int data: 3
-			list? next: {empty}
+			list? next: {nil}
 
 
 int r: 5
@@ -21,5 +21,5 @@ list:
 	data:
 		int (0)
 	next:
-		list? ({empty})
+		list? ({nil})
 

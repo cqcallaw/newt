@@ -27,8 +27,6 @@
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::VARIANT_NAME = make_shared<
 		std::string>("value");
-const_shared_ptr<std::string> MaybeTypeSpecifier::EMPTY_NAME = make_shared<
-		std::string>("empty");
 
 MaybeTypeSpecifier::MaybeTypeSpecifier(
 		const_shared_ptr<TypeSpecifier> base_type_specifier) :
@@ -75,24 +73,24 @@ const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
 	if (ErrorList::IsTerminator(resolved_result.GetErrors())) {
 		auto resolved = resolved_result.GetData();
 		auto base_equivalence = *resolved == other;
-		auto empty_equivalence = *TypeTable::GetNilTypeSpecifier() == other;
+		auto nil_equivalence = *TypeTable::GetNilTypeSpecifier() == other;
 		auto ambiguous_equivalence = *resolved
 				== *TypeTable::GetNilTypeSpecifier();
 		if (ambiguous_equivalence) {
 			return AMBIGUOUS; //we have type "nil?"
-		} else if (base_equivalence || empty_equivalence) {
+		} else if (base_equivalence || nil_equivalence) {
 			return UNAMBIGUOUS;
 		}
 
 		auto base_analysis = resolved->AnalyzeWidening(type_table, other);
-		auto empty_analysis = other.AnalyzeAssignmentTo(
+		auto nil_analysis = other.AnalyzeAssignmentTo(
 				TypeTable::GetNilTypeSpecifier(), type_table);
-		if (base_analysis && empty_analysis) {
+		if (base_analysis && nil_analysis) {
 			return AMBIGUOUS;
 		} else if (base_analysis) {
 			return base_analysis;
-		} else if (empty_analysis) {
-			return empty_analysis;
+		} else if (nil_analysis) {
+			return nil_analysis;
 		}
 	}
 
@@ -101,7 +99,7 @@ const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
 
 const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
-	return make_shared<Sum>(EMPTY_NAME,
+	return make_shared<Sum>(TypeTable::GetNilName(),
 			TypeTable::GetNilType()->GetDefaultValue(type_table));
 }
 
@@ -112,7 +110,7 @@ const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(
 		return VARIANT_NAME;
 	} else if (type_specifier.AnalyzeAssignmentTo(
 			TypeTable::GetNilTypeSpecifier(), type_table)) {
-		return EMPTY_NAME;
+		return TypeTable::GetNilName();
 	}
 	return const_shared_ptr<std::string>();
 }

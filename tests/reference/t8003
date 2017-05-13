@@ -16,7 +16,7 @@ list:
 		data:
 			int (0)
 		next:
-			list? ({empty})
+			list? ({nil})
 
 	terminator:
 		<unit>

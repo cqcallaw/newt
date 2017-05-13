@@ -4,7 +4,7 @@ Root Symbol Table:
 ----------------
 list l:
 	int data: 0
-	list? next: {empty}
+	list? next: {nil}
 
 int r: 0
 (list?) -> int sum:
@@ -17,5 +17,5 @@ list:
 	data:
 		int (0)
 	next:
-		list? ({empty})
+		list? ({nil})
 

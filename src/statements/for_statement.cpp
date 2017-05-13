@@ -72,7 +72,7 @@ const PreprocessResult ForStatement::Preprocess(
 	}
 
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
-	//can't nest this logic because m_initial might be empty
+	// can't nest this logic because m_initial might be empty
 	if (m_loop_expression) {
 		auto loop_expression_type_specifier_result =
 				m_loop_expression->GetTypeSpecifier(context);

@@ -290,7 +290,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 								if (*evaluation_result_type
 										== *TypeTable::GetNilTypeSpecifier()) {
 									result = make_shared<Sum>(
-											MaybeTypeSpecifier::EMPTY_NAME,
+											TypeTable::GetNilName(),
 											evaluation_result->GetValue());
 								} else {
 									result = make_shared<Sum>(

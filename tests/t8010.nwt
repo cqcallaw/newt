@@ -6,7 +6,7 @@ list {
 
 sum:= (l:list?)-> int {
 	match (l)
-		empty {
+		nil {
 			return 0
 		}
 		| value {

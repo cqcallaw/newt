@@ -276,9 +276,11 @@ This type captures the semantic concept of a nullable value, and is semantically
 ```
 maybe_int {
     int:value
-    | empty
+    | nil
 }
 ```
+
+The 'nil' variant of the Maybe type is an alias for the universal `nil` unit type, so `int?.nil` is functionally equivalent to `nil`.
 
 ### Type Nesting
 

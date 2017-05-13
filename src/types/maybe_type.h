@@ -75,7 +75,6 @@ private:
 			const_shared_ptr<TypeSpecifier> base_type_specifier);
 
 	const_shared_ptr<TypeSpecifier> m_base_type_specifier;
-	const_shared_ptr<UnitType> m_empty;
 };
 
 #endif /* TYPES_MAYBE_TYPE_H_ */

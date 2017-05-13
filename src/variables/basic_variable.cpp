@@ -314,8 +314,8 @@ const ErrorListRef BasicVariable::AssignValue(
 						if (expression_type_specifier->AnalyzeAssignmentTo(
 								TypeTable::GetNilTypeSpecifier(),
 								context->GetTypeTable()) == EQUIVALENT) {
-							new_sum = make_shared<Sum>(
-									MaybeTypeSpecifier::EMPTY_NAME, data);
+							new_sum = make_shared<Sum>(TypeTable::GetNilName(),
+									data);
 						} else {
 							new_sum = make_shared<Sum>(
 									MaybeTypeSpecifier::VARIANT_NAME, data);
