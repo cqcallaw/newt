@@ -22,19 +22,28 @@ newt also aims to automate immutability, as immutable data structures have been 
 newt exists because it was believed that the state of the art of software-authoring software could be improved. The language specification and implementation are offered as evidence that an improved solution exists.
 
 # Building
-newt requires flex (tested with version 2.5.35), Bison (tested with version 3.0.2), and g++ (tested with 4.8.4) to build. To build a release binary, type the following from the commandline:
+newt requires flex (tested with version 2.6.0), Bison (tested with version 3.0.4), and g++ (tested with 5.4.0) to build. To build a release binary, type the following from the commandline:
 
 ```
 $ make -C Release all
 ```
+The build process will generate an executable, `newt` in the Release subdirectory.
 
 To run the test suite:
 ```
 $ make -C Release test
 ```
 
-# Syntax
+# Program Execution
+The `newt` executable generated the build system is a program interpreter that takes newt script input files as an arguments, and executes them on behalf of the user:
 
+```
+$ Release/newt hello.nwt
+Welcome to newt!
+$
+```
+
+# Syntax
 newt's syntax is a blend of C-style language constructs and notation from more succinct grammars. The grammar does not include semi-colon statement terminators. Whitespace is not significant; blocks are surrounded by curly braces.
 
 ## Hello, World!
@@ -44,11 +53,10 @@ print("Hello, World!")
 
 ## Comments
 ```
-print("Hello, World!") #prints "Hello, World!"
+print("Hello, World!") # prints "Hello, World!"
 ```
 
 ## Variable Declaration
-
 Variable declaration is a departure from the C-style syntax. Variables are declared by first specifying the variable name, followed by a colon, followed by the variable's type specifier. Variables may be initialized using an appropriate (that is, type-compatible) value. If the variable initializer is specified, the type specifier may be omitted, allowing the variable's type to be inferred.
 
 ```
@@ -62,7 +70,7 @@ The following types are built-in:
 * int (default value: 0)
 * double (default value: 0.0)
 * string (default value: "")
-
+* nil (default unit type)
 
 ## Variable Assignment
 ```
@@ -90,7 +98,7 @@ The default value of a type is fixed and constant for the lifetime of a program'
 ## Compound Types
 
 ### Record Types
-newt supports compound types analagous to C's structs. Unlike C's structs, the data is not stored contiguously in memory. In newt, these are called _record types_.
+newt supports compound types analagous to C's structs, though unlike C's structs, data is not stored contiguously in memory. In newt, these are called _record types_.
 
 ```
 person {
@@ -99,13 +107,20 @@ person {
 }
 ```
 
-newt's record types are instantiated from another instance of a record type, or the record type's default value, using the `with` operator:
+#### Instantiation
+New instances of record types are created by applying a transformation to an existing type instance. The `with` operator followed by a list transformations yields the new instance, as follows:
+
+```
+	person2 = person1 with { age = 26 }
+```
+
+If no instances of the record type exist, the default value of the record type may be used:
 
 ```
 	p1:person = @person with { age = 25, name = "Joe" }
-	p2 = p1 with { age = 26 }
 ```
 
+#### Member Mutation
 Records are immutable by default:
 
 ```
@@ -126,12 +141,68 @@ mutable point {
 	y:int
 }
 point:point = @point
-point.x = 50 # valid
+point.x = 50
 ```
 
 ### Sum Types
+newt provides support for [sum types](https://en.wikipedia.org/wiki/Tagged_union), that is, data structures that can hold a value which may be one--and only one--of several different, but fixed, types. For example, one might model a generic color as either RGB _or_ HSL values:
 
-newt provides support for [sum types](https://en.wikipedia.org/wiki/Tagged_union), that is, data structures that can hold a value which may be one--and only one--of several different, but fixed, types. For example, one might model the return type of a function that returns a value _or_ an error as follows:
+```
+color {
+	rgb {
+		r:int,
+		g:int,
+		b:int,
+	}
+	| hsl {
+		h:double,
+		s:double,
+		l:double,
+	}
+}
+```
+
+One might also model the return type of a function that returns a value _or_ an error as follows:
+
+```
+result {
+	value:double
+	| error {
+		int:code,
+		string:message
+	}
+}
+
+f:= (...) -> result { ... }
+```
+
+The previous example also serves to demonstrate the manner in which complex types may be declared as members of a containing complex type. `result.error` is a discrete type definition, and is _not_ considered equivalent to any other definition named `error`, even if the structure of the other type is identical. `result.value`, on the other hand, is an _alias_ for the built-in `double` type, and variables of type `result.value` may be assigned to values of type `double`.
+
+#### Instantiating Sum Types
+Sum type instantiation is similar to record type instantiation, with the important caveat that type inference can be less intuitive for variables of sum types. Here is an example of a valid sum type instantiation:
+
+```
+res:result= @result.error with { code = 3, message = "No more room on disk!" }
+```
+
+Note that the type of the variable is specified. If we had allowed the variable type to be inferred, the variable type would have been the narrower `result.error`.
+
+Variables that are of a sum type's member type can automatically be assigned to the wider sum type:
+
+```
+res:result
+error:= @result.error with { code = 3, message = "No more room on disk!" }
+res = error
+
+# widening works for return values too
+f:= (...) -> result {
+   # ...
+   return @result.error with { code = 3, message = "No more room on disk!" }   
+}
+```
+
+#### Matching
+A value that is of a sum type may be any of the sum type's member types, so before the value can be used, the member type of the value must be identified. This is done with a `match` statement, as follows:
 
 ```
 result {
@@ -142,10 +213,107 @@ result {
     }
 }
 
-f:= (...) -> result { ... }
+res := get_result_from_function()
+
+match (res)
+    value {
+        print("value: " + value)
+    }
+    | error {
+        print("error: " + error.message)
+    }
 ```
 
-The previous example also serves to demonstrate the manner in which complex types may be declared as members of a containing complex type. `result.error` is a discrete type definition, and is _not_ considered equivalent to any other definition named `error`, even if the structure of the other type is identical. `result.value`, on the other hand, is an _alias_ for the built-in `double` type, and variables of type `result.value` may be assigned to values of type `double`.
+A match statement must provide match blocks that cover all the members of the sum type. If explicit coverage is not appropriate, a catch-all default block may be used:
+
+```
+match (res)
+    value {
+        print("value: " + value)
+    }
+    | _ {
+        print("default block.")
+    }
+```
+
+Match blocks may optionally alias the name of discrete matches:
+```
+match (res)
+    value as v {
+        print("value: " + v)
+    }
+    | _ {
+        print("default block.")
+    }
+```
+
+Match aliasing is particularly useful for nested match blocks.
+
+#### Unit Types and Enumerations
+
+Sum types may contain members that are declared without a type. These type members are unit types (that is, types capable of taking on a single value). Thus, the semantic concept of an enumeration can be expressed as a sum type of unit types:
+
+```
+color {
+    red
+    | blue
+    | green
+    | yellow
+    | orange
+}
+```
+
+#### Maybe Types
+
+One sum type is common enough to warrent special syntax, that of the "Maybe" type. This type is expressed as type indentifier followed by a question mark ('?'):
+
+```
+a:int? = 3
+```
+
+This type captures the semantic concept of a nullable value, and is semantically equivalent to the following sum type:
+
+```
+maybe_int {
+    int:value
+    | empty
+}
+```
+
+### Type Nesting
+
+Complex types may be arbitarily nested. It is thus possible to expand the previous generic color type to include an alpha channel as follows:
+
+```
+color {
+	value {
+		rgb {
+			r:int,
+			g:int,
+			b:int,
+		}
+		| hsl {
+			h:double,
+			s:double,
+			l:double,
+		}
+	},
+	alpha:int
+}
+```
+
+### Recursive Types
+
+Complex (e.g. record or sum) types may contain members that reference the containing type, provided the reference is wrapped in a Maybe type:
+
+```
+list {
+    head:int
+    tail:list?
+}
+```
+
+The Maybe-wrapping constraint exists because all types in newt must have a default value, and a clean method for computing the default value of the containing type is not yet known.
 
 ## Functions
 
@@ -157,7 +325,7 @@ a:= (a: int, b:int) -> int {
 }
 ```
 
-Higher order functions are also supported. That is, functions may be passed as function arguments:
+Higher order functions are also supported; that is, functions may be passed as function arguments:
 
 ```
 f:= (a:int, b:(int) -> int) -> int {
