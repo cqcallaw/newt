@@ -109,6 +109,7 @@ class Driver;
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
+#include <foreach_statement.h>
 #include <invoke_statement.h>
 #include <return_statement.h>
 #include <match_statement.h>
@@ -194,6 +195,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	WITH                "with"
 	MATCH               "match"
 	AS                  "as"
+	IN                  "in"
 
 	RETURN              "return"
 	PRINT     "print"
@@ -558,6 +560,10 @@ for_statement:
 	FOR LPAREN variable_declaration SEMICOLON expression SEMICOLON assign_statement RPAREN statement_block
 	{
 		$$ = make_shared<ForStatement>($3, $5, $7, $9);
+	}
+	| FOR IDENTIFIER IN expression statement_block
+	{
+		$$ = make_shared<ForeachStatement>($2, $4, $5);
 	}
 	;
 
