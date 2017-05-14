@@ -37,8 +37,10 @@ const PreprocessResult ForeachStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	auto type_table = context->GetTypeTable();
 	auto errors = ErrorList::GetTerminator();
+	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
+	auto type_table = context->GetTypeTable();
+
 	m_block_context->LinkToParent(context);
 
 	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
@@ -46,7 +48,6 @@ const PreprocessResult ForeachStatement::Preprocess(
 	auto expression_type_specifier_errors =
 			expression_type_specifier_result.GetErrors();
 
-	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	if (ErrorList::IsTerminator(expression_type_specifier_errors)) {
 		auto validation_errors = m_expression->Validate(context);
 
