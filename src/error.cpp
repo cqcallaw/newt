@@ -234,7 +234,8 @@ const string Error::get_error_message() const {
 				<< "Control reaches end of non-void function without complete return coverage.";
 		break;
 	default:
-		os << "Unknown error passed to Error::error_core.";
+		os << "Unknown error code " << m_code
+				<< " passed to Error::error_core.";
 		break;
 	}
 
