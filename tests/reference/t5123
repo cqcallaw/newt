@@ -1,5 +1,4 @@
 Parsing file ../tests/t5123.nwt...
-Semantic error on line 4, column 7: No function variant match.
 Semantic error on line 4, column 7: The given expression does not reference a valid function.
 Parsed file ../tests/t5123.nwt.
-2 errors found; giving up.
+1 error found; giving up.

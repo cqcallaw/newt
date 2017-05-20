@@ -359,7 +359,11 @@ const string Function::ToString(const TypeTable& type_table,
 }
 
 const_shared_ptr<TypeSpecifier> Function::GetTypeSpecifier() const {
-	return make_shared<VariantFunctionSpecifier>(m_location, m_variant_list);
+	if (FunctionVariantList::IsTerminator(m_variant_list->GetNext())) {
+		return m_variant_list->GetData()->GetDeclaration();
+	} else {
+		return make_shared<VariantFunctionSpecifier>(m_location, m_variant_list);
+	}
 }
 
 const TypedResult<FunctionVariant> Function::GetVariant(

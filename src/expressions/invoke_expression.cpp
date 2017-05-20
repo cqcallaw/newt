@@ -200,16 +200,7 @@ const ErrorListRef InvokeExpression::Validate(
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();
-			//generate a temporary context for validation
-			auto new_parent = ExecutionContextList::From(execution_context,
-					execution_context->GetParent());
-			shared_ptr<ExecutionContext> tmp_context = make_shared<
-					ExecutionContext>(Modifier::Type::NONE, new_parent,
-					execution_context->GetTypeTable(),
-					execution_context->GetLifeTime(),
-					execution_context->GetDepth() + 1);
 
-			auto argument_subject = m_argument_list;
 			auto is_function = false;
 			DeclarationListRef parameter_list = nullptr;
 
@@ -244,7 +235,7 @@ const ErrorListRef InvokeExpression::Validate(
 
 			auto as_function_type_specifier = std::dynamic_pointer_cast<
 					const FunctionTypeSpecifier>(expression_type_specifier);
-			if (as_function_type_specifier) {
+			if (!is_function && as_function_type_specifier) {
 				is_function = true;
 				//generate placeholder parameter names
 				auto temp_declaration_result =
@@ -266,6 +257,16 @@ const ErrorListRef InvokeExpression::Validate(
 			}
 
 			if (is_function) {
+				//generate a temporary context for validation
+				auto new_parent = ExecutionContextList::From(execution_context,
+						execution_context->GetParent());
+				shared_ptr<ExecutionContext> tmp_context = make_shared<
+						ExecutionContext>(Modifier::Type::NONE, new_parent,
+						execution_context->GetTypeTable(),
+						execution_context->GetLifeTime(),
+						execution_context->GetDepth() + 1);
+
+				auto argument_subject = m_argument_list;
 				auto parameter_subject = parameter_list;
 				while (!ArgumentList::IsTerminator(argument_subject)) {
 					auto argument_expression = argument_subject->GetData();
