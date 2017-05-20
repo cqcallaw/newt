@@ -177,7 +177,8 @@ blank   [ \t\r]
 	return yy::newt_parser::make_IDENTIFIER(make_shared<const std::string>(yytext), loc);
 }
 
-\/\/.* // ignore comments that end a file without a trailing newline
+\/\/.* // ignore comments that end a file without a trailing newline 
+#.* // ignore comments that end a file without a trailing newline
 
 .               driver.invalid_token(loc, yytext);
 <<EOF>>         return yy::newt_parser::make_END(loc);
