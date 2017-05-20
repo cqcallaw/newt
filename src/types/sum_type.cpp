@@ -123,7 +123,7 @@ const_shared_ptr<Result> SumType::Build(
 					const RecordDeclarationStatement>(declaration);
 			if (as_record) {
 				auto validation_result = as_record->Preprocess(tmp_context,
-						output);
+						closure);
 				auto validation_errors = validation_result.GetErrors();
 				errors = errors->Concatenate(errors, validation_errors);
 			}
