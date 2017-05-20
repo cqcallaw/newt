@@ -114,18 +114,18 @@ const std::string AliasDefinition::ToString(const TypeTable& type_table,
 		auto origin = GetOrigin();
 		auto as_record = dynamic_pointer_cast<const RecordType>(origin);
 		if (as_record) {
-			os << endl;
+			os << GetValueSeparator(child_indent, m_default_value.get());
 		}
 
 		auto as_function = dynamic_pointer_cast<const FunctionType>(origin);
 		if (as_function) {
-			os << endl;
+			os << GetValueSeparator(child_indent, m_default_value.get());
 		}
 
 		auto as_variant_function = dynamic_pointer_cast<
 				const VariantFunctionType>(origin);
 		if (as_variant_function) {
-			os << endl;
+			os << GetValueSeparator(child_indent, m_default_value.get());
 		}
 
 		os << ValueToString(type_table, child_indent, m_default_value);
