@@ -106,7 +106,7 @@ const ErrorListRef FunctionExpression::Validate(
 		}
 
 		auto variant_context = make_shared<ExecutionContext>(
-				Modifier::Type::NONE, new_parent,
+				Modifier::Type::MUTABLE, new_parent,
 				execution_context->GetTypeTable(),
 				execution_context->GetLifeTime(),
 				execution_context->GetDepth() + 1);
@@ -149,9 +149,9 @@ const ErrorListRef FunctionExpression::Validate(
 					parameter_errors = ErrorList::Concatenate(parameter_errors,
 							preprocess_errors);
 				}
-			} else {
-				errors = ErrorList::Concatenate(errors, parameter_errors);
 			}
+
+			errors = ErrorList::Concatenate(errors, parameter_errors);
 
 			parameter_subject = parameter_subject->GetNext();
 		}
