@@ -56,7 +56,8 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 		errors = type_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = type_result->GetData<TypeDefinition>();
-			shared_ptr<const Symbol> symbol = Symbol::GetDefaultSymbol();
+			shared_ptr<const Symbol> symbol = type->GetSymbol(type_table,
+					m_type_specifier, type->GetDefaultValue(type_table));
 			auto initializer_expression = GetInitializerExpression();
 			if (initializer_expression) {
 				errors = initializer_expression->Validate(context);
@@ -73,8 +74,7 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 				}
 			}
 
-			if (ErrorList::IsTerminator(errors)
-					&& symbol != Symbol::GetDefaultSymbol()) {
+			if (ErrorList::IsTerminator(errors)) {
 				InsertResult insert_result = context->InsertSymbol(*GetName(),
 						symbol);
 
