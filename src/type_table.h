@@ -36,6 +36,12 @@ typedef map<const string, const_shared_ptr<TypeDefinition>> type_map;
 
 class Indent;
 
+/**
+ * A map from names to type definitions
+ *
+ * Type tables are meant to be immutable, as they define the interior structure of complex types.
+ * The PlaceholderType logic is an exception to this rule.
+ */
 class TypeTable {
 public:
 	TypeTable(const shared_ptr<TypeTable> parent = nullptr);
