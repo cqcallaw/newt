@@ -53,32 +53,18 @@ public:
 
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
 			const shared_ptr<ExecutionContext> parent,
-			const Modifier::Type modifiers, const LifeTime life_time) {
-		return GetEmptyChild(parent, modifiers, life_time,
-				parent->GetTypeTable(), make_shared<symbol_map>());
-	}
+			const Modifier::Type modifiers, const LifeTime life_time);
 
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
 			const shared_ptr<ExecutionContext> parent,
 			const Modifier::Type modifiers, const LifeTime life_time,
-			volatile_shared_ptr<TypeTable> type_table) {
-		return GetEmptyChild(parent, modifiers, life_time, type_table,
-				make_shared<symbol_map>());
-	}
+			volatile_shared_ptr<TypeTable> type_table);
 
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
 			const shared_ptr<ExecutionContext> parent,
 			const Modifier::Type modifiers, const LifeTime life_time,
 			volatile_shared_ptr<TypeTable> type_table,
-			const shared_ptr<symbol_map> map) {
-		auto new_parent = ExecutionContextList::From(parent,
-				parent->GetParent());
-		return shared_ptr<ExecutionContext>(
-				new ExecutionContext(modifiers, map, new_parent, type_table,
-						Symbol::GetDefaultSymbol(),
-						plain_shared_ptr<int>(nullptr), life_time,
-						parent->GetDepth() + 1));
-	}
+			const shared_ptr<symbol_map> map);
 
 	const shared_ptr<ExecutionContext> WithContents(
 			const shared_ptr<SymbolContext> contents) const;
