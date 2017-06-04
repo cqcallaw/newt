@@ -162,7 +162,8 @@ const shared_ptr<ExecutionContext> ExecutionContext::GetEmptyChild(
 		const shared_ptr<ExecutionContext> parent,
 		const Modifier::Type modifiers, const LifeTime life_time) {
 	return GetEmptyChild(parent, modifiers, life_time,
-			parent->GetTypeTable(), make_shared<symbol_map>());
+			make_shared<TypeTable>(parent->GetTypeTable()),
+			make_shared<symbol_map>());
 }
 
 const shared_ptr<ExecutionContext> ExecutionContext::GetEmptyChild(
