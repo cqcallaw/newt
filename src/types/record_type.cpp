@@ -57,7 +57,7 @@ const string RecordType::ToString(const TypeTable& type_table,
 	return os.str();
 }
 
-const_shared_ptr<Result> RecordType::Build(
+const_shared_ptr<Result> RecordType::Build(const_shared_ptr<string> name,
 		const shared_ptr<ExecutionContext> output,
 		const shared_ptr<ExecutionContext> closure,
 		const Modifier::Type modifiers,
@@ -65,137 +65,159 @@ const_shared_ptr<Result> RecordType::Build(
 		const_shared_ptr<RecordTypeSpecifier> type_specifier) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	auto output_type_table = output->GetTypeTable();
-	auto closure_type_table = closure->GetTypeTable();
-	auto type_table = make_shared<TypeTable>(output_type_table);
+	const_shared_ptr<Record> default_value = make_shared<Record>(
+			make_shared<SymbolContext>(Modifier::Type::NONE));
+	auto placeholder_symbol = make_shared<Symbol>(type_specifier,
+			default_value);
+	auto placeholder_maybe_result = MaybeType::Build(closure, type_specifier);
+	errors = placeholder_maybe_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto output_type_table = output->GetTypeTable();
+		auto closure_type_table = closure->GetTypeTable();
+		auto type_table = make_shared<TypeTable>(output_type_table);
 
-	DeclarationListRef subject = member_declarations;
-	while (!DeclarationList::IsTerminator(subject)) {
-		const_shared_ptr<DeclarationStatement> declaration = subject->GetData();
+		auto placeholder_maybe = placeholder_maybe_result->GetData<MaybeType>();
+		auto forward_declaration = make_shared<PlaceholderType>(name,
+				placeholder_symbol, placeholder_maybe);
+		output_type_table->AddType(*name, forward_declaration);
 
-		auto member_name = declaration->GetName();
+		DeclarationListRef subject = member_declarations;
+		while (!DeclarationList::IsTerminator(subject)) {
+			const_shared_ptr<DeclarationStatement> declaration =
+					subject->GetData();
 
-		auto declaration_type_specifier = declaration->GetTypeSpecifier();
-		auto declaration_errors =
-				declaration_type_specifier->ValidateDeclaration(
-						output_type_table, declaration->GetNameLocation());
+			auto member_name = declaration->GetName();
 
-		auto existing_member_type = type_table->GetType<TypeDefinition>(
-				member_name, SHALLOW, RETURN);
+			auto declaration_type_specifier = declaration->GetTypeSpecifier();
+			auto declaration_errors =
+					declaration_type_specifier->ValidateDeclaration(
+							output_type_table, declaration->GetNameLocation());
 
-		if (!existing_member_type) {
-			//generate a temporary structure in which to perform evaluations
-			//of the member declaration statement
-			const shared_ptr<symbol_map> values = make_shared<symbol_map>();
-			auto member_type_table = make_shared<TypeTable>(output_type_table);
-			shared_ptr<ExecutionContext> tmp_context =
-					ExecutionContext::GetEmptyChild(output,
-							output->GetModifiers(), EPHEMERAL,
-							member_type_table, values);
+			auto existing_member_type = type_table->GetType<TypeDefinition>(
+					member_name, SHALLOW, RETURN);
 
-			if (ErrorList::IsTerminator(declaration_errors)) {
-				const_shared_ptr<Expression> initializer_expression =
-						declaration->GetInitializerExpression();
-				if (initializer_expression
-						&& !initializer_expression->IsConstant()) {
-					//if we have a non-constant initializer expression, generate an error
-					yy::location position =
-							initializer_expression->GetLocation();
-					declaration_errors = ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
-									position.begin.line, position.begin.column),
-							declaration_errors);
-				} else {
-					//otherwise (no initializer expression OR a valid initializer expression);
-					//we're cleared to preprocess
-					auto preprocess_result = declaration->Preprocess(
-							tmp_context, closure);
-					auto preprocess_errors = preprocess_result.GetErrors();
-					declaration_errors = ErrorList::Concatenate(
-							declaration_errors, preprocess_errors);
+			if (!existing_member_type) {
+				//generate a temporary structure in which to perform evaluations
+				//of the member declaration statement
+				const shared_ptr<symbol_map> values = make_shared<symbol_map>();
+				auto member_type_table = make_shared<TypeTable>(
+						output_type_table);
+				shared_ptr<ExecutionContext> tmp_context =
+						ExecutionContext::GetEmptyChild(output,
+								output->GetModifiers(), EPHEMERAL,
+								member_type_table, values);
 
-					if (ErrorList::IsTerminator(declaration_errors)) {
-						//we've pre-processed this statement without issue
+				if (ErrorList::IsTerminator(declaration_errors)) {
+					const_shared_ptr<Expression> initializer_expression =
+							declaration->GetInitializerExpression();
+					if (initializer_expression
+							&& !initializer_expression->IsConstant()) {
+						//if we have a non-constant initializer expression, generate an error
+						yy::location position =
+								initializer_expression->GetLocation();
+						declaration_errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
+										position.begin.line,
+										position.begin.column),
+								declaration_errors);
+					} else {
+						//otherwise (no initializer expression OR a valid initializer expression);
+						//we're cleared to preprocess
+						auto preprocess_result = declaration->Preprocess(
+								tmp_context, closure);
+						auto preprocess_errors = preprocess_result.GetErrors();
 						declaration_errors = ErrorList::Concatenate(
-								declaration_errors,
-								declaration->Execute(tmp_context, closure));
+								declaration_errors, preprocess_errors);
+
+						if (ErrorList::IsTerminator(declaration_errors)) {
+							//we've pre-processed this statement without issue
+							declaration_errors = ErrorList::Concatenate(
+									declaration_errors,
+									declaration->Execute(tmp_context, closure));
+						}
 					}
 				}
-			}
 
-			if (ErrorList::IsTerminator(declaration_errors)) {
-				symbol_map::iterator iter;
-				//extract member definitions into type aliases
-				for (iter = values->begin(); iter != values->end(); ++iter) {
-					const string member_name = iter->first;
-					auto symbol = iter->second;
+				if (ErrorList::IsTerminator(declaration_errors)) {
+					symbol_map::iterator iter;
+					//extract member definitions into type aliases
+					for (iter = values->begin(); iter != values->end();
+							++iter) {
+						const string member_name = iter->first;
+						auto symbol = iter->second;
 
-					const_shared_ptr<TypeSpecifier> type_specifier =
-							symbol->GetTypeSpecifier();
+						const_shared_ptr<TypeSpecifier> type_specifier =
+								symbol->GetTypeSpecifier();
 
-					auto symbol_type_result = type_specifier->GetType(
-							output_type_table);
-					auto symbol_type_errors = symbol_type_result->GetErrors();
-					if (ErrorList::IsTerminator(symbol_type_errors)) {
-						auto symbol_type = symbol_type_result->GetData<
-								TypeDefinition>();
-						auto as_recursive = dynamic_pointer_cast<
-								const PlaceholderType>(symbol_type);
-						plain_shared_ptr<AliasDefinition> alias = nullptr;
-						if (as_recursive) {
-							auto as_maybe_specifier = dynamic_pointer_cast<
-									const MaybeTypeSpecifier>(type_specifier);
-							if (as_maybe_specifier) {
+						auto symbol_type_result = type_specifier->GetType(
+								output_type_table);
+						auto symbol_type_errors =
+								symbol_type_result->GetErrors();
+						if (ErrorList::IsTerminator(symbol_type_errors)) {
+							auto symbol_type = symbol_type_result->GetData<
+									TypeDefinition>();
+							auto as_recursive = dynamic_pointer_cast<
+									const PlaceholderType>(symbol_type);
+							plain_shared_ptr<AliasDefinition> alias = nullptr;
+							if (as_recursive) {
+								auto as_maybe_specifier = dynamic_pointer_cast<
+										const MaybeTypeSpecifier>(
+										type_specifier);
+								if (as_maybe_specifier) {
+									alias = make_shared<AliasDefinition>(
+											closure_type_table, type_specifier,
+											RECURSIVE, nullptr);
+								} else {
+									assert(false);
+								}
+							} else {
+								auto value = symbol->GetValue();
 								alias = make_shared<AliasDefinition>(
 										closure_type_table, type_specifier,
-										RECURSIVE, nullptr);
-							} else {
-								assert(false);
+										DIRECT, value);
 							}
-						} else {
-							auto value = symbol->GetValue();
-							alias = make_shared<AliasDefinition>(
-									closure_type_table, type_specifier, DIRECT,
-									value);
-						}
 
-						type_table->AddType(member_name, alias);
-					} else {
-						declaration_errors = ErrorList::Concatenate(
-								declaration_errors, symbol_type_errors);
+							type_table->AddType(member_name, alias);
+						} else {
+							declaration_errors = ErrorList::Concatenate(
+									declaration_errors, symbol_type_errors);
+						}
+					}
+
+					//add a type definition if we have one (that is, no aliasing occurred)
+					auto member_definition = member_type_table->GetType<
+							TypeDefinition>(member_name, SHALLOW, RETURN);
+					if (member_definition) {
+						type_table->AddType(*member_name, member_definition);
 					}
 				}
-
-				//add a type definition if we have one (that is, no aliasing occurred)
-				auto member_definition = member_type_table->GetType<
-						TypeDefinition>(member_name, SHALLOW, RETURN);
-				if (member_definition) {
-					type_table->AddType(*member_name, member_definition);
-				}
+			} else {
+				declaration_errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::PREVIOUS_DECLARATION,
+								declaration->GetNameLocation().begin.line,
+								declaration->GetNameLocation().begin.column,
+								*member_name), declaration_errors);
 			}
-		} else {
-			declaration_errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::PREVIOUS_DECLARATION,
-							declaration->GetNameLocation().begin.line,
-							declaration->GetNameLocation().begin.column,
-							*member_name), declaration_errors);
+
+			errors = ErrorList::Concatenate(declaration_errors, errors);
+			subject = subject->GetNext();
 		}
 
-		errors = ErrorList::Concatenate(declaration_errors, errors);
-		subject = subject->GetNext();
+		auto maybe_type_result = MaybeType::Build(closure, type_specifier);
+		errors = ErrorList::Concatenate(maybe_type_result->GetErrors(), errors);
+		auto maybe_type = maybe_type_result->GetData<MaybeType>();
+
+		auto type = const_shared_ptr<RecordType>(
+				new RecordType(type_table, modifiers, maybe_type));
+
+		output_type_table->RemovePlaceholderType(*name);
+		return make_shared<Result>(
+				ErrorList::IsTerminator(errors) ? type : nullptr, errors);
+	} else {
+		return make_shared<Result>(nullptr, errors);
 	}
-
-	auto maybe_type_result = MaybeType::Build(closure, type_specifier);
-	errors = ErrorList::Concatenate(maybe_type_result->GetErrors(), errors);
-	auto maybe_type = maybe_type_result->GetData<MaybeType>();
-
-	auto type = const_shared_ptr<RecordType>(
-			new RecordType(type_table, modifiers, maybe_type));
-
-	return make_shared<Result>(ErrorList::IsTerminator(errors) ? type : nullptr,
-			errors);
 }
 
 const_shared_ptr<void> RecordType::GetMemberDefaultValue(
