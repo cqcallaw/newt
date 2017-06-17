@@ -1,4 +1,17 @@
 Parsing file ../tests/t7333.nwt...
-Semantic error on line 5, column 25: Type "a" has not been fully defined.
 Parsed file ../tests/t7333.nwt.
-1 error found; giving up.
+Root Symbol Table:
+----------------
+<empty>
+
+Root Type Table:
+----------------
+a:
+	<record>
+	b:
+		int (3)
+	f:
+		() -> int (
+			Body Location: 5.16-27
+		)
+

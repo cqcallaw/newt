@@ -2,10 +2,7 @@ Parsing file ../tests/t7020.nwt...
 Parsed file ../tests/t7020.nwt.
 Root Symbol Table:
 ----------------
-a v:
-	int b: 0
-	a.b? c: {empty}
-
+<empty>
 
 Root Type Table:
 ----------------
@@ -14,5 +11,7 @@ a:
 	b:
 		int (0)
 	c:
-		a.b? ({empty})
+		(a?) -> int (
+			Body Location: 3.21-10.4
+		)
 

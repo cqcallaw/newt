@@ -64,13 +64,6 @@ void TypeTable::AddType(const std::string& name,
 	}
 }
 
-void TypeTable::RemovePlaceholderType(const string& name) {
-	auto existing = m_table->find(name);
-	if (std::dynamic_pointer_cast<const PlaceholderType>(existing->second)) {
-		m_table->erase(existing);
-	}
-}
-
 const void TypeTable::print(ostream& os, const Indent& indent,
 		const SearchType search_type) const {
 	type_map::iterator iter;

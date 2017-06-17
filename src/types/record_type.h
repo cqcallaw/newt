@@ -76,7 +76,7 @@ public:
 		return m_definition;
 	}
 
-	static const_shared_ptr<Result> Build(const_shared_ptr<string> name,
+	static const ErrorListRef Build(const_shared_ptr<string> name,
 			const shared_ptr<ExecutionContext> output,
 			const shared_ptr<ExecutionContext> closure,
 			const Modifier::Type modifiers,

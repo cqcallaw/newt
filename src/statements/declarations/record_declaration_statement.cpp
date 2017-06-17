@@ -65,13 +65,8 @@ const PreprocessResult RecordDeclarationStatement::Preprocess(
 	}
 
 	if (!type_table->ContainsType(*m_type)) {
-		auto result = RecordType::Build(GetName(), context, closure, modifiers,
+		errors = RecordType::Build(GetName(), context, closure, modifiers,
 				m_member_declaration_list, m_type);
-		errors = result->GetErrors();
-		if (ErrorList::IsTerminator(errors)) {
-			auto type = result->GetData<RecordType>();
-			type_table->AddType(*GetName(), type);
-		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,

@@ -87,7 +87,7 @@ const PreprocessResult SumDeclarationStatement::Preprocess(
 				auto type = result->GetData<SumType>();
 				type_table->AddType(*GetName(), type);
 			} else {
-				type_table->RemovePlaceholderType(GetName());
+				type_table->RemoveTypeDefinition<PlaceholderType>(GetName());
 			}
 		}
 
