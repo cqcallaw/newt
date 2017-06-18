@@ -1,0 +1,12 @@
+# test match of Maybe type, with assignment to function parameter
+v:int?=3
+r:int
+f:=(i:int?) -> int {
+	return 5
+}
+
+match(v)
+	nil { }
+	| value {
+		r = f(value)
+	}

@@ -53,7 +53,6 @@ public:
 			const TypeTable& type_table) const;
 
 	static const_shared_ptr<std::string> VARIANT_NAME;
-	static const_shared_ptr<std::string> EMPTY_NAME;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_base_type_specifier;

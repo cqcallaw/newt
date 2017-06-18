@@ -112,7 +112,7 @@ const PreprocessResult MatchStatement::Preprocess(
 						} else {
 							auto variant_type = type_definition->GetType<
 									TypeDefinition>(match_name, SHALLOW,
-									RESOLVE);
+									RETURN);
 							if (variant_type) {
 								if (match_names->find(*match_name)
 										== match_names->end()) {
@@ -122,11 +122,21 @@ const PreprocessResult MatchStatement::Preprocess(
 									assert(matched_context);
 									matched_context->LinkToParent(context);
 
-									auto variant_type_specifier =
-											variant_type->GetTypeSpecifier(
-													match->GetName(),
-													source_sum_specifier,
-													GetDefaultLocation());
+									plain_shared_ptr<TypeSpecifier> variant_type_specifier;
+									auto as_alias = dynamic_pointer_cast<
+											const AliasDefinition>(
+											variant_type);
+									if (as_alias) {
+										variant_type_specifier =
+												as_alias->GetOriginal();
+									} else {
+										variant_type_specifier =
+												variant_type->GetTypeSpecifier(
+														match->GetName(),
+														source_sum_specifier,
+														GetDefaultLocation());
+									}
+
 									const_shared_ptr<void> default_value =
 											variant_type->GetDefaultValue(
 													*type_definition);
@@ -306,7 +316,7 @@ const ErrorListRef MatchStatement::Execute(
 							auto variant_type =
 									sum_type->GetDefinition()->GetType<
 											TypeDefinition>(match_name, SHALLOW,
-											RESOLVE);
+											RETURN);
 							if (variant_type) {
 								auto matched_context = match_context->GetData();
 								auto matched_parent =
@@ -317,11 +327,19 @@ const ErrorListRef MatchStatement::Execute(
 										matched_parent->GetTypeTable()
 												== context->GetTypeTable());
 
-								auto variant_type_specifier =
-										variant_type->GetTypeSpecifier(
-												match->GetName(),
-												source_sum_specifier,
-												GetDefaultLocation());
+								plain_shared_ptr<TypeSpecifier> variant_type_specifier;
+								auto as_alias = dynamic_pointer_cast<
+										const AliasDefinition>(variant_type);
+								if (as_alias) {
+									variant_type_specifier =
+											as_alias->GetOriginal();
+								} else {
+									variant_type_specifier =
+											variant_type->GetTypeSpecifier(
+													match->GetName(),
+													source_sum_specifier,
+													GetDefaultLocation());
+								}
 
 								auto alias_name = *(match->GetAlias());
 								auto set_result = matched_context->SetSymbol(

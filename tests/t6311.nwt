@@ -1,0 +1,9 @@
+# test match of Maybe type, with assignment
+v:int?=3
+r:int?
+
+match(v)
+	nil { }
+	| value {
+		r = value
+	}
