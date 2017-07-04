@@ -1,0 +1,22 @@
+Parsing file ../tests/t9001.nwt...
+Parsed file ../tests/t9001.nwt.
+2
+Root Symbol Table:
+----------------
+list l:
+	int data: 2
+	() -> list? next:
+		Body Location: [default location]
+
+
+Root Type Table:
+----------------
+list:
+	<record>
+	data:
+		int (0)
+	next:
+		() -> list? (
+			Body Location: [default location]
+		)
+

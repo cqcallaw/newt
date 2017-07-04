@@ -27,7 +27,7 @@ class StatementBlock;
 
 class ForeachStatement: public Statement {
 public:
-	ForeachStatement(const_shared_ptr<string> name,
+	ForeachStatement(const_shared_ptr<string> evaluation_identifier,
 			const_shared_ptr<Expression> expression,
 			const_shared_ptr<StatementBlock> statement_block);
 	virtual ~ForeachStatement();
@@ -44,7 +44,7 @@ public:
 	static const_shared_ptr<std::string> NEXT_NAME;
 
 private:
-	const_shared_ptr<string> m_name;
+	const_shared_ptr<string> m_evaluation_identifier;
 	const_shared_ptr<Expression> m_expression;
 	const_shared_ptr<StatementBlock> m_statement_block;
 	shared_ptr<ExecutionContext> m_block_context;

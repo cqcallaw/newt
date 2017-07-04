@@ -18,23 +18,27 @@
  */
 
 #include <foreach_statement.h>
-#include <expression.h>
 #include <statement_block.h>
 #include <execution_context.h>
 #include <record_type.h>
-#include <function_type_specifier.h>
 #include <variant_function_specifier.h>
+#include <function_declaration.h>
 #include <maybe_type.h>
 #include <maybe_type_specifier.h>
+#include <sum.h>
+#include <record.h>
+#include <basic_variable.h>
+#include <variable_expression.h>
 
 const_shared_ptr<std::string> ForeachStatement::NEXT_NAME = make_shared<
 		std::string>("next");
 
-ForeachStatement::ForeachStatement(const_shared_ptr<string> name,
+ForeachStatement::ForeachStatement(
+		const_shared_ptr<string> evaluation_identifier,
 		const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> statement_block) :
-		m_name(name), m_expression(expression), m_statement_block(
-				statement_block), m_block_context(
+		m_evaluation_identifier(evaluation_identifier), m_expression(
+				expression), m_statement_block(statement_block), m_block_context(
 				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)) {
 }
 
@@ -92,6 +96,7 @@ const PreprocessResult ForeachStatement::Preprocess(
 							member_type_specifier =
 									as_function_type_specifier->GetReturnTypeSpecifier();
 						}
+						// TODO: disallow multi-variant functions
 
 						auto member_as_maybe_specifier = dynamic_pointer_cast<
 								const MaybeTypeSpecifier>(
@@ -112,7 +117,8 @@ const PreprocessResult ForeachStatement::Preprocess(
 												context->GetTypeTable(),
 												expression_type_specifier,
 												default_value);
-								m_block_context->InsertSymbol(*m_name,
+								m_block_context->InsertSymbol(
+										*m_evaluation_identifier,
 										default_symbol);
 							} else {
 								errors =
@@ -173,6 +179,145 @@ const PreprocessResult ForeachStatement::Preprocess(
 const ErrorListRef ForeachStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
+	assert(m_block_context->GetParent());
+	assert(m_block_context->GetParent()->GetData() == context);
+
 	auto errors = ErrorList::GetTerminator();
+
+	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+			context, RESOLVE);
+	auto expression_type_specifier_errors =
+			expression_type_specifier_result.GetErrors();
+
+	if (ErrorList::IsTerminator(expression_type_specifier_errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+
+		auto eval = m_expression->Evaluate(context, closure);
+		errors = ErrorList::Concatenate(errors, eval->GetErrors());
+		if (ErrorList::IsTerminator(errors)) {
+			auto raw_value = eval->GetRawData();
+			auto tag = make_shared<const string>("BEGIN THE LOOP");
+			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					expression_type_specifier);
+
+			while (ErrorList::IsTerminator(errors)
+					&& *tag != *TypeTable::GetNilName()) {
+				auto record = static_pointer_cast<const Record>(raw_value);
+				assert(record);
+				auto symbol = make_shared<const Symbol>(as_complex, record);
+				auto set_result = m_block_context->SetSymbol(
+						*m_evaluation_identifier, as_complex, record,
+						context->GetTypeTable());
+				assert(set_result == SET_SUCCESS);
+
+				auto execution_errors = m_statement_block->Execute(
+						m_block_context);
+				errors = ErrorList::Concatenate(errors, execution_errors);
+				context->SetReturnValue(m_block_context->GetReturnValue());
+
+				auto definition = record->GetDefinition();
+				auto next_member = definition->GetSymbol(
+						ForeachStatement::NEXT_NAME);
+
+				plain_shared_ptr<Sum> next_value = nullptr;
+				auto member_type_specifier = next_member->GetTypeSpecifier();
+				auto as_function_type_specifier = dynamic_pointer_cast<
+						const FunctionTypeSpecifier>(member_type_specifier);
+				if (as_function_type_specifier) {
+					// do function invocation
+					auto next_function = static_pointer_cast<const Function>(
+							next_member->GetValue());
+
+					auto function_type_specifier =
+							next_function->GetTypeSpecifier();
+					auto as_function_declaration = dynamic_pointer_cast<
+							const FunctionDeclaration>(function_type_specifier);
+					assert(as_function_declaration);
+
+					auto invocation_context = ExecutionContext::GetEmptyChild(
+							closure, Modifier::Type::MUTABLE, EPHEMERAL);
+
+					auto parameter_list =
+							as_function_declaration->GetParameterList();
+					auto argument_list = ArgumentList::GetTerminator();
+					while (ErrorList::IsTerminator(errors)
+							&& !DeclarationList::IsTerminator(parameter_list)) {
+						auto parameter_declaration = parameter_list->GetData();
+
+						auto declaration_type_specifier =
+								parameter_declaration->GetTypeSpecifier();
+						auto declaration_type_result =
+								declaration_type_specifier->GetType(
+										closure->GetTypeTable(), RETURN);
+
+						auto type_lookup_errors =
+								declaration_type_result->GetErrors();
+						if (ErrorList::IsTerminator(type_lookup_errors)) {
+							auto declaration_type =
+									declaration_type_result->GetData<
+											TypeDefinition>();
+
+							// set symbol
+							auto symbol = declaration_type->GetSymbol(
+									closure->GetTypeTable(),
+									declaration_type_specifier, raw_value);
+							auto insert_result =
+									invocation_context->InsertSymbol(
+											*parameter_declaration->GetName(),
+											symbol);
+							assert(insert_result = INSERT_SUCCESS);
+
+							// generate argument list
+							auto argument_variable = make_shared<
+									const BasicVariable>(
+									parameter_declaration->GetName(),
+									parameter_declaration->GetLocation());
+
+							auto argument_expression = make_shared<
+									const VariableExpression>(
+									parameter_declaration->GetLocation(),
+									argument_variable);
+
+							argument_list = ArgumentList::From(
+									argument_expression, argument_list);
+						} else {
+							errors = ErrorList::Concatenate(errors,
+									type_lookup_errors);
+						}
+						parameter_list = parameter_list->GetNext();
+					}
+					if (ErrorList::IsTerminator(errors)) {
+						// make sure argument list order matches parameter order
+						argument_list = ArgumentList::Reverse(argument_list);
+
+						auto function_eval = next_function->Evaluate(
+								argument_list,
+								as_function_declaration->GetLocation(),
+								invocation_context);
+
+						auto function_eval_errors = function_eval->GetErrors();
+						if (ErrorList::IsTerminator(function_eval_errors)) {
+							next_value = function_eval->GetData<Sum>();
+							assert(next_value);
+							tag = next_value->GetTag();
+							raw_value = next_value->GetValue();
+						} else {
+							errors = ErrorList::Concatenate(errors,
+									function_eval_errors);
+						}
+					}
+				} else {
+					next_value = static_pointer_cast<const Sum>(
+							next_member->GetValue());
+					assert(next_value);
+
+					tag = next_value->GetTag();
+					raw_value = next_value->GetValue();
+				}
+			}
+		}
+	}
+
 	return errors;
 }
