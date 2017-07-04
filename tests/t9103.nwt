@@ -1,0 +1,11 @@
+# test incorrect source type for foreach
+list {
+	data:int
+	| tail:string
+}
+
+l:= @list
+
+for i in l {
+	print(l)
+}

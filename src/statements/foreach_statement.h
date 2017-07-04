@@ -40,6 +40,9 @@ public:
 	virtual const ErrorListRef Execute(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
+
+	static const_shared_ptr<std::string> NEXT_NAME;
+
 private:
 	const_shared_ptr<string> m_name;
 	const_shared_ptr<Expression> m_expression;

@@ -1,0 +1,11 @@
+# test incorrect record type structure for foreach statement
+list {
+	data:int,
+	tail:list?
+}
+
+l:= @list
+
+for i in l {
+	print(l)
+}

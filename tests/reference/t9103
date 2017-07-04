@@ -1,0 +1,4 @@
+Parsing file ../tests/t9103.nwt...
+Semantic error on line 9, column 10: Foreach statement source must be of a record type.
+Parsed file ../tests/t9103.nwt.
+1 error found; giving up.

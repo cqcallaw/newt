@@ -21,6 +21,14 @@
 #include <expression.h>
 #include <statement_block.h>
 #include <execution_context.h>
+#include <record_type.h>
+#include <function_type_specifier.h>
+#include <variant_function_specifier.h>
+#include <maybe_type.h>
+#include <maybe_type_specifier.h>
+
+const_shared_ptr<std::string> ForeachStatement::NEXT_NAME = make_shared<
+		std::string>("next");
 
 ForeachStatement::ForeachStatement(const_shared_ptr<string> name,
 		const_shared_ptr<Expression> expression,
@@ -61,12 +69,87 @@ const PreprocessResult ForeachStatement::Preprocess(
 			if (ErrorList::IsTerminator(expression_type_errors)) {
 				auto expression_type = expression_type_result->GetData<
 						TypeDefinition>();
-				const_shared_ptr<void> default_value =
-						expression_type->GetDefaultValue(*type_table);
-				const_shared_ptr<Symbol> default_symbol =
-						expression_type->GetSymbol(context->GetTypeTable(),
-								expression_type_specifier, default_value);
-				m_block_context->InsertSymbol(*m_name, default_symbol);
+				auto as_record = dynamic_pointer_cast<const RecordType>(
+						expression_type);
+
+				if (as_record) {
+					auto complex_expression_type_specifier =
+							dynamic_pointer_cast<const ComplexTypeSpecifier>(
+									expression_type_specifier);
+					auto next_member = as_record->GetMember(
+							*ForeachStatement::NEXT_NAME);
+					if (next_member) {
+						auto member_type_specifier =
+								next_member->GetTypeSpecifier(
+										ForeachStatement::NEXT_NAME,
+										complex_expression_type_specifier,
+										GetDefaultLocation());
+
+						auto as_function_type_specifier = dynamic_pointer_cast<
+								const FunctionTypeSpecifier>(
+								member_type_specifier);
+						if (as_function_type_specifier) {
+							member_type_specifier =
+									as_function_type_specifier->GetReturnTypeSpecifier();
+						}
+
+						auto member_as_maybe_specifier = dynamic_pointer_cast<
+								const MaybeTypeSpecifier>(
+								member_type_specifier);
+						if (member_as_maybe_specifier) {
+							auto member_base_specifier =
+									member_as_maybe_specifier->GetBaseTypeSpecifier();
+							auto maybe_type_relation =
+									member_base_specifier->AnalyzeAssignmentTo(
+											expression_type_specifier,
+											context->GetTypeTable());
+							if (maybe_type_relation == EQUIVALENT) {
+								const_shared_ptr<void> default_value =
+										expression_type->GetDefaultValue(
+												*type_table);
+								const_shared_ptr<Symbol> default_symbol =
+										expression_type->GetSymbol(
+												context->GetTypeTable(),
+												expression_type_specifier,
+												default_value);
+								m_block_context->InsertSymbol(*m_name,
+										default_symbol);
+							} else {
+								errors =
+										ErrorList::From(
+												make_shared<Error>(
+														Error::SEMANTIC,
+														Error::FOREACH_NEXT_MUST_EVALUATE_TO_BASE_TYPE,
+														m_expression->GetLocation().begin.line,
+														m_expression->GetLocation().begin.column),
+												errors);
+							}
+						} else {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::FOREACH_NEXT_MUST_BE_MAYBE,
+													m_expression->GetLocation().begin.line,
+													m_expression->GetLocation().begin.column),
+											errors);
+						}
+					} else {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::FOREACH_STMT_REQUIRES_NEXT,
+												m_expression->GetLocation().begin.line,
+												m_expression->GetLocation().begin.column),
+										errors);
+					}
+				} else {
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::FOREACH_STMT_SOURCE_MUST_BE_RECORD,
+									m_expression->GetLocation().begin.line,
+									m_expression->GetLocation().begin.column),
+							errors);
+				}
 			} else {
 				errors = expression_type_errors;
 			}

@@ -1,0 +1,11 @@
+# test incorrect type for next member
+list {
+	data:int,
+	next:int
+}
+
+l:= @list
+
+for i in l {
+	print(l)
+}

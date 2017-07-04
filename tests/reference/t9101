@@ -1,0 +1,4 @@
+Parsing file ../tests/t9101.nwt...
+Semantic error on line 9, column 10: Foreach statement source's 'next' member type must evaluate to a Maybe type.
+Parsed file ../tests/t9101.nwt.
+1 error found; giving up.

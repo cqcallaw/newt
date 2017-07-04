@@ -1,0 +1,4 @@
+Parsing file ../tests/t9102.nwt...
+Semantic error on line 9, column 10: Foreach statement source must have a member named 'next'.
+Parsed file ../tests/t9102.nwt.
+1 error found; giving up.
