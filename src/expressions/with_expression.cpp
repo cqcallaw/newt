@@ -106,9 +106,8 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 				auto temp_type_table = type_definition->Clone()->WithParent(
 						context->GetTypeTable());
 
-				volatile_shared_ptr<ExecutionContext> temp_execution_context =
-						make_shared<ExecutionContext>(new_symbol_context,
-								temp_type_table, EPHEMERAL);
+				auto temp_execution_context = make_shared<ExecutionContext>(
+						new_symbol_context, temp_type_table, EPHEMERAL);
 
 				auto resolved_specifier_result = NestedTypeSpecifier::Resolve(
 						source_type_specifier, context->GetTypeTable());
