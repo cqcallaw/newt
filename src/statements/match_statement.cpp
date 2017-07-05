@@ -50,8 +50,7 @@ const PreprocessResult MatchStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	ErrorListRef errors;
-	errors = m_source_expression->Validate(context);
+	auto errors = m_source_expression->Validate(context);
 
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	if (ErrorList::IsTerminator(errors)) {
@@ -420,6 +419,7 @@ const ErrorListRef MatchStatement::Execute(
 	}
 
 	return errors;
+	//return ErrorList::GetTerminator();
 }
 
 const MatchContextListRef MatchStatement::GenerateMatchContexts(

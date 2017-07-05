@@ -94,7 +94,7 @@ Function::~Function() {
 const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		const yy::location argument_list_location,
 		const shared_ptr<ExecutionContext> invocation_context) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	auto errors = ErrorList::GetTerminator();
 	if (invocation_context->GetDepth() > INVOCATION_DEPTH) {
 		std::stringstream ss;
 		ss << INVOCATION_DEPTH;
@@ -117,7 +117,6 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 			closure_reference->GetTypeTable(), EPHEMERAL,
 			invocation_context->GetDepth() + 1);
 
-	//auto variant = GetFunctionVariant(argument_list);
 	auto variant_result = GetVariant(argument_list, argument_list_location,
 			m_variant_list, invocation_context);
 	errors = ErrorList::Concatenate(errors, variant_result.GetErrors());
