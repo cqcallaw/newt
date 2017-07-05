@@ -149,7 +149,7 @@ const_shared_ptr<Result> FunctionTypeSpecifier::GetType(
 
 const ErrorListRef FunctionTypeSpecifier::ValidateDeclaration(
 		const TypeTable& type_table, const yy::location position) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	auto errors = ErrorList::GetTerminator();
 
 	auto subject = GetParameterTypeList();
 	while (!TypeSpecifierList::IsTerminator(subject)) {

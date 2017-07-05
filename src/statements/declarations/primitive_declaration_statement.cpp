@@ -46,7 +46,7 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	auto errors = ErrorList::GetTerminator();
 	auto symbol = Symbol::GetDefaultSymbol();
 
 	//validate the contents of our initialization expression
