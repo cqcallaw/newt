@@ -37,7 +37,7 @@
 const_shared_ptr<Function> Function::Build(const yy::location location,
 		FunctionVariantListRef variant_list,
 		const shared_ptr<ExecutionContext> closure) {
-	if (closure->GetLifeTime() == PERSISTENT) {
+	if (closure->GetLifeTime() == PERSISTENT || closure->GetLifeTime() == TEMPORARY) {
 		return make_shared<Function>(
 				Function(location, variant_list,
 						weak_ptr<ExecutionContext>(closure)));

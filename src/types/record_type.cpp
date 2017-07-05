@@ -123,10 +123,10 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 				const shared_ptr<symbol_map> values = make_shared<symbol_map>();
 				auto member_type_table = make_shared<TypeTable>(
 						output_type_table);
-				shared_ptr<ExecutionContext> member_tmp_context =
-						ExecutionContext::GetEmptyChild(output,
-								output->GetModifiers(), EPHEMERAL,
-								member_type_table, values);
+				// N.B. that this context is "PERSISTENT" so that strong references aren't made to it.
+				auto member_tmp_context = ExecutionContext::GetEmptyChild(
+						output, output->GetModifiers(), TEMPORARY,
+						member_type_table, values);
 
 				if (ErrorList::IsTerminator(declaration_errors)) {
 					const_shared_ptr<Expression> initializer_expression =
@@ -299,10 +299,11 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 
 				const shared_ptr<symbol_map> values = make_shared<symbol_map>();
 				auto member_type_table = make_shared<TypeTable>(type_table);
-				shared_ptr<ExecutionContext> member_tmp_context =
-						ExecutionContext::GetEmptyChild(output,
-								output->GetModifiers(), EPHEMERAL,
-								member_type_table, values);
+				// generate a temp context
+				// N.B. that this context is "PERSISTENT" so that strong references aren't made to it.
+				auto member_tmp_context = ExecutionContext::GetEmptyChild(
+						output, output->GetModifiers(), TEMPORARY,
+						member_type_table, values);
 
 				auto preprocess_result =
 						split_declaration_subject_data->Preprocess(

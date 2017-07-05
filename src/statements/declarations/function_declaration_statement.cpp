@@ -88,9 +88,9 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 				if (as_function || as_variant_function) {
 					// insert default value to enable validation of recursive invocations
 					// we create this default value in a validation context to avoid polluting the real name space
-					// the validation context is "PERSISTENT" so that strong references aren't made to it
+					// the validation context is "TEMPORARY" so that strong references aren't made to it
 					auto validation_context = context->GetEmptyChild(context,
-							Modifier::Type::MUTABLE, PERSISTENT);
+							Modifier::Type::MUTABLE, TEMPORARY);
 					auto value = m_type_specifier->DefaultValue(*type_table);
 					auto symbol = make_shared<Symbol>(
 							static_pointer_cast<const Function>(value));
@@ -136,9 +136,12 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 		} else {
 			// no initializer; initialize to default value
 			auto value = m_type_specifier->DefaultValue(*type_table);
+			auto as_function = static_pointer_cast<const Function>(value);
+			// juggle closure references so we have some valid closure with which to work
+			as_function = Function::Build(as_function->GetLocation(),
+					as_function->GetVariantList(), closure);
 
-			auto symbol = make_shared<Symbol>(
-					static_pointer_cast<const Function>(value));
+			auto symbol = make_shared<Symbol>(as_function);
 			InsertResult insert_result = context->InsertSymbol(*GetName(),
 					symbol);
 			assert(insert_result == INSERT_SUCCESS);

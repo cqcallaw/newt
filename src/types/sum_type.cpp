@@ -86,7 +86,7 @@ const_shared_ptr<Result> SumType::Build(
 
 	auto parent = ExecutionContextList::From(output, output->GetParent());
 	auto tmp_context = make_shared<ExecutionContext>(Modifier::NONE, parent,
-			definition, EPHEMERAL, output->GetDepth() + 1);
+			definition, TEMPORARY, output->GetDepth() + 1);
 
 	auto constructors = make_shared<SymbolTable>();
 
