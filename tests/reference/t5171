@@ -1,0 +1,5 @@
+Parsing file ../tests/t5171.nwt...
+Semantic error on line 2, column 8: Invalid type "a".
+Semantic error on line 6, column 10: Undeclared variable 'c'
+Parsed file ../tests/t5171.nwt.
+2 errors found; giving up.
