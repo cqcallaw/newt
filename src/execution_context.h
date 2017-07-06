@@ -28,7 +28,7 @@
 class TypeTable;
 
 enum LifeTime {
-	PERSISTENT, EPHEMERAL
+	PERSISTENT, TEMPORARY, EPHEMERAL
 };
 
 #include <execution_context_list.h>

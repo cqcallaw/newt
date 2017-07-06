@@ -37,7 +37,8 @@
 const_shared_ptr<Function> Function::Build(const yy::location location,
 		FunctionVariantListRef variant_list,
 		const shared_ptr<ExecutionContext> closure) {
-	if (closure->GetLifeTime() == PERSISTENT || closure->GetLifeTime() == TEMPORARY) {
+	if (closure->GetLifeTime() == PERSISTENT
+			|| closure->GetLifeTime() == TEMPORARY) {
 		return make_shared<Function>(
 				Function(location, variant_list,
 						weak_ptr<ExecutionContext>(closure)));
@@ -112,8 +113,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 	auto parent_context = ExecutionContextList::From(invocation_context,
 			invocation_context->GetParent());
 
-	shared_ptr<ExecutionContext> function_execution_context = make_shared<
-			ExecutionContext>(Modifier::MUTABLE, parent_context,
+	auto function_execution_context = make_shared<ExecutionContext>(
+			Modifier::MUTABLE, parent_context,
 			closure_reference->GetTypeTable(), EPHEMERAL,
 			invocation_context->GetDepth() + 1);
 
@@ -319,7 +320,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 		}
 	}
 
-// default behavior: we have no result
+	// default behavior: we have no result
 	return make_shared<Result>(nullptr, errors);
 }
 

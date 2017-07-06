@@ -23,7 +23,8 @@
 shared_ptr<ExecutionContextList> ExecutionContextList::From(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContextList> context_parent) {
-	if (context->GetLifeTime() == PERSISTENT) {
+	if (context->GetLifeTime() == PERSISTENT
+			|| context->GetLifeTime() == TEMPORARY) {
 		weak_ptr<ExecutionContext> weak = context;
 		return shared_ptr<ExecutionContextList>(
 				new ExecutionContextList(weak, context_parent));
