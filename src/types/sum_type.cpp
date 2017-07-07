@@ -142,7 +142,7 @@ const_shared_ptr<Result> SumType::Build(
 			if (as_alias) {
 				auto alias_type_name = *as_alias->GetName();
 
-				if (alias_type_name.compare("nil") == 0
+				if (alias_type_name.compare(*TypeTable::GetNilName()) == 0
 						|| !definition->ContainsType(alias_type_name)) {
 					auto alias_type_specifier = as_alias->GetTypeSpecifier();
 
