@@ -1,0 +1,13 @@
+# test basic foreach
+list {
+	data:int,
+	next:(list?) -> list? = (l:list?) -> list? {
+		return nil
+	}
+}
+
+l:= @list with { data = 2 }
+
+for i in l {
+	print(i.data)
+}

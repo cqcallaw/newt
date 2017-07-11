@@ -1,0 +1,24 @@
+Parsing file ../tests/t9020.nwt...
+Parsed file ../tests/t9020.nwt.
+2
+1
+Root Symbol Table:
+----------------
+list l:
+	int data: 2
+	list? next:
+		{value}
+			int data: 1
+			list? next: {nil}
+
+
+
+Root Type Table:
+----------------
+list:
+	<record>
+	data:
+		int (0)
+	next:
+		list? ({nil})
+

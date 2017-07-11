@@ -1,0 +1,11 @@
+# test basic foreach
+list {
+	data:int,
+	next:list?
+}
+
+l:= @list with { data = 2, next = @list with { data = 1 } }
+
+for i in l {
+	print(i.data)
+}
