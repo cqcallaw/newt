@@ -77,7 +77,8 @@ const void TypeTable::print(ostream& os, const Indent& indent,
 
 	if (search_type == DEEP) {
 		if (auto parent = m_parent.lock()) {
-			parent->print(os, indent, search_type);
+			os << indent + 1 << "--> " <<  parent << endl;
+			parent->print(os, indent + 1, search_type);
 		}
 	}
 }
