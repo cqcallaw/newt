@@ -1,10 +1,10 @@
-# test instance method
+# test instance method without reference to instance
 a {
 	b:int,
 	c:= (v:a?) -> int {
 		match(v)
 			value {
-				return value.b
+				return 1
 			}
 			| nil {
 				return 0
@@ -12,5 +12,5 @@ a {
 	}
 }
 
-i := @a with { b = 3 }
-r := i.c(i)
+v:a = @a
+r:int = v.c(v)

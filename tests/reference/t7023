@@ -1,0 +1,19 @@
+Parsing file ../tests/t7023.nwt...
+Parsed file ../tests/t7023.nwt.
+Root Symbol Table:
+----------------
+a i:
+	(a?) -> int c:
+		Body Location: 3.32-8.3
+
+int r: 1
+
+Root Type Table:
+----------------
+a:
+	<record>
+	c:
+		(a?) -> int (
+			Body Location: 3.32-8.3
+		)
+

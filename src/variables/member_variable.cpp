@@ -378,10 +378,9 @@ const ErrorListRef MemberVariable::AssignValue(
 			shared_ptr<SymbolContext> definition =
 					struct_value->GetDefinition();
 
-			const auto new_parent_context = ExecutionContextList::From(context,
-					context->GetParent());
-			auto new_context = context->WithContents(definition);
-			new_context = new_context->WithParent(new_parent_context);
+			auto new_context = ExecutionContext::GetEmptyChild(context,
+					Modifier::Type::MUTABLE, TEMPORARY);
+			new_context = context->WithContents(definition);
 
 			const_shared_ptr<Variable> new_variable = GetMemberVariable();
 			errors = new_variable->AssignValue(new_context, closure, expression,

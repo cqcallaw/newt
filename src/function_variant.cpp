@@ -21,11 +21,13 @@
 #include <sstream>
 #include <function_declaration.h>
 #include <indent.h>
+#include <execution_context.h>
 
 FunctionVariant::FunctionVariant(const yy::location location,
 		const_shared_ptr<FunctionDeclaration> declaration,
 		const_shared_ptr<StatementBlock> body) :
-		m_location(location), m_declaration(declaration), m_body(body) {
+		m_location(location), m_declaration(declaration), m_body(body), m_context(
+				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)) {
 }
 
 FunctionVariant::~FunctionVariant() {
@@ -33,7 +35,7 @@ FunctionVariant::~FunctionVariant() {
 
 const string FunctionVariant::ToString(const Indent &indent) const {
 	ostringstream buffer;
-	buffer << indent << GetDeclaration()->ToString() << ":"<< endl;
+	buffer << indent << GetDeclaration()->ToString() << ":" << endl;
 	buffer << indent + 1 << "Location: ";
 	if (GetLocation() != GetDefaultLocation()) {
 		buffer << GetLocation();

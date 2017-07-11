@@ -49,6 +49,11 @@ public:
 			const ExecutionContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
 			size_t depth);
+	ExecutionContext(const shared_ptr<SymbolContext> existing,
+			const Modifier::Type modifiers,
+			const ExecutionContextListRef parent_context,
+			volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
+			size_t depth);
 	virtual ~ExecutionContext();
 
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
@@ -65,6 +70,10 @@ public:
 			const Modifier::Type modifiers, const LifeTime life_time,
 			volatile_shared_ptr<TypeTable> type_table,
 			const shared_ptr<symbol_map> map);
+
+	static const shared_ptr<ExecutionContext> GetRuntimeInstance(
+			const shared_ptr<ExecutionContext> source,
+			const shared_ptr<ExecutionContext> parent);
 
 	const shared_ptr<ExecutionContext> WithContents(
 			const shared_ptr<SymbolContext> contents) const;

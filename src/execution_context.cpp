@@ -42,6 +42,16 @@ ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> existing,
 				plain_shared_ptr<int>(nullptr), life_time, 0) {
 }
 
+ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> existing,
+		const Modifier::Type modifiers,
+		const ExecutionContextListRef parent_context,
+		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
+		size_t depth) :
+		ExecutionContext(existing, parent_context, type_table,
+				Symbol::GetDefaultSymbol(), plain_shared_ptr<int>(nullptr),
+				life_time, depth) {
+}
+
 ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
 		const ExecutionContextListRef parent_context,
 		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
@@ -57,6 +67,7 @@ const_shared_ptr<Symbol> ExecutionContext::GetSymbol(const string& identifier,
 
 	if (result == Symbol::GetDefaultSymbol() && m_parent
 			&& search_type == DEEP) {
+		assert(m_parent->GetData());
 		return m_parent->GetData()->GetSymbol(identifier, search_type);
 	} else {
 		return result;
@@ -105,10 +116,32 @@ const shared_ptr<ExecutionContext> ExecutionContext::WithParent(
 		const ExecutionContextListRef parent_context, bool modify_depth) const {
 	return shared_ptr<ExecutionContext>(
 			new ExecutionContext(GetModifiers(), GetTable(), parent_context,
-					m_type_table, m_return_value, m_exit_code, m_life_time,
+					m_type_table->WithParent(
+							parent_context->GetData()->GetTypeTable()),
+					m_return_value, m_exit_code, m_life_time,
 					modify_depth && parent_context ?
 							parent_context->GetData()->GetDepth() + 1 :
 							GetDepth()));
+}
+
+const shared_ptr<ExecutionContext> ExecutionContext::GetRuntimeInstance(
+		const shared_ptr<ExecutionContext> source,
+		const shared_ptr<ExecutionContext> parent) {
+	ExecutionContextListRef new_parent;
+	volatile_shared_ptr<TypeTable> new_type_table = source->GetTypeTable();
+	if (parent) {
+		auto parent_context = ExecutionContextList::From(parent,
+				parent->GetParent());
+
+		new_parent = ExecutionContextList::From(parent, parent->GetParent());
+		new_type_table = new_type_table->WithParent(parent->GetTypeTable());
+	}
+
+	auto execution_context = make_shared<ExecutionContext>(source->Clone(),
+			Modifier::MUTABLE, new_parent, new_type_table, TEMPORARY,
+			parent->GetDepth() + 1);
+
+	return execution_context;
 }
 
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> context,
@@ -120,6 +153,9 @@ ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> context,
 				type_table), m_return_value(return_value), m_exit_code(
 				exit_code), m_life_time(life_time), m_depth(depth) {
 	assert(m_type_table);
+	if (m_parent && m_parent->GetData()) {
+		assert(m_type_table != m_parent->GetData()->GetTypeTable());
+	}
 }
 
 ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
@@ -132,6 +168,9 @@ ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
 				type_table), m_return_value(return_value), m_exit_code(
 				exit_code), m_life_time(life_time), m_depth(depth) {
 	assert(m_type_table);
+	if (m_parent && m_parent->GetData()) {
+		assert(m_type_table != m_parent->GetData()->GetTypeTable());
+	}
 }
 
 ExecutionContext::~ExecutionContext() {
@@ -185,3 +224,4 @@ const shared_ptr<ExecutionContext> ExecutionContext::GetEmptyChild(
 					Symbol::GetDefaultSymbol(), plain_shared_ptr<int>(nullptr),
 					life_time, parent->GetDepth() + 1));
 }
+

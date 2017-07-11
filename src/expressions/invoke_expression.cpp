@@ -137,8 +137,8 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 
 		if (function) {
 			if (ErrorList::IsTerminator(errors)) {
-				const_shared_ptr<Result> eval_result = function->Evaluate(
-						m_argument_list, m_argument_list_location, context);
+				auto eval_result = function->Evaluate(m_argument_list,
+						m_argument_list_location, context);
 
 				errors = eval_result->GetErrors();
 				if (ErrorList::IsTerminator(errors)) {
@@ -151,7 +151,6 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 							GetLocation().begin.line,
 							GetLocation().begin.column), errors);
 		}
-
 	}
 
 	return make_shared<Result>(value, errors);
@@ -258,13 +257,8 @@ const ErrorListRef InvokeExpression::Validate(
 
 			if (is_function) {
 				//generate a temporary context for validation
-				auto new_parent = ExecutionContextList::From(execution_context,
-						execution_context->GetParent());
-				shared_ptr<ExecutionContext> tmp_context = make_shared<
-						ExecutionContext>(Modifier::Type::NONE, new_parent,
-						execution_context->GetTypeTable(),
-						execution_context->GetLifeTime(),
-						execution_context->GetDepth() + 1);
+				auto tmp_context = ExecutionContext::GetEmptyChild(
+						execution_context, Modifier::Type::NONE, TEMPORARY);
 
 				auto argument_subject = m_argument_list;
 				auto parameter_subject = parameter_list;

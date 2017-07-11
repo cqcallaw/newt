@@ -66,12 +66,14 @@ public:
 private:
 	ExecutionContextList(const shared_ptr<ExecutionContext> data) :
 			ExecutionContextList(data, GetTerminator()) {
+		assert(data);
 	}
 
 	ExecutionContextList(const shared_ptr<ExecutionContext> data,
 			const shared_ptr<ExecutionContextList> next) :
 			m_data(data), m_weak_data(shared_ptr<ExecutionContext>(nullptr)), m_next(
 					next) {
+		assert(data);
 		if (m_next) {
 			assert(m_data != m_next->GetData());
 		}

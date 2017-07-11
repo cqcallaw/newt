@@ -54,6 +54,7 @@
 #include <unit_type.h>
 
 #include <maybe_type_specifier.h>
+#include <function_expression.h>
 
 const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
@@ -88,7 +89,7 @@ const_shared_ptr<Result> SumType::Build(
 	auto tmp_context = make_shared<ExecutionContext>(Modifier::NONE, parent,
 			definition, TEMPORARY, output->GetDepth() + 1);
 
-	auto constructors = make_shared<SymbolTable>();
+	auto constructors = make_shared<ExecutionContext>(Modifier::Type::MUTABLE);
 
 	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
@@ -193,19 +194,45 @@ const_shared_ptr<Result> SumType::Build(
 								GetDefaultLocation(), function_signature,
 								statement_block, weak);
 
-						auto symbol = make_shared<Symbol>(function);
-						auto insert_result = constructors->InsertSymbol(
-								*variant_name, symbol);
-						//this should never happen because we already have an existence check on the variant type table,
-						//but it never hurts to be safe
-						if (insert_result == SYMBOL_EXISTS) {
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::PREVIOUS_DECLARATION,
-													as_alias->GetLocation().begin.line,
-													as_alias->GetLocation().begin.column,
-													*variant_name), errors);
+						auto variant_context =
+								function->GetVariantList()->GetData()->GetContext();
+
+						auto parameter_preprocess_result =
+								parameter_declaration->Preprocess(
+										variant_context, closure,
+										sum_type_specifier);
+						auto parameter_preprocess_errors =
+								parameter_preprocess_result.GetErrors();
+						if (ErrorList::IsTerminator(
+								parameter_preprocess_errors)) {
+							auto parameter_execute_errors =
+									parameter_declaration->Execute(
+											variant_context, closure);
+							if (ErrorList::IsTerminator(
+									parameter_execute_errors)) {
+								auto symbol = make_shared<Symbol>(function);
+								auto insert_result = constructors->InsertSymbol(
+										*variant_name, symbol);
+								// this should never happen because we already have an existence check on the variant type table,
+								// but it never hurts to be safe
+								if (insert_result == SYMBOL_EXISTS) {
+									errors =
+											ErrorList::From(
+													make_shared<Error>(
+															Error::SEMANTIC,
+															Error::PREVIOUS_DECLARATION,
+															as_alias->GetLocation().begin.line,
+															as_alias->GetLocation().begin.column,
+															*variant_name),
+													errors);
+								}
+							} else {
+								errors = ErrorList::Concatenate(errors,
+										parameter_execute_errors);
+							}
+						} else {
+							errors = ErrorList::Concatenate(errors,
+									parameter_preprocess_errors);
 						}
 					}
 

@@ -119,7 +119,6 @@ const PreprocessResult MatchStatement::Preprocess(
 									auto matched_context =
 											match_context->GetData();
 									assert(matched_context);
-									matched_context->LinkToParent(context);
 
 									plain_shared_ptr<TypeSpecifier> variant_type_specifier;
 									auto as_alias = dynamic_pointer_cast<
@@ -147,6 +146,7 @@ const PreprocessResult MatchStatement::Preprocess(
 									matched_context->InsertSymbol(*alias_name,
 											default_symbol);
 
+									matched_context->LinkToParent(context);
 									auto match_preprocess_result =
 											match_body->Preprocess(
 													matched_context,
@@ -303,10 +303,10 @@ const ErrorListRef MatchStatement::Execute(
 					shared_ptr<ExecutionContext> default_match_context = nullptr;
 
 					bool matched = false;
-					auto match_list = m_match_list;
+					auto match_list_subject = m_match_list;
 					auto match_context = m_match_contexts;
-					while (!MatchList::IsTerminator(match_list)) {
-						auto match = match_list->GetData();
+					while (!MatchList::IsTerminator(match_list_subject)) {
+						auto match = match_list_subject->GetData();
 						auto match_name = *match->GetName();
 						auto match_body = match->GetBlock();
 
@@ -318,13 +318,10 @@ const ErrorListRef MatchStatement::Execute(
 											RETURN);
 							if (variant_type) {
 								auto matched_context = match_context->GetData();
-								auto matched_parent =
-										matched_context->GetParent()->GetData();
 
-								assert(matched_parent == context);
-								assert(
-										matched_parent->GetTypeTable()
-												== context->GetTypeTable());
+								auto execution_context =
+										ExecutionContext::GetRuntimeInstance(
+												matched_context, context);
 
 								plain_shared_ptr<TypeSpecifier> variant_type_specifier;
 								auto as_alias = dynamic_pointer_cast<
@@ -341,19 +338,25 @@ const ErrorListRef MatchStatement::Execute(
 								}
 
 								auto alias_name = *(match->GetAlias());
-								auto set_result = matched_context->SetSymbol(
+								auto set_result = execution_context->SetSymbol(
 										alias_name, variant_type_specifier,
 										as_sum->GetValue(),
 										context->GetTypeTable());
 								assert(set_result == SET_SUCCESS);
 
 								auto block_errors = match_body->Execute(
-										matched_context);
+										execution_context);
 								context->SetReturnValue(
-										matched_context->GetReturnValue());
+										execution_context->GetReturnValue());
 
 								errors = ErrorList::Concatenate(errors,
 										block_errors);
+
+								// unset symbol so we don't get reference loops if the match context is part of a recursive definition
+								set_result = matched_context->SetSymbol(
+										alias_name, variant_type_specifier,
+										nullptr, context->GetTypeTable());
+								assert(set_result == SET_SUCCESS);
 							} else {
 								errors =
 										ErrorList::From(
@@ -370,28 +373,25 @@ const ErrorListRef MatchStatement::Execute(
 							break;
 						} else if (match_name == *Match::DEFAULT_MATCH_NAME) {
 							auto matched_context = match_context->GetData();
-							auto matched_parent =
-									matched_context->GetParent()->GetData();
-
-							assert(matched_parent == context);
-							assert(
-									matched_parent->GetTypeTable()
-											== context->GetTypeTable());
 
 							default_match_context = matched_context;
 							default_match_block = match_body;
 						}
 
 						match_context = match_context->GetNext();
-						match_list = match_list->GetNext();
+						match_list_subject = match_list_subject->GetNext();
 					}
 
 					if (!matched) {
 						if (default_match_block) {
+							auto execution_context =
+									ExecutionContext::GetRuntimeInstance(
+											default_match_context, context);
+
 							auto block_errors = default_match_block->Execute(
-									default_match_context);
+									execution_context);
 							context->SetReturnValue(
-									default_match_context->GetReturnValue());
+									execution_context->GetReturnValue());
 
 							errors = ErrorList::Concatenate(errors,
 									block_errors);
@@ -419,7 +419,6 @@ const ErrorListRef MatchStatement::Execute(
 	}
 
 	return errors;
-	//return ErrorList::GetTerminator();
 }
 
 const MatchContextListRef MatchStatement::GenerateMatchContexts(

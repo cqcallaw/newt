@@ -1,0 +1,13 @@
+# test instance method with if statement
+a {
+	c:(a?) -> int= (v:a?) -> int {
+		if (2 < 1) {
+			return 0
+		} else {
+			return 1
+		}
+	}
+}
+
+i:a = @a
+r:int = i.c(i)

@@ -7,7 +7,7 @@ a i:
 	(a?) -> int c:
 		Body Location: 4.21-11.4
 
-int r2: 3
+int r: 3
 
 Root Type Table:
 ----------------

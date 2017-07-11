@@ -2,11 +2,11 @@ Parsing file ../tests/t7022.nwt...
 Parsed file ../tests/t7022.nwt.
 Root Symbol Table:
 ----------------
+int r: 1
 a v:
-	b b:
-		a.b? c: {empty}
-		int d: 3
-
+	int b: 0
+	(a?) -> int c:
+		Body Location: 4.21-11.4
 
 
 Root Type Table:
@@ -14,10 +14,9 @@ Root Type Table:
 a:
 	<record>
 	b:
-		<record>
-		c:
-			a.b? ({empty})
-		d:
-			int (0)
-
+		int (0)
+	c:
+		(a?) -> int (
+			Body Location: 4.21-11.4
+		)
 

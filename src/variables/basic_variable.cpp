@@ -60,7 +60,7 @@ TypedResult<TypeSpecifier> BasicVariable::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> context,
 		AliasResolution resolution) const {
 	auto symbol = context->GetSymbol(GetName(), DEEP);
-	if (symbol) {
+	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		return TypedResult<TypeSpecifier>(symbol->GetTypeSpecifier());
 	} else {
 		return TypedResult<TypeSpecifier>(nullptr,
@@ -113,10 +113,11 @@ const ErrorListRef BasicVariable::AssignValue(
 	const int variable_line = GetLocation().begin.line;
 	const int variable_column = GetLocation().begin.column;
 
-	const_shared_ptr<Symbol> symbol = output_context->GetSymbol(variable_name,
-			DEEP);
-	const_shared_ptr<TypeSpecifier> symbol_type_specifier =
-			symbol->GetTypeSpecifier();
+	auto symbol = output_context->GetSymbol(variable_name, DEEP);
+
+	assert(symbol != Symbol::GetDefaultSymbol());
+
+	auto symbol_type_specifier = symbol->GetTypeSpecifier();
 
 	auto symbol_type_result = symbol_type_specifier->GetType(
 			output_context->GetTypeTable(), RESOLVE);

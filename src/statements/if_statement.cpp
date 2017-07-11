@@ -110,25 +110,24 @@ const PreprocessResult IfStatement::Preprocess(
 const ErrorListRef IfStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	auto errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<Result> evaluation = m_expression->Evaluate(context,
-			closure);
+	auto evaluation = m_expression->Evaluate(context, closure);
 	// NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *(evaluation->GetData<bool>());
 
 	if (test) {
-		assert(m_block_context->GetParent());
-		assert(m_block_context->GetParent()->GetData() == context);
+		auto execution_context = ExecutionContext::GetRuntimeInstance(
+				m_block_context, context);
 
-		errors = m_block->Execute(m_block_context, closure);
-		context->SetReturnValue(m_block_context->GetReturnValue());
+		errors = m_block->Execute(execution_context, closure);
+		context->SetReturnValue(execution_context->GetReturnValue());
 	} else if (m_else_block) {
-		assert(m_else_block_context->GetParent());
-		assert(m_else_block_context->GetParent()->GetData() == context);
+		auto execution_context = ExecutionContext::GetRuntimeInstance(
+				m_block_context, context);
 
-		errors = m_else_block->Execute(m_else_block_context, closure);
-		context->SetReturnValue(m_else_block_context->GetReturnValue());
+		errors = m_else_block->Execute(execution_context, closure);
+		context->SetReturnValue(execution_context->GetReturnValue());
 	}
 
 	return errors;

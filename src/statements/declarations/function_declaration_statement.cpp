@@ -65,7 +65,7 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	auto type_table = context->GetTypeTable();
+	auto type_table = closure->GetTypeTable();
 	auto errors = ErrorList::GetTerminator();
 
 	auto existing = context->GetSymbol(GetName(), SHALLOW);
@@ -135,19 +135,20 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 						// insert default value to enable validation of recursive invocations
 						// we create this default value in a validation context to avoid polluting the real name space
 						// the validation context is "TEMPORARY" so that strong references aren't made to it
-						auto validation_context = context->GetEmptyChild(
-								context, Modifier::Type::MUTABLE, TEMPORARY);
+						auto validation_context =
+								ExecutionContext::GetEmptyChild(closure,
+										Modifier::Type::MUTABLE, TEMPORARY);
 						auto value = m_type_specifier->DefaultValue(
 								*type_table);
 						auto symbol = make_shared<Symbol>(
 								static_pointer_cast<const Function>(value));
-						InsertResult insert_result =
-								validation_context->InsertSymbol(*GetName(),
-										symbol);
+						auto insert_result = validation_context->InsertSymbol(
+								*GetName(), symbol);
 						assert(insert_result == INSERT_SUCCESS);
 
 						errors = GetInitializerExpression()->Validate(
 								validation_context);
+
 						if (ErrorList::IsTerminator(errors)) {
 							auto assignment_analysis =
 									expression_type_specifier->AnalyzeAssignmentTo(
@@ -159,7 +160,7 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 												symbol);
 								assert(insert_result == INSERT_SUCCESS);
 							} else {
-								//TODO: consider widening conversions
+								// TODO: consider widening conversions
 								errors =
 										ErrorList::From(
 												make_shared<Error>(
@@ -186,14 +187,28 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 				// no initializer; initialize to default value
 				auto value = m_type_specifier->DefaultValue(*type_table);
 				auto as_function = static_pointer_cast<const Function>(value);
-				// juggle closure references so we have some valid closure with which to work
-				as_function = Function::Build(as_function->GetLocation(),
-						as_function->GetVariantList(), closure);
 
-				auto symbol = make_shared<Symbol>(as_function);
-				InsertResult insert_result = context->InsertSymbol(*GetName(),
-						symbol);
-				assert(insert_result == INSERT_SUCCESS);
+				// fake a function expression so the default function goes through our full setup process
+				auto expression = make_shared<FunctionExpression>(
+						GetDefaultLocation(), as_function->GetVariantList());
+				auto validation_errors = expression->Validate(closure); // mostly want the side-effects (e.g. variant context setup) here
+
+				if (ErrorList::IsTerminator(validation_errors)) {
+					auto eval = expression->Evaluate(context, closure);
+					auto eval_errors = eval->GetErrors();
+					if (ErrorList::IsTerminator(eval_errors)) {
+						as_function = eval->GetData<Function>();
+						auto symbol = make_shared<Symbol>(as_function);
+						InsertResult insert_result = context->InsertSymbol(
+								*GetName(), symbol);
+						assert(insert_result == INSERT_SUCCESS);
+
+					} else {
+						errors = ErrorList::Concatenate(errors, eval_errors);
+					}
+				} else {
+					errors = ErrorList::Concatenate(errors, validation_errors);
+				}
 			}
 		}
 	} else {

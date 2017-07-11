@@ -68,15 +68,15 @@ const ErrorListRef FunctionExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	//generate a temporary context for validation
-	auto new_parent = ExecutionContextList::From(execution_context,
-			execution_context->GetParent());
-
 	auto subject = m_variant_list;
 	while (!FunctionVariantList::IsTerminator(subject)) {
 		auto variant = subject->GetData();
 		auto declaration = variant->GetDeclaration();
 		auto body = variant->GetBody();
+
+		auto variant_context = variant->GetContext();
+		variant_context->LinkToParent(execution_context);
+
 
 		// check that this variant doesn't conflict with any subsequent definitions
 		// for this, we assume the function variants are in order
@@ -104,12 +104,6 @@ const ErrorListRef FunctionExpression::Validate(
 
 			duplication_subject = duplication_subject->GetNext();
 		}
-
-		auto variant_context = make_shared<ExecutionContext>(
-				Modifier::Type::MUTABLE, new_parent,
-				execution_context->GetTypeTable(),
-				execution_context->GetLifeTime(),
-				execution_context->GetDepth() + 1);
 
 		DeclarationListRef parameter_subject = declaration->GetParameterList();
 		while (!DeclarationList::IsTerminator(parameter_subject)) {

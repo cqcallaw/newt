@@ -109,10 +109,11 @@ const PreprocessResult ForeachStatement::Preprocess(
 											expression_type_specifier,
 											context->GetTypeTable());
 							if (maybe_type_relation == EQUIVALENT) {
-								const_shared_ptr<void> default_value =
+								auto default_value =
 										expression_type->GetDefaultValue(
 												*type_table);
-								const_shared_ptr<Symbol> default_symbol =
+
+								auto default_symbol =
 										expression_type->GetSymbol(
 												context->GetTypeTable(),
 												expression_type_specifier,
@@ -179,8 +180,8 @@ const PreprocessResult ForeachStatement::Preprocess(
 const ErrorListRef ForeachStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	assert(m_block_context->GetParent());
-	assert(m_block_context->GetParent()->GetData() == context);
+	auto execution_context = ExecutionContext::GetRuntimeInstance(
+			m_block_context, context);
 
 	auto errors = ErrorList::GetTerminator();
 
@@ -206,15 +207,15 @@ const ErrorListRef ForeachStatement::Execute(
 				auto record = static_pointer_cast<const Record>(raw_value);
 				assert(record);
 				auto symbol = make_shared<const Symbol>(as_complex, record);
-				auto set_result = m_block_context->SetSymbol(
+				auto set_result = execution_context->SetSymbol(
 						*m_evaluation_identifier, as_complex, record,
 						context->GetTypeTable());
 				assert(set_result == SET_SUCCESS);
 
 				auto execution_errors = m_statement_block->Execute(
-						m_block_context);
+						execution_context);
 				errors = ErrorList::Concatenate(errors, execution_errors);
-				context->SetReturnValue(m_block_context->GetReturnValue());
+				context->SetReturnValue(execution_context->GetReturnValue());
 
 				auto definition = record->GetDefinition();
 				auto next_member = definition->GetSymbol(
@@ -233,10 +234,11 @@ const ErrorListRef ForeachStatement::Execute(
 							next_function->GetTypeSpecifier();
 					auto as_function_declaration = dynamic_pointer_cast<
 							const FunctionDeclaration>(function_type_specifier);
-					assert(as_function_declaration);
+					assert(as_function_declaration); // N.B. that this asserts that we have a single-variant function
 
 					auto invocation_context = ExecutionContext::GetEmptyChild(
-							closure, Modifier::Type::MUTABLE, EPHEMERAL);
+							execution_context, Modifier::Type::MUTABLE,
+							EPHEMERAL);
 
 					auto parameter_list =
 							as_function_declaration->GetParameterList();
@@ -259,14 +261,17 @@ const ErrorListRef ForeachStatement::Execute(
 											TypeDefinition>();
 
 							// set symbol
+							auto maybe_wrapper = make_shared<Sum>(
+									MaybeTypeSpecifier::VARIANT_NAME,
+									raw_value);
 							auto symbol = declaration_type->GetSymbol(
 									closure->GetTypeTable(),
-									declaration_type_specifier, raw_value);
+									declaration_type_specifier, maybe_wrapper);
 							auto insert_result =
 									invocation_context->InsertSymbol(
 											*parameter_declaration->GetName(),
 											symbol);
-							assert(insert_result = INSERT_SUCCESS);
+							assert(insert_result == INSERT_SUCCESS);
 
 							// generate argument list
 							auto argument_variable = make_shared<

@@ -108,51 +108,50 @@ const PreprocessResult ForStatement::Preprocess(
 const ErrorListRef ForStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef initialization_errors;
-
-	assert(m_block_context->GetParent());
-	assert(m_block_context->GetParent()->GetData() == context);
+	auto execution_context = ExecutionContext::GetRuntimeInstance(
+			m_block_context, context);
 
 	if (m_initial) {
-		initialization_errors = m_initial->Execute(m_block_context,
-				m_block_context);
+		auto initialization_errors = m_initial->Execute(execution_context,
+				closure);
 		if (!ErrorList::IsTerminator(initialization_errors)) {
 			return initialization_errors;
 		}
 	}
-	plain_shared_ptr<Result> evaluation = m_loop_expression->Evaluate(
-			m_block_context, closure);
 
-	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
+	auto evaluation = m_loop_expression->Evaluate(execution_context, closure);
+	auto errors = evaluation->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		while (*(evaluation->GetData<bool>())) {
+			ErrorListRef iteration_errors = ErrorList::GetTerminator();
+			if (m_statement_block) {
+				iteration_errors = m_statement_block->Execute(
+						execution_context);
+				context->SetReturnValue(execution_context->GetReturnValue());
+			}
+			if (!ErrorList::IsTerminator(iteration_errors)) {
+				errors = iteration_errors;
+				break;
+			}
 
-		return evaluation->GetErrors();
+			auto assignment_errors = m_loop_assignment->Execute(
+					execution_context, execution_context);
+			if (!ErrorList::IsTerminator(assignment_errors)) {
+				errors = iteration_errors;
+				break;
+			}
+
+			evaluation = m_loop_expression->Evaluate(execution_context,
+					closure);
+			errors = evaluation->GetErrors();
+			if (!ErrorList::IsTerminator(errors)) {
+				errors = iteration_errors;
+				break;
+			}
+		}
 	}
 
-	while (*(evaluation->GetData<bool>())) {
-		ErrorListRef iteration_errors = ErrorList::GetTerminator();
-		if (m_statement_block) {
-			iteration_errors = m_statement_block->Execute(m_block_context);
-			context->SetReturnValue(m_block_context->GetReturnValue());
-		}
-		if (!ErrorList::IsTerminator(iteration_errors)) {
-			return iteration_errors;
-		}
-
-		ErrorListRef assignment_errors;
-		assignment_errors = m_loop_assignment->Execute(m_block_context,
-				m_block_context);
-		if (!ErrorList::IsTerminator(assignment_errors)) {
-			return assignment_errors;
-		}
-
-		evaluation = m_loop_expression->Evaluate(m_block_context, closure);
-
-		if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
-			return evaluation->GetErrors();
-		}
-	}
-
-	return ErrorList::GetTerminator();
+	return errors;
 }
 
 ForStatement::ForStatement(const_shared_ptr<Statement> initial,

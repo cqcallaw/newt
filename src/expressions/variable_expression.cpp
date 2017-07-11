@@ -41,6 +41,8 @@ TypedResult<TypeSpecifier> VariableExpression::GetTypeSpecifier(
 const_shared_ptr<Result> VariableExpression::Evaluate(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
+	// it is somewhat astonishing that the lookup doesn't search the closure context,
+	// but the best way semantics of multi-context require further thought
 	return m_variable->Evaluate(context);
 }
 
