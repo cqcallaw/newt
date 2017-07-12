@@ -56,51 +56,55 @@ const PreprocessResult IfStatement::Preprocess(
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto expression_type_specifier =
-				expression_type_specifier_result.GetData();
-		auto expression_analysis =
-				expression_type_specifier->AnalyzeAssignmentTo(
-						PrimitiveTypeSpecifier::GetInt(),
-						context->GetTypeTable());
-		if (expression_analysis == EQUIVALENT
-				|| expression_analysis == UNAMBIGUOUS) {
+		errors = m_expression->Validate(context);
+		if (ErrorList::IsTerminator(errors)) {
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
+			auto expression_analysis =
+					expression_type_specifier->AnalyzeAssignmentTo(
+							PrimitiveTypeSpecifier::GetInt(),
+							context->GetTypeTable());
+			if (expression_analysis == EQUIVALENT
+					|| expression_analysis == UNAMBIGUOUS) {
 
-			// the preprocessed statement block context must persist, as it will contain initialized variables, etc.
-			// thus we have the context member variables, but these cannot be linked to a context until preprocessing begins
-			// N.B. that this linkage setup introduces a dependency between preprocess and execute stages
-			m_block_context->LinkToParent(context);
+				// the preprocessed statement block context must persist, as it will contain initialized variables, etc.
+				// thus we have the context member variables, but these cannot be linked to a context until preprocessing begins
+				// N.B. that this linkage setup introduces a dependency between preprocess and execute stages
+				m_block_context->LinkToParent(context);
 
-			auto block_result = m_block->Preprocess(m_block_context,
-					return_type_specifier);
-			auto block_return_coverage = block_result.GetReturnCoverage();
-
-			return_coverage = ReturnStatement::CoverageTransition(
-					return_coverage, block_return_coverage, true);
-			errors = block_result.GetErrors();
-			if (m_else_block) {
-				//pre-process else block
-				m_else_block_context->LinkToParent(context);
-
-				auto else_block_result = m_else_block->Preprocess(
-						m_else_block_context, closure, return_type_specifier);
-				auto else_block_return_coverage =
-						else_block_result.GetReturnCoverage();
-				errors = ErrorList::Concatenate(errors,
-						else_block_result.GetErrors());
+				auto block_result = m_block->Preprocess(m_block_context,
+						return_type_specifier);
+				auto block_return_coverage = block_result.GetReturnCoverage();
 
 				return_coverage = ReturnStatement::CoverageTransition(
-						return_coverage, else_block_return_coverage, false);
+						return_coverage, block_return_coverage, true);
+				errors = block_result.GetErrors();
+				if (m_else_block) {
+					//pre-process else block
+					m_else_block_context->LinkToParent(context);
+
+					auto else_block_result = m_else_block->Preprocess(
+							m_else_block_context, closure,
+							return_type_specifier);
+					auto else_block_return_coverage =
+							else_block_result.GetReturnCoverage();
+					errors = ErrorList::Concatenate(errors,
+							else_block_result.GetErrors());
+
+					return_coverage = ReturnStatement::CoverageTransition(
+							return_coverage, else_block_return_coverage, false);
+				} else {
+					// an "if" block on its own can only provide partial coverage
+					return_coverage = PreprocessResult::ReturnCoverage::PARTIAL;
+				}
 			} else {
-				// an "if" block on its own can only provide partial coverage
-				return_coverage = PreprocessResult::ReturnCoverage::PARTIAL;
+				yy::location position = m_expression->GetLocation();
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
+								position.begin.line, position.begin.column),
+						errors);
 			}
-		} else {
-			yy::location position = m_expression->GetLocation();
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
-							position.begin.line, position.begin.column),
-					errors);
 		}
 	}
 
