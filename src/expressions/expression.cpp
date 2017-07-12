@@ -23,9 +23,7 @@
 #include "variable.h"
 #include "utils.h"
 #include <execution_context.h>
-#include <record.h>
 #include <primitive_type.h>
-#include <record_type.h>
 
 Expression::Expression(const yy::location location) :
 		m_location(location) {
@@ -50,17 +48,6 @@ TypedResult<string> Expression::ToString(
 			auto type_result = type_specifier->GetType(
 					execution_context->GetTypeTable(),
 					AliasResolution::RESOLVE);
-
-//		//TODO: replace this type switching logic with calls to TypeDefinition::ValueToString()
-//		auto type_table = execution_context->GetTypeTable();
-//		auto type = type_specifier->GetType(type_table);
-//		if (type) {
-//			buffer
-//					<< type->ValueToString(execution_context->GetTypeTable(),
-//							Indent(0), evaluation->GetRawData());
-//		} else {
-//			assert(false);
-//		}
 
 			errors = type_result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
@@ -89,21 +76,11 @@ TypedResult<string> Expression::ToString(
 					default:
 						assert(false);
 					}
-				}
-
-				//TODO: array printing
-
-				auto as_record = std::dynamic_pointer_cast<const RecordType>(
-						type);
-				if (as_record) {
-					auto instance = evaluation->GetData<Record>();
-
-					buffer << "{" << endl;
+				} else {
 					buffer
-							<< instance->ToString(
-									*execution_context->GetTypeTable(),
-									Indent(1));
-					buffer << "}" << endl;
+							<< type->ValueToString(
+									execution_context->GetTypeTable(),
+									Indent(0), evaluation->GetRawData());
 				}
 			}
 		}
