@@ -1,0 +1,19 @@
+# test basic foreach
+list {
+	data:int,
+	next:list?
+}
+
+l:= @list with { data = 2, next = @list with { data = 1 } }
+
+fn:= ()-> int {
+	for i in l {
+		if(i.data == 1) {
+			return 1
+		}
+	}
+	
+	return 0
+}
+
+r := fn()

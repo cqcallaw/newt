@@ -1,0 +1,25 @@
+Parsing file ../tests/t9030.nwt...
+Parsed file ../tests/t9030.nwt.
+Root Symbol Table:
+----------------
+() -> int fn:
+	Body Location: 9.16-16.9
+list l:
+	int data: 2
+	list? next:
+		{value}
+			int data: 1
+			list? next: {nil}
+
+
+int r: 1
+
+Root Type Table:
+----------------
+list:
+	<record>
+	data:
+		int (0)
+	next:
+		list? ({nil})
+
