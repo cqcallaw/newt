@@ -127,7 +127,12 @@ const ErrorListRef ForStatement::Execute(
 			if (m_statement_block) {
 				iteration_errors = m_statement_block->Execute(
 						execution_context);
-				context->SetReturnValue(execution_context->GetReturnValue());
+				auto return_value = execution_context->GetReturnValue();
+				if (return_value != Symbol::GetDefaultSymbol()) {
+					context->SetReturnValue(
+							execution_context->GetReturnValue());
+					break;
+				}
 			}
 			if (!ErrorList::IsTerminator(iteration_errors)) {
 				errors = iteration_errors;

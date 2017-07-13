@@ -1,0 +1,12 @@
+fn := () -> int {
+	for(i:int = 0; i < 10; i += 1) {
+		print("i: " + i)
+		if (i == 3) {
+			return i
+		}
+	}
+	
+	return 0
+}
+
+r := fn()

@@ -8,8 +8,9 @@ l:= @list with { data = 2, next = @list with { data = 1 } }
 
 fn:= ()-> int {
 	for i in l {
-		if(i.data == 1) {
-			return 1
+		print("i: " + i.data)
+		if(i.data == 2) {
+			return i.data
 		}
 	}
 	

@@ -1,9 +1,10 @@
 Parsing file ../tests/t9030.nwt...
 Parsed file ../tests/t9030.nwt.
+i: 2
 Root Symbol Table:
 ----------------
 () -> int fn:
-	Body Location: 9.16-16.9
+	Body Location: 9.16-17.9
 list l:
 	int data: 2
 	list? next:
@@ -12,7 +13,7 @@ list l:
 			list? next: {nil}
 
 
-int r: 1
+int r: 2
 
 Root Type Table:
 ----------------
