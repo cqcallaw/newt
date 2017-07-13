@@ -1,4 +1,4 @@
-# test basic foreach
+# test basic foreach with return
 list {
 	data:int,
 	next:list?
