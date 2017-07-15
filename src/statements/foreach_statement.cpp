@@ -215,8 +215,12 @@ const ErrorListRef ForeachStatement::Execute(
 				auto execution_errors = m_statement_block->Execute(
 						execution_context);
 				errors = ErrorList::Concatenate(errors, execution_errors);
-				context->SetReturnValue(execution_context->GetReturnValue());
-
+				auto return_value = execution_context->GetReturnValue();
+				if (return_value != Symbol::GetDefaultSymbol()) {
+					context->SetReturnValue(
+							execution_context->GetReturnValue());
+					break;
+				}
 				auto definition = record->GetDefinition();
 				auto next_member = definition->GetSymbol(
 						ForeachStatement::NEXT_NAME);
