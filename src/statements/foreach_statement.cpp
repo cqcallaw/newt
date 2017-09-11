@@ -152,7 +152,7 @@ const PreprocessResult ForeachStatement::Preprocess(
 				} else {
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
-									Error::FOREACH_STMT_SOURCE_MUST_BE_RECORD,
+									Error::STMT_SOURCE_MUST_BE_RECORD,
 									m_expression->GetLocation().begin.line,
 									m_expression->GetLocation().begin.column),
 							errors);

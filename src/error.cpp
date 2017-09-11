@@ -233,17 +233,19 @@ const string Error::get_error_message() const {
 		os
 				<< "Control reaches end of non-void function without complete return coverage.";
 		break;
-	case FOREACH_STMT_SOURCE_MUST_BE_RECORD:
-		os << "Foreach statement source must be of a record type.";
+	case STMT_SOURCE_MUST_BE_RECORD:
+		os << "Statement source must be of a record type.";
 		break;
 	case FOREACH_STMT_REQUIRES_NEXT:
 		os << "Foreach statement source must have a member named 'next'.";
 		break;
 	case FOREACH_NEXT_MUST_BE_MAYBE:
-		os << "Foreach statement source's 'next' member type must evaluate to a Maybe type.";
+		os
+				<< "Foreach statement source's 'next' member type must evaluate to a Maybe type.";
 		break;
 	case FOREACH_NEXT_MUST_EVALUATE_TO_BASE_TYPE:
-		os << "Foreach statement source's 'next' member type's base type must be the source type.";
+		os
+				<< "Foreach statement source's 'next' member type's base type must be the source type.";
 		break;
 	default:
 		os << "Unknown error code " << m_code
