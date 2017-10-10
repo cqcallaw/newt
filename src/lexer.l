@@ -112,6 +112,7 @@ blank   [ \t\r]
 "match"         return yy::newt_parser::make_MATCH(loc);
 "as"            return yy::newt_parser::make_AS(loc);
 "in"            return yy::newt_parser::make_IN(loc);
+"using"         return yy::newt_parser::make_USING(loc);
 
 "true"          return yy::newt_parser::make_TRUE(true, loc);
 "false"         return yy::newt_parser::make_FALSE(false, loc);

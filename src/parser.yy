@@ -93,6 +93,7 @@ class Driver;
 #include <with_expression.h>
 #include <default_value_expression.h>
 #include <invoke_expression.h>
+#include <using_expression.h>
 
 #include <print_statement.h>
 #include <assignment_statement.h>
@@ -196,6 +197,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	MATCH               "match"
 	AS                  "as"
 	IN                  "in"
+	USING                 "using"
 
 	RETURN              "return"
 	PRINT     "print"
@@ -244,6 +246,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<FunctionVariant>> function_variant
 %type <FunctionVariantListRef> function_variant_list
 %type <plain_shared_ptr<Expression>> invoke_expression
+%type <plain_shared_ptr<Expression>> using_expression
 %type <plain_shared_ptr<Expression>> optional_initializer
 
 %type <plain_shared_ptr<Variable>> variable_reference
@@ -781,6 +784,10 @@ expression:
 	{
 		$$ = $1;
 	}
+	| using_expression
+	{
+		$$ = $1;
+	}
 	;
 
 //---------------------------------------------------------------------
@@ -850,6 +857,14 @@ function_variant_list:
 	{
 		//auto variant = make_shared<FunctionVariant>(@$, $1, $2); 
 		$$ = FunctionVariantList::From($1, FunctionVariantList::GetTerminator());
+	}
+	;
+
+//---------------------------------------------------------------------
+using_expression:
+	USING expression AS IDENTIFIER ARROW_RIGHT type_specifier statement_block
+	{
+		$$ = make_shared<UsingExpression>(@$, $2, $4, $6, $7);
 	}
 	;
 

@@ -1,0 +1,26 @@
+# test basic using block
+
+error_list {
+	code:int,
+	message:string,
+	next:error_list?
+}
+
+
+result {
+	value:int
+	| errors:error_list
+}
+
+disposable {
+	setup := (this:disposable?) -> error_list? {
+		return nil
+	},
+	teardown := (this:disposable?) -> error_list? {
+		return @error_list
+	}
+}
+
+r := using @disposable as value -> result {
+	return 1
+}
