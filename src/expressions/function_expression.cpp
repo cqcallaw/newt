@@ -77,7 +77,6 @@ const ErrorListRef FunctionExpression::Validate(
 		auto variant_context = variant->GetContext();
 		variant_context->LinkToParent(execution_context);
 
-
 		// check that this variant doesn't conflict with any subsequent definitions
 		// for this, we assume the function variants are in order
 		auto duplication_subject = subject->GetNext();
