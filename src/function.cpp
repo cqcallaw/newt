@@ -31,6 +31,7 @@
 #include <variant_function_specifier.h>
 #include <sum.h>
 #include <sum_type.h>
+#include <maybe_type.h>
 #include <unit_type.h>
 #include <basic_variable.h>
 
@@ -199,79 +200,21 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				assert(evaluation_result);
 				function_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
-				plain_shared_ptr<void> result = evaluation_result->GetValue();
-				auto invocation_type_table = invocation_context->GetTypeTable();
+				auto final_return_result = GetFinalReturnValue(
+						evaluation_result->GetValue(),
+						evaluation_result->GetTypeSpecifier(),
+						declaration->GetReturnTypeSpecifier(),
+						invocation_context->GetTypeTable());
 
-				auto return_type_specifier =
-						declaration->GetReturnTypeSpecifier();
-				auto evaluation_result_type =
-						evaluation_result->GetTypeSpecifier();
-
-				auto assignment_analysis =
-						evaluation_result_type->AnalyzeAssignmentTo(
-								return_type_specifier, invocation_type_table);
-				switch (assignment_analysis) {
-				case UNAMBIGUOUS:
-				case UNAMBIGUOUS_NESTED: {
-					//we're returning a narrower type than the return type; perform widening
-					auto return_type_result = return_type_specifier->GetType(
-							invocation_context->GetTypeTable(), RESOLVE);
-
-					auto return_type_errors = return_type_result->GetErrors();
-					if (ErrorList::IsTerminator(return_type_errors)) {
-						auto return_type = return_type_result->GetData<
-								TypeDefinition>();
-
-						auto as_sum = dynamic_pointer_cast<const SumType>(
-								return_type);
-						if (as_sum) {
-							auto return_type_specifier_as_complex =
-									dynamic_pointer_cast<
-											const ComplexTypeSpecifier>(
-											return_type_specifier);
-							assert(return_type_specifier_as_complex);
-
-							auto as_sum_specifier = SumTypeSpecifier(
-									return_type_specifier_as_complex);
-							plain_shared_ptr<string> tag =
-									as_sum->MapSpecifierToVariant(
-											as_sum_specifier,
-											*evaluation_result_type);
-
-							result = make_shared<Sum>(tag,
-									evaluation_result->GetValue());
-						}
-
-						auto as_maybe_specifier = dynamic_pointer_cast<
-								const MaybeTypeSpecifier>(
-								return_type_specifier);
-						if (as_maybe_specifier) {
-							if (*evaluation_result_type
-									== *TypeTable::GetNilTypeSpecifier()) {
-								result = make_shared<Sum>(
-										TypeTable::GetNilName(),
-										evaluation_result->GetValue());
-							} else {
-								result = make_shared<Sum>(
-										MaybeTypeSpecifier::VARIANT_NAME,
-										evaluation_result->GetValue());
-							}
-						}
-						break;
-					} else {
-						errors = ErrorList::Concatenate(errors,
-								return_type_errors);
-					}
+				auto final_return_result_errors =
+						final_return_result->GetErrors();
+				if (ErrorList::IsTerminator(final_return_result_errors)) {
+					return make_shared<Result>(
+							final_return_result->GetRawData(), errors);
+				} else {
+					errors = ErrorList::Concatenate(errors,
+							final_return_result_errors);
 				}
-				case AMBIGUOUS:
-					assert(false); // our semantic analysis should have caught this already
-					break;
-				case EQUIVALENT:
-				default:
-					break;
-				}
-
-				return make_shared<Result>(result, errors);
 			}
 		} else {
 			errors = ErrorList::Concatenate(errors, execute_errors);
@@ -297,14 +240,14 @@ const string Function::ToString(const TypeTable& type_table,
 			buffer << "[default location]";
 		}
 
-		//	buffer << indent << "Address: " << this << endl;
-		//	if (m_closure) {
-		//		buffer << indent << "Strongly referenced closure address: "
-		//				<< m_closure.get() << endl;
-		//	} else {
-		//		buffer << indent << "Weakly referenced closure address: "
-		//				<< m_weak_closure.lock().get() << endl;
-		//	}
+//	buffer << indent << "Address: " << this << endl;
+//	if (m_closure) {
+//		buffer << indent << "Strongly referenced closure address: "
+//				<< m_closure.get() << endl;
+//	} else {
+//		buffer << indent << "Weakly referenced closure address: "
+//				<< m_weak_closure.lock().get() << endl;
+//	}
 	} else {
 		while (!FunctionVariantList::IsTerminator(subject)) {
 			auto variant = subject->GetData();
@@ -329,7 +272,7 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 		const yy::location argument_list_location,
 		const FunctionVariantListRef variant_list,
 		const shared_ptr<ExecutionContext> context) {
-	// ref: http://stackoverflow.com/a/14336566/577298
+// ref: http://stackoverflow.com/a/14336566/577298
 
 	auto errors = ErrorList::From(
 			make_shared<Error>(Error::SEMANTIC,
@@ -541,6 +484,69 @@ const TypedResult<FunctionVariant> Function::GetVariant(
 	} else {
 		return TypedResult<FunctionVariant>(best_variant, errors);
 	}
+}
+
+const_shared_ptr<Result> Function::GetFinalReturnValue(
+		plain_shared_ptr<void> value,
+		const_shared_ptr<TypeSpecifier> value_type_specifier,
+		const_shared_ptr<TypeSpecifier> return_type_specifier,
+		volatile_shared_ptr<TypeTable> type_table) {
+	auto final_result = value;
+	auto errors = ErrorList::GetTerminator();
+
+	auto assignment_analysis = value_type_specifier->AnalyzeAssignmentTo(
+			return_type_specifier, type_table);
+	switch (assignment_analysis) {
+	case UNAMBIGUOUS:
+	case UNAMBIGUOUS_NESTED: {
+		//we're returning a narrower type than the return type; perform widening
+		auto return_type_result = return_type_specifier->GetType(type_table,
+				RESOLVE);
+
+		auto return_type_errors = return_type_result->GetErrors();
+		if (ErrorList::IsTerminator(return_type_errors)) {
+			auto return_type = return_type_result->GetData<TypeDefinition>();
+
+			auto as_maybe = dynamic_pointer_cast<const MaybeType>(return_type);
+			if (as_maybe) {
+				if (*value_type_specifier
+						== *TypeTable::GetNilTypeSpecifier()) {
+					final_result = make_shared<Sum>(TypeTable::GetNilName(),
+							value);
+				} else {
+					final_result = make_shared<Sum>(
+							MaybeTypeSpecifier::VARIANT_NAME, value);
+				}
+				break;
+			}
+
+			auto as_sum = dynamic_pointer_cast<const SumType>(return_type);
+			if (as_sum) {
+				auto return_type_specifier_as_complex = dynamic_pointer_cast<
+						const ComplexTypeSpecifier>(return_type_specifier);
+				assert(return_type_specifier_as_complex);
+
+				auto as_sum_specifier = SumTypeSpecifier(
+						return_type_specifier_as_complex);
+				plain_shared_ptr<string> tag = as_sum->MapSpecifierToVariant(
+						as_sum_specifier, *value_type_specifier);
+
+				final_result = make_shared<Sum>(tag, value);
+				break;
+			}
+		} else {
+			errors = ErrorList::Concatenate(errors, return_type_errors);
+		}
+	}
+	case AMBIGUOUS:
+		assert(false); // our semantic analysis should have caught this already
+		break;
+	case EQUIVALENT:
+	default:
+		break;
+	}
+
+	return make_shared<Result>(final_result, errors);
 }
 
 const shared_ptr<ExecutionContext> Function::GetClosureReference() const {
