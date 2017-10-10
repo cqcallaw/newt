@@ -24,6 +24,8 @@
 
 class Expression;
 class StatementBlock;
+class Record;
+class ComplexTypeSpecifier;
 
 class ForeachStatement: public Statement {
 public:
@@ -40,6 +42,13 @@ public:
 	virtual const ErrorListRef Execute(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
+
+	static const_shared_ptr<Result> EvaluateMemberFunction(
+			const_shared_ptr<Record> record,
+			const_shared_ptr<ComplexTypeSpecifier> record_type_specifier,
+			const_shared_ptr<std::string> member_name,
+			const shared_ptr<ExecutionContext> execution_context,
+			const shared_ptr<ExecutionContext> closure);
 
 	static const_shared_ptr<std::string> NEXT_NAME;
 

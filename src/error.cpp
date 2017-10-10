@@ -239,9 +239,9 @@ const string Error::get_error_message() const {
 	case FOREACH_STMT_REQUIRES_NEXT:
 		os << "Foreach statement source must have a member named 'next'.";
 		break;
-	case FOREACH_NEXT_MUST_BE_MAYBE:
+	case RETURN_STMT_MUST_BE_MAYBE:
 		os
-				<< "Foreach statement source's 'next' member type must evaluate to a Maybe type.";
+				<< "Member return type must evaluate to a Maybe type.";
 		break;
 	case FOREACH_NEXT_MUST_EVALUATE_TO_BASE_TYPE:
 		os

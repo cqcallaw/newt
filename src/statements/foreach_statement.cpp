@@ -135,7 +135,7 @@ const PreprocessResult ForeachStatement::Preprocess(
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
-													Error::FOREACH_NEXT_MUST_BE_MAYBE,
+													Error::RETURN_STMT_MUST_BE_MAYBE,
 													m_expression->GetLocation().begin.line,
 													m_expression->GetLocation().begin.column),
 											errors);
@@ -230,91 +230,19 @@ const ErrorListRef ForeachStatement::Execute(
 				auto as_function_type_specifier = dynamic_pointer_cast<
 						const FunctionTypeSpecifier>(member_type_specifier);
 				if (as_function_type_specifier) {
-					// do function invocation
-					auto next_function = static_pointer_cast<const Function>(
-							next_member->GetValue());
+					auto function_eval = EvaluateMemberFunction(record,
+							as_complex, ForeachStatement::NEXT_NAME, context,
+							closure);
 
-					auto function_type_specifier =
-							next_function->GetTypeSpecifier();
-					auto as_function_declaration = dynamic_pointer_cast<
-							const FunctionDeclaration>(function_type_specifier);
-					assert(as_function_declaration); // N.B. that this asserts that we have a single-variant function
-
-					auto invocation_context = ExecutionContext::GetEmptyChild(
-							execution_context, Modifier::Type::MUTABLE,
-							EPHEMERAL);
-
-					auto parameter_list =
-							as_function_declaration->GetParameterList();
-					auto argument_list = ArgumentList::GetTerminator();
-					while (ErrorList::IsTerminator(errors)
-							&& !DeclarationList::IsTerminator(parameter_list)) {
-						auto parameter_declaration = parameter_list->GetData();
-
-						auto declaration_type_specifier =
-								parameter_declaration->GetTypeSpecifier();
-						auto declaration_type_result =
-								declaration_type_specifier->GetType(
-										closure->GetTypeTable(), RETURN);
-
-						auto type_lookup_errors =
-								declaration_type_result->GetErrors();
-						if (ErrorList::IsTerminator(type_lookup_errors)) {
-							auto declaration_type =
-									declaration_type_result->GetData<
-											TypeDefinition>();
-
-							// set symbol
-							auto maybe_wrapper = make_shared<Sum>(
-									MaybeTypeSpecifier::VARIANT_NAME,
-									raw_value);
-							auto symbol = declaration_type->GetSymbol(
-									closure->GetTypeTable(),
-									declaration_type_specifier, maybe_wrapper);
-							auto insert_result =
-									invocation_context->InsertSymbol(
-											*parameter_declaration->GetName(),
-											symbol);
-							assert(insert_result == INSERT_SUCCESS);
-
-							// generate argument list
-							auto argument_variable = make_shared<
-									const BasicVariable>(
-									parameter_declaration->GetName(),
-									parameter_declaration->GetLocation());
-
-							auto argument_expression = make_shared<
-									const VariableExpression>(
-									parameter_declaration->GetLocation(),
-									argument_variable);
-
-							argument_list = ArgumentList::From(
-									argument_expression, argument_list);
-						} else {
-							errors = ErrorList::Concatenate(errors,
-									type_lookup_errors);
-						}
-						parameter_list = parameter_list->GetNext();
-					}
-					if (ErrorList::IsTerminator(errors)) {
-						// make sure argument list order matches parameter order
-						argument_list = ArgumentList::Reverse(argument_list);
-
-						auto function_eval = next_function->Evaluate(
-								argument_list,
-								as_function_declaration->GetLocation(),
-								invocation_context);
-
-						auto function_eval_errors = function_eval->GetErrors();
-						if (ErrorList::IsTerminator(function_eval_errors)) {
-							next_value = function_eval->GetData<Sum>();
-							assert(next_value);
-							tag = next_value->GetTag();
-							raw_value = next_value->GetValue();
-						} else {
-							errors = ErrorList::Concatenate(errors,
-									function_eval_errors);
-						}
+					auto function_eval_errors = function_eval->GetErrors();
+					if (ErrorList::IsTerminator(function_eval_errors)) {
+						next_value = function_eval->GetData<Sum>();
+						assert(next_value);
+						tag = next_value->GetTag();
+						raw_value = next_value->GetValue();
+					} else {
+						errors = ErrorList::Concatenate(errors,
+								function_eval_errors);
 					}
 				} else {
 					next_value = static_pointer_cast<const Sum>(
@@ -329,4 +257,106 @@ const ErrorListRef ForeachStatement::Execute(
 	}
 
 	return errors;
+}
+
+const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(
+		const_shared_ptr<Record> record,
+		const_shared_ptr<ComplexTypeSpecifier> record_type_specifier,
+		const_shared_ptr<std::string> member_name,
+		const shared_ptr<ExecutionContext> execution_context,
+		const shared_ptr<ExecutionContext> closure) {
+	auto errors = ErrorList::GetTerminator();
+	plain_shared_ptr<void> value = nullptr;
+
+	auto member = record->GetDefinition()->GetSymbol(member_name);
+	if (member != Symbol::GetDefaultSymbol()) {
+		auto member_type_specifier = member->GetTypeSpecifier();
+		auto as_function_type_specifier = dynamic_pointer_cast<
+				const FunctionTypeSpecifier>(member_type_specifier);
+		if (as_function_type_specifier) {
+			// do function invocation
+			auto as_function = static_pointer_cast<const Function>(
+					member->GetValue());
+
+			auto function_type_specifier = as_function->GetTypeSpecifier();
+			auto as_function_declaration = dynamic_pointer_cast<
+					const FunctionDeclaration>(function_type_specifier);
+			assert(as_function_declaration); // N.B. that this asserts that we have a single-variant function
+
+			auto invocation_context = ExecutionContext::GetEmptyChild(
+					execution_context, Modifier::Type::MUTABLE, EPHEMERAL);
+
+			auto parameter_list = as_function_declaration->GetParameterList();
+			auto argument_list = ArgumentList::GetTerminator();
+			while (ErrorList::IsTerminator(errors)
+					&& !DeclarationList::IsTerminator(parameter_list)) {
+				auto parameter_declaration = parameter_list->GetData();
+
+				auto declaration_type_specifier =
+						parameter_declaration->GetTypeSpecifier();
+				auto declaration_type_result =
+						declaration_type_specifier->GetType(
+								closure->GetTypeTable(), RETURN);
+
+				auto type_lookup_errors = declaration_type_result->GetErrors();
+				if (ErrorList::IsTerminator(type_lookup_errors)) {
+					auto declaration_type = declaration_type_result->GetData<
+							TypeDefinition>();
+
+					// set symbol
+					auto maybe_wrapper = make_shared<Sum>(
+							MaybeTypeSpecifier::VARIANT_NAME, record);
+					auto symbol = declaration_type->GetSymbol(
+							closure->GetTypeTable(), declaration_type_specifier,
+							maybe_wrapper);
+					auto insert_result = invocation_context->InsertSymbol(
+							*parameter_declaration->GetName(), symbol);
+					assert(insert_result == INSERT_SUCCESS);
+
+					// generate argument list
+					auto argument_variable = make_shared<const BasicVariable>(
+							parameter_declaration->GetName(),
+							parameter_declaration->GetLocation());
+
+					auto argument_expression = make_shared<
+							const VariableExpression>(
+							parameter_declaration->GetLocation(),
+							argument_variable);
+
+					argument_list = ArgumentList::From(argument_expression,
+							argument_list);
+				} else {
+					errors = ErrorList::Concatenate(errors, type_lookup_errors);
+				}
+				parameter_list = parameter_list->GetNext();
+			}
+
+			if (ErrorList::IsTerminator(errors)) {
+				// make sure argument list order matches parameter order
+				argument_list = ArgumentList::Reverse(argument_list);
+
+				auto function_eval = as_function->Evaluate(argument_list,
+						as_function_declaration->GetLocation(),
+						invocation_context);
+
+				auto function_eval_errors = function_eval->GetErrors();
+				if (ErrorList::IsTerminator(function_eval_errors)) {
+					value = function_eval->GetRawData();
+				} else {
+					errors = ErrorList::Concatenate(errors,
+							function_eval_errors);
+				}
+			}
+		}
+	} else {
+		// couldn't find member
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_MEMBER,
+						record_type_specifier->GetLocation().begin.line,
+						record_type_specifier->GetLocation().begin.column,
+						*member_name, record_type_specifier->ToString()),
+				errors);
+	}
+
+	return make_shared<Result>(value, errors);
 }
