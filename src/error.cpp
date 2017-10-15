@@ -188,6 +188,9 @@ const string Error::get_error_message() const {
 	case NOT_A_FUNCTION:
 		os << "The given expression does not reference a valid function.";
 		break;
+	case EXPRESSION_IS_NOT_A_FUNCTION:
+		os << "The type " << m_s1 << " is not a function type.";
+		break;
 	case INFERRED_DECLARATION_FAILED:
 		os << "Inferred declaration failure.";
 		break;
