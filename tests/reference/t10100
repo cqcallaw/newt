@@ -1,0 +1,4 @@
+Parsing file ../tests/t10100.nwt...
+Semantic error on line 20, column 12: Statement source must be of a record type.
+Parsed file ../tests/t10100.nwt.
+1 error found; giving up.

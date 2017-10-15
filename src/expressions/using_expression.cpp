@@ -321,18 +321,15 @@ const ErrorListRef UsingExpression::Validate(
 											errors);
 						}
 					} else {
-						auto setup_member_type_specifier =
-								setup_member->GetTypeSpecifier(
-										UsingExpression::SETUP_NAME,
-										complex_expression_type_specifier,
-										m_expression->GetLocation()); // not sure if this location data will work...
 						errors =
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
-												Error::NOT_A_FUNCTION,
-												setup_member_type_specifier->GetLocation().begin.line,
-												setup_member_type_specifier->GetLocation().begin.column,
-												setup_member_type_specifier->ToString()),
+												Error::EXPRESSION_IS_NOT_A_FUNCTION,
+												m_expression->GetLocation().begin.line,
+												m_expression->GetLocation().begin.column,
+												expression_type_specifier->ToString()
+														+ "."
+														+ *UsingExpression::SETUP_NAME),
 										errors);
 					}
 
@@ -340,13 +337,13 @@ const ErrorListRef UsingExpression::Validate(
 							*UsingExpression::TEARDOWN_NAME);
 					if (teardown_member) {
 						auto as_alias = dynamic_pointer_cast<
-								const AliasDefinition>(setup_member);
+								const AliasDefinition>(teardown_member);
 						if (as_alias) {
-							setup_member = as_alias->GetOrigin();
+							teardown_member = as_alias->GetOrigin();
 						}
 
 						auto teardown_as_function = dynamic_pointer_cast<
-								const FunctionType>(setup_member);
+								const FunctionType>(teardown_member);
 						if (teardown_as_function) {
 							auto teardown_return_type_specifier =
 									teardown_as_function->GetTypeSpecifier()->GetReturnTypeSpecifier();
@@ -394,29 +391,28 @@ const ErrorListRef UsingExpression::Validate(
 							}
 						} else {
 							// teardown not a function
-							auto teardown_member_type_specifier =
-									teardown_member->GetTypeSpecifier(
-											UsingExpression::SETUP_NAME,
-											complex_expression_type_specifier,
-											m_expression->GetLocation()); // TODO: not sure if this location data will work; probably need a member location query in the RecordType interface
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::NOT_A_FUNCTION,
-											teardown_member_type_specifier->GetLocation().begin.line,
-											teardown_member_type_specifier->GetLocation().begin.column,
-											teardown_member_type_specifier->ToString()),
-									errors);
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::EXPRESSION_IS_NOT_A_FUNCTION,
+													m_expression->GetLocation().begin.line,
+													m_expression->GetLocation().begin.column,
+													expression_type_specifier->ToString()
+															+ "."
+															+ *UsingExpression::TEARDOWN_NAME),
+											errors);
 						}
 					} else {
 						// no teardown member
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::UNDECLARED_MEMBER,
-										complex_expression_type_specifier->GetLocation().begin.line,
-										complex_expression_type_specifier->GetLocation().begin.column,
-										*UsingExpression::TEARDOWN_NAME,
-										complex_expression_type_specifier->ToString()),
-								errors);
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::UNDECLARED_MEMBER,
+												complex_expression_type_specifier->GetLocation().begin.line,
+												complex_expression_type_specifier->GetLocation().begin.column,
+												*UsingExpression::TEARDOWN_NAME,
+												complex_expression_type_specifier->ToString()),
+										errors);
 					}
 
 					if (ErrorList::IsTerminator(errors)) {
@@ -440,14 +436,15 @@ const ErrorListRef UsingExpression::Validate(
 					}
 				} else {
 					// no setup member
-					ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::UNDECLARED_MEMBER,
-									complex_expression_type_specifier->GetLocation().begin.line,
-									complex_expression_type_specifier->GetLocation().begin.column,
-									*UsingExpression::SETUP_NAME,
-									complex_expression_type_specifier->ToString()),
-							errors);
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::UNDECLARED_MEMBER,
+											complex_expression_type_specifier->GetLocation().begin.line,
+											complex_expression_type_specifier->GetLocation().begin.column,
+											*UsingExpression::SETUP_NAME,
+											complex_expression_type_specifier->ToString()),
+									errors);
 				}
 			} else {
 				// error: not a record

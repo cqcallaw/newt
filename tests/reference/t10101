@@ -1,0 +1,4 @@
+Parsing file ../tests/t10101.nwt...
+Semantic error on line 24, column 13: Type "disposable" does not contain a member named "setup".
+Parsed file ../tests/t10101.nwt.
+1 error found; giving up.
