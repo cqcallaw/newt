@@ -28,8 +28,7 @@ class StatementBlock;
 class FunctionType: public TypeDefinition {
 public:
 	FunctionType(DeclarationListRef parameter_type_list,
-			const_shared_ptr<TypeSpecifier> return_type,
-			const yy::location m_return_type_location);
+			const_shared_ptr<TypeSpecifier> return_type_specifier);
 
 	virtual ~FunctionType() {
 	}

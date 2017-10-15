@@ -26,7 +26,8 @@ class MaybeType;
 
 class MaybeTypeSpecifier: public SumTypeSpecifier {
 public:
-	MaybeTypeSpecifier(const_shared_ptr<TypeSpecifier> base_type_specifier);
+	MaybeTypeSpecifier(const_shared_ptr<TypeSpecifier> base_type_specifier,
+			const yy::location location);
 	virtual ~MaybeTypeSpecifier();
 
 	virtual const std::string ToString() const;

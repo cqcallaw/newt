@@ -391,7 +391,7 @@ function_type_specifier:
 	LPAREN optional_anonymous_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
 		const TypeSpecifierListRef type_list = TypeSpecifierList::Reverse($2);
-		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @5, @$);
+		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @$);
 	}
 	;
 
@@ -424,15 +424,15 @@ nested_type_specifier:
 maybe_type_specifier:
 	primitive_type_specifier QMARK
 	{
-		$$ = make_shared<MaybeTypeSpecifier>($1);
+		$$ = make_shared<MaybeTypeSpecifier>($1, @$);
 	}
 	| complex_type_specifier QMARK
 	{
-		$$ = make_shared<MaybeTypeSpecifier>($1);
+		$$ = make_shared<MaybeTypeSpecifier>($1, @$);
 	}
 	| nested_type_specifier QMARK
 	{
-		$$ = make_shared<MaybeTypeSpecifier>($1);
+		$$ = make_shared<MaybeTypeSpecifier>($1, @$);
 	}
 	;
 
@@ -822,7 +822,7 @@ function_declaration:
 	LPAREN optional_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
 		const DeclarationListRef parameter_list = DeclarationList::Reverse($2);
-		$$ = make_shared<FunctionDeclaration>(parameter_list, $5, @5, @$);
+		$$ = make_shared<FunctionDeclaration>(parameter_list, $5, @$);
 	}
 	;
 

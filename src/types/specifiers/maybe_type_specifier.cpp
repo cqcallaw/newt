@@ -29,10 +29,11 @@ const_shared_ptr<std::string> MaybeTypeSpecifier::VARIANT_NAME = make_shared<
 		std::string>("value");
 
 MaybeTypeSpecifier::MaybeTypeSpecifier(
-		const_shared_ptr<TypeSpecifier> base_type_specifier) :
+		const_shared_ptr<TypeSpecifier> base_type_specifier,
+		const yy::location location) :
 		SumTypeSpecifier(
-				make_shared<string>(base_type_specifier->ToString() + "?")), m_base_type_specifier(
-				base_type_specifier) {
+				make_shared<string>(base_type_specifier->ToString() + "?"),
+				location), m_base_type_specifier(base_type_specifier) {
 }
 
 MaybeTypeSpecifier::~MaybeTypeSpecifier() {

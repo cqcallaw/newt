@@ -83,7 +83,7 @@ const_shared_ptr<TypeSpecifier> MaybeType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
 		const_shared_ptr<ComplexTypeSpecifier> container,
 		yy::location location) const {
-	return make_shared<MaybeTypeSpecifier>(m_base_type_specifier);
+	return make_shared<MaybeTypeSpecifier>(m_base_type_specifier, location);
 }
 
 const_shared_ptr<Symbol> MaybeType::GetSymbol(const TypeTable& type_table,
@@ -91,7 +91,7 @@ const_shared_ptr<Symbol> MaybeType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<void> value) const {
 	auto cast = static_pointer_cast<const Sum>(value);
 	const_shared_ptr<MaybeTypeSpecifier> specifier = make_shared<
-			MaybeTypeSpecifier>(m_base_type_specifier);
+			MaybeTypeSpecifier>(m_base_type_specifier, GetDefaultLocation());
 	return make_shared<Symbol>(specifier, cast);
 }
 
