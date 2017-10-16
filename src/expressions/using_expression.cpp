@@ -242,9 +242,9 @@ const bool UsingExpression::IsConstant() const {
 
 const ErrorListRef UsingExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
-// check that expression generates valid disposable
-// check that return type includes the disposable method return types
-// validate body, including return type
+	// check that expression generates valid disposable
+	// check that return type includes the disposable method return types
+	// validate body, including return type
 	auto type_table = execution_context->GetTypeTable();
 	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
 			execution_context, AliasResolution::RESOLVE);
@@ -293,22 +293,24 @@ const ErrorListRef UsingExpression::Validate(
 										ErrorList::From(
 												make_shared<Error>(
 														Error::SEMANTIC,
-														Error::AMBIGUOUS_WIDENING_CONVERSION,
-														setup_return_type_specifier->GetLocation().begin.line,
-														setup_return_type_specifier->GetLocation().begin.column,
+														Error::USING_AMBIGUOUS_WIDENING_CONVERSION,
+														m_expression->GetLocation().begin.line,
+														m_expression->GetLocation().begin.column,
+														setup_return_type_specifier->ToString(),
 														m_return_type_specifier->ToString(),
-														setup_return_type_specifier->ToString()),
+														*UsingExpression::SETUP_NAME),
 												errors);
 							} else if (assignability == INCOMPATIBLE) {
 								errors =
 										ErrorList::From(
 												make_shared<Error>(
 														Error::SEMANTIC,
-														Error::ASSIGNMENT_TYPE_ERROR,
-														setup_return_type_specifier->GetLocation().begin.line,
-														setup_return_type_specifier->GetLocation().begin.column,
+														Error::USING_ASSIGNMENT_TYPE_ERROR,
+														m_expression->GetLocation().begin.line,
+														m_expression->GetLocation().begin.column,
+														setup_return_type_specifier->ToString(),
 														m_return_type_specifier->ToString(),
-														setup_return_type_specifier->ToString()),
+														*UsingExpression::SETUP_NAME),
 												errors);
 							}
 						} else {

@@ -243,12 +243,21 @@ const string Error::get_error_message() const {
 		os << "Foreach statement source must have a member named 'next'.";
 		break;
 	case RETURN_STMT_MUST_BE_MAYBE:
-		os
-				<< "Member return type must evaluate to a Maybe type.";
+		os << "Member return type must evaluate to a Maybe type.";
 		break;
 	case FOREACH_NEXT_MUST_EVALUATE_TO_BASE_TYPE:
 		os
 				<< "Foreach statement source's 'next' member type's base type must be the source type.";
+		break;
+	case USING_ASSIGNMENT_TYPE_ERROR:
+		os << "Return type '" << m_s1 << "' of source member '" << m_s3
+				<< "' cannot be assigned to block result type '" << m_s2
+				<< "'.";
+		break;
+	case USING_AMBIGUOUS_WIDENING_CONVERSION:
+		os << "Return type '" << m_s1 << "' of source member '" << m_s3
+				<< "'cannot be unambiguously widened to block result type '"
+				<< m_s2 << "'.";
 		break;
 	default:
 		os << "Unknown error code " << m_code
