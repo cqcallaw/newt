@@ -263,190 +263,32 @@ const ErrorListRef UsingExpression::Validate(
 			if (as_record) {
 				auto complex_expression_type_specifier = dynamic_pointer_cast<
 						const ComplexTypeSpecifier>(expression_type_specifier);
-				auto setup_member = as_record->GetMember(
-						*UsingExpression::SETUP_NAME);
-				if (setup_member) {
-					auto as_alias = dynamic_pointer_cast<const AliasDefinition>(
-							setup_member);
-					if (as_alias) {
-						setup_member = as_alias->GetOrigin();
-					}
 
-					auto setup_as_function = dynamic_pointer_cast<
-							const FunctionType>(setup_member);
-					if (setup_as_function) {
-						auto setup_return_type_specifier =
-								setup_as_function->GetTypeSpecifier()->GetReturnTypeSpecifier();
-						auto setup_as_maybe = dynamic_pointer_cast<
-								const MaybeTypeSpecifier>(
-								setup_return_type_specifier);
-						if (setup_as_maybe) {
-							auto base_type_specifier =
-									setup_as_maybe->GetBaseTypeSpecifier();
+				errors = ErrorList::Concatenate(errors,
+						ValidateMember(complex_expression_type_specifier,
+								m_return_type_specifier,
+								m_expression->GetLocation(), type_table,
+								as_record, UsingExpression::SETUP_NAME));
+				errors = ErrorList::Concatenate(errors,
+						ValidateMember(complex_expression_type_specifier,
+								m_return_type_specifier,
+								m_expression->GetLocation(), type_table,
+								as_record, UsingExpression::TEARDOWN_NAME));
+				if (ErrorList::IsTerminator(errors)) {
+					// no source expression errors encountered; insert symbols into context
+					m_block_context->LinkToParent(execution_context);
+					auto default_value = expression_type->GetDefaultValue(
+							*type_table);
 
-							auto assignability =
-									base_type_specifier->AnalyzeAssignmentTo(
-											m_return_type_specifier,
-											type_table);
-							if (assignability == AnalysisResult::AMBIGUOUS) {
-								errors =
-										ErrorList::From(
-												make_shared<Error>(
-														Error::SEMANTIC,
-														Error::USING_AMBIGUOUS_WIDENING_CONVERSION,
-														m_expression->GetLocation().begin.line,
-														m_expression->GetLocation().begin.column,
-														setup_return_type_specifier->ToString(),
-														m_return_type_specifier->ToString(),
-														*UsingExpression::SETUP_NAME),
-												errors);
-							} else if (assignability == INCOMPATIBLE) {
-								errors =
-										ErrorList::From(
-												make_shared<Error>(
-														Error::SEMANTIC,
-														Error::USING_ASSIGNMENT_TYPE_ERROR,
-														m_expression->GetLocation().begin.line,
-														m_expression->GetLocation().begin.column,
-														setup_return_type_specifier->ToString(),
-														m_return_type_specifier->ToString(),
-														*UsingExpression::SETUP_NAME),
-												errors);
-							}
-						} else {
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::RETURN_STMT_MUST_BE_MAYBE,
-													setup_return_type_specifier->GetLocation().begin.line,
-													setup_return_type_specifier->GetLocation().begin.column),
-											errors);
-						}
-					} else {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::EXPRESSION_IS_NOT_A_FUNCTION,
-												m_expression->GetLocation().begin.line,
-												m_expression->GetLocation().begin.column,
-												expression_type_specifier->ToString()
-														+ "."
-														+ *UsingExpression::SETUP_NAME),
-										errors);
-					}
+					auto default_symbol = expression_type->GetSymbol(type_table,
+							expression_type_specifier, default_value);
+					m_block_context->InsertSymbol(*m_identifier,
+							default_symbol);
 
-					auto teardown_member = as_record->GetMember(
-							*UsingExpression::TEARDOWN_NAME);
-					if (teardown_member) {
-						auto as_alias = dynamic_pointer_cast<
-								const AliasDefinition>(teardown_member);
-						if (as_alias) {
-							teardown_member = as_alias->GetOrigin();
-						}
+					auto preprocess_result = m_body->Preprocess(m_block_context,
+							m_return_type_specifier);
 
-						auto teardown_as_function = dynamic_pointer_cast<
-								const FunctionType>(teardown_member);
-						if (teardown_as_function) {
-							auto teardown_return_type_specifier =
-									teardown_as_function->GetTypeSpecifier()->GetReturnTypeSpecifier();
-							auto teardown_as_maybe = dynamic_pointer_cast<
-									const MaybeTypeSpecifier>(
-									teardown_return_type_specifier);
-							if (teardown_as_maybe) {
-								auto assignability =
-										teardown_return_type_specifier->AnalyzeAssignmentTo(
-												teardown_return_type_specifier,
-												type_table);
-								if (assignability
-										== AnalysisResult::AMBIGUOUS) {
-									errors =
-											ErrorList::From(
-													make_shared<Error>(
-															Error::SEMANTIC,
-															Error::AMBIGUOUS_WIDENING_CONVERSION,
-															teardown_return_type_specifier->GetLocation().begin.line,
-															teardown_return_type_specifier->GetLocation().begin.column,
-															m_return_type_specifier->ToString(),
-															teardown_return_type_specifier->ToString()),
-													errors);
-								} else if (assignability == INCOMPATIBLE) {
-									errors =
-											ErrorList::From(
-													make_shared<Error>(
-															Error::SEMANTIC,
-															Error::ASSIGNMENT_TYPE_ERROR,
-															teardown_return_type_specifier->GetLocation().begin.line,
-															teardown_return_type_specifier->GetLocation().begin.column,
-															m_return_type_specifier->ToString(),
-															teardown_return_type_specifier->ToString()),
-													errors);
-								}
-							} else {
-								errors =
-										ErrorList::From(
-												make_shared<Error>(
-														Error::SEMANTIC,
-														Error::RETURN_STMT_MUST_BE_MAYBE,
-														teardown_return_type_specifier->GetLocation().begin.line,
-														teardown_return_type_specifier->GetLocation().begin.column),
-												errors);
-							}
-						} else {
-							// teardown not a function
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::EXPRESSION_IS_NOT_A_FUNCTION,
-													m_expression->GetLocation().begin.line,
-													m_expression->GetLocation().begin.column,
-													expression_type_specifier->ToString()
-															+ "."
-															+ *UsingExpression::TEARDOWN_NAME),
-											errors);
-						}
-					} else {
-						// no teardown member
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::UNDECLARED_MEMBER,
-												complex_expression_type_specifier->GetLocation().begin.line,
-												complex_expression_type_specifier->GetLocation().begin.column,
-												*UsingExpression::TEARDOWN_NAME,
-												complex_expression_type_specifier->ToString()),
-										errors);
-					}
-
-					if (ErrorList::IsTerminator(errors)) {
-						// no source expression errors encountered
-
-						// insert symbols into context
-						m_block_context->LinkToParent(execution_context);
-						auto default_value = expression_type->GetDefaultValue(
-								*type_table);
-
-						auto default_symbol = expression_type->GetSymbol(
-								type_table, expression_type_specifier,
-								default_value);
-						m_block_context->InsertSymbol(*m_identifier,
-								default_symbol);
-
-						auto preprocess_result = m_body->Preprocess(
-								m_block_context, m_return_type_specifier);
-
-						errors = preprocess_result.GetErrors();
-					}
-				} else {
-					// no setup member
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::UNDECLARED_MEMBER,
-											complex_expression_type_specifier->GetLocation().begin.line,
-											complex_expression_type_specifier->GetLocation().begin.column,
-											*UsingExpression::SETUP_NAME,
-											complex_expression_type_specifier->ToString()),
-									errors);
+					errors = preprocess_result.GetErrors();
 				}
 			} else {
 				// error: not a record
@@ -458,6 +300,86 @@ const ErrorListRef UsingExpression::Validate(
 						errors);
 			}
 		}
+	}
+
+	return errors;
+}
+
+const ErrorListRef UsingExpression::ValidateMember(
+		const_shared_ptr<ComplexTypeSpecifier> expression_type_specifier,
+		const_shared_ptr<TypeSpecifier> return_type_specifier,
+		const yy::location expression_location,
+		const_shared_ptr<TypeTable> type_table,
+		const_shared_ptr<RecordType> source_type,
+		const_shared_ptr<string> name) {
+	auto errors = ErrorList::GetTerminator();
+
+	auto setup_member = source_type->GetMember(*name);
+	if (setup_member) {
+		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(
+				setup_member);
+		if (as_alias) {
+			setup_member = as_alias->GetOrigin();
+		}
+
+		auto setup_as_function = dynamic_pointer_cast<const FunctionType>(
+				setup_member);
+		if (setup_as_function) {
+			auto setup_return_type_specifier =
+					setup_as_function->GetTypeSpecifier()->GetReturnTypeSpecifier();
+			auto setup_as_maybe =
+					dynamic_pointer_cast<const MaybeTypeSpecifier>(
+							setup_return_type_specifier);
+			if (setup_as_maybe) {
+				auto base_type_specifier =
+						setup_as_maybe->GetBaseTypeSpecifier();
+
+				auto assignability = base_type_specifier->AnalyzeAssignmentTo(
+						return_type_specifier, *type_table);
+				if (assignability == AnalysisResult::AMBIGUOUS) {
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::USING_AMBIGUOUS_WIDENING_CONVERSION,
+									expression_location.begin.line,
+									expression_location.begin.column,
+									setup_return_type_specifier->ToString(),
+									return_type_specifier->ToString(), *name),
+							errors);
+				} else if (assignability == INCOMPATIBLE) {
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::USING_ASSIGNMENT_TYPE_ERROR,
+									expression_location.begin.line,
+									expression_location.begin.column,
+									setup_return_type_specifier->ToString(),
+									return_type_specifier->ToString(), *name),
+							errors);
+				}
+			} else {
+				errors =
+						ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::RETURN_STMT_MUST_BE_MAYBE,
+										setup_return_type_specifier->GetLocation().begin.line,
+										setup_return_type_specifier->GetLocation().begin.column),
+								errors);
+			}
+		} else {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::EXPRESSION_IS_NOT_A_FUNCTION,
+							expression_location.begin.line,
+							expression_location.begin.column,
+							expression_type_specifier->ToString() + "."
+									+ *name), errors);
+		}
+	} else {
+		// no setup member
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_MEMBER,
+						expression_type_specifier->GetLocation().begin.line,
+						expression_type_specifier->GetLocation().begin.column,
+						*name, expression_type_specifier->ToString()), errors);
 	}
 
 	return errors;

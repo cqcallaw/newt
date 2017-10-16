@@ -23,6 +23,7 @@
 #include <expression.h>
 
 class StatementBlock;
+class RecordType;
 
 class UsingExpression: public Expression {
 public:
@@ -55,6 +56,14 @@ private:
 	const_shared_ptr<TypeSpecifier> m_return_type_specifier;
 	const_shared_ptr<StatementBlock> m_body;
 	shared_ptr<ExecutionContext> m_block_context;
+
+	static const ErrorListRef ValidateMember(
+			const_shared_ptr<ComplexTypeSpecifier> expression_type_specifier,
+			const_shared_ptr<TypeSpecifier> return_type_specifier,
+			const yy::location expression_location,
+			const_shared_ptr<TypeTable> type_table,
+			const_shared_ptr<RecordType> source_type,
+			const_shared_ptr<string> name);
 };
 
 #endif /* EXPRESSIONS_USING_EXPRESSION_H_ */
