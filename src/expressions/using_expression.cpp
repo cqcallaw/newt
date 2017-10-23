@@ -307,7 +307,7 @@ const ErrorListRef UsingExpression::Validate(
 
 const ErrorListRef UsingExpression::ValidateMember(
 		const_shared_ptr<ComplexTypeSpecifier> expression_type_specifier,
-		const_shared_ptr<TypeSpecifier> return_type_specifier,
+		const_shared_ptr<TypeSpecifier> block_return_type_specifier,
 		const yy::location expression_location,
 		const_shared_ptr<TypeTable> type_table,
 		const_shared_ptr<RecordType> source_type,
@@ -335,25 +335,25 @@ const ErrorListRef UsingExpression::ValidateMember(
 						setup_as_maybe->GetBaseTypeSpecifier();
 
 				auto assignability = base_type_specifier->AnalyzeAssignmentTo(
-						return_type_specifier, *type_table);
+						block_return_type_specifier, *type_table);
 				if (assignability == AnalysisResult::AMBIGUOUS) {
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::USING_AMBIGUOUS_WIDENING_CONVERSION,
 									expression_location.begin.line,
 									expression_location.begin.column,
-									setup_return_type_specifier->ToString(),
-									return_type_specifier->ToString(), *name),
-							errors);
+									base_type_specifier->ToString(),
+									block_return_type_specifier->ToString(),
+									*name), errors);
 				} else if (assignability == INCOMPATIBLE) {
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::USING_ASSIGNMENT_TYPE_ERROR,
 									expression_location.begin.line,
 									expression_location.begin.column,
-									setup_return_type_specifier->ToString(),
-									return_type_specifier->ToString(), *name),
-							errors);
+									base_type_specifier->ToString(),
+									block_return_type_specifier->ToString(),
+									*name), errors);
 				}
 			} else {
 				errors =

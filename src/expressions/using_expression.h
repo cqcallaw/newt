@@ -59,7 +59,7 @@ private:
 
 	static const ErrorListRef ValidateMember(
 			const_shared_ptr<ComplexTypeSpecifier> expression_type_specifier,
-			const_shared_ptr<TypeSpecifier> return_type_specifier,
+			const_shared_ptr<TypeSpecifier> block_return_type_specifier,
 			const yy::location expression_location,
 			const_shared_ptr<TypeTable> type_table,
 			const_shared_ptr<RecordType> source_type,
