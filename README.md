@@ -67,6 +67,7 @@ a_var:double #every type in newt has an associated default value.
 ### Built-in types
 The following types are built-in:
 * boolean (default value: false)
+* byte (default value: 0)
 * int (default value: 0)
 * double (default value: 0.0)
 * string (default value: "")
