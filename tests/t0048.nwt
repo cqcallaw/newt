@@ -1,0 +1,2 @@
+# test zero byte
+r:byte = 0x00
