@@ -245,59 +245,65 @@ const ErrorListRef UsingExpression::Validate(
 	// check that expression generates valid disposable
 	// check that return type includes the disposable method return types
 	// validate body, including return type
-	auto type_table = execution_context->GetTypeTable();
-	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
-			execution_context, AliasResolution::RESOLVE);
-	auto errors = expression_type_specifier_result.GetErrors();
+	auto errors = m_expression->Validate(execution_context);
+
 	if (ErrorList::IsTerminator(errors)) {
-		auto expression_type_specifier =
-				expression_type_specifier_result.GetData();
-		auto expression_type_result = expression_type_specifier->GetType(
-				type_table, AliasResolution::RESOLVE);
-		errors = expression_type_result->GetErrors();
+		auto type_table = execution_context->GetTypeTable();
+		auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
+				execution_context, AliasResolution::RESOLVE);
+		errors = expression_type_specifier_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto expression_type = expression_type_result->GetData<
-					TypeDefinition>();
-			auto as_record = dynamic_pointer_cast<const RecordType>(
-					expression_type);
-			if (as_record) {
-				auto complex_expression_type_specifier = dynamic_pointer_cast<
-						const ComplexTypeSpecifier>(expression_type_specifier);
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
+			auto expression_type_result = expression_type_specifier->GetType(
+					type_table, AliasResolution::RESOLVE);
+			errors = expression_type_result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto expression_type = expression_type_result->GetData<
+						TypeDefinition>();
+				auto as_record = dynamic_pointer_cast<const RecordType>(
+						expression_type);
+				if (as_record) {
+					auto complex_expression_type_specifier =
+							dynamic_pointer_cast<const ComplexTypeSpecifier>(
+									expression_type_specifier);
 
-				errors = ErrorList::Concatenate(errors,
-						ValidateMember(complex_expression_type_specifier,
-								m_return_type_specifier,
-								m_expression->GetLocation(), type_table,
-								as_record, UsingExpression::SETUP_NAME));
-				errors = ErrorList::Concatenate(errors,
-						ValidateMember(complex_expression_type_specifier,
-								m_return_type_specifier,
-								m_expression->GetLocation(), type_table,
-								as_record, UsingExpression::TEARDOWN_NAME));
-				if (ErrorList::IsTerminator(errors)) {
-					// no source expression errors encountered; insert symbols into context
-					m_block_context->LinkToParent(execution_context);
-					auto default_value = expression_type->GetDefaultValue(
-							*type_table);
+					errors = ErrorList::Concatenate(errors,
+							ValidateMember(complex_expression_type_specifier,
+									m_return_type_specifier,
+									m_expression->GetLocation(), type_table,
+									as_record, UsingExpression::SETUP_NAME));
+					errors = ErrorList::Concatenate(errors,
+							ValidateMember(complex_expression_type_specifier,
+									m_return_type_specifier,
+									m_expression->GetLocation(), type_table,
+									as_record, UsingExpression::TEARDOWN_NAME));
+					if (ErrorList::IsTerminator(errors)) {
+						// no source expression errors encountered; insert symbols into context
+						m_block_context->LinkToParent(execution_context);
+						auto default_value = expression_type->GetDefaultValue(
+								*type_table);
 
-					auto default_symbol = expression_type->GetSymbol(type_table,
-							expression_type_specifier, default_value);
-					m_block_context->InsertSymbol(*m_identifier,
-							default_symbol);
+						auto default_symbol = expression_type->GetSymbol(
+								type_table, expression_type_specifier,
+								default_value);
+						m_block_context->InsertSymbol(*m_identifier,
+								default_symbol);
 
-					auto preprocess_result = m_body->Preprocess(m_block_context,
-							m_return_type_specifier);
+						auto preprocess_result = m_body->Preprocess(
+								m_block_context, m_return_type_specifier);
 
-					errors = preprocess_result.GetErrors();
+						errors = preprocess_result.GetErrors();
+					}
+				} else {
+					// error: not a record
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::STMT_SOURCE_MUST_BE_RECORD,
+									m_expression->GetLocation().begin.line,
+									m_expression->GetLocation().begin.column),
+							errors);
 				}
-			} else {
-				// error: not a record
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::STMT_SOURCE_MUST_BE_RECORD,
-								m_expression->GetLocation().begin.line,
-								m_expression->GetLocation().begin.column),
-						errors);
 			}
 		}
 	}
