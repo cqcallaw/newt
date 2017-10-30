@@ -250,7 +250,7 @@ const string Error::get_error_message() const {
 				<< "Foreach statement source's 'next' member type's base type must be the source type.";
 		break;
 	case USING_ASSIGNMENT_TYPE_ERROR:
-		os << "Return type '" << m_s1 << "' of source member '" << m_s3
+		os << "Basic return type '" << m_s1 << "' of source member '" << m_s3
 				<< "' cannot be assigned to block result type '" << m_s2
 				<< "'.";
 		break;
