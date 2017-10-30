@@ -1,0 +1,4 @@
+Parsing file ../tests/t10107.nwt...
+Semantic error on line 25, column 2: Control reaches end of non-void function without complete return coverage.
+Parsed file ../tests/t10107.nwt.
+1 error found; giving up.

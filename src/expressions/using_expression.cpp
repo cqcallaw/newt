@@ -294,6 +294,15 @@ const ErrorListRef UsingExpression::Validate(
 								m_block_context, m_return_type_specifier);
 
 						errors = preprocess_result.GetErrors();
+
+						if (preprocess_result.GetReturnCoverage()
+								!= PreprocessResult::ReturnCoverage::FULL) {
+							errors = ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::MISSING_RETURN_COVERAGE,
+											GetLocation().end.line,
+											GetLocation().end.column), errors);
+						}
 					}
 				} else {
 					// error: not a record
