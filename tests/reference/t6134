@@ -1,0 +1,4 @@
+Parsing file ../tests/t6134.nwt...
+Semantic error on line 7, column 38: Sum type variants may not be referenced as data.
+Parsed file ../tests/t6134.nwt.
+1 error found; giving up.

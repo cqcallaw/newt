@@ -552,13 +552,32 @@ const ErrorListRef MemberVariable::Validate(
 					*m_member_variable->GetName());
 
 			if (!constructor) {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::UNDECLARED_MEMBER,
-								m_member_variable->GetLocation().begin.line,
-								m_member_variable->GetLocation().begin.column,
-								*m_member_variable->ToString(context),
-								*m_container->ToString(context)), errors);
+				auto member_reference = as_sum_type->GetDefinition()->GetType<
+						TypeDefinition>(m_member_variable->GetName(), SHALLOW,
+						RETURN);
+				if (member_reference) {
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::CANNOT_REFERENCE_SUM_VARIANT_AS_DATA,
+											m_member_variable->GetLocation().begin.line,
+											m_member_variable->GetLocation().begin.column,
+											*m_member_variable->ToString(
+													context),
+											*m_container->ToString(context)),
+									errors);
+				} else {
+					errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::UNDECLARED_MEMBER,
+											m_member_variable->GetLocation().begin.line,
+											m_member_variable->GetLocation().begin.column,
+											*m_member_variable->ToString(
+													context),
+											*m_container->ToString(context)),
+									errors);
+				}
 			}
 		} else {
 			errors = ErrorList::From(

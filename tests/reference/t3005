@@ -1,0 +1,15 @@
+Parsing file ../tests/t3005.nwt...
+Parsed file ../tests/t3005.nwt.
+Root Symbol Table:
+----------------
+double a: 1
+
+Root Type Table:
+----------------
+point:
+	<record>
+	x:
+		double (1)
+	y:
+		double (0)
+

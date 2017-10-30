@@ -1,0 +1,7 @@
+connection_error {
+	aborted
+	| refused
+	| reset
+}
+
+t:connection_error= connection_error.reset

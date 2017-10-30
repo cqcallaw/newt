@@ -264,6 +264,20 @@ color {
 }
 ```
 
+The values of unit variants of a sum type may be accessed in the same way as any other variant:
+
+```
+color {
+    red
+    | blue
+    | green
+    | yellow
+    | orange
+}
+
+c:color= @color.red
+```
+
 #### Maybe Types
 
 One sum type is common enough to warrent special syntax, that of the "Maybe" type. This type is expressed as type indentifier followed by a question mark ('?'):
