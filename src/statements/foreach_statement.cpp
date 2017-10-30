@@ -29,6 +29,7 @@
 #include <record.h>
 #include <basic_variable.h>
 #include <variable_expression.h>
+#include <unit_type.h>
 
 const_shared_ptr<std::string> ForeachStatement::NEXT_NAME = make_shared<
 		std::string>("next");
@@ -73,6 +74,20 @@ const PreprocessResult ForeachStatement::Preprocess(
 			if (ErrorList::IsTerminator(expression_type_errors)) {
 				auto expression_type = expression_type_result->GetData<
 						TypeDefinition>();
+				auto soure_type_specifier = expression_type_specifier;
+
+				auto as_maybe = dynamic_pointer_cast<const MaybeType>(
+						expression_type);
+				if (as_maybe) {
+					expression_type = as_maybe->GetDefinition()->GetType<
+							TypeDefinition>(MaybeTypeSpecifier::VARIANT_NAME,
+							DEEP, RESOLVE);
+					auto expression_specifier_as_maybe = dynamic_pointer_cast<
+							const MaybeTypeSpecifier>(soure_type_specifier);
+					expression_type_specifier =
+							expression_specifier_as_maybe->GetBaseTypeSpecifier();
+				}
+
 				auto as_record = dynamic_pointer_cast<const RecordType>(
 						expression_type);
 
@@ -199,16 +214,31 @@ const ErrorListRef ForeachStatement::Execute(
 		if (ErrorList::IsTerminator(errors)) {
 			auto raw_value = eval->GetRawData();
 			auto tag = make_shared<const string>("BEGIN THE LOOP");
-			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-					expression_type_specifier);
+
+			plain_shared_ptr<ComplexTypeSpecifier> source_type_specifier;
+			auto as_maybe_specifier = dynamic_pointer_cast<
+					const MaybeTypeSpecifier>(expression_type_specifier);
+			if (as_maybe_specifier) {
+				source_type_specifier = dynamic_pointer_cast<
+						const ComplexTypeSpecifier>(
+						as_maybe_specifier->GetBaseTypeSpecifier());
+
+				auto as_sum = static_pointer_cast<const Sum>(raw_value);
+				tag = as_sum->GetTag();
+				raw_value = as_sum->GetValue();
+			} else {
+				source_type_specifier = dynamic_pointer_cast<
+						const ComplexTypeSpecifier>(expression_type_specifier);
+			}
 
 			while (ErrorList::IsTerminator(errors)
 					&& *tag != *TypeTable::GetNilName()) {
 				auto record = static_pointer_cast<const Record>(raw_value);
 				assert(record);
-				auto symbol = make_shared<const Symbol>(as_complex, record);
+				auto symbol = make_shared<const Symbol>(source_type_specifier,
+						record);
 				auto set_result = execution_context->SetSymbol(
-						*m_evaluation_identifier, as_complex, record,
+						*m_evaluation_identifier, source_type_specifier, record,
 						context->GetTypeTable());
 				assert(set_result == SET_SUCCESS);
 
@@ -231,8 +261,8 @@ const ErrorListRef ForeachStatement::Execute(
 						const FunctionTypeSpecifier>(member_type_specifier);
 				if (as_function_type_specifier) {
 					auto function_eval = EvaluateMemberFunction(record,
-							as_complex, ForeachStatement::NEXT_NAME, context,
-							closure);
+							source_type_specifier, ForeachStatement::NEXT_NAME,
+							context, closure);
 
 					auto function_eval_errors = function_eval->GetErrors();
 					if (ErrorList::IsTerminator(function_eval_errors)) {
