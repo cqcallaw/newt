@@ -143,6 +143,13 @@ const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
 				return make_shared<Result>(boolean_maybe_type,
 						ErrorList::GetTerminator());
 			}
+			case BYTE: {
+				static const_shared_ptr<MaybeType> byte_maybe_type =
+						MaybeType::Build(PrimitiveTypeSpecifier::GetByte())->GetData<
+								MaybeType>();
+				return make_shared<Result>(byte_maybe_type,
+						ErrorList::GetTerminator());
+			}
 			case INT: {
 				static const_shared_ptr<MaybeType> int_maybe_type =
 						MaybeType::Build(PrimitiveTypeSpecifier::GetInt())->GetData<
