@@ -60,10 +60,12 @@ TypedResult<string> Expression::ToString(
 					case BOOLEAN:
 						buffer << *(evaluation->GetData<bool>());
 						break;
-					case BYTE:
+					case BYTE: {
 						buffer << std::hex << uppercase
-								<< *(evaluation->GetData<std::uint8_t>());
+								<< unsigned(
+										*(evaluation->GetData<std::uint8_t>()));
 						break;
+					}
 					case INT:
 						buffer << *(evaluation->GetData<int>());
 						break;
