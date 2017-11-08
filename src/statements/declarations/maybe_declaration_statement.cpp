@@ -69,29 +69,34 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 						m_type_specifier, *type_table)) {
 					if (*initializer_type_specifier
 							!= *TypeTable::GetNilTypeSpecifier()) {
-						if (initializer->IsConstant()) {
-							auto result = initializer->Evaluate(context,
-									closure);
-							errors = result->GetErrors();
-							if (ErrorList::IsTerminator(errors)) {
-								if (*initializer_type_specifier
-										== *m_type_specifier) {
-									//direct assignment
-									value = result->GetData<Sum>();
-								} else {
-									//widening conversion
-									value = make_shared<Sum>(
-											MaybeTypeSpecifier::VARIANT_NAME,
-											result->GetRawData());
+						errors = initializer->Validate(context);
+						if (ErrorList::IsTerminator(errors)) {
+							if (initializer->IsConstant()) {
+								auto result = initializer->Evaluate(context,
+										closure);
+								errors = result->GetErrors();
+								if (ErrorList::IsTerminator(errors)) {
+									if (*initializer_type_specifier
+											== *m_type_specifier) {
+										//direct assignment
+										value = result->GetData<Sum>();
+									} else {
+										//widening conversion
+										value =
+												make_shared<Sum>(
+														MaybeTypeSpecifier::VARIANT_NAME,
+														result->GetRawData());
 
-									auto type = m_type_specifier->GetType(
-											type_table, RESOLVE)->GetData<
-											SumType>();
+										auto type = m_type_specifier->GetType(
+												type_table, RESOLVE)->GetData<
+												SumType>();
+									}
 								}
+							} else {
+								value = static_pointer_cast<const Sum>(
+										m_type_specifier->DefaultValue(
+												type_table));
 							}
-						} else {
-							value = static_pointer_cast<const Sum>(
-									m_type_specifier->DefaultValue(type_table));
 						}
 					}
 				} else {
