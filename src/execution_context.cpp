@@ -138,7 +138,7 @@ const shared_ptr<ExecutionContext> ExecutionContext::GetRuntimeInstance(
 	}
 
 	auto execution_context = make_shared<ExecutionContext>(source->Clone(),
-			Modifier::MUTABLE, new_parent, new_type_table, TEMPORARY,
+			Modifier::MUTABLE, new_parent, new_type_table, EPHEMERAL,
 			parent->GetDepth() + 1);
 
 	return execution_context;

@@ -147,8 +147,10 @@ const PreprocessResult MatchStatement::Preprocess(
 											default_symbol);
 
 									matched_context->LinkToParent(context);
+									// use match context as closure context so match variables are defined in closure
 									auto match_preprocess_result =
 											match_body->Preprocess(
+													matched_context,
 													matched_context,
 													return_type_specifier);
 									auto match_return_coverage =
@@ -159,11 +161,12 @@ const PreprocessResult MatchStatement::Preprocess(
 													return_coverage,
 													match_return_coverage,
 													initial_state);
-									initial_state = false;
 
 									errors =
 											ErrorList::Concatenate(errors,
 													match_preprocess_result.GetErrors());
+
+									initial_state = false;
 								} else {
 									errors =
 											ErrorList::From(
@@ -199,9 +202,11 @@ const PreprocessResult MatchStatement::Preprocess(
 					if (*variant_names != *match_names) {
 						// make sure partial matches are made complete by a default match block
 						if (default_match_block) {
-							//we have a default match block; preprocess it
+							// we have a default match block; preprocess it
+							// use match context as closure context so match variables are defined in closure
 							auto default_block_preprocess_result =
 									default_match_block->Preprocess(
+											default_match_context,
 											default_match_context,
 											return_type_specifier);
 
@@ -344,10 +349,12 @@ const ErrorListRef MatchStatement::Execute(
 										context->GetTypeTable());
 								assert(set_result == SET_SUCCESS);
 
+								// use execution context for closure so internal function closures are correct
 								auto block_errors = match_body->Execute(
-										execution_context);
+										execution_context, execution_context);
 								context->SetReturnValue(
 										execution_context->GetReturnValue());
+								execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
 								errors = ErrorList::Concatenate(errors,
 										block_errors);
@@ -389,9 +396,10 @@ const ErrorListRef MatchStatement::Execute(
 											default_match_context, context);
 
 							auto block_errors = default_match_block->Execute(
-									execution_context);
+									execution_context, closure);
 							context->SetReturnValue(
 									execution_context->GetReturnValue());
+							execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
 							errors = ErrorList::Concatenate(errors,
 									block_errors);

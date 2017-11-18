@@ -247,8 +247,8 @@ const ErrorListRef ForeachStatement::Execute(
 				errors = ErrorList::Concatenate(errors, execution_errors);
 				auto return_value = execution_context->GetReturnValue();
 				if (return_value != Symbol::GetDefaultSymbol()) {
-					context->SetReturnValue(
-							execution_context->GetReturnValue());
+					context->SetReturnValue(return_value);
+					execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 					break;
 				}
 				auto definition = record->GetDefinition();

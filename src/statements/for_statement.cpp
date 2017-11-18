@@ -54,16 +54,11 @@ const PreprocessResult ForStatement::Preprocess(
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = ErrorList::GetTerminator();
 
-	ExecutionContextListRef context_parent = ExecutionContextList::From(context,
-			context->GetParent());
-	auto new_block_typetable = m_block_context->GetTypeTable()->WithParent(
-			context->GetTypeTable());
-
 	m_block_context->LinkToParent(context);
 
 	if (m_initial) {
 		auto initial_preprocess_result = m_initial->Preprocess(m_block_context,
-				m_block_context, return_type_specifier);
+				closure, return_type_specifier);
 		errors = initial_preprocess_result.GetErrors();
 		if (!ErrorList::IsTerminator(errors)) {
 			return PreprocessResult(PreprocessResult::ReturnCoverage::NONE,
@@ -87,8 +82,10 @@ const PreprocessResult ForStatement::Preprocess(
 							context->GetTypeTable());
 			if (loop_expression_analysis == EQUIVALENT
 					|| loop_expression_analysis == UNAMBIGUOUS) {
+				// use block context for closure so internal function closures are correct
 				auto block_preprocess_result = m_statement_block->Preprocess(
-						m_block_context, return_type_specifier);
+						m_block_context, m_block_context,
+						return_type_specifier);
 				return_coverage = block_preprocess_result.GetReturnCoverage();
 				errors = block_preprocess_result.GetErrors();
 			} else {
@@ -125,12 +122,13 @@ const ErrorListRef ForStatement::Execute(
 		while (*(evaluation->GetData<bool>())) {
 			ErrorListRef iteration_errors = ErrorList::GetTerminator();
 			if (m_statement_block) {
-				iteration_errors = m_statement_block->Execute(
+				// use execution context as closure so internal functions close over the correct context
+				iteration_errors = m_statement_block->Execute(execution_context,
 						execution_context);
 				auto return_value = execution_context->GetReturnValue();
 				if (return_value != Symbol::GetDefaultSymbol()) {
-					context->SetReturnValue(
-							execution_context->GetReturnValue());
+					context->SetReturnValue(return_value);
+					execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 					break;
 				}
 			}
@@ -140,7 +138,7 @@ const ErrorListRef ForStatement::Execute(
 			}
 
 			auto assignment_errors = m_loop_assignment->Execute(
-					execution_context, execution_context);
+					execution_context, closure);
 			if (!ErrorList::IsTerminator(assignment_errors)) {
 				errors = iteration_errors;
 				break;

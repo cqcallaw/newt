@@ -73,7 +73,7 @@ const PreprocessResult IfStatement::Preprocess(
 				m_block_context->LinkToParent(context);
 
 				auto block_result = m_block->Preprocess(m_block_context,
-						return_type_specifier);
+						closure, return_type_specifier);
 				auto block_return_coverage = block_result.GetReturnCoverage();
 
 				return_coverage = ReturnStatement::CoverageTransition(
@@ -126,12 +126,14 @@ const ErrorListRef IfStatement::Execute(
 
 		errors = m_block->Execute(execution_context, closure);
 		context->SetReturnValue(execution_context->GetReturnValue());
+		execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 	} else if (m_else_block) {
 		auto execution_context = ExecutionContext::GetRuntimeInstance(
 				m_block_context, context);
 
 		errors = m_else_block->Execute(execution_context, closure);
 		context->SetReturnValue(execution_context->GetReturnValue());
+		execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 	}
 
 	return errors;

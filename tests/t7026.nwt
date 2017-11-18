@@ -1,0 +1,11 @@
+# test closing over for statement context
+f:= (v:int) -> () -> int {
+	for(i:= 0; i < 5; i += 1) {
+		return () -> int {
+			return i
+		}
+	}
+}
+
+r := f(3)
+s := r()
