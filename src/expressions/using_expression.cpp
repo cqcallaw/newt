@@ -59,17 +59,12 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	// call setup
-
 	// inject value of expression into block
-
 	// execute block
-
 	// call teardown
 
 	auto errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> value = nullptr;
-	auto execution_context = ExecutionContext::GetRuntimeInstance(
-			m_block_context, context);
 
 	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
 			context, RESOLVE);
@@ -80,41 +75,163 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 		auto expression_type_specifier =
 				expression_type_specifier_result.GetData();
 
-		auto eval = m_expression->Evaluate(context, closure);
+		auto execution_context = ExecutionContext::GetRuntimeInstance(
+				m_block_context, context);
+		auto type_table = context->GetTypeTable();
 
-		errors = eval->GetErrors();
+		auto expression_type_result = expression_type_specifier->GetType(
+				type_table, AliasResolution::RESOLVE);
+		errors = expression_type_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			auto raw_value = eval->GetRawData();
-			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-					expression_type_specifier);
+			auto expression_type = expression_type_result->GetData<
+					TypeDefinition>();
+			auto default_value = expression_type->GetDefaultValue(*type_table);
 
-			auto record = static_pointer_cast<const Record>(raw_value);
-			assert(record);
+			auto eval = m_expression->Evaluate(context, closure);
 
-			// call setup
-			auto setup_eval = ForeachStatement::EvaluateMemberFunction(record,
-					as_complex, UsingExpression::SETUP_NAME, context, closure);
+			errors = eval->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto raw_value = eval->GetRawData();
+				auto as_complex = dynamic_pointer_cast<
+						const ComplexTypeSpecifier>(expression_type_specifier);
 
-			auto setup_errors = setup_eval->GetErrors();
-			if (ErrorList::IsTerminator(setup_errors)) {
-				auto setup_eval_value = setup_eval->GetData<Sum>();
-				auto tag = setup_eval_value->GetTag();
+				auto record = static_pointer_cast<const Record>(raw_value);
+				assert(record);
 
-				if (tag == TypeTable::GetNilName()) {
-					auto symbol = make_shared<const Symbol>(as_complex, record);
-					auto set_result = execution_context->SetSymbol(
-							*m_identifier, as_complex, record,
-							context->GetTypeTable());
-					assert(set_result == SET_SUCCESS);
+				// call setup
+				auto setup_eval = ForeachStatement::EvaluateMemberFunction(
+						record, as_complex, UsingExpression::SETUP_NAME,
+						context, closure);
 
-					auto execution_errors = m_body->Execute(execution_context);
-					errors = ErrorList::Concatenate(errors, execution_errors);
-					auto return_value = execution_context->GetReturnValue();
-					if (return_value != Symbol::GetDefaultSymbol()) {
+				auto setup_errors = setup_eval->GetErrors();
+				if (ErrorList::IsTerminator(setup_errors)) {
+					auto setup_eval_value = setup_eval->GetData<Sum>();
+					auto setup_result_tag = setup_eval_value->GetTag();
+
+					if (setup_result_tag == TypeTable::GetNilName()) {
+						// no setup errors; clear to continue
+						auto symbol = make_shared<const Symbol>(as_complex,
+								record);
+						auto set_result = execution_context->SetSymbol(
+								*m_identifier, as_complex, record,
+								context->GetTypeTable());
+						assert(set_result == SET_SUCCESS);
+
+						auto execution_errors = m_body->Execute(
+								execution_context);
+						errors = ErrorList::Concatenate(errors,
+								execution_errors);
+						auto return_value = execution_context->GetReturnValue();
+						if (return_value != Symbol::GetDefaultSymbol()) {
+							auto final_return_value_result =
+									Function::GetFinalReturnValue(
+											return_value->GetValue(),
+											return_value->GetTypeSpecifier(),
+											m_return_type_specifier,
+											context->GetTypeTable());
+							auto final_return_value_errors =
+									final_return_value_result->GetErrors();
+
+							if (ErrorList::IsTerminator(
+									final_return_value_errors)) {
+								value = final_return_value_result->GetRawData();
+							} else {
+								errors = ErrorList::Concatenate(errors,
+										final_return_value_errors);
+							}
+
+							execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+						}
+
+						// call tear down
+						auto teardown_eval =
+								ForeachStatement::EvaluateMemberFunction(record,
+										as_complex,
+										UsingExpression::TEARDOWN_NAME, context,
+										closure);
+						auto teardown_errors = teardown_eval->GetErrors();
+						if (ErrorList::IsTerminator(teardown_errors)) {
+							auto teardown_eval_value = teardown_eval->GetData<
+									Sum>();
+							auto tag = teardown_eval_value->GetTag();
+
+							if (tag != TypeTable::GetNilName()) {
+								// in-band teardown error
+								// N.B. that this will replace the output of the using block
+								auto teardown_symbol =
+										record->GetDefinition()->GetSymbol(
+												*UsingExpression::TEARDOWN_NAME);
+								assert(
+										teardown_symbol
+												!= Symbol::GetDefaultSymbol());
+
+								auto teardown_symbol_type =
+										teardown_symbol->GetTypeSpecifier();
+								auto teardown_type_as_function =
+										dynamic_pointer_cast<
+												const FunctionTypeSpecifier>(
+												teardown_symbol_type);
+								assert(teardown_type_as_function);
+
+								auto teardown_return_type_specifier =
+										teardown_type_as_function->GetReturnTypeSpecifier();
+								auto teardown_return_as_maybe =
+										dynamic_pointer_cast<
+												const MaybeTypeSpecifier>(
+												teardown_return_type_specifier);
+								assert(teardown_return_as_maybe);
+
+								auto teardown_return_base_type_specifier =
+										teardown_return_as_maybe->GetBaseTypeSpecifier();
+
+								auto final_return_value_result =
+										Function::GetFinalReturnValue(
+												teardown_eval_value->GetValue(),
+												teardown_return_base_type_specifier,
+												m_return_type_specifier,
+												context->GetTypeTable());
+								auto final_return_value_errors =
+										final_return_value_result->GetErrors();
+
+								if (ErrorList::IsTerminator(
+										final_return_value_errors)) {
+									value =
+											final_return_value_result->GetRawData();
+								} else {
+									errors = ErrorList::Concatenate(errors,
+											final_return_value_errors);
+								}
+							}
+						} else {
+							errors = ErrorList::Concatenate(errors,
+									teardown_errors);
+						}
+					} else {
+						// in-band setup error
+						auto setup_symbol = record->GetDefinition()->GetSymbol(
+								*UsingExpression::SETUP_NAME);
+						assert(setup_symbol != Symbol::GetDefaultSymbol());
+
+						auto setup_symbol_type =
+								setup_symbol->GetTypeSpecifier();
+						auto setup_type_as_function = dynamic_pointer_cast<
+								const FunctionTypeSpecifier>(setup_symbol_type);
+						assert(setup_type_as_function);
+
+						auto setup_return_type_specifier =
+								setup_type_as_function->GetReturnTypeSpecifier();
+						auto setup_return_as_maybe = dynamic_pointer_cast<
+								const MaybeTypeSpecifier>(
+								setup_return_type_specifier);
+						assert(setup_return_as_maybe);
+
+						auto setup_return_base_type_specifier =
+								setup_return_as_maybe->GetBaseTypeSpecifier();
+
 						auto final_return_value_result =
 								Function::GetFinalReturnValue(
-										return_value->GetValue(),
-										return_value->GetTypeSpecifier(),
+										setup_eval_value->GetValue(),
+										setup_return_base_type_specifier,
 										m_return_type_specifier,
 										context->GetTypeTable());
 						auto final_return_value_errors =
@@ -128,107 +245,9 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 									final_return_value_errors);
 						}
 					}
-
-					// call tear down
-					auto teardown_eval =
-							ForeachStatement::EvaluateMemberFunction(record,
-									as_complex, UsingExpression::TEARDOWN_NAME,
-									context, closure);
-					auto teardown_errors = teardown_eval->GetErrors();
-					if (ErrorList::IsTerminator(teardown_errors)) {
-						auto teardown_eval_value =
-								teardown_eval->GetData<Sum>();
-						auto tag = teardown_eval_value->GetTag();
-
-						if (tag != TypeTable::GetNilName()) {
-							// in-band teardown error
-							// N.B. that this will replace the output of the using block
-							auto teardown_symbol =
-									record->GetDefinition()->GetSymbol(
-											*UsingExpression::TEARDOWN_NAME);
-							assert(
-									teardown_symbol
-											!= Symbol::GetDefaultSymbol());
-
-							auto teardown_symbol_type =
-									teardown_symbol->GetTypeSpecifier();
-							auto teardown_type_as_function =
-									dynamic_pointer_cast<
-											const FunctionTypeSpecifier>(
-											teardown_symbol_type);
-							assert(teardown_type_as_function);
-
-							auto teardown_return_type_specifier =
-									teardown_type_as_function->GetReturnTypeSpecifier();
-							auto teardown_return_as_maybe =
-									dynamic_pointer_cast<
-											const MaybeTypeSpecifier>(
-											teardown_return_type_specifier);
-							assert(teardown_return_as_maybe);
-
-							auto teardown_return_base_type_specifier =
-									teardown_return_as_maybe->GetBaseTypeSpecifier();
-
-							auto final_return_value_result =
-									Function::GetFinalReturnValue(
-											teardown_eval_value->GetValue(),
-											teardown_return_base_type_specifier,
-											m_return_type_specifier,
-											context->GetTypeTable());
-							auto final_return_value_errors =
-									final_return_value_result->GetErrors();
-
-							if (ErrorList::IsTerminator(
-									final_return_value_errors)) {
-								value = final_return_value_result->GetRawData();
-							} else {
-								errors = ErrorList::Concatenate(errors,
-										final_return_value_errors);
-							}
-						}
-					} else {
-						errors = ErrorList::Concatenate(errors,
-								teardown_errors);
-					}
 				} else {
-					// in-band setup error
-					auto setup_symbol = record->GetDefinition()->GetSymbol(
-							*UsingExpression::SETUP_NAME);
-					assert(setup_symbol != Symbol::GetDefaultSymbol());
-
-					auto setup_symbol_type = setup_symbol->GetTypeSpecifier();
-					auto setup_type_as_function = dynamic_pointer_cast<
-							const FunctionTypeSpecifier>(setup_symbol_type);
-					assert(setup_type_as_function);
-
-					auto setup_return_type_specifier =
-							setup_type_as_function->GetReturnTypeSpecifier();
-					auto setup_return_as_maybe = dynamic_pointer_cast<
-							const MaybeTypeSpecifier>(
-							setup_return_type_specifier);
-					assert(setup_return_as_maybe);
-
-					auto setup_return_base_type_specifier =
-							setup_return_as_maybe->GetBaseTypeSpecifier();
-
-					auto final_return_value_result =
-							Function::GetFinalReturnValue(
-									setup_eval_value->GetValue(),
-									setup_return_base_type_specifier,
-									m_return_type_specifier,
-									context->GetTypeTable());
-					auto final_return_value_errors =
-							final_return_value_result->GetErrors();
-
-					if (ErrorList::IsTerminator(final_return_value_errors)) {
-						value = final_return_value_result->GetRawData();
-					} else {
-						errors = ErrorList::Concatenate(errors,
-								final_return_value_errors);
-					}
+					errors = ErrorList::Concatenate(errors, setup_errors);
 				}
-			} else {
-				errors = ErrorList::Concatenate(errors, setup_errors);
 			}
 		}
 	}
