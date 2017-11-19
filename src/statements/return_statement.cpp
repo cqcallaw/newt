@@ -70,13 +70,12 @@ const PreprocessResult ReturnStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::FULL, errors);
 }
 
-const ErrorListRef ReturnStatement::Execute(
+const ExecutionResult ReturnStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
 	auto result = m_expression->Evaluate(context, closure);
 
-	errors = result->GetErrors();
+	auto errors = result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
 				context);
@@ -85,14 +84,14 @@ const ErrorListRef ReturnStatement::Execute(
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();
-			context->SetReturnValue(
+			return ExecutionResult(
 					const_shared_ptr<Symbol>(
 							new Symbol(expression_type_specifier,
 									result->GetRawData())));
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 
 const PreprocessResult::ReturnCoverage ReturnStatement::CoverageTransition(

@@ -77,10 +77,10 @@ const PreprocessResult RecordDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef RecordDeclarationStatement::Execute(
+const ExecutionResult RecordDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	return ErrorList::GetTerminator();
+	return ExecutionResult();
 }
 
 const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpression(

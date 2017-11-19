@@ -686,10 +686,10 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 	return make_shared<Result>(wrapper, errors);
 }
 
-const ErrorListRef AssignmentStatement::Execute(
+const ExecutionResult AssignmentStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	auto errors = ErrorList::GetTerminator();
 
 	if (m_variable == nullptr || m_expression == nullptr) {
 		assert(false);
@@ -711,6 +711,6 @@ const ErrorListRef AssignmentStatement::Execute(
 				errors);
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 

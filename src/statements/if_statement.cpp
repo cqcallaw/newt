@@ -111,11 +111,9 @@ const PreprocessResult IfStatement::Preprocess(
 	return PreprocessResult(return_coverage, errors);
 }
 
-const ErrorListRef IfStatement::Execute(
+const ExecutionResult IfStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	auto errors = ErrorList::GetTerminator();
-
 	auto evaluation = m_expression->Evaluate(context, closure);
 	// NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *(evaluation->GetData<bool>());
@@ -124,17 +122,13 @@ const ErrorListRef IfStatement::Execute(
 		auto execution_context = ExecutionContext::GetRuntimeInstance(
 				m_block_context, context);
 
-		errors = m_block->Execute(execution_context, closure);
-		context->SetReturnValue(execution_context->GetReturnValue());
-		execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+		return m_block->Execute(execution_context, closure);
 	} else if (m_else_block) {
 		auto execution_context = ExecutionContext::GetRuntimeInstance(
 				m_block_context, context);
 
-		errors = m_else_block->Execute(execution_context, closure);
-		context->SetReturnValue(execution_context->GetReturnValue());
-		execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+		return m_else_block->Execute(execution_context, closure);
 	}
 
-	return errors;
+	return ExecutionResult();
 }

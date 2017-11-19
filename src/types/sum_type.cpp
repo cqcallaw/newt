@@ -206,7 +206,7 @@ const_shared_ptr<Result> SumType::Build(
 								parameter_preprocess_errors)) {
 							auto parameter_execute_errors =
 									parameter_declaration->Execute(
-											variant_context, closure);
+											variant_context, closure).GetErrors();
 							if (ErrorList::IsTerminator(
 									parameter_execute_errors)) {
 								auto symbol = make_shared<Symbol>(function);

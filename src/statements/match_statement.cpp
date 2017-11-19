@@ -270,13 +270,14 @@ const PreprocessResult MatchStatement::Preprocess(
 	return PreprocessResult(return_coverage, errors);
 }
 
-const ErrorListRef MatchStatement::Execute(
+const ExecutionResult MatchStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto expression_type_specifier_result =
 			m_source_expression->GetTypeSpecifier(context);
 
 	auto errors = expression_type_specifier_result.GetErrors();
+	auto return_value = Symbol::GetDefaultSymbol();
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier =
 				expression_type_specifier_result.GetData();
@@ -350,14 +351,11 @@ const ErrorListRef MatchStatement::Execute(
 								assert(set_result == SET_SUCCESS);
 
 								// use execution context for closure so internal function closures are correct
-								auto block_errors = match_body->Execute(
+								auto block_result = match_body->Execute(
 										execution_context, execution_context);
-								context->SetReturnValue(
-										execution_context->GetReturnValue());
-								execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
-
+								return_value = block_result.GetReturnValue();
 								errors = ErrorList::Concatenate(errors,
-										block_errors);
+										block_result.GetErrors());
 
 								// unset symbol so we don't get reference loops if the match context is part of a recursive definition
 								set_result = matched_context->SetSymbol(
@@ -395,14 +393,11 @@ const ErrorListRef MatchStatement::Execute(
 									ExecutionContext::GetRuntimeInstance(
 											default_match_context, context);
 
-							auto block_errors = default_match_block->Execute(
-									execution_context, closure);
-							context->SetReturnValue(
-									execution_context->GetReturnValue());
-							execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
-
+							auto block_result = default_match_block->Execute(
+									execution_context, execution_context);
+							return_value = block_result.GetReturnValue();
 							errors = ErrorList::Concatenate(errors,
-									block_errors);
+									block_result.GetErrors());
 						} else {
 							errors =
 									ErrorList::From(
@@ -426,7 +421,11 @@ const ErrorListRef MatchStatement::Execute(
 		}
 	}
 
-	return errors;
+	if (!ErrorList::IsTerminator(errors)) {
+		return ExecutionResult(errors);
+	} else {
+		return ExecutionResult(return_value);
+	}
 }
 
 const MatchContextListRef MatchStatement::GenerateMatchContexts(

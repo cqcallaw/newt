@@ -154,10 +154,10 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef NestedDeclarationStatement::Execute(
+const ExecutionResult NestedDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	auto errors = ErrorList::GetTerminator();
 
 	if (GetInitializerExpression()
 			&& !GetInitializerExpression()->IsConstant()) {
@@ -167,9 +167,9 @@ const ErrorListRef NestedDeclarationStatement::Execute(
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 
-		return errors;
+		return ExecutionResult(errors);
 	} else {
-		return ErrorList::GetTerminator();
+		return ExecutionResult();
 	}
 
 	return errors;

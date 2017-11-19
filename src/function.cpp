@@ -186,8 +186,9 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 
 	if (ErrorList::IsTerminator(errors)) {
 		// the use of the function context as a closure is required for functions that yield functions, e.g. partial applicators
-		auto execute_errors = body->Execute(function_execution_context,
+		auto execute_result = body->Execute(function_execution_context,
 				function_execution_context);
+		auto execute_errors = execute_result.GetErrors();
 		if (ErrorList::IsTerminator(execute_errors)) {
 			if (*declaration->GetReturnTypeSpecifier()
 					== *TypeTable::GetNilTypeSpecifier()) {
@@ -196,9 +197,8 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 								closure_reference->GetTypeTable()), errors);
 			} else {
 				plain_shared_ptr<Symbol> evaluation_result =
-						function_execution_context->GetReturnValue();
+						execute_result.GetReturnValue();
 				assert(evaluation_result);
-				function_execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 
 				auto final_return_result = GetFinalReturnValue(
 						evaluation_result->GetValue(),

@@ -42,11 +42,11 @@ const PreprocessResult TypeAliasDeclarationStatement::Preprocess(
 			ErrorList::GetTerminator());
 }
 
-const ErrorListRef TypeAliasDeclarationStatement::Execute(
+const ExecutionResult TypeAliasDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	//no-op
-	return ErrorList::GetTerminator();
+	return ExecutionResult();
 }
 
 const DeclarationStatement* TypeAliasDeclarationStatement::WithInitializerExpression(

@@ -102,45 +102,46 @@ const PreprocessResult ForStatement::Preprocess(
 	return PreprocessResult(return_coverage, errors);
 }
 
-const ErrorListRef ForStatement::Execute(
+const ExecutionResult ForStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto execution_context = ExecutionContext::GetRuntimeInstance(
 			m_block_context, context);
 
+	auto errors = ErrorList::GetTerminator();
 	if (m_initial) {
-		auto initialization_errors = m_initial->Execute(execution_context,
+		auto initialization_result = m_initial->Execute(execution_context,
 				closure);
-		if (!ErrorList::IsTerminator(initialization_errors)) {
-			return initialization_errors;
+		errors = initialization_result.GetErrors();
+		if (!ErrorList::IsTerminator(errors)) {
+			return ExecutionResult(errors);
 		}
 	}
 
 	auto evaluation = m_loop_expression->Evaluate(execution_context, closure);
-	auto errors = evaluation->GetErrors();
+	errors = evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		while (*(evaluation->GetData<bool>())) {
-			ErrorListRef iteration_errors = ErrorList::GetTerminator();
 			if (m_statement_block) {
 				// use execution context as closure so internal functions close over the correct context
-				iteration_errors = m_statement_block->Execute(execution_context,
-						execution_context);
-				auto return_value = execution_context->GetReturnValue();
-				if (return_value != Symbol::GetDefaultSymbol()) {
-					context->SetReturnValue(return_value);
-					execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+				auto iteration_result = m_statement_block->Execute(
+						execution_context, execution_context);
+
+				errors = iteration_result.GetErrors();
+				if (!ErrorList::IsTerminator(errors)) {
 					break;
 				}
-			}
-			if (!ErrorList::IsTerminator(iteration_errors)) {
-				errors = iteration_errors;
-				break;
+
+				auto return_value = iteration_result.GetReturnValue();
+				if (return_value != Symbol::GetDefaultSymbol()) {
+					return ExecutionResult(return_value);
+				}
 			}
 
-			auto assignment_errors = m_loop_assignment->Execute(
+			auto assignment_result = m_loop_assignment->Execute(
 					execution_context, closure);
-			if (!ErrorList::IsTerminator(assignment_errors)) {
-				errors = iteration_errors;
+			errors = assignment_result.GetErrors();
+			if (!ErrorList::IsTerminator(errors)) {
 				break;
 			}
 
@@ -148,13 +149,12 @@ const ErrorListRef ForStatement::Execute(
 					closure);
 			errors = evaluation->GetErrors();
 			if (!ErrorList::IsTerminator(errors)) {
-				errors = iteration_errors;
 				break;
 			}
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 
 ForStatement::ForStatement(const_shared_ptr<Statement> initial,

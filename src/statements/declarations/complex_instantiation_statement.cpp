@@ -105,7 +105,7 @@ const_shared_ptr<TypeSpecifier> ComplexInstantiationStatement::GetTypeSpecifier(
 	return m_type_specifier;
 }
 
-const ErrorListRef ComplexInstantiationStatement::Execute(
+const ExecutionResult ComplexInstantiationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto type_result = m_type_specifier->GetType(context->GetTypeTable(),
@@ -128,7 +128,7 @@ const ErrorListRef ComplexInstantiationStatement::Execute(
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 
 const yy::location ComplexInstantiationStatement::GetTypeSpecifierLocation() const {

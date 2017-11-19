@@ -21,6 +21,7 @@
 #define RESULT_H_
 
 #include <error.h>
+#include <symbol.h>
 
 class Result {
 public:
@@ -104,6 +105,57 @@ public:
 
 private:
 	const ReturnCoverage m_return_coverage;
+	const ErrorListRef m_errors;
+};
+
+class ExecutionResult {
+public:
+	ExecutionResult() :
+			ExecutionResult(Symbol::GetDefaultSymbol(), GetDefaultExitCode(),
+					ErrorList::GetTerminator()) {
+	}
+	ExecutionResult(const_shared_ptr<Symbol> return_value) :
+			ExecutionResult(return_value, GetDefaultExitCode(),
+					ErrorList::GetTerminator()) {
+	}
+	ExecutionResult(const_shared_ptr<int> exit_code) :
+			ExecutionResult(Symbol::GetDefaultSymbol(), exit_code,
+					ErrorList::GetTerminator()) {
+	}
+	ExecutionResult(const ErrorListRef errors) :
+			ExecutionResult(Symbol::GetDefaultSymbol(), GetDefaultExitCode(),
+					errors) {
+	}
+
+	virtual ~ExecutionResult() {
+	}
+
+	const ErrorListRef GetErrors() const {
+		return m_errors;
+	}
+
+	const const_shared_ptr<int> GetExitCode() const {
+		return m_exit_code;
+	}
+
+	const_shared_ptr<Symbol> GetReturnValue() const {
+		return m_return_value;
+	}
+
+	static plain_shared_ptr<int> GetDefaultExitCode() {
+		return nullptr;
+	}
+
+private:
+	ExecutionResult(const_shared_ptr<Symbol> return_value,
+			const_shared_ptr<int> exit_code, const ErrorListRef errors) :
+			m_return_value(return_value), m_exit_code(exit_code), m_errors(
+					errors) {
+
+	}
+
+	const_shared_ptr<Symbol> m_return_value;
+	const_shared_ptr<int> m_exit_code;
 	const ErrorListRef m_errors;
 };
 

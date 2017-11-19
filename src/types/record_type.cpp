@@ -201,10 +201,10 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 						if (ErrorList::IsTerminator(declaration_errors)) {
 							// we've pre-processed this statement without issue;
 							// finalize declaration by running Execute pass
-							declaration_errors = ErrorList::Concatenate(
-									declaration_errors,
-									declaration_subject->Execute(
-											member_tmp_context, closure));
+							declaration_errors =
+									ErrorList::Concatenate(declaration_errors,
+											declaration_subject->Execute(
+													member_tmp_context, closure).GetErrors());
 						}
 					}
 				}
@@ -317,7 +317,7 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 					// finalize declaration by running Execute pass
 					errors = ErrorList::Concatenate(errors,
 							split_declaration_subject_data->Execute(
-									member_tmp_context, closure));
+									member_tmp_context, closure).GetErrors());
 				} else {
 					errors = ErrorList::Concatenate(errors, declaration_errors);
 				}

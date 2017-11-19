@@ -48,10 +48,10 @@ const PreprocessResult InvokeStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, result);
 }
 
-const ErrorListRef InvokeStatement::Execute(
+const ExecutionResult InvokeStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto result = m_expression->Evaluate(context, closure);
 
-	return result->GetErrors();
+	return ExecutionResult(result->GetErrors());
 }

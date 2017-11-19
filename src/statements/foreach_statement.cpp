@@ -192,7 +192,7 @@ const PreprocessResult ForeachStatement::Preprocess(
 	return PreprocessResult(return_coverage, errors);
 }
 
-const ErrorListRef ForeachStatement::Execute(
+const ExecutionResult ForeachStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto execution_context = ExecutionContext::GetRuntimeInstance(
@@ -242,15 +242,19 @@ const ErrorListRef ForeachStatement::Execute(
 						context->GetTypeTable());
 				assert(set_result == SET_SUCCESS);
 
-				auto execution_errors = m_statement_block->Execute(
+				auto execution_result = m_statement_block->Execute(
 						execution_context);
-				errors = ErrorList::Concatenate(errors, execution_errors);
-				auto return_value = execution_context->GetReturnValue();
-				if (return_value != Symbol::GetDefaultSymbol()) {
-					context->SetReturnValue(return_value);
-					execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
+				errors = execution_result.GetErrors();
+
+				if (!ErrorList::IsTerminator(errors)) {
 					break;
 				}
+
+				auto return_value = execution_result.GetReturnValue();
+				if (return_value != Symbol::GetDefaultSymbol()) {
+					return ExecutionResult(return_value);
+				}
+
 				auto definition = record->GetDefinition();
 				auto next_member = definition->GetSymbol(
 						ForeachStatement::NEXT_NAME);
@@ -286,7 +290,7 @@ const ErrorListRef ForeachStatement::Execute(
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 
 const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(

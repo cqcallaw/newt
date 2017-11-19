@@ -85,10 +85,10 @@ const PreprocessResult UnitDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef UnitDeclarationStatement::Execute(
+const ExecutionResult UnitDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	return ErrorList::GetTerminator();
+	return ExecutionResult();
 }
 
 const_shared_ptr<TypeSpecifier> UnitDeclarationStatement::GetTypeSpecifier() const {

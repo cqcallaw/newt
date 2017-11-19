@@ -117,11 +117,11 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 								context->GetTypeTable());
 						assert(set_result == SET_SUCCESS);
 
-						auto execution_errors = m_body->Execute(
+						auto execution_result = m_body->Execute(
 								execution_context);
 						errors = ErrorList::Concatenate(errors,
-								execution_errors);
-						auto return_value = execution_context->GetReturnValue();
+								execution_result.GetErrors());
+						auto return_value = execution_result.GetReturnValue();
 						if (return_value != Symbol::GetDefaultSymbol()) {
 							auto final_return_value_result =
 									Function::GetFinalReturnValue(
@@ -139,8 +139,6 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 								errors = ErrorList::Concatenate(errors,
 										final_return_value_errors);
 							}
-
-							execution_context->SetReturnValue(nullptr); //clear return value to avoid reference cycles
 						}
 
 						// call tear down

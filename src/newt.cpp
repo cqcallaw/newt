@@ -122,8 +122,9 @@ int main(int argc, char *argv[]) {
 				cout << "Parsed file " << filename << "." << endl;
 			}
 
-			ErrorListRef execution_errors = main_statement_block->Execute(
-					root_context);
+			auto execution_result = main_statement_block->Execute(root_context);
+			auto execution_errors = execution_result.GetErrors();
+			auto execution_exit_code = execution_result.GetExitCode();
 
 			bool has_execution_errors = false;
 			while (!ErrorList::IsTerminator(execution_errors)) {
@@ -143,8 +144,8 @@ int main(int argc, char *argv[]) {
 				root_context->GetTypeTable()->print(cout, Indent(0));
 			}
 
-			if (root_context->GetExitCode()) {
-				exit_code = *root_context->GetExitCode();
+			if (execution_exit_code != ExecutionResult::GetDefaultExitCode()) {
+				exit_code = *execution_exit_code;
 			}
 
 			return GetExitCode(debug,

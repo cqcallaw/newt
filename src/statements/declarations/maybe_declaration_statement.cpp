@@ -133,7 +133,7 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef MaybeDeclarationStatement::Execute(
+const ExecutionResult MaybeDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto errors = ErrorList::GetTerminator();
@@ -202,7 +202,7 @@ const ErrorListRef MaybeDeclarationStatement::Execute(
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 
 const DeclarationStatement* MaybeDeclarationStatement::WithInitializerExpression(

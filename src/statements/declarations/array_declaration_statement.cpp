@@ -129,7 +129,7 @@ const PreprocessResult ArrayDeclarationStatement::Preprocess(
 ArrayDeclarationStatement::~ArrayDeclarationStatement() {
 }
 
-const ErrorListRef ArrayDeclarationStatement::Execute(
+const ExecutionResult ArrayDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
@@ -152,7 +152,7 @@ const ErrorListRef ArrayDeclarationStatement::Execute(
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 
 const_shared_ptr<TypeSpecifier> ArrayDeclarationStatement::GetTypeSpecifier() const {

@@ -195,10 +195,10 @@ const PreprocessResult SumDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef SumDeclarationStatement::Execute(
+const ExecutionResult SumDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	return ErrorList::GetTerminator();
+	return ExecutionResult();
 }
 
 const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(

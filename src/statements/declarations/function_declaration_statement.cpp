@@ -221,7 +221,7 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef FunctionDeclarationStatement::Execute(
+const ExecutionResult FunctionDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	if (GetInitializerExpression()) {
@@ -231,9 +231,9 @@ const ErrorListRef FunctionDeclarationStatement::Execute(
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 
-		return errors;
+		return ExecutionResult(errors);
 	} else {
-		return ErrorList::GetTerminator();
+		return ExecutionResult();
 	}
 }
 

@@ -95,7 +95,7 @@ const PreprocessResult InferredDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef InferredDeclarationStatement::Execute(
+const ExecutionResult InferredDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto expression_type_specifier_result =
@@ -117,7 +117,7 @@ const ErrorListRef InferredDeclarationStatement::Execute(
 							GetInitializerExpression()->GetLocation(),
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
-			errors = temp_statement->Execute(context, closure);
+			errors = temp_statement->Execute(context, closure).GetErrors();
 		} else {
 			errors = type_errors;
 			auto initializer_errors = GetInitializerExpression()->Validate(
@@ -126,7 +126,7 @@ const ErrorListRef InferredDeclarationStatement::Execute(
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 
 const DeclarationStatement* InferredDeclarationStatement::WithInitializerExpression(

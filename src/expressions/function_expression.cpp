@@ -133,7 +133,7 @@ const ErrorListRef FunctionExpression::Validate(
 
 				if (ErrorList::IsTerminator(preprocess_errors)) {
 					auto execution_errors = declaration_statement->Execute(
-							variant_context, variant_context);
+							variant_context, variant_context).GetErrors();
 					if (!ErrorList::IsTerminator(execution_errors)) {
 						parameter_errors = ErrorList::Concatenate(
 								parameter_errors, execution_errors);

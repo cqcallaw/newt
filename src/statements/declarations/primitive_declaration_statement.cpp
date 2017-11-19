@@ -128,7 +128,7 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef PrimitiveDeclarationStatement::Execute(
+const ExecutionResult PrimitiveDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	if (GetInitializerExpression()) {
@@ -138,9 +138,9 @@ const ErrorListRef PrimitiveDeclarationStatement::Execute(
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 
-		return errors;
+		return ExecutionResult(errors);
 	} else {
-		return ErrorList::GetTerminator();
+		return ExecutionResult();
 	}
 }
 
