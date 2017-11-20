@@ -237,7 +237,7 @@ const string Error::get_error_message() const {
 				<< "Control reaches end of non-void function without complete return coverage.";
 		break;
 	case STMT_SOURCE_MUST_BE_RECORD:
-		os << "Statement source must be of a record type.";
+		os << "Source expression type '" << m_s1 << "' must be of a record type.";
 		break;
 	case FOREACH_STMT_REQUIRES_NEXT:
 		os << "Foreach statement source must have a member named 'next'.";

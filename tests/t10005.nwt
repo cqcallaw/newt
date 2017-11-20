@@ -1,4 +1,4 @@
-# test basic using block
+# test basic using block with setup error
 
 error_list {
 	code:int,
@@ -6,7 +6,13 @@ error_list {
 	next:error_list?
 }
 
+result {
+	value:int
+	| errors:error_list
+}
+
 disposable {
+	data:int,
 	teardown := (this:disposable?) -> error_list? {
 		return nil
 	}
@@ -18,14 +24,9 @@ disposable_setup_result {
 }
 
 get_disposable := () -> disposable_setup_result {
-	return @error_list
+	return @disposable with { data = 3 }
 }
 
-result {
-	value:int
-	| errors:error_list
-}
-
-r := using get_disposable() as disposable -> result {
-	return 1
+r := using get_disposable() as value -> result {
+	return value.data
 }

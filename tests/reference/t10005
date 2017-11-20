@@ -1,22 +1,28 @@
-Parsing file ../tests/t10001.nwt...
-Parsed file ../tests/t10001.nwt.
+Parsing file ../tests/t10005.nwt...
+Parsed file ../tests/t10005.nwt.
 Root Symbol Table:
 ----------------
-result r:
-{errors}
-	int code: 2
-	string message: ""
-	error_list? next: {nil}
-
+() -> disposable_setup_result get_disposable:
+	Body Location: 26.50-27.37
+result r: {value} 3
 
 Root Type Table:
 ----------------
 disposable:
 	<record>
+	data:
+		int (0)
 	teardown:
 		(disposable?) -> error_list? (
 			Body Location: 16.49-17.12
 		)
+
+disposable_setup_result:
+	<sum>
+	setup_errors:
+		error_list
+	setup_value:
+		disposable
 
 error_list:
 	<record>

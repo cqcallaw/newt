@@ -1,0 +1,4 @@
+Parsing file ../tests/t10110.nwt...
+Semantic error on line 30, column 12: Source expression type 'disposable_setup_result' must be of a record type.
+Parsed file ../tests/t10110.nwt.
+1 error found; giving up.

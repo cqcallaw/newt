@@ -6,16 +6,12 @@ error_list {
 	next:error_list?
 }
 
-
 result {
 	value:int
 	| errors:error_list
 }
 
 disposable {
-	setup := (this:disposable?) -> error_list? {
-		return nil
-	},
 	teardown := (this:disposable?) -> error_list? {
 		return nil
 	}

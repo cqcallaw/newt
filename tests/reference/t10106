@@ -1,4 +1,4 @@
 Parsing file ../tests/t10106.nwt...
-Semantic error on line 24, column 12: Basic return type 'double' of source member 'setup' cannot be assigned to block result type 'result'.
+Semantic error on line 21, column 12: Basic return type 'double' of source member 'teardown' cannot be assigned to block result type 'result'.
 Parsed file ../tests/t10106.nwt.
 1 error found; giving up.

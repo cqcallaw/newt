@@ -1,9 +1,14 @@
-# test basic using block
-
+# test incorrect alias of setup_value member
 error_list {
 	code:int,
 	message:string,
 	next:error_list?
+}
+
+
+result {
+	value:int
+	| errors:error_list
 }
 
 disposable {
@@ -13,19 +18,14 @@ disposable {
 }
 
 disposable_setup_result {
-	setup_value:disposable
+	setup_value:int
 	| setup_errors:error_list
 }
 
 get_disposable := () -> disposable_setup_result {
-	return @error_list
+	return @error_list with { code = 3, message = "you dun goofed!" }
 }
 
-result {
-	value:int
-	| errors:error_list
-}
-
-r := using get_disposable() as disposable -> result {
+r := using get_disposable() as value -> result {
 	return 1
 }

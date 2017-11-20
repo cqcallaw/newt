@@ -47,8 +47,9 @@ public:
 
 	virtual const bool IsConstant() const;
 
-	static const_shared_ptr<std::string> SETUP_NAME;
 	static const_shared_ptr<std::string> TEARDOWN_NAME;
+	static const_shared_ptr<std::string> VALUE_NAME;
+	static const_shared_ptr<std::string> ERRORS_NAME;
 
 private:
 	const_shared_ptr<Expression> m_expression;

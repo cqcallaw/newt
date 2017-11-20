@@ -1,4 +1,4 @@
 Parsing file ../tests/t10103.nwt...
-Semantic error on line 22, column 12: The type disposable.setup is not a function type.
+Semantic error on line 19, column 12: The type disposable.teardown is not a function type.
 Parsed file ../tests/t10103.nwt.
 1 error found; giving up.

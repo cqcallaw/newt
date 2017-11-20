@@ -169,7 +169,8 @@ const PreprocessResult ForeachStatement::Preprocess(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::STMT_SOURCE_MUST_BE_RECORD,
 									m_expression->GetLocation().begin.line,
-									m_expression->GetLocation().begin.column),
+									m_expression->GetLocation().begin.column,
+									expression_type_specifier->ToString()),
 							errors);
 				}
 			} else {

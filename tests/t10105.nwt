@@ -13,11 +13,8 @@ result {
 }
 
 disposable {
-	setup := (this:disposable?) -> error_list? {
-		return 3
-	},
 	teardown := (this:disposable?) -> error_list? {
-		return nil
+		return 3
 	}
 }
 

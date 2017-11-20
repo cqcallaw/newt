@@ -13,13 +13,9 @@ Root Type Table:
 ----------------
 disposable:
 	<record>
-	setup:
-		(disposable?) -> error_list? (
-			Body Location: 16.46-17.12
-		)
 	teardown:
 		(disposable?) -> error_list? (
-			Body Location: 19.49-20.20
+			Body Location: 16.49-17.20
 		)
 
 error_list:

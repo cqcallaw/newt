@@ -1,4 +1,4 @@
-# test basic using block
+# test teardown type
 
 error_list {
 	code:int,
@@ -13,9 +13,7 @@ result {
 }
 
 disposable {
-	teardown := (this:disposable?) -> error_list? {
-		return @error_list
-	}
+	not_teardown := 3
 }
 
 r := using @disposable as value -> result {
