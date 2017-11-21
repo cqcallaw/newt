@@ -164,9 +164,7 @@ TypedResult<string> InvokeExpression::ToString(
 	if (expression_result.GetErrors()) {
 		buf << *(expression_result.GetData());
 		buf << "(";
-		ErrorListRef errors =
-
-		ErrorList::GetTerminator();
+		auto errors = ErrorList::GetTerminator();
 		ArgumentListRef argument = m_argument_list;
 		while (!ArgumentList::IsTerminator(argument)) {
 			auto argument_result = argument->GetData()->ToString(
