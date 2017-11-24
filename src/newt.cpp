@@ -45,7 +45,7 @@ void print_help() {
 			<< endl;
 }
 
-int GetExitCode(bool debug, int exit_code) {
+int get_exit_code(bool debug, int exit_code) {
 	if (debug) {
 		//return "success" so the test infrastructure doesn't barf
 		return EXIT_SUCCESS;
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
 			cout << "s";
 		cout << " found; giving up." << endl;
 
-		return GetExitCode(debug, EXIT_FAILURE);
+		return get_exit_code(debug, EXIT_FAILURE);
 	}
 
 	int exit_code = EXIT_SUCCESS;
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
 				exit_code = *execution_exit_code;
 			}
 
-			return GetExitCode(debug,
+			return get_exit_code(debug,
 					has_execution_errors ? EXIT_FAILURE : exit_code);
 		} else {
 			//reverse linked list of errors, which comes to us in reverse order
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
 						<< endl;
 			}
 
-			return GetExitCode(debug, EXIT_FAILURE);
+			return get_exit_code(debug, EXIT_FAILURE);
 		}
 	}
 }
