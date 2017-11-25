@@ -66,6 +66,10 @@ public:
 			const_shared_ptr<TypeSpecifier> base_type_specifier);
 
 	static const_shared_ptr<Result> Build(
+			const shared_ptr<TypeTable> base_type_table,
+			const_shared_ptr<TypeSpecifier> base_type_specifier);
+
+	static const_shared_ptr<Result> Build(
 			const_shared_ptr<PrimitiveTypeSpecifier> base_type_specifier);
 
 private:

@@ -113,16 +113,20 @@ const_shared_ptr<DeclarationStatement> MaybeType::GetDeclarationStatement(
 const_shared_ptr<Result> MaybeType::Build(
 		const shared_ptr<ExecutionContext> context,
 		const_shared_ptr<TypeSpecifier> base_type_specifier) {
-	auto parent_type_table = context->GetTypeTable();
+	return Build(context->GetTypeTable(), base_type_specifier);
+}
 
-	auto definition = make_shared<TypeTable>(parent_type_table);
+const_shared_ptr<Result> MaybeType::Build(
+		const shared_ptr<TypeTable> base_type_table,
+		const_shared_ptr<TypeSpecifier> base_type_specifier) {
+	auto definition = make_shared<TypeTable>(base_type_table);
 
 	auto constructors = make_shared<SymbolTable>(); //TODO: generate type constructors
 
-	auto nil_alias = make_shared<AliasDefinition>(parent_type_table,
+	auto nil_alias = make_shared<AliasDefinition>(base_type_table,
 			TypeTable::GetNilTypeSpecifier(), DIRECT);
 	definition->AddType(*TypeTable::GetNilName(), nil_alias);
-	auto value_alias = make_shared<AliasDefinition>(parent_type_table,
+	auto value_alias = make_shared<AliasDefinition>(base_type_table,
 			base_type_specifier, DIRECT);
 	definition->AddType(*MaybeTypeSpecifier::VARIANT_NAME, value_alias);
 
