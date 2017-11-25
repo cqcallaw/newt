@@ -48,10 +48,11 @@ const string Sum::ToString(const SumType& type, const TypeTable& type_table,
 }
 
 const_shared_ptr<Sum> Sum::GetDefaultInstance(const SumType& type) {
-	auto declaration = type.GetFirstDeclaration();
-	auto type_specifier = declaration->GetTypeSpecifier();
-	auto default_value = type_specifier->DefaultValue(
-			*type.GetDefinition());
-	auto result = make_shared<Sum>(declaration->GetName(), default_value);
+	auto type_table = type.GetDefinition();
+	auto variant_name = type.GetFirstVariantName();
+	auto variant_type = type_table->GetType<TypeDefinition>(variant_name,
+			SHALLOW, RESOLVE);
+	auto default_value = variant_type->GetDefaultValue(*type_table);
+	auto result = make_shared<Sum>(variant_name, default_value);
 	return result;
 }

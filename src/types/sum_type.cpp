@@ -274,7 +274,8 @@ const_shared_ptr<Result> SumType::Build(
 		if (ErrorList::IsTerminator(errors)) {
 			auto maybe_type = maybe_type_result->GetData<MaybeType>();
 			auto type = const_shared_ptr<SumType>(
-					new SumType(definition, member_declarations->GetData(),
+					new SumType(definition,
+							member_declarations->GetData()->GetName(),
 							constructors, maybe_type));
 			return make_shared<Result>(type, errors);
 		}

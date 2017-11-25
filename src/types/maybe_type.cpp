@@ -26,10 +26,10 @@
 #include <type_alias_declaration_statement.h>
 
 MaybeType::MaybeType(const_shared_ptr<TypeTable> type_table,
-		const_shared_ptr<DeclarationStatement> first_declaration,
+		const_shared_ptr<string> first_variant_name,
 		const_shared_ptr<SymbolTable> constructors,
 		const_shared_ptr<TypeSpecifier> base_type_specifier) :
-		SumType(type_table, first_declaration, constructors, nullptr), m_base_type_specifier(
+		SumType(type_table, first_variant_name, constructors, nullptr), m_base_type_specifier(
 				base_type_specifier) {
 }
 
@@ -125,13 +125,9 @@ const_shared_ptr<Result> MaybeType::Build(
 	auto value_alias = make_shared<AliasDefinition>(parent_type_table,
 			base_type_specifier, DIRECT);
 	definition->AddType(*MaybeTypeSpecifier::VARIANT_NAME, value_alias);
-	auto nil_alias_declaration = make_shared<TypeAliasDeclarationStatement>(
-			GetDefaultLocation(), TypeTable::GetNilTypeSpecifier(),
-			GetDefaultLocation(), TypeTable::GetNilName(),
-			GetDefaultLocation());
 
 	auto maybe_type = const_shared_ptr<MaybeType>(
-			new MaybeType(definition, nil_alias_declaration, constructors,
+			new MaybeType(definition, TypeTable::GetNilName(), constructors,
 					base_type_specifier));
 	return make_shared<Result>(maybe_type, ErrorList::GetTerminator());
 }
@@ -149,13 +145,9 @@ const_shared_ptr<Result> MaybeType::Build(
 	auto value_alias = make_shared<AliasDefinition>(parent_type_table,
 			base_type_specifier, DIRECT);
 	definition->AddType(*MaybeTypeSpecifier::VARIANT_NAME, value_alias);
-	auto nil_alias_declaration = make_shared<TypeAliasDeclarationStatement>(
-			GetDefaultLocation(), TypeTable::GetNilTypeSpecifier(),
-			GetDefaultLocation(), TypeTable::GetNilName(),
-			GetDefaultLocation());
 
 	auto maybe_type = const_shared_ptr<MaybeType>(
-			new MaybeType(definition, nil_alias_declaration, constructors,
+			new MaybeType(definition, TypeTable::GetNilName(), constructors,
 					base_type_specifier));
 	return make_shared<Result>(maybe_type, ErrorList::GetTerminator());
 }

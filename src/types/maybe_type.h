@@ -70,7 +70,7 @@ public:
 
 private:
 	MaybeType(const_shared_ptr<TypeTable> type_table,
-			const_shared_ptr<DeclarationStatement> first_declaration,
+			const_shared_ptr<string> first_variant_name,
 			const_shared_ptr<SymbolTable> constructors,
 			const_shared_ptr<TypeSpecifier> base_type_specifier);
 
