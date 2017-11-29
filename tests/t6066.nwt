@@ -1,0 +1,13 @@
+# test that unit variants don't get confused with exterior definitions
+
+error {
+	code:int,
+	message:string
+}
+
+result {
+	data:string
+	| error
+}
+
+r := @result.error

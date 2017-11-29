@@ -27,6 +27,7 @@
 #include <execution_context.h>
 #include <record.h>
 #include <sum.h>
+#include <unit.h>
 #include <maybe_type_specifier.h>
 
 #include "type.h"
@@ -147,6 +148,13 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<string> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetString(),
 			static_pointer_cast<const void>(value), type_table);
+}
+
+SetResult SymbolContext::SetSymbol(const string& identifier,
+		const_shared_ptr<ComplexTypeSpecifier> type,
+		const_shared_ptr<Unit> value, const TypeTable& type_table) {
+	return SetSymbol(identifier, type, static_pointer_cast<const void>(value),
+			type_table);
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,

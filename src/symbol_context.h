@@ -28,6 +28,7 @@
 
 class Record;
 class Function;
+class Unit;
 
 using namespace std;
 
@@ -86,6 +87,9 @@ public:
 			const_shared_ptr<double> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<string> value, const TypeTable& type_table);
+	SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Unit> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<Array> value,
 			const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,

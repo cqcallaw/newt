@@ -1,0 +1,22 @@
+Parsing file ../tests/t6066.nwt...
+Parsed file ../tests/t6066.nwt.
+Root Symbol Table:
+----------------
+result.error r: <unit>
+
+Root Type Table:
+----------------
+error:
+	<record>
+	code:
+		int (0)
+	message:
+		string ("")
+
+result:
+	<sum>
+	data:
+		string
+	error:
+		<unit>
+
