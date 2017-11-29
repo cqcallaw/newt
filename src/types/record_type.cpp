@@ -396,7 +396,6 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
-
 	plain_shared_ptr<Record> instance = nullptr;
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
@@ -432,14 +431,7 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
-			auto as_complex_specifier = dynamic_pointer_cast<
-					const ComplexTypeSpecifier>(type_specifier);
-			if (as_complex_specifier) {
-				symbol = make_shared<Symbol>(as_complex_specifier, instance);
-			} else {
-				//TODO: error handling
-				assert(false);
-			}
+			symbol = make_shared<Symbol>(type_specifier, instance);
 		}
 	}
 
@@ -459,14 +451,11 @@ const SetResult RecordType::InstantiateCore(
 		const_shared_ptr<TypeSpecifier> value_type_specifier,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Record>(data);
-	auto specifier = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-			type_specifier);
 
-	if (specifier
-			&& value_type_specifier->AnalyzeAssignmentTo(type_specifier,
-					execution_context->GetTypeTable())) {
-		auto set_result = execution_context->SetSymbol(instance_name, specifier,
-				instance, execution_context->GetTypeTable());
+	if (value_type_specifier->AnalyzeAssignmentTo(type_specifier,
+			execution_context->GetTypeTable())) {
+		auto set_result = execution_context->SetSymbol(instance_name,
+				type_specifier, instance, execution_context->GetTypeTable());
 		return set_result;
 	} else {
 		return SetResult::INCOMPATIBLE_TYPE;
