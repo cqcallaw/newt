@@ -30,6 +30,11 @@ TypeTable::TypeTable(const shared_ptr<TypeTable> parent) :
 		TypeTable(make_shared<type_map>(), parent) {
 }
 
+TypeTable::TypeTable(const shared_ptr<type_map> table,
+		const shared_ptr<TypeTable> parent) :
+		m_table(table), m_parent(parent) {
+}
+
 TypeTable::~TypeTable() {
 }
 
@@ -77,7 +82,7 @@ const void TypeTable::print(ostream& os, const Indent& indent,
 
 	if (search_type == DEEP) {
 		if (auto parent = m_parent.lock()) {
-			os << indent + 1 << "--> " <<  parent << endl;
+			os << indent + 1 << "--> " << parent << endl;
 			parent->print(os, indent + 1, search_type);
 		}
 	}

@@ -21,9 +21,7 @@
 #include <string.h>
 #include <memory>
 
-#include "error.h"
-#include "symbol_table.h"
-#include "type_table.h"
+#include "builtins.h"
 
 #include "driver.h"
 
@@ -112,8 +110,10 @@ int main(int argc, char *argv[]) {
 
 	if (parse_result == 0) {
 		auto main_statement_block = driver.GetStatementBlock();
-		shared_ptr<ExecutionContext> root_context =
-				make_shared<ExecutionContext>(Modifier::Type::MUTABLE);
+		auto builtin_context = Builtins::GetBuiltinContext();
+		auto root_context = make_shared<ExecutionContext>(
+				Modifier::Type::MUTABLE);
+		root_context->LinkToParent(builtin_context);
 		auto semantic_errors = main_statement_block->Preprocess(root_context,
 				const_shared_ptr<TypeSpecifier>()).GetErrors();
 

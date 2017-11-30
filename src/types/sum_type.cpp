@@ -155,83 +155,30 @@ const_shared_ptr<Result> SumType::Build(
 								closure_type_table, alias_as_primitive, DIRECT);
 						definition->AddType(alias_type_name, alias);
 
-						const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
-								make_shared<PrimitiveDeclarationStatement>(
+						auto type_constructor_result =
+								TypeAliasDeclarationStatement::GetTypeConstructor(
 										as_alias->GetLocation(),
-										alias_as_primitive,
-										as_alias->GetTypeSpecifierLocation(),
 										as_alias->GetName(),
-										as_alias->GetNameLocation());
-						DeclarationListRef parameter = DeclarationList::From(
-								parameter_declaration,
-								DeclarationList::GetTerminator());
+										as_alias->GetNameLocation(),
+										as_alias->GetTypeSpecifierLocation(),
+										alias_as_primitive, sum_type_specifier,
+										alias, output, closure);
+						errors = ErrorList::Concatenate(errors,
+								type_constructor_result.GetErrors());
 
-						auto function_signature = make_shared<
-								FunctionDeclaration>(parameter,
-								sum_type_specifier, GetDefaultLocation());
-
-						const_shared_ptr<Expression> return_expression =
-								make_shared<VariableExpression>(
-										GetDefaultLocation(),
-										make_shared<BasicVariable>(
-												declaration->GetName(),
-												GetDefaultLocation()));
-
-						const_shared_ptr<ReturnStatement> return_statement =
-								make_shared<ReturnStatement>(return_expression);
-
-						const StatementListRef statement_list =
-								StatementList::From(return_statement,
-										StatementList::GetTerminator());
-						const_shared_ptr<StatementBlock> statement_block =
-								make_shared<StatementBlock>(statement_list,
-										as_alias->GetNameLocation());
-
-						auto weak = weak_ptr<ExecutionContext>(output);
-
-						const_shared_ptr<Function> function = Function::Build(
-								GetDefaultLocation(), function_signature,
-								statement_block, weak);
-
-						auto variant_context =
-								function->GetVariantList()->GetData()->GetContext();
-
-						auto parameter_preprocess_result =
-								parameter_declaration->Preprocess(
-										variant_context, closure,
-										sum_type_specifier);
-						auto parameter_preprocess_errors =
-								parameter_preprocess_result.GetErrors();
-						if (ErrorList::IsTerminator(
-								parameter_preprocess_errors)) {
-							auto parameter_execute_errors =
-									parameter_declaration->Execute(
-											variant_context, closure).GetErrors();
-							if (ErrorList::IsTerminator(
-									parameter_execute_errors)) {
-								auto symbol = make_shared<Symbol>(function);
-								auto insert_result = constructors->InsertSymbol(
-										*variant_name, symbol);
-								// this should never happen because we already have an existence check on the variant type table,
-								// but it never hurts to be safe
-								if (insert_result == SYMBOL_EXISTS) {
-									errors =
-											ErrorList::From(
-													make_shared<Error>(
-															Error::SEMANTIC,
-															Error::PREVIOUS_DECLARATION,
-															as_alias->GetLocation().begin.line,
-															as_alias->GetLocation().begin.column,
-															*variant_name),
-													errors);
-								}
-							} else {
-								errors = ErrorList::Concatenate(errors,
-										parameter_execute_errors);
-							}
-						} else {
-							errors = ErrorList::Concatenate(errors,
-									parameter_preprocess_errors);
+						auto symbol = type_constructor_result.GetData();
+						auto insert_result = constructors->InsertSymbol(
+								*variant_name, symbol);
+						// this should never happen because we already have an existence check on the variant type table,
+						// but it never hurts to be safe
+						if (insert_result == SYMBOL_EXISTS) {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::PREVIOUS_DECLARATION,
+													as_alias->GetLocation().begin.line,
+													as_alias->GetLocation().begin.column,
+													*variant_name), errors);
 						}
 					}
 

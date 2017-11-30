@@ -1,0 +1,53 @@
+/*
+ Copyright (C) 2015 The newt Authors.
+
+ This file is part of newt.
+
+ newt is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ newt is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with newt.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef BUILTINS_H_
+#define BUILTINS_H_
+
+#include "error.h"
+#include "symbol_table.h"
+#include "type_table.h"
+
+class UnitType;
+class SumType;
+
+class Builtins {
+public:
+	/**
+	 * Get a context pre-loaded with built-ins, such as errors
+	 */
+	static const shared_ptr<ExecutionContext> GetBuiltinContext();
+
+	static const_shared_ptr<std::string> ERROR_TYPE_NAME;
+	static const_shared_ptr<std::string> ERROR_CODE_NAME;
+	static const_shared_ptr<std::string> ERROR_MESSAGE_NAME;
+	static const_shared_ptr<ComplexTypeSpecifier> get_error_type_specifier();
+
+	static const_shared_ptr<std::string> ERROR_LIST_TYPE_NAME;
+	static const_shared_ptr<std::string> ERROR_LIST_DATA_NAME;
+	static const_shared_ptr<std::string> ERROR_LIST_NEXT_NAME;
+	static const_shared_ptr<ComplexTypeSpecifier> get_error_list_type_specifier();
+
+	static const_shared_ptr<std::string> INT_RESULT_TYPE_NAME;
+	static const_shared_ptr<std::string> INT_RESULT_DATA_NAME;
+	static const_shared_ptr<std::string> INT_RESULT_ERRORS_NAME;
+	static const_shared_ptr<ComplexTypeSpecifier> get_int_result_type_specifier();
+};
+
+#endif /* BUILTINS_H_ */

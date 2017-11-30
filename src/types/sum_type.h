@@ -34,6 +34,14 @@ class SumTypeSpecifier;
 
 class SumType: public ComplexType {
 public:
+	SumType(const_shared_ptr<TypeTable> type_table,
+			const_shared_ptr<string> first_variant_name,
+			const_shared_ptr<SymbolTable> constructors,
+			const_shared_ptr<MaybeType> maybe_type) :
+			m_definition(type_table), m_first_variant_name(first_variant_name), m_constructors(
+					constructors), m_maybe_type(maybe_type) {
+	}
+
 	virtual ~SumType() {
 	}
 
@@ -113,14 +121,6 @@ protected:
 			const_shared_ptr<TypeSpecifier> value_type_specifier,
 			const std::string& instance_name,
 			const_shared_ptr<void> data) const;
-
-	SumType(const_shared_ptr<TypeTable> type_table,
-			const_shared_ptr<string> first_variant_name,
-			const_shared_ptr<SymbolTable> constructors,
-			const_shared_ptr<MaybeType> maybe_type) :
-			m_definition(type_table), m_first_variant_name(first_variant_name), m_constructors(
-					constructors), m_maybe_type(maybe_type) {
-	}
 private:
 	const_shared_ptr<TypeTable> m_definition;
 	const_shared_ptr<string> m_first_variant_name;

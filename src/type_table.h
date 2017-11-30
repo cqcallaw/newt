@@ -45,6 +45,8 @@ class Indent;
 class TypeTable {
 public:
 	TypeTable(const shared_ptr<TypeTable> parent = nullptr);
+	TypeTable(const shared_ptr<type_map> table,
+			const shared_ptr<TypeTable> parent = nullptr);
 
 	virtual ~TypeTable();
 
@@ -178,11 +180,6 @@ public:
 	}
 
 private:
-	TypeTable(const shared_ptr<type_map> table,
-			const shared_ptr<TypeTable> parent = nullptr) :
-			m_table(table), m_parent(parent) {
-	}
-
 	const shared_ptr<type_map> m_table;
 	const weak_ptr<TypeTable> m_parent;
 };
