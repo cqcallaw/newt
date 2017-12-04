@@ -44,6 +44,15 @@ public:
 	static const_shared_ptr<std::string> ERROR_LIST_NEXT_NAME;
 	static const_shared_ptr<ComplexTypeSpecifier> get_error_list_type_specifier();
 
+	static const_shared_ptr<std::string> STREAM_MODE_TYPE_NAME;
+	static const_shared_ptr<std::string> STREAM_MODE_IN_NAME;
+	static const_shared_ptr<std::string> STREAM_MODE_OUT_NAME;
+	static const_shared_ptr<std::string> STREAM_MODE_BINARY_NAME;
+	static const_shared_ptr<std::string> STREAM_MODE_ATE_NAME;
+	static const_shared_ptr<std::string> STREAM_MODE_APP_NAME;
+	static const_shared_ptr<std::string> STREAM_MODE_TRUNC_NAME;
+	static const_shared_ptr<ComplexTypeSpecifier> get_stream_mode_type_specifier();
+
 	static const_shared_ptr<std::string> INT_RESULT_TYPE_NAME;
 	static const_shared_ptr<std::string> INT_RESULT_DATA_NAME;
 	static const_shared_ptr<std::string> INT_RESULT_ERRORS_NAME;

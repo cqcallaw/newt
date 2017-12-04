@@ -55,6 +55,34 @@ const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 			Modifier::NONE, error_list_maybe);
 	type_table->AddType(*Builtins::ERROR_LIST_TYPE_NAME, error_list_type);
 
+	// stream mode type
+	auto in_alias = make_shared<AliasDefinition>(type_table,
+			PrimitiveTypeSpecifier::GetBoolean(), DIRECT);
+	auto out_alias = make_shared<AliasDefinition>(type_table,
+			PrimitiveTypeSpecifier::GetBoolean(), DIRECT);
+	auto binary_alias = make_shared<AliasDefinition>(type_table,
+			PrimitiveTypeSpecifier::GetBoolean(), DIRECT);
+	auto ate_alias = make_shared<AliasDefinition>(type_table,
+			PrimitiveTypeSpecifier::GetBoolean(), DIRECT);
+	auto app_alias = make_shared<AliasDefinition>(type_table,
+			PrimitiveTypeSpecifier::GetBoolean(), DIRECT);
+	auto trunc_alias = make_shared<AliasDefinition>(type_table,
+			PrimitiveTypeSpecifier::GetBoolean(), DIRECT);
+	auto stream_mode_maybe = MaybeType::Build(type_table,
+			get_stream_mode_type_specifier())->GetData<MaybeType>();
+	auto stream_mode_type_mapping = make_shared<type_map>(type_map { {
+			*Builtins::STREAM_MODE_IN_NAME, in_alias }, {
+			*Builtins::STREAM_MODE_OUT_NAME, out_alias }, {
+			*Builtins::STREAM_MODE_BINARY_NAME, binary_alias }, {
+			*Builtins::STREAM_MODE_ATE_NAME, ate_alias }, {
+			*Builtins::STREAM_MODE_APP_NAME, app_alias }, {
+			*Builtins::STREAM_MODE_TRUNC_NAME, trunc_alias } });
+	auto stream_mode_type_table = make_shared<const TypeTable>(
+			stream_mode_type_mapping);
+	auto stream_mode_type = make_shared<RecordType>(stream_mode_type_table,
+			Modifier::NONE, stream_mode_maybe);
+	type_table->AddType(*Builtins::STREAM_MODE_TYPE_NAME, stream_mode_type);
+
 	auto builtin_symbols = make_shared<SymbolContext>(Modifier::NONE);
 
 	auto result = make_shared<ExecutionContext>(builtin_symbols, type_table,
@@ -124,6 +152,27 @@ const_shared_ptr<ComplexTypeSpecifier> Builtins::get_error_list_type_specifier()
 	return instance;
 }
 
+const_shared_ptr<std::string> Builtins::STREAM_MODE_TYPE_NAME = make_shared<
+		std::string>("stream_mode");
+const_shared_ptr<std::string> Builtins::STREAM_MODE_IN_NAME = make_shared<
+		std::string>("read");
+const_shared_ptr<std::string> Builtins::STREAM_MODE_OUT_NAME = make_shared<
+		std::string>("write");
+const_shared_ptr<std::string> Builtins::STREAM_MODE_BINARY_NAME = make_shared<
+		std::string>("binary");
+const_shared_ptr<std::string> Builtins::STREAM_MODE_ATE_NAME = make_shared<
+		std::string>("ate");
+const_shared_ptr<std::string> Builtins::STREAM_MODE_APP_NAME = make_shared<
+		std::string>("app");
+const_shared_ptr<std::string> Builtins::STREAM_MODE_TRUNC_NAME = make_shared<
+		std::string>("trunc");
+
+const_shared_ptr<ComplexTypeSpecifier> Builtins::get_stream_mode_type_specifier() {
+	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
+			ComplexTypeSpecifier>(Builtins::STREAM_MODE_TYPE_NAME);
+	return instance;
+}
+
 const_shared_ptr<std::string> Builtins::INT_RESULT_TYPE_NAME = make_shared<
 		std::string>("int_result");
 
@@ -132,7 +181,6 @@ const_shared_ptr<std::string> Builtins::INT_RESULT_DATA_NAME = make_shared<
 
 const_shared_ptr<std::string> Builtins::INT_RESULT_ERRORS_NAME = make_shared<
 		std::string>("errors");
-
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_int_result_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
 			ComplexTypeSpecifier>(Builtins::INT_RESULT_TYPE_NAME);
