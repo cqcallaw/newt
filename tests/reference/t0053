@@ -1,0 +1,14 @@
+Parsing file ../tests/t0053.nwt...
+Parsed file ../tests/t0053.nwt.
+Root Symbol Table:
+----------------
+error_list el:
+	error error:
+		int id: 0
+		string message: ""
+
+	error_list? next: {nil}
+
+
+Root Type Table:
+----------------

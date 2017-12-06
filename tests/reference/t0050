@@ -3,24 +3,8 @@ Parsed file ../tests/t0050.nwt.
 Root Symbol Table:
 ----------------
 error e:
-	int id: 3
-	string message: "Code 3!"
-
-error_list el:
-	error error:
-		int id: 3
-		string message: "Code 3!"
-
-	error_list? next:UNDEFINED TYPE
-
-int_result ir: {data} 3
-int_result ir2:
-{errors}
-	error error:
-		int id: 3
-		string message: "Code 3!"
-
-	error_list? next:UNDEFINED TYPE
+	int id: 0
+	string message: ""
 
 
 Root Type Table:

@@ -21,9 +21,13 @@
 #include <record_type.h>
 #include <maybe_type.h>
 #include <type_alias_declaration_statement.h>
+#include <maybe_type_specifier.h>
 
 const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 	auto type_table = make_shared<TypeTable>();
+	auto builtin_symbols = make_shared<SymbolContext>(Modifier::NONE);
+	auto result = make_shared<ExecutionContext>(builtin_symbols, type_table,
+			LifeTime::PERSISTENT);
 
 	// error type
 	auto error_code_alias = make_shared<AliasDefinition>(type_table,
@@ -33,7 +37,8 @@ const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 	auto error_type_mapping = make_shared<type_map>(type_map { {
 			*Builtins::ERROR_CODE_NAME, error_code_alias }, {
 			*Builtins::ERROR_MESSAGE_NAME, error_message_alias } });
-	auto error_type_table = make_shared<const TypeTable>(error_type_mapping);
+	auto error_type_table = make_shared<const TypeTable>(error_type_mapping,
+			type_table);
 	auto error_maybe =
 			MaybeType::Build(type_table, get_error_type_specifier())->GetData<
 					MaybeType>();
@@ -50,7 +55,7 @@ const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 			*Builtins::ERROR_LIST_NEXT_NAME, error_list_maybe }, {
 			*Builtins::ERROR_LIST_DATA_NAME, error_alias } });
 	auto error_list_type_table = make_shared<const TypeTable>(
-			error_list_type_mapping);
+			error_list_type_mapping, type_table);
 	auto error_list_type = make_shared<RecordType>(error_list_type_table,
 			Modifier::NONE, error_list_maybe);
 	type_table->AddType(*Builtins::ERROR_LIST_TYPE_NAME, error_list_type);
@@ -78,17 +83,11 @@ const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 			*Builtins::STREAM_MODE_APP_NAME, app_alias }, {
 			*Builtins::STREAM_MODE_TRUNC_NAME, trunc_alias } });
 	auto stream_mode_type_table = make_shared<const TypeTable>(
-			stream_mode_type_mapping);
+			stream_mode_type_mapping, type_table);
 	auto stream_mode_type = make_shared<RecordType>(stream_mode_type_table,
 			Modifier::NONE, stream_mode_maybe);
 	type_table->AddType(*Builtins::STREAM_MODE_TYPE_NAME, stream_mode_type);
 
-	auto builtin_symbols = make_shared<SymbolContext>(Modifier::NONE);
-
-	auto result = make_shared<ExecutionContext>(builtin_symbols, type_table,
-			LifeTime::PERSISTENT);
-
-	// int result type; add after context creation because of function closure considerations
 	auto int_alias = make_shared<AliasDefinition>(type_table,
 			PrimitiveTypeSpecifier::GetInt(), DIRECT);
 	auto error_list_alias = make_shared<AliasDefinition>(type_table,
@@ -97,7 +96,7 @@ const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 			*Builtins::INT_RESULT_DATA_NAME, int_alias }, {
 			*Builtins::INT_RESULT_ERRORS_NAME, error_list_alias } });
 	auto int_result_type_table = make_shared<const TypeTable>(
-			int_result_type_mapping);
+			int_result_type_mapping, type_table);
 	auto int_result_maybe = MaybeType::Build(type_table,
 			get_int_result_type_specifier())->GetData<MaybeType>();
 	auto type_constructor_result =
@@ -137,6 +136,12 @@ const_shared_ptr<ComplexTypeSpecifier> Builtins::get_error_type_specifier() {
 	return instance;
 }
 
+const_shared_ptr<MaybeTypeSpecifier> Builtins::get_error_maybe_type_specifier() {
+	static const_shared_ptr<MaybeTypeSpecifier> instance = make_shared<
+			MaybeTypeSpecifier>(get_error_type_specifier(),
+			GetDefaultLocation());
+	return instance;
+}
 const_shared_ptr<std::string> Builtins::ERROR_LIST_TYPE_NAME = make_shared<
 		std::string>("error_list");
 
@@ -149,6 +154,13 @@ const_shared_ptr<std::string> Builtins::ERROR_LIST_NEXT_NAME = make_shared<
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_error_list_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
 			ComplexTypeSpecifier>(Builtins::ERROR_LIST_TYPE_NAME);
+	return instance;
+}
+
+const_shared_ptr<MaybeTypeSpecifier> Builtins::get_error_list_maybe_type_specifier() {
+	static const_shared_ptr<MaybeTypeSpecifier> instance = make_shared<
+			MaybeTypeSpecifier>(get_error_list_type_specifier(),
+			GetDefaultLocation());
 	return instance;
 }
 

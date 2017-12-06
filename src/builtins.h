@@ -26,6 +26,7 @@
 
 class UnitType;
 class SumType;
+class MaybeTypeSpecifier;
 
 class Builtins {
 public:
@@ -38,11 +39,13 @@ public:
 	static const_shared_ptr<std::string> ERROR_CODE_NAME;
 	static const_shared_ptr<std::string> ERROR_MESSAGE_NAME;
 	static const_shared_ptr<ComplexTypeSpecifier> get_error_type_specifier();
+	static const_shared_ptr<MaybeTypeSpecifier> get_error_maybe_type_specifier();
 
 	static const_shared_ptr<std::string> ERROR_LIST_TYPE_NAME;
 	static const_shared_ptr<std::string> ERROR_LIST_DATA_NAME;
 	static const_shared_ptr<std::string> ERROR_LIST_NEXT_NAME;
 	static const_shared_ptr<ComplexTypeSpecifier> get_error_list_type_specifier();
+	static const_shared_ptr<MaybeTypeSpecifier> get_error_list_maybe_type_specifier();
 
 	static const_shared_ptr<std::string> STREAM_MODE_TYPE_NAME;
 	static const_shared_ptr<std::string> STREAM_MODE_IN_NAME;

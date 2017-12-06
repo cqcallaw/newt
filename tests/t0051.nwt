@@ -1,0 +1,2 @@
+# test existence of builtins
+e:= @error with { id = 3, message = "Code 3!" }
