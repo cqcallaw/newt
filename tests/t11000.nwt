@@ -1,0 +1,3 @@
+# test file open
+
+r:= open("../tests/files/a.bin", @stream_mode with { read = true, binary = true })

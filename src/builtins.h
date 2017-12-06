@@ -20,6 +20,8 @@
 #ifndef BUILTINS_H_
 #define BUILTINS_H_
 
+#include <mutex>
+
 #include "error.h"
 #include "symbol_table.h"
 #include "type_table.h"
@@ -27,6 +29,8 @@
 class UnitType;
 class SumType;
 class MaybeTypeSpecifier;
+
+typedef map<const int, volatile_shared_ptr<fstream>> file_handle_map;
 
 class Builtins {
 public:
@@ -60,6 +64,9 @@ public:
 	static const_shared_ptr<std::string> INT_RESULT_DATA_NAME;
 	static const_shared_ptr<std::string> INT_RESULT_ERRORS_NAME;
 	static const_shared_ptr<ComplexTypeSpecifier> get_int_result_type_specifier();
+
+	static volatile_shared_ptr<file_handle_map> get_file_handle_map();
+	static volatile_shared_ptr<mutex> get_file_handle_map_mutex();
 };
 
 #endif /* BUILTINS_H_ */

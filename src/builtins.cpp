@@ -198,3 +198,14 @@ const_shared_ptr<ComplexTypeSpecifier> Builtins::get_int_result_type_specifier()
 			ComplexTypeSpecifier>(Builtins::INT_RESULT_TYPE_NAME);
 	return instance;
 }
+
+volatile_shared_ptr<file_handle_map> Builtins::get_file_handle_map() {
+	static volatile_shared_ptr<file_handle_map> instance = make_shared<
+			file_handle_map>();
+	return instance;
+}
+
+volatile_shared_ptr<mutex> Builtins::get_file_handle_map_mutex() {
+	static volatile_shared_ptr<mutex> instance = make_shared<mutex>();
+	return instance;
+}

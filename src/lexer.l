@@ -113,6 +113,7 @@ blank   [ \t\r]
 "as"            return yy::newt_parser::make_AS(loc);
 "in"            return yy::newt_parser::make_IN(loc);
 "using"         return yy::newt_parser::make_USING(loc);
+"open"          return yy::newt_parser::make_OPEN(loc);
 
 "true"          return yy::newt_parser::make_TRUE(true, loc);
 "false"         return yy::newt_parser::make_FALSE(false, loc);

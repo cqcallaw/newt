@@ -20,6 +20,7 @@
 #include <iostream>
 #include <string.h>
 #include <memory>
+#include <fstream>
 
 #include "builtins.h"
 
@@ -146,6 +147,14 @@ int main(int argc, char *argv[]) {
 
 			if (execution_exit_code != ExecutionResult::GetDefaultExitCode()) {
 				exit_code = *execution_exit_code;
+			}
+
+			// cleanup any open file handles
+			auto file_handle_map = Builtins::get_file_handle_map();
+			for (file_handle_map::iterator it = file_handle_map->begin();
+					it != file_handle_map->end(); ++it) {
+				auto stream = it->second;
+				stream->close();
 			}
 
 			return get_exit_code(debug,

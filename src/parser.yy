@@ -94,6 +94,7 @@ class Driver;
 #include <default_value_expression.h>
 #include <invoke_expression.h>
 #include <using_expression.h>
+#include <open_expression.h>
 
 #include <print_statement.h>
 #include <assignment_statement.h>
@@ -197,7 +198,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	MATCH               "match"
 	AS                  "as"
 	IN                  "in"
-	USING                 "using"
+	USING               "using"
+	OPEN                "open"
 
 	RETURN              "return"
 	PRINT     "print"
@@ -247,6 +249,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <FunctionVariantListRef> function_variant_list
 %type <plain_shared_ptr<Expression>> invoke_expression
 %type <plain_shared_ptr<Expression>> using_expression
+%type <plain_shared_ptr<Expression>> open_expression
 %type <plain_shared_ptr<Expression>> optional_initializer
 
 %type <plain_shared_ptr<Variable>> variable_reference
@@ -788,6 +791,10 @@ expression:
 	{
 		$$ = $1;
 	}
+	| open_expression
+	{
+		$$ = $1;
+	}
 	;
 
 //---------------------------------------------------------------------
@@ -865,6 +872,15 @@ using_expression:
 	USING expression AS IDENTIFIER ARROW_RIGHT type_specifier statement_block
 	{
 		$$ = make_shared<UsingExpression>(@$, $2, $4, $6, $7);
+	}
+	;
+
+//---------------------------------------------------------------------
+open_expression:
+	OPEN LPAREN argument_list RPAREN
+	{
+		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
+		$$ = make_shared<OpenExpression>(@$, argument_list, @3);
 	}
 	;
 
