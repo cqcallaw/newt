@@ -28,11 +28,11 @@
 #include <cstring>
 #include <constant_expression.h>
 
-OpenExpression::OpenExpression(const yy::location position,
+OpenExpression::OpenExpression(const yy::location location,
 		const_shared_ptr<Expression> expression,
 		const ArgumentListRef argument_list,
 		const yy::location argument_list_location) :
-		InvokeExpression(position, expression, argument_list,
+		InvokeExpression(location, expression, argument_list,
 				argument_list_location) {
 }
 
