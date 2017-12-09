@@ -161,7 +161,7 @@ TypedResult<string> InvokeExpression::ToString(
 	ostringstream buf;
 	auto expression_result = m_expression->ToString(execution_context);
 
-	if (expression_result.GetErrors()) {
+	if (ErrorList::IsTerminator(expression_result.GetErrors())) {
 		buf << *(expression_result.GetData());
 		buf << "(";
 		auto errors = ErrorList::GetTerminator();
