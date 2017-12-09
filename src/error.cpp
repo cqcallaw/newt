@@ -134,6 +134,9 @@ const string Error::get_error_message() const {
 		os << "'" << m_s1 << "'"
 				<< " has been already been declared in the current scope.";
 		break;
+	case BUILTIN_REDECLARATION:
+		os << "Re-declaration of builtin '" << m_s1 << "'.";
+		break;
 	case UNDECLARED_VARIABLE:
 		os << "Undeclared variable '" << m_s1 << "'";
 		break;
@@ -237,7 +240,8 @@ const string Error::get_error_message() const {
 				<< "Control reaches end of non-void function without complete return coverage.";
 		break;
 	case STMT_SOURCE_MUST_BE_RECORD:
-		os << "Source expression type '" << m_s1 << "' must be of a record type.";
+		os << "Source expression type '" << m_s1
+				<< "' must be of a record type.";
 		break;
 	case FOREACH_STMT_REQUIRES_NEXT:
 		os << "Foreach statement source must have a member named 'next'.";

@@ -94,7 +94,6 @@ class Driver;
 #include <default_value_expression.h>
 #include <invoke_expression.h>
 #include <using_expression.h>
-#include <open_expression.h>
 
 #include <print_statement.h>
 #include <assignment_statement.h>
@@ -199,7 +198,6 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	AS                  "as"
 	IN                  "in"
 	USING               "using"
-	OPEN                "open"
 
 	RETURN              "return"
 	PRINT     "print"
@@ -249,7 +247,6 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <FunctionVariantListRef> function_variant_list
 %type <plain_shared_ptr<Expression>> invoke_expression
 %type <plain_shared_ptr<Expression>> using_expression
-%type <plain_shared_ptr<Expression>> open_expression
 %type <plain_shared_ptr<Expression>> optional_initializer
 
 %type <plain_shared_ptr<Variable>> variable_reference
@@ -791,10 +788,6 @@ expression:
 	{
 		$$ = $1;
 	}
-	| open_expression
-	{
-		$$ = $1;
-	}
 	;
 
 //---------------------------------------------------------------------
@@ -810,7 +803,7 @@ invoke_expression:
 	variable_expression LPAREN optional_argument_list RPAREN
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
+		$$ = InvokeExpression::BuildInvokeExpression(@$, $1, argument_list, @3);
 	}
 	| invoke_expression LPAREN optional_argument_list RPAREN
 	{
@@ -872,15 +865,6 @@ using_expression:
 	USING expression AS IDENTIFIER ARROW_RIGHT type_specifier statement_block
 	{
 		$$ = make_shared<UsingExpression>(@$, $2, $4, $6, $7);
-	}
-	;
-
-//---------------------------------------------------------------------
-open_expression:
-	OPEN LPAREN argument_list RPAREN
-	{
-		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = make_shared<OpenExpression>(@$, argument_list, @3);
 	}
 	;
 

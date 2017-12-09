@@ -41,6 +41,13 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <builtins.h>
+#include <variable_expression.h>
+#include <variable.h>
+#include <open_expression.h>
+
+const vector<string> InvokeExpression::BuiltinFunctionList = vector<string> {
+		"open" };
 
 InvokeExpression::InvokeExpression(const yy::location position,
 		const_shared_ptr<Expression> expression,
@@ -193,10 +200,11 @@ const ErrorListRef InvokeExpression::Validate(
 
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+
 		errors = m_expression->Validate(execution_context);
 		if (ErrorList::IsTerminator(errors)) {
-			auto expression_type_specifier =
-					expression_type_specifier_result.GetData();
 
 			auto is_function = false;
 			DeclarationListRef parameter_list = nullptr;
@@ -368,4 +376,22 @@ const ErrorListRef InvokeExpression::Validate(
 	}
 
 	return errors;
+}
+
+const_shared_ptr<InvokeExpression> InvokeExpression::BuildInvokeExpression(
+		const yy::location location, const_shared_ptr<Expression> expression,
+		const ArgumentListRef argument_list,
+		const yy::location argument_list_location) {
+	auto variable_expression = dynamic_pointer_cast<const VariableExpression>(
+			expression);
+	if (variable_expression) {
+		auto variable_name = variable_expression->GetVariable()->GetName();
+		if (*variable_name == "open") {
+			return make_shared<OpenExpression>(location, expression,
+					argument_list, argument_list_location);
+		}
+	}
+
+	return make_shared<InvokeExpression>(location, expression, argument_list,
+			argument_list_location);
 }

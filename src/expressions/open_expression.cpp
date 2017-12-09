@@ -26,11 +26,13 @@
 #include <bitset>
 #include <cerrno>
 #include <cstring>
+#include <constant_expression.h>
 
 OpenExpression::OpenExpression(const yy::location position,
+		const_shared_ptr<Expression> expression,
 		const ArgumentListRef argument_list,
 		const yy::location argument_list_location) :
-		Expression(position), m_argument_list(argument_list), m_argument_list_location(
+		InvokeExpression(position, expression, argument_list,
 				argument_list_location) {
 }
 
@@ -52,7 +54,7 @@ const_shared_ptr<Result> OpenExpression::Evaluate(
 	// return platform-dependent error codes; should handle mapping to platform-independent codes in std lib.
 
 	// we assume that our validation pass caught any argument length issues
-	auto path_argument_expression = m_argument_list->GetData();
+	auto path_argument_expression = GetArgumentListRef()->GetData();
 	auto path_argument_evaluation = path_argument_expression->Evaluate(context,
 			closure);
 
@@ -62,7 +64,8 @@ const_shared_ptr<Result> OpenExpression::Evaluate(
 	auto errors = path_argument_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto path = path_argument_evaluation->GetData<string>();
-		auto mode_argument_expression = m_argument_list->GetNext()->GetData();
+		auto mode_argument_expression =
+				GetArgumentListRef()->GetNext()->GetData();
 		auto mode_argument_evaluation = mode_argument_expression->Evaluate(
 				context, closure);
 
@@ -195,7 +198,7 @@ TypedResult<string> OpenExpression::ToString(
 	ostringstream buf;
 	buf << "open(";
 	auto errors = ErrorList::GetTerminator();
-	ArgumentListRef argument = m_argument_list;
+	ArgumentListRef argument = GetArgumentListRef();
 	while (!ArgumentList::IsTerminator(argument)) {
 		auto argument_result = argument->GetData()->ToString(execution_context);
 		errors = ErrorList::Concatenate(errors, argument_result.GetErrors());
@@ -220,7 +223,7 @@ const ErrorListRef OpenExpression::Validate(
 	auto type_table = execution_context->GetTypeTable();
 
 	uint arg_count = 0;
-	ArgumentListRef argument = m_argument_list;
+	ArgumentListRef argument = GetArgumentListRef();
 	while (!ArgumentList::IsTerminator(argument)) {
 		auto argument_subject = argument->GetData();
 		auto validation = argument_subject->Validate(execution_context);

@@ -1,0 +1,4 @@
+Parsing file ../tests/t11100.nwt...
+Semantic error on line 3, column 1: Re-declaration of builtin 'open'.
+Parsed file ../tests/t11100.nwt.
+1 error found; giving up.

@@ -20,11 +20,12 @@
 #ifndef EXPRESSIONS_OPEN_EXPRESSION_H_
 #define EXPRESSIONS_OPEN_EXPRESSION_H_
 
-#include <expression.h>
+#include <invoke_expression.h>
 
-class OpenExpression: public Expression {
+class OpenExpression: public InvokeExpression {
 public:
 	OpenExpression(const yy::location location,
+			const_shared_ptr<Expression> expression,
 			const ArgumentListRef argument_list,
 			const yy::location argument_list_location);
 	virtual ~OpenExpression();
@@ -46,18 +47,6 @@ public:
 
 	virtual const ErrorListRef Validate(
 			const shared_ptr<ExecutionContext> execution_context) const;
-
-	ArgumentListRef GetArgumentListRef() const {
-		return m_argument_list;
-	}
-
-	const yy::location GetArgumentListRefLocation() const {
-		return m_argument_list_location;
-	}
-
-private:
-	const ArgumentListRef m_argument_list;
-	const yy::location m_argument_list_location;
 };
 
 #endif /* EXPRESSIONS_OPEN_EXPRESSION_H_ */
