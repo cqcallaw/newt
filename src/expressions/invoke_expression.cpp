@@ -45,9 +45,10 @@
 #include <variable_expression.h>
 #include <variable.h>
 #include <open_expression.h>
+#include <close_expression.h>
 
 const vector<string> InvokeExpression::BuiltinFunctionList = vector<string> {
-		"open" };
+		"open", "close" };
 
 InvokeExpression::InvokeExpression(const yy::location position,
 		const_shared_ptr<Expression> expression,
@@ -388,6 +389,9 @@ const_shared_ptr<InvokeExpression> InvokeExpression::BuildInvokeExpression(
 		auto variable_name = variable_expression->GetVariable()->GetName();
 		if (*variable_name == "open") {
 			return make_shared<OpenExpression>(location, expression,
+					argument_list, argument_list_location);
+		} else if (*variable_name == "close") {
+			return make_shared<CloseExpression>(location, expression,
 					argument_list, argument_list_location);
 		}
 	}
