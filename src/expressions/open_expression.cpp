@@ -131,7 +131,6 @@ const_shared_ptr<Result> OpenExpression::Evaluate(
 				result_message = make_shared<string>(
 						std::strerror(result_code));
 			}
-
 		}
 	}
 
@@ -218,7 +217,7 @@ TypedResult<string> OpenExpression::ToString(
 
 const ErrorListRef OpenExpression::Validate(
 		const shared_ptr<ExecutionContext> execution_context) const {
-// check argument count
+	// check argument count
 	auto errors = ErrorList::GetTerminator();
 	auto type_table = execution_context->GetTypeTable();
 
@@ -295,7 +294,8 @@ const ErrorListRef OpenExpression::Validate(
 											Error::TOO_MANY_ARGUMENTS,
 											argument_subject->GetLocation().begin.line,
 											argument_subject->GetLocation().begin.column,
-											"(string,string) -> int"), errors);
+											"(string,string) -> int_result"),
+									errors);
 					break;
 				}
 			}
