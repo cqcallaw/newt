@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../src/expressions/arithmetic_expression.cpp \
 ../src/expressions/binary_expression.cpp \
+../src/expressions/close_expression.cpp \
 ../src/expressions/comparison_expression.cpp \
 ../src/expressions/constant_expression.cpp \
 ../src/expressions/default_value_expression.cpp \
@@ -22,6 +23,7 @@ CPP_SRCS += \
 OBJS += \
 ./src/expressions/arithmetic_expression.o \
 ./src/expressions/binary_expression.o \
+./src/expressions/close_expression.o \
 ./src/expressions/comparison_expression.o \
 ./src/expressions/constant_expression.o \
 ./src/expressions/default_value_expression.o \
@@ -38,6 +40,7 @@ OBJS += \
 CPP_DEPS += \
 ./src/expressions/arithmetic_expression.d \
 ./src/expressions/binary_expression.d \
+./src/expressions/close_expression.d \
 ./src/expressions/comparison_expression.d \
 ./src/expressions/constant_expression.d \
 ./src/expressions/default_value_expression.d \

@@ -7,7 +7,6 @@ CPP_SRCS += \
 ../src/array.cpp \
 ../src/assert.cpp \
 ../src/builtins.cpp \
-../src/close_expression.cpp \
 ../src/defaults.cpp \
 ../src/driver.cpp \
 ../src/error.cpp \
@@ -33,7 +32,6 @@ OBJS += \
 ./src/array.o \
 ./src/assert.o \
 ./src/builtins.o \
-./src/close_expression.o \
 ./src/defaults.o \
 ./src/driver.o \
 ./src/error.o \
@@ -59,7 +57,6 @@ CPP_DEPS += \
 ./src/array.d \
 ./src/assert.d \
 ./src/builtins.d \
-./src/close_expression.d \
 ./src/defaults.d \
 ./src/driver.d \
 ./src/error.d \
