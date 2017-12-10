@@ -1,0 +1,9 @@
+Parsing file ../tests/t11300.nwt...
+Parsed file ../tests/t11300.nwt.
+Root Symbol Table:
+----------------
+int_result r: {data} 0
+byte_result result: {data} 0x61
+
+Root Type Table:
+----------------

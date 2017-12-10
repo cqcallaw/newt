@@ -88,27 +88,56 @@ const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 			Modifier::NONE, stream_mode_maybe);
 	type_table->AddType(*Builtins::STREAM_MODE_TYPE_NAME, stream_mode_type);
 
+	auto byte_alias = make_shared<AliasDefinition>(type_table,
+			PrimitiveTypeSpecifier::GetByte(), DIRECT);
+	auto byte_error_list_alias = make_shared<AliasDefinition>(type_table,
+			get_error_list_type_specifier(), DIRECT);
+	auto byte_result_type_mapping = make_shared<type_map>(type_map { {
+			*Builtins::BYTE_RESULT_DATA_NAME, byte_alias }, {
+			*Builtins::BYTE_RESULT_ERRORS_NAME, byte_error_list_alias } });
+	auto byte_result_type_table = make_shared<const TypeTable>(
+			byte_result_type_mapping, type_table);
+	auto byte_result_maybe = MaybeType::Build(type_table,
+			get_byte_result_type_specifier())->GetData<MaybeType>();
+	auto byte_type_constructor_result =
+			TypeAliasDeclarationStatement::GetTypeConstructor(
+					GetDefaultLocation(), Builtins::BYTE_RESULT_DATA_NAME,
+					GetDefaultLocation(), GetDefaultLocation(),
+					PrimitiveTypeSpecifier::GetInt(),
+					get_byte_result_type_specifier(), byte_alias, result,
+					result);
+	assert(ErrorList::IsTerminator(byte_type_constructor_result.GetErrors()));
+	auto byte_result_constructor_symbols = make_shared<SymbolTable>();
+	byte_result_constructor_symbols->InsertSymbol(
+			*Builtins::ERROR_LIST_NEXT_NAME,
+			byte_type_constructor_result.GetData());
+	auto byte_result_type = make_shared<SumType>(byte_result_type_table,
+			Builtins::BYTE_RESULT_DATA_NAME, byte_result_constructor_symbols,
+			byte_result_maybe);
+	type_table->AddType(*Builtins::BYTE_RESULT_TYPE_NAME, byte_result_type);
+
 	auto int_alias = make_shared<AliasDefinition>(type_table,
 			PrimitiveTypeSpecifier::GetInt(), DIRECT);
-	auto error_list_alias = make_shared<AliasDefinition>(type_table,
+	auto int_error_list_alias = make_shared<AliasDefinition>(type_table,
 			get_error_list_type_specifier(), DIRECT);
 	auto int_result_type_mapping = make_shared<type_map>(type_map { {
 			*Builtins::INT_RESULT_DATA_NAME, int_alias }, {
-			*Builtins::INT_RESULT_ERRORS_NAME, error_list_alias } });
+			*Builtins::INT_RESULT_ERRORS_NAME, int_error_list_alias } });
 	auto int_result_type_table = make_shared<const TypeTable>(
 			int_result_type_mapping, type_table);
 	auto int_result_maybe = MaybeType::Build(type_table,
 			get_int_result_type_specifier())->GetData<MaybeType>();
-	auto type_constructor_result =
+	auto int_type_constructor_result =
 			TypeAliasDeclarationStatement::GetTypeConstructor(
 					GetDefaultLocation(), Builtins::INT_RESULT_DATA_NAME,
 					GetDefaultLocation(), GetDefaultLocation(),
 					PrimitiveTypeSpecifier::GetInt(),
 					get_int_result_type_specifier(), int_alias, result, result);
-	assert(ErrorList::IsTerminator(type_constructor_result.GetErrors()));
+	assert(ErrorList::IsTerminator(int_type_constructor_result.GetErrors()));
 	auto int_result_constructor_symbols = make_shared<SymbolTable>();
 	int_result_constructor_symbols->InsertSymbol(
-			*Builtins::ERROR_LIST_NEXT_NAME, type_constructor_result.GetData());
+			*Builtins::ERROR_LIST_NEXT_NAME,
+			int_type_constructor_result.GetData());
 	auto int_result_type = make_shared<SumType>(int_result_type_table,
 			Builtins::INT_RESULT_DATA_NAME, int_result_constructor_symbols,
 			int_result_maybe);
@@ -182,6 +211,20 @@ const_shared_ptr<std::string> Builtins::STREAM_MODE_TRUNC_NAME = make_shared<
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_stream_mode_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
 			ComplexTypeSpecifier>(Builtins::STREAM_MODE_TYPE_NAME);
+	return instance;
+}
+
+const_shared_ptr<std::string> Builtins::BYTE_RESULT_TYPE_NAME = make_shared<
+		std::string>("byte_result");
+
+const_shared_ptr<std::string> Builtins::BYTE_RESULT_DATA_NAME = make_shared<
+		std::string>("data");
+
+const_shared_ptr<std::string> Builtins::BYTE_RESULT_ERRORS_NAME = make_shared<
+		std::string>("errors");
+const_shared_ptr<ComplexTypeSpecifier> Builtins::get_byte_result_type_specifier() {
+	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
+			ComplexTypeSpecifier>(Builtins::BYTE_RESULT_TYPE_NAME);
 	return instance;
 }
 

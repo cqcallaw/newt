@@ -12,6 +12,7 @@ CPP_SRCS += \
 ../src/expressions/default_value_expression.cpp \
 ../src/expressions/expression.cpp \
 ../src/expressions/function_expression.cpp \
+../src/expressions/get_byte_expression.cpp \
 ../src/expressions/invoke_expression.cpp \
 ../src/expressions/logic_expression.cpp \
 ../src/expressions/open_expression.cpp \
@@ -29,6 +30,7 @@ OBJS += \
 ./src/expressions/default_value_expression.o \
 ./src/expressions/expression.o \
 ./src/expressions/function_expression.o \
+./src/expressions/get_byte_expression.o \
 ./src/expressions/invoke_expression.o \
 ./src/expressions/logic_expression.o \
 ./src/expressions/open_expression.o \
@@ -46,6 +48,7 @@ CPP_DEPS += \
 ./src/expressions/default_value_expression.d \
 ./src/expressions/expression.d \
 ./src/expressions/function_expression.d \
+./src/expressions/get_byte_expression.d \
 ./src/expressions/invoke_expression.d \
 ./src/expressions/logic_expression.d \
 ./src/expressions/open_expression.d \
