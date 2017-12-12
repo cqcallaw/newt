@@ -71,7 +71,6 @@ const_shared_ptr<Result> GetByteExpression::Evaluate(
 				result_code = errno;
 				result_message = std::strerror(result_code);
 			}
-			map->erase(handle_entry);
 		}
 		Builtins::get_file_handle_map_mutex()->unlock();
 	}
