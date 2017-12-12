@@ -1,6 +1,6 @@
 # test get
 
-r:= open("../tests/files/a.bin", @stream_mode with { read = true, binary = true })
+r:= open("../tests/files/a.in", @stream_mode with { read = true, binary = true })
 
 result:byte_result
 match (r)
