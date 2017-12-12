@@ -42,7 +42,7 @@ TypedResult<TypeSpecifier> GetByteExpression::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> execution_context,
 		AliasResolution resolution) const {
 	return TypedResult<TypeSpecifier>(
-			Builtins::get_byte_result_type_specifier(),
+			Builtins::get_byte_read_result_type_specifier(),
 			ErrorList::GetTerminator());
 }
 
@@ -56,6 +56,7 @@ const_shared_ptr<Result> GetByteExpression::Evaluate(
 	std::uint8_t value = 0;
 	auto result_code = 0;
 	char* result_message;
+	auto at_eof = false;
 	auto errors = file_handle_evaluation->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto file_handle = file_handle_evaluation->GetData<int>();
@@ -65,11 +66,16 @@ const_shared_ptr<Result> GetByteExpression::Evaluate(
 		Builtins::get_file_handle_map_mutex()->lock();
 		auto handle_entry = map->find(*file_handle);
 		if (handle_entry != map->end()) {
+			auto stream = handle_entry->second;
 			try {
-				value = handle_entry->second->get();
+				value = stream->get();
 			} catch (std::fstream::failure &e) {
-				result_code = errno;
-				result_message = std::strerror(result_code);
+				if (stream->eof()) {
+					at_eof = true;
+				} else {
+					result_code = errno;
+					result_message = std::strerror(result_code);
+				}
 			}
 		}
 		Builtins::get_file_handle_map_mutex()->unlock();
@@ -80,8 +86,17 @@ const_shared_ptr<Result> GetByteExpression::Evaluate(
 			Builtins::get_error_list_type_specifier(), DEEP);
 	auto terminator = static_pointer_cast<const Record>(
 			error_list_type->GetDefaultValue(type_table));
-	if (result_code == 0) {
-		auto result = make_shared<Sum>(Builtins::BYTE_RESULT_DATA_NAME,
+	if (at_eof) {
+		auto value =
+				Builtins::get_byte_read_result_eof_type_specifier()->GetType(
+						type_table, RETURN)->GetData<UnitType>()->GetDefaultValue(
+						type_table);
+		auto result = make_shared<Sum>(Builtins::BYTE_READ_RESULT_EOF_NAME,
+				value);
+
+		return make_shared<Result>(result, errors);
+	} else if (result_code == 0) {
+		auto result = make_shared<Sum>(Builtins::BYTE_READ_RESULT_DATA_NAME,
 				make_shared<std::uint8_t>(value));
 
 		return make_shared<Result>(result, errors);
@@ -126,7 +141,7 @@ const_shared_ptr<Result> GetByteExpression::Evaluate(
 				Modifier::Type::NONE, error_list_symbol_map);
 		auto error_list = make_shared<Record>(error_list_symbol_table);
 
-		auto result = make_shared<Sum>(Builtins::BYTE_RESULT_ERRORS_NAME,
+		auto result = make_shared<Sum>(Builtins::BYTE_READ_RESULT_ERRORS_NAME,
 				error_list);
 		return make_shared<Result>(result, errors);
 	}

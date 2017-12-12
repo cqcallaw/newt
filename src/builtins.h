@@ -70,6 +70,13 @@ public:
 	static const_shared_ptr<std::string> INT_RESULT_ERRORS_NAME;
 	static const_shared_ptr<ComplexTypeSpecifier> get_int_result_type_specifier();
 
+	static const_shared_ptr<std::string> BYTE_READ_RESULT_TYPE_NAME;
+	static const_shared_ptr<std::string> BYTE_READ_RESULT_DATA_NAME;
+	static const_shared_ptr<std::string> BYTE_READ_RESULT_EOF_NAME;
+	static const_shared_ptr<std::string> BYTE_READ_RESULT_ERRORS_NAME;
+	static const_shared_ptr<ComplexTypeSpecifier> get_byte_read_result_type_specifier();
+	static const_shared_ptr<ComplexTypeSpecifier> get_byte_read_result_eof_type_specifier();
+
 	static volatile_shared_ptr<file_handle_map> get_file_handle_map();
 	static volatile_shared_ptr<mutex> get_file_handle_map_mutex();
 };

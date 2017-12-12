@@ -20,6 +20,7 @@
 #include <builtins.h>
 #include <record_type.h>
 #include <maybe_type.h>
+#include <unit_type.h>
 #include <type_alias_declaration_statement.h>
 #include <maybe_type_specifier.h>
 
@@ -88,6 +89,7 @@ const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 			Modifier::NONE, stream_mode_maybe);
 	type_table->AddType(*Builtins::STREAM_MODE_TYPE_NAME, stream_mode_type);
 
+	// byte result type
 	auto byte_alias = make_shared<AliasDefinition>(type_table,
 			PrimitiveTypeSpecifier::GetByte(), DIRECT);
 	auto byte_error_list_alias = make_shared<AliasDefinition>(type_table,
@@ -116,6 +118,7 @@ const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 			byte_result_maybe);
 	type_table->AddType(*Builtins::BYTE_RESULT_TYPE_NAME, byte_result_type);
 
+	// int result type
 	auto int_alias = make_shared<AliasDefinition>(type_table,
 			PrimitiveTypeSpecifier::GetInt(), DIRECT);
 	auto int_error_list_alias = make_shared<AliasDefinition>(type_table,
@@ -136,12 +139,49 @@ const shared_ptr<ExecutionContext> Builtins::GetBuiltinContext() {
 	assert(ErrorList::IsTerminator(int_type_constructor_result.GetErrors()));
 	auto int_result_constructor_symbols = make_shared<SymbolTable>();
 	int_result_constructor_symbols->InsertSymbol(
-			*Builtins::ERROR_LIST_NEXT_NAME,
+			*Builtins::INT_RESULT_DATA_NAME,
 			int_type_constructor_result.GetData());
 	auto int_result_type = make_shared<SumType>(int_result_type_table,
 			Builtins::INT_RESULT_DATA_NAME, int_result_constructor_symbols,
 			int_result_maybe);
 	type_table->AddType(*Builtins::INT_RESULT_TYPE_NAME, int_result_type);
+
+	// byte read result type
+	auto byte_read_alias = make_shared<AliasDefinition>(type_table,
+			PrimitiveTypeSpecifier::GetByte(), DIRECT);
+	auto byte_read_error_list_alias = make_shared<AliasDefinition>(type_table,
+			get_error_list_type_specifier(), DIRECT);
+	auto byte_read_eof_maybe = MaybeType::Build(type_table,
+			get_byte_read_result_eof_type_specifier())->GetData<MaybeType>();
+	auto byte_read_eof_type = make_shared<UnitType>(byte_read_eof_maybe);
+	auto byte_read_result_type_mapping = make_shared<type_map>(type_map { {
+			*Builtins::BYTE_READ_RESULT_DATA_NAME, byte_read_alias }, {
+			*Builtins::BYTE_READ_RESULT_EOF_NAME, byte_read_eof_type },
+			{ *Builtins::BYTE_READ_RESULT_ERRORS_NAME,
+					byte_read_error_list_alias } });
+	auto byte_read_result_type_table = make_shared<const TypeTable>(
+			byte_read_result_type_mapping, type_table);
+	auto byte_read_result_maybe = MaybeType::Build(type_table,
+			get_byte_read_result_type_specifier())->GetData<MaybeType>();
+	auto byte_read_type_constructor_result =
+			TypeAliasDeclarationStatement::GetTypeConstructor(
+					GetDefaultLocation(), Builtins::BYTE_READ_RESULT_DATA_NAME,
+					GetDefaultLocation(), GetDefaultLocation(),
+					PrimitiveTypeSpecifier::GetInt(),
+					get_byte_read_result_type_specifier(), byte_read_alias,
+					result, result);
+	assert(
+			ErrorList::IsTerminator(
+					byte_read_type_constructor_result.GetErrors()));
+	auto byte_read_result_constructor_symbols = make_shared<SymbolTable>();
+	byte_read_result_constructor_symbols->InsertSymbol(
+			*Builtins::BYTE_READ_RESULT_DATA_NAME,
+			byte_read_type_constructor_result.GetData());
+	auto byte_read_result_type = make_shared<SumType>(
+			byte_read_result_type_table, Builtins::BYTE_READ_RESULT_DATA_NAME,
+			byte_read_result_constructor_symbols, byte_read_result_maybe);
+	type_table->AddType(*Builtins::BYTE_READ_RESULT_TYPE_NAME,
+			byte_read_result_type);
 
 //	cout << "Builtin type table:" << endl;
 //	type_table->print(cout, Indent(0), DEEP);
@@ -207,7 +247,6 @@ const_shared_ptr<std::string> Builtins::STREAM_MODE_APP_NAME = make_shared<
 		std::string>("app");
 const_shared_ptr<std::string> Builtins::STREAM_MODE_TRUNC_NAME = make_shared<
 		std::string>("trunc");
-
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_stream_mode_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
 			ComplexTypeSpecifier>(Builtins::STREAM_MODE_TYPE_NAME);
@@ -230,15 +269,34 @@ const_shared_ptr<ComplexTypeSpecifier> Builtins::get_byte_result_type_specifier(
 
 const_shared_ptr<std::string> Builtins::INT_RESULT_TYPE_NAME = make_shared<
 		std::string>("int_result");
-
 const_shared_ptr<std::string> Builtins::INT_RESULT_DATA_NAME = make_shared<
 		std::string>("data");
-
 const_shared_ptr<std::string> Builtins::INT_RESULT_ERRORS_NAME = make_shared<
 		std::string>("errors");
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_int_result_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
 			ComplexTypeSpecifier>(Builtins::INT_RESULT_TYPE_NAME);
+	return instance;
+}
+
+const_shared_ptr<std::string> Builtins::BYTE_READ_RESULT_TYPE_NAME =
+		make_shared<std::string>("byte_read_result");
+const_shared_ptr<std::string> Builtins::BYTE_READ_RESULT_DATA_NAME =
+		make_shared<std::string>("data");
+const_shared_ptr<std::string> Builtins::BYTE_READ_RESULT_EOF_NAME = make_shared<
+		std::string>("eof");
+const_shared_ptr<std::string> Builtins::BYTE_READ_RESULT_ERRORS_NAME =
+		make_shared<std::string>("errors");
+const_shared_ptr<ComplexTypeSpecifier> Builtins::get_byte_read_result_type_specifier() {
+	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
+			ComplexTypeSpecifier>(Builtins::BYTE_READ_RESULT_TYPE_NAME);
+	return instance;
+}
+const_shared_ptr<ComplexTypeSpecifier> Builtins::get_byte_read_result_eof_type_specifier() {
+	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
+			ComplexTypeSpecifier>(Builtins::BYTE_READ_RESULT_EOF_NAME,
+			get_byte_read_result_type_specifier(),
+			NamespaceQualifierList::GetTerminator());
 	return instance;
 }
 

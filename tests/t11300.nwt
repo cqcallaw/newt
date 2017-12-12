@@ -2,7 +2,7 @@
 
 r:= open("../tests/files/a.in", @stream_mode with { read = true, binary = true })
 
-result:byte_result
+result:byte_read_result
 match (r)
 	data as handle {
 		result = get(handle)
