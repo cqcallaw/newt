@@ -19,7 +19,7 @@
 
 #include <driver.h>
 
-int Driver::parse(const std::string& file_name, const TRACE trace_level) {
+int Driver::parse(volatile_shared_ptr<string> file_name, const TRACE trace_level) {
 	int scan_begin_result = scan_begin(file_name, (trace_level & SCANNING));
 
 	if (scan_begin_result != EXIT_SUCCESS)
@@ -29,6 +29,19 @@ int Driver::parse(const std::string& file_name, const TRACE trace_level) {
 	parser.set_debug_level((trace_level & PARSING));
 	int res = parser.parse();
 	scan_end();
+	return res;
+}
+
+int Driver::parse_string(const std::string& string, const TRACE trace_level) {
+	int scan_begin_result = scan_string_begin(string, (trace_level & SCANNING));
+
+	if (scan_begin_result != EXIT_SUCCESS)
+		return scan_begin_result;
+
+	yy::newt_parser parser(*this);
+	parser.set_debug_level((trace_level & PARSING));
+	int res = parser.parse();
+	scan_string_end();
 	return res;
 }
 

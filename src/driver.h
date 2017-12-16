@@ -37,12 +37,19 @@ public:
 	virtual ~Driver() {
 	}
 
-	int scan_begin(const std::string& file_name, const bool trace_scanning);
+	int scan_begin(volatile_shared_ptr<string>, const bool trace_scanning);
 	void scan_end();
 
 	// Run the parser on the file specified by <file_name>
 	// Return 0 on success.
-	int parse(const std::string& file_name, const TRACE trace_level);
+	int parse(volatile_shared_ptr<string> file_name, const TRACE trace_level);
+
+	// Run the parser on specified input string
+	// Return 0 on success.
+	int parse_string(const std::string& string, const TRACE trace_level);
+
+	int scan_string_begin(const std::string& string, const bool trace_scanning);
+	void scan_string_end();
 
 	void error(const std::string& message);
 	void lexer_error(const yy::location& location, const std::string& message);

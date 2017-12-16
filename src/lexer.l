@@ -195,14 +195,21 @@ blank   [ \t\r]
 <<EOF>>         return yy::newt_parser::make_END(loc);
 %%
 
-int Driver::scan_begin(const std::string& file_name,
+int Driver::scan_begin(volatile_shared_ptr<string> file_name,
 		const bool trace_scanning) {
 	yy_flex_debug = trace_scanning;
-	if (file_name.empty() || file_name == "-")
+	if (file_name->empty() || *file_name == "-") {
 		yyin = stdin;
-	else if (!(yyin = fopen(file_name.c_str(), "r"))) {
-		error("Cannot open " + file_name + ": " + strerror(errno) + "\n");
-		return EXIT_FAILURE;
+	}
+	else {
+		yyin = fopen(file_name->c_str(), "r");
+		if (yyin) {
+			loc = yy::location(nullptr, 1, 1); // TODO: use file names in locations
+			yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
+		} else {
+			error("Cannot open " + *file_name + ": " + strerror(errno) + "\n");
+			return EXIT_FAILURE;
+		}
 	}
 
 	return EXIT_SUCCESS;
@@ -210,5 +217,16 @@ int Driver::scan_begin(const std::string& file_name,
 
 void Driver::scan_end() {
 	fclose(yyin);
-	yylex_destroy();
+	yypop_buffer_state();
+}
+
+int Driver::scan_string_begin(const std::string& string,
+		const bool trace_scanning) {
+	yy_flex_debug = trace_scanning;
+	yy_scan_string(string.c_str());
+	return EXIT_SUCCESS;
+}
+
+void Driver::scan_string_end() {
+	yypop_buffer_state();
 }

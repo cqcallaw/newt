@@ -35,9 +35,9 @@ typedef map<const int, volatile_shared_ptr<fstream>> file_handle_map;
 class Builtins {
 public:
 	/**
-	 * Get a context pre-loaded with built-ins, such as errors
+	 * Get a string representation of builtins, such as errors
 	 */
-	static const shared_ptr<ExecutionContext> GetBuiltinContext();
+	static const_shared_ptr<string> get_builtin_definition();
 
 	static const_shared_ptr<std::string> ERROR_TYPE_NAME;
 	static const_shared_ptr<std::string> ERROR_CODE_NAME;
