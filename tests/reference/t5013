@@ -3,9 +3,9 @@ Parsed file ../tests/t5013.nwt.
 Root Symbol Table:
 ----------------
 (int) -> string callback:
-	Body Location: 1.32-2.29
+	Body Location: ../tests/t5013.nwt:1.32-2.29
 (int, (int) -> string) -> string do_op:
-	Body Location: 5.59-7.23
+	Body Location: ../tests/t5013.nwt:5.59-7.23
 string output: "Good job 3!"
 
 Root Type Table:

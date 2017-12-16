@@ -5,7 +5,7 @@ Root Symbol Table:
 list l: {terminator} <unit>
 int r: 0
 (list?) -> int sum:
-	Body Location: 10.25-23.3
+	Body Location: ../tests/t8003.nwt:10.25-23.3
 
 Root Type Table:
 ----------------

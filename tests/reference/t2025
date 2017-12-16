@@ -7,7 +7,7 @@ i: 3
 Root Symbol Table:
 ----------------
 () -> int fn:
-	Body Location: 1.18-9.9
+	Body Location: ../tests/t2025.nwt:1.18-9.9
 int r: 3
 
 Root Type Table:

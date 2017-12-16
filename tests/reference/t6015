@@ -3,7 +3,7 @@ Parsed file ../tests/t6015.nwt.
 Root Symbol Table:
 ----------------
 (int) -> result f:
-	Body Location: 10.24-15.2
+	Body Location: ../tests/t6015.nwt:10.24-15.2
 result first_result: {value} 1
 result second_result:
 {error}

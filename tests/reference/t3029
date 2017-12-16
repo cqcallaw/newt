@@ -8,9 +8,9 @@ line l1:
 
 
 (line) -> line translate_line:
-	Body Location: 5.41-6.22
+	Body Location: ../tests/t3029.nwt:5.41-6.22
 () -> int translate_point:
-	Body Location: 9.30-10.9
+	Body Location: ../tests/t3029.nwt:9.30-10.9
 
 Root Type Table:
 ----------------

@@ -3,7 +3,7 @@ Parsed file ../tests/t5004.nwt.
 Root Symbol Table:
 ----------------
 () -> int trivial:
-	Body Location: 2.23-7.2
+	Body Location: ../tests/t5004.nwt:2.23-7.2
 
 Root Type Table:
 ----------------

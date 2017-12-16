@@ -4,7 +4,7 @@ i: 2
 Root Symbol Table:
 ----------------
 () -> int fn:
-	Body Location: 9.16-17.9
+	Body Location: ../tests/t9030.nwt:9.16-17.9
 list l:
 	int data: 2
 	list? next:

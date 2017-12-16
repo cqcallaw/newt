@@ -10,6 +10,6 @@ a:
 	<record>
 	f:
 		() -> int (
-			Body Location: 3.16-24
+			Body Location: ../tests/t3030.nwt:3.16-24
 		)
 

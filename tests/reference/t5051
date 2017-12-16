@@ -9,9 +9,9 @@ coordinate res:
 
 (...) -> coordinate translate:
 	(coordinate, int, int) -> coordinate:
-		Location: 13.14-21.1
+		Location: ../tests/t5051.nwt:13.14-21.1
 	(coordinate, double, double) -> coordinate:
-		Location: 22.3-31.1
+		Location: ../tests/t5051.nwt:22.3-31.1
 
 
 Root Type Table:

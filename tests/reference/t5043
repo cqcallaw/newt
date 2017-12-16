@@ -4,11 +4,11 @@ Root Symbol Table:
 ----------------
 (...) -> double, int add:
 	(int, int) -> int:
-		Location: 2.8-4.1
+		Location: ../tests/t5043.nwt:2.8-4.1
 	(double, int) -> double:
-		Location: 5.3-7.1
+		Location: ../tests/t5043.nwt:5.3-7.1
 	(double, double) -> double:
-		Location: 8.3-10.1
+		Location: ../tests/t5043.nwt:8.3-10.1
 
 double res: 10003
 

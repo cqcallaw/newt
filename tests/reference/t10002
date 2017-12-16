@@ -3,7 +3,7 @@ Parsed file ../tests/t10002.nwt.
 Root Symbol Table:
 ----------------
 () -> disposable_setup_result get_disposable:
-	Body Location: 20.50-21.19
+	Body Location: ../tests/t10002.nwt:20.50-21.19
 result r:
 {errors}
 	int code: 0
@@ -17,7 +17,7 @@ disposable:
 	<record>
 	teardown:
 		(disposable?) -> error_list? (
-			Body Location: 10.49-11.12
+			Body Location: ../tests/t10002.nwt:10.49-11.12
 		)
 
 disposable_setup_result:

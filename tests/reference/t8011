@@ -9,7 +9,7 @@ list l:
 
 int r: 2
 (list?) -> int sum:
-	Body Location: 10.25-23.3
+	Body Location: ../tests/t8011.nwt:10.25-23.3
 
 Root Type Table:
 ----------------

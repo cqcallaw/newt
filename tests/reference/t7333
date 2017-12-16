@@ -12,6 +12,6 @@ a:
 		int (3)
 	f:
 		() -> int (
-			Body Location: 5.16-27
+			Body Location: ../tests/t7333.nwt:5.16-27
 		)
 

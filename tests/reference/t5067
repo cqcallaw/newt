@@ -8,7 +8,7 @@ coordinate res:
 	int y: 0
 
 (coordinate, int, int) -> coordinate translate:
-	Body Location: 13.58-20.3
+	Body Location: ../tests/t5067.nwt:13.58-20.3
 
 Root Type Table:
 ----------------

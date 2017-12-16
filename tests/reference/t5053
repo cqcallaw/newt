@@ -4,9 +4,9 @@ Root Symbol Table:
 ----------------
 (...) -> nil func:
 	(int) -> nil:
-		Location: 3.9-6.1
+		Location: ../tests/t5053.nwt:3.9-6.1
 	() -> nil:
-		Location: 7.3-8.1
+		Location: ../tests/t5053.nwt:7.3-8.1
 
 
 Root Type Table:

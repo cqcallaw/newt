@@ -5,9 +5,9 @@ Root Symbol Table:
 boolean five_is_even: false
 boolean five_is_odd: true
 (int) -> boolean is_even:
-	Body Location: 7.28-12.2
+	Body Location: ../tests/t8102.nwt:7.28-12.2
 (int) -> boolean is_odd:
-	Body Location: 15.27-20.2
+	Body Location: ../tests/t8102.nwt:15.27-20.2
 boolean one_is_even: false
 boolean one_is_odd: true
 boolean zero_is_even: true

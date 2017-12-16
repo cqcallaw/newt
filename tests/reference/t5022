@@ -4,7 +4,7 @@ Parsed file ../tests/t5022.nwt.
 Root Symbol Table:
 ----------------
 (int) -> nil fun:
-	Body Location: 1.24-2.9
+	Body Location: ../tests/t5022.nwt:1.24-2.9
 
 Root Type Table:
 ----------------

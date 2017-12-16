@@ -12,6 +12,6 @@ a:
 		int (0)
 	c:
 		(a?) -> int (
-			Body Location: 3.21-10.4
+			Body Location: ../tests/t7020.nwt:3.21-10.4
 		)
 

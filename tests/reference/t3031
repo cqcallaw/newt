@@ -5,7 +5,7 @@ Root Symbol Table:
 int r: 3
 a v:
 	() -> int f:
-		Body Location: 3.16-24
+		Body Location: ../tests/t3031.nwt:3.16-24
 
 
 Root Type Table:
@@ -14,6 +14,6 @@ a:
 	<record>
 	f:
 		() -> int (
-			Body Location: 3.16-24
+			Body Location: ../tests/t3031.nwt:3.16-24
 		)
 

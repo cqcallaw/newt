@@ -204,7 +204,7 @@ int Driver::scan_begin(volatile_shared_ptr<string> file_name,
 	else {
 		yyin = fopen(file_name->c_str(), "r");
 		if (yyin) {
-			loc = yy::location(nullptr, 1, 1); // TODO: use file names in locations
+			loc = yy::location(file_name.get(), 1, 1);
 			yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
 		} else {
 			error("Cannot open " + *file_name + ": " + strerror(errno) + "\n");

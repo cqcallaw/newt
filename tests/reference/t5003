@@ -4,9 +4,9 @@ Root Symbol Table:
 ----------------
 int a: 3
 (int, int) -> int add:
-	Body Location: 1.37-2.13
+	Body Location: ../tests/t5003.nwt:1.37-2.13
 (int, int) -> int add_default:
-	Body Location: 5.49-6.13
+	Body Location: ../tests/t5003.nwt:5.49-6.13
 int b: 1
 int c: 3
 int d: 5

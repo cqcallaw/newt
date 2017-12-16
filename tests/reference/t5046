@@ -4,9 +4,9 @@ Root Symbol Table:
 ----------------
 (...) -> int fun:
 	(int) -> int:
-		Location: 2.8-4.1
+		Location: ../tests/t5046.nwt:2.8-4.1
 	() -> int:
-		Location: 5.3-7.1
+		Location: ../tests/t5046.nwt:5.3-7.1
 
 int res: 2
 

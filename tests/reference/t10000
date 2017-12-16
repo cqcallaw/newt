@@ -10,7 +10,7 @@ disposable:
 	<record>
 	teardown:
 		(disposable?) -> error_list? (
-			Body Location: 15.49-16.12
+			Body Location: ../tests/t10000.nwt:15.49-16.12
 		)
 
 error_list:

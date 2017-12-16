@@ -3,7 +3,7 @@ Parsed file ../tests/t6307.nwt.
 Root Symbol Table:
 ----------------
 () -> int? f:
-	Body Location: 2.17-3.11
+	Body Location: ../tests/t6307.nwt:2.17-3.11
 int? v: {nil}
 
 Root Type Table:

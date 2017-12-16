@@ -4,7 +4,7 @@ Runtime error on line 2, column 8: Max invocation depth 1024 exceeded.
 Root Symbol Table:
 ----------------
 (int) -> int fun:
-	Body Location: 2.23-3.14
+	Body Location: ../tests/t8103.nwt:2.23-3.14
 int v: 0
 
 Root Type Table:

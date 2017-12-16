@@ -6,7 +6,7 @@ Root Symbol Table:
 list l:
 	int data: 2
 	(list?) -> list? next:
-		Body Location: 4.46-5.12
+		Body Location: ../tests/t9003.nwt:4.46-5.12
 
 
 Root Type Table:
@@ -17,6 +17,6 @@ list:
 		int (0)
 	next:
 		(list?) -> list? (
-			Body Location: 4.46-5.12
+			Body Location: ../tests/t9003.nwt:4.46-5.12
 		)
 

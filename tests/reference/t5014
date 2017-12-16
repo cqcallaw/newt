@@ -9,7 +9,7 @@ person b:
 	string name: "Bob"
 
 (person) -> person f:
-	Body Location: 6.27-7.9
+	Body Location: ../tests/t5014.nwt:6.27-7.9
 
 Root Type Table:
 ----------------

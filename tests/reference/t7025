@@ -3,9 +3,9 @@ Parsed file ../tests/t7025.nwt.
 Root Symbol Table:
 ----------------
 (int) -> () -> int f:
-	Body Location: 2.27-11.2
+	Body Location: ../tests/t7025.nwt:2.27-11.2
 () -> int r:
-	Body Location: 4.21-5.11
+	Body Location: ../tests/t7025.nwt:4.21-5.11
 int s: 3
 
 Root Type Table:
