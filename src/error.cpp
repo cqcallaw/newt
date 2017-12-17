@@ -169,7 +169,7 @@ const string Error::get_error_message() const {
 		os << "\"" << m_s1 << "\" is read-only.";
 		break;
 	case FUNCTION_RETURN_MISMATCH:
-		os << "Return type does not match function return type.";
+		os << "Return type does not match context return type.";
 		break;
 	case FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS:
 		os << "Parameter type mismatch: can't unambiguous assign '" << m_s1

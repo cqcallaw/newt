@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 				root_context->LinkToParent(builtin_context);
 				auto semantic_errors =
 						main_statement_block->Preprocess(root_context,
-								const_shared_ptr<TypeSpecifier>()).GetErrors();
+								TypeTable::GetNilTypeSpecifier()).GetErrors();
 
 				if (ErrorList::IsTerminator(semantic_errors)) {
 					if (debug) {
@@ -138,7 +138,6 @@ int main(int argc, char *argv[]) {
 					auto execution_result = main_statement_block->Execute(
 							root_context);
 					auto execution_errors = execution_result.GetErrors();
-					auto execution_exit_code = execution_result.GetExitCode();
 
 					bool has_execution_errors = false;
 					while (!ErrorList::IsTerminator(execution_errors)) {
@@ -158,6 +157,7 @@ int main(int argc, char *argv[]) {
 						root_context->GetTypeTable()->print(cout, Indent(0));
 					}
 
+					auto execution_exit_code = execution_result.GetExitCode();
 					if (execution_exit_code
 							!= ExecutionResult::GetDefaultExitCode()) {
 						exit_code = *execution_exit_code;
