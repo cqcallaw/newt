@@ -50,6 +50,7 @@ public:
 			const shared_ptr<ExecutionContext> execution_context,
 			const shared_ptr<ExecutionContext> closure);
 
+	static const_shared_ptr<std::string> DATA_NAME;
 	static const_shared_ptr<std::string> NEXT_NAME;
 
 private:

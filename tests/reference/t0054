@@ -7,7 +7,7 @@ error e:
 	string message: "Code 3!"
 
 error_list el:
-	error error:
+	error data:
 		int id: 3
 		string message: "Code 3!"
 
@@ -16,7 +16,7 @@ error_list el:
 int_result ir: {data} 3
 int_result ir2:
 {errors}
-	error error:
+	error data:
 		int id: 3
 		string message: "Code 3!"
 

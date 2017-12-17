@@ -243,6 +243,9 @@ const string Error::get_error_message() const {
 		os << "Source expression type '" << m_s1
 				<< "' must be of a record type.";
 		break;
+	case FOREACH_STMT_REQUIRES_DATA:
+		os << "Foreach statement source must have a member named 'data'.";
+		break;
 	case FOREACH_STMT_REQUIRES_NEXT:
 		os << "Foreach statement source must have a member named 'next'.";
 		break;

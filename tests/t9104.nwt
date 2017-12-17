@@ -1,0 +1,10 @@
+# test missing data member
+list {
+	next:list?
+}
+
+l:= @list
+
+for i in l {
+	print(i)
+}

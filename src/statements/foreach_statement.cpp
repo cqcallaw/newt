@@ -31,6 +31,9 @@
 #include <variable_expression.h>
 #include <unit_type.h>
 
+const_shared_ptr<std::string> ForeachStatement::DATA_NAME = make_shared<
+		std::string>("data");
+
 const_shared_ptr<std::string> ForeachStatement::NEXT_NAME = make_shared<
 		std::string>("next");
 
@@ -128,14 +131,33 @@ const PreprocessResult ForeachStatement::Preprocess(
 										expression_type->GetDefaultValue(
 												*type_table);
 
-								auto default_symbol =
-										expression_type->GetSymbol(
-												context->GetTypeTable(),
-												expression_type_specifier,
-												default_value);
-								m_block_context->InsertSymbol(
-										*m_evaluation_identifier,
-										default_symbol);
+								auto data_type =
+										as_record->GetDefinition()->GetType<
+												TypeDefinition>(
+												ForeachStatement::DATA_NAME,
+												SHALLOW);
+								if (data_type) {
+									auto default_symbol =
+											data_type->GetSymbol(
+													context->GetTypeTable(),
+													data_type->GetTypeSpecifier(
+															ForeachStatement::DATA_NAME,
+															complex_expression_type_specifier,
+															GetDefaultLocation()),
+													default_value);
+									m_block_context->InsertSymbol(
+											*m_evaluation_identifier,
+											default_symbol);
+								} else {
+									errors =
+											ErrorList::From(
+													make_shared<Error>(
+															Error::SEMANTIC,
+															Error::FOREACH_STMT_REQUIRES_DATA,
+															m_expression->GetLocation().begin.line,
+															m_expression->GetLocation().begin.column),
+													errors);
+								}
 							} else {
 								errors =
 										ErrorList::From(
@@ -236,10 +258,10 @@ const ExecutionResult ForeachStatement::Execute(
 					&& *tag != *TypeTable::GetNilName()) {
 				auto record = static_pointer_cast<const Record>(raw_value);
 				assert(record);
-				auto symbol = make_shared<const Symbol>(source_type_specifier,
-						record);
+				auto data_symbol = record->GetDefinition()->GetSymbol(
+						ForeachStatement::DATA_NAME);
 				auto set_result = execution_context->SetSymbol(
-						*m_evaluation_identifier, source_type_specifier, record,
+						*m_evaluation_identifier, data_symbol,
 						context->GetTypeTable());
 				assert(set_result == SET_SUCCESS);
 

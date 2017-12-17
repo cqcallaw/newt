@@ -3,7 +3,7 @@ Parsed file ../tests/t0053.nwt.
 Root Symbol Table:
 ----------------
 error_list el:
-	error error:
+	error data:
 		int id: 0
 		string message: ""
 

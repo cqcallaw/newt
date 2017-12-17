@@ -6,7 +6,7 @@ error_list? e: {nil}
 int_result r: {data} 0
 error_list? saved_e:
 	{value}
-		error error:
+		error data:
 			int id: 3
 			string message: ""
 

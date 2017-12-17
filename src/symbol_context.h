@@ -104,6 +104,9 @@ public:
 			const_shared_ptr<MaybeTypeSpecifier> type,
 			const_shared_ptr<Sum> value, const TypeTable& type_table);
 
+	SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<Symbol> value, const TypeTable& type_table);
+
 	static volatile_shared_ptr<SymbolContext> GetDefault();
 
 protected:

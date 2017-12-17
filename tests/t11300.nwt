@@ -9,8 +9,8 @@ match (r)
 		close(handle)
 	}
 	| errors {
-		for node in errors {
-			print(node.error.message)
+		for error in errors {
+			print(error.message)
 		}
 	}
 	

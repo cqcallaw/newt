@@ -19,5 +19,5 @@ list {
 l:= @list with { data = 2 }
 
 for i in l {
-	print(i.data)
+	print(i)
 }

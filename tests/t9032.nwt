@@ -7,5 +7,5 @@ list {
 l:list? = @list with { data = 2, next = @list with { data = 1 } }
 
 for i in l {
-	print("i: " + i.data)
+	print("i: " + i)
 }

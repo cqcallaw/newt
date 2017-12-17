@@ -49,7 +49,7 @@ const_shared_ptr<std::string> Builtins::ERROR_LIST_TYPE_NAME = make_shared<
 		std::string>("error_list");
 
 const_shared_ptr<std::string> Builtins::ERROR_LIST_DATA_NAME = make_shared<
-		std::string>("error");
+		std::string>("data");
 
 const_shared_ptr<std::string> Builtins::ERROR_LIST_NEXT_NAME = make_shared<
 		std::string>("next");
