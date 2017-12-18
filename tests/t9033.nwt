@@ -1,0 +1,12 @@
+# test foreach with sum type data payload
+a {
+	b:int
+	| c:string
+}
+a_iter {
+	data:a,
+	next:() -> a_iter?
+}
+
+for value in @a_iter {
+}

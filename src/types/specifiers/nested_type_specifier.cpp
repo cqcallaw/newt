@@ -194,5 +194,5 @@ TypedResult<TypeSpecifier> NestedTypeSpecifier::Resolve(
 		}
 	}
 
-	return source;
+	return TypedResult<TypeSpecifier>(source);
 }

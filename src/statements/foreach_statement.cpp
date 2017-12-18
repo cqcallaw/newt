@@ -131,20 +131,24 @@ const PreprocessResult ForeachStatement::Preprocess(
 										expression_type->GetDefaultValue(
 												*type_table);
 
+								// get aliased definition, so the type specifier we get is the un-aliased definition
+								// this is weird, and probably not rigorously correct (the alias GetTypeSpecifier should
+								// probably return an _alias_ specifier, not a specifier for the original type),
+								// but this gets the job done
 								auto data_type =
 										as_record->GetDefinition()->GetType<
 												TypeDefinition>(
 												ForeachStatement::DATA_NAME,
-												SHALLOW);
+												SHALLOW, RETURN);
 								if (data_type) {
-									auto default_symbol =
-											data_type->GetSymbol(
-													context->GetTypeTable(),
-													data_type->GetTypeSpecifier(
-															ForeachStatement::DATA_NAME,
-															complex_expression_type_specifier,
-															GetDefaultLocation()),
-													default_value);
+									auto data_type_specifier =
+											data_type->GetTypeSpecifier(
+													ForeachStatement::DATA_NAME,
+													complex_expression_type_specifier,
+													GetDefaultLocation());
+									auto default_symbol = data_type->GetSymbol(
+											context->GetTypeTable(),
+											data_type_specifier, default_value);
 									m_block_context->InsertSymbol(
 											*m_evaluation_identifier,
 											default_symbol);
