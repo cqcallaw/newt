@@ -47,6 +47,7 @@
 #include <open_expression.h>
 #include <close_expression.h>
 #include <get_byte_expression.h>
+#include <put_byte_expression.h>
 
 const vector<string> InvokeExpression::BuiltinFunctionList = vector<string> {
 		"open", "close", "get" };
@@ -396,6 +397,9 @@ const_shared_ptr<InvokeExpression> InvokeExpression::BuildInvokeExpression(
 					argument_list, argument_list_location);
 		} else if (*variable_name == "get") {
 			return make_shared<GetByteExpression>(location, expression,
+					argument_list, argument_list_location);
+		} else if (*variable_name == "put") {
+			return make_shared<PutByteExpression>(location, expression,
 					argument_list, argument_list_location);
 		}
 	}

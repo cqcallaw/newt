@@ -16,6 +16,7 @@ CPP_SRCS += \
 ../src/expressions/invoke_expression.cpp \
 ../src/expressions/logic_expression.cpp \
 ../src/expressions/open_expression.cpp \
+../src/expressions/put_byte_expression.cpp \
 ../src/expressions/unary_expression.cpp \
 ../src/expressions/using_expression.cpp \
 ../src/expressions/variable_expression.cpp \
@@ -34,6 +35,7 @@ OBJS += \
 ./src/expressions/invoke_expression.o \
 ./src/expressions/logic_expression.o \
 ./src/expressions/open_expression.o \
+./src/expressions/put_byte_expression.o \
 ./src/expressions/unary_expression.o \
 ./src/expressions/using_expression.o \
 ./src/expressions/variable_expression.o \
@@ -52,6 +54,7 @@ CPP_DEPS += \
 ./src/expressions/invoke_expression.d \
 ./src/expressions/logic_expression.d \
 ./src/expressions/open_expression.d \
+./src/expressions/put_byte_expression.d \
 ./src/expressions/unary_expression.d \
 ./src/expressions/using_expression.d \
 ./src/expressions/variable_expression.d \
