@@ -1,0 +1,42 @@
+Parsing file ../tests/t12000.nwt...
+Parsed file ../tests/t12000.nwt.
+61
+62
+63
+Root Symbol Table:
+----------------
+(string, stream_mode) -> byte_stream_setup_result open_byte_stream:
+	Body Location: ../tests/t12000.nwt:24.82-36.3
+error_list? r: {nil}
+(byte_stream) -> byte_iter? read:
+	Body Location: ../tests/t12000.nwt:44.45-62.11
+
+Root Type Table:
+----------------
+byte_iter:
+	<record>
+	data:
+		byte_result ({data} 0x00)
+	next:
+		() -> byte_iter? (
+			Body Location: [default location]
+		)
+
+byte_stream:
+	<record>
+	handle:
+		int (0)
+	source:
+		string ("")
+	teardown:
+		(byte_stream?) -> error_list? (
+			Body Location: ../tests/t12000.nwt:8.50-15.4
+		)
+
+byte_stream_setup_result:
+	<sum>
+	setup_errors:
+		error_list
+	setup_value:
+		byte_stream
+

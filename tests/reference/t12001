@@ -1,0 +1,65 @@
+Parsing file ../tests/t12001.nwt...
+Parsed file ../tests/t12001.nwt.
+61
+62
+63
+Root Symbol Table:
+----------------
+byte_list data:
+	byte data: 0x61
+	byte_list? next:
+		{value}
+			byte data: 0x62
+			byte_list? next:
+				{value}
+					byte data: 0x63
+					byte_list? next: {nil}
+
+
+
+string file_name: "../tests/files/abc.inout"
+(string, stream_mode) -> byte_stream_setup_result open_byte_stream:
+	Body Location: ../tests/t12001.nwt:24.82-36.3
+(byte_stream) -> byte_iter? read:
+	Body Location: ../tests/t12001.nwt:49.45-67.11
+error_list? read_result: {nil}
+(byte_stream, byte) -> error_list? write:
+	Body Location: ../tests/t12001.nwt:70.59-71.33
+error_list? write_result: {nil}
+
+Root Type Table:
+----------------
+byte_iter:
+	<record>
+	data:
+		byte_result ({data} 0x00)
+	next:
+		() -> byte_iter? (
+			Body Location: [default location]
+		)
+
+byte_list:
+	<record>
+	data:
+		byte (0x00)
+	next:
+		byte_list? ({nil})
+
+byte_stream:
+	<record>
+	handle:
+		int (0)
+	source:
+		string ("")
+	teardown:
+		(byte_stream?) -> error_list? (
+			Body Location: ../tests/t12001.nwt:8.50-15.4
+		)
+
+byte_stream_setup_result:
+	<sum>
+	setup_errors:
+		error_list
+	setup_value:
+		byte_stream
+
