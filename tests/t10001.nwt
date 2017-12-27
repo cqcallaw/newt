@@ -6,7 +6,6 @@ error_list {
 	next:error_list?
 }
 
-
 result {
 	value:int
 	| errors:error_list
