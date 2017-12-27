@@ -125,7 +125,7 @@ const ExecutionResult IfStatement::Execute(
 		return m_block->Execute(execution_context, closure);
 	} else if (m_else_block) {
 		auto execution_context = ExecutionContext::GetRuntimeInstance(
-				m_block_context, context);
+				m_else_block_context, context);
 
 		return m_else_block->Execute(execution_context, closure);
 	}
