@@ -293,7 +293,9 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
-	plain_shared_ptr<Sum> instance = nullptr;
+	auto type_table = execution_context->GetTypeTable();
+	plain_shared_ptr<const Sum> instance = static_pointer_cast<const Sum>(
+			GetDefaultValue(type_table));
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
 	auto initializer_expression_type_specifier_result =
