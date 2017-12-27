@@ -50,7 +50,7 @@
 #include <put_byte_expression.h>
 
 const vector<string> InvokeExpression::BuiltinFunctionList = vector<string> {
-		"open", "close", "get" };
+		"open", "close", "get", "put" };
 
 InvokeExpression::InvokeExpression(const yy::location position,
 		const_shared_ptr<Expression> expression,
