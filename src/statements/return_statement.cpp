@@ -23,6 +23,7 @@
 #include <sum_type.h>
 #include <sum_type_specifier.h>
 #include <unit_type.h>
+#include <function_type_specifier.h>
 
 ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 		m_expression(expression) {
@@ -84,10 +85,17 @@ const ExecutionResult ReturnStatement::Execute(
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();
+
+			auto weakenable = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					expression_type_specifier)
+					|| dynamic_pointer_cast<const ArrayTypeSpecifier>(
+							expression_type_specifier)
+					|| dynamic_pointer_cast<const FunctionTypeSpecifier>(
+							expression_type_specifier);
 			return ExecutionResult(
 					const_shared_ptr<Symbol>(
 							new Symbol(expression_type_specifier,
-									result->GetRawData())));
+									result->GetRawData(), weakenable)));
 		}
 	}
 

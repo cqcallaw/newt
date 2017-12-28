@@ -74,6 +74,7 @@ const ExecutionResult StatementBlock::Execute(
 const ExecutionResult StatementBlock::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure_context) const {
+	auto result = ExecutionResult();
 	auto subject = m_statements;
 	while (!StatementList::IsTerminator(subject)) {
 		const_shared_ptr<Statement> statement = subject->GetData();
@@ -84,12 +85,17 @@ const ExecutionResult StatementBlock::Execute(
 						!= Symbol::GetDefaultSymbol()
 				|| execution_result.GetExitCode()
 						!= ExecutionResult::GetDefaultExitCode()) {
-			//we've either encountered an error, a return value has been set,
-			//or an exit code has been set
+			// we've either encountered an error, a return value has been set,
+			// or an exit code has been set
+
+			// weaken all symbol refs to prevent reference loops
+			context->WeakenReferences();
 			return execution_result;
 		}
 		subject = subject->GetNext();
 	}
 
-	return ErrorList::GetTerminator();
+	// weaken all symbol refs to prevent reference loops
+	context->WeakenReferences();
+	return ExecutionResult();
 }

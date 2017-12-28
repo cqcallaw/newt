@@ -33,6 +33,14 @@ ExecutionContext::ExecutionContext(const Modifier::Type modifiers) :
 				ExecutionContextList::GetTerminator(), make_shared<TypeTable>(),
 				PERSISTENT, 0) {
 }
+
+ExecutionContext::ExecutionContext(const Modifier::Type modifiers,
+		const LifeTime lifetime) :
+		ExecutionContext(modifiers, make_shared<symbol_map>(),
+				ExecutionContextList::GetTerminator(), make_shared<TypeTable>(),
+				lifetime, 0) {
+}
+
 ExecutionContext::ExecutionContext(const shared_ptr<SymbolContext> existing,
 		volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time) :
 		ExecutionContext(existing, ExecutionContextList::GetTerminator(),
@@ -214,3 +222,18 @@ const shared_ptr<ExecutionContext> ExecutionContext::GetEmptyChild(
 					life_time, parent->GetDepth() + 1));
 }
 
+void ExecutionContext::WeakenReferences() {
+	if ((GetModifiers() & Modifier::MUTABLE) == Modifier::MUTABLE
+			&& GetLifeTime() != ROOT) {
+		auto symbol_table = GetTable();
+
+		symbol_map::iterator it;
+		for (it = symbol_table->begin(); it != symbol_table->end(); it++) {
+			auto symbol = it->second;
+			if (symbol->IsWeakenable()) {
+				auto new_symbol = Symbol::WeakenReference(symbol);
+				it->second = new_symbol;
+			}
+		}
+	}
+}

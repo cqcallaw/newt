@@ -28,7 +28,7 @@
 class TypeTable;
 
 enum LifeTime {
-	PERSISTENT, TEMPORARY, EPHEMERAL
+	PERSISTENT, TEMPORARY, EPHEMERAL, ROOT
 };
 
 #include <execution_context_list.h>
@@ -42,6 +42,7 @@ public:
 
 	ExecutionContext();
 	ExecutionContext(const Modifier::Type modifiers);
+	ExecutionContext(const Modifier::Type modifiers, const LifeTime lifetime);
 	ExecutionContext(const shared_ptr<SymbolContext> existing,
 			volatile_shared_ptr<TypeTable> type_table,
 			const LifeTime life_time);
@@ -109,6 +110,8 @@ public:
 			const Indent& indent, const SearchType search_type = SHALLOW) const;
 
 	void LinkToParent(const shared_ptr<ExecutionContext> parent);
+
+	void WeakenReferences();
 
 protected:
 	virtual SetResult SetSymbol(const std::string& identifier,

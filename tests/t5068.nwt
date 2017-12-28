@@ -1,0 +1,6 @@
+# test memory leak in inner function
+f := () -> nil {
+	g := () -> nil { }
+}
+
+r:= f()

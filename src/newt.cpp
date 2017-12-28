@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
 				auto main_statement_block = driver.GetStatementBlock();
 				//auto builtin_context = Builtins::GetBuiltinContext();
 				auto root_context = make_shared<ExecutionContext>(
-						Modifier::Type::MUTABLE);
+						Modifier::Type::MUTABLE, LifeTime::ROOT);
 				root_context->LinkToParent(builtin_context);
 				auto semantic_errors =
 						main_statement_block->Preprocess(root_context,

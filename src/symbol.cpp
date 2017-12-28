@@ -40,74 +40,95 @@
 
 Symbol::Symbol(const_shared_ptr<bool> value) :
 		Symbol(PrimitiveTypeSpecifier::GetBoolean(),
-				static_pointer_cast<const void>(value)) {
+				static_pointer_cast<const void>(value), false) {
 }
 
 Symbol::Symbol(const_shared_ptr<int> value) :
 		Symbol(PrimitiveTypeSpecifier::GetInt(),
-				static_pointer_cast<const void>(value)) {
+				static_pointer_cast<const void>(value), false) {
 }
 
 Symbol::Symbol(const_shared_ptr<const std::uint8_t> value) :
 		Symbol(PrimitiveTypeSpecifier::GetByte(),
-				static_pointer_cast<const void>(value)) {
+				static_pointer_cast<const void>(value), false) {
 }
 
 Symbol::Symbol(const_shared_ptr<double> value) :
 		Symbol(PrimitiveTypeSpecifier::GetDouble(),
-				static_pointer_cast<const void>(value)) {
+				static_pointer_cast<const void>(value), false) {
 }
 
 Symbol::Symbol(const_shared_ptr<string> value) :
 		Symbol(PrimitiveTypeSpecifier::GetString(),
-				static_pointer_cast<const void>(value)) {
+				static_pointer_cast<const void>(value), false) {
 }
 
 Symbol::Symbol(const_shared_ptr<Array> value) :
 		Symbol(value->GetTypeSpecifier(),
-				static_pointer_cast<const void>(value)) {
+				static_pointer_cast<const void>(value), true) {
 }
 
 Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Record> value) :
-		Symbol(type, static_pointer_cast<const void>(value)) {
+		Symbol(type, static_pointer_cast<const void>(value), true) {
 }
 
 Symbol::Symbol(const_shared_ptr<Function> value) :
 		Symbol(value->GetTypeSpecifier(),
-				static_pointer_cast<const void>(value)) {
+				static_pointer_cast<const void>(value), true) {
 }
 
 Symbol::Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 		const_shared_ptr<Sum> value) :
-		Symbol(type, static_pointer_cast<const void>(value)) {
+		Symbol(type, static_pointer_cast<const void>(value), true) {
 }
 
 Symbol::Symbol(const_shared_ptr<MaybeTypeSpecifier> type,
 		const_shared_ptr<Sum> value) :
-		Symbol(type, static_pointer_cast<const void>(value)) {
+		Symbol(type, static_pointer_cast<const void>(value), true) {
 }
 
 Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
 		const_shared_ptr<Unit> value) :
-		Symbol(type, static_pointer_cast<const void>(value)) {
+		Symbol(type, static_pointer_cast<const void>(value), false) {
 }
 
-Symbol::Symbol(const_shared_ptr<TypeSpecifier> type,
-		const_shared_ptr<void> value) :
-		m_type_specifier(type), m_value(value) {
-	assert(type);
-	assert(type != PrimitiveTypeSpecifier::GetNone());
+Symbol::Symbol(const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<void> value, const bool weakenable) :
+		Symbol(type_specifier, value, weak_ptr<const void>(), weakenable) {
 }
 
-const_shared_ptr<Symbol> Symbol::WithValue(const_shared_ptr<TypeSpecifier> type,
+Symbol::Symbol(const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<void> value, weak_ptr<const void> weak_value,
+		const bool weakenable) :
+		m_type_specifier(type_specifier), m_value(value), m_weak_ref(
+				weak_value), m_weakenable(weakenable) {
+	assert(type_specifier);
+	assert(type_specifier != PrimitiveTypeSpecifier::GetNone());
+
+	if (weakenable)
+		assert(value);
+
+	// value and weak value are mutually exclusive
+	if (value) {
+		assert(!weak_value.lock());
+	}
+
+	if (weak_value.lock()) {
+		assert(!value);
+	}
+}
+
+const_shared_ptr<Symbol> Symbol::WithValue(
+		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value, const TypeTable& type_table) const {
-	if (type->AnalyzeAssignmentTo(this->m_type_specifier, type_table)
+	if (type_specifier->AnalyzeAssignmentTo(this->m_type_specifier, type_table)
 			!= EQUIVALENT) {
 		return GetDefaultSymbol();
 	}
 
-	return const_shared_ptr<Symbol>(new Symbol(type, value));
+	return const_shared_ptr<Symbol>(
+			new Symbol(type_specifier, value, m_weakenable));
 }
 
 const string Symbol::ToString(const TypeTable& type_table,
@@ -153,4 +174,25 @@ const_shared_ptr<Symbol> Symbol::GetNilSymbol() {
 			Symbol(TypeTable::GetNilTypeSpecifier(),
 					TypeTable::GetNilType()->GetValue()));
 	return value;
+}
+
+const_shared_ptr<Symbol> Symbol::WeakenReference(
+		const_shared_ptr<Symbol> original) {
+	if (original->m_weakenable) {
+		auto instance = new Symbol(original->m_type_specifier, nullptr,
+				weak_ptr<const void>(original->m_value), false);
+		return const_shared_ptr<Symbol>(instance);
+	} else {
+		return original;
+	}
+}
+
+const_shared_ptr<void> Symbol::GetValue() const {
+	if (m_value) {
+		return m_value;
+	} else {
+		auto lock = m_weak_ref.lock();
+		assert(lock); // fail loudly if we make a reference to a disposed value
+		return lock;
+	}
 }

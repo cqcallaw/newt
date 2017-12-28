@@ -30,14 +30,20 @@ shared_ptr<ExecutionContextList> ExecutionContextList::From(
 				context->GetTypeTable()
 						!= context_parent->GetData()->GetTypeTable());
 	}
-	if (context->GetLifeTime() == PERSISTENT
-			|| context->GetLifeTime() == TEMPORARY) {
+
+	switch (context->GetLifeTime()) {
+	case PERSISTENT:
+	case TEMPORARY:
+	case ROOT: {
 		weak_ptr<ExecutionContext> weak = context;
 		return shared_ptr<ExecutionContextList>(
 				new ExecutionContextList(weak, context_parent));
-	} else {
+	}
+	case EPHEMERAL:
+	default: {
 		return shared_ptr<ExecutionContextList>(
 				new ExecutionContextList(context, context_parent));
+	}
 	}
 
 }

@@ -356,12 +356,6 @@ const ExecutionResult MatchStatement::Execute(
 								return_value = block_result.GetReturnValue();
 								errors = ErrorList::Concatenate(errors,
 										block_result.GetErrors());
-
-								// unset symbol so we don't get reference loops if the match context is part of a recursive definition
-								set_result = matched_context->SetSymbol(
-										alias_name, variant_type_specifier,
-										nullptr, context->GetTypeTable());
-								assert(set_result == SET_SUCCESS);
 							} else {
 								errors =
 										ErrorList::From(
