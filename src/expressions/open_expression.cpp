@@ -294,7 +294,7 @@ const ErrorListRef OpenExpression::Validate(
 											Error::TOO_MANY_ARGUMENTS,
 											argument_subject->GetLocation().begin.line,
 											argument_subject->GetLocation().begin.column,
-											"(string,string) -> int_result"),
+											"(string, stream_mode) -> int_result"),
 									errors);
 					break;
 				}
