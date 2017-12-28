@@ -78,7 +78,6 @@ public:
 	static const_shared_ptr<ComplexTypeSpecifier> get_byte_read_result_eof_type_specifier();
 
 	static volatile_shared_ptr<file_handle_map> get_file_handle_map();
-	static volatile_shared_ptr<mutex> get_file_handle_map_mutex();
 };
 
 #endif /* BUILTINS_H_ */

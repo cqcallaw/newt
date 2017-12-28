@@ -67,7 +67,6 @@ const_shared_ptr<Result> PutByteExpression::Evaluate(
 			auto value = (*value_evaluation->GetData<std::uint8_t>());
 
 			auto map = Builtins::get_file_handle_map();
-			Builtins::get_file_handle_map_mutex()->lock();
 			auto handle_entry = map->find(*file_handle);
 			if (handle_entry != map->end()) {
 				auto stream = handle_entry->second;
@@ -78,7 +77,6 @@ const_shared_ptr<Result> PutByteExpression::Evaluate(
 					result_message = std::strerror(result_code);
 				}
 			}
-			Builtins::get_file_handle_map_mutex()->unlock();
 		}
 	}
 

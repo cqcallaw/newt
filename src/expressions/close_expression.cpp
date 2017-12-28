@@ -61,8 +61,6 @@ const_shared_ptr<Result> CloseExpression::Evaluate(
 		auto file_handle = file_handle_evaluation->GetData<int>();
 
 		auto map = Builtins::get_file_handle_map();
-
-		Builtins::get_file_handle_map_mutex()->lock();
 		auto handle_entry = map->find(*file_handle);
 		if (handle_entry != map->end()) {
 			try {
@@ -73,7 +71,6 @@ const_shared_ptr<Result> CloseExpression::Evaluate(
 			}
 			map->erase(handle_entry);
 		}
-		Builtins::get_file_handle_map_mutex()->unlock();
 	}
 
 	auto type_table = closure->GetTypeTable();

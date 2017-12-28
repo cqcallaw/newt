@@ -118,14 +118,11 @@ const_shared_ptr<Result> OpenExpression::Evaluate(
 			try {
 				stream->open(*path, open_mode);
 				// add stream to file handle list
-				// serialize this process with a mutex so we don't get race conditions
-				// between the time we count the number of items and insert a mapping
-				Builtins::get_file_handle_map_mutex()->lock();
+				// N.B. that this process is not synchronized
 				index = Builtins::get_file_handle_map()->size();
 				Builtins::get_file_handle_map()->insert(
 						std::pair<int, volatile_shared_ptr<fstream>>(index,
 								stream));
-				Builtins::get_file_handle_map_mutex()->unlock();
 			} catch (std::fstream::failure &e) {
 				result_code = errno;
 				result_message = make_shared<string>(

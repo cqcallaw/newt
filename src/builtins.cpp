@@ -174,8 +174,3 @@ const_shared_ptr<string> Builtins::get_builtin_definition() {
 	return result;
 }
 
-volatile_shared_ptr<mutex> Builtins::get_file_handle_map_mutex() {
-	static volatile_shared_ptr<mutex> instance = make_shared<mutex>();
-	return instance;
-}
-
