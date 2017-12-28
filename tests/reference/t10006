@@ -1,0 +1,18 @@
+Parsing file ../tests/t10006.nwt...
+Parsed file ../tests/t10006.nwt.
+Side-effects only!
+Root Symbol Table:
+----------------
+nil? r: {nil}
+
+Root Type Table:
+----------------
+disposable:
+	<record>
+	data:
+		int (0)
+	teardown:
+		(disposable?) -> nil? (
+			Body Location: ../tests/t10006.nwt:5.42-6.12
+		)
+

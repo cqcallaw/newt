@@ -126,11 +126,6 @@ const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
 	if (ErrorList::IsTerminator(errors)) {
 		auto base_type = base_type_result->GetData<TypeDefinition>();
 
-		// special case: nil type
-		if (base_type == TypeTable::GetNilType()) {
-			return make_shared<Result>(base_type, ErrorList::GetTerminator());
-		}
-
 		auto as_complex = dynamic_pointer_cast<const ComplexType>(base_type);
 		if (as_complex) {
 			result = as_complex->GetMaybeType();

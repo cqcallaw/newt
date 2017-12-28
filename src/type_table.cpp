@@ -23,6 +23,7 @@
 #include <complex_type_specifier.h>
 #include <placeholder_type.h>
 #include <unit_type.h>
+#include <maybe_type.h>
 #include <memory>
 #include <symbol_context.h>
 
@@ -213,14 +214,13 @@ const_shared_ptr<std::string> TypeTable::GetNilName() {
 
 const_shared_ptr<UnitType> TypeTable::GetNilType() {
 	const static const_shared_ptr<UnitType> value = make_shared<UnitType>(
-			nullptr);
+			MaybeType::Build(TypeTable::GetDefault(),
+					TypeTable::GetNilTypeSpecifier())->GetData<MaybeType>());
 	return value;
 }
 
 const_shared_ptr<ComplexTypeSpecifier> TypeTable::GetNilTypeSpecifier() {
-	const static const_shared_ptr<ComplexTypeSpecifier> value =
-			static_pointer_cast<const ComplexTypeSpecifier>(
-					GetNilType()->GetTypeSpecifier(GetNilName(), nullptr,
-							GetDefaultLocation()));
+	const static const_shared_ptr<ComplexTypeSpecifier> value = make_shared<
+			ComplexTypeSpecifier>(GetNilName());
 	return value;
 }
