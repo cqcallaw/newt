@@ -1,0 +1,3 @@
+# test invalid include
+
+include "does_not_exist.txt"

@@ -1,0 +1,6 @@
+# test basic include
+include "../tests/includes/trivial.nwt"
+
+f := () -> int {
+	return 1
+}

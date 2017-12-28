@@ -46,6 +46,8 @@ blank   [ \t\r]
   #define YY_USER_ACTION  loc.columns (yyleng);
 %}
 
+%x incl
+
 %%
 
 %{
@@ -53,11 +55,36 @@ blank   [ \t\r]
   loc.step();
 %}
 
-{blank}+   loc.step(); 
+{blank}+   loc.step();
 [\n]+      loc.lines(yyleng); loc.step();
 
 \/\/.+$         // ignore comments
 #.*$            // ignore comments
+
+include         BEGIN(incl);
+<incl>{blank}+  // swallow whitespace
+<incl>{str} {
+	// ref: http://westes.github.io/flex/manual/Multiple-Input-Buffers.html
+	/* got the include file name */
+	uint len = strlen(yytext);
+	auto include_name = make_shared<string>(yytext + 1, len - 2);
+	auto include_file_handle = fopen(include_name->c_str(), "r");
+
+	if (include_file_handle) {
+		driver.GetInputStack()->push(make_shared<InputStackEntry>(yyin, YY_CURRENT_BUFFER, loc));
+
+		yyin = include_file_handle;
+		yy_switch_to_buffer(yy_create_buffer(include_file_handle, YY_BUF_SIZE));
+		// make sure we have a live reference to the include name as long as the driver is active
+		// this will also properly dispose of the include file name memory when the driver is destroyed
+		driver.GetIncludeFileNames()->push_back(include_name);
+		loc = yy::location(include_name.get(), 1, 1);  
+	} else {
+		driver.lexer_error(loc, "Cannot open include file " + *include_name + ": " + strerror(errno) + ".");
+	}
+
+	BEGIN(INITIAL); // reset start condition so we don't repeat this block indefinitely
+}
 
 "bool"          return yy::newt_parser::make_BOOLEAN(loc);
 "byte"          return yy::newt_parser::make_BYTE(loc);
@@ -192,7 +219,24 @@ blank   [ \t\r]
 #.* // ignore comments that end a file without a trailing newline
 
 .               driver.invalid_token(loc, yytext);
-<<EOF>>         return yy::newt_parser::make_END(loc);
+<<EOF>> {
+	if (yyin) {
+		// EOF is called after string parsing too, so we have to check for a valid yyin
+		fclose(yyin);
+	}
+	yy_delete_buffer(YY_CURRENT_BUFFER);
+
+	if (driver.GetInputStack()->empty()) {
+		return yy::newt_parser::make_END(loc);
+	} else {
+		auto input_stack_entry = driver.GetInputStack()->top();
+		driver.GetInputStack()->pop();
+
+		yyin = input_stack_entry->GetFileHandle();
+		yy_switch_to_buffer(input_stack_entry->GetBufferState());
+		loc = input_stack_entry->GetLocation();
+	}
+}
 %%
 
 int Driver::scan_begin(volatile_shared_ptr<string> file_name,
@@ -202,10 +246,11 @@ int Driver::scan_begin(volatile_shared_ptr<string> file_name,
 		yyin = stdin;
 	}
 	else {
-		yyin = fopen(file_name->c_str(), "r");
-		if (yyin) {
+		auto input_file_handle = fopen(file_name->c_str(), "r");
+		if (input_file_handle) {
 			loc = yy::location(file_name.get(), 1, 1);
-			yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
+			yyin = input_file_handle;
+			yy_switch_to_buffer(yy_create_buffer(input_file_handle, YY_BUF_SIZE));
 		} else {
 			error("Cannot open " + *file_name + ": " + strerror(errno) + "\n");
 			return EXIT_FAILURE;
@@ -216,8 +261,6 @@ int Driver::scan_begin(volatile_shared_ptr<string> file_name,
 }
 
 void Driver::scan_end() {
-	fclose(yyin);
-	yypop_buffer_state();
 }
 
 int Driver::scan_string_begin(const std::string& string,
@@ -228,5 +271,4 @@ int Driver::scan_string_begin(const std::string& string,
 }
 
 void Driver::scan_string_end() {
-	yypop_buffer_state();
 }
