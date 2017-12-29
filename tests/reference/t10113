@@ -1,5 +1,5 @@
 Parsing file ../tests/t10113.nwt...
-Semantic error on line 26, column 9: Return type does not match context return type.
-Semantic error on line 29, column 12: Undeclared variable 'get_disposable'
+Semantic error at ../tests/t10113.nwt:26.9: Return type does not match context return type.
+Semantic error at ../tests/t10113.nwt:29.12: Undeclared variable 'get_disposable'
 Parsed file ../tests/t10113.nwt.
 2 errors found; giving up.

@@ -82,8 +82,7 @@ TypedResult<TypeSpecifier> BinaryExpression::ComputeResultType(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_TYPE_COMBINATION,
-								right->GetLocation().begin.line,
-								right->GetLocation().begin.column), errors);
+								right->GetLocation().begin), errors);
 			}
 		}
 	}
@@ -353,8 +352,7 @@ const ErrorListRef BinaryExpression::Validate(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_LEFT_OPERAND_TYPE,
-								left->GetLocation().begin.line,
-								left->GetLocation().begin.column,
+								left->GetLocation().begin,
 								OperatorToString(op)), errors);
 			}
 		} else {
@@ -379,8 +377,7 @@ const ErrorListRef BinaryExpression::Validate(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_RIGHT_OPERAND_TYPE,
-								right->GetLocation().begin.line,
-								right->GetLocation().begin.column,
+								right->GetLocation().begin,
 								OperatorToString(op)), errors);
 			}
 		} else {

@@ -124,8 +124,7 @@ const_shared_ptr<Result> UnitType::PreprocessSymbolCore(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR,
-							initializer->GetLocation().begin.line,
-							initializer->GetLocation().begin.column,
+							initializer->GetLocation().begin,
 							type_specifier->ToString(),
 							initializer_expression_type->ToString()), errors);
 		}

@@ -84,16 +84,14 @@ const PreprocessResult ComplexInstantiationStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								m_type_specifier_location.begin.line,
-								m_type_specifier_location.begin.column,
+								m_type_specifier_location.begin,
 								*GetName()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::NOT_A_COMPOUND_TYPE,
-							m_type_specifier_location.begin.line,
-							m_type_specifier_location.begin.column,
+							m_type_specifier_location.begin,
 							m_type_specifier->ToString()), errors);
 		}
 	}
@@ -122,8 +120,7 @@ const ExecutionResult ComplexInstantiationStatement::Execute(
 			//type does not exist
 			errors = ErrorList::From(
 					make_shared<Error>(Error::RUNTIME, Error::UNDECLARED_TYPE,
-							m_type_specifier_location.begin.line,
-							m_type_specifier_location.begin.column,
+							m_type_specifier_location.begin,
 							m_type_specifier->ToString()), errors);
 		}
 	}

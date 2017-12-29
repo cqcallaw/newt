@@ -103,8 +103,8 @@ TypedResult<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::NOT_A_FUNCTION, GetLocation().begin.line,
-								GetLocation().begin.column), errors);
+								Error::NOT_A_FUNCTION, GetLocation().begin),
+						errors);
 			}
 		}
 	}
@@ -158,8 +158,7 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::NOT_A_FUNCTION,
-							GetLocation().begin.line,
-							GetLocation().begin.column), errors);
+							GetLocation().begin), errors);
 		}
 	}
 
@@ -305,8 +304,7 @@ const ErrorListRef InvokeExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
-															argument_expression->GetLocation().begin.line,
-															argument_expression->GetLocation().begin.column,
+															argument_expression->GetLocation().begin,
 															argument_type_specifier->ToString(),
 															parameter_type_specifier->ToString()),
 													errors);
@@ -317,8 +315,7 @@ const ErrorListRef InvokeExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
-															argument_expression->GetLocation().begin.line,
-															argument_expression->GetLocation().begin.column,
+															argument_expression->GetLocation().begin,
 															argument_type_specifier->ToString(),
 															parameter_type_specifier->ToString()),
 													errors);
@@ -340,8 +337,7 @@ const ErrorListRef InvokeExpression::Validate(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::TOO_MANY_ARGUMENTS,
-												argument_expression->GetLocation().begin.line,
-												argument_expression->GetLocation().begin.column,
+												argument_expression->GetLocation().begin,
 												expression_type_specifier->ToString()),
 										errors);
 						break;
@@ -360,8 +356,7 @@ const ErrorListRef InvokeExpression::Validate(
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::NO_PARAMETER_DEFAULT,
-										m_argument_list_location.end.line,
-										m_argument_list_location.end.column,
+										m_argument_list_location.end,
 										*declaration->GetName()), errors);
 					}
 
@@ -371,9 +366,7 @@ const ErrorListRef InvokeExpression::Validate(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::NOT_A_FUNCTION,
-								m_expression->GetLocation().begin.line,
-								m_expression->GetLocation().begin.column),
-						errors);
+								m_expression->GetLocation().begin), errors);
 			}
 		}
 	}

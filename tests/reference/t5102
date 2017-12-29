@@ -1,5 +1,5 @@
 Parsing file ../tests/t5102.nwt...
-Semantic error on line 4, column 10: Return type does not match context return type.
-Semantic error on line 10, column 10: Return type does not match context return type.
+Semantic error at ../tests/t5102.nwt:4.10: Return type does not match context return type.
+Semantic error at ../tests/t5102.nwt:10.10: Return type does not match context return type.
 Parsed file ../tests/t5102.nwt.
 2 errors found; giving up.

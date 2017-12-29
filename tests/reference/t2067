@@ -1,6 +1,6 @@
 Parsing file ../tests/t2067.nwt...
 Parsed file ../tests/t2067.nwt.
-Semantic error on line 4, column 5: Left-hand side of assignment must be of type INT, DOUBLE, or STRING.  Variable 'str1' is of type 'string'.
+Semantic error at ../tests/t2067.nwt:4.5: Left-hand side of assignment must be of type INT, DOUBLE, or STRING.  Variable 'str1' is of type 'string'.
 Root Symbol Table:
 ----------------
 string str1: "hello"

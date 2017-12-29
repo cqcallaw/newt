@@ -1,4 +1,4 @@
 Parsing file ../tests/t1106.nwt...
-Semantic error on line 1, column 10: Undeclared variable 'i'
+Semantic error at ../tests/t1106.nwt:1.10: Undeclared variable 'i'
 Parsed file ../tests/t1106.nwt.
 1 error found; giving up.

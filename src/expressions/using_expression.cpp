@@ -341,8 +341,7 @@ const ErrorListRef UsingExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::USING_AMBIGUOUS_WIDENING_CONVERSION,
-															m_expression->GetLocation().begin.line,
-															m_expression->GetLocation().begin.column,
+															m_expression->GetLocation().begin,
 															error_type_specifier->ToString(),
 															m_return_type_specifier->ToString(),
 															*UsingExpression::ERRORS_NAME),
@@ -353,8 +352,7 @@ const ErrorListRef UsingExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::USING_ASSIGNMENT_TYPE_ERROR,
-															m_expression->GetLocation().begin.line,
-															m_expression->GetLocation().begin.column,
+															m_expression->GetLocation().begin,
 															error_type_specifier->ToString(),
 															m_return_type_specifier->ToString(),
 															*UsingExpression::ERRORS_NAME),
@@ -379,8 +377,7 @@ const ErrorListRef UsingExpression::Validate(
 												make_shared<Error>(
 														Error::SEMANTIC,
 														Error::UNDECLARED_MEMBER,
-														m_expression->GetLocation().begin.line,
-														m_expression->GetLocation().begin.column,
+														m_expression->GetLocation().begin,
 														*UsingExpression::ERRORS_NAME,
 														expression_type_specifier->ToString()),
 												errors);
@@ -388,15 +385,13 @@ const ErrorListRef UsingExpression::Validate(
 						}
 					} else {
 						// values variant does not exist
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::UNDECLARED_MEMBER,
-												m_expression->GetLocation().begin.line,
-												m_expression->GetLocation().begin.column,
-												*UsingExpression::VALUE_NAME,
-												expression_type_specifier->ToString()),
-										errors);
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::UNDECLARED_MEMBER,
+										m_expression->GetLocation().begin,
+										*UsingExpression::VALUE_NAME,
+										expression_type_specifier->ToString()),
+								errors);
 					}
 				}
 
@@ -434,21 +429,17 @@ const ErrorListRef UsingExpression::Validate(
 								errors = ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::MISSING_RETURN_COVERAGE,
-												GetLocation().end.line,
-												GetLocation().end.column),
-										errors);
+												GetLocation().end), errors);
 							}
 						}
 					} else {
 						// error: not a record
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::STMT_SOURCE_MUST_BE_RECORD,
-												m_expression->GetLocation().begin.line,
-												m_expression->GetLocation().begin.column,
-												expression_type_specifier->ToString()),
-										errors);
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::STMT_SOURCE_MUST_BE_RECORD,
+										m_expression->GetLocation().begin,
+										expression_type_specifier->ToString()),
+								errors);
 					}
 				}
 			}
@@ -492,8 +483,7 @@ const ErrorListRef UsingExpression::ValidateMember(
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::USING_AMBIGUOUS_WIDENING_CONVERSION,
-									expression_location.begin.line,
-									expression_location.begin.column,
+									expression_location.begin,
 									base_type_specifier->ToString(),
 									block_return_type_specifier->ToString(),
 									*name), errors);
@@ -501,8 +491,7 @@ const ErrorListRef UsingExpression::ValidateMember(
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::USING_ASSIGNMENT_TYPE_ERROR,
-									expression_location.begin.line,
-									expression_location.begin.column,
+									expression_location.begin,
 									base_type_specifier->ToString(),
 									block_return_type_specifier->ToString(),
 									*name), errors);
@@ -512,16 +501,14 @@ const ErrorListRef UsingExpression::ValidateMember(
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::RETURN_STMT_MUST_BE_MAYBE,
-										setup_return_type_specifier->GetLocation().begin.line,
-										setup_return_type_specifier->GetLocation().begin.column),
+										setup_return_type_specifier->GetLocation().begin),
 								errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::EXPRESSION_IS_NOT_A_FUNCTION,
-							expression_location.begin.line,
-							expression_location.begin.column,
+							expression_location.begin,
 							expression_type_specifier->ToString() + "."
 									+ *name), errors);
 		}
@@ -529,9 +516,8 @@ const ErrorListRef UsingExpression::ValidateMember(
 		// no member
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_MEMBER,
-						expression_type_specifier->GetLocation().begin.line,
-						expression_type_specifier->GetLocation().begin.column,
-						*name, expression_type_specifier->ToString()), errors);
+						expression_type_specifier->GetLocation().begin, *name,
+						expression_type_specifier->ToString()), errors);
 	}
 
 	return errors;

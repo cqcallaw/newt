@@ -1,4 +1,4 @@
 Parsing file ../tests/t3125.nwt...
-Semantic error on line 6, column 17: 'top.middle' does not reference a compound type.
+Semantic error at ../tests/t3125.nwt:6.17: 'top.middle' does not reference a compound type.
 Parsed file ../tests/t3125.nwt.
 1 error found; giving up.

@@ -75,9 +75,8 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 			!= InvokeExpression::BuiltinFunctionList.end()) {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::BUILTIN_REDECLARATION,
-						GetNameLocation().begin.line,
-						GetNameLocation().begin.column, *(GetName())), errors);
+						Error::BUILTIN_REDECLARATION, GetNameLocation().begin,
+						*(GetName())), errors);
 	} else {
 		auto type_table = closure->GetTypeTable();
 
@@ -183,8 +182,7 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::ASSIGNMENT_TYPE_ERROR,
-															GetInitializerExpression()->GetLocation().begin.line,
-															GetInitializerExpression()->GetLocation().begin.column,
+															GetInitializerExpression()->GetLocation().begin,
 															m_type_specifier->ToString(),
 															expression_type_specifier->ToString()),
 													errors);
@@ -195,8 +193,7 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::NOT_A_FUNCTION,
-													GetInitializerExpression()->GetLocation().begin.line,
-													GetInitializerExpression()->GetLocation().begin.column),
+													GetInitializerExpression()->GetLocation().begin),
 											errors);
 						}
 					}
@@ -236,9 +233,7 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::PREVIOUS_DECLARATION,
-							GetNameLocation().begin.line,
-							GetNameLocation().begin.column, *(GetName())),
-					errors);
+							GetNameLocation().begin, *(GetName())), errors);
 		}
 	}
 

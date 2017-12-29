@@ -1,6 +1,6 @@
 Parsing file ../tests/t8103.nwt...
 Parsed file ../tests/t8103.nwt.
-Runtime error on line 2, column 8: Max invocation depth 1024 exceeded.
+Runtime error at ../tests/t8103.nwt:2.8: Max invocation depth 1024 exceeded.
 Root Symbol Table:
 ----------------
 (int) -> int fun:

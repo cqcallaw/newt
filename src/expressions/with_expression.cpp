@@ -79,14 +79,11 @@ const_shared_ptr<Result> WithExpression::Evaluate(
 				if (as_record) {
 					type = as_record;
 				} else {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::INVALID_WITH_OPERAND,
-											m_source_expression->GetLocation().begin.line,
-											m_source_expression->GetLocation().begin.column,
-											source_type_specifier->ToString()),
-									errors);
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::INVALID_WITH_OPERAND,
+									m_source_expression->GetLocation().begin,
+									source_type_specifier->ToString()), errors);
 				}
 			}
 
@@ -197,14 +194,11 @@ const ErrorListRef WithExpression::Validate(
 					record_type_specifier = static_pointer_cast<
 							const RecordTypeSpecifier>(source_type_specifier);
 				} else {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::INVALID_WITH_OPERAND,
-											m_source_expression->GetLocation().begin.line,
-											m_source_expression->GetLocation().begin.column,
-											source_type_specifier->ToString()),
-									errors);
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::INVALID_WITH_OPERAND,
+									m_source_expression->GetLocation().begin,
+									source_type_specifier->ToString()), errors);
 				}
 			}
 
@@ -253,8 +247,7 @@ const ErrorListRef WithExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::AMBIGUOUS_WIDENING_CONVERSION,
-															instantiation->GetExpression()->GetLocation().begin.line,
-															instantiation->GetExpression()->GetLocation().begin.column,
+															instantiation->GetExpression()->GetLocation().begin,
 															member_type_specifier->ToString(),
 															expression_type_specifier->ToString()),
 													errors);
@@ -264,8 +257,7 @@ const ErrorListRef WithExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::ASSIGNMENT_TYPE_ERROR,
-															instantiation->GetExpression()->GetLocation().begin.line,
-															instantiation->GetExpression()->GetLocation().begin.column,
+															instantiation->GetExpression()->GetLocation().begin,
 															member_type_specifier->ToString(),
 															expression_type_specifier->ToString()),
 													errors);
@@ -280,15 +272,13 @@ const ErrorListRef WithExpression::Validate(
 						}
 					} else {
 						//undefined member
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::UNDECLARED_MEMBER,
-												instantiation->GetNamePosition().begin.line,
-												instantiation->GetNamePosition().begin.column,
-												*member_name,
-												source_type_specifier->ToString()),
-										errors);
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::UNDECLARED_MEMBER,
+										instantiation->GetNamePosition().begin,
+										*member_name,
+										source_type_specifier->ToString()),
+								errors);
 
 					}
 

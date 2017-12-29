@@ -1,4 +1,4 @@
 Parsing file ../tests/t10104.nwt...
-Semantic error on line 16, column 36: Member return type must evaluate to a Maybe type.
+Semantic error at ../tests/t10104.nwt:16.36: Member return type must evaluate to a Maybe type.
 Parsed file ../tests/t10104.nwt.
 1 error found; giving up.

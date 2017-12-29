@@ -23,10 +23,10 @@
 #include <sstream>
 #include <assert.h>
 
-Error::Error(ErrorClass error_class, ErrorCode code, int line_number,
-		int column_number, string s1, string s2, string s3) :
-		m_error_class(error_class), m_code(code), m_line_number(line_number), m_column_number(
-				column_number), m_s1(s1), m_s2(s2), m_s3(s3) {
+Error::Error(ErrorClass error_class, ErrorCode code, yy::position position,
+		string s1, string s2, string s3) :
+		m_error_class(error_class), m_code(code), m_position(position), m_s1(
+				s1), m_s2(s2), m_s3(s3) {
 }
 
 const string Error::ToString() const {
@@ -34,13 +34,12 @@ const string Error::ToString() const {
 
 	switch (m_error_class) {
 	case SEMANTIC: {
-		os << "Semantic error on line " << m_line_number << ", column "
-				<< m_column_number << ": " << get_error_message();
+		os << "Semantic error at " << m_position << ": " << get_error_message();
 		break;
 	}
 	case RUNTIME: {
-		os << "Runtime error on line " << m_line_number << ", column "
-				<< m_column_number << ": " << get_error_message();
+		os << "Runtime error at " << m_position << ": "
+				<< get_error_message();
 		break;
 	}
 	default:

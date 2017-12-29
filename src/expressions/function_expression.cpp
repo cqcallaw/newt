@@ -95,8 +95,7 @@ const ErrorListRef FunctionExpression::Validate(
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::FUNCTION_VARIANT_WITH_DUPLICATE_SIGNATURE,
-										duplication_subject_variant->GetLocation().begin.line,
-										duplication_subject_variant->GetLocation().begin.column,
+										duplication_subject_variant->GetLocation().begin,
 										declaration->ToString(), out.str()),
 								errors);
 			}
@@ -120,8 +119,7 @@ const ErrorListRef FunctionExpression::Validate(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::FUNCTION_PARAMETER_DEFAULT_MUST_BE_CONSTANT,
-											init_expression->GetLocation().begin.line,
-											init_expression->GetLocation().begin.column),
+											init_expression->GetLocation().begin),
 									parameter_errors);
 				}
 			}
@@ -166,8 +164,7 @@ const ErrorListRef FunctionExpression::Validate(
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::MISSING_RETURN_COVERAGE,
-									GetLocation().end.line,
-									GetLocation().end.column), errors);
+									GetLocation().end), errors);
 				}
 			}
 		}

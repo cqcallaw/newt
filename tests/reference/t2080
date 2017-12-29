@@ -1,4 +1,4 @@
 Parsing file ../tests/t2080.nwt...
-Semantic error on line 1, column 12: Undeclared variable 'my_circle'
+Semantic error at ../tests/t2080.nwt:1.12: Undeclared variable 'my_circle'
 Parsed file ../tests/t2080.nwt.
 1 error found; giving up.

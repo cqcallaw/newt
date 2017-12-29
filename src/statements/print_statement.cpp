@@ -21,9 +21,8 @@
 #include "print_statement.h"
 #include <defaults.h>
 
-PrintStatement::PrintStatement(const int line_number,
-		const_shared_ptr<Expression> expression) :
-		m_line_number(line_number), m_expression(expression) {
+PrintStatement::PrintStatement(const_shared_ptr<Expression> expression) :
+		m_expression(expression) {
 }
 
 PrintStatement::~PrintStatement() {

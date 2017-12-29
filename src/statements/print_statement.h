@@ -26,8 +26,7 @@ class Expression;
 
 class PrintStatement: public Statement {
 public:
-	PrintStatement(const int line_number,
-			const_shared_ptr<Expression> expression);
+	PrintStatement(const_shared_ptr<Expression> expression);
 	virtual ~PrintStatement();
 
 	virtual const PreprocessResult Preprocess(
@@ -44,7 +43,6 @@ public:
 	}
 
 private:
-	const int m_line_number;
 	const_shared_ptr<Expression> m_expression;
 };
 

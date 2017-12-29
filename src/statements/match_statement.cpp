@@ -173,8 +173,7 @@ const PreprocessResult MatchStatement::Preprocess(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::DUPLICATE_MATCH_BLOCK,
-															match->GetNameLocation().begin.line,
-															match->GetNameLocation().begin.column,
+															match->GetNameLocation().begin,
 															*match_name),
 													errors);
 								}
@@ -184,8 +183,7 @@ const PreprocessResult MatchStatement::Preprocess(
 												make_shared<Error>(
 														Error::SEMANTIC,
 														Error::UNDECLARED_TYPE,
-														match->GetNameLocation().begin.line,
-														match->GetNameLocation().begin.column,
+														match->GetNameLocation().begin,
 														expression_type_specifier->ToString()
 																+ "."
 																+ *match_name),
@@ -240,28 +238,23 @@ const PreprocessResult MatchStatement::Preprocess(
 							errors = ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::INCOMPLETE_MATCH,
-											m_statement_location.begin.line,
-											m_statement_location.begin.column,
-											result), errors);
+											m_statement_location.begin, result),
+									errors);
 						}
 					} else if (default_match_block) {
 						//make sure there aren't any extraneous default match blocks
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::EXTRANEOUS_DEFAULT_MATCH,
-										m_statement_location.begin.line,
-										m_statement_location.begin.column),
-								errors);
+										m_statement_location.begin), errors);
 					}
 				} else {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::MATCH_REQUIRES_SUM,
-											m_source_expression->GetLocation().begin.line,
-											m_source_expression->GetLocation().begin.column,
-											expression_type_specifier->ToString()),
-									errors);
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::MATCH_REQUIRES_SUM,
+									m_source_expression->GetLocation().begin,
+									expression_type_specifier->ToString()),
+							errors);
 				}
 			}
 		}
@@ -362,8 +355,7 @@ const ExecutionResult MatchStatement::Execute(
 												make_shared<Error>(
 														Error::SEMANTIC,
 														Error::UNDECLARED_TYPE,
-														match->GetNameLocation().begin.line,
-														match->GetNameLocation().begin.column,
+														match->GetNameLocation().begin,
 														expression_type_specifier->ToString()
 																+ "."
 																+ match_name),
@@ -397,8 +389,7 @@ const ExecutionResult MatchStatement::Execute(
 									ErrorList::From(
 											make_shared<Error>(Error::RUNTIME,
 													Error::MATCH_FAILURE,
-													m_source_expression->GetLocation().begin.line,
-													m_source_expression->GetLocation().begin.column,
+													m_source_expression->GetLocation().begin,
 													expression_type_specifier->ToString()),
 											errors);
 						}
@@ -408,8 +399,7 @@ const ExecutionResult MatchStatement::Execute(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::MATCH_REQUIRES_SUM,
-								m_source_expression->GetLocation().begin.line,
-								m_source_expression->GetLocation().begin.column,
+								m_source_expression->GetLocation().begin,
 								expression_type_specifier->ToString()), errors);
 			}
 		}

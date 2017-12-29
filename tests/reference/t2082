@@ -1,4 +1,4 @@
 Parsing file ../tests/t2082.nwt...
-Semantic error on line 6, column 13: 'i' does not reference a compound type.
+Semantic error at ../tests/t2082.nwt:6.13: 'i' does not reference a compound type.
 Parsed file ../tests/t2082.nwt.
 1 error found; giving up.

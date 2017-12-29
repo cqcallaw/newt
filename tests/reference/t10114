@@ -1,4 +1,4 @@
 Parsing file ../tests/t10114.nwt...
-Semantic error on line 29, column 12: Basic return type 'string' of source member 'setup_errors' cannot be assigned to block result type 'result'.
+Semantic error at ../tests/t10114.nwt:29.12: Basic return type 'string' of source member 'setup_errors' cannot be assigned to block result type 'result'.
 Parsed file ../tests/t10114.nwt.
 1 error found; giving up.

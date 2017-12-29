@@ -140,15 +140,13 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 //					ErrorList::From(
 //							make_shared<Error>(Error::SEMANTIC,
 //									Error::UNDECLARED_TYPE,
-//									GetInitializerExpression()->GetLocation().begin.line,
-//									GetInitializerExpression()->GetLocation().begin.column,
+//									GetInitializerExpression()->GetLocation().begin,
 //									m_type->ToString()), errors);
 //		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNameLocation().begin.line,
-						GetNameLocation().begin.column, *(GetName())), errors);
+						GetNameLocation().begin, *(GetName())), errors);
 	}
 
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);

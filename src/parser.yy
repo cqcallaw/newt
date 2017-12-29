@@ -574,7 +574,7 @@ for_statement:
 print_statement:
 	PRINT LPAREN expression RPAREN
 	{
-		$$ = make_shared<PrintStatement>(@1.begin.line, $3);
+		$$ = make_shared<PrintStatement>($3);
 	}
 	;
 

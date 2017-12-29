@@ -1,4 +1,4 @@
 Parsing file ../tests/t10102.nwt...
-Semantic error on line 29, column 12: Type "disposable_setup_result" does not contain a member named "setup_errors".
+Semantic error at ../tests/t10102.nwt:29.12: Type "disposable_setup_result" does not contain a member named "setup_errors".
 Parsed file ../tests/t10102.nwt.
 1 error found; giving up.

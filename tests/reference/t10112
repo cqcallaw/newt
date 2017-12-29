@@ -1,4 +1,4 @@
 Parsing file ../tests/t10112.nwt...
-Semantic error on line 29, column 12: Source expression type 'int' must be of a record type.
+Semantic error at ../tests/t10112.nwt:29.12: Source expression type 'int' must be of a record type.
 Parsed file ../tests/t10112.nwt.
 1 error found; giving up.

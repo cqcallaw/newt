@@ -103,8 +103,7 @@ const_shared_ptr<Result> SumType::Build(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
-							position.begin.line, position.begin.column),
-					errors);
+							position.begin), errors);
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
@@ -172,13 +171,11 @@ const_shared_ptr<Result> SumType::Build(
 						// this should never happen because we already have an existence check on the variant type table,
 						// but it never hurts to be safe
 						if (insert_result == SYMBOL_EXISTS) {
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::PREVIOUS_DECLARATION,
-													as_alias->GetLocation().begin.line,
-													as_alias->GetLocation().begin.column,
-													*variant_name), errors);
+							errors = ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::PREVIOUS_DECLARATION,
+											as_alias->GetLocation().begin,
+											*variant_name), errors);
 						}
 					}
 
@@ -205,8 +202,7 @@ const_shared_ptr<Result> SumType::Build(
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::PREVIOUS_DECLARATION,
-									as_alias->GetLocation().begin.line,
-									as_alias->GetLocation().begin.column,
+									as_alias->GetLocation().begin,
 									alias_type_name), errors);
 				}
 			}
@@ -347,8 +343,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::AMBIGUOUS_WIDENING_CONVERSION,
-							initializer->GetLocation().begin.line,
-							initializer->GetLocation().begin.column,
+							initializer->GetLocation().begin,
 							type_specifier->ToString(),
 							initializer_expression_type_specifier->ToString()),
 					errors);
@@ -356,8 +351,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR,
-							initializer->GetLocation().begin.line,
-							initializer->GetLocation().begin.column,
+							initializer->GetLocation().begin,
 							type_specifier->ToString(),
 							initializer_expression_type_specifier->ToString()),
 					errors);

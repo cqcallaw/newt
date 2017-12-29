@@ -1,6 +1,6 @@
 Parsing file ../tests/t7434.nwt...
-Semantic error on line 4, column 5: Type "a" has not been fully defined.
-Semantic error on line 7, column 5: Invalid type "a".
-Semantic error on line 14, column 5: Undeclared variable 'v'
+Semantic error at ../tests/t7434.nwt:4.5: Type "a" has not been fully defined.
+Semantic error at ../tests/t7434.nwt:7.5: Invalid type "a".
+Semantic error at ../tests/t7434.nwt:14.5: Undeclared variable 'v'
 Parsed file ../tests/t7434.nwt.
 3 errors found; giving up.

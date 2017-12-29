@@ -1,4 +1,4 @@
 Parsing file ../tests/t2018.nwt...
-Semantic error on line 7, column 5: Undeclared variable 'b'
+Semantic error at ../tests/t2018.nwt:7.5: Undeclared variable 'b'
 Parsed file ../tests/t2018.nwt.
 1 error found; giving up.

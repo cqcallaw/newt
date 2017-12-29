@@ -1,5 +1,5 @@
 Parsing file ../tests/t10105.nwt...
-Semantic error on line 17, column 10: Return type does not match context return type.
-Semantic error on line 21, column 13: Invalid type "disposable".
+Semantic error at ../tests/t10105.nwt:17.10: Return type does not match context return type.
+Semantic error at ../tests/t10105.nwt:21.13: Invalid type "disposable".
 Parsed file ../tests/t10105.nwt.
 2 errors found; giving up.

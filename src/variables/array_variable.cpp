@@ -144,8 +144,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-															expression_location.begin.line,
-															expression_location.begin.column,
+															expression_location.begin,
 															*(m_base_variable->ToString(
 																	context)),
 															*AsString(i)),
@@ -160,8 +159,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-													expression_location.begin.line,
-													expression_location.begin.column,
+													expression_location.begin,
 													*(m_base_variable->ToString(
 															context)),
 													buffer.str()), errors);
@@ -171,8 +169,7 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::VARIABLE_NOT_AN_ARRAY,
-									GetLocation().begin.line,
-									GetLocation().begin.column,
+									GetLocation().begin,
 									*(m_base_variable->ToString(context))),
 							errors);
 				}
@@ -251,8 +248,7 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ARRAY_INDEX_OUT_OF_BOUNDS,
-							index_location.begin.line,
-							index_location.begin.column,
+							index_location.begin,
 							*(m_base_variable->ToString(context)),
 							buffer.str()), errors);
 		}
@@ -270,8 +266,6 @@ const ErrorListRef ArrayVariable::AssignValue(
 	ErrorListRef errors(ErrorList::GetTerminator());
 
 	auto variable_name = GetName();
-	const int variable_line = GetLocation().begin.line;
-	const int variable_column = GetLocation().begin.column;
 
 	const_shared_ptr<ValidationResult> validation_result = ValidateOperation(
 			context);
@@ -298,9 +292,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 							*type_table);
 					const_shared_ptr<Result> result =
 							AssignmentStatement::do_op(variable_name,
-									element_type, variable_line,
-									variable_column, *value, expression, op,
-									context);
+									element_type, GetLocation().begin, *value,
+									expression, op, context);
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
@@ -315,9 +308,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 							*type_table);
 					const_shared_ptr<Result> result =
 							AssignmentStatement::do_op(variable_name,
-									element_type, variable_line,
-									variable_column, *value, expression, op,
-									context);
+									element_type, GetLocation().begin, *value,
+									expression, op, context);
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
@@ -331,9 +323,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 							index, *type_table);
 					const_shared_ptr<Result> result =
 							AssignmentStatement::do_op(variable_name,
-									element_type, variable_line,
-									variable_column, *value, expression, op,
-									context);
+									element_type, GetLocation().begin, *value,
+									expression, op, context);
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
@@ -347,9 +338,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 							index, *type_table);
 					const_shared_ptr<Result> result =
 							AssignmentStatement::do_op(variable_name,
-									element_type, variable_line,
-									variable_column, value, expression, op,
-									context);
+									element_type, GetLocation().begin, value,
+									expression, op, context);
 
 					errors = result->GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
@@ -407,8 +397,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 
 					errors = errors->From(
 							make_shared<Error>(Error::SEMANTIC,
-									Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-									variable_column,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									GetLocation().begin,
 									expression_type_specifier->ToString(),
 									element_type_specifier->ToString()),
 							errors);
@@ -417,8 +407,8 @@ const ErrorListRef ArrayVariable::AssignValue(
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::ARRAY_INDEX_OUT_OF_BOUNDS, variable_line,
-							variable_column,
+							Error::ARRAY_INDEX_OUT_OF_BOUNDS,
+							GetLocation().begin,
 							*(m_base_variable->ToString(context)),
 							*AsString(index)), errors);
 		}
@@ -596,8 +586,7 @@ const ErrorListRef ArrayVariable::Validate(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::VARIABLE_NOT_AN_ARRAY,
-													m_expression->GetLocation().begin.line,
-													m_expression->GetLocation().begin.column,
+													m_expression->GetLocation().begin,
 													*(m_base_variable->ToString(
 															context))), errors);
 						}
@@ -610,8 +599,7 @@ const ErrorListRef ArrayVariable::Validate(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::ARRAY_INDEX_MUST_BE_AN_INTEGER,
-								m_expression->GetLocation().begin.line,
-								m_expression->GetLocation().begin.column,
+								m_expression->GetLocation().begin,
 								*(m_base_variable->ToString(context)),
 								buffer.str()), errors);
 			}

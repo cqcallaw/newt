@@ -1,4 +1,4 @@
 Parsing file ../tests/t6062.nwt...
-Semantic error on line 3, column 4: Invalid type "undefined".
+Semantic error at ../tests/t6062.nwt:3.4: Invalid type "undefined".
 Parsed file ../tests/t6062.nwt.
 1 error found; giving up.

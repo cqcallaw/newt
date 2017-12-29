@@ -112,9 +112,8 @@ const_shared_ptr<Result> ComplexTypeSpecifier::GetType(
 		if (!type) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::UNDECLARED_MEMBER, GetLocation().begin.line,
-							GetLocation().begin.column, *m_type_name,
-							GetContainer()->ToString()), errors);
+							Error::UNDECLARED_MEMBER, GetLocation().begin,
+							*m_type_name, GetContainer()->ToString()), errors);
 		}
 	} else {
 		type = type_table.GetType<TypeDefinition>(GetTypeName(), DEEP,
@@ -122,8 +121,7 @@ const_shared_ptr<Result> ComplexTypeSpecifier::GetType(
 		if (!type) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							GetLocation().begin.line,
-							GetLocation().begin.column, ToString()), errors);
+							GetLocation().begin, ToString()), errors);
 		}
 	}
 
@@ -228,8 +226,7 @@ const ErrorListRef ComplexTypeSpecifier::ValidateDeclaration(
 			//we have a raw recursive declaration, which is forbidden
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::RAW_RECURSIVE_DECLARATION,
-							position.begin.line, position.begin.column),
+							Error::RAW_RECURSIVE_DECLARATION, position.begin),
 					errors);
 		}
 	} else {

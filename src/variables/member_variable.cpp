@@ -73,15 +73,13 @@ TypedResult<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 						return NestedTypeSpecifier::Resolve(output, type_table);
 					}
 				} else {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::UNDECLARED_MEMBER,
-											GetMemberVariable()->GetLocation().begin.line,
-											GetMemberVariable()->GetLocation().begin.column,
-											*(GetMemberVariable()->GetName()),
-											container_type_specifier->ToString()),
-									errors);
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::UNDECLARED_MEMBER,
+									GetMemberVariable()->GetLocation().begin,
+									*(GetMemberVariable()->GetName()),
+									container_type_specifier->ToString()),
+							errors);
 				}
 			}
 
@@ -90,8 +88,7 @@ TypedResult<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::CANNOT_REFERENCE_SUM_VARIANT_AS_DATA,
-								GetMemberVariable()->GetLocation().begin.line,
-								GetMemberVariable()->GetLocation().begin.column,
+								GetMemberVariable()->GetLocation().begin,
 								*(GetMemberVariable()->GetName()),
 								container_type_specifier->ToString()), errors);
 			}
@@ -114,8 +111,7 @@ TypedResult<TypeSpecifier> MemberVariable::GetTypeSpecifier(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::UNDECLARED_MEMBER,
-							GetMemberVariable()->GetLocation().begin.line,
-							GetMemberVariable()->GetLocation().begin.column,
+							GetMemberVariable()->GetLocation().begin,
 							*(GetMemberVariable()->GetName()),
 							*m_container->GetName()),
 					ErrorList::GetTerminator());
@@ -177,8 +173,7 @@ const_shared_ptr<Result> MemberVariable::Evaluate(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::RUNTIME,
 							Error::UNDECLARED_VARIABLE,
-							m_container->GetLocation().begin.line,
-							m_container->GetLocation().begin.column,
+							m_container->GetLocation().begin,
 							*(m_container->GetName())), errors);
 		}
 	}
@@ -391,8 +386,7 @@ const ErrorListRef MemberVariable::AssignValue(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::NOT_A_COMPOUND_TYPE,
-							m_container->GetLocation().begin.line,
-							m_container->GetLocation().begin.column,
+							m_container->GetLocation().begin,
 							*m_container->GetName()), errors);
 		}
 	}
@@ -523,23 +517,19 @@ const ErrorListRef MemberVariable::Validate(
 									m_member_variable->GetName(), SHALLOW,
 									RESOLVE);
 					if (!member_definition) {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::UNDECLARED_MEMBER,
-												m_member_variable->GetLocation().begin.line,
-												m_member_variable->GetLocation().begin.column,
-												*m_member_variable->ToString(
-														context),
-												container_type_specifier->ToString()),
-										errors);
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::UNDECLARED_MEMBER,
+										m_member_variable->GetLocation().begin,
+										*m_member_variable->ToString(context),
+										container_type_specifier->ToString()),
+								errors);
 					}
 				} else {
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::NOT_A_COMPOUND_TYPE,
-									m_container->GetLocation().begin.line,
-									m_container->GetLocation().begin.column,
+									m_container->GetLocation().begin,
 									*m_container->ToString(context)), errors);
 				}
 			}
@@ -556,35 +546,26 @@ const ErrorListRef MemberVariable::Validate(
 						TypeDefinition>(m_member_variable->GetName(), SHALLOW,
 						RETURN);
 				if (member_reference) {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::CANNOT_REFERENCE_SUM_VARIANT_AS_DATA,
-											m_member_variable->GetLocation().begin.line,
-											m_member_variable->GetLocation().begin.column,
-											*m_member_variable->ToString(
-													context),
-											*m_container->ToString(context)),
-									errors);
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::CANNOT_REFERENCE_SUM_VARIANT_AS_DATA,
+									m_member_variable->GetLocation().begin,
+									*m_member_variable->ToString(context),
+									*m_container->ToString(context)), errors);
 				} else {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::UNDECLARED_MEMBER,
-											m_member_variable->GetLocation().begin.line,
-											m_member_variable->GetLocation().begin.column,
-											*m_member_variable->ToString(
-													context),
-											*m_container->ToString(context)),
-									errors);
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::UNDECLARED_MEMBER,
+									m_member_variable->GetLocation().begin,
+									*m_member_variable->ToString(context),
+									*m_container->ToString(context)), errors);
 				}
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::UNDECLARED_VARIABLE,
-							m_container->GetLocation().begin.line,
-							m_container->GetLocation().begin.column,
+							m_container->GetLocation().begin,
 							*m_container->ToString(context)), errors);
 		}
 	}

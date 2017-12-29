@@ -35,6 +35,7 @@
 
 #include <string>
 #include <linked_list.h>
+#include <location.hh>
 
 using namespace std;
 
@@ -109,8 +110,8 @@ public:
 		USING_AMBIGUOUS_WIDENING_CONVERSION
 	};
 
-	Error(ErrorClass error_class, ErrorCode code, int line_number,
-			int column_number, string s1 = "", string s2 = "", string s3 = "");
+	Error(ErrorClass error_class, ErrorCode code, yy::position position,
+			string s1 = "", string s2 = "", string s3 = "");
 
 	const string ToString() const;
 
@@ -131,8 +132,7 @@ protected:
 private:
 	const ErrorClass m_error_class;
 	const ErrorCode m_code;
-	const int m_line_number;
-	const int m_column_number;
+	const yy::position m_position;
 	const string m_s1;
 	const string m_s2;
 	const string m_s3;

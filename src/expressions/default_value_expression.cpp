@@ -85,8 +85,7 @@ const ErrorListRef DefaultValueExpression::Validate(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::PARTIALLY_DECLARED_TYPE,
-							m_type_position.begin.line,
-							m_type_position.begin.column,
+							m_type_position.begin,
 							m_type_specifier->ToString()), errors);
 		}
 	}

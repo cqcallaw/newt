@@ -88,8 +88,7 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::INVALID_INITIALIZER_TYPE,
-											GetInitializerExpression()->GetLocation().begin.line,
-											GetInitializerExpression()->GetLocation().begin.column,
+											GetInitializerExpression()->GetLocation().begin,
 											*GetName(),
 											m_type_specifier->ToString(),
 											expression_type_specifier->ToString()),
@@ -118,8 +117,7 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNameLocation().begin.line,
-								GetNameLocation().begin.column, *GetName()),
+								GetNameLocation().begin, *GetName()),
 						errors);
 			}
 		}

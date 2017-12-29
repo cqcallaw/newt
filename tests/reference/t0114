@@ -1,4 +1,4 @@
 Parsing file ../tests/t0114.nwt...
-Semantic error on line 14, column 11: Type "rectangle" does not contain a member named "n".
+Semantic error at ../tests/t0114.nwt:14.11: Type "rectangle" does not contain a member named "n".
 Parsed file ../tests/t0114.nwt.
 1 error found; giving up.

@@ -48,9 +48,6 @@ const PreprocessResult AssignmentStatement::Preprocess(
 	const_shared_ptr<string> variable_name = m_variable->GetName();
 	auto symbol = context->GetSymbol(variable_name, DEEP);
 
-	int variable_line = m_variable->GetLocation().begin.line;
-	int variable_column = m_variable->GetLocation().begin.column;
-
 	auto errors = ErrorList::GetTerminator();
 	if (symbol != Symbol::GetDefaultSymbol()) {
 		const_shared_ptr<TypeSpecifier> symbol_type_specifier =
@@ -75,8 +72,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::ASSIGNMENT_TYPE_ERROR,
-										expression_position.begin.line,
-										expression_position.begin.column,
+										expression_position.begin,
 										symbol_type_specifier->ToString(),
 										expression_type_specifier->ToString()),
 								errors);
@@ -99,8 +95,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
-													expression_position.begin.line,
-													expression_position.begin.column,
+													expression_position.begin,
 													element_type->ToString(),
 													expression_type_specifier->ToString()),
 											errors);
@@ -170,8 +165,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 																			Error>(
 																			Error::SEMANTIC,
 																			Error::ASSIGNMENT_TYPE_ERROR,
-																			member_variable->GetContainer()->GetLocation().begin.line,
-																			member_variable->GetContainer()->GetLocation().begin.column,
+																			member_variable->GetContainer()->GetLocation().begin,
 																			member_variable_type_specifier->ToString(),
 																			expression_type_specifier->ToString()),
 																	errors);
@@ -194,8 +188,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 														make_shared<Error>(
 																Error::SEMANTIC,
 																Error::READONLY,
-																member_variable->GetContainer()->GetLocation().begin.line,
-																member_variable->GetContainer()->GetLocation().begin.column,
+																member_variable->GetContainer()->GetLocation().begin,
 																*variable_name),
 														errors);
 									}
@@ -205,8 +198,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::NOT_A_COMPOUND_TYPE,
-															member_variable->GetContainer()->GetLocation().begin.line,
-															member_variable->GetContainer()->GetLocation().begin.column,
+															member_variable->GetContainer()->GetLocation().begin,
 															*variable_name),
 													errors);
 								}
@@ -216,8 +208,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 												make_shared<Error>(
 														Error::SEMANTIC,
 														Error::UNDECLARED_TYPE,
-														member_variable->GetContainer()->GetLocation().begin.line,
-														member_variable->GetContainer()->GetLocation().begin.column,
+														member_variable->GetContainer()->GetLocation().begin,
 														*variable_name),
 												errors);
 							}
@@ -226,8 +217,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::NOT_A_COMPOUND_TYPE,
-													member_variable->GetContainer()->GetLocation().begin.line,
-													member_variable->GetContainer()->GetLocation().begin.column,
+													member_variable->GetContainer()->GetLocation().begin,
 													*variable_name), errors);
 						}
 					}
@@ -237,7 +227,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						variable_line, variable_column, *variable_name),
+						m_variable->GetLocation().begin, *variable_name),
 				errors);
 	}
 
@@ -246,7 +236,7 @@ const PreprocessResult AssignmentStatement::Preprocess(
 
 const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const bool old_value,
+		yy::position position, const bool old_value,
 		const bool expression_value, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context, bool &out) {
 	ErrorListRef errors = ErrorList::GetTerminator();
@@ -257,9 +247,8 @@ const ErrorListRef AssignmentStatement::do_op(
 	default:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
-						variable_column, *variable_name,
-						TypeToString(variable_type)), errors);
+						Error::INVALID_LHS_OF_ASSIGNMENT, position,
+						*variable_name, TypeToString(variable_type)), errors);
 		out = false;
 	}
 
@@ -268,7 +257,7 @@ const ErrorListRef AssignmentStatement::do_op(
 
 const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const std::uint8_t old_value,
+		yy::position position, const std::uint8_t old_value,
 		const std::uint8_t expression_value, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context,
 		std::uint8_t& out) {
@@ -280,9 +269,8 @@ const ErrorListRef AssignmentStatement::do_op(
 	default:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
-						variable_column, *variable_name,
-						TypeToString(variable_type)), errors);
+						Error::INVALID_LHS_OF_ASSIGNMENT, position,
+						*variable_name, TypeToString(variable_type)), errors);
 		out = 0;
 	}
 
@@ -291,8 +279,8 @@ const ErrorListRef AssignmentStatement::do_op(
 
 const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const int old_value,
-		const int expression_value, const AssignmentType op,
+		yy::position position, const int old_value, const int expression_value,
+		const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context, int& out) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -309,9 +297,8 @@ const ErrorListRef AssignmentStatement::do_op(
 	default:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
-						variable_column, *variable_name,
-						TypeToString(variable_type)), errors);
+						Error::INVALID_LHS_OF_ASSIGNMENT, position,
+						*variable_name, TypeToString(variable_type)), errors);
 		out = 0;
 	}
 
@@ -320,7 +307,7 @@ const ErrorListRef AssignmentStatement::do_op(
 
 const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const double old_value,
+		yy::position position, const double old_value,
 		const double expression_value, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context, double &out) {
 	ErrorListRef errors = ErrorList::GetTerminator();
@@ -338,9 +325,8 @@ const ErrorListRef AssignmentStatement::do_op(
 	default:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
-						variable_column, *variable_name,
-						TypeToString(variable_type)), errors);
+						Error::INVALID_LHS_OF_ASSIGNMENT, position,
+						*variable_name, TypeToString(variable_type)), errors);
 		out = 1.0;
 	}
 
@@ -349,38 +335,34 @@ const ErrorListRef AssignmentStatement::do_op(
 
 const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column,
-		const_shared_ptr<string> old_value, const bool expression_value,
-		const AssignmentType op,
+		yy::position position, const_shared_ptr<string> old_value,
+		const bool expression_value, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context, string* &out) {
-	return do_op(variable_name, variable_type, variable_line, variable_column,
-			old_value, AsString(expression_value), op, execution_context, out);
+	return do_op(variable_name, variable_type, position, old_value,
+			AsString(expression_value), op, execution_context, out);
 }
 
 const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column,
-		const_shared_ptr<string> old_value, const int expression_value,
-		const AssignmentType op,
+		yy::position position, const_shared_ptr<string> old_value,
+		const int expression_value, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context, string* &out) {
-	return do_op(variable_name, variable_type, variable_line, variable_column,
-			old_value, AsString(expression_value), op, execution_context, out);
+	return do_op(variable_name, variable_type, position, old_value,
+			AsString(expression_value), op, execution_context, out);
 }
 
 const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column,
-		const_shared_ptr<string> old_value, const double expression_value,
-		const AssignmentType op,
+		yy::position position, const_shared_ptr<string> old_value,
+		const double expression_value, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context, string* &out) {
-	return do_op(variable_name, variable_type, variable_line, variable_column,
-			old_value, AsString(expression_value), op, execution_context, out);
+	return do_op(variable_name, variable_type, position, old_value,
+			AsString(expression_value), op, execution_context, out);
 }
 
 const ErrorListRef AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column,
-		const_shared_ptr<string> old_value,
+		yy::position position, const_shared_ptr<string> old_value,
 		const_shared_ptr<string> expression_value, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context, string* &out) {
 	ErrorListRef errors = ErrorList::GetTerminator();
@@ -400,16 +382,15 @@ const ErrorListRef AssignmentStatement::do_op(
 	default:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::INVALID_LHS_OF_ASSIGNMENT, variable_line,
-						variable_column, *(variable_name),
-						TypeToString(variable_type)), errors);
+						Error::INVALID_LHS_OF_ASSIGNMENT, position,
+						*(variable_name), TypeToString(variable_type)), errors);
 	}
 
 	return errors;
 }
 const_shared_ptr<Result> AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const int value,
+		yy::position position, const int value,
 		const_shared_ptr<Expression> expression, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context) {
 	ErrorListRef errors;
@@ -437,36 +418,35 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			const BasicType basic_type = as_primitive->GetBasicType();
 			switch (basic_type) {
 			case BOOLEAN: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value, *(evaluation->GetData<bool>()),
-						op, execution_context, new_value);
+				errors = do_op(variable_name, variable_type, position, value,
+						*(evaluation->GetData<bool>()), op, execution_context,
+						new_value);
 				break;
 			}
 			case BYTE: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value,
+				errors = do_op(variable_name, variable_type, position, value,
 						*(evaluation->GetData<std::uint8_t>()), op,
 						execution_context, new_value);
 				break;
 			}
 			case INT: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value, *(evaluation->GetData<int>()),
-						op, execution_context, new_value);
+				errors = do_op(variable_name, variable_type, position, value,
+						*(evaluation->GetData<int>()), op, execution_context,
+						new_value);
 				break;
 			}
 			default:
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-								variable_column, TypeToString(INT),
+								Error::ASSIGNMENT_TYPE_ERROR, position,
+								TypeToString(INT),
 								expression_type_specifier->ToString()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-							variable_column, TypeToString(INT),
+							Error::ASSIGNMENT_TYPE_ERROR, position,
+							TypeToString(INT),
 							expression_type_specifier->ToString()), errors);
 		}
 	}
@@ -477,7 +457,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 
 const_shared_ptr<Result> AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const double value,
+		yy::position position, const double value,
 		const_shared_ptr<Expression> expression, AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context) {
 	ErrorListRef errors;
@@ -504,26 +484,24 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			const BasicType basic_type = as_primitive->GetBasicType();
 			switch (basic_type) {
 			case BOOLEAN:
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value, *(evaluation->GetData<bool>()),
-						op, execution_context, new_value);
+				errors = do_op(variable_name, variable_type, position, value,
+						*(evaluation->GetData<bool>()), op, execution_context,
+						new_value);
 				break;
 			case BYTE: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value,
+				errors = do_op(variable_name, variable_type, position, value,
 						*(evaluation->GetData<std::uint8_t>()), op,
 						execution_context, new_value);
 				break;
 			}
 			case INT: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value, *(evaluation->GetData<int>()),
-						op, execution_context, new_value);
+				errors = do_op(variable_name, variable_type, position, value,
+						*(evaluation->GetData<int>()), op, execution_context,
+						new_value);
 				break;
 			}
 			case DOUBLE: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value,
+				errors = do_op(variable_name, variable_type, position, value,
 						*(evaluation->GetData<double>()), op, execution_context,
 						new_value);
 				break;
@@ -531,15 +509,15 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			default:
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-								variable_column, TypeToString(DOUBLE),
+								Error::ASSIGNMENT_TYPE_ERROR, position,
+								TypeToString(DOUBLE),
 								expression_type_specifier->ToString()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-							variable_column, TypeToString(DOUBLE),
+							Error::ASSIGNMENT_TYPE_ERROR, position,
+							TypeToString(DOUBLE),
 							expression_type_specifier->ToString()), errors);
 		}
 	}
@@ -550,7 +528,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 
 const_shared_ptr<Result> AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const_shared_ptr<string> value,
+		yy::position position, const_shared_ptr<string> value,
 		const_shared_ptr<Expression> expression, AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context) {
 	ErrorListRef errors;
@@ -577,48 +555,46 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			const BasicType basic_type = as_primitive->GetBasicType();
 			switch (basic_type) {
 			case BOOLEAN:
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value, *(evaluation->GetData<bool>()),
-						op, execution_context, new_value);
+				errors = do_op(variable_name, variable_type, position, value,
+						*(evaluation->GetData<bool>()), op, execution_context,
+						new_value);
 				break;
 			case BYTE: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value,
+				errors = do_op(variable_name, variable_type, position, value,
 						*(evaluation->GetData<std::uint8_t>()), op,
 						execution_context, new_value);
 				break;
 			}
 			case INT: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value, *(evaluation->GetData<int>()),
-						op, execution_context, new_value);
+				errors = do_op(variable_name, variable_type, position, value,
+						*(evaluation->GetData<int>()), op, execution_context,
+						new_value);
 				break;
 			}
 			case DOUBLE: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value,
+				errors = do_op(variable_name, variable_type, position, value,
 						*(evaluation->GetData<double>()), op, execution_context,
 						new_value);
 				break;
 			}
 			case STRING: {
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value, evaluation->GetData<string>(),
-						op, execution_context, new_value);
+				errors = do_op(variable_name, variable_type, position, value,
+						evaluation->GetData<string>(), op, execution_context,
+						new_value);
 				break;
 			}
 			default:
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-								variable_column, TypeToString(STRING),
+								Error::ASSIGNMENT_TYPE_ERROR, position,
+								TypeToString(STRING),
 								expression_type_specifier->ToString()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-							variable_column, TypeToString(STRING),
+							Error::ASSIGNMENT_TYPE_ERROR, position,
+							TypeToString(STRING),
 							expression_type_specifier->ToString()), errors);
 		}
 	}
@@ -629,7 +605,7 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 
 const_shared_ptr<Result> AssignmentStatement::do_op(
 		const_shared_ptr<string> variable_name, const BasicType variable_type,
-		int variable_line, int variable_column, const std::uint8_t value,
+		yy::position position, const std::uint8_t value,
 		const_shared_ptr<Expression> expression, const AssignmentType op,
 		const shared_ptr<ExecutionContext> execution_context) {
 	ErrorListRef errors;
@@ -656,28 +632,27 @@ const_shared_ptr<Result> AssignmentStatement::do_op(
 			const BasicType basic_type = as_primitive->GetBasicType();
 			switch (basic_type) {
 			case BOOLEAN:
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value, *(evaluation->GetData<bool>()),
-						op, execution_context, new_value);
+				errors = do_op(variable_name, variable_type, position, value,
+						*(evaluation->GetData<bool>()), op, execution_context,
+						new_value);
 				break;
 			case BYTE:
-				errors = do_op(variable_name, variable_type, variable_line,
-						variable_column, value,
+				errors = do_op(variable_name, variable_type, position, value,
 						*(evaluation->GetData<std::uint8_t>()), op,
 						execution_context, new_value);
 				break;
 			default:
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-								variable_column, TypeToString(STRING),
+								Error::ASSIGNMENT_TYPE_ERROR, position,
+								TypeToString(STRING),
 								expression_type_specifier->ToString()), errors);
 			}
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-							variable_column, TypeToString(STRING),
+							Error::ASSIGNMENT_TYPE_ERROR, position,
+							TypeToString(STRING),
 							expression_type_specifier->ToString()), errors);
 		}
 	}
@@ -696,8 +671,6 @@ const ExecutionResult AssignmentStatement::Execute(
 	}
 
 	const_shared_ptr<string> variable_name = m_variable->GetName();
-	int variable_line = m_variable->GetLocation().begin.line;
-	int variable_column = m_variable->GetLocation().begin.column;
 
 	auto symbol = context->GetSymbol(variable_name, DEEP);
 
@@ -707,7 +680,7 @@ const ExecutionResult AssignmentStatement::Execute(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						variable_line, variable_column, *(variable_name)),
+						m_variable->GetLocation().begin, *(variable_name)),
 				errors);
 	}
 

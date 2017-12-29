@@ -1,4 +1,4 @@
 Parsing file ../tests/t6050.nwt...
-Semantic error on line 7, column 9: Cannot unambiguously widen an expression of type 'int' to a variable of type 'test'.
+Semantic error at ../tests/t6050.nwt:7.9: Cannot unambiguously widen an expression of type 'int' to a variable of type 'test'.
 Parsed file ../tests/t6050.nwt.
 1 error found; giving up.

@@ -1,5 +1,5 @@
 Parsing file ../tests/t5169.nwt...
-Semantic error on line 3, column 2: Control reaches end of non-void function without complete return coverage.
-Semantic error on line 5, column 5: Undeclared variable 'fun'
+Semantic error at ../tests/t5169.nwt:3.2: Control reaches end of non-void function without complete return coverage.
+Semantic error at ../tests/t5169.nwt:5.5: Undeclared variable 'fun'
 Parsed file ../tests/t5169.nwt.
 2 errors found; giving up.

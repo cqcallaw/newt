@@ -1,4 +1,4 @@
 Parsing file ../tests/t1714.nwt...
-Semantic error on line 2, column 15: Invalid right operand for operator '%'.
+Semantic error at ../tests/t1714.nwt:2.15: Invalid right operand for operator '%'.
 Parsed file ../tests/t1714.nwt.
 1 error found; giving up.

@@ -1,4 +1,4 @@
 Parsing file ../tests/t10109.nwt...
-Semantic error on line 19, column 13: Type "disposable" does not contain a member named "teardown".
+Semantic error at ../tests/t10109.nwt:19.13: Type "disposable" does not contain a member named "teardown".
 Parsed file ../tests/t10109.nwt.
 1 error found; giving up.

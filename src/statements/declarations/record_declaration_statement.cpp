@@ -70,8 +70,7 @@ const PreprocessResult RecordDeclarationStatement::Preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNameLocation().begin.line,
-						GetNameLocation().begin.column, *GetName()), errors);
+						GetNameLocation().begin, *GetName()), errors);
 	}
 
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);

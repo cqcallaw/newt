@@ -1,5 +1,5 @@
 Parsing file ../tests/t9104.nwt...
-Semantic error on line 8, column 10: Foreach statement source must have a member named 'data'.
-Semantic error on line 9, column 8: Undeclared variable 'i'
+Semantic error at ../tests/t9104.nwt:8.10: Foreach statement source must have a member named 'data'.
+Semantic error at ../tests/t9104.nwt:9.8: Undeclared variable 'i'
 Parsed file ../tests/t9104.nwt.
 2 errors found; giving up.

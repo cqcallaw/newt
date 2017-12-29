@@ -1,4 +1,4 @@
 Parsing file ../tests/t2088.nwt...
-Semantic error on line 3, column 13: Variable 'numbers' is not an array.
+Semantic error at ../tests/t2088.nwt:3.13: Variable 'numbers' is not an array.
 Parsed file ../tests/t2088.nwt.
 1 error found; giving up.

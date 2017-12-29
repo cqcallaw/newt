@@ -65,8 +65,7 @@ const PreprocessResult ArrayDeclarationStatement::Preprocess(
 		if (!type) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							m_type_specifier_location.begin.line,
-							m_type_specifier_location.begin.column, type_name),
+							m_type_specifier_location.begin, type_name),
 					errors);
 		}
 	}
@@ -90,15 +89,13 @@ const PreprocessResult ArrayDeclarationStatement::Preprocess(
 				if (!as_array
 						|| !initializer_expression_type->AnalyzeAssignmentTo(
 								m_type_specifier, *type_table)) {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::ASSIGNMENT_TYPE_ERROR,
-											initializer_expression->GetLocation().begin.line,
-											initializer_expression->GetLocation().begin.column,
-											m_type_specifier->ToString(),
-											initializer_expression_type->ToString()),
-									errors);
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::ASSIGNMENT_TYPE_ERROR,
+									initializer_expression->GetLocation().begin,
+									m_type_specifier->ToString(),
+									initializer_expression_type->ToString()),
+							errors);
 				}
 			}
 		}
@@ -116,9 +113,7 @@ const PreprocessResult ArrayDeclarationStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNameLocation().begin.line,
-								GetNameLocation().begin.column, *GetName()),
-						errors);
+								GetNameLocation().begin, *GetName()), errors);
 			}
 		}
 	}

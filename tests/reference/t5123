@@ -1,4 +1,4 @@
 Parsing file ../tests/t5123.nwt...
-Semantic error on line 4, column 7: The given expression does not reference a valid function.
+Semantic error at ../tests/t5123.nwt:4.7: The given expression does not reference a valid function.
 Parsed file ../tests/t5123.nwt.
 1 error found; giving up.

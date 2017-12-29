@@ -1,5 +1,5 @@
 Parsing file ../tests/t5112.nwt...
-Semantic error on line 2, column 10: Parameter default must be constant.
-Semantic error on line 6, column 6: Undeclared variable 'f'
+Semantic error at ../tests/t5112.nwt:2.10: Parameter default must be constant.
+Semantic error at ../tests/t5112.nwt:6.6: Undeclared variable 'f'
 Parsed file ../tests/t5112.nwt.
 2 errors found; giving up.

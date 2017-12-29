@@ -1,4 +1,4 @@
 Parsing file ../tests/t1101.nwt...
-Semantic error on line 4, column 16: A string expression is not a legal array index.  The array is 'array'.
+Semantic error at ../tests/t1101.nwt:4.16: A string expression is not a legal array index.  The array is 'array'.
 Parsed file ../tests/t1101.nwt.
 1 error found; giving up.

@@ -1,5 +1,5 @@
 Parsing file ../tests/t1298.nwt...
-Semantic error on line 6, column 15: Invalid left operand for operator '*'.
-Semantic error on line 6, column 19: Invalid right operand for operator '*'.
+Semantic error at ../tests/t1298.nwt:6.15: Invalid left operand for operator '*'.
+Semantic error at ../tests/t1298.nwt:6.19: Invalid right operand for operator '*'.
 Parsed file ../tests/t1298.nwt.
 2 errors found; giving up.

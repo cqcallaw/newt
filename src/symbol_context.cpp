@@ -43,27 +43,24 @@ const ErrorListRef ToErrorListRef(const SetResult result,
 	case NO_SET_RESULT:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::DEFAULT_ERROR_CODE,
-						location.begin.line, location.begin.column, *name),
-				errors);
+						location.begin, *name), errors);
 		break;
 	case UNDEFINED_SYMBOL:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						location.begin.line, location.begin.column, *name),
-				errors);
+						location.begin, *name), errors);
 		break;
 	case INCOMPATIBLE_TYPE:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::ASSIGNMENT_TYPE_ERROR, location.begin.line,
-						location.begin.column, symbol_type->ToString(),
-						value_type->ToString()), errors);
+						Error::ASSIGNMENT_TYPE_ERROR, location.begin,
+						symbol_type->ToString(), value_type->ToString()),
+				errors);
 		break;
 	case MUTATION_DISALLOWED:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::READONLY,
-						location.begin.line, location.begin.column, *name),
-				errors);
+						location.begin, *name), errors);
 		break;
 	case SET_SUCCESS:
 	default:

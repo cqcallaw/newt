@@ -158,8 +158,7 @@ const PreprocessResult ForeachStatement::Preprocess(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::FOREACH_STMT_REQUIRES_DATA,
-															m_expression->GetLocation().begin.line,
-															m_expression->GetLocation().begin.column),
+															m_expression->GetLocation().begin),
 													errors);
 								}
 							} else {
@@ -168,34 +167,28 @@ const PreprocessResult ForeachStatement::Preprocess(
 												make_shared<Error>(
 														Error::SEMANTIC,
 														Error::FOREACH_NEXT_MUST_EVALUATE_TO_BASE_TYPE,
-														m_expression->GetLocation().begin.line,
-														m_expression->GetLocation().begin.column),
+														m_expression->GetLocation().begin),
 												errors);
 							}
 						} else {
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::RETURN_STMT_MUST_BE_MAYBE,
-													m_expression->GetLocation().begin.line,
-													m_expression->GetLocation().begin.column),
-											errors);
+							errors = ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::RETURN_STMT_MUST_BE_MAYBE,
+											m_expression->GetLocation().begin),
+									errors);
 						}
 					} else {
-						errors =
-								ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::FOREACH_STMT_REQUIRES_NEXT,
-												m_expression->GetLocation().begin.line,
-												m_expression->GetLocation().begin.column),
-										errors);
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::FOREACH_STMT_REQUIRES_NEXT,
+										m_expression->GetLocation().begin),
+								errors);
 					}
 				} else {
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::STMT_SOURCE_MUST_BE_RECORD,
-									m_expression->GetLocation().begin.line,
-									m_expression->GetLocation().begin.column,
+									m_expression->GetLocation().begin,
 									expression_type_specifier->ToString()),
 							errors);
 				}
@@ -413,8 +406,7 @@ const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(
 		// couldn't find member
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_MEMBER,
-						record_type_specifier->GetLocation().begin.line,
-						record_type_specifier->GetLocation().begin.column,
+						record_type_specifier->GetLocation().begin,
 						*member_name, record_type_specifier->ToString()),
 				errors);
 	}

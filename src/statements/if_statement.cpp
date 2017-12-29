@@ -102,7 +102,7 @@ const PreprocessResult IfStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
-								position.begin.line, position.begin.column),
+								position.begin),
 						errors);
 			}
 		}

@@ -93,8 +93,7 @@ const PreprocessResult ForStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
-								position.begin.line, position.begin.column),
-						errors);
+								position.begin), errors);
 			}
 		}
 	}

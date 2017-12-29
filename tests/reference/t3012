@@ -1,4 +1,4 @@
 Parsing file ../tests/t3012.nwt...
-Semantic error on line 4, column 2: 'y' has been already been declared in the current scope.
+Semantic error at ../tests/t3012.nwt:4.2: 'y' has been already been declared in the current scope.
 Parsed file ../tests/t3012.nwt.
 1 error found; giving up.

@@ -61,7 +61,7 @@ const PreprocessResult ExitStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-								position.begin.line, position.begin.column,
+								position.begin,
 								expression_type_specifier->ToString()), errors);
 			}
 		}

@@ -86,9 +86,8 @@ const_shared_ptr<Result> NestedTypeSpecifier::GetType(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PARTIALLY_DECLARED_TYPE,
-								GetLocation().begin.line,
-								GetLocation().begin.column,
-								m_parent->ToString()), errors);
+								GetLocation().begin, m_parent->ToString()),
+						errors);
 			} else {
 				type = complex_parent->GetDefinition()->GetType<TypeDefinition>(
 						m_member_name, DEEP, resolution);
@@ -97,8 +96,7 @@ const_shared_ptr<Result> NestedTypeSpecifier::GetType(
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::UNDECLARED_MEMBER,
-									m_parent->GetLocation().begin.line,
-									m_parent->GetLocation().begin.column,
+									m_parent->GetLocation().begin,
 									*m_member_name, m_parent->ToString()),
 							errors);
 
@@ -108,8 +106,7 @@ const_shared_ptr<Result> NestedTypeSpecifier::GetType(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::NOT_A_COMPOUND_TYPE,
-							m_parent->GetLocation().begin.line,
-							m_parent->GetLocation().begin.column,
+							m_parent->GetLocation().begin,
 							m_parent->ToString()), errors);
 		}
 	}
@@ -128,8 +125,7 @@ const ErrorListRef NestedTypeSpecifier::ValidateDeclaration(
 		if (as_placeholder) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
-							Error::RAW_RECURSIVE_DECLARATION,
-							position.begin.line, position.begin.column),
+							Error::RAW_RECURSIVE_DECLARATION, position.begin),
 					errors);
 		}
 	}

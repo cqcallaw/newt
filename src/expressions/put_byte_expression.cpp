@@ -189,8 +189,7 @@ const ErrorListRef PutByteExpression::Validate(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::AMBIGUOUS_WIDENING_CONVERSION,
-												argument_type_specifier->GetLocation().begin.line,
-												argument_type_specifier->GetLocation().begin.column,
+												argument_type_specifier->GetLocation().begin,
 												argument_type_specifier->ToString(),
 												specifier->ToString()), errors);
 					} else if (assignability == INCOMPATIBLE) {
@@ -198,8 +197,7 @@ const ErrorListRef PutByteExpression::Validate(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::ASSIGNMENT_TYPE_ERROR,
-												argument_type_specifier->GetLocation().begin.line,
-												argument_type_specifier->GetLocation().begin.column,
+												argument_type_specifier->GetLocation().begin,
 												argument_type_specifier->ToString(),
 												specifier->ToString()), errors);
 					}
@@ -213,8 +211,7 @@ const ErrorListRef PutByteExpression::Validate(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::AMBIGUOUS_WIDENING_CONVERSION,
-												argument_type_specifier->GetLocation().begin.line,
-												argument_type_specifier->GetLocation().begin.column,
+												argument_type_specifier->GetLocation().begin,
 												argument_type_specifier->ToString(),
 												specifier->ToString()), errors);
 					} else if (assignability == INCOMPATIBLE) {
@@ -222,21 +219,17 @@ const ErrorListRef PutByteExpression::Validate(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::ASSIGNMENT_TYPE_ERROR,
-												argument_type_specifier->GetLocation().begin.line,
-												argument_type_specifier->GetLocation().begin.column,
+												argument_type_specifier->GetLocation().begin,
 												argument_type_specifier->ToString(),
 												specifier->ToString()), errors);
 					}
 				} else {
 					// too many arguments
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::TOO_MANY_ARGUMENTS,
-											argument_subject->GetLocation().begin.line,
-											argument_subject->GetLocation().begin.column,
-											"(int, byte) -> error_list?"),
-									errors);
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::TOO_MANY_ARGUMENTS,
+									argument_subject->GetLocation().begin,
+									"(int, byte) -> error_list?"), errors);
 					break;
 				}
 			}

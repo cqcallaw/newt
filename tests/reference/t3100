@@ -1,4 +1,4 @@
 Parsing file ../tests/t3100.nwt...
-Semantic error on line 6, column 12: Undeclared variable 'blue'
+Semantic error at ../tests/t3100.nwt:6.12: Undeclared variable 'blue'
 Parsed file ../tests/t3100.nwt.
 1 error found; giving up.
