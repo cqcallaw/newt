@@ -101,111 +101,119 @@ int main(int argc, char *argv[]) {
 		auto builtin_preprocess_result = builtin_statements->Preprocess(
 				builtin_context, const_shared_ptr<TypeSpecifier>());
 
-		auto builtin_preprocess_errors = builtin_preprocess_result.GetErrors();
-		if (ErrorList::IsTerminator(builtin_preprocess_errors)) {
+		auto builtin_errors = builtin_preprocess_result.GetErrors();
+		if (ErrorList::IsTerminator(builtin_errors)) {
+			auto builtin_execute_result = builtin_statements->Execute(
+					builtin_context);
 
-			int parse_result = driver.parse(filename, trace);
-			if (parse_result != 0 || driver.GetErrorCount() != 0) {
-				if (debug) {
-					cout << "Parsed file " << *filename << "." << endl;
-				}
-
-				cerr << driver.GetErrorCount() << " error";
-				if (driver.GetErrorCount() > 1)
-					cout << "s";
-				cout << " found; giving up." << endl;
-
-				return get_exit_code(debug, EXIT_FAILURE);
-			}
-
-			int exit_code = EXIT_SUCCESS;
-
-			if (parse_result == 0) {
-				auto main_statement_block = driver.GetStatementBlock();
-				//auto builtin_context = Builtins::GetBuiltinContext();
-				auto root_context = make_shared<ExecutionContext>(
-						Modifier::Type::MUTABLE, LifeTime::ROOT);
-				root_context->LinkToParent(builtin_context);
-				auto semantic_errors =
-						main_statement_block->Preprocess(root_context,
-								TypeTable::GetNilTypeSpecifier()).GetErrors();
-
-				if (ErrorList::IsTerminator(semantic_errors)) {
+			builtin_errors = builtin_execute_result.GetErrors();
+			if (ErrorList::IsTerminator(builtin_errors)) {
+				int parse_result = driver.parse(filename, trace);
+				if (parse_result != 0 || driver.GetErrorCount() != 0) {
 					if (debug) {
 						cout << "Parsed file " << *filename << "." << endl;
 					}
 
-					auto execution_result = main_statement_block->Execute(
-							root_context);
-					auto execution_errors = execution_result.GetErrors();
-
-					bool has_execution_errors = false;
-					while (!ErrorList::IsTerminator(execution_errors)) {
-						has_execution_errors = true;
-						cerr << execution_errors->GetData()->ToString() << endl;
-						execution_errors = execution_errors->GetNext();
-					}
-
-					if (debug) {
-						cout << "Root Symbol Table:" << endl;
-						cout << "----------------" << endl;
-						root_context->print(cout, *root_context->GetTypeTable(),
-								Indent(0));
-						cout << endl;
-						cout << "Root Type Table:" << endl;
-						cout << "----------------" << endl;
-						root_context->GetTypeTable()->print(cout, Indent(0));
-					}
-
-					auto execution_exit_code = execution_result.GetExitCode();
-					if (execution_exit_code
-							!= ExecutionResult::GetDefaultExitCode()) {
-						exit_code = *execution_exit_code;
-					}
-
-					// cleanup any open file handles
-					auto file_handle_map = Builtins::get_file_handle_map();
-					for (file_handle_map::iterator it =
-							file_handle_map->begin();
-							it != file_handle_map->end(); ++it) {
-						auto stream = it->second;
-						stream->close();
-					}
-
-					return get_exit_code(debug,
-							has_execution_errors ? EXIT_FAILURE : exit_code);
-				} else {
-					//reverse linked list of errors, which comes to us in reverse order
-					semantic_errors = ErrorList::Reverse(semantic_errors);
-
-					int semantic_error_count = 0;
-					ErrorListRef error = semantic_errors;
-					while (!ErrorList::IsTerminator(error)) {
-						semantic_error_count++;
-						cerr << *(error->GetData()) << endl;
-						error = error->GetNext();
-					}
-
-					if (debug) {
-						cout << "Parsed file " << *filename << "." << endl;
-					}
-
-					if (semantic_error_count == 1) {
-						cout << "1 error found; giving up." << endl;
-					} else {
-						cout << semantic_error_count
-								<< " errors found; giving up." << endl;
-					}
+					cerr << driver.GetErrorCount() << " error";
+					if (driver.GetErrorCount() > 1)
+						cout << "s";
+					cout << " found; giving up." << endl;
 
 					return get_exit_code(debug, EXIT_FAILURE);
 				}
+
+				int exit_code = EXIT_SUCCESS;
+
+				if (parse_result == 0) {
+					auto main_statement_block = driver.GetStatementBlock();
+					//auto builtin_context = Builtins::GetBuiltinContext();
+					auto root_context = make_shared<ExecutionContext>(
+							Modifier::Type::MUTABLE, LifeTime::ROOT);
+					root_context->LinkToParent(builtin_context);
+					auto semantic_errors =
+							main_statement_block->Preprocess(root_context,
+									TypeTable::GetNilTypeSpecifier()).GetErrors();
+
+					if (ErrorList::IsTerminator(semantic_errors)) {
+						if (debug) {
+							cout << "Parsed file " << *filename << "." << endl;
+						}
+
+						auto execution_result = main_statement_block->Execute(
+								root_context);
+						auto execution_errors = execution_result.GetErrors();
+
+						bool has_execution_errors = false;
+						while (!ErrorList::IsTerminator(execution_errors)) {
+							has_execution_errors = true;
+							cerr << execution_errors->GetData()->ToString()
+									<< endl;
+							execution_errors = execution_errors->GetNext();
+						}
+
+						if (debug) {
+							cout << "Root Symbol Table:" << endl;
+							cout << "----------------" << endl;
+							root_context->print(cout,
+									*root_context->GetTypeTable(), Indent(0));
+							cout << endl;
+							cout << "Root Type Table:" << endl;
+							cout << "----------------" << endl;
+							root_context->GetTypeTable()->print(cout,
+									Indent(0));
+						}
+
+						auto execution_exit_code =
+								execution_result.GetExitCode();
+						if (execution_exit_code
+								!= ExecutionResult::GetDefaultExitCode()) {
+							exit_code = *execution_exit_code;
+						}
+
+						// cleanup any open file handles
+						auto file_handle_map = Builtins::get_file_handle_map();
+						for (file_handle_map::iterator it =
+								file_handle_map->begin();
+								it != file_handle_map->end(); ++it) {
+							auto stream = it->second;
+							stream->close();
+						}
+
+						return get_exit_code(debug,
+								has_execution_errors ? EXIT_FAILURE : exit_code);
+					} else {
+						//reverse linked list of errors, which comes to us in reverse order
+						semantic_errors = ErrorList::Reverse(semantic_errors);
+
+						int semantic_error_count = 0;
+						ErrorListRef error = semantic_errors;
+						while (!ErrorList::IsTerminator(error)) {
+							semantic_error_count++;
+							cerr << *(error->GetData()) << endl;
+							error = error->GetNext();
+						}
+
+						if (debug) {
+							cout << "Parsed file " << *filename << "." << endl;
+						}
+
+						if (semantic_error_count == 1) {
+							cout << "1 error found; giving up." << endl;
+						} else {
+							cout << semantic_error_count
+									<< " errors found; giving up." << endl;
+						}
+
+						return get_exit_code(debug, EXIT_FAILURE);
+					}
+				}
 			}
-		} else {
-			while (!ErrorList::IsTerminator(builtin_preprocess_errors)) {
-				cerr << builtin_preprocess_errors->GetData()->ToString()
-						<< endl;
-				builtin_preprocess_errors =
-						builtin_preprocess_errors->GetNext();
+		}
+
+		if (!ErrorList::IsTerminator(builtin_errors)) {
+			while (!ErrorList::IsTerminator(builtin_errors)) {
+				cerr << builtin_errors->GetData()->ToString() << endl;
+				builtin_errors = builtin_errors->GetNext();
 			}
 
 			return get_exit_code(debug, EXIT_FAILURE);

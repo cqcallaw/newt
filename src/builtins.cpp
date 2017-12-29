@@ -142,35 +142,51 @@ volatile_shared_ptr<file_handle_map> Builtins::get_file_handle_map() {
 
 const_shared_ptr<string> Builtins::get_builtin_definition() {
 	ostringstream ss;
-	ss << *Builtins::ERROR_TYPE_NAME << "{ " << *Builtins::ERROR_CODE_NAME
+	ss << *Builtins::ERROR_TYPE_NAME << " { " << *Builtins::ERROR_CODE_NAME
 			<< ":int, " << *Builtins::ERROR_MESSAGE_NAME << ":string }" << endl;
-	ss << *Builtins::ERROR_LIST_TYPE_NAME << "{ "
+	ss << *Builtins::ERROR_LIST_TYPE_NAME << " { "
 			<< *Builtins::ERROR_LIST_NEXT_NAME << ":"
 			<< *Builtins::ERROR_LIST_TYPE_NAME << "?, "
 			<< *Builtins::ERROR_LIST_DATA_NAME << ":"
 			<< *Builtins::ERROR_TYPE_NAME << " }" << endl;
-	ss << *Builtins::STREAM_MODE_TYPE_NAME << "{ "
-			<< *Builtins::STREAM_MODE_IN_NAME << ":bool,"
-			<< *Builtins::STREAM_MODE_OUT_NAME << ":bool,"
-			<< *Builtins::STREAM_MODE_BINARY_NAME << ":bool,"
-			<< *Builtins::STREAM_MODE_ATE_NAME << ":bool,"
-			<< *Builtins::STREAM_MODE_APP_NAME << ":bool,"
+	ss << *Builtins::STREAM_MODE_TYPE_NAME << " { "
+			<< *Builtins::STREAM_MODE_IN_NAME << ":bool, "
+			<< *Builtins::STREAM_MODE_OUT_NAME << ":bool, "
+			<< *Builtins::STREAM_MODE_BINARY_NAME << ":bool, "
+			<< *Builtins::STREAM_MODE_ATE_NAME << ":bool, "
+			<< *Builtins::STREAM_MODE_APP_NAME << ":bool, "
 			<< *Builtins::STREAM_MODE_TRUNC_NAME << ":bool }" << endl;
-	ss << *Builtins::BYTE_RESULT_TYPE_NAME << "{ "
-			<< *Builtins::BYTE_RESULT_DATA_NAME << ":byte |"
+	ss << *Builtins::BYTE_RESULT_TYPE_NAME << " { "
+			<< *Builtins::BYTE_RESULT_DATA_NAME << ":byte | "
 			<< *Builtins::BYTE_RESULT_ERRORS_NAME << ":"
 			<< *Builtins::ERROR_LIST_TYPE_NAME << " }" << endl;
 	ss << *Builtins::BYTE_READ_RESULT_TYPE_NAME << "{ "
-			<< *Builtins::BYTE_READ_RESULT_EOF_NAME << " |"
+			<< *Builtins::BYTE_READ_RESULT_EOF_NAME << " | "
 			<< *Builtins::BYTE_READ_RESULT_DATA_NAME << ":byte |"
 			<< *Builtins::BYTE_READ_RESULT_ERRORS_NAME << ":"
 			<< *Builtins::ERROR_LIST_TYPE_NAME << " }" << endl;
-	ss << *Builtins::INT_RESULT_TYPE_NAME << "{ "
-			<< *Builtins::INT_RESULT_DATA_NAME << ":int |"
+	ss << *Builtins::INT_RESULT_TYPE_NAME << " { "
+			<< *Builtins::INT_RESULT_DATA_NAME << ":int | "
 			<< *Builtins::INT_RESULT_ERRORS_NAME << ":"
 			<< *Builtins::ERROR_LIST_TYPE_NAME << " }" << endl;
+	ss << *Builtins::PATH_SEPARATOR_NAME << ":string = \""
+			<< get_path_separator() << "\"" << endl;
 
 	auto result = make_shared<string>(ss.str());
 	return result;
 }
 
+char Builtins::get_path_separator() {
+	// ref: https://stackoverflow.com/a/12971535/577298
+	// ref: https://stackoverflow.com/a/32439392/577298
+	static const char path_separator =
+#if defined _WIN32 || defined __CYGWIN__
+			'\\';
+#else
+			'/';
+#endif
+	return path_separator;
+}
+
+const_shared_ptr<std::string> Builtins::PATH_SEPARATOR_NAME = make_shared<
+		std::string>("path_separator");

@@ -77,7 +77,11 @@ public:
 	static const_shared_ptr<ComplexTypeSpecifier> get_byte_read_result_type_specifier();
 	static const_shared_ptr<ComplexTypeSpecifier> get_byte_read_result_eof_type_specifier();
 
+	static char get_path_separator();
+	static const_shared_ptr<std::string> PATH_SEPARATOR_NAME;
+
 	static volatile_shared_ptr<file_handle_map> get_file_handle_map();
+
 };
 
 #endif /* BUILTINS_H_ */
