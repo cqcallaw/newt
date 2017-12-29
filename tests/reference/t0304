@@ -1,5 +1,12 @@
 Parsing file ../tests/t0304.nwt...
-Lex error at ../tests/t0304.nwt:2.1-14: Could not resolve import source 'trivial'.
-Lex error at ../tests/t0304.nwt:3.1-14: Could not resolve import source 'trivial'.
 Parsed file ../tests/t0304.nwt.
-2 errors found; giving up.
+Root Symbol Table:
+----------------
+() -> int f:
+	Body Location: ../tests/t0304.nwt:5.17-6.9
+() -> int g:
+	Body Location: ../tests/includes/trivial.nwt:2.17-26
+int i: 3
+
+Root Type Table:
+----------------

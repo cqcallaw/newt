@@ -1,4 +1,12 @@
 Parsing file ../tests/t0301.nwt...
-Lex error at ../tests/t0301.nwt:2.1-13: Could not resolve import source 'nested'.
 Parsed file ../tests/t0301.nwt.
-1 error found; giving up.
+Root Symbol Table:
+----------------
+() -> int f:
+	Body Location: ../tests/t0301.nwt:4.17-5.9
+() -> int g:
+	Body Location: ../tests/includes/trivial.nwt:2.17-26
+int i: 3
+
+Root Type Table:
+----------------

@@ -1,5 +1,43 @@
 Parsing file ../tests/t0303.nwt...
-Lex error at ../tests/t0303.nwt:2.1-14: Could not resolve import source 'trivial'.
-Lex error at ../tests/t0303.nwt:3.1-9: Could not resolve import source 'io'.
 Parsed file ../tests/t0303.nwt.
-2 errors found; giving up.
+Root Symbol Table:
+----------------
+() -> int f:
+	Body Location: ../tests/t0303.nwt:5.17-6.9
+() -> int g:
+	Body Location: ../tests/includes/trivial.nwt:2.17-26
+int i: 3
+(string, stream_mode) -> byte_stream_setup_result open_byte_stream:
+	Body Location: ../tests/includes/io.nwt:20.82-32.3
+(byte_stream) -> byte_iter? read:
+	Body Location: ../tests/includes/io.nwt:40.45-58.11
+
+Root Type Table:
+----------------
+byte_iter:
+	<record>
+	data:
+		byte_result ({data} 0x00)
+	next:
+		() -> byte_iter? (
+			Body Location: [default location]
+		)
+
+byte_stream:
+	<record>
+	handle:
+		int (0)
+	source:
+		string ("")
+	teardown:
+		(byte_stream?) -> error_list? (
+			Body Location: ../tests/includes/io.nwt:4.50-11.4
+		)
+
+byte_stream_setup_result:
+	<sum>
+	setup_errors:
+		error_list
+	setup_value:
+		byte_stream
+

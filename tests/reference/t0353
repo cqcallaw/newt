@@ -1,5 +1,5 @@
 Parsing file ../tests/t0353.nwt...
-Lex error at ../tests/t0353.nwt:2.1-14: Could not resolve import source 'trivial'.
-Lex error at ../tests/t0353.nwt:3.1-18: Could not resolve import source 'sub.trivial'.
+Semantic error at ../tests/includes/sub/trivial.nwt:1.1: 'i' has been already been declared in the current scope.
+Semantic error at ../tests/includes/sub/trivial.nwt:2.1: 'g' has been already been declared in the current scope.
 Parsed file ../tests/t0353.nwt.
 2 errors found; giving up.

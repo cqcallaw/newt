@@ -15,7 +15,7 @@ $(TEST_PATH)output:
 
 %: $(TEST_PATH)%.nwt $(TEST_PATH)output
 	-@echo ' '
-	./newt --debug $< >$(TEST_PATH)output/$@ 2>&1
+	./newt --debug --include-paths '../tests/includes' $< >$(TEST_PATH)output/$@ 2>&1
 	diff $(TEST_PATH)reference/$@ $(TEST_PATH)output/$@
 
 #run a test in debug mode
@@ -26,7 +26,7 @@ r%: newt $(TEST_PATH)%.nwt
 #update the reference output for the given test
 w%: newt $(TEST_PATH)%.nwt $(TEST_PATH)reference
 	-@echo ' '
-	./newt --debug $(word 2,$^) >$(TEST_PATH)reference/$* 2>&1
+	./newt --debug --include-paths '../tests/includes' $(word 2,$^) >$(TEST_PATH)reference/$* 2>&1
 
 #DANGER: update all test output
 wtest: newt $(WTESTS)
@@ -39,7 +39,7 @@ mtest: newt $(MTESTS)
 m%: newt $(TEST_PATH)%.nwt
 	-@echo ' '
 	-@echo 'Memory test for ' $(word 2,$^)
-	@valgrind --leak-check=full --show-leak-kinds=all -v --error-exitcode=1 ./newt --debug $(word 2,$^)
+	@valgrind --leak-check=full --show-leak-kinds=all -v --error-exitcode=1 ./newt --debug --include-paths '../tests/includes' $(word 2,$^)
 
 #compare test w/ reference output (requires kdiff)
 d%: $(TEST_PATH)%.nwt $(TEST_PATH)reference
