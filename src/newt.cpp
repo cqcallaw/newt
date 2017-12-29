@@ -72,8 +72,8 @@ int main(int argc, char *argv[]) {
 
 	bool debug = false;
 	TRACE trace = NO_TRACE;
-	volatile_shared_ptr<string_list> include_paths = make_shared<string_list>();
-	include_paths->push_back(make_shared<const string>("."));
+	volatile_shared_ptr<string_list> import_paths = make_shared<string_list>();
+	import_paths->push_back(make_shared<const string>("."));
 	int i = 1;
 	for (; i < argc - 1; i++) {
 		if (strcmp(argv[i], "--debug") == 0) {
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 		if (strcmp(argv[i], "--include-paths") == 0) {
 			auto as_string = string(argv[++i]);
 			auto commandline_include_paths = Unique(Tokenize(as_string, "|"));
-			include_paths->insert(include_paths->end(),
+			import_paths->insert(import_paths->end(),
 					commandline_include_paths->begin(),
 					commandline_include_paths->end());
 		}
@@ -110,18 +110,18 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-#if defined NEWT_DEFAULT_INCLUDE_PATH
-	// ref: https://stackoverflow.com/a/5256500/577298
+#ifndef NEWT_DEFAULT_IMPORT_PATH
+#define NEWT_DEFAULT_IMPORT_PATH /usr/local/lib/newt
+#endif
+// ref: https://stackoverflow.com/a/5256500/577298
 #define STRINGIZE_NX(A) #A
 #define STRINGIZE(A) STRINGIZE_NX(A)
-	include_paths->push_back(make_shared<const string>(STRINGIZE(NEWT_DEFAULT_INCLUDE_PATH)));
-#else
-	include_paths->push_back(
-			make_shared<const string>("/usr/local/include/newt"));
-#endif
+	import_paths->push_back(
+			make_shared<const string>(STRINGIZE(NEWT_DEFAULT_IMPORT_PATH)));
+
 	if ((trace & IMPORT) == IMPORT) {
-		for (auto & include_path : *include_paths) {
-			cout << "Include path: " << *include_path << endl;
+		for (auto & import_path : *import_paths) {
+			cout << "Import path: " << *import_path << endl;
 		}
 	}
 
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
 		cout << "Parsing file " << *filename << "..." << endl;
 	}
 
-	Driver driver(include_paths, trace);
+	Driver driver(import_paths, trace);
 	int builtin_parse_result = driver.parse_string(
 			*Builtins::get_builtin_definition());
 	if (builtin_parse_result == 0) {
