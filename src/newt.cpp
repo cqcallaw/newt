@@ -40,7 +40,7 @@ void print_help() {
 			<< "  --trace-scanning : Print scanning information during script execution"
 			<< endl;
 	cout
-			<< "  --trace-parsing : Print parsing information during script execution"
+			<< "  --trace-parsing  : Print parsing information during script execution"
 			<< endl;
 }
 
