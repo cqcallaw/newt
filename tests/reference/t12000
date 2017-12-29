@@ -6,10 +6,12 @@ Parsed file ../tests/t12000.nwt.
 Root Symbol Table:
 ----------------
 (string, stream_mode) -> byte_stream_setup_result open_byte_stream:
-	Body Location: ../tests/t12000.nwt:24.82-36.3
+	Body Location: ../tests/includes/io.nwt:20.82-32.3
 error_list? r: {nil}
 (byte_stream) -> byte_iter? read:
-	Body Location: ../tests/t12000.nwt:44.45-62.11
+	Body Location: ../tests/includes/io.nwt:40.45-58.11
+(byte_stream, byte) -> error_list? write:
+	Body Location: ../tests/includes/io.nwt:61.59-62.33
 
 Root Type Table:
 ----------------
@@ -30,7 +32,7 @@ byte_stream:
 		string ("")
 	teardown:
 		(byte_stream?) -> error_list? (
-			Body Location: ../tests/t12000.nwt:8.50-15.4
+			Body Location: ../tests/includes/io.nwt:4.50-11.4
 		)
 
 byte_stream_setup_result:

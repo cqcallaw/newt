@@ -19,12 +19,12 @@ byte_list data:
 
 string file_name: "../tests/files/abc.inout"
 (string, stream_mode) -> byte_stream_setup_result open_byte_stream:
-	Body Location: ../tests/t12001.nwt:24.82-36.3
+	Body Location: ../tests/includes/io.nwt:20.82-32.3
 (byte_stream) -> byte_iter? read:
-	Body Location: ../tests/t12001.nwt:49.45-67.11
+	Body Location: ../tests/includes/io.nwt:40.45-58.11
 error_list? read_result: {nil}
 (byte_stream, byte) -> error_list? write:
-	Body Location: ../tests/t12001.nwt:70.59-71.33
+	Body Location: ../tests/includes/io.nwt:61.59-62.33
 error_list? write_result: {nil}
 
 Root Type Table:
@@ -53,7 +53,7 @@ byte_stream:
 		string ("")
 	teardown:
 		(byte_stream?) -> error_list? (
-			Body Location: ../tests/t12001.nwt:8.50-15.4
+			Body Location: ../tests/includes/io.nwt:4.50-11.4
 		)
 
 byte_stream_setup_result:
