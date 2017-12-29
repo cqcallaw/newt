@@ -1,0 +1,4 @@
+Parsing file ../tests/t0302.nwt...
+Lex error at ../tests/t0302.nwt:2.1-18: Could not resolve import source 'sub.trivial'.
+Parsed file ../tests/t0302.nwt.
+1 error found; giving up.

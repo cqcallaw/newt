@@ -1,0 +1,7 @@
+# test re-import detection
+import trivial
+import trivial # should be ignored
+
+f := () -> int {
+	return 1
+}

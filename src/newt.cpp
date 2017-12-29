@@ -32,6 +32,9 @@ void print_help() {
 	cout << "Usage: newt [options] file" << endl;
 	cout << "Options:" << endl;
 	cout << "  --help           : Display this information" << endl;
+	cout
+			<< "  --include-paths  : Specify a pipe-separated list of include paths"
+			<< endl;
 	cout << "Debug Options:" << endl;
 	cout
 			<< "  --debug          : Print debug information during script execution"
@@ -41,6 +44,9 @@ void print_help() {
 			<< endl;
 	cout
 			<< "  --trace-parsing  : Print parsing information during script execution"
+			<< endl;
+	cout
+			<< "  --trace-import   : Print import information during script execution"
 			<< endl;
 }
 
@@ -56,17 +62,20 @@ int get_exit_code(bool debug, int exit_code) {
 int main(int argc, char *argv[]) {
 	if (argc < 2) {
 		cerr << "Input script must be specified." << endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	if (strcmp(argv[1], "--help") == 0) {
 		print_help();
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 	bool debug = false;
 	TRACE trace = NO_TRACE;
-	for (int i = 1; i < argc - 1; i++) {
+	volatile_shared_ptr<string_list> include_paths = make_shared<string_list>();
+	include_paths->push_back(make_shared<const string>("."));
+	int i = 1;
+	for (; i < argc - 1; i++) {
 		if (strcmp(argv[i], "--debug") == 0) {
 			debug = true;
 		}
@@ -79,21 +88,51 @@ int main(int argc, char *argv[]) {
 			trace = TRACE(trace | PARSING);
 		}
 
+		if (strcmp(argv[i], "--trace-import") == 0) {
+			trace = TRACE(trace | IMPORT);
+		}
+
 		if (strcmp(argv[i], "--help") == 0) {
 			print_help();
 			return 0;
 		}
+		if (strcmp(argv[i], "--include-paths") == 0) {
+			auto as_string = string(argv[++i]);
+			auto commandline_include_paths = Unique(Tokenize(as_string, "|"));
+			include_paths->insert(include_paths->end(),
+					commandline_include_paths->begin(),
+					commandline_include_paths->end());
+		}
+	}
+
+	if (i >= argc) {
+		cerr << "Input script must be specified." << endl;
+		return EXIT_FAILURE;
+	}
+
+#if defined NEWT_DEFAULT_INCLUDE_PATH
+	// ref: https://stackoverflow.com/a/5256500/577298
+#define STRINGIZE_NX(A) #A
+#define STRINGIZE(A) STRINGIZE_NX(A)
+	include_paths->push_back(make_shared<const string>(STRINGIZE(NEWT_DEFAULT_INCLUDE_PATH)));
+#else
+	include_paths->push_back(
+			make_shared<const string>("/usr/local/include/newt"));
+#endif
+	if ((trace & IMPORT) == IMPORT) {
+		for (auto & include_path : *include_paths) {
+			cout << "Include path: " << *include_path << endl;
+		}
 	}
 
 	auto filename = make_shared<string>(argv[argc - 1]);
-
 	if (debug) {
 		cout << "Parsing file " << *filename << "..." << endl;
 	}
 
-	Driver driver;
+	Driver driver(include_paths, trace);
 	int builtin_parse_result = driver.parse_string(
-			*Builtins::get_builtin_definition(), trace);
+			*Builtins::get_builtin_definition());
 	if (builtin_parse_result == 0) {
 		auto builtin_statements = driver.GetStatementBlock();
 		auto builtin_context = make_shared<ExecutionContext>(
@@ -108,7 +147,7 @@ int main(int argc, char *argv[]) {
 
 			builtin_errors = builtin_execute_result.GetErrors();
 			if (ErrorList::IsTerminator(builtin_errors)) {
-				int parse_result = driver.parse(filename, trace);
+				int parse_result = driver.parse(filename);
 				if (parse_result != 0 || driver.GetErrorCount() != 0) {
 					if (debug) {
 						cout << "Parsed file " << *filename << "." << endl;

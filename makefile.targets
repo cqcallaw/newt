@@ -21,7 +21,7 @@ $(TEST_PATH)output:
 #run a test in debug mode
 r%: newt $(TEST_PATH)%.nwt
 	-@echo ' '
-	./newt --debug $(word 2,$^)
+	./newt --debug --include-paths '../tests/includes' $(word 2,$^)
 
 #update the reference output for the given test
 w%: newt $(TEST_PATH)%.nwt $(TEST_PATH)reference

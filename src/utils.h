@@ -41,4 +41,11 @@ const_shared_ptr<string> AsString(std::uint8_t* value);
 
 const_shared_ptr<string> AsString(double* value);
 
+const_shared_ptr<string_list> Tokenize(const string& str,
+		const string& delimiters = " ");
+
+/**
+ * Get unique strings without changing the order of the list
+ */
+const_shared_ptr<string_list> Unique(const_shared_ptr<string_list> list);
 #endif /* UTILS_H_ */

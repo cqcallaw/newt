@@ -1,4 +1,4 @@
 Parsing file ../tests/t0007.nwt...
-Parse error on line 1, column 35: syntax error, unexpected string constant, expecting end of file.
+Parse error at ../tests/t0007.nwt:1.35-58: syntax error, unexpected string constant, expecting end of file.
 Parsed file ../tests/t0007.nwt.
 1 error found; giving up.

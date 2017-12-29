@@ -34,4 +34,6 @@ using volatile_shared_ptr = std::shared_ptr<T>;
 #include <location.hh>
 const yy::location GetDefaultLocation();
 
+typedef std::vector<plain_shared_ptr<std::string>> string_list;
+
 #endif /* DEFAULTS_H_ */

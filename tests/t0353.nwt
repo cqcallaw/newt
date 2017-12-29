@@ -1,0 +1,7 @@
+# test import of same symbol from multiple sources
+import trivial
+import sub.trivial
+
+f := () -> int {
+	return 1
+}

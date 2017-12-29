@@ -1,0 +1,2 @@
+# test nested invalid import
+import bad_external_import

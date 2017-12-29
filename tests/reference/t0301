@@ -1,0 +1,4 @@
+Parsing file ../tests/t0301.nwt...
+Lex error at ../tests/t0301.nwt:2.1-13: Could not resolve import source 'nested'.
+Parsed file ../tests/t0301.nwt.
+1 error found; giving up.

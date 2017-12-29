@@ -27,7 +27,7 @@
 YY_DECL;
 
 enum TRACE {
-	NO_TRACE = 0, SCANNING = 1, PARSING = 2,
+	NO_TRACE = 0, SCANNING = 1, PARSING = 2, IMPORT = 4
 };
 
 class yy_buffer_state;
@@ -60,13 +60,13 @@ private:
 
 typedef plain_shared_ptr<InputStackEntry> input_entry;
 typedef std::stack<input_entry, std::deque<input_entry>> input_stack;
-typedef std::vector<plain_shared_ptr<std::string>> string_list;
 
 class Driver {
 public:
-	Driver() :
-			m_input_stack(make_shared<input_stack>()), m_include_file_names(
-					make_shared<string_list>()) {
+	Driver(const_shared_ptr<string_list> include_paths, const TRACE trace_level) :
+			m_input_stack(make_shared<input_stack>()), m_include_paths(
+					include_paths), m_included_file_names(
+					make_shared<string_list>()), m_trace_level(trace_level) {
 	}
 
 	virtual ~Driver() {
@@ -77,11 +77,11 @@ public:
 
 	// Run the parser on the file specified by <file_name>
 	// Return 0 on success.
-	int parse(volatile_shared_ptr<string> file_name, const TRACE trace_level);
+	int parse(volatile_shared_ptr<string> file_name);
 
 	// Run the parser on specified input string
 	// Return 0 on success.
-	int parse_string(const std::string& string, const TRACE trace_level);
+	int parse_string(const std::string& string);
 
 	int scan_string_begin(const std::string& string, const bool trace_scanning);
 	void scan_string_end();
@@ -108,8 +108,16 @@ public:
 		return m_input_stack;
 	}
 
-	volatile_shared_ptr<string_list> GetIncludeFileNames() const {
-		return m_include_file_names;
+	volatile_shared_ptr<string_list> GetIncludedFileNames() const {
+		return m_included_file_names;
+	}
+
+	const_shared_ptr<string_list> GetIncludePaths() const {
+		return m_include_paths;
+	}
+
+	const TRACE GetTraceLevel() const {
+		return m_trace_level;
 	}
 
 private:
@@ -117,7 +125,9 @@ private:
 	plain_shared_ptr<StatementBlock> m_statement_block;
 	unsigned int m_error_count = 0;
 	volatile_shared_ptr<input_stack> m_input_stack;
-	volatile_shared_ptr<string_list> m_include_file_names;
+	const_shared_ptr<string_list> m_include_paths;
+	volatile_shared_ptr<string_list> m_included_file_names;
+	const TRACE m_trace_level;
 };
 
 #endif /* DRIVER_H_ */

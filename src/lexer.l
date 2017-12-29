@@ -23,6 +23,7 @@
 #include <cfloat>
 #include <driver.h>
 #include <string.h>
+#include <builtins.h>
 #include "parser.tab.hh"
 
 // The location of the current token.
@@ -46,7 +47,7 @@ blank   [ \t\r]
   #define YY_USER_ACTION  loc.columns (yyleng);
 %}
 
-%x incl
+%x import
 
 %%
 
@@ -61,26 +62,59 @@ blank   [ \t\r]
 \/\/.+$         // ignore comments
 #.*$            // ignore comments
 
-include         BEGIN(incl);
-<incl>{blank}+  // swallow whitespace
-<incl>{str} {
+import          BEGIN(import);
+<import>{blank}+  // swallow whitespace
+<import>[^ \t\r\n]+ {
+	// got the include file name
 	// ref: http://westes.github.io/flex/manual/Multiple-Input-Buffers.html
-	/* got the include file name */
-	uint len = strlen(yytext);
-	auto include_name = make_shared<string>(yytext + 1, len - 2);
-	auto include_file_handle = fopen(include_name->c_str(), "r");
 
-	if (include_file_handle) {
-		driver.GetInputStack()->push(make_shared<InputStackEntry>(yyin, YY_CURRENT_BUFFER, loc));
+	auto path_separator = Builtins::get_path_separator();
+	auto as_string = string(yytext);
+	std::replace(as_string.begin(), as_string.end(), '.', path_separator);
+	as_string = as_string + ".nwt";
 
-		yyin = include_file_handle;
-		yy_switch_to_buffer(yy_create_buffer(include_file_handle, YY_BUF_SIZE));
-		// make sure we have a live reference to the include name as long as the driver is active
-		// this will also properly dispose of the include file name memory when the driver is destroyed
-		driver.GetIncludeFileNames()->push_back(include_name);
-		loc = yy::location(include_name.get(), 1, 1);  
-	} else {
-		driver.lexer_error(loc, "Cannot open include file " + *include_name + ": " + strerror(errno) + ".");
+	auto debug_import = (driver.GetTraceLevel() & IMPORT) == IMPORT;
+
+	if (debug_import) {
+		cout << "Normalized import source: " << as_string << endl;
+	}
+
+	auto resolved = false;
+	for (auto & include_path : *driver.GetIncludePaths()) {
+		auto potential_source = *include_path + path_separator + as_string;
+		if (FILE *potential_source_file_handle = fopen(potential_source.c_str(), "r")) {
+			if (debug_import) {
+				cout << "Found import source " << potential_source << endl;
+			}
+			resolved = true;
+
+			auto included = false;
+			for (auto & included_file : *driver.GetIncludedFileNames()) {
+				if (strcmp(potential_source.c_str(), included_file->c_str()) == 0) {
+					// we have already included the specified file
+					if (debug_import) {
+						cout << "Source already imported." << endl;
+					}
+					included = true;
+				}
+			}
+
+			if (!included) {
+				driver.GetInputStack()->push(make_shared<InputStackEntry>(yyin, YY_CURRENT_BUFFER, loc));
+	
+				yyin = potential_source_file_handle;
+				yy_switch_to_buffer(yy_create_buffer(potential_source_file_handle, YY_BUF_SIZE));
+				// make sure we have a live reference to the include name as long as the driver is active
+				// this will also properly dispose of the include file name memory when the driver is destroyed
+				auto source = make_shared<string>(potential_source);
+				driver.GetIncludedFileNames()->push_back(source);
+				loc = yy::location(source.get(), 1, 1);
+			}
+		}
+	}
+
+	if (!resolved) {
+		driver.lexer_error(loc, "Could not resolve import source '" + string(yytext) + "'.");
 	}
 
 	BEGIN(INITIAL); // reset start condition so we don't repeat this block indefinitely

@@ -63,3 +63,43 @@ const_shared_ptr<string> AsString(int* value) {
 const_shared_ptr<string> AsString(double* value) {
 	return AsString(*value);
 }
+
+const_shared_ptr<string_list> Tokenize(const string& str,
+		const string& delimiters) {
+	// ref: https://stackoverflow.com/a/236137/577298
+	auto tokens = make_shared<string_list>();
+	// Skip delimiters at beginning.
+	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+	// Find first "non-delimiter".
+	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+	while (string::npos != pos || string::npos != lastPos) {
+		// Found a token, add it to the vector.
+		tokens->push_back(
+				make_shared<string>(str.substr(lastPos, pos - lastPos)));
+		// Skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+		// Find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+	}
+
+	return tokens;
+}
+
+const_shared_ptr<string_list> Unique(const_shared_ptr<string_list> list) {
+	auto out = make_shared<string_list>();
+	for (auto & value : *list) {
+		auto found = false;
+		for (auto & output_value : *out) {
+			if (*value == *output_value) {
+				found = true;
+			}
+		}
+
+		if (!found) {
+			out->push_back(value);
+		}
+	}
+
+	return out;
+}

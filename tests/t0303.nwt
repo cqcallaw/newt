@@ -1,5 +1,6 @@
-# test basic import
+# test multiple imports
 import trivial
+import io
 
 f := () -> int {
 	return 1

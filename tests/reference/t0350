@@ -1,4 +1,4 @@
 Parsing file ../tests/t0350.nwt...
-Lex error on line 3, column 1: Cannot open include file does_not_exist.txt: No such file or directory.
+Lex error at ../tests/t0350.nwt:2.1-21: Could not resolve import source 'does_not_exist'.
 Parsed file ../tests/t0350.nwt.
 1 error found; giving up.

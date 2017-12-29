@@ -1,0 +1,5 @@
+Parsing file ../tests/t0303.nwt...
+Lex error at ../tests/t0303.nwt:2.1-14: Could not resolve import source 'trivial'.
+Lex error at ../tests/t0303.nwt:3.1-9: Could not resolve import source 'io'.
+Parsed file ../tests/t0303.nwt.
+2 errors found; giving up.

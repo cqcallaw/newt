@@ -1,3 +1,2 @@
-# test invalid include
-
-include "does_not_exist.txt"
+# test invalid import
+import does_not_exist
