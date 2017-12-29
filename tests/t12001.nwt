@@ -9,7 +9,7 @@ data := @byte_list with { data = 0x63 }
 data = data with { data = 0x62, next = data }
 data = data with { data = 0x61, next = data }
 
-write_result := using open_byte_stream(file_name, @stream_mode with { write = true, binary = true, trunc = true }) as stream -> error_list? {
+write_result := using open_byte_stream(file_name, @stream_mode with { write = true, trunc = true }) as stream -> error_list? {
 	for datum in data {
 		r := write(stream, datum)
 		match (r)
@@ -21,7 +21,7 @@ write_result := using open_byte_stream(file_name, @stream_mode with { write = tr
 	return nil
 }
 
-read_result := using open_byte_stream(file_name, @stream_mode with { read = true, binary = true }) as stream -> error_list? {
+read_result := using open_byte_stream(file_name, @stream_mode with { read = true }) as stream -> error_list? {
 	for value in read(stream) {
 		match(value)
 			data {
