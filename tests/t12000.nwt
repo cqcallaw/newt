@@ -1,69 +1,7 @@
 # test file read with using block
-
-# need to define these in an include file
-
-byte_stream {
-	source:string,
-	handle:int,
-	teardown := (this:byte_stream?) -> error_list? {
-		match (this)
-			value {
-				return close(value.handle)
-			}
-			| nil {
-				return nil
-			}
-	}
-}
-
-byte_stream_setup_result {
-	setup_value:byte_stream
-	| setup_errors:error_list
-}
-
-open_byte_stream := (path:string, mode:stream_mode) -> byte_stream_setup_result {
-	mode = mode with { binary = true } # make sure we're in binary mode
-	open_result := open(path, mode)
-	match (open_result)
-		data {
-			return @byte_stream with {
-				source = path,
-				handle = data
-			}
-		}
-		| errors {
-			return errors
-		}
-}
-
-byte_iter {
-	data:byte_result,
-	next:() -> byte_iter?
-}
-
-read := (stream:byte_stream) -> byte_iter? {
-	f := () -> byte_iter? {
-		result := get(stream.handle)
-		match(result)
-			data {
-				return @byte_iter with {
-					data = data,
-					next = f
-				}
-			} | errors {
-				return @byte_iter with {
-					data = errors
-				}
-			} | eof {
-				return nil
-			}
-	}
-
-	return f()
-}
+import io
 
 r := using open_byte_stream("../tests/files/abc.in", @stream_mode with { read = true, binary = true }) as stream -> error_list? {
-	# need to consider how to handle nil return types (nil return values are fine)
 	for value in read(stream) {
 		match(value)
 			data {

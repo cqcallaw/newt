@@ -1,0 +1,4 @@
+byte_list {
+	data:byte,
+	next:byte_list?
+}
