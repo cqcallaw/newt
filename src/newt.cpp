@@ -33,6 +33,9 @@ void print_help() {
 	cout << "Options:" << endl;
 	cout << "  --help           : Display this information" << endl;
 	cout
+			<< "  --analyze        : Perform semantic analysis only"
+			<< endl;
+	cout
 			<< "  --include-paths  : Specify a pipe-separated list of include paths"
 			<< endl;
 	cout << "Debug Options:" << endl;
@@ -71,6 +74,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	bool debug = false;
+	bool analyze = false;
 	TRACE trace = NO_TRACE;
 	volatile_shared_ptr<string_list> import_paths = make_shared<string_list>();
 	import_paths->push_back(make_shared<const string>("."));
@@ -83,6 +87,10 @@ int main(int argc, char *argv[]) {
 
 		if (strcmp(argv[i], "--debug") == 0) {
 			debug = true;
+		}
+
+		if (strcmp(argv[i], "--analyze") == 0) {
+			analyze = true;
 		}
 
 		if (strcmp(argv[i], "--trace-scanning") == 0) {
@@ -179,48 +187,54 @@ int main(int argc, char *argv[]) {
 							cout << "Parsed file " << *filename << "." << endl;
 						}
 
-						auto execution_result = main_statement_block->Execute(
-								root_context);
-						auto execution_errors = execution_result.GetErrors();
+						if (!analyze) {
+							auto execution_result =
+									main_statement_block->Execute(root_context);
+							auto execution_errors =
+									execution_result.GetErrors();
 
-						bool has_execution_errors = false;
-						while (!ErrorList::IsTerminator(execution_errors)) {
-							has_execution_errors = true;
-							cerr << execution_errors->GetData()->ToString()
-									<< endl;
-							execution_errors = execution_errors->GetNext();
+							bool has_execution_errors = false;
+							while (!ErrorList::IsTerminator(execution_errors)) {
+								has_execution_errors = true;
+								cerr << execution_errors->GetData()->ToString()
+										<< endl;
+								execution_errors = execution_errors->GetNext();
+							}
+
+							if (debug) {
+								cout << "Root Symbol Table:" << endl;
+								cout << "----------------" << endl;
+								root_context->print(cout,
+										*root_context->GetTypeTable(),
+										Indent(0));
+								cout << endl;
+								cout << "Root Type Table:" << endl;
+								cout << "----------------" << endl;
+								root_context->GetTypeTable()->print(cout,
+										Indent(0));
+							}
+
+							auto execution_exit_code =
+									execution_result.GetExitCode();
+							if (execution_exit_code
+									!= ExecutionResult::GetDefaultExitCode()) {
+								exit_code = *execution_exit_code;
+							}
+
+							// cleanup any open file handles
+							auto file_handle_map =
+									Builtins::get_file_handle_map();
+							for (file_handle_map::iterator it =
+									file_handle_map->begin();
+									it != file_handle_map->end(); ++it) {
+								auto stream = it->second;
+								stream->close();
+							}
+
+							return get_exit_code(debug,
+									has_execution_errors ?
+											EXIT_FAILURE : exit_code);
 						}
-
-						if (debug) {
-							cout << "Root Symbol Table:" << endl;
-							cout << "----------------" << endl;
-							root_context->print(cout,
-									*root_context->GetTypeTable(), Indent(0));
-							cout << endl;
-							cout << "Root Type Table:" << endl;
-							cout << "----------------" << endl;
-							root_context->GetTypeTable()->print(cout,
-									Indent(0));
-						}
-
-						auto execution_exit_code =
-								execution_result.GetExitCode();
-						if (execution_exit_code
-								!= ExecutionResult::GetDefaultExitCode()) {
-							exit_code = *execution_exit_code;
-						}
-
-						// cleanup any open file handles
-						auto file_handle_map = Builtins::get_file_handle_map();
-						for (file_handle_map::iterator it =
-								file_handle_map->begin();
-								it != file_handle_map->end(); ++it) {
-							auto stream = it->second;
-							stream->close();
-						}
-
-						return get_exit_code(debug,
-								has_execution_errors ? EXIT_FAILURE : exit_code);
 					} else {
 						//reverse linked list of errors, which comes to us in reverse order
 						semantic_errors = ErrorList::Reverse(semantic_errors);
