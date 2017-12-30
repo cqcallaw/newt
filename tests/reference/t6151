@@ -4,7 +4,7 @@ Root Symbol Table:
 ----------------
 int error_result: -1
 (result) -> int f:
-	Body Location: 11.24-18.2
+	Body Location: ../tests/t6151.nwt:11.24-18.2
 int val: 5
 int value_result: 3
 

@@ -1,4 +1,4 @@
 Parsing file ../tests/t0010.nwt...
-Semantic error on line 2, column 1: Undeclared variable 'z'
+Semantic error at ../tests/t0010.nwt:2.1: Undeclared variable 'z'
 Parsed file ../tests/t0010.nwt.
 1 error found; giving up.

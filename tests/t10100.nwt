@@ -1,0 +1,22 @@
+# test basic using block
+
+error_list {
+	code:int,
+	message:string,
+	next:error_list?
+}
+
+
+result {
+	value:int
+	| errors:error_list
+}
+
+disposable {
+	blort
+	| blah
+}
+
+r := using @disposable as value -> result {
+	return 1
+}

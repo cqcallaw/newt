@@ -1,5 +1,4 @@
 Parsing file ../tests/t5122.nwt...
-Semantic error on line 3, column 7: No function variant match.
-Semantic error on line 3, column 7: Undeclared variable 't'
+Semantic error at ../tests/t5122.nwt:3.7: Undeclared variable 't'
 Parsed file ../tests/t5122.nwt.
-2 errors found; giving up.
+1 error found; giving up.

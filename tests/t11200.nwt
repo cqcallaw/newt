@@ -1,0 +1,16 @@
+# test file close
+
+r:= open("../tests/files/a.in", @stream_mode with { read = true, binary = true })
+
+# initialize errors to a non-default value so we can observe the change in value
+e:error_list? = @error_list with { data = @error with { id = 3 } }
+# save error state so we can observe the delta between e's initial and final value
+saved_e := e
+
+match (r)
+	data as handle {
+		e = close(handle)
+	}
+	| _ {
+	}
+	

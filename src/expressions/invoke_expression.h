@@ -30,6 +30,12 @@ public:
 			const yy::location argument_list_position);
 	virtual ~InvokeExpression();
 
+	static const_shared_ptr<InvokeExpression> BuildInvokeExpression(
+			const yy::location location,
+			const_shared_ptr<Expression> expression,
+			const ArgumentListRef argument_list,
+			const yy::location argument_list_location);
+
 	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
 			const shared_ptr<ExecutionContext> execution_context,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
@@ -59,6 +65,8 @@ public:
 	const yy::location GetArgumentListRefLocation() const {
 		return m_argument_list_location;
 	}
+
+	static const vector<string> BuiltinFunctionList;
 
 private:
 	const_shared_ptr<Expression> m_expression;

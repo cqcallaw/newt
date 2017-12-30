@@ -1,0 +1,8 @@
+# test function memory leak condition
+
+func := (x:int) -> nil {
+	if (x > 0) {
+	}
+}
+& () -> nil {
+}

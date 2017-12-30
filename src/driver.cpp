@@ -19,16 +19,31 @@
 
 #include <driver.h>
 
-int Driver::parse(const std::string& file_name, const TRACE trace_level) {
-	int scan_begin_result = scan_begin(file_name, (trace_level & SCANNING));
+int Driver::parse(volatile_shared_ptr<string> file_name) {
+	int scan_begin_result = scan_begin(file_name,
+			(m_trace_level & SCANNING) == SCANNING);
 
 	if (scan_begin_result != EXIT_SUCCESS)
 		return scan_begin_result;
 
 	yy::newt_parser parser(*this);
-	parser.set_debug_level((trace_level & PARSING));
+	parser.set_debug_level((m_trace_level & PARSING));
 	int res = parser.parse();
 	scan_end();
+	return res;
+}
+
+int Driver::parse_string(const std::string& string) {
+	int scan_begin_result = scan_string_begin(string,
+			(m_trace_level & SCANNING) == SCANNING);
+
+	if (scan_begin_result != EXIT_SUCCESS)
+		return scan_begin_result;
+
+	yy::newt_parser parser(*this);
+	parser.set_debug_level((m_trace_level & PARSING));
+	int res = parser.parse();
+	scan_string_end();
 	return res;
 }
 
@@ -39,22 +54,20 @@ void Driver::error(const std::string& message) {
 
 void Driver::lexer_error(const yy::location& location,
 		const std::string& message) {
-	std::cerr << "Lex error on line " << location.begin.line << ", column "
-			<< location.begin.column << ": " << message << std::endl;
+	std::cerr << "Lex error at " << location << ": " << message << std::endl;
 	m_error_count++;
 }
 
 void Driver::invalid_token(const yy::location& location,
 		const std::string& token_name) {
-	std::cerr << "Lex error on line " << location.begin.line << ", column "
-			<< location.begin.column << ": '" << token_name << "'"
+	std::cerr << "Lex error at " << location << ": '" << token_name << "'"
 			<< " is not a legal token." << std::endl;
 	m_error_count++;
 }
 
 void Driver::parser_error(const yy::location& location,
 		const std::string& message) {
-	std::cerr << "Parse error on line " << location.begin.line << ", column "
-			<< location.begin.column << ": " << message << "." << std::endl;
+	std::cerr << "Parse error at " << location << ": " << message << "."
+			<< std::endl;
 	m_error_count++;
 }

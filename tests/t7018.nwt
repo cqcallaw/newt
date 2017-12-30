@@ -1,0 +1,9 @@
+# another nested type test
+stream {
+	result {
+		data:string
+		| error {
+			code:int
+		}
+	}
+}

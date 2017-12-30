@@ -3,7 +3,7 @@ Parsed file ../tests/t5111.nwt.
 Root Symbol Table:
 ----------------
 (int) -> int f:
-	Body Location: 2.21-3.9
+	Body Location: ../tests/t5111.nwt:2.21-3.9
 int x: 2
 int y: 5
 

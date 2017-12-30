@@ -47,7 +47,7 @@ TypedResult<TypeSpecifier> FunctionExpression::GetTypeSpecifier(
 	} else {
 		// overloaded function
 		return TypedResult<TypeSpecifier>(
-				make_shared<VariantFunctionSpecifier>(GetPosition(),
+				make_shared<VariantFunctionSpecifier>(GetLocation(),
 						m_variant_list), ErrorList::GetTerminator());
 	}
 }
@@ -56,7 +56,7 @@ const_shared_ptr<Result> FunctionExpression::Evaluate(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
-	auto function = Function::Build(GetPosition(), m_variant_list, closure);
+	auto function = Function::Build(GetLocation(), m_variant_list, closure);
 	return make_shared<Result>(function, errors);
 }
 
@@ -70,9 +70,12 @@ const ErrorListRef FunctionExpression::Validate(
 
 	auto subject = m_variant_list;
 	while (!FunctionVariantList::IsTerminator(subject)) {
-		auto variant = m_variant_list->GetData();
+		auto variant = subject->GetData();
 		auto declaration = variant->GetDeclaration();
 		auto body = variant->GetBody();
+
+		auto variant_context = variant->GetContext();
+		variant_context->LinkToParent(execution_context);
 
 		// check that this variant doesn't conflict with any subsequent definitions
 		// for this, we assume the function variants are in order
@@ -92,23 +95,13 @@ const ErrorListRef FunctionExpression::Validate(
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::FUNCTION_VARIANT_WITH_DUPLICATE_SIGNATURE,
-										duplication_subject_variant->GetLocation().begin.line,
-										duplication_subject_variant->GetLocation().begin.column,
+										duplication_subject_variant->GetLocation().begin,
 										declaration->ToString(), out.str()),
 								errors);
 			}
 
 			duplication_subject = duplication_subject->GetNext();
 		}
-
-		//generate a temporary context for validation
-		auto new_parent = ExecutionContextList::From(execution_context,
-				execution_context->GetParent());
-		shared_ptr<ExecutionContext> tmp_context =
-				make_shared<ExecutionContext>(Modifier::Type::NONE, new_parent,
-						execution_context->GetTypeTable(),
-						execution_context->GetLifeTime(),
-						execution_context->GetDepth() + 1);
 
 		DeclarationListRef parameter_subject = declaration->GetParameterList();
 		while (!DeclarationList::IsTerminator(parameter_subject)) {
@@ -126,20 +119,19 @@ const ErrorListRef FunctionExpression::Validate(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::FUNCTION_PARAMETER_DEFAULT_MUST_BE_CONSTANT,
-											init_expression->GetPosition().begin.line,
-											init_expression->GetPosition().begin.column),
+											init_expression->GetLocation().begin),
 									parameter_errors);
 				}
 			}
 
 			if (ErrorList::IsTerminator(parameter_errors)) {
 				auto preprocess_result = declaration_statement->Preprocess(
-						tmp_context, tmp_context);
+						variant_context, variant_context);
 				auto preprocess_errors = preprocess_result.GetErrors();
 
 				if (ErrorList::IsTerminator(preprocess_errors)) {
 					auto execution_errors = declaration_statement->Execute(
-							tmp_context, tmp_context);
+							variant_context, variant_context).GetErrors();
 					if (!ErrorList::IsTerminator(execution_errors)) {
 						parameter_errors = ErrorList::Concatenate(
 								parameter_errors, execution_errors);
@@ -148,16 +140,16 @@ const ErrorListRef FunctionExpression::Validate(
 					parameter_errors = ErrorList::Concatenate(parameter_errors,
 							preprocess_errors);
 				}
-			} else {
-				errors = ErrorList::Concatenate(errors, parameter_errors);
 			}
+
+			errors = ErrorList::Concatenate(errors, parameter_errors);
 
 			parameter_subject = parameter_subject->GetNext();
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
 			auto return_type_specifier = declaration->GetReturnTypeSpecifier();
-			auto body_process_result = body->Preprocess(tmp_context,
+			auto body_process_result = body->Preprocess(variant_context,
 					return_type_specifier);
 			errors = ErrorList::Concatenate(errors,
 					body_process_result.GetErrors());
@@ -172,8 +164,7 @@ const ErrorListRef FunctionExpression::Validate(
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::MISSING_RETURN_COVERAGE,
-									GetPosition().end.line,
-									GetPosition().end.column), errors);
+									GetLocation().end), errors);
 				}
 			}
 		}

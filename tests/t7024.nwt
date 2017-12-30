@@ -1,0 +1,17 @@
+# test closing over match statement context
+f:= (i:int?) -> () -> int {
+	match (i)
+		value as v {
+			return () -> int {
+				return v
+			}
+		}
+		| nil {
+			return () -> int {
+				return 0
+			}
+		}
+}
+
+r := f(3)
+s := r()

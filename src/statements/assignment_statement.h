@@ -57,67 +57,79 @@ public:
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;
 
-	virtual const ErrorListRef Execute(
+	virtual const ExecutionResult Execute(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
 
 	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const bool old_value,
-			const bool expression_value, const AssignmentType op,
+			const BasicType variable_type, yy::position position,
+			const bool old_value, const bool expression_value,
+			const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context, bool& out);
 	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const int old_value,
-			const int expression_value, const AssignmentType op,
+			const BasicType variable_type, yy::position position,
+			const std::uint8_t old_value, const std::uint8_t expression_value,
+			const AssignmentType op,
+			const shared_ptr<ExecutionContext> execution_context,
+			std::uint8_t& out);
+	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
+			const BasicType variable_type, yy::position position,
+			const int old_value, const int expression_value,
+			const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context, int& out);
 	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const double old_value,
-			const double expression_value, const AssignmentType op,
+			const BasicType variable_type, yy::position position,
+			const double old_value, const double expression_value,
+			const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context, double& out);
 	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const_shared_ptr<string> old_value,
-			const bool expression_value, const AssignmentType op,
+			const BasicType variable_type, yy::position position,
+			const_shared_ptr<string> old_value, const bool expression_value,
+			const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context, string* &out);
 	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const_shared_ptr<string> old_value,
-			const int expression_value, const AssignmentType op,
+			const BasicType variable_type, yy::position position,
+			const_shared_ptr<string> old_value, const int expression_value,
+			const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context, string* &out);
 	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const_shared_ptr<string> old_value,
-			const double expression_value, const AssignmentType op,
+			const BasicType variable_type, yy::position position,
+			const_shared_ptr<string> old_value, const double expression_value,
+			const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context, string* &out);
 	static const ErrorListRef do_op(const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const_shared_ptr<string> old_value,
+			const BasicType variable_type, yy::position position,
+			const_shared_ptr<string> old_value,
 			const_shared_ptr<string> expression_value, const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context, string* &out);
 
 	static const_shared_ptr<Result> do_op(
 			const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const int value,
-			const_shared_ptr<Expression> expression, const AssignmentType op,
+			const BasicType variable_type, yy::position position,
+			const std::uint8_t value, const_shared_ptr<Expression> expression,
+			const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context);
 
 	static const_shared_ptr<Result> do_op(
 			const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const double value,
-			const_shared_ptr<Expression> expression, const AssignmentType op,
+			const BasicType variable_type, yy::position position,
+			const int value, const_shared_ptr<Expression> expression,
+			const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context);
 
 	static const_shared_ptr<Result> do_op(
 			const_shared_ptr<string> variable_name,
-			const BasicType variable_type, int variable_line,
-			int variable_column, const_shared_ptr<string> value,
-			const_shared_ptr<Expression> expression, const AssignmentType op,
+			const BasicType variable_type, yy::position position,
+			const double value, const_shared_ptr<Expression> expression,
+			const AssignmentType op,
 			const shared_ptr<ExecutionContext> execution_context);
 
+	static const_shared_ptr<Result> do_op(
+			const_shared_ptr<string> variable_name,
+			const BasicType variable_type, yy::position position,
+			const_shared_ptr<string> value,
+			const_shared_ptr<Expression> expression, const AssignmentType op,
+			const shared_ptr<ExecutionContext> execution_context);
 private:
 	const_shared_ptr<Variable> m_variable;
 	const AssignmentType m_op_type;

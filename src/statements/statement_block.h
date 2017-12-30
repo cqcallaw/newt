@@ -35,14 +35,15 @@ public:
 			const shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<TypeSpecifier> return_type_specifier) const;
 
-	const PreprocessResult Preprocess(const shared_ptr<ExecutionContext> context,
+	const PreprocessResult Preprocess(
+			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier) const;
 
-	const ErrorListRef Execute(
+	const ExecutionResult Execute(
 			shared_ptr<ExecutionContext> execution_context) const;
 
-	const ErrorListRef Execute(const shared_ptr<ExecutionContext> context,
+	const ExecutionResult Execute(const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
 
 	const yy::location GetLocation() const {

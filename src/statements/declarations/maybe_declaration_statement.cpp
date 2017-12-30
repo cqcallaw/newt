@@ -53,8 +53,7 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 	auto root_type_result = root_specifier->GetType(type_table);
 	errors = root_type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		plain_shared_ptr<Sum> value = make_shared<Sum>(
-				MaybeTypeSpecifier::EMPTY_NAME,
+		plain_shared_ptr<Sum> value = make_shared<Sum>(TypeTable::GetNilName(),
 				TypeTable::GetNilType()->GetValue());
 		auto initializer = GetInitializerExpression();
 		if (initializer) {
@@ -70,29 +69,34 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 						m_type_specifier, *type_table)) {
 					if (*initializer_type_specifier
 							!= *TypeTable::GetNilTypeSpecifier()) {
-						if (initializer->IsConstant()) {
-							auto result = initializer->Evaluate(context,
-									closure);
-							errors = result->GetErrors();
-							if (ErrorList::IsTerminator(errors)) {
-								if (*initializer_type_specifier
-										== *m_type_specifier) {
-									//direct assignment
-									value = result->GetData<Sum>();
-								} else {
-									//widening conversion
-									value = make_shared<Sum>(
-											MaybeTypeSpecifier::VARIANT_NAME,
-											result->GetRawData());
+						errors = initializer->Validate(context);
+						if (ErrorList::IsTerminator(errors)) {
+							if (initializer->IsConstant()) {
+								auto result = initializer->Evaluate(context,
+										closure);
+								errors = result->GetErrors();
+								if (ErrorList::IsTerminator(errors)) {
+									if (*initializer_type_specifier
+											== *m_type_specifier) {
+										//direct assignment
+										value = result->GetData<Sum>();
+									} else {
+										//widening conversion
+										value =
+												make_shared<Sum>(
+														MaybeTypeSpecifier::VARIANT_NAME,
+														result->GetRawData());
 
-									auto type = m_type_specifier->GetType(
-											type_table, RESOLVE)->GetData<
-											SumType>();
+										auto type = m_type_specifier->GetType(
+												type_table, RESOLVE)->GetData<
+												SumType>();
+									}
 								}
+							} else {
+								value = static_pointer_cast<const Sum>(
+										m_type_specifier->DefaultValue(
+												type_table));
 							}
-						} else {
-							value = static_pointer_cast<const Sum>(
-									m_type_specifier->DefaultValue(type_table));
 						}
 					}
 				} else {
@@ -100,8 +104,7 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::INVALID_INITIALIZER_TYPE,
-											GetInitializerExpression()->GetPosition().begin.line,
-											GetInitializerExpression()->GetPosition().begin.column,
+											GetInitializerExpression()->GetLocation().begin,
 											*GetName(),
 											m_type_specifier->ToString(),
 											initializer_type_specifier->ToString()),
@@ -118,9 +121,7 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNameLocation().begin.line,
-								GetNameLocation().begin.column, *GetName()),
-						errors);
+								GetNameLocation().begin, *GetName()), errors);
 			}
 		}
 
@@ -129,7 +130,7 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef MaybeDeclarationStatement::Execute(
+const ExecutionResult MaybeDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto errors = ErrorList::GetTerminator();
@@ -178,8 +179,7 @@ const ErrorListRef MaybeDeclarationStatement::Execute(
 							ErrorList::From(
 									make_shared<Error>(Error::RUNTIME,
 											Error::INVALID_INITIALIZER_TYPE,
-											GetInitializerExpression()->GetPosition().begin.line,
-											GetInitializerExpression()->GetPosition().begin.column,
+											GetInitializerExpression()->GetLocation().begin,
 											*GetName(),
 											maybe_type_specifier->ToString(),
 											initializer_type_specifier->ToString()),
@@ -198,7 +198,7 @@ const ErrorListRef MaybeDeclarationStatement::Execute(
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 
 const DeclarationStatement* MaybeDeclarationStatement::WithInitializerExpression(

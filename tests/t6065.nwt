@@ -1,0 +1,13 @@
+# test printing of sum type without match statement
+
+result {
+	data:string
+	| error {
+		code:int,
+		message:string
+	}
+}
+
+r := result.data("wot")
+
+print(r)

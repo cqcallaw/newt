@@ -1,0 +1,9 @@
+Parsing file ../tests/t0043.nwt...
+Parsed file ../tests/t0043.nwt.
+a byte: 0xEF
+Root Symbol Table:
+----------------
+byte a: 0xEF
+
+Root Type Table:
+----------------

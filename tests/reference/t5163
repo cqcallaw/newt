@@ -1,4 +1,4 @@
 Parsing file ../tests/t5163.nwt...
-Semantic error on line 7, column 2: Control reaches end of non-void function without complete return coverage.
+Semantic error at ../tests/t5163.nwt:7.2: Control reaches end of non-void function without complete return coverage.
 Parsed file ../tests/t5163.nwt.
 1 error found; giving up.

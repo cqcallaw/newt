@@ -1,0 +1,85 @@
+Parsing file ../tests/t0303.nwt...
+Parsed file ../tests/t0303.nwt.
+Root Symbol Table:
+----------------
+stream_mode binary_overwrite_mode:
+	boolean app: false
+	boolean ate: false
+	boolean binary: true
+	boolean read: false
+	boolean trunc: false
+	boolean write: true
+
+stream_mode binary_read_mode:
+	boolean app: false
+	boolean ate: false
+	boolean binary: true
+	boolean read: true
+	boolean trunc: false
+	boolean write: false
+
+stream_mode binary_write_mode:
+	boolean app: false
+	boolean ate: false
+	boolean binary: true
+	boolean read: false
+	boolean trunc: false
+	boolean write: true
+
+() -> int f:
+	Body Location: ../tests/t0303.nwt:5.17-6.9
+() -> int g:
+	Body Location: ../tests/includes/trivial.nwt:2.17-26
+int i: 3
+(string, stream_mode) -> stream_setup_result open_stream:
+	Body Location: ../tests/includes/io.nwt:27.72-39.3
+(stream) -> byte_iter? read:
+	Body Location: ../tests/includes/io.nwt:42.35-60.11
+(stream, byte) -> error_list? write:
+	Body Location: ../tests/includes/io.nwt:63.49-64.28
+
+Root Type Table:
+----------------
+byte_iter:
+	<record>
+	data:
+		byte_result ({data} 0x00)
+	next:
+		() -> byte_iter? (
+			Body Location: [default location]
+		)
+
+byte_list:
+	<record>
+	data:
+		byte (0x00)
+	next:
+		byte_list? ({nil})
+
+stream:
+	<record>
+	handle:
+		int (0)
+	mode:
+		stream_mode (
+			boolean app: false
+			boolean ate: false
+			boolean binary: false
+			boolean read: false
+			boolean trunc: false
+			boolean write: false
+		)
+	source:
+		string ("")
+	teardown:
+		(stream?) -> error_list? (
+			Body Location: ../tests/includes/io.nwt:11.45-18.4
+		)
+
+stream_setup_result:
+	<sum>
+	setup_errors:
+		error_list
+	setup_value:
+		stream
+

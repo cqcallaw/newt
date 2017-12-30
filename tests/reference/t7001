@@ -11,5 +11,5 @@ list:
 	data:
 		int (0)
 	tail:
-		list? ({empty})
+		list? ({nil})
 

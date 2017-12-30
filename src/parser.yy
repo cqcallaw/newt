@@ -93,6 +93,7 @@ class Driver;
 #include <with_expression.h>
 #include <default_value_expression.h>
 #include <invoke_expression.h>
+#include <using_expression.h>
 
 #include <print_statement.h>
 #include <assignment_statement.h>
@@ -109,6 +110,7 @@ class Driver;
 #include <exit_statement.h>
 #include <if_statement.h>
 #include <for_statement.h>
+#include <foreach_statement.h>
 #include <invoke_statement.h>
 #include <return_statement.h>
 #include <match_statement.h>
@@ -139,6 +141,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %token
 	END         0         "end of file"
 	BOOLEAN               "bool"
+	BYTE                  "byte"
 	INT                   "int"
 	DOUBLE                "double"
 	STRING                "string"
@@ -193,6 +196,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	WITH                "with"
 	MATCH               "match"
 	AS                  "as"
+	IN                  "in"
+	USING               "using"
 
 	RETURN              "return"
 	PRINT     "print"
@@ -205,6 +210,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %token <bool> FALSE "boolean false"
 %token <plain_shared_ptr<std::string>> IDENTIFIER "identifier"
 %token <int> INT_CONSTANT "int constant"
+%token <std::uint8_t> BYTE_CONSTANT "byte constant"
 %token <double> DOUBLE_CONSTANT "double constant"
 %token <plain_shared_ptr<std::string>> STRING_CONSTANT "string constant"
 
@@ -240,6 +246,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<FunctionVariant>> function_variant
 %type <FunctionVariantListRef> function_variant_list
 %type <plain_shared_ptr<Expression>> invoke_expression
+%type <plain_shared_ptr<Expression>> using_expression
 %type <plain_shared_ptr<Expression>> optional_initializer
 
 %type <plain_shared_ptr<Variable>> variable_reference
@@ -361,6 +368,10 @@ primitive_type_specifier:
 	{
 		$$ = PrimitiveTypeSpecifier::GetBoolean();
 	}
+	| BYTE
+	{
+		$$ = PrimitiveTypeSpecifier::GetByte();
+	}
 	| INT
 	{
 		$$ = PrimitiveTypeSpecifier::GetInt();
@@ -380,7 +391,7 @@ function_type_specifier:
 	LPAREN optional_anonymous_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
 		const TypeSpecifierListRef type_list = TypeSpecifierList::Reverse($2);
-		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @5, @$);
+		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @$);
 	}
 	;
 
@@ -413,15 +424,15 @@ nested_type_specifier:
 maybe_type_specifier:
 	primitive_type_specifier QMARK
 	{
-		$$ = make_shared<MaybeTypeSpecifier>($1);
+		$$ = make_shared<MaybeTypeSpecifier>($1, @$);
 	}
 	| complex_type_specifier QMARK
 	{
-		$$ = make_shared<MaybeTypeSpecifier>($1);
+		$$ = make_shared<MaybeTypeSpecifier>($1, @$);
 	}
 	| nested_type_specifier QMARK
 	{
-		$$ = make_shared<MaybeTypeSpecifier>($1);
+		$$ = make_shared<MaybeTypeSpecifier>($1, @$);
 	}
 	;
 
@@ -553,13 +564,17 @@ for_statement:
 	{
 		$$ = make_shared<ForStatement>($3, $5, $7, $9);
 	}
+	| FOR IDENTIFIER IN expression statement_block
+	{
+		$$ = make_shared<ForeachStatement>($2, $4, $5);
+	}
 	;
 
 //---------------------------------------------------------------------
 print_statement:
 	PRINT LPAREN expression RPAREN
 	{
-		$$ = make_shared<PrintStatement>(@1.begin.line, $3);
+		$$ = make_shared<PrintStatement>($3);
 	}
 	;
 
@@ -668,10 +683,6 @@ expression:
 	{
 		$$ = $1;
 	}
-	| INT_CONSTANT
-	{
-		$$ = make_shared<const ConstantExpression>(@1, $1);
-	}
 	| TRUE
 	{
 		$$ = make_shared<const ConstantExpression>(@1, true);
@@ -679,6 +690,14 @@ expression:
 	| FALSE
 	{
 		$$ = make_shared<const ConstantExpression>(@1, false);
+	}
+	| BYTE_CONSTANT
+	{
+		$$ = make_shared<const ConstantExpression>(@1, $1);
+	}
+	| INT_CONSTANT
+	{
+		$$ = make_shared<const ConstantExpression>(@1, $1);
 	}
 	| DOUBLE_CONSTANT
 	{
@@ -765,6 +784,10 @@ expression:
 	{
 		$$ = $1;
 	}
+	| using_expression
+	{
+		$$ = $1;
+	}
 	;
 
 //---------------------------------------------------------------------
@@ -780,7 +803,7 @@ invoke_expression:
 	variable_expression LPAREN optional_argument_list RPAREN
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
+		$$ = InvokeExpression::BuildInvokeExpression(@$, $1, argument_list, @3);
 	}
 	| invoke_expression LPAREN optional_argument_list RPAREN
 	{
@@ -799,7 +822,7 @@ function_declaration:
 	LPAREN optional_parameter_list RPAREN ARROW_RIGHT type_specifier
 	{
 		const DeclarationListRef parameter_list = DeclarationList::Reverse($2);
-		$$ = make_shared<FunctionDeclaration>(parameter_list, $5, @5, @$);
+		$$ = make_shared<FunctionDeclaration>(parameter_list, $5, @$);
 	}
 	;
 
@@ -834,6 +857,14 @@ function_variant_list:
 	{
 		//auto variant = make_shared<FunctionVariant>(@$, $1, $2); 
 		$$ = FunctionVariantList::From($1, FunctionVariantList::GetTerminator());
+	}
+	;
+
+//---------------------------------------------------------------------
+using_expression:
+	USING expression AS IDENTIFIER ARROW_RIGHT type_specifier statement_block
+	{
+		$$ = make_shared<UsingExpression>(@$, $2, $4, $6, $7);
 	}
 	;
 

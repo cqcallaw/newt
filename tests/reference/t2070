@@ -1,4 +1,4 @@
 Parsing file ../tests/t2070.nwt...
-Semantic error on line 4, column 17: Incorrect type for expression in for statement.  Expressions in for statements must be of type INT.
+Semantic error at ../tests/t2070.nwt:4.17: Incorrect type for expression in for statement.  Expressions in for statements must be of type INT.
 Parsed file ../tests/t2070.nwt.
 1 error found; giving up.

@@ -1,4 +1,4 @@
 Parsing file ../tests/t2084.nwt...
-Semantic error on line 1, column 18: Undeclared variable 't'
+Semantic error at ../tests/t2084.nwt:1.18: Undeclared variable 't'
 Parsed file ../tests/t2084.nwt.
 1 error found; giving up.

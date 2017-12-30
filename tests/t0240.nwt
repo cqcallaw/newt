@@ -1,0 +1,2 @@
+# test invalid byte declaration
+a:byte = 0xZX

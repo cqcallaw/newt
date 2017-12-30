@@ -1,0 +1,42 @@
+Parsing file ../tests/t10005.nwt...
+Parsed file ../tests/t10005.nwt.
+Root Symbol Table:
+----------------
+() -> disposable_setup_result get_disposable:
+	Body Location: ../tests/t10005.nwt:26.50-27.37
+result r: {value} 3
+
+Root Type Table:
+----------------
+disposable:
+	<record>
+	data:
+		int (0)
+	teardown:
+		(disposable?) -> error_list? (
+			Body Location: ../tests/t10005.nwt:16.49-17.12
+		)
+
+disposable_setup_result:
+	<sum>
+	setup_errors:
+		error_list
+	setup_value:
+		disposable
+
+error_list:
+	<record>
+	code:
+		int (0)
+	message:
+		string ("")
+	next:
+		error_list? ({nil})
+
+result:
+	<sum>
+	errors:
+		error_list
+	value:
+		int
+

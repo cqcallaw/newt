@@ -1,5 +1,5 @@
 Parsing file ../tests/t7433.nwt...
-Semantic error on line 4, column 5: Type "a" has not been fully defined.
-Semantic error on line 7, column 5: Invalid type "a".
+Semantic error at ../tests/t7433.nwt:4.5: Type "a" has not been fully defined.
+Semantic error at ../tests/t7433.nwt:7.5: Invalid type "a".
 Parsed file ../tests/t7433.nwt.
 2 errors found; giving up.

@@ -4,7 +4,7 @@ Root Symbol Table:
 ----------------
 point p:
 	(int, int) -> point? translate:
-		Body Location: 8.40-14.3
+		Body Location: ../tests/t5109.nwt:8.40-14.3
 	int x: 0
 	int y: 0
 

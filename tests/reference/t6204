@@ -1,4 +1,4 @@
 Parsing file ../tests/t6204.nwt...
-Semantic error on line 15, column 4: Match block for variant 'error' already exists.
+Semantic error at ../tests/t6204.nwt:15.4: Match block for variant 'error' already exists.
 Parsed file ../tests/t6204.nwt.
 1 error found; giving up.

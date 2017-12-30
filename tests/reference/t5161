@@ -1,4 +1,4 @@
 Parsing file ../tests/t5161.nwt...
-Semantic error on line 3, column 9: Return type does not match function return type.
+Semantic error at ../tests/t5161.nwt:3.9: Return type does not match context return type.
 Parsed file ../tests/t5161.nwt.
 1 error found; giving up.

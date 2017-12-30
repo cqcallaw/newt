@@ -1,0 +1,4 @@
+Parsing file ../tests/t2090.nwt...
+Semantic error at ../tests/t2090.nwt:2.4: Undeclared variable 'data'
+Parsed file ../tests/t2090.nwt.
+1 error found; giving up.

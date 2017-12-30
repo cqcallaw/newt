@@ -1,4 +1,4 @@
 Parsing file ../tests/t3127.nwt...
-Semantic error on line 7, column 16: Type "top.middle" does not contain a member named "bottom".
+Semantic error at ../tests/t3127.nwt:7.16: Type "top.middle" does not contain a member named "bottom".
 Parsed file ../tests/t3127.nwt.
 1 error found; giving up.

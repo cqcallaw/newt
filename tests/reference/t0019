@@ -1,4 +1,4 @@
 Parsing file ../tests/t0019.nwt...
-Parse error on line 2, column 2: syntax error, unexpected end of file.
+Parse error at ../tests/t0019.nwt:2.2: syntax error, unexpected end of file.
 Parsed file ../tests/t0019.nwt.
 1 error found; giving up.

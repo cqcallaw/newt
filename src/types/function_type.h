@@ -28,8 +28,7 @@ class StatementBlock;
 class FunctionType: public TypeDefinition {
 public:
 	FunctionType(DeclarationListRef parameter_type_list,
-			const_shared_ptr<TypeSpecifier> return_type,
-			const yy::location m_return_type_location);
+			const_shared_ptr<TypeSpecifier> return_type_specifier);
 
 	virtual ~FunctionType() {
 	}
@@ -66,13 +65,13 @@ public:
 		return m_type_specifier;
 	}
 
+	static const_shared_ptr<StatementBlock> GetDefaultStatementBlock(
+			const_shared_ptr<TypeSpecifier> return_type,
+			const TypeTable& type_table);
+
 protected:
 	static const_shared_ptr<Function> GetDefaultFunction(
 			const_shared_ptr<FunctionDeclaration> declaration,
-			const TypeTable& type_table);
-
-	static const_shared_ptr<StatementBlock> GetDefaultStatementBlock(
-			const_shared_ptr<TypeSpecifier> return_type,
 			const TypeTable& type_table);
 
 private:

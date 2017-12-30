@@ -48,7 +48,7 @@ list:
 				string name: ""
 			)
 		next:
-			list? ({empty})
+			list? ({nil})
 
 	terminator:
 		<unit>

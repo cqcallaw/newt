@@ -3,5 +3,5 @@
 v:int?= 3
 
 match(v)
-	empty { }
+	nil { }
 	| value { print(value) }

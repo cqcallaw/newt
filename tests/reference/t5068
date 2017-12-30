@@ -1,0 +1,10 @@
+Parsing file ../tests/t5068.nwt...
+Parsed file ../tests/t5068.nwt.
+Root Symbol Table:
+----------------
+() -> nil f:
+	Body Location: ../tests/t5068.nwt:2.17-3.19
+nil r: <unit>
+
+Root Type Table:
+----------------

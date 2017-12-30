@@ -54,16 +54,11 @@ const PreprocessResult ForStatement::Preprocess(
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = ErrorList::GetTerminator();
 
-	ExecutionContextListRef context_parent = ExecutionContextList::From(context,
-			context->GetParent());
-	auto new_block_typetable = m_block_context->GetTypeTable()->WithParent(
-			context->GetTypeTable());
-
 	m_block_context->LinkToParent(context);
 
 	if (m_initial) {
 		auto initial_preprocess_result = m_initial->Preprocess(m_block_context,
-				m_block_context, return_type_specifier);
+				closure, return_type_specifier);
 		errors = initial_preprocess_result.GetErrors();
 		if (!ErrorList::IsTerminator(errors)) {
 			return PreprocessResult(PreprocessResult::ReturnCoverage::NONE,
@@ -72,7 +67,7 @@ const PreprocessResult ForStatement::Preprocess(
 	}
 
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
-	//can't nest this logic because m_initial might be empty
+	// can't nest this logic because m_initial might be empty
 	if (m_loop_expression) {
 		auto loop_expression_type_specifier_result =
 				m_loop_expression->GetTypeSpecifier(context);
@@ -87,17 +82,18 @@ const PreprocessResult ForStatement::Preprocess(
 							context->GetTypeTable());
 			if (loop_expression_analysis == EQUIVALENT
 					|| loop_expression_analysis == UNAMBIGUOUS) {
+				// use block context for closure so internal function closures are correct
 				auto block_preprocess_result = m_statement_block->Preprocess(
-						m_block_context, return_type_specifier);
+						m_block_context, m_block_context,
+						return_type_specifier);
 				return_coverage = block_preprocess_result.GetReturnCoverage();
 				errors = block_preprocess_result.GetErrors();
 			} else {
-				yy::location position = m_loop_expression->GetPosition();
+				yy::location position = m_loop_expression->GetLocation();
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
-								position.begin.line, position.begin.column),
-						errors);
+								position.begin), errors);
 			}
 		}
 	}
@@ -105,54 +101,59 @@ const PreprocessResult ForStatement::Preprocess(
 	return PreprocessResult(return_coverage, errors);
 }
 
-const ErrorListRef ForStatement::Execute(
+const ExecutionResult ForStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef initialization_errors;
+	auto execution_context = ExecutionContext::GetRuntimeInstance(
+			m_block_context, context);
 
-	assert(m_block_context->GetParent());
-	assert(m_block_context->GetParent()->GetData() == context);
-
+	auto errors = ErrorList::GetTerminator();
 	if (m_initial) {
-		initialization_errors = m_initial->Execute(m_block_context,
-				m_block_context);
-		if (!ErrorList::IsTerminator(initialization_errors)) {
-			return initialization_errors;
-		}
-	}
-	plain_shared_ptr<Result> evaluation = m_loop_expression->Evaluate(
-			m_block_context, closure);
-
-	if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
-
-		return evaluation->GetErrors();
-	}
-
-	while (*(evaluation->GetData<bool>())) {
-		ErrorListRef iteration_errors = ErrorList::GetTerminator();
-		if (m_statement_block) {
-			iteration_errors = m_statement_block->Execute(m_block_context);
-			context->SetReturnValue(m_block_context->GetReturnValue());
-		}
-		if (!ErrorList::IsTerminator(iteration_errors)) {
-			return iteration_errors;
-		}
-
-		ErrorListRef assignment_errors;
-		assignment_errors = m_loop_assignment->Execute(m_block_context,
-				m_block_context);
-		if (!ErrorList::IsTerminator(assignment_errors)) {
-			return assignment_errors;
-		}
-
-		evaluation = m_loop_expression->Evaluate(m_block_context, closure);
-
-		if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
-			return evaluation->GetErrors();
+		auto initialization_result = m_initial->Execute(execution_context,
+				closure);
+		errors = initialization_result.GetErrors();
+		if (!ErrorList::IsTerminator(errors)) {
+			return ExecutionResult(errors);
 		}
 	}
 
-	return ErrorList::GetTerminator();
+	auto evaluation = m_loop_expression->Evaluate(execution_context, closure);
+	errors = evaluation->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		while (*(evaluation->GetData<bool>())) {
+			if (m_statement_block) {
+				// use execution context as closure so internal functions close over the correct context
+				auto iteration_result = m_statement_block->Execute(
+						execution_context, execution_context);
+
+				errors = iteration_result.GetErrors();
+				if (!ErrorList::IsTerminator(errors)) {
+					break;
+				}
+
+				auto return_value = iteration_result.GetReturnValue();
+				if (return_value != Symbol::GetDefaultSymbol()) {
+					return ExecutionResult(return_value);
+				}
+			}
+
+			auto assignment_result = m_loop_assignment->Execute(
+					execution_context, closure);
+			errors = assignment_result.GetErrors();
+			if (!ErrorList::IsTerminator(errors)) {
+				break;
+			}
+
+			evaluation = m_loop_expression->Evaluate(execution_context,
+					closure);
+			errors = evaluation->GetErrors();
+			if (!ErrorList::IsTerminator(errors)) {
+				break;
+			}
+		}
+	}
+
+	return ExecutionResult(errors);
 }
 
 ForStatement::ForStatement(const_shared_ptr<Statement> initial,

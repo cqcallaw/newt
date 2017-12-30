@@ -37,8 +37,8 @@ public:
 	Expression(const yy::location position);
 	virtual ~Expression();
 
-	const yy::location GetPosition() const {
-		return m_position;
+	const yy::location GetLocation() const {
+		return m_location;
 	}
 
 	virtual TypedResult<TypeSpecifier> GetTypeSpecifier(
@@ -58,7 +58,7 @@ public:
 			const shared_ptr<ExecutionContext> execution_context) const = 0;
 
 private:
-	const yy::location m_position;
+	const yy::location m_location;
 };
 
 typedef const LinkedList<const Expression, NO_DUPLICATES> ArgumentList;

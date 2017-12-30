@@ -28,7 +28,7 @@
 class TypeTable;
 
 enum LifeTime {
-	PERSISTENT, EPHEMERAL
+	PERSISTENT, TEMPORARY, EPHEMERAL, ROOT
 };
 
 #include <execution_context_list.h>
@@ -42,6 +42,7 @@ public:
 
 	ExecutionContext();
 	ExecutionContext(const Modifier::Type modifiers);
+	ExecutionContext(const Modifier::Type modifiers, const LifeTime lifetime);
 	ExecutionContext(const shared_ptr<SymbolContext> existing,
 			volatile_shared_ptr<TypeTable> type_table,
 			const LifeTime life_time);
@@ -49,36 +50,31 @@ public:
 			const ExecutionContextListRef parent_context,
 			volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
 			size_t depth);
+	ExecutionContext(const shared_ptr<SymbolContext> existing,
+			const Modifier::Type modifiers,
+			const ExecutionContextListRef parent_context,
+			volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
+			size_t depth);
 	virtual ~ExecutionContext();
 
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
 			const shared_ptr<ExecutionContext> parent,
-			const Modifier::Type modifiers, const LifeTime life_time) {
-		return GetEmptyChild(parent, modifiers, life_time,
-				parent->GetTypeTable(), make_shared<symbol_map>());
-	}
+			const Modifier::Type modifiers, const LifeTime life_time);
 
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
 			const shared_ptr<ExecutionContext> parent,
 			const Modifier::Type modifiers, const LifeTime life_time,
-			volatile_shared_ptr<TypeTable> type_table) {
-		return GetEmptyChild(parent, modifiers, life_time, type_table,
-				make_shared<symbol_map>());
-	}
+			volatile_shared_ptr<TypeTable> type_table);
 
 	static const shared_ptr<ExecutionContext> GetEmptyChild(
 			const shared_ptr<ExecutionContext> parent,
 			const Modifier::Type modifiers, const LifeTime life_time,
 			volatile_shared_ptr<TypeTable> type_table,
-			const shared_ptr<symbol_map> map) {
-		auto new_parent = ExecutionContextList::From(parent,
-				parent->GetParent());
-		return shared_ptr<ExecutionContext>(
-				new ExecutionContext(modifiers, map, new_parent, type_table,
-						Symbol::GetDefaultSymbol(),
-						plain_shared_ptr<int>(nullptr), life_time,
-						parent->GetDepth() + 1));
-	}
+			const shared_ptr<symbol_map> map);
+
+	static const shared_ptr<ExecutionContext> GetRuntimeInstance(
+			const shared_ptr<ExecutionContext> source,
+			const shared_ptr<ExecutionContext> parent);
 
 	const shared_ptr<ExecutionContext> WithContents(
 			const shared_ptr<SymbolContext> contents) const;
@@ -99,22 +95,6 @@ public:
 		return m_type_table;
 	}
 
-	const_shared_ptr<Symbol> GetReturnValue() const {
-		return m_return_value;
-	}
-
-	void SetReturnValue(const_shared_ptr<Symbol> return_value) {
-		m_return_value = return_value;
-	}
-
-	const_shared_ptr<int> GetExitCode() const {
-		return m_exit_code;
-	}
-
-	void SetExitCode(plain_shared_ptr<int> exit_code) {
-		m_exit_code = exit_code;
-	}
-
 	static const shared_ptr<ExecutionContext> GetDefault();
 
 	const LifeTime GetLifeTime() const {
@@ -131,6 +111,8 @@ public:
 
 	void LinkToParent(const shared_ptr<ExecutionContext> parent);
 
+	void WeakenReferences();
+
 protected:
 	virtual SetResult SetSymbol(const std::string& identifier,
 			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
@@ -140,22 +122,16 @@ private:
 	ExecutionContext(const Modifier::Type modifiers,
 			const shared_ptr<symbol_map>,
 			const ExecutionContextListRef parent_context,
-			volatile_shared_ptr<TypeTable> type_table,
-			const_shared_ptr<Symbol> return_value,
-			const_shared_ptr<int> exit_code, const LifeTime life_time,
+			volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
 			size_t depth);
 
 	ExecutionContext(const shared_ptr<SymbolContext> context,
 			const ExecutionContextListRef parent_context,
-			volatile_shared_ptr<TypeTable> type_table,
-			const_shared_ptr<Symbol> return_value,
-			const_shared_ptr<int> exit_code, const LifeTime life_time,
+			volatile_shared_ptr<TypeTable> type_table, const LifeTime life_time,
 			size_t depth);
 
 	ExecutionContextListRef m_parent;
 	volatile_shared_ptr<TypeTable> m_type_table;
-	plain_shared_ptr<Symbol> m_return_value;
-	plain_shared_ptr<int> m_exit_code;
 	const LifeTime m_life_time;
 	size_t m_depth;
 };

@@ -23,6 +23,7 @@
 #include <sum_type.h>
 #include <sum_type_specifier.h>
 #include <unit_type.h>
+#include <function_type_specifier.h>
 
 ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 		m_expression(expression) {
@@ -52,17 +53,14 @@ const PreprocessResult ReturnStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::AMBIGUOUS_WIDENING_CONVERSION,
-								m_expression->GetPosition().begin.line,
-								m_expression->GetPosition().begin.column,
+								m_expression->GetLocation().begin,
 								return_type_specifier->ToString(),
 								expression_type_specifier->ToString()), errors);
 			} else if (assignment_analysis == AnalysisResult::INCOMPATIBLE) {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::FUNCTION_RETURN_MISMATCH,
-								m_expression->GetPosition().begin.line,
-								m_expression->GetPosition().begin.column),
-						errors);
+								m_expression->GetLocation().begin), errors);
 			}
 		}
 	}
@@ -70,13 +68,12 @@ const PreprocessResult ReturnStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::FULL, errors);
 }
 
-const ErrorListRef ReturnStatement::Execute(
+const ExecutionResult ReturnStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
 	auto result = m_expression->Evaluate(context, closure);
 
-	errors = result->GetErrors();
+	auto errors = result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
 				context);
@@ -85,12 +82,63 @@ const ErrorListRef ReturnStatement::Execute(
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();
-			context->SetReturnValue(
+
+			auto weakenable = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					expression_type_specifier)
+					|| dynamic_pointer_cast<const ArrayTypeSpecifier>(
+							expression_type_specifier)
+					|| dynamic_pointer_cast<const FunctionTypeSpecifier>(
+							expression_type_specifier);
+			return ExecutionResult(
 					const_shared_ptr<Symbol>(
 							new Symbol(expression_type_specifier,
-									result->GetRawData())));
+									result->GetRawData(), weakenable)));
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
+}
+
+const PreprocessResult::ReturnCoverage ReturnStatement::CoverageTransition(
+		PreprocessResult::ReturnCoverage current,
+		PreprocessResult::ReturnCoverage input, bool is_start) {
+	if (is_start) {
+		return input;
+	} else {
+		switch (current) {
+		case PreprocessResult::ReturnCoverage::FULL: {
+			switch (input) {
+			case PreprocessResult::ReturnCoverage::FULL: {
+				return PreprocessResult::ReturnCoverage::FULL;
+			}
+			case PreprocessResult::ReturnCoverage::PARTIAL: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			case PreprocessResult::ReturnCoverage::NONE:
+			default: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			}
+			break;
+		}
+		case PreprocessResult::ReturnCoverage::PARTIAL: {
+			return PreprocessResult::ReturnCoverage::PARTIAL;
+		}
+		case PreprocessResult::ReturnCoverage::NONE:
+		default: {
+			switch (input) {
+			case PreprocessResult::ReturnCoverage::FULL: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			case PreprocessResult::ReturnCoverage::PARTIAL: {
+				return PreprocessResult::ReturnCoverage::PARTIAL;
+			}
+			case PreprocessResult::ReturnCoverage::NONE:
+			default: {
+				return PreprocessResult::ReturnCoverage::NONE;
+			}
+			}
+		}
+		}
+	}
 }

@@ -30,6 +30,7 @@ class Array;
 class ConstantExpression: public Expression {
 public:
 	ConstantExpression(const yy::location position, const bool value);
+	ConstantExpression(const yy::location position, const std::uint8_t value);
 	ConstantExpression(const yy::location position, const int value);
 	ConstantExpression(const yy::location position, const double value);
 	ConstantExpression(const yy::location position,

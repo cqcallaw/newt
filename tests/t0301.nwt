@@ -1,0 +1,6 @@
+# test nested import
+import nested
+
+f := () -> int {
+	return 1
+}

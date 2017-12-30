@@ -1,0 +1,23 @@
+# test more complicated foreach case
+list {
+	data:int,
+	next:= (l:list?) -> list? {
+		match (l)
+			value {
+				if (value.data != 0) {
+					return value.next(@list)
+				} else {
+					return nil
+				}
+			}
+			| nil {
+				return nil
+			}
+	}
+}
+
+l:= @list with { data = 2 }
+
+for i in l {
+	print(i)
+}

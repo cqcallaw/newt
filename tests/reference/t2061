@@ -1,4 +1,4 @@
 Parsing file ../tests/t2061.nwt...
-Semantic error on line 4, column 8: Cannot assign an expression of type 'string' to a variable of type 'int'.
+Semantic error at ../tests/t2061.nwt:4.8: Cannot assign an expression of type 'string' to a variable of type 'int'.
 Parsed file ../tests/t2061.nwt.
 1 error found; giving up.

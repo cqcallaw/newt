@@ -87,7 +87,7 @@ const PreprocessResult SumDeclarationStatement::Preprocess(
 				auto type = result->GetData<SumType>();
 				type_table->AddType(*GetName(), type);
 			} else {
-				type_table->RemovePlaceholderType(GetName());
+				type_table->RemoveTypeDefinition<PlaceholderType>(GetName());
 			}
 		}
 
@@ -175,8 +175,7 @@ const PreprocessResult SumDeclarationStatement::Preprocess(
 ////							ErrorList::From(
 ////									make_shared<Error>(Error::SEMANTIC,
 ////											Error::PREVIOUS_DECLARATION,
-////											GetInitializerExpression()->GetPosition().begin.line,
-////											GetInitializerExpression()->GetPosition().begin.column,
+////											GetInitializerExpression()->GetLocation().begin,
 ////											*variant_name), errors);
 ////				}
 ////			}
@@ -188,17 +187,16 @@ const PreprocessResult SumDeclarationStatement::Preprocess(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNameLocation().begin.line,
-						GetNameLocation().begin.column, *GetName()), errors);
+						GetNameLocation().begin, *GetName()), errors);
 	}
 
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef SumDeclarationStatement::Execute(
+const ExecutionResult SumDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	return ErrorList::GetTerminator();
+	return ExecutionResult();
 }
 
 const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(

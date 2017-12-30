@@ -1,0 +1,11 @@
+Parsing file ../tests/t0051.nwt...
+Parsed file ../tests/t0051.nwt.
+Root Symbol Table:
+----------------
+error e:
+	int id: 3
+	string message: "Code 3!"
+
+
+Root Type Table:
+----------------

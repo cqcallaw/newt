@@ -71,6 +71,8 @@ public:
 
 	static const_shared_ptr<PrimitiveTypeSpecifier> GetString();
 
+	static const_shared_ptr<PrimitiveTypeSpecifier> GetByte();
+
 private:
 	PrimitiveTypeSpecifier(const BasicType basic_type) :
 			m_basic_type(basic_type) {

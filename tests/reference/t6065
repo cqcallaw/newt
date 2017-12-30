@@ -1,0 +1,21 @@
+Parsing file ../tests/t6065.nwt...
+Parsed file ../tests/t6065.nwt.
+{data} "wot"
+Root Symbol Table:
+----------------
+result r: {data} "wot"
+
+Root Type Table:
+----------------
+result:
+	<sum>
+	data:
+		string
+	error:
+		<record>
+		code:
+			int (0)
+		message:
+			string ("")
+
+

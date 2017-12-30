@@ -1,0 +1,22 @@
+Parsing file ../tests/t9003.nwt...
+Parsed file ../tests/t9003.nwt.
+2
+Root Symbol Table:
+----------------
+list l:
+	int data: 2
+	(list?) -> list? next:
+		Body Location: ../tests/t9003.nwt:4.46-5.12
+
+
+Root Type Table:
+----------------
+list:
+	<record>
+	data:
+		int (0)
+	next:
+		(list?) -> list? (
+			Body Location: ../tests/t9003.nwt:4.46-5.12
+		)
+

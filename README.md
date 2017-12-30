@@ -64,9 +64,10 @@ a_lovely_var:int = 42
 a_type_inferred_var:= "danny boy" #the type is inferred from the type of the initialization value
 a_var:double #every type in newt has an associated default value.
 ```
-### Built-in types
-The following types are built-in:
-* boolean (default value: false)
+### Primitive Types
+The following primitive types are supported by the language:
+* bool (default value: false)
+* byte (default value: 0)
 * int (default value: 0)
 * double (default value: 0.0)
 * string (default value: "")
@@ -263,6 +264,20 @@ color {
 }
 ```
 
+The values of unit variants of a sum type may be accessed in the same way as any other variant:
+
+```
+color {
+    red
+    | blue
+    | green
+    | yellow
+    | orange
+}
+
+c:color= @color.red
+```
+
 #### Maybe Types
 
 One sum type is common enough to warrent special syntax, that of the "Maybe" type. This type is expressed as type indentifier followed by a question mark ('?'):
@@ -276,9 +291,11 @@ This type captures the semantic concept of a nullable value, and is semantically
 ```
 maybe_int {
     int:value
-    | empty
+    | nil
 }
 ```
+
+The 'nil' variant of the Maybe type is an alias for the universal `nil` unit type, so `int?.nil` is functionally equivalent to `nil`.
 
 ### Type Nesting
 
@@ -315,6 +332,19 @@ list {
 
 The Maybe-wrapping constraint exists because all types in newt must have a default value, and a clean method for computing the default value of the containing type is not yet known.
 
+### Built-in Complex Types
+
+newt provides a number of foundational built-in types in support of basic operations such as I/O:
+
+```
+error { id:int, message:string }
+error_list { next:error_list?, data:error }
+byte_read_result { eof | data:byte | errors:error_list }
+byte_result { data:byte | errors:error_list }
+int_result { data:int | errors:error_list }
+stream_mode { read:bool, write:bool, binary:bool, ate:bool, app:bool, trunc:bool }
+```
+
 ## Functions
 
 Functions are first-class citizens in newt, assignable to variables. The syntax for declaring functions is one of the most notable departures from C-style syntax:
@@ -344,4 +374,56 @@ Functions need not be declared with a body, as every type has a default value. T
 
 ```
 f:(int) -> int  # will return the default value of the int type if invoked
+```
+
+### Built-in Functions
+
+The following functions are built-in:
+
+* open (path:string, mode:stream_mode) -> int_result
+* close (file_handle:int) -> error_list?
+* get (file_handle:int) -> error_list?
+* put (file_handle:int, data:byte) -> error_list?
+
+## Resource Management
+
+newt supports automatic resource disposal via `using` expressions:
+
+```
+# basic using block
+disposable {
+	teardown := (this:disposable?) -> error_list? {
+		return nil
+	}
+}
+
+r := using @disposable as value -> int_result {
+	return 1
+}
+```
+
+A disposable type must be a record type that defines a `teardown` member function that takes a reference to a disposable instance as an argument. The teardown function must return type that is compatible with the return type of the `using` block; `error_list` is usually the best choice. This allows teardown errors to propagate to the consumer of the using block's output.
+
+setup is handled in a separate setup function:
+
+```
+# basic using block with setup
+disposable {
+	teardown := (this:disposable?) -> error_list? {
+		return nil
+	}
+}
+
+disposable_setup_result {
+	setup_value:disposable
+	| setup_errors:error_list
+}
+
+get_disposable := () -> disposable_setup_result {
+	return @disposable
+}
+
+r := using get_disposable() as disposable -> result {
+	return 1
+}
 ```

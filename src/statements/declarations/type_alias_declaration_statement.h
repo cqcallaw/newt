@@ -22,6 +22,9 @@
 
 #include <declaration_statement.h>
 
+class PrimitiveTypeSpecifier;
+class AliasDefinition;
+
 class TypeAliasDeclarationStatement: public DeclarationStatement {
 public:
 	TypeAliasDeclarationStatement(const yy::location position,
@@ -43,12 +46,23 @@ public:
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;
 
-	virtual const ErrorListRef Execute(
+	virtual const ExecutionResult Execute(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const DeclarationStatement* WithInitializerExpression(
 			const_shared_ptr<Expression> expression) const;
+
+	static TypedResult<Symbol> GetTypeConstructor(
+			const yy::location alias_declaration_location,
+			const_shared_ptr<string> alias_name,
+			const yy::location alias_name_location,
+			const yy::location alias_type_specifier_location,
+			const_shared_ptr<PrimitiveTypeSpecifier> primitive_type_specifier,
+			const_shared_ptr<ComplexTypeSpecifier> result_type_specifier,
+			const_shared_ptr<AliasDefinition> alias,
+			const shared_ptr<ExecutionContext> output,
+			const shared_ptr<ExecutionContext> closure);
 
 private:
 	const_shared_ptr<TypeSpecifier> m_type_specifier;

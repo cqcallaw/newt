@@ -23,11 +23,17 @@
 #include <complex_type_specifier.h>
 #include <placeholder_type.h>
 #include <unit_type.h>
+#include <maybe_type.h>
 #include <memory>
 #include <symbol_context.h>
 
 TypeTable::TypeTable(const shared_ptr<TypeTable> parent) :
 		TypeTable(make_shared<type_map>(), parent) {
+}
+
+TypeTable::TypeTable(const shared_ptr<type_map> table,
+		const shared_ptr<TypeTable> parent) :
+		m_table(table), m_parent(parent) {
 }
 
 TypeTable::~TypeTable() {
@@ -64,13 +70,6 @@ void TypeTable::AddType(const std::string& name,
 	}
 }
 
-void TypeTable::RemovePlaceholderType(const string& name) {
-	auto existing = m_table->find(name);
-	if (std::dynamic_pointer_cast<const PlaceholderType>(existing->second)) {
-		m_table->erase(existing);
-	}
-}
-
 const void TypeTable::print(ostream& os, const Indent& indent,
 		const SearchType search_type) const {
 	type_map::iterator iter;
@@ -84,7 +83,8 @@ const void TypeTable::print(ostream& os, const Indent& indent,
 
 	if (search_type == DEEP) {
 		if (auto parent = m_parent.lock()) {
-			parent->print(os, indent, search_type);
+			os << indent + 1 << "--> " << parent << endl;
+			parent->print(os, indent + 1, search_type);
 		}
 	}
 }
@@ -213,14 +213,14 @@ const_shared_ptr<std::string> TypeTable::GetNilName() {
 }
 
 const_shared_ptr<UnitType> TypeTable::GetNilType() {
-	const static const_shared_ptr<UnitType> value = make_shared<UnitType>();
+	const static const_shared_ptr<UnitType> value = make_shared<UnitType>(
+			MaybeType::Build(TypeTable::GetDefault(),
+					TypeTable::GetNilTypeSpecifier())->GetData<MaybeType>());
 	return value;
 }
 
 const_shared_ptr<ComplexTypeSpecifier> TypeTable::GetNilTypeSpecifier() {
-	const static const_shared_ptr<ComplexTypeSpecifier> value =
-			static_pointer_cast<const ComplexTypeSpecifier>(
-					GetNilType()->GetTypeSpecifier(GetNilName(), nullptr,
-							GetDefaultLocation()));
+	const static const_shared_ptr<ComplexTypeSpecifier> value = make_shared<
+			ComplexTypeSpecifier>(GetNilName());
 	return value;
 }

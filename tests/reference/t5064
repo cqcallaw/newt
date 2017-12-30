@@ -3,7 +3,7 @@ Parsed file ../tests/t5064.nwt.
 Root Symbol Table:
 ----------------
 () -> nil f:
-	Body Location: 2.17
+	Body Location: ../tests/t5064.nwt:2.17
 
 Root Type Table:
 ----------------

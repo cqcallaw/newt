@@ -1,0 +1,17 @@
+Parsing file ../tests/t6034.nwt...
+Parsed file ../tests/t6034.nwt.
+Root Symbol Table:
+----------------
+connection_error t: {reset} <unit>
+
+Root Type Table:
+----------------
+connection_error:
+	<sum>
+	aborted:
+		<unit>
+	refused:
+		<unit>
+	reset:
+		<unit>
+

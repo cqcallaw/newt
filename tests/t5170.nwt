@@ -1,0 +1,6 @@
+# test function declaration with invalid parameter type in parameter list
+c:(a) -> int= (v:a) -> int {
+	return 3
+}
+
+r2:int = c(i)

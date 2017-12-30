@@ -148,6 +148,42 @@ const_shared_ptr<Result> ComparisonExpression::compute(const double& left,
 	return NULL;
 }
 
+const_shared_ptr<Result> ComparisonExpression::compute(const std::uint8_t& left,
+		const std::uint8_t& right, yy::location left_position,
+		yy::location right_position) const {
+	switch (GetOperator()) {
+	case EQUAL:
+		return make_shared<Result>(
+				const_shared_ptr<const void>(new bool(left == right)),
+				ErrorList::GetTerminator());
+	case NOT_EQUAL:
+		return make_shared<Result>(
+				const_shared_ptr<const void>(new bool(left != right)),
+				ErrorList::GetTerminator());
+	case LESS_THAN:
+		return make_shared<Result>(
+				const_shared_ptr<const void>(new bool(left < right)),
+				ErrorList::GetTerminator());
+	case LESS_THAN_EQUAL:
+		return make_shared<Result>(
+				const_shared_ptr<const void>(new bool(left <= right)),
+				ErrorList::GetTerminator());
+	case GREATER_THAN:
+		return make_shared<Result>(
+				const_shared_ptr<const void>(new bool(left > right)),
+				ErrorList::GetTerminator());
+	case GREATER_THAN_EQUAL:
+		return make_shared<Result>(
+				const_shared_ptr<const void>(new bool(left >= right)),
+				ErrorList::GetTerminator());
+	default:
+		assert(false);
+		return NULL;
+	}
+	assert(false);
+	return NULL;
+}
+
 const_shared_ptr<Result> ComparisonExpression::compute(const string& left,
 		const string& right, yy::location left_position,
 		yy::location right_position) const {

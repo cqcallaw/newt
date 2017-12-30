@@ -1,0 +1,14 @@
+Parsing file ../tests/t2025.nwt...
+Parsed file ../tests/t2025.nwt.
+i: 0
+i: 1
+i: 2
+i: 3
+Root Symbol Table:
+----------------
+() -> int fn:
+	Body Location: ../tests/t2025.nwt:1.18-9.9
+int r: 3
+
+Root Type Table:
+----------------

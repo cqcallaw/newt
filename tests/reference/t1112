@@ -1,4 +1,4 @@
 Parsing file ../tests/t1112.nwt...
-Semantic error on line 1, column 10: Variable 'i' of type 'int' cannot be assigned to an expression of type 'double'.
+Semantic error at ../tests/t1112.nwt:1.10: Variable 'i' of type 'int' cannot be assigned to an expression of type 'double'.
 Parsed file ../tests/t1112.nwt.
 1 error found; giving up.

@@ -30,7 +30,7 @@ class TypeTable;
 using namespace std;
 
 enum BasicType {
-	NONE = 0, BOOLEAN = 1, INT = 2, DOUBLE = 4, STRING = 8
+	NONE = 0, BOOLEAN = 1, BYTE = 2, INT = 4, DOUBLE = 8, STRING = 16
 };
 
 const string TypeToString(const BasicType type);

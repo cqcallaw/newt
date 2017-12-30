@@ -26,7 +26,7 @@
 #include <type.h>
 #include <error.h>
 #include <execution_context.h>
-#include <match_statement.h>
+#include <return_statement.h>
 
 IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block) :
@@ -56,77 +56,79 @@ const PreprocessResult IfStatement::Preprocess(
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto expression_type_specifier =
-				expression_type_specifier_result.GetData();
-		auto expression_analysis =
-				expression_type_specifier->AnalyzeAssignmentTo(
-						PrimitiveTypeSpecifier::GetInt(),
-						context->GetTypeTable());
-		if (expression_analysis == EQUIVALENT
-				|| expression_analysis == UNAMBIGUOUS) {
+		errors = m_expression->Validate(context);
+		if (ErrorList::IsTerminator(errors)) {
+			auto expression_type_specifier =
+					expression_type_specifier_result.GetData();
+			auto expression_analysis =
+					expression_type_specifier->AnalyzeAssignmentTo(
+							PrimitiveTypeSpecifier::GetInt(),
+							context->GetTypeTable());
+			if (expression_analysis == EQUIVALENT
+					|| expression_analysis == UNAMBIGUOUS) {
 
-			m_block_context->LinkToParent(context);
+				// the preprocessed statement block context must persist, as it will contain initialized variables, etc.
+				// thus we have the context member variables, but these cannot be linked to a context until preprocessing begins
+				// N.B. that this linkage setup introduces a dependency between preprocess and execute stages
+				m_block_context->LinkToParent(context);
 
-			auto block_result = m_block->Preprocess(m_block_context,
-					return_type_specifier);
-			auto block_return_coverage = block_result.GetReturnCoverage();
+				auto block_result = m_block->Preprocess(m_block_context,
+						closure, return_type_specifier);
+				auto block_return_coverage = block_result.GetReturnCoverage();
 
-			return_coverage = MatchStatement::CoverageTransition(
-					return_coverage, block_return_coverage, true);
-			errors = block_result.GetErrors();
-			if (m_else_block) {
-				//pre-process else block
-				m_else_block_context->LinkToParent(context);
+				return_coverage = ReturnStatement::CoverageTransition(
+						return_coverage, block_return_coverage, true);
+				errors = block_result.GetErrors();
+				if (m_else_block) {
+					//pre-process else block
+					m_else_block_context->LinkToParent(context);
 
-				auto else_block_result = m_else_block->Preprocess(
-						m_else_block_context, return_type_specifier);
-				auto else_block_return_coverage =
-						else_block_result.GetReturnCoverage();
-				errors = ErrorList::Concatenate(errors,
-						else_block_result.GetErrors());
+					auto else_block_result = m_else_block->Preprocess(
+							m_else_block_context, closure,
+							return_type_specifier);
+					auto else_block_return_coverage =
+							else_block_result.GetReturnCoverage();
+					errors = ErrorList::Concatenate(errors,
+							else_block_result.GetErrors());
 
-				return_coverage = MatchStatement::CoverageTransition(
-						return_coverage, else_block_return_coverage, false);
+					return_coverage = ReturnStatement::CoverageTransition(
+							return_coverage, else_block_return_coverage, false);
+				} else {
+					// an "if" block on its own can only provide partial coverage
+					return_coverage = PreprocessResult::ReturnCoverage::PARTIAL;
+				}
 			} else {
-				// an "if" block on its own can only provide partial coverage
-				return_coverage = PreprocessResult::ReturnCoverage::PARTIAL;
+				yy::location position = m_expression->GetLocation();
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
+								position.begin),
+						errors);
 			}
-		} else {
-			yy::location position = m_expression->GetPosition();
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
-							position.begin.line, position.begin.column),
-					errors);
 		}
 	}
 
 	return PreprocessResult(return_coverage, errors);
 }
 
-const ErrorListRef IfStatement::Execute(
+const ExecutionResult IfStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
-
-	const_shared_ptr<Result> evaluation = m_expression->Evaluate(context,
-			closure);
+	auto evaluation = m_expression->Evaluate(context, closure);
 	// NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
 	bool test = *(evaluation->GetData<bool>());
 
 	if (test) {
-		assert(m_block_context->GetParent());
-		assert(m_block_context->GetParent()->GetData() == context);
+		auto execution_context = ExecutionContext::GetRuntimeInstance(
+				m_block_context, context);
 
-		errors = m_block->Execute(m_block_context);
-		context->SetReturnValue(m_block_context->GetReturnValue());
+		return m_block->Execute(execution_context, closure);
 	} else if (m_else_block) {
-		assert(m_else_block_context->GetParent());
-		assert(m_else_block_context->GetParent()->GetData() == context);
+		auto execution_context = ExecutionContext::GetRuntimeInstance(
+				m_else_block_context, context);
 
-		errors = m_else_block->Execute(m_else_block_context);
-		context->SetReturnValue(m_else_block_context->GetReturnValue());
+		return m_else_block->Execute(execution_context, closure);
 	}
 
-	return errors;
+	return ExecutionResult();
 }

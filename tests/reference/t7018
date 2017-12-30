@@ -2,17 +2,20 @@ Parsing file ../tests/t7018.nwt...
 Parsed file ../tests/t7018.nwt.
 Root Symbol Table:
 ----------------
-a v:
-	a.c? b: {empty}
-	int c: 0
-
+<empty>
 
 Root Type Table:
 ----------------
-a:
+stream:
 	<record>
-	b:
-		a.c? ({empty})
-	c:
-		int (0)
+	result:
+		<sum>
+		data:
+			string
+		error:
+			<record>
+			code:
+				int (0)
+
+
 

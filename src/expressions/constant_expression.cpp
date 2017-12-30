@@ -26,6 +26,12 @@ ConstantExpression::ConstantExpression(const yy::location position,
 }
 
 ConstantExpression::ConstantExpression(const yy::location position,
+		const std::uint8_t value) :
+		ConstantExpression(position, PrimitiveTypeSpecifier::GetByte(),
+				const_shared_ptr<void>(new std::uint8_t(value))) {
+}
+
+ConstantExpression::ConstantExpression(const yy::location position,
 		const int value) :
 		ConstantExpression(position, PrimitiveTypeSpecifier::GetInt(),
 				const_shared_ptr<void>(new int(value))) {
@@ -50,7 +56,7 @@ ConstantExpression::ConstantExpression(const yy::location position,
 }
 
 ConstantExpression::ConstantExpression(const ConstantExpression* other) :
-		ConstantExpression(other->GetPosition(), other->m_type, other->m_value) {
+		ConstantExpression(other->GetLocation(), other->m_type, other->m_value) {
 }
 
 ConstantExpression::~ConstantExpression() {
@@ -92,7 +98,7 @@ const_shared_ptr<Result> ConstantExpression::GetConstantExpression(
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();
 			result = const_shared_ptr<void>(
-					new ConstantExpression(expression->GetPosition(),
+					new ConstantExpression(expression->GetLocation(),
 							expression_type_specifier,
 							evaluation->GetRawData()));
 		} else {

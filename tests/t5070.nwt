@@ -1,0 +1,6 @@
+# test proper handling of nil Maybe
+f := () -> nil? {
+	return nil
+}
+
+r:= f()

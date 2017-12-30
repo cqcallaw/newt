@@ -57,11 +57,11 @@ const PreprocessResult ExitStatement::Preprocess(
 					|| !(expression_as_primitive->AnalyzeAssignmentTo(
 							PrimitiveTypeSpecifier::GetInt(),
 							context->GetTypeTable()))) {
-				yy::location position = m_exit_expression->GetPosition();
+				yy::location position = m_exit_expression->GetLocation();
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-								position.begin.line, position.begin.column,
+								position.begin,
 								expression_type_specifier->ToString()), errors);
 			}
 		}
@@ -70,7 +70,7 @@ const PreprocessResult ExitStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef ExitStatement::Execute(
+const ExecutionResult ExitStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	plain_shared_ptr<int> exit_code = make_shared<int>(0);
@@ -79,12 +79,11 @@ const ErrorListRef ExitStatement::Execute(
 				context, closure);
 
 		if (!ErrorList::IsTerminator(evaluation->GetErrors())) {
-			return evaluation->GetErrors();
+			return ExecutionResult(evaluation->GetErrors());
 		} else {
 			exit_code = evaluation->GetData<int>();
 		}
 	}
 
-	context->SetExitCode(exit_code);
-	return ErrorList::GetTerminator();
+	return ExecutionResult(exit_code);
 }

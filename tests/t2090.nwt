@@ -1,0 +1,4 @@
+# test invalid variable reference in if statement
+if(data != 0) {
+	print("False!")
+}

@@ -46,7 +46,7 @@ public:
 	/**
 	 * Execute the statement. Here the interpreter carries out the rest of the statement instructions.
 	 */
-	virtual const ErrorListRef Execute(
+	virtual const ExecutionResult Execute(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const = 0;
 };

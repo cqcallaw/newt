@@ -1,10 +1,8 @@
 Parsing file ../tests/t3002.nwt...
 Parsed file ../tests/t3002.nwt.
-{
 	int x: 0
 	double y: 0
 	string z: ""
-}
 
 Root Symbol Table:
 ----------------

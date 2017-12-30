@@ -1,4 +1,4 @@
 Parsing file ../tests/t5105.nwt...
-Semantic error on line 6, column 8: Parameter type mismatch: can't assign 'double' to 'int'
+Semantic error at ../tests/t5105.nwt:6.8: Parameter type mismatch: can't assign 'double' to 'int'
 Parsed file ../tests/t5105.nwt.
 1 error found; giving up.

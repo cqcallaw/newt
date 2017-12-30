@@ -1,0 +1,17 @@
+Parsing file ../tests/t0044.nwt...
+Parsed file ../tests/t0044.nwt.
+Root Symbol Table:
+----------------
+byte a: 0xEF
+boolean b: true
+int c: 2
+double d: 4
+byte res_bool_addition_left: 0xF0
+byte res_bool_addition_right: 0xF0
+double res_double_addition_left: 243
+double res_double_addition_right: 243
+int res_int_addition_left: 241
+int res_int_addition_right: 241
+
+Root Type Table:
+----------------

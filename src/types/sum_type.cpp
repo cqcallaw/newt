@@ -54,6 +54,7 @@
 #include <unit_type.h>
 
 #include <maybe_type_specifier.h>
+#include <function_expression.h>
 
 const std::string SumType::ToString(const TypeTable& type_table,
 		const Indent& indent) const {
@@ -86,9 +87,9 @@ const_shared_ptr<Result> SumType::Build(
 
 	auto parent = ExecutionContextList::From(output, output->GetParent());
 	auto tmp_context = make_shared<ExecutionContext>(Modifier::NONE, parent,
-			definition, EPHEMERAL, output->GetDepth() + 1);
+			definition, TEMPORARY, output->GetDepth() + 1);
 
-	auto constructors = make_shared<SymbolTable>();
+	auto constructors = make_shared<ExecutionContext>(Modifier::Type::MUTABLE);
 
 	DeclarationListRef subject = member_declarations;
 	while (!DeclarationList::IsTerminator(subject)) {
@@ -98,12 +99,11 @@ const_shared_ptr<Result> SumType::Build(
 				declaration->GetInitializerExpression();
 		if (initializer_expression && !initializer_expression->IsConstant()) {
 			//if we have a non-constant initializer expression, generate an error
-			yy::location position = initializer_expression->GetPosition();
+			yy::location position = initializer_expression->GetLocation();
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::MEMBER_DEFAULTS_MUST_BE_CONSTANT,
-							position.begin.line, position.begin.column),
-					errors);
+							position.begin), errors);
 		}
 
 		if (ErrorList::IsTerminator(errors)) {
@@ -123,7 +123,7 @@ const_shared_ptr<Result> SumType::Build(
 					const RecordDeclarationStatement>(declaration);
 			if (as_record) {
 				auto validation_result = as_record->Preprocess(tmp_context,
-						output);
+						closure);
 				auto validation_errors = validation_result.GetErrors();
 				errors = errors->Concatenate(errors, validation_errors);
 			}
@@ -142,7 +142,7 @@ const_shared_ptr<Result> SumType::Build(
 			if (as_alias) {
 				auto alias_type_name = *as_alias->GetName();
 
-				if (alias_type_name.compare("nil") == 0
+				if (alias_type_name.compare(*TypeTable::GetNilName()) == 0
 						|| !definition->ContainsType(alias_type_name)) {
 					auto alias_type_specifier = as_alias->GetTypeSpecifier();
 
@@ -154,58 +154,28 @@ const_shared_ptr<Result> SumType::Build(
 								closure_type_table, alias_as_primitive, DIRECT);
 						definition->AddType(alias_type_name, alias);
 
-						const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
-								make_shared<PrimitiveDeclarationStatement>(
+						auto type_constructor_result =
+								TypeAliasDeclarationStatement::GetTypeConstructor(
 										as_alias->GetLocation(),
-										alias_as_primitive,
-										as_alias->GetTypeSpecifierLocation(),
 										as_alias->GetName(),
-										as_alias->GetNameLocation());
-						DeclarationListRef parameter = DeclarationList::From(
-								parameter_declaration,
-								DeclarationList::GetTerminator());
+										as_alias->GetNameLocation(),
+										as_alias->GetTypeSpecifierLocation(),
+										alias_as_primitive, sum_type_specifier,
+										alias, output, closure);
+						errors = ErrorList::Concatenate(errors,
+								type_constructor_result.GetErrors());
 
-						auto function_signature = make_shared<
-								FunctionDeclaration>(parameter,
-								sum_type_specifier, GetDefaultLocation(),
-								GetDefaultLocation());
-
-						const_shared_ptr<Expression> return_expression =
-								make_shared<VariableExpression>(
-										GetDefaultLocation(),
-										make_shared<BasicVariable>(
-												declaration->GetName(),
-												GetDefaultLocation()));
-
-						const_shared_ptr<ReturnStatement> return_statement =
-								make_shared<ReturnStatement>(return_expression);
-
-						const StatementListRef statement_list =
-								StatementList::From(return_statement,
-										StatementList::GetTerminator());
-						const_shared_ptr<StatementBlock> statement_block =
-								make_shared<StatementBlock>(statement_list,
-										as_alias->GetNameLocation());
-
-						auto weak = weak_ptr<ExecutionContext>(output);
-
-						const_shared_ptr<Function> function = Function::Build(
-								GetDefaultLocation(), function_signature,
-								statement_block, weak);
-
-						auto symbol = make_shared<Symbol>(function);
+						auto symbol = type_constructor_result.GetData();
 						auto insert_result = constructors->InsertSymbol(
 								*variant_name, symbol);
-						//this should never happen because we already have an existence check on the variant type table,
-						//but it never hurts to be safe
+						// this should never happen because we already have an existence check on the variant type table,
+						// but it never hurts to be safe
 						if (insert_result == SYMBOL_EXISTS) {
-							errors =
-									ErrorList::From(
-											make_shared<Error>(Error::SEMANTIC,
-													Error::PREVIOUS_DECLARATION,
-													as_alias->GetLocation().begin.line,
-													as_alias->GetLocation().begin.column,
-													*variant_name), errors);
+							errors = ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::PREVIOUS_DECLARATION,
+											as_alias->GetLocation().begin,
+											*variant_name), errors);
 						}
 					}
 
@@ -232,8 +202,7 @@ const_shared_ptr<Result> SumType::Build(
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
 									Error::PREVIOUS_DECLARATION,
-									as_alias->GetLocation().begin.line,
-									as_alias->GetLocation().begin.column,
+									as_alias->GetLocation().begin,
 									alias_type_name), errors);
 				}
 			}
@@ -248,7 +217,8 @@ const_shared_ptr<Result> SumType::Build(
 		if (ErrorList::IsTerminator(errors)) {
 			auto maybe_type = maybe_type_result->GetData<MaybeType>();
 			auto type = const_shared_ptr<SumType>(
-					new SumType(definition, member_declarations->GetData(),
+					new SumType(definition,
+							member_declarations->GetData()->GetName(),
 							constructors, maybe_type));
 			return make_shared<Result>(type, errors);
 		}
@@ -319,7 +289,9 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
-	plain_shared_ptr<Sum> instance = nullptr;
+	auto type_table = execution_context->GetTypeTable();
+	plain_shared_ptr<const Sum> instance = static_pointer_cast<const Sum>(
+			GetDefaultValue(type_table));
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
 	auto initializer_expression_type_specifier_result =
@@ -371,8 +343,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::AMBIGUOUS_WIDENING_CONVERSION,
-							initializer->GetPosition().begin.line,
-							initializer->GetPosition().begin.column,
+							initializer->GetLocation().begin,
 							type_specifier->ToString(),
 							initializer_expression_type_specifier->ToString()),
 					errors);
@@ -380,8 +351,7 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::ASSIGNMENT_TYPE_ERROR,
-							initializer->GetPosition().begin.line,
-							initializer->GetPosition().begin.column,
+							initializer->GetLocation().begin,
 							type_specifier->ToString(),
 							initializer_expression_type_specifier->ToString()),
 					errors);

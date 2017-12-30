@@ -1,0 +1,4 @@
+Parsing file ../tests/t3105.nwt...
+Semantic error at ../tests/t3105.nwt:7.5: Undeclared variable 'point'
+Parsed file ../tests/t3105.nwt.
+1 error found; giving up.

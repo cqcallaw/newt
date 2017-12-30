@@ -1,0 +1,11 @@
+# test foreach of maybe
+list {
+	data:int,
+	next:list?
+}
+
+l:list? = nil
+
+for i in l {
+	print("i: " + i)
+}

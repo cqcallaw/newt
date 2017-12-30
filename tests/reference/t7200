@@ -5,7 +5,7 @@ Root Symbol Table:
 list l:
 {node}
 	int data: 0
-	list? next: {empty}
+	list? next: {nil}
 
 
 Root Type Table:
@@ -19,6 +19,6 @@ list:
 		data:
 			int (0)
 		next:
-			list? ({empty})
+			list? ({nil})
 
 

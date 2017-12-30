@@ -1,0 +1,31 @@
+# test using of non-record type
+error_list {
+	code:int,
+	message:string,
+	next:error_list?
+}
+
+
+result {
+	value:int
+	| errors:error_list
+}
+
+disposable {
+	teardown := (this:disposable?) -> error_list? {
+		return nil
+	}
+}
+
+disposable_setup_result {
+	value:disposable
+	| setup_errors:error_list
+}
+
+get_disposable := () -> disposable_setup_result {
+	return @error_list with { code = 3, message = "you dun goofed!" }
+}
+
+r := using get_disposable as value -> result {
+	return 1
+}

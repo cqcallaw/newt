@@ -65,43 +65,21 @@ const PreprocessResult RecordDeclarationStatement::Preprocess(
 	}
 
 	if (!type_table->ContainsType(*m_type)) {
-		const_shared_ptr<Record> default_value = make_shared<Record>(
-				make_shared<SymbolContext>(Modifier::Type::NONE));
-		auto placeholder_symbol = make_shared<Symbol>(m_type, default_value);
-		auto placeholder_maybe_result = MaybeType::Build(closure,
-				GetTypeSpecifier());
-		errors = placeholder_maybe_result->GetErrors();
-		if (ErrorList::IsTerminator(errors)) {
-			auto placeholder_maybe =
-					placeholder_maybe_result->GetData<MaybeType>();
-			auto forward_declaration = make_shared<PlaceholderType>(GetName(),
-					placeholder_symbol, placeholder_maybe);
-			type_table->AddType(*GetName(), forward_declaration);
-
-			auto result = RecordType::Build(context, closure, modifiers,
-					m_member_declaration_list, m_type);
-			errors = result->GetErrors();
-			if (ErrorList::IsTerminator(errors)) {
-				auto type = result->GetData<RecordType>();
-				type_table->AddType(*GetName(), type);
-			} else {
-				type_table->RemovePlaceholderType(GetName());
-			}
-		}
+		errors = RecordType::Build(GetName(), context, closure, modifiers,
+				m_member_declaration_list, m_type);
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNameLocation().begin.line,
-						GetNameLocation().begin.column, *GetName()), errors);
+						GetNameLocation().begin, *GetName()), errors);
 	}
 
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef RecordDeclarationStatement::Execute(
+const ExecutionResult RecordDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	return ErrorList::GetTerminator();
+	return ExecutionResult();
 }
 
 const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpression(

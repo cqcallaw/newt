@@ -1,0 +1,13 @@
+# test basic using block with nil return type
+
+disposable {
+	data:int,
+	teardown := (this:disposable?) -> nil? {
+		return nil
+	}
+}
+
+r := using @disposable as value -> nil? {
+	print("Side-effects only!")
+	return nil
+}

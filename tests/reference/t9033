@@ -1,0 +1,24 @@
+Parsing file ../tests/t9033.nwt...
+Parsed file ../tests/t9033.nwt.
+Root Symbol Table:
+----------------
+<empty>
+
+Root Type Table:
+----------------
+a:
+	<sum>
+	b:
+		int
+	c:
+		string
+
+a_iter:
+	<record>
+	data:
+		a ({b} 0)
+	next:
+		() -> a_iter? (
+			Body Location: [default location]
+		)
+

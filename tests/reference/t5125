@@ -1,4 +1,4 @@
 Parsing file ../tests/t5125.nwt...
-Semantic error on line 1, column 18: Cannot assign an expression of type '(int, int) -> int' to a variable of type '(int) -> int'.
+Semantic error at ../tests/t5125.nwt:1.18: Cannot assign an expression of type '(int, int) -> int' to a variable of type '(int) -> int'.
 Parsed file ../tests/t5125.nwt.
 1 error found; giving up.

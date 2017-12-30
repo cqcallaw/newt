@@ -56,7 +56,8 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 		errors = type_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = type_result->GetData<TypeDefinition>();
-			shared_ptr<const Symbol> symbol = Symbol::GetDefaultSymbol();
+			shared_ptr<const Symbol> symbol = type->GetSymbol(type_table,
+					m_type_specifier, type->GetDefaultValue(type_table));
 			auto initializer_expression = GetInitializerExpression();
 			if (initializer_expression) {
 				errors = initializer_expression->Validate(context);
@@ -73,8 +74,7 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 				}
 			}
 
-			if (ErrorList::IsTerminator(errors)
-					&& symbol != Symbol::GetDefaultSymbol()) {
+			if (ErrorList::IsTerminator(errors)) {
 				InsertResult insert_result = context->InsertSymbol(*GetName(),
 						symbol);
 
@@ -140,24 +140,22 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 //					ErrorList::From(
 //							make_shared<Error>(Error::SEMANTIC,
 //									Error::UNDECLARED_TYPE,
-//									GetInitializerExpression()->GetPosition().begin.line,
-//									GetInitializerExpression()->GetPosition().begin.column,
+//									GetInitializerExpression()->GetLocation().begin,
 //									m_type->ToString()), errors);
 //		}
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
-						GetNameLocation().begin.line,
-						GetNameLocation().begin.column, *(GetName())), errors);
+						GetNameLocation().begin, *(GetName())), errors);
 	}
 
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef NestedDeclarationStatement::Execute(
+const ExecutionResult NestedDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	auto errors = ErrorList::GetTerminator();
 
 	if (GetInitializerExpression()
 			&& !GetInitializerExpression()->IsConstant()) {
@@ -167,9 +165,9 @@ const ErrorListRef NestedDeclarationStatement::Execute(
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 
-		return errors;
+		return ExecutionResult(errors);
 	} else {
-		return ErrorList::GetTerminator();
+		return ExecutionResult();
 	}
 
 	return errors;

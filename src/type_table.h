@@ -36,9 +36,17 @@ typedef map<const string, const_shared_ptr<TypeDefinition>> type_map;
 
 class Indent;
 
+/**
+ * A map from names to type definitions
+ *
+ * Type tables are meant to be immutable, as they define the interior structure of complex types.
+ * The RemoveTypeDefinition logic must be used with care.
+ */
 class TypeTable {
 public:
 	TypeTable(const shared_ptr<TypeTable> parent = nullptr);
+	TypeTable(const shared_ptr<type_map> table,
+			const shared_ptr<TypeTable> parent = nullptr);
 
 	virtual ~TypeTable();
 
@@ -49,12 +57,6 @@ public:
 
 	void AddType(const string& name,
 			const_shared_ptr<TypeDefinition> definition);
-
-	void RemovePlaceholderType(const string& name);
-
-	void RemovePlaceholderType(const_shared_ptr<std::string> name) {
-		RemovePlaceholderType(*name);
-	}
 
 	template<class T> const shared_ptr<const T> GetType(
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
@@ -113,6 +115,36 @@ public:
 		return shared_ptr<const T>();
 	}
 
+	/**
+	 * If a member with the specified name C++ type exists, replace it with the specified type definition.
+	 */
+	template<class T> void ReplaceTypeDefinition(const string& name,
+			const_shared_ptr<TypeDefinition> definition) {
+		auto existing = m_table->find(name);
+		if (std::dynamic_pointer_cast<const T>(existing->second)) {
+			m_table->erase(existing);
+			AddType(name, definition);
+		}
+	}
+
+	template<class T> void ReplaceTypeDefinition(
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<TypeDefinition> definition) {
+		ReplaceTypeDefinition<T>(*name, definition);
+	}
+
+	template<class T> void RemoveTypeDefinition(const string& name) {
+		auto existing = m_table->find(name);
+		if (std::dynamic_pointer_cast<const T>(existing->second)) {
+			m_table->erase(existing);
+		}
+	}
+
+	template<class T> void RemoveTypeDefinition(
+			const_shared_ptr<std::string> name) {
+		RemoveTypeDefinition<T>(*name);
+	}
+
 	volatile_shared_ptr<SymbolContext> GetDefaultSymbolContext(
 			const Modifier::Type modifiers,
 			const_shared_ptr<ComplexTypeSpecifier> container) const;
@@ -148,11 +180,6 @@ public:
 	}
 
 private:
-	TypeTable(const shared_ptr<type_map> table,
-			const shared_ptr<TypeTable> parent = nullptr) :
-			m_table(table), m_parent(parent) {
-	}
-
 	const shared_ptr<type_map> m_table;
 	const weak_ptr<TypeTable> m_parent;
 };

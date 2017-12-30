@@ -177,8 +177,7 @@ const ErrorListRef VariantFunctionSpecifier::ValidateDeclaration(
 						ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::FUNCTION_VARIANT_WITH_DUPLICATE_SIGNATURE,
-										duplication_subject_variant->GetLocation().begin.line,
-										duplication_subject_variant->GetLocation().begin.column,
+										duplication_subject_variant->GetLocation().begin,
 										declaration->ToString(), out.str()),
 								duplication_errors);
 			}

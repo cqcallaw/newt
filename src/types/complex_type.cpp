@@ -71,7 +71,7 @@ const ErrorListRef ComplexType::Instantiate(
 	yy::location location = GetDefaultLocation();
 	plain_shared_ptr<TypeSpecifier> initializer_type_specifier = nullptr;
 	if (initializer && !initializer->IsConstant()) {
-		location = initializer->GetPosition();
+		location = initializer->GetLocation();
 
 		auto initializer_type_specifier_result = initializer->GetTypeSpecifier(
 				execution_context);

@@ -28,11 +28,11 @@ Point p2:
 	int y: 16
 
 (Circle, int, int) -> Circle translate_circle:
-	Body Location: 30.83-33.2
+	Body Location: ../tests/t5020.nwt:30.83-33.2
 (Line, int, int) -> Line translate_line:
-	Body Location: 23.77-27.2
+	Body Location: ../tests/t5020.nwt:23.77-27.2
 (Point, int, int) -> Point translate_point:
-	Body Location: 16.80-20.2
+	Body Location: ../tests/t5020.nwt:16.80-20.2
 
 Root Type Table:
 ----------------

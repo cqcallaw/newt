@@ -57,7 +57,7 @@ const_shared_ptr<TypeSpecifier> InferredDeclarationStatement::GetTypeSpecifier()
 }
 
 const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() const {
-	return GetInitializerExpression()->GetPosition();
+	return GetInitializerExpression()->GetLocation();
 }
 
 const PreprocessResult InferredDeclarationStatement::Preprocess(
@@ -83,7 +83,7 @@ const PreprocessResult InferredDeclarationStatement::Preprocess(
 			const_shared_ptr<Statement> temp_statement =
 					type->GetDeclarationStatement(GetLocation(),
 							expression_type_specifier,
-							GetInitializerExpression()->GetPosition(),
+							GetInitializerExpression()->GetLocation(),
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
 			auto preprocess_result = temp_statement->Preprocess(context,
@@ -95,7 +95,7 @@ const PreprocessResult InferredDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef InferredDeclarationStatement::Execute(
+const ExecutionResult InferredDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto expression_type_specifier_result =
@@ -114,10 +114,10 @@ const ErrorListRef InferredDeclarationStatement::Execute(
 			const_shared_ptr<Statement> temp_statement =
 					type->GetDeclarationStatement(GetLocation(),
 							expression_type_specifier,
-							GetInitializerExpression()->GetPosition(),
+							GetInitializerExpression()->GetLocation(),
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
-			errors = temp_statement->Execute(context, closure);
+			errors = temp_statement->Execute(context, closure).GetErrors();
 		} else {
 			errors = type_errors;
 			auto initializer_errors = GetInitializerExpression()->Validate(
@@ -126,7 +126,7 @@ const ErrorListRef InferredDeclarationStatement::Execute(
 		}
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }
 
 const DeclarationStatement* InferredDeclarationStatement::WithInitializerExpression(

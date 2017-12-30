@@ -35,6 +35,7 @@
 
 #include <string>
 #include <linked_list.h>
+#include <location.hh>
 
 using namespace std;
 
@@ -66,6 +67,7 @@ public:
 		MINUS_ASSIGNMENT_TYPE_ERROR,
 		PLUS_ASSIGNMENT_TYPE_ERROR,
 		PREVIOUS_DECLARATION,
+		BUILTIN_REDECLARATION,
 		UNDECLARED_VARIABLE,
 		VARIABLE_NOT_AN_ARRAY,
 		NOT_A_COMPOUND_TYPE,
@@ -85,6 +87,7 @@ public:
 		TOO_MANY_ARGUMENTS,
 		NO_PARAMETER_DEFAULT,
 		NOT_A_FUNCTION,
+		EXPRESSION_IS_NOT_A_FUNCTION,
 		MATCH_REQUIRES_SUM,
 		INCOMPLETE_MATCH,
 		MATCH_FAILURE,
@@ -97,11 +100,18 @@ public:
 		NO_FUNCTION_VARIANT_MATCH,
 		MULTIPLE_FUNCTION_VARIANT_MATCHES,
 		CANNOT_REFERENCE_SUM_VARIANT_AS_DATA,
-		MISSING_RETURN_COVERAGE
+		MISSING_RETURN_COVERAGE,
+		STMT_SOURCE_MUST_BE_RECORD,
+		FOREACH_STMT_REQUIRES_NEXT,
+		FOREACH_STMT_REQUIRES_DATA,
+		RETURN_STMT_MUST_BE_MAYBE,
+		FOREACH_NEXT_MUST_EVALUATE_TO_BASE_TYPE,
+		USING_ASSIGNMENT_TYPE_ERROR,
+		USING_AMBIGUOUS_WIDENING_CONVERSION
 	};
 
-	Error(ErrorClass error_class, ErrorCode code, int line_number,
-			int column_number, string s1 = "", string s2 = "", string s3 = "");
+	Error(ErrorClass error_class, ErrorCode code, yy::position position,
+			string s1 = "", string s2 = "", string s3 = "");
 
 	const string ToString() const;
 
@@ -122,8 +132,7 @@ protected:
 private:
 	const ErrorClass m_error_class;
 	const ErrorCode m_code;
-	const int m_line_number;
-	const int m_column_number;
+	const yy::position m_position;
 	const string m_s1;
 	const string m_s2;
 	const string m_s3;

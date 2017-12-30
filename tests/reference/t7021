@@ -2,22 +2,21 @@ Parsing file ../tests/t7021.nwt...
 Parsed file ../tests/t7021.nwt.
 Root Symbol Table:
 ----------------
-a v:
-	b b:
-		a.b? c: {empty}
-		int d: 0
+a i:
+	int b: 3
+	(a?) -> int c:
+		Body Location: ../tests/t7021.nwt:4.21-11.4
 
-
+int r: 3
 
 Root Type Table:
 ----------------
 a:
 	<record>
 	b:
-		<record>
-		c:
-			a.b? ({empty})
-		d:
-			int (0)
-
+		int (0)
+	c:
+		(a?) -> int (
+			Body Location: ../tests/t7021.nwt:4.21-11.4
+		)
 

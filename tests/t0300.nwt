@@ -1,0 +1,6 @@
+# test basic import
+import trivial
+
+f := () -> int {
+	return 1
+}

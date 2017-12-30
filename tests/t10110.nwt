@@ -1,0 +1,32 @@
+# test invalid unit type in using sum
+
+error_list {
+	code:int,
+	message:string,
+	next:error_list?
+}
+
+result {
+	value:int
+	| errors:error_list
+}
+
+disposable {
+	data:int,
+	teardown := (this:disposable?) -> error_list? {
+		return nil
+	}
+}
+
+disposable_setup_result {
+	setup_value
+	| setup_errors:error_list
+}
+
+get_disposable := () -> disposable_setup_result {
+	return @disposable_setup_result.setup_value
+}
+
+r := using get_disposable() as value -> result {
+	return value.data
+}

@@ -1,5 +1,5 @@
 Parsing file ../tests/t1417.nwt...
-Semantic error on line 6, column 15: Invalid left operand for operator '&&'.
-Semantic error on line 6, column 20: Invalid right operand for operator '&&'.
+Semantic error at ../tests/t1417.nwt:6.15: Invalid left operand for operator '&&'.
+Semantic error at ../tests/t1417.nwt:6.20: Invalid right operand for operator '&&'.
 Parsed file ../tests/t1417.nwt.
 2 errors found; giving up.

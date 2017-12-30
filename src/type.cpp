@@ -29,6 +29,8 @@ const string TypeToString(const BasicType type) {
 	switch (type) {
 	case NONE:
 		return "NONE";
+	case BYTE:
+		return "byte";
 	case BOOLEAN:
 		return "boolean";
 	case INT:

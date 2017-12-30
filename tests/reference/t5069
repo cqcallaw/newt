@@ -1,0 +1,12 @@
+Parsing file ../tests/t5069.nwt...
+Parsed file ../tests/t5069.nwt.
+Root Symbol Table:
+----------------
+() -> (int) -> int f:
+	Body Location: ../tests/t5069.nwt:3.26-12.9
+(int) -> int h:
+	Body Location: ../tests/t5069.nwt:4.23-9.3
+int r: 6
+
+Root Type Table:
+----------------

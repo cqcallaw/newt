@@ -33,16 +33,19 @@ public:
 
 protected:
 	virtual const_shared_ptr<Result> compute(const bool& left,
-			const bool& right, yy::location left_position,
-			yy::location right_position) const;
+			const bool& right, yy::location left_location,
+			yy::location right_location) const;
+	virtual const_shared_ptr<Result> compute(const std::uint8_t& left,
+			const std::uint8_t& right, yy::location left_location,
+			yy::location right_location) const;
 	virtual const_shared_ptr<Result> compute(const int& left, const int& right,
-			yy::location left_position, yy::location right_position) const;
+			yy::location left_location, yy::location right_location) const;
 	virtual const_shared_ptr<Result> compute(const double& left,
-			const double& right, yy::location left_position,
-			yy::location right_position) const;
+			const double& right, yy::location left_location,
+			yy::location right_location) const;
 	virtual const_shared_ptr<Result> compute(const string& left,
-			const string& right, yy::location left_position,
-			yy::location right_position) const;
+			const string& right, yy::location left_location,
+			yy::location right_location) const;
 };
 
 #endif /* ARITHMETIC_EXPRESSION_H_ */

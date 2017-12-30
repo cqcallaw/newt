@@ -27,6 +27,7 @@
 #include <execution_context.h>
 #include <record.h>
 #include <sum.h>
+#include <unit.h>
 #include <maybe_type_specifier.h>
 
 #include "type.h"
@@ -42,27 +43,24 @@ const ErrorListRef ToErrorListRef(const SetResult result,
 	case NO_SET_RESULT:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::DEFAULT_ERROR_CODE,
-						location.begin.line, location.begin.column, *name),
-				errors);
+						location.begin, *name), errors);
 		break;
 	case UNDEFINED_SYMBOL:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						location.begin.line, location.begin.column, *name),
-				errors);
+						location.begin, *name), errors);
 		break;
 	case INCOMPATIBLE_TYPE:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
-						Error::ASSIGNMENT_TYPE_ERROR, location.begin.line,
-						location.begin.column, symbol_type->ToString(),
-						value_type->ToString()), errors);
+						Error::ASSIGNMENT_TYPE_ERROR, location.begin,
+						symbol_type->ToString(), value_type->ToString()),
+				errors);
 		break;
 	case MUTATION_DISALLOWED:
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::READONLY,
-						location.begin.line, location.begin.column, *name),
-				errors);
+						location.begin, *name), errors);
 		break;
 	case SET_SUCCESS:
 	default:
@@ -129,6 +127,11 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 			static_pointer_cast<const void>(value), type_table);
 }
 SetResult SymbolContext::SetSymbol(const string& identifier,
+		const_shared_ptr<std::uint8_t> value, const TypeTable& type_table) {
+	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetByte(),
+			static_pointer_cast<const void>(value), type_table);
+}
+SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<int> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, PrimitiveTypeSpecifier::GetInt(),
 			static_pointer_cast<const void>(value), type_table);
@@ -146,8 +149,14 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
 		const_shared_ptr<ComplexTypeSpecifier> type,
-		const_shared_ptr<Record> value, const TypeTable& type_table) {
+		const_shared_ptr<Unit> value, const TypeTable& type_table) {
+	return SetSymbol(identifier, type, static_pointer_cast<const void>(value),
+			type_table);
+}
 
+SetResult SymbolContext::SetSymbol(const string& identifier,
+		const_shared_ptr<ComplexTypeSpecifier> type,
+		const_shared_ptr<Record> value, const TypeTable& type_table) {
 	return SetSymbol(identifier, type, static_pointer_cast<const void>(value),
 			type_table);
 }
@@ -178,26 +187,26 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 			type_table);
 }
 
-volatile_shared_ptr<SymbolContext> SymbolContext::GetDefault() {
-	static volatile_shared_ptr<SymbolContext> instance = make_shared<
-			SymbolContext>(Modifier::Type::NONE);
-	return instance;
+SetResult SymbolContext::SetSymbol(const string& identifier,
+		const_shared_ptr<Symbol> new_value, const TypeTable& type_table) {
+	return SetSymbol(identifier, new_value->GetTypeSpecifier(),
+			new_value->GetValue(), type_table);
 }
 
 SetResult SymbolContext::SetSymbol(const string& identifier,
-		const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
-		const TypeTable& type_table) {
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<void> value, const TypeTable& type_table) {
 	auto result = m_table->find(identifier);
 
 	if (result != m_table->end()) {
 		auto existing_symbol = result->second;
-		if (existing_symbol->GetTypeSpecifier()->AnalyzeAssignmentTo(type,
-				type_table) == EQUIVALENT) {
+		if (existing_symbol->GetTypeSpecifier()->AnalyzeAssignmentTo(
+				type_specifier, type_table) == EQUIVALENT) {
 			if (!(m_modifiers & Modifier::MUTABLE)) {
 				return MUTATION_DISALLOWED;
 			} else {
-				auto new_symbol = existing_symbol->WithValue(type, value,
-						type_table);
+				auto new_symbol = existing_symbol->WithValue(type_specifier,
+						value, type_table);
 
 				//TODO: error checking
 				m_table->erase(identifier);
@@ -215,6 +224,12 @@ SetResult SymbolContext::SetSymbol(const string& identifier,
 	}
 }
 
+volatile_shared_ptr<SymbolContext> SymbolContext::GetDefault() {
+	static volatile_shared_ptr<SymbolContext> instance = make_shared<
+			SymbolContext>(Modifier::Type::NONE);
+	return instance;
+}
+
 volatile_shared_ptr<SymbolContext> SymbolContext::Clone() const {
 	return volatile_shared_ptr<SymbolContext>(
 			new SymbolContext(m_modifiers,
@@ -224,3 +239,4 @@ volatile_shared_ptr<SymbolContext> SymbolContext::Clone() const {
 SymbolContext::SymbolContext(const SymbolContext& other) :
 		m_modifiers(other.m_modifiers), m_table(other.m_table) {
 }
+

@@ -1,0 +1,31 @@
+Parsing file ../tests/t10000.nwt...
+Parsed file ../tests/t10000.nwt.
+Root Symbol Table:
+----------------
+result r: {value} 1
+
+Root Type Table:
+----------------
+disposable:
+	<record>
+	teardown:
+		(disposable?) -> error_list? (
+			Body Location: ../tests/t10000.nwt:15.49-16.12
+		)
+
+error_list:
+	<record>
+	code:
+		int (0)
+	message:
+		string ("")
+	next:
+		error_list? ({nil})
+
+result:
+	<sum>
+	errors:
+		error_list
+	value:
+		int
+

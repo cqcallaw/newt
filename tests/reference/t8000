@@ -3,7 +3,7 @@ Parsed file ../tests/t8000.nwt.
 Root Symbol Table:
 ----------------
 (int) -> int factorial:
-	Body Location: 3.41-8.2
+	Body Location: ../tests/t8000.nwt:3.41-8.2
 int v: 6
 
 Root Type Table:

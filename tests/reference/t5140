@@ -1,4 +1,4 @@
 Parsing file ../tests/t5140.nwt...
-Semantic error on line 20, column 3: Function variant duplicates function variant with signature '(coordinate, int, int) -> coordinate' located at 13.14-19.1.
+Semantic error at ../tests/t5140.nwt:20.3: Function variant duplicates function variant with signature '(coordinate, int, int) -> coordinate' located at ../tests/t5140.nwt:13.14-19.1.
 Parsed file ../tests/t5140.nwt.
 1 error found; giving up.

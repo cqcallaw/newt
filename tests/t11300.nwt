@@ -1,0 +1,16 @@
+# test get
+
+r:= open("../tests/files/a.in", @stream_mode with { read = true, binary = true })
+
+result:byte_read_result
+match (r)
+	data as handle {
+		result = get(handle)
+		close(handle)
+	}
+	| errors {
+		for error in errors {
+			print(error.message)
+		}
+	}
+	

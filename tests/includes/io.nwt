@@ -1,0 +1,66 @@
+import list
+
+binary_read_mode := @stream_mode with { read = true, binary = true }
+binary_write_mode := @stream_mode with { write = true, binary = true }
+binary_overwrite_mode := @stream_mode with { write = true, binary = true }
+
+stream {
+	source:string,
+	mode:stream_mode,
+	handle:int,
+	teardown := (this:stream?) -> error_list? {
+		match (this)
+			value {
+				return close(value.handle)
+			}
+			| nil {
+				return nil
+			}
+	}
+}
+
+stream_setup_result {
+	setup_value:stream
+	| setup_errors:error_list
+}
+
+open_stream := (path:string, mode:stream_mode) -> stream_setup_result {
+	open_result := open(path, mode)
+	match (open_result)
+		data {
+			return @stream with {
+				source = path,
+				mode = mode,
+				handle = data
+			}
+		}
+		| errors {
+			return errors
+		}
+}
+
+read := (s:stream) -> byte_iter? {
+	f := () -> byte_iter? {
+		result := get(s.handle)
+		match(result)
+			data {
+				return @byte_iter with {
+					data = data,
+					next = f
+				}
+			} | errors {
+				return @byte_iter with {
+					data = errors
+				}
+			} | eof {
+				return nil
+			}
+	}
+
+	return f()
+}
+
+write := (s:stream, value:byte) -> error_list? {
+	return put(s.handle, value)
+}
+

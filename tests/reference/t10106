@@ -1,0 +1,4 @@
+Parsing file ../tests/t10106.nwt...
+Semantic error at ../tests/t10106.nwt:21.12: Basic return type 'double' of source member 'teardown' cannot be assigned to block result type 'result'.
+Parsed file ../tests/t10106.nwt.
+1 error found; giving up.

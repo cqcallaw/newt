@@ -1,0 +1,4 @@
+Parsing file ../tests/t5172.nwt...
+Semantic error at ../tests/t5172.nwt:3.8: Return type does not match context return type.
+Parsed file ../tests/t5172.nwt.
+1 error found; giving up.

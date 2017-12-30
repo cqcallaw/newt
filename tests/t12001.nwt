@@ -1,0 +1,33 @@
+# test file read with using block
+import io
+
+path := "../tests/files/abc.inout"
+
+data := @byte_list with { data = 0x63 }
+data = data with { data = 0x62, next = data }
+data = data with { data = 0x61, next = data }
+
+w := using open_stream(path, binary_overwrite_mode) as s -> error_list? {
+	for datum in data {
+		r := write(s, datum)
+		match (r)
+			value {
+				return value # we have an error
+			} | nil {}
+	}
+
+	return nil
+}
+
+r := using open_stream(path, binary_read_mode) as s -> error_list? {
+	for value in read(s) {
+		match(value)
+			data {
+				print(data)
+			} | errors {
+				return errors
+			}
+	}
+
+	return nil
+}

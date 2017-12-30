@@ -23,12 +23,10 @@
 #include "variable.h"
 #include "utils.h"
 #include <execution_context.h>
-#include <record.h>
 #include <primitive_type.h>
-#include <record_type.h>
 
-Expression::Expression(const yy::location position) :
-		m_position(position) {
+Expression::Expression(const yy::location location) :
+		m_location(location) {
 }
 
 Expression::~Expression() {
@@ -51,17 +49,6 @@ TypedResult<string> Expression::ToString(
 					execution_context->GetTypeTable(),
 					AliasResolution::RESOLVE);
 
-//		//TODO: replace this type switching logic with calls to TypeDefinition::ValueToString()
-//		auto type_table = execution_context->GetTypeTable();
-//		auto type = type_specifier->GetType(type_table);
-//		if (type) {
-//			buffer
-//					<< type->ValueToString(execution_context->GetTypeTable(),
-//							Indent(0), evaluation->GetRawData());
-//		} else {
-//			assert(false);
-//		}
-
 			errors = type_result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
 				auto type = type_result->GetData<TypeDefinition>();
@@ -73,6 +60,12 @@ TypedResult<string> Expression::ToString(
 					case BOOLEAN:
 						buffer << *(evaluation->GetData<bool>());
 						break;
+					case BYTE: {
+						buffer << std::hex << uppercase
+								<< unsigned(
+										*(evaluation->GetData<std::uint8_t>()));
+						break;
+					}
 					case INT:
 						buffer << *(evaluation->GetData<int>());
 						break;
@@ -85,21 +78,11 @@ TypedResult<string> Expression::ToString(
 					default:
 						assert(false);
 					}
-				}
-
-				//TODO: array printing
-
-				auto as_record = std::dynamic_pointer_cast<const RecordType>(
-						type);
-				if (as_record) {
-					auto instance = evaluation->GetData<Record>();
-
-					buffer << "{" << endl;
+				} else {
 					buffer
-							<< instance->ToString(
-									*execution_context->GetTypeTable(),
-									Indent(1));
-					buffer << "}" << endl;
+							<< type->ValueToString(
+									execution_context->GetTypeTable(),
+									Indent(0), evaluation->GetRawData());
 				}
 			}
 		}
@@ -107,6 +90,6 @@ TypedResult<string> Expression::ToString(
 		return TypedResult<string>(nullptr, errors);
 	}
 
-	return TypedResult<string>(const_shared_ptr<string>(new string(buffer.str())),
-			errors);
+	return TypedResult<string>(
+			const_shared_ptr<string>(new string(buffer.str())), errors);
 }

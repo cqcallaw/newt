@@ -20,6 +20,7 @@
 #include <unit_declaration_statement.h>
 #include <execution_context.h>
 #include <unit_type.h>
+#include <maybe_type.h>
 
 UnitDeclarationStatement::UnitDeclarationStatement(const yy::location location,
 		const_shared_ptr<TypeSpecifier> type_specifier,
@@ -42,53 +43,41 @@ const PreprocessResult UnitDeclarationStatement::Preprocess(
 
 	auto type_table = context->GetTypeTable();
 
-	auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
-			m_type_specifier);
-	if (as_complex) {
-		auto type_name = as_complex->GetTypeName();
+	auto complex_type_specifier = dynamic_pointer_cast<
+			const ComplexTypeSpecifier>(m_type_specifier);
+	if (complex_type_specifier) {
+		auto type_name = complex_type_specifier->GetTypeName();
 		plain_shared_ptr<TypeDefinition> type = nullptr;
-		if (as_complex->GetTypeName()->compare(*TypeTable::GetNilName()) != 0) {
-			auto type_result = m_type_specifier->GetType(type_table, RESOLVE);
-			type = type_result->GetData<TypeDefinition>();
-			if (!type) {
-				type = make_shared<UnitType>();
-				type_table->AddType(*type_name, type);
-			}
-		} else {
-			type = TypeTable::GetNilType();
-		}
-
-		if (type) {
-			auto symbol = type->GetSymbol(type_table, m_type_specifier,
-					nullptr);
-			InsertResult insert_result = context->InsertSymbol(*GetName(),
-					symbol);
-			if (insert_result == SYMBOL_EXISTS) {
+		if (complex_type_specifier->GetTypeName()->compare(
+				*TypeTable::GetNilName()) != 0) {
+			if (!type_table->ContainsType(*complex_type_specifier)) {
+				auto maybe_type_result = MaybeType::Build(context,
+						complex_type_specifier);
+				errors = maybe_type_result->GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					auto maybe_type = maybe_type_result->GetData<MaybeType>();
+					type = make_shared<UnitType>(maybe_type);
+					type_table->AddType(*type_name, type);
+				}
+			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNameLocation().begin.line,
-								GetNameLocation().begin.column, *GetName()),
-						errors);
+								GetNameLocation().begin, *GetName()), errors);
 			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_TYPE,
-							GetNameLocation().begin.line,
-							GetNameLocation().begin.column,
-							m_type_specifier->ToString()), errors);
 		}
 	} else {
+		// invalid type specifer. This should never happen, but we can't use an ComplexTypeSpecifier because of GetDeclarationStatement interface concerns
 		assert(false);
 	}
 
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef UnitDeclarationStatement::Execute(
+const ExecutionResult UnitDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	return ErrorList::GetTerminator();
+	return ExecutionResult();
 }
 
 const_shared_ptr<TypeSpecifier> UnitDeclarationStatement::GetTypeSpecifier() const {

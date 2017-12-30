@@ -46,7 +46,7 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	ErrorListRef errors = ErrorList::GetTerminator();
+	auto errors = ErrorList::GetTerminator();
 	auto symbol = Symbol::GetDefaultSymbol();
 
 	//validate the contents of our initialization expression
@@ -88,8 +88,7 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 							ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::INVALID_INITIALIZER_TYPE,
-											GetInitializerExpression()->GetPosition().begin.line,
-											GetInitializerExpression()->GetPosition().begin.column,
+											GetInitializerExpression()->GetLocation().begin,
 											*GetName(),
 											m_type_specifier->ToString(),
 											expression_type_specifier->ToString()),
@@ -118,8 +117,7 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNameLocation().begin.line,
-								GetNameLocation().begin.column, *GetName()),
+								GetNameLocation().begin, *GetName()),
 						errors);
 			}
 		}
@@ -128,7 +126,7 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, errors);
 }
 
-const ErrorListRef PrimitiveDeclarationStatement::Execute(
+const ExecutionResult PrimitiveDeclarationStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	if (GetInitializerExpression()) {
@@ -138,9 +136,9 @@ const ErrorListRef PrimitiveDeclarationStatement::Execute(
 				GetInitializerExpression(), AssignmentType::ASSIGN);
 		delete (temp_variable);
 
-		return errors;
+		return ExecutionResult(errors);
 	} else {
-		return ErrorList::GetTerminator();
+		return ExecutionResult();
 	}
 }
 

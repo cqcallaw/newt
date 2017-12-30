@@ -7,12 +7,12 @@ list l:
 	list? next:
 		{value}
 			int data: 3
-			list? next: {empty}
+			list? next: {nil}
 
 
 int r: 5
 (list?) -> int sum:
-	Body Location: 7.25-14.3
+	Body Location: ../tests/t8012.nwt:7.25-14.3
 
 Root Type Table:
 ----------------
@@ -21,5 +21,5 @@ list:
 	data:
 		int (0)
 	next:
-		list? ({empty})
+		list? ({nil})
 

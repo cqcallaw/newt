@@ -41,6 +41,16 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <builtins.h>
+#include <variable_expression.h>
+#include <variable.h>
+#include <open_expression.h>
+#include <close_expression.h>
+#include <get_byte_expression.h>
+#include <put_byte_expression.h>
+
+const vector<string> InvokeExpression::BuiltinFunctionList = vector<string> {
+		"open", "close", "get", "put" };
 
 InvokeExpression::InvokeExpression(const yy::location position,
 		const_shared_ptr<Expression> expression,
@@ -93,8 +103,8 @@ TypedResult<TypeSpecifier> InvokeExpression::GetTypeSpecifier(
 			} else {
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::NOT_A_FUNCTION, GetPosition().begin.line,
-								GetPosition().begin.column), errors);
+								Error::NOT_A_FUNCTION, GetLocation().begin),
+						errors);
 			}
 		}
 	}
@@ -137,8 +147,8 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 
 		if (function) {
 			if (ErrorList::IsTerminator(errors)) {
-				const_shared_ptr<Result> eval_result = function->Evaluate(
-						m_argument_list, m_argument_list_location, context);
+				auto eval_result = function->Evaluate(m_argument_list,
+						m_argument_list_location, context);
 
 				errors = eval_result->GetErrors();
 				if (ErrorList::IsTerminator(errors)) {
@@ -148,10 +158,8 @@ const_shared_ptr<Result> InvokeExpression::Evaluate(
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::NOT_A_FUNCTION,
-							GetPosition().begin.line,
-							GetPosition().begin.column), errors);
+							GetLocation().begin), errors);
 		}
-
 	}
 
 	return make_shared<Result>(value, errors);
@@ -162,12 +170,10 @@ TypedResult<string> InvokeExpression::ToString(
 	ostringstream buf;
 	auto expression_result = m_expression->ToString(execution_context);
 
-	if (expression_result.GetErrors()) {
+	if (ErrorList::IsTerminator(expression_result.GetErrors())) {
 		buf << *(expression_result.GetData());
 		buf << "(";
-		ErrorListRef errors =
-
-		ErrorList::GetTerminator();
+		auto errors = ErrorList::GetTerminator();
 		ArgumentListRef argument = m_argument_list;
 		while (!ArgumentList::IsTerminator(argument)) {
 			auto argument_result = argument->GetData()->ToString(
@@ -196,20 +202,12 @@ const ErrorListRef InvokeExpression::Validate(
 
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
+		auto expression_type_specifier =
+				expression_type_specifier_result.GetData();
+
 		errors = m_expression->Validate(execution_context);
 		if (ErrorList::IsTerminator(errors)) {
-			auto expression_type_specifier =
-					expression_type_specifier_result.GetData();
-			//generate a temporary context for validation
-			auto new_parent = ExecutionContextList::From(execution_context,
-					execution_context->GetParent());
-			shared_ptr<ExecutionContext> tmp_context = make_shared<
-					ExecutionContext>(Modifier::Type::NONE, new_parent,
-					execution_context->GetTypeTable(),
-					execution_context->GetLifeTime(),
-					execution_context->GetDepth() + 1);
 
-			auto argument_subject = m_argument_list;
 			auto is_function = false;
 			DeclarationListRef parameter_list = nullptr;
 
@@ -244,7 +242,7 @@ const ErrorListRef InvokeExpression::Validate(
 
 			auto as_function_type_specifier = std::dynamic_pointer_cast<
 					const FunctionTypeSpecifier>(expression_type_specifier);
-			if (as_function_type_specifier) {
+			if (!is_function && as_function_type_specifier) {
 				is_function = true;
 				//generate placeholder parameter names
 				auto temp_declaration_result =
@@ -266,6 +264,11 @@ const ErrorListRef InvokeExpression::Validate(
 			}
 
 			if (is_function) {
+				//generate a temporary context for validation
+				auto tmp_context = ExecutionContext::GetEmptyChild(
+						execution_context, Modifier::Type::NONE, TEMPORARY);
+
+				auto argument_subject = m_argument_list;
 				auto parameter_subject = parameter_list;
 				while (!ArgumentList::IsTerminator(argument_subject)) {
 					auto argument_expression = argument_subject->GetData();
@@ -301,8 +304,7 @@ const ErrorListRef InvokeExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS,
-															argument_expression->GetPosition().begin.line,
-															argument_expression->GetPosition().begin.column,
+															argument_expression->GetLocation().begin,
 															argument_type_specifier->ToString(),
 															parameter_type_specifier->ToString()),
 													errors);
@@ -313,8 +315,7 @@ const ErrorListRef InvokeExpression::Validate(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::FUNCTION_PARAMETER_TYPE_MISMATCH_INCOMPATIBLE,
-															argument_expression->GetPosition().begin.line,
-															argument_expression->GetPosition().begin.column,
+															argument_expression->GetLocation().begin,
 															argument_type_specifier->ToString(),
 															parameter_type_specifier->ToString()),
 													errors);
@@ -336,8 +337,7 @@ const ErrorListRef InvokeExpression::Validate(
 								ErrorList::From(
 										make_shared<Error>(Error::SEMANTIC,
 												Error::TOO_MANY_ARGUMENTS,
-												argument_expression->GetPosition().begin.line,
-												argument_expression->GetPosition().begin.column,
+												argument_expression->GetLocation().begin,
 												expression_type_specifier->ToString()),
 										errors);
 						break;
@@ -356,8 +356,7 @@ const ErrorListRef InvokeExpression::Validate(
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::NO_PARAMETER_DEFAULT,
-										m_argument_list_location.end.line,
-										m_argument_list_location.end.column,
+										m_argument_list_location.end,
 										*declaration->GetName()), errors);
 					}
 
@@ -367,12 +366,37 @@ const ErrorListRef InvokeExpression::Validate(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::NOT_A_FUNCTION,
-								m_expression->GetPosition().begin.line,
-								m_expression->GetPosition().begin.column),
-						errors);
+								m_expression->GetLocation().begin), errors);
 			}
 		}
 	}
 
 	return errors;
+}
+
+const_shared_ptr<InvokeExpression> InvokeExpression::BuildInvokeExpression(
+		const yy::location location, const_shared_ptr<Expression> expression,
+		const ArgumentListRef argument_list,
+		const yy::location argument_list_location) {
+	auto variable_expression = dynamic_pointer_cast<const VariableExpression>(
+			expression);
+	if (variable_expression) {
+		auto variable_name = variable_expression->GetVariable()->GetName();
+		if (*variable_name == "open") {
+			return make_shared<OpenExpression>(location, expression,
+					argument_list, argument_list_location);
+		} else if (*variable_name == "close") {
+			return make_shared<CloseExpression>(location, expression,
+					argument_list, argument_list_location);
+		} else if (*variable_name == "get") {
+			return make_shared<GetByteExpression>(location, expression,
+					argument_list, argument_list_location);
+		} else if (*variable_name == "put") {
+			return make_shared<PutByteExpression>(location, expression,
+					argument_list, argument_list_location);
+		}
+	}
+
+	return make_shared<InvokeExpression>(location, expression, argument_list,
+			argument_list_location);
 }

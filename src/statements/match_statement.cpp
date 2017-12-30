@@ -31,6 +31,7 @@
 #include <nested_type_specifier.h>
 #include <maybe_type_specifier.h>
 #include <unit_type.h>
+#include <return_statement.h>
 
 MatchStatement::MatchStatement(const yy::location statement_location,
 		const_shared_ptr<Expression> source_expression,
@@ -49,8 +50,7 @@ const PreprocessResult MatchStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	ErrorListRef errors;
-	errors = m_source_expression->Validate(context);
+	auto errors = m_source_expression->Validate(context);
 
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	if (ErrorList::IsTerminator(errors)) {
@@ -111,7 +111,7 @@ const PreprocessResult MatchStatement::Preprocess(
 						} else {
 							auto variant_type = type_definition->GetType<
 									TypeDefinition>(match_name, SHALLOW,
-									RESOLVE);
+									RETURN);
 							if (variant_type) {
 								if (match_names->find(*match_name)
 										== match_names->end()) {
@@ -119,13 +119,22 @@ const PreprocessResult MatchStatement::Preprocess(
 									auto matched_context =
 											match_context->GetData();
 									assert(matched_context);
-									matched_context->LinkToParent(context);
 
-									auto variant_type_specifier =
-											variant_type->GetTypeSpecifier(
-													match->GetName(),
-													source_sum_specifier,
-													GetDefaultLocation());
+									plain_shared_ptr<TypeSpecifier> variant_type_specifier;
+									auto as_alias = dynamic_pointer_cast<
+											const AliasDefinition>(
+											variant_type);
+									if (as_alias) {
+										variant_type_specifier =
+												as_alias->GetOriginal();
+									} else {
+										variant_type_specifier =
+												variant_type->GetTypeSpecifier(
+														match->GetName(),
+														source_sum_specifier,
+														GetDefaultLocation());
+									}
+
 									const_shared_ptr<void> default_value =
 											variant_type->GetDefaultValue(
 													*type_definition);
@@ -137,30 +146,34 @@ const PreprocessResult MatchStatement::Preprocess(
 									matched_context->InsertSymbol(*alias_name,
 											default_symbol);
 
+									matched_context->LinkToParent(context);
+									// use match context as closure context so match variables are defined in closure
 									auto match_preprocess_result =
 											match_body->Preprocess(
+													matched_context,
 													matched_context,
 													return_type_specifier);
 									auto match_return_coverage =
 											match_preprocess_result.GetReturnCoverage();
 
-									return_coverage = CoverageTransition(
-											return_coverage,
-											match_return_coverage,
-											initial_state);
-									initial_state = false;
+									return_coverage =
+											ReturnStatement::CoverageTransition(
+													return_coverage,
+													match_return_coverage,
+													initial_state);
 
 									errors =
 											ErrorList::Concatenate(errors,
 													match_preprocess_result.GetErrors());
+
+									initial_state = false;
 								} else {
 									errors =
 											ErrorList::From(
 													make_shared<Error>(
 															Error::SEMANTIC,
 															Error::DUPLICATE_MATCH_BLOCK,
-															match->GetNameLocation().begin.line,
-															match->GetNameLocation().begin.column,
+															match->GetNameLocation().begin,
 															*match_name),
 													errors);
 								}
@@ -170,8 +183,7 @@ const PreprocessResult MatchStatement::Preprocess(
 												make_shared<Error>(
 														Error::SEMANTIC,
 														Error::UNDECLARED_TYPE,
-														match->GetNameLocation().begin.line,
-														match->GetNameLocation().begin.column,
+														match->GetNameLocation().begin,
 														expression_type_specifier->ToString()
 																+ "."
 																+ *match_name),
@@ -188,14 +200,17 @@ const PreprocessResult MatchStatement::Preprocess(
 					if (*variant_names != *match_names) {
 						// make sure partial matches are made complete by a default match block
 						if (default_match_block) {
-							//we have a default match block; preprocess it
+							// we have a default match block; preprocess it
+							// use match context as closure context so match variables are defined in closure
 							auto default_block_preprocess_result =
 									default_match_block->Preprocess(
+											default_match_context,
 											default_match_context,
 											return_type_specifier);
 
 							return_coverage =
-									CoverageTransition(return_coverage,
+									ReturnStatement::CoverageTransition(
+											return_coverage,
 											default_block_preprocess_result.GetReturnCoverage(),
 											initial_state);
 
@@ -223,28 +238,23 @@ const PreprocessResult MatchStatement::Preprocess(
 							errors = ErrorList::From(
 									make_shared<Error>(Error::SEMANTIC,
 											Error::INCOMPLETE_MATCH,
-											m_statement_location.begin.line,
-											m_statement_location.begin.column,
-											result), errors);
+											m_statement_location.begin, result),
+									errors);
 						}
 					} else if (default_match_block) {
 						//make sure there aren't any extraneous default match blocks
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,
 										Error::EXTRANEOUS_DEFAULT_MATCH,
-										m_statement_location.begin.line,
-										m_statement_location.begin.column),
-								errors);
+										m_statement_location.begin), errors);
 					}
 				} else {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::MATCH_REQUIRES_SUM,
-											m_source_expression->GetPosition().begin.line,
-											m_source_expression->GetPosition().begin.column,
-											expression_type_specifier->ToString()),
-									errors);
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::MATCH_REQUIRES_SUM,
+									m_source_expression->GetLocation().begin,
+									expression_type_specifier->ToString()),
+							errors);
 				}
 			}
 		}
@@ -253,13 +263,14 @@ const PreprocessResult MatchStatement::Preprocess(
 	return PreprocessResult(return_coverage, errors);
 }
 
-const ErrorListRef MatchStatement::Execute(
+const ExecutionResult MatchStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto expression_type_specifier_result =
 			m_source_expression->GetTypeSpecifier(context);
 
 	auto errors = expression_type_specifier_result.GetErrors();
+	auto return_value = Symbol::GetDefaultSymbol();
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier =
 				expression_type_specifier_result.GetData();
@@ -291,10 +302,10 @@ const ErrorListRef MatchStatement::Execute(
 					shared_ptr<ExecutionContext> default_match_context = nullptr;
 
 					bool matched = false;
-					auto match_list = m_match_list;
+					auto match_list_subject = m_match_list;
 					auto match_context = m_match_contexts;
-					while (!MatchList::IsTerminator(match_list)) {
-						auto match = match_list->GetData();
+					while (!MatchList::IsTerminator(match_list_subject)) {
+						auto match = match_list_subject->GetData();
 						auto match_name = *match->GetName();
 						auto match_body = match->GetBlock();
 
@@ -303,45 +314,48 @@ const ErrorListRef MatchStatement::Execute(
 							auto variant_type =
 									sum_type->GetDefinition()->GetType<
 											TypeDefinition>(match_name, SHALLOW,
-											RESOLVE);
+											RETURN);
 							if (variant_type) {
 								auto matched_context = match_context->GetData();
-								auto matched_parent =
-										matched_context->GetParent()->GetData();
 
-								assert(matched_parent == context);
-								assert(
-										matched_parent->GetTypeTable()
-												== context->GetTypeTable());
+								auto execution_context =
+										ExecutionContext::GetRuntimeInstance(
+												matched_context, context);
 
-								auto variant_type_specifier =
-										variant_type->GetTypeSpecifier(
-												match->GetName(),
-												source_sum_specifier,
-												GetDefaultLocation());
+								plain_shared_ptr<TypeSpecifier> variant_type_specifier;
+								auto as_alias = dynamic_pointer_cast<
+										const AliasDefinition>(variant_type);
+								if (as_alias) {
+									variant_type_specifier =
+											as_alias->GetOriginal();
+								} else {
+									variant_type_specifier =
+											variant_type->GetTypeSpecifier(
+													match->GetName(),
+													source_sum_specifier,
+													GetDefaultLocation());
+								}
 
 								auto alias_name = *(match->GetAlias());
-								auto set_result = matched_context->SetSymbol(
+								auto set_result = execution_context->SetSymbol(
 										alias_name, variant_type_specifier,
 										as_sum->GetValue(),
 										context->GetTypeTable());
 								assert(set_result == SET_SUCCESS);
 
-								auto block_errors = match_body->Execute(
-										matched_context);
-								context->SetReturnValue(
-										matched_context->GetReturnValue());
-
+								// use execution context for closure so internal function closures are correct
+								auto block_result = match_body->Execute(
+										execution_context, execution_context);
+								return_value = block_result.GetReturnValue();
 								errors = ErrorList::Concatenate(errors,
-										block_errors);
+										block_result.GetErrors());
 							} else {
 								errors =
 										ErrorList::From(
 												make_shared<Error>(
 														Error::SEMANTIC,
 														Error::UNDECLARED_TYPE,
-														match->GetNameLocation().begin.line,
-														match->GetNameLocation().begin.column,
+														match->GetNameLocation().begin,
 														expression_type_specifier->ToString()
 																+ "."
 																+ match_name),
@@ -350,38 +364,32 @@ const ErrorListRef MatchStatement::Execute(
 							break;
 						} else if (match_name == *Match::DEFAULT_MATCH_NAME) {
 							auto matched_context = match_context->GetData();
-							auto matched_parent =
-									matched_context->GetParent()->GetData();
-
-							assert(matched_parent == context);
-							assert(
-									matched_parent->GetTypeTable()
-											== context->GetTypeTable());
 
 							default_match_context = matched_context;
 							default_match_block = match_body;
 						}
 
 						match_context = match_context->GetNext();
-						match_list = match_list->GetNext();
+						match_list_subject = match_list_subject->GetNext();
 					}
 
 					if (!matched) {
 						if (default_match_block) {
-							auto block_errors = default_match_block->Execute(
-									default_match_context);
-							context->SetReturnValue(
-									default_match_context->GetReturnValue());
+							auto execution_context =
+									ExecutionContext::GetRuntimeInstance(
+											default_match_context, context);
 
+							auto block_result = default_match_block->Execute(
+									execution_context, execution_context);
+							return_value = block_result.GetReturnValue();
 							errors = ErrorList::Concatenate(errors,
-									block_errors);
+									block_result.GetErrors());
 						} else {
 							errors =
 									ErrorList::From(
 											make_shared<Error>(Error::RUNTIME,
 													Error::MATCH_FAILURE,
-													m_source_expression->GetPosition().begin.line,
-													m_source_expression->GetPosition().begin.column,
+													m_source_expression->GetLocation().begin,
 													expression_type_specifier->ToString()),
 											errors);
 						}
@@ -391,14 +399,17 @@ const ErrorListRef MatchStatement::Execute(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::MATCH_REQUIRES_SUM,
-								m_source_expression->GetPosition().begin.line,
-								m_source_expression->GetPosition().begin.column,
+								m_source_expression->GetLocation().begin,
 								expression_type_specifier->ToString()), errors);
 			}
 		}
 	}
 
-	return errors;
+	if (!ErrorList::IsTerminator(errors)) {
+		return ExecutionResult(errors);
+	} else {
+		return ExecutionResult(return_value);
+	}
 }
 
 const MatchContextListRef MatchStatement::GenerateMatchContexts(
@@ -415,46 +426,3 @@ const MatchContextListRef MatchStatement::GenerateMatchContexts(
 	return result;
 }
 
-const PreprocessResult::ReturnCoverage MatchStatement::CoverageTransition(
-		PreprocessResult::ReturnCoverage current,
-		PreprocessResult::ReturnCoverage input, bool is_start) {
-	if (is_start) {
-		return input;
-	} else {
-		switch (current) {
-		case PreprocessResult::ReturnCoverage::FULL: {
-			switch (input) {
-			case PreprocessResult::ReturnCoverage::FULL: {
-				return PreprocessResult::ReturnCoverage::FULL;
-			}
-			case PreprocessResult::ReturnCoverage::PARTIAL: {
-				return PreprocessResult::ReturnCoverage::PARTIAL;
-			}
-			case PreprocessResult::ReturnCoverage::NONE:
-			default: {
-				return PreprocessResult::ReturnCoverage::PARTIAL;
-			}
-			}
-			break;
-		}
-		case PreprocessResult::ReturnCoverage::PARTIAL: {
-			return PreprocessResult::ReturnCoverage::PARTIAL;
-		}
-		case PreprocessResult::ReturnCoverage::NONE:
-		default: {
-			switch (input) {
-			case PreprocessResult::ReturnCoverage::FULL: {
-				return PreprocessResult::ReturnCoverage::PARTIAL;
-			}
-			case PreprocessResult::ReturnCoverage::PARTIAL: {
-				return PreprocessResult::ReturnCoverage::PARTIAL;
-			}
-			case PreprocessResult::ReturnCoverage::NONE:
-			default: {
-				return PreprocessResult::ReturnCoverage::NONE;
-			}
-			}
-		}
-		}
-	}
-}

@@ -23,10 +23,10 @@
 #include <sstream>
 #include <assert.h>
 
-Error::Error(ErrorClass error_class, ErrorCode code, int line_number,
-		int column_number, string s1, string s2, string s3) :
-		m_error_class(error_class), m_code(code), m_line_number(line_number), m_column_number(
-				column_number), m_s1(s1), m_s2(s2), m_s3(s3) {
+Error::Error(ErrorClass error_class, ErrorCode code, yy::position position,
+		string s1, string s2, string s3) :
+		m_error_class(error_class), m_code(code), m_position(position), m_s1(
+				s1), m_s2(s2), m_s3(s3) {
 }
 
 const string Error::ToString() const {
@@ -34,13 +34,12 @@ const string Error::ToString() const {
 
 	switch (m_error_class) {
 	case SEMANTIC: {
-		os << "Semantic error on line " << m_line_number << ", column "
-				<< m_column_number << ": " << get_error_message();
+		os << "Semantic error at " << m_position << ": " << get_error_message();
 		break;
 	}
 	case RUNTIME: {
-		os << "Runtime error on line " << m_line_number << ", column "
-				<< m_column_number << ": " << get_error_message();
+		os << "Runtime error at " << m_position << ": "
+				<< get_error_message();
 		break;
 	}
 	default:
@@ -134,6 +133,9 @@ const string Error::get_error_message() const {
 		os << "'" << m_s1 << "'"
 				<< " has been already been declared in the current scope.";
 		break;
+	case BUILTIN_REDECLARATION:
+		os << "Re-declaration of builtin '" << m_s1 << "'.";
+		break;
 	case UNDECLARED_VARIABLE:
 		os << "Undeclared variable '" << m_s1 << "'";
 		break;
@@ -166,7 +168,7 @@ const string Error::get_error_message() const {
 		os << "\"" << m_s1 << "\" is read-only.";
 		break;
 	case FUNCTION_RETURN_MISMATCH:
-		os << "Return type does not match function return type.";
+		os << "Return type does not match context return type.";
 		break;
 	case FUNCTION_PARAMETER_TYPE_MISMATCH_AMBIGUOUS:
 		os << "Parameter type mismatch: can't unambiguous assign '" << m_s1
@@ -187,6 +189,9 @@ const string Error::get_error_message() const {
 		break;
 	case NOT_A_FUNCTION:
 		os << "The given expression does not reference a valid function.";
+		break;
+	case EXPRESSION_IS_NOT_A_FUNCTION:
+		os << "The type " << m_s1 << " is not a function type.";
 		break;
 	case INFERRED_DECLARATION_FAILED:
 		os << "Inferred declaration failure.";
@@ -233,8 +238,36 @@ const string Error::get_error_message() const {
 		os
 				<< "Control reaches end of non-void function without complete return coverage.";
 		break;
+	case STMT_SOURCE_MUST_BE_RECORD:
+		os << "Source expression type '" << m_s1
+				<< "' must be of a record type.";
+		break;
+	case FOREACH_STMT_REQUIRES_DATA:
+		os << "Foreach statement source must have a member named 'data'.";
+		break;
+	case FOREACH_STMT_REQUIRES_NEXT:
+		os << "Foreach statement source must have a member named 'next'.";
+		break;
+	case RETURN_STMT_MUST_BE_MAYBE:
+		os << "Member return type must evaluate to a Maybe type.";
+		break;
+	case FOREACH_NEXT_MUST_EVALUATE_TO_BASE_TYPE:
+		os
+				<< "Foreach statement source's 'next' member type's base type must be the source type.";
+		break;
+	case USING_ASSIGNMENT_TYPE_ERROR:
+		os << "Basic return type '" << m_s1 << "' of source member '" << m_s3
+				<< "' cannot be assigned to block result type '" << m_s2
+				<< "'.";
+		break;
+	case USING_AMBIGUOUS_WIDENING_CONVERSION:
+		os << "Return type '" << m_s1 << "' of source member '" << m_s3
+				<< "'cannot be unambiguously widened to block result type '"
+				<< m_s2 << "'.";
+		break;
 	default:
-		os << "Unknown error passed to Error::error_core.";
+		os << "Unknown error code " << m_code
+				<< " passed to Error::error_core.";
 		break;
 	}
 

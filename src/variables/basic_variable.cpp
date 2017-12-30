@@ -60,16 +60,14 @@ TypedResult<TypeSpecifier> BasicVariable::GetTypeSpecifier(
 		const shared_ptr<ExecutionContext> context,
 		AliasResolution resolution) const {
 	auto symbol = context->GetSymbol(GetName(), DEEP);
-	if (symbol) {
+	if (symbol && symbol != Symbol::GetDefaultSymbol()) {
 		return TypedResult<TypeSpecifier>(symbol->GetTypeSpecifier());
 	} else {
 		return TypedResult<TypeSpecifier>(nullptr,
 				ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::UNDECLARED_VARIABLE,
-								GetLocation().begin.line,
-								GetLocation().begin.column, *(GetName())),
-						ErrorList::GetTerminator()));
+								Error::UNDECLARED_VARIABLE, GetLocation().begin,
+								*(GetName())), ErrorList::GetTerminator()));
 	}
 }
 
@@ -85,8 +83,7 @@ const_shared_ptr<Result> BasicVariable::Evaluate(
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().begin.line, GetLocation().begin.column,
-						*(GetName())), errors);
+						GetLocation().begin, *(GetName())), errors);
 	}
 
 	const_shared_ptr<Result> result = make_shared<Result>(
@@ -110,13 +107,11 @@ const ErrorListRef BasicVariable::AssignValue(
 		const_shared_ptr<ComplexTypeSpecifier> container) const {
 	//TODO: clean up this horrific casting logic
 	auto variable_name = GetName();
-	const int variable_line = GetLocation().begin.line;
-	const int variable_column = GetLocation().begin.column;
 
-	const_shared_ptr<Symbol> symbol = output_context->GetSymbol(variable_name,
-			DEEP);
-	const_shared_ptr<TypeSpecifier> symbol_type_specifier =
-			symbol->GetTypeSpecifier();
+	auto symbol = output_context->GetSymbol(variable_name, DEEP);
+	assert(symbol != Symbol::GetDefaultSymbol());
+
+	auto symbol_type_specifier = symbol->GetTypeSpecifier();
 
 	auto symbol_type_result = symbol_type_specifier->GetType(
 			output_context->GetTypeTable(), RESOLVE);
@@ -135,7 +130,7 @@ const ErrorListRef BasicVariable::AssignValue(
 		switch (basic_type) {
 		case BOOLEAN: {
 			const_shared_ptr<Result> result = AssignmentStatement::do_op(
-					variable_name, basic_type, variable_line, variable_column,
+					variable_name, basic_type, GetLocation().begin,
 					*(static_pointer_cast<const int>(symbol_value)), expression,
 					op, context);
 
@@ -145,9 +140,21 @@ const ErrorListRef BasicVariable::AssignValue(
 			}
 			break;
 		}
+		case BYTE: {
+			const_shared_ptr<Result> result = AssignmentStatement::do_op(
+					variable_name, basic_type, GetLocation().begin,
+					*(static_pointer_cast<const std::uint8_t>(symbol_value)),
+					expression, op, context);
+			errors = result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				errors = SetSymbol(output_context,
+						result->GetData<std::uint8_t>());
+			}
+			break;
+		}
 		case INT: {
 			const_shared_ptr<Result> result = AssignmentStatement::do_op(
-					variable_name, basic_type, variable_line, variable_column,
+					variable_name, basic_type, GetLocation().begin,
 					*(static_pointer_cast<const int>(symbol_value)), expression,
 					op, context);
 
@@ -159,7 +166,7 @@ const ErrorListRef BasicVariable::AssignValue(
 		}
 		case DOUBLE: {
 			const_shared_ptr<Result> result = AssignmentStatement::do_op(
-					variable_name, basic_type, variable_line, variable_column,
+					variable_name, basic_type, GetLocation().begin,
 					*(static_pointer_cast<const double>(symbol_value)),
 					expression, op, context);
 
@@ -171,7 +178,7 @@ const ErrorListRef BasicVariable::AssignValue(
 		}
 		case STRING: {
 			const_shared_ptr<Result> result = AssignmentStatement::do_op(
-					variable_name, basic_type, variable_line, variable_column,
+					variable_name, basic_type, GetLocation().begin,
 					static_pointer_cast<const string>(symbol_value), expression,
 					op, context);
 			errors = result->GetErrors();
@@ -214,8 +221,8 @@ const ErrorListRef BasicVariable::AssignValue(
 
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::ASSIGNMENT_TYPE_ERROR, variable_line,
-								variable_column,
+								Error::ASSIGNMENT_TYPE_ERROR,
+								GetLocation().begin,
 								symbol_type_specifier->ToString(),
 								expression_type_specifier->ToString()), errors);
 			}
@@ -302,8 +309,8 @@ const ErrorListRef BasicVariable::AssignValue(
 						if (expression_type_specifier->AnalyzeAssignmentTo(
 								TypeTable::GetNilTypeSpecifier(),
 								context->GetTypeTable()) == EQUIVALENT) {
-							new_sum = make_shared<Sum>(
-									MaybeTypeSpecifier::EMPTY_NAME, data);
+							new_sum = make_shared<Sum>(TypeTable::GetNilName(),
+									data);
 						} else {
 							new_sum = make_shared<Sum>(
 									MaybeTypeSpecifier::VARIANT_NAME, data);
@@ -405,8 +412,7 @@ const ErrorListRef BasicVariable::AssignValue(
 									ErrorList::From(
 											make_shared<Error>(Error::SEMANTIC,
 													Error::ASSIGNMENT_TYPE_ERROR,
-													variable_line,
-													variable_column,
+													GetLocation().begin,
 													fully_qualified_symbol_type_specifier->ToString(),
 													expression_type_specifier->ToString()),
 											errors);
@@ -434,6 +440,15 @@ const ErrorListRef BasicVariable::SetSymbol(
 	return ToErrorListRef(
 			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
 			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetBoolean());
+}
+
+const ErrorListRef BasicVariable::SetSymbol(
+		const shared_ptr<ExecutionContext> context,
+		const_shared_ptr<std::uint8_t> value) const {
+	auto symbol = context->GetSymbol(*GetName(), DEEP);
+	return ToErrorListRef(
+			context->SetSymbol(*GetName(), value, context->GetTypeTable()),
+			symbol->GetTypeSpecifier(), PrimitiveTypeSpecifier::GetByte());
 }
 
 const ErrorListRef BasicVariable::SetSymbol(
@@ -530,8 +545,7 @@ const ErrorListRef BasicVariable::Validate(
 	if (symbol == nullptr || symbol == Symbol::GetDefaultSymbol()) {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::UNDECLARED_VARIABLE,
-						GetLocation().begin.line, GetLocation().begin.column,
-						*(GetName())), errors);
+						GetLocation().begin, *(GetName())), errors);
 	}
 
 	return errors;

@@ -1,6 +1,6 @@
 Parsing file ../tests/t2075.nwt...
 Parsed file ../tests/t2075.nwt.
-Semantic error on line 5, column 10: Index value '-1' is out of bounds for array 'nums'.
+Semantic error at ../tests/t2075.nwt:5.10: Index value '-1' is out of bounds for array 'nums'.
 Root Symbol Table:
 ----------------
 int i: -1

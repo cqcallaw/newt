@@ -27,22 +27,64 @@
 YY_DECL;
 
 enum TRACE {
-	NO_TRACE = 0, SCANNING = 1, PARSING = 2,
+	NO_TRACE = 0, SCANNING = 1, PARSING = 2, IMPORT = 4
 };
+
+class yy_buffer_state;
+
+class InputStackEntry {
+public:
+	InputStackEntry(FILE* file_handle, yy_buffer_state* buffer_state,
+			const yy::location location) :
+			m_file_handle(file_handle), m_buffer_state(buffer_state), m_location(
+					location) {
+	}
+
+	FILE* GetFileHandle() const {
+		return m_file_handle;
+	}
+
+	yy_buffer_state* GetBufferState() const {
+		return m_buffer_state;
+	}
+
+	const yy::location GetLocation() const {
+		return m_location;
+	}
+
+private:
+	FILE* m_file_handle;
+	yy_buffer_state* m_buffer_state;
+	const yy::location m_location;
+};
+
+typedef plain_shared_ptr<InputStackEntry> input_entry;
+typedef std::stack<input_entry, std::deque<input_entry>> input_stack;
 
 class Driver {
 public:
-	Driver() {
+	Driver(const_shared_ptr<string_list> include_paths, const TRACE trace_level) :
+			m_input_stack(make_shared<input_stack>()), m_include_paths(
+					include_paths), m_included_file_names(
+					make_shared<string_list>()), m_trace_level(trace_level) {
 	}
+
 	virtual ~Driver() {
 	}
 
-	int scan_begin(const std::string& file_name, const bool trace_scanning);
+	int scan_begin(volatile_shared_ptr<string>, const bool trace_scanning);
 	void scan_end();
 
 	// Run the parser on the file specified by <file_name>
 	// Return 0 on success.
-	int parse(const std::string& file_name, const TRACE trace_level);
+	int parse(volatile_shared_ptr<string> file_name);
+
+	// Run the parser on specified input string
+	// Return 0 on success.
+	int parse_string(const std::string& string);
+
+	int scan_string_begin(const std::string& string, const bool trace_scanning);
+	void scan_string_end();
 
 	void error(const std::string& message);
 	void lexer_error(const yy::location& location, const std::string& message);
@@ -62,10 +104,30 @@ public:
 		return m_error_count;
 	}
 
+	volatile_shared_ptr<input_stack> GetInputStack() const {
+		return m_input_stack;
+	}
+
+	volatile_shared_ptr<string_list> GetIncludedFileNames() const {
+		return m_included_file_names;
+	}
+
+	const_shared_ptr<string_list> GetIncludePaths() const {
+		return m_include_paths;
+	}
+
+	const TRACE GetTraceLevel() const {
+		return m_trace_level;
+	}
+
 private:
 	std::string m_file_name;
 	plain_shared_ptr<StatementBlock> m_statement_block;
 	unsigned int m_error_count = 0;
+	volatile_shared_ptr<input_stack> m_input_stack;
+	const_shared_ptr<string_list> m_include_paths;
+	volatile_shared_ptr<string_list> m_included_file_names;
+	const TRACE m_trace_level;
 };
 
 #endif /* DRIVER_H_ */

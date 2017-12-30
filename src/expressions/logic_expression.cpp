@@ -59,6 +59,24 @@ const_shared_ptr<Result> LogicExpression::compute(const bool& left,
 	}
 }
 
+const_shared_ptr<Result> LogicExpression::compute(const std::uint8_t& left,
+		const std::uint8_t& right, yy::location left_position,
+		yy::location right_position) const {
+	switch (GetOperator()) {
+	case OR:
+		return make_shared<Result>(
+				const_shared_ptr<void>(new bool(left || right)),
+				ErrorList::GetTerminator());
+	case AND:
+		return make_shared<Result>(
+				const_shared_ptr<void>(new bool(left && right)),
+				ErrorList::GetTerminator());
+	default:
+		assert(false);
+		return NULL;
+	}
+}
+
 const_shared_ptr<Result> LogicExpression::compute(const int& left,
 		const int& right, yy::location left_position,
 		yy::location right_position) const {

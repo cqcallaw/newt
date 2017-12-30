@@ -57,16 +57,12 @@ public:
 			const shared_ptr<ExecutionContext> closure,
 			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const;
 
-	virtual const ErrorListRef Execute(
+	virtual const ExecutionResult Execute(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
 
 	static const MatchContextListRef GenerateMatchContexts(
 			const MatchListRef match_list);
-
-	static const PreprocessResult::ReturnCoverage CoverageTransition(
-			PreprocessResult::ReturnCoverage current,
-			PreprocessResult::ReturnCoverage input, bool is_start);
 
 private:
 	const yy::location m_statement_location;

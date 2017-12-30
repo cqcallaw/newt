@@ -1,4 +1,4 @@
 Parsing file ../tests/t6351.nwt...
-Semantic error on line 2, column 3: Invalid type "undef".
+Semantic error at ../tests/t6351.nwt:2.3: Invalid type "undef".
 Parsed file ../tests/t6351.nwt.
 1 error found; giving up.

@@ -1,4 +1,4 @@
 Parsing file ../tests/t0020.nwt...
-Semantic error on line 1, column 4: Invalid type "y".
+Semantic error at ../tests/t0020.nwt:1.4: Invalid type "y".
 Parsed file ../tests/t0020.nwt.
 1 error found; giving up.

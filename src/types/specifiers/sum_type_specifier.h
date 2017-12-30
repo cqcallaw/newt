@@ -27,7 +27,7 @@ class RecordTypeSpecifier;
 class SumTypeSpecifier: public ComplexTypeSpecifier {
 public:
 	SumTypeSpecifier(const_shared_ptr<std::string> type_name,
-			const yy::location location = GetDefaultLocation()) :
+			const yy::location location) :
 			SumTypeSpecifier(type_name, nullptr,
 					NamespaceQualifierList::GetTerminator(), location) {
 	}

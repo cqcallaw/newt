@@ -1,0 +1,12 @@
+Parsing file ../tests/t6314.nwt...
+Parsed file ../tests/t6314.nwt.
+Root Symbol Table:
+----------------
+list? r: {nil}
+list? v: {nil}
+
+Root Type Table:
+----------------
+list:
+	<record>
+

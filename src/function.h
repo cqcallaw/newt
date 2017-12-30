@@ -48,6 +48,12 @@ public:
 			FunctionVariantListRef variant_list,
 			const weak_ptr<ExecutionContext> closure);
 
+	static const_shared_ptr<Result> GetFinalReturnValue(
+			plain_shared_ptr<void> value,
+			const_shared_ptr<TypeSpecifier> value_type_specifier,
+			const_shared_ptr<TypeSpecifier> return_type_specifier,
+			volatile_shared_ptr<TypeTable> type_table);
+
 	virtual ~Function();
 
 	const_shared_ptr<Result> Evaluate(ArgumentListRef argument_list,

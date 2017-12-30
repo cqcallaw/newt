@@ -1,0 +1,15 @@
+# test closing over if statement context
+f:= (i:int) -> () -> int {
+	if (i > 2) {
+		return () -> int {
+			return i
+		}
+	} else {
+		return () -> int {
+			return 0
+		}
+	}
+}
+
+r := f(3)
+s := r()

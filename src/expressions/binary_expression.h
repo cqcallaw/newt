@@ -63,9 +63,13 @@ public:
 			const_shared_ptr<TypeSpecifier> valid_right) const;
 
 protected:
+	// Boolean
 	virtual const_shared_ptr<Result> compute(const bool& left,
 			const bool& right, yy::location left_position,
 			yy::location right_position) const = 0;
+	const_shared_ptr<Result> compute(const bool& left,
+			const std::uint8_t& right, yy::location left_position,
+			yy::location right_position) const;
 	const_shared_ptr<Result> compute(const bool& left, const int& right,
 			yy::location left_position, yy::location right_position) const;
 	const_shared_ptr<Result> compute(const bool& left, const double& right,
@@ -73,7 +77,26 @@ protected:
 	const_shared_ptr<Result> compute(const bool& left, const string& right,
 			yy::location left_position, yy::location right_position) const;
 
+	// Byte
+	const_shared_ptr<Result> compute(const std::uint8_t& left,
+			const bool& right, yy::location left_position,
+			yy::location right_position) const;
+	virtual const_shared_ptr<Result> compute(const std::uint8_t& left,
+			const std::uint8_t& right, yy::location left_position,
+			yy::location right_position) const = 0;
+	const_shared_ptr<Result> compute(const std::uint8_t& left, const int& right,
+			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const std::uint8_t& left,
+			const double& right, yy::location left_position,
+			yy::location right_position) const;
+	const_shared_ptr<Result> compute(const std::uint8_t& left,
+			const string& right, yy::location left_position,
+			yy::location right_position) const;
+
+	// Integer
 	const_shared_ptr<Result> compute(const int& left, const bool& right,
+			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const int& left, const std::uint8_t& right,
 			yy::location left_position, yy::location right_position) const;
 	virtual const_shared_ptr<Result> compute(const int& left, const int& right,
 			yy::location left_position, yy::location right_position) const = 0;
@@ -82,8 +105,12 @@ protected:
 	const_shared_ptr<Result> compute(const int& left, const string& right,
 			yy::location left_position, yy::location right_position) const;
 
+	// Double
 	const_shared_ptr<Result> compute(const double& left, const bool& right,
 			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const double& left,
+			const std::uint8_t& right, yy::location left_position,
+			yy::location right_position) const;
 	const_shared_ptr<Result> compute(const double& left, const int& right,
 			yy::location left_position, yy::location right_position) const;
 	virtual const_shared_ptr<Result> compute(const double& left,
@@ -92,8 +119,12 @@ protected:
 	const_shared_ptr<Result> compute(const double& left, const string& right,
 			yy::location left_position, yy::location right_position) const;
 
+	// String
 	const_shared_ptr<Result> compute(const string& left, const bool& right,
 			yy::location left_position, yy::location right_position) const;
+	const_shared_ptr<Result> compute(const string& left,
+			const std::uint8_t& right, yy::location left_position,
+			yy::location right_position) const;
 	const_shared_ptr<Result> compute(const string& left, const int& right,
 			yy::location left_position, yy::location right_position) const;
 	const_shared_ptr<Result> compute(const string& left, const double& right,

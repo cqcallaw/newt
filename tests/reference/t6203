@@ -1,5 +1,5 @@
 Parsing file ../tests/t6203.nwt...
-Semantic error on line 12, column 2: Invalid type "result.bogus".
-Semantic error on line 11, column 1: Incomplete match. Unmatched variants: value.
+Semantic error at ../tests/t6203.nwt:12.2: Invalid type "result.bogus".
+Semantic error at ../tests/t6203.nwt:11.1: Incomplete match. Unmatched variants: value.
 Parsed file ../tests/t6203.nwt.
 2 errors found; giving up.

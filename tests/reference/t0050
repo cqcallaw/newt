@@ -1,0 +1,11 @@
+Parsing file ../tests/t0050.nwt...
+Parsed file ../tests/t0050.nwt.
+Root Symbol Table:
+----------------
+error e:
+	int id: 0
+	string message: ""
+
+
+Root Type Table:
+----------------

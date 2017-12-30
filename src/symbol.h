@@ -48,6 +48,7 @@ public:
 	Symbol(const_shared_ptr<int> value);
 	Symbol(const_shared_ptr<double> value);
 	Symbol(const_shared_ptr<string> value);
+	Symbol(const_shared_ptr<const std::uint8_t> value);
 	Symbol(const_shared_ptr<Array> value);
 	Symbol(const_shared_ptr<ComplexTypeSpecifier> type,
 			const_shared_ptr<Record> value);
@@ -56,8 +57,7 @@ public:
 			const_shared_ptr<Sum> value);
 	Symbol(const_shared_ptr<MaybeTypeSpecifier> type,
 			const_shared_ptr<Sum> value);
-	Symbol(const_shared_ptr<TypeSpecifier> type,
-			const_shared_ptr<Unit> value);
+	Symbol(const_shared_ptr<TypeSpecifier> type, const_shared_ptr<Unit> value);
 
 	virtual ~Symbol();
 
@@ -65,13 +65,14 @@ public:
 		return m_type_specifier;
 	}
 
-	const_shared_ptr<void> GetValue() const {
-		return m_value;
-	}
+	const_shared_ptr<void> GetValue() const;
 
 	static const_shared_ptr<Symbol> GetDefaultSymbol();
 
 	static const_shared_ptr<Symbol> GetNilSymbol();
+
+	static const_shared_ptr<Symbol> WeakenReference(
+			const_shared_ptr<Symbol> original);
 
 	virtual const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
@@ -80,16 +81,26 @@ public:
 			const_shared_ptr<void> value, const TypeTable& type_table,
 			const Indent& indent);
 
+	const bool IsWeakenable() const {
+		return m_weakenable;
+	}
+
 protected:
-	Symbol(const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value);
+	Symbol(const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void> value, const bool m_weakenable);
+	Symbol(const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void> value, weak_ptr<const void> weak_value,
+			const bool weakenable);
 
 	virtual const_shared_ptr<Symbol> WithValue(
-			const_shared_ptr<TypeSpecifier> type, const_shared_ptr<void> value,
-			const TypeTable& type_table) const;
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<void> value, const TypeTable& type_table) const;
 
 private:
 	const_shared_ptr<TypeSpecifier> m_type_specifier;
 	const_shared_ptr<void> m_value;
+	weak_ptr<const void> m_weak_ref;
+	const bool m_weakenable;
 };
 
 #endif /* SYMBOL_H_ */

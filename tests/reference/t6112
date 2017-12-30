@@ -4,7 +4,7 @@ Error: No go
 Root Symbol Table:
 ----------------
 () -> result f:
-	Body Location: 9.18-10.48
+	Body Location: ../tests/t6112.nwt:9.18-10.48
 
 Root Type Table:
 ----------------

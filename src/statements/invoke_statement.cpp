@@ -28,7 +28,8 @@ InvokeStatement::InvokeStatement(const_shared_ptr<Variable> variable,
 		const yy::location argument_list_position) :
 		m_variable(variable), m_argument_list(argument_list), m_argument_list_position(
 				argument_list_position), m_expression(
-				make_shared<InvokeExpression>(m_variable->GetLocation(),
+				InvokeExpression::BuildInvokeExpression(
+						m_variable->GetLocation(),
 						make_shared<VariableExpression>(
 								m_variable->GetLocation(), m_variable),
 						m_argument_list, m_argument_list_position)) {
@@ -48,10 +49,10 @@ const PreprocessResult InvokeStatement::Preprocess(
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, result);
 }
 
-const ErrorListRef InvokeStatement::Execute(
+const ExecutionResult InvokeStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
 	auto result = m_expression->Evaluate(context, closure);
 
-	return result->GetErrors();
+	return ExecutionResult(result->GetErrors());
 }

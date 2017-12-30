@@ -20,9 +20,12 @@
 #include <unit_type.h>
 #include <unit_declaration_statement.h>
 #include <sstream>
+#include <complex_instantiation_statement.h>
+#include <expression.h>
 
-UnitType::UnitType() :
-		m_value(make_shared<Unit>()), m_table(make_shared<TypeTable>()) {
+UnitType::UnitType(const_shared_ptr<MaybeType> maybe_type) :
+		m_value(make_shared<Unit>()), m_maybe_type(maybe_type), m_table(
+				make_shared<TypeTable>()) {
 }
 
 UnitType::~UnitType() {
@@ -71,8 +74,16 @@ const_shared_ptr<DeclarationStatement> UnitType::GetDeclarationStatement(
 		const yy::location type_position, const_shared_ptr<std::string> name,
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) const {
-	return make_shared<UnitDeclarationStatement>(position, type, type_position,
-			name, name_position);
+	auto as_complex_specifier =
+			dynamic_pointer_cast<const ComplexTypeSpecifier>(type);
+	if (as_complex_specifier) {
+		return make_shared<ComplexInstantiationStatement>(position,
+				as_complex_specifier, type_position, name, name_position,
+				initializer_expression);
+	} else {
+		assert(false);
+		return nullptr;
+	}
 }
 
 const_shared_ptr<void> UnitType::GetMemberDefaultValue(
@@ -94,9 +105,36 @@ const_shared_ptr<Result> UnitType::PreprocessSymbolCore(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
-	assert(false);
-	return nullptr;
+	plain_shared_ptr<Unit> instance = nullptr;
+	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
+	auto initializer_expression_type_result = initializer->GetTypeSpecifier(
+			execution_context);
+
+	auto errors = initializer_expression_type_result.GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
+		auto initializer_expression_type =
+				initializer_expression_type_result.GetData();
+		auto initializer_analysis =
+				initializer_expression_type->AnalyzeAssignmentTo(type_specifier,
+						execution_context->GetTypeTable());
+		if (initializer_analysis == EQUIVALENT) {
+			instance = m_value;
+		} else {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::ASSIGNMENT_TYPE_ERROR,
+							initializer->GetLocation().begin,
+							type_specifier->ToString(),
+							initializer_expression_type->ToString()), errors);
+		}
+
+		if (ErrorList::IsTerminator(errors)) {
+			symbol = make_shared<Symbol>(type_specifier, instance);
+		}
+	}
+
+	return make_shared<Result>(symbol, errors);
 }
 
 const SetResult UnitType::InstantiateCore(
@@ -104,6 +142,18 @@ const SetResult UnitType::InstantiateCore(
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<TypeSpecifier> value_type_specifier,
 		const std::string& instance_name, const_shared_ptr<void> data) const {
-	assert(false);
-	return INCOMPATIBLE_TYPE;
+	auto instance = static_pointer_cast<const Unit>(data);
+
+	if (value_type_specifier->AnalyzeAssignmentTo(type_specifier,
+			execution_context->GetTypeTable())) {
+		auto set_result = execution_context->SetSymbol(instance_name,
+				type_specifier, instance, execution_context->GetTypeTable());
+		return set_result;
+	} else {
+		return SetResult::INCOMPATIBLE_TYPE;
+	}
+}
+
+const_shared_ptr<MaybeType> UnitType::GetMaybeType() const {
+	return m_maybe_type;
 }

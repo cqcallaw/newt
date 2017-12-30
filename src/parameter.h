@@ -47,6 +47,4 @@ private:
 	const_shared_ptr<Expression> m_expression;
 };
 
-typedef shared_ptr<const LinkedList<Parameter, NO_DUPLICATES>> ParameterList;
-
 #endif /* PARAMETER_H_ */

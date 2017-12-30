@@ -23,9 +23,9 @@
 #include <complex_type.h>
 #include <unit.h>
 
-class UnitType: public TypeDefinition {
+class UnitType: public ComplexType {
 public:
-	UnitType();
+	UnitType(const_shared_ptr<MaybeType> maybe_type);
 	virtual ~UnitType();
 
 	virtual const_shared_ptr<void> GetDefaultValue(
@@ -61,6 +61,8 @@ public:
 
 	virtual const_shared_ptr<TypeTable> GetDefinition() const;
 
+	virtual const_shared_ptr<MaybeType> GetMaybeType() const;
+
 	virtual const AnalysisResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& unaliased_other) const;
@@ -83,6 +85,7 @@ protected:
 			const_shared_ptr<void> data) const;
 private:
 	const_shared_ptr<Unit> m_value;
+	const_shared_ptr<MaybeType> m_maybe_type;
 	const_shared_ptr<TypeTable> m_table;
 };
 

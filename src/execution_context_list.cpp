@@ -23,13 +23,27 @@
 shared_ptr<ExecutionContextList> ExecutionContextList::From(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContextList> context_parent) {
-	if (context->GetLifeTime() == PERSISTENT) {
+	assert(context);
+	if (context_parent) {
+		assert(context != context_parent->GetData());
+		assert(
+				context->GetTypeTable()
+						!= context_parent->GetData()->GetTypeTable());
+	}
+
+	switch (context->GetLifeTime()) {
+	case PERSISTENT:
+	case TEMPORARY:
+	case ROOT: {
 		weak_ptr<ExecutionContext> weak = context;
 		return shared_ptr<ExecutionContextList>(
 				new ExecutionContextList(weak, context_parent));
-	} else {
+	}
+	case EPHEMERAL:
+	default: {
 		return shared_ptr<ExecutionContextList>(
 				new ExecutionContextList(context, context_parent));
+	}
 	}
 
 }

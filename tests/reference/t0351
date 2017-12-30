@@ -1,0 +1,4 @@
+Parsing file ../tests/t0351.nwt...
+Lex error at ../tests/includes/bad_external_import.nwt:1.1-21: Could not resolve import source 'does_not_exist'.
+Parsed file ../tests/t0351.nwt.
+1 error found; giving up.

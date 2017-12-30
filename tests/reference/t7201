@@ -4,7 +4,7 @@ Root Symbol Table:
 ----------------
 list v:
 	int data: 0
-	tail tail: {next} {empty}
+	tail tail: {next} {nil}
 
 
 Root Type Table:

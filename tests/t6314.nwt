@@ -1,0 +1,11 @@
+# test match of Maybe type, with base record type
+list {}
+
+v:list?
+r:list?
+
+match(v)
+	nil { }
+	| value {
+		r = value
+	}

@@ -21,9 +21,8 @@
 #include "print_statement.h"
 #include <defaults.h>
 
-PrintStatement::PrintStatement(const int line_number,
-		const_shared_ptr<Expression> expression) :
-		m_line_number(line_number), m_expression(expression) {
+PrintStatement::PrintStatement(const_shared_ptr<Expression> expression) :
+		m_expression(expression) {
 }
 
 PrintStatement::~PrintStatement() {
@@ -37,16 +36,14 @@ const PreprocessResult PrintStatement::Preprocess(
 			m_expression->Validate(context));
 }
 
-const ErrorListRef PrintStatement::Execute(
+const ExecutionResult PrintStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	ErrorListRef errors(ErrorList::GetTerminator());
-
 	auto string_result = m_expression->ToString(context);
-	errors = string_result.GetErrors();
+	auto errors = string_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		std::cout << *(string_result.GetData()) << "\n";
 	}
 
-	return errors;
+	return ExecutionResult(errors);
 }

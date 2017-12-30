@@ -1,0 +1,12 @@
+Parsing file ../tests/t0304.nwt...
+Parsed file ../tests/t0304.nwt.
+Root Symbol Table:
+----------------
+() -> int f:
+	Body Location: ../tests/t0304.nwt:5.17-6.9
+() -> int g:
+	Body Location: ../tests/includes/trivial.nwt:2.17-26
+int i: 3
+
+Root Type Table:
+----------------

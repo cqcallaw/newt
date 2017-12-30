@@ -1,0 +1,23 @@
+# test logic operators with byte
+a:byte = 0x01
+b:bool = true
+c:int = 0
+d:double = 4
+
+res_bool_or_left := a || b
+res_bool_or_right := b || a
+
+res_int_or_left := a || c
+res_int_or_right := c || a
+
+res_double_or_left := a || d
+res_double_or_right := d || a
+
+res_bool_add_left := a && b
+res_bool_add_right := b && a
+
+res_int_add_left := a && c
+res_int_add_right := c && a
+
+res_double_add_left := a && d
+res_double_add_right := d && a

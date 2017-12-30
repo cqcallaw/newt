@@ -36,7 +36,12 @@ class TypeTable;
 using namespace std;
 class RecordType: public ComplexType {
 public:
+	RecordType(const_shared_ptr<TypeTable> definition,
+			const Modifier::Type modifiers,
+			const_shared_ptr<MaybeType> maybe_type);
+
 	virtual ~RecordType();
+
 	const_shared_ptr<TypeDefinition> GetMember(const std::string& name) const;
 
 	virtual const_shared_ptr<void> GetMemberDefaultValue(
@@ -76,7 +81,7 @@ public:
 		return m_definition;
 	}
 
-	static const_shared_ptr<Result> Build(
+	static const ErrorListRef Build(const_shared_ptr<string> name,
 			const shared_ptr<ExecutionContext> output,
 			const shared_ptr<ExecutionContext> closure,
 			const Modifier::Type modifiers,
@@ -108,10 +113,6 @@ protected:
 			const_shared_ptr<TypeSpecifier> value_type_specifier,
 			const std::string& instance_name,
 			const_shared_ptr<void> data) const;
-
-	RecordType(const_shared_ptr<TypeTable> definition,
-			const Modifier::Type modifiers,
-			const_shared_ptr<MaybeType> maybe_type);
 
 private:
 	const_shared_ptr<TypeTable> m_definition;

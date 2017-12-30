@@ -1,0 +1,7 @@
+# test invalid reference to default value of record type member
+point {
+	x: double = 1,
+	y: double
+}
+
+a:= point.x

@@ -1,0 +1,2 @@
+# test basic byte declaration
+a:byte = 0x05

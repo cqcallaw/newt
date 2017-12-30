@@ -1,0 +1,4 @@
+Parsing file ../tests/t10111.nwt...
+Semantic error at ../tests/t10111.nwt:30.12: Basic return type 'disposable_setup_result.setup_errors' of source member 'setup_errors' cannot be assigned to block result type 'result'.
+Parsed file ../tests/t10111.nwt.
+1 error found; giving up.

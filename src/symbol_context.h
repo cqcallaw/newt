@@ -28,6 +28,7 @@
 
 class Record;
 class Function;
+class Unit;
 
 using namespace std;
 
@@ -78,12 +79,17 @@ public:
 
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<bool> value,
 			const TypeTable& type_table);
+	SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<std::uint8_t> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<int> value,
 			const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<double> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<string> value, const TypeTable& type_table);
+	SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<ComplexTypeSpecifier> type,
+			const_shared_ptr<Unit> value, const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier, const_shared_ptr<Array> value,
 			const TypeTable& type_table);
 	SetResult SetSymbol(const string& identifier,
@@ -97,6 +103,9 @@ public:
 	SetResult SetSymbol(const string& identifier,
 			const_shared_ptr<MaybeTypeSpecifier> type,
 			const_shared_ptr<Sum> value, const TypeTable& type_table);
+
+	SetResult SetSymbol(const string& identifier,
+			const_shared_ptr<Symbol> value, const TypeTable& type_table);
 
 	static volatile_shared_ptr<SymbolContext> GetDefault();
 

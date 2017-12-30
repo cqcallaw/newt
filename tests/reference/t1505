@@ -1,4 +1,4 @@
 Parsing file ../tests/t1505.nwt...
-Semantic error on line 6, column 20: Invalid right operand for operator '||'.
+Semantic error at ../tests/t1505.nwt:6.20: Invalid right operand for operator '||'.
 Parsed file ../tests/t1505.nwt.
 1 error found; giving up.

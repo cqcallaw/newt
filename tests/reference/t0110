@@ -1,6 +1,6 @@
 Parsing file ../tests/t0110.nwt...
 Parsed file ../tests/t0110.nwt.
-Semantic error on line 3, column 13: Index value '1000' is out of bounds for array 'nums'.
+Semantic error at ../tests/t0110.nwt:3.13: Index value '1000' is out of bounds for array 'nums'.
 Root Symbol Table:
 ----------------
 int[] nums:

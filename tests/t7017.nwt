@@ -1,4 +1,4 @@
-# test default value nested sum types, first variant 
+# test default value nested sum types, second variant 
 a {
 	b
 	| c {

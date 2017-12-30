@@ -1,0 +1,9 @@
+# test closing over fuction context
+f:= (v:int) -> () -> int {
+	return () -> int {
+		return v
+	}
+}
+
+r := f(3)
+s := r()

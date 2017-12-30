@@ -1,0 +1,16 @@
+# test instance method without reference to instance
+a {
+	b:int,
+	c:= (v:a?) -> int {
+		match(v)
+			value {
+				return 1
+			}
+			| nil {
+				return 0
+			}
+	}
+}
+
+v:a = @a
+r:int = v.c(v)

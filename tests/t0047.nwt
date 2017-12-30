@@ -1,0 +1,2 @@
+# test single-character byte
+r:byte = 0x00

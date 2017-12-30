@@ -1,6 +1,6 @@
 Parsing file ../tests/t3131.nwt...
-Semantic error on line 5, column 24: Undeclared variable 'b'
-Semantic error on line 8, column 5: Invalid type "a".
-Semantic error on line 9, column 6: Undeclared variable 'v'
+Semantic error at ../tests/t3131.nwt:5.24: Undeclared variable 'b'
+Semantic error at ../tests/t3131.nwt:8.5: Invalid type "a".
+Semantic error at ../tests/t3131.nwt:9.6: Undeclared variable 'v'
 Parsed file ../tests/t3131.nwt.
 3 errors found; giving up.

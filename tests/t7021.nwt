@@ -1,0 +1,16 @@
+# test instance method
+a {
+	b:int,
+	c:= (v:a?) -> int {
+		match(v)
+			value {
+				return value.b
+			}
+			| nil {
+				return 0
+			}
+	}
+}
+
+i := @a with { b = 3 }
+r := i.c(i)

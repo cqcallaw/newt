@@ -1,0 +1,17 @@
+Parsing file ../tests/t11200.nwt...
+Parsed file ../tests/t11200.nwt.
+Root Symbol Table:
+----------------
+error_list? e: {nil}
+int_result r: {data} 0
+error_list? saved_e:
+	{value}
+		error data:
+			int id: 3
+			string message: ""
+
+		error_list? next: {nil}
+
+
+Root Type Table:
+----------------

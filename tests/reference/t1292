@@ -1,4 +1,4 @@
 Parsing file ../tests/t1292.nwt...
-Semantic error on line 6, column 19: Invalid right operand for operator '*'.
+Semantic error at ../tests/t1292.nwt:6.19: Invalid right operand for operator '*'.
 Parsed file ../tests/t1292.nwt.
 1 error found; giving up.

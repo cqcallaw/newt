@@ -1,0 +1,7 @@
+# test variable reference in else block
+if (1 == 0) {
+	print("foo")
+} else {
+	dec := 1
+	print("bar" + dec)
+}

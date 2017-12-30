@@ -9,7 +9,7 @@ list l:
 		{value}
 		{item}
 			int data: 2
-			list? next: {empty}
+			list? next: {nil}
 
 
 
@@ -22,7 +22,7 @@ list:
 		data:
 			int (0)
 		next:
-			list? ({empty})
+			list? ({nil})
 
 	terminator:
 		<unit>

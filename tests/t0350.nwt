@@ -1,0 +1,2 @@
+# test invalid import
+import does_not_exist

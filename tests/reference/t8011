@@ -5,11 +5,11 @@ Root Symbol Table:
 list l:
 {item}
 	int data: 2
-	list? next: {empty}
+	list? next: {nil}
 
 int r: 2
 (list?) -> int sum:
-	Body Location: 10.25-23.3
+	Body Location: ../tests/t8011.nwt:10.25-23.3
 
 Root Type Table:
 ----------------
@@ -20,7 +20,7 @@ list:
 		data:
 			int (0)
 		next:
-			list? ({empty})
+			list? ({nil})
 
 	terminator:
 		<unit>

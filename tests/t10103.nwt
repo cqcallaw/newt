@@ -1,0 +1,21 @@
+# test teardown type
+
+error_list {
+	code:int,
+	message:string,
+	next:error_list?
+}
+
+
+result {
+	value:int
+	| errors:error_list
+}
+
+disposable {
+	teardown := 3
+}
+
+r := using @disposable as value -> result {
+	return 1
+}

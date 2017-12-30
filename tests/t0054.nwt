@@ -1,0 +1,5 @@
+# test existence of builtins
+e:= @error with { id = 3, message = "Code 3!" }
+el:= @error_list with { data = e }
+ir:int_result = 3
+ir2:int_result = el

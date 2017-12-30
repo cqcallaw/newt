@@ -1,0 +1,9 @@
+byte_iter {
+	data:byte_result,
+	next:() -> byte_iter?
+}
+
+byte_list {
+	data:byte,
+	next:byte_list?
+}

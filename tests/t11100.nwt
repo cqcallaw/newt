@@ -1,0 +1,3 @@
+# test redefinition of open (should be an error)
+
+open:= (p:string, m:string) -> int_result { return 1 } 

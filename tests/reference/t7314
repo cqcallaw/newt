@@ -1,5 +1,5 @@
 Parsing file ../tests/t7314.nwt...
-Semantic error on line 4, column 4: Invalid type "b".
-Semantic error on line 7, column 5: Invalid type "a".
+Semantic error at ../tests/t7314.nwt:4.4: Invalid type "b".
+Semantic error at ../tests/t7314.nwt:7.5: Invalid type "a".
 Parsed file ../tests/t7314.nwt.
 2 errors found; giving up.

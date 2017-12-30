@@ -32,15 +32,15 @@ ArithmeticExpression::ArithmeticExpression(const yy::location position,
 }
 
 const_shared_ptr<Result> ArithmeticExpression::compute(const bool& left,
-		const bool& right, yy::location left_position,
-		yy::location right_position) const {
+		const bool& right, yy::location left_location,
+		yy::location right_location) const {
 	assert(false);
 	return NULL;
 }
 
 const_shared_ptr<Result> ArithmeticExpression::compute(const int& left,
-		const int& right, yy::location left_position,
-		yy::location right_position) const {
+		const int& right, yy::location left_location,
+		yy::location right_location) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	int* result = new int;
@@ -55,8 +55,7 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const int& left,
 		if (right == 0) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
-							right_position.begin.line,
-							right_position.begin.column), errors);
+							right_location.begin), errors);
 			*result = 0;
 		} else {
 			*result = left / right;
@@ -69,8 +68,7 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const int& left,
 		if (right == 0) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::MOD_BY_ZERO,
-							right_position.begin.line,
-							right_position.begin.column), errors);
+							right_location.begin), errors);
 			*result = 0;
 		} else {
 			*result = left % right;
@@ -84,8 +82,8 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const int& left,
 }
 
 const_shared_ptr<Result> ArithmeticExpression::compute(const double& left,
-		const double& right, yy::location left_position,
-		yy::location right_position) const {
+		const double& right, yy::location left_location,
+		yy::location right_location) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	double* result = new double;
@@ -100,8 +98,40 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const double& left,
 		if (right == 0.0) {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
-							right_position.begin.line,
-							right_position.begin.column), errors);
+							right_location.begin), errors);
+			*result = 0;
+		} else {
+			*result = left / right;
+		}
+		break;
+	case MINUS:
+		*result = left - right;
+		break;
+	default:
+		break;
+	}
+
+	return make_shared<Result>(const_shared_ptr<const void>(result), errors);
+}
+
+const_shared_ptr<Result> ArithmeticExpression::compute(const std::uint8_t& left,
+		const std::uint8_t& right, yy::location left_location,
+		yy::location right_location) const {
+	ErrorListRef errors = ErrorList::GetTerminator();
+
+	uint8_t* result = new uint8_t;
+	switch (GetOperator()) {
+	case PLUS:
+		*result = left + right;
+		break;
+	case MULTIPLY:
+		*result = left * right;
+		break;
+	case DIVIDE:
+		if (right == 0.0) {
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC, Error::DIVIDE_BY_ZERO,
+							right_location.begin), errors);
 			*result = 0;
 		} else {
 			*result = left / right;
@@ -118,8 +148,8 @@ const_shared_ptr<Result> ArithmeticExpression::compute(const double& left,
 }
 
 const_shared_ptr<Result> ArithmeticExpression::compute(const string& left,
-		const string& right, yy::location left_position,
-		yy::location right_position) const {
+		const string& right, yy::location left_location,
+		yy::location right_location) const {
 	//string concatenation isn't strictly an arithmetic operation, so this is a hack
 	std::ostringstream buffer;
 	buffer << left;

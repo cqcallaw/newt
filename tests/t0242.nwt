@@ -1,0 +1,3 @@
+# test printing of byte constants
+print(0x03)
+print(0x2)

@@ -1,0 +1,11 @@
+# test incorrect base type for next
+list {
+	data:int,
+	next:int?
+}
+
+l:= @list
+
+for i in l {
+	print(l)
+}

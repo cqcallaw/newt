@@ -26,6 +26,7 @@
 class FunctionDeclaration;
 class StatementBlock;
 class Indent;
+class ExecutionContext;
 
 class FunctionVariant {
 public:
@@ -46,12 +47,17 @@ public:
 		return m_declaration;
 	}
 
+	const shared_ptr<ExecutionContext> GetContext() const {
+		return m_context;
+	}
+
 	const string ToString(const Indent &indent) const;
 
 private:
 	const yy::location m_location;
 	const_shared_ptr<FunctionDeclaration> m_declaration;
 	const_shared_ptr<StatementBlock> m_body;
+	shared_ptr<ExecutionContext> m_context;
 };
 
 typedef const LinkedList<const FunctionVariant, NO_DUPLICATES> FunctionVariantList;

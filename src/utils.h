@@ -27,6 +27,8 @@ using namespace std;
 
 const_shared_ptr<string> AsString(const bool& value);
 
+const_shared_ptr<string> AsString(const std::uint8_t& value);
+
 const_shared_ptr<string> AsString(const int& value);
 
 const_shared_ptr<string> AsString(const double& value);
@@ -35,6 +37,15 @@ const_shared_ptr<string> AsString(bool* value);
 
 const_shared_ptr<string> AsString(int* value);
 
+const_shared_ptr<string> AsString(std::uint8_t* value);
+
 const_shared_ptr<string> AsString(double* value);
 
+const_shared_ptr<string_list> Tokenize(const string& str,
+		const string& delimiters = " ");
+
+/**
+ * Get unique strings without changing the order of the list
+ */
+const_shared_ptr<string_list> Unique(const_shared_ptr<string_list> list);
 #endif /* UTILS_H_ */

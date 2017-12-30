@@ -2,5 +2,5 @@
 v:int?
 
 match(v)
-	empty { }
+	nil { }
 	| value { print(value) }

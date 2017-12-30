@@ -1,4 +1,4 @@
 Parsing file ../tests/t6063.nwt...
-Semantic error on line 10, column 7: Type "test" does not contain a member named "a".
+Semantic error at ../tests/t6063.nwt:10.7: Type "test" does not contain a member named "a".
 Parsed file ../tests/t6063.nwt.
 1 error found; giving up.

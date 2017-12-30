@@ -1,0 +1,16 @@
+# test worst-case function reference loops (poster child for GC)
+# in this test, we have a recursive function that is returned from a runtime context
+f := () -> (int) -> int {
+	g := (i:int) -> int {
+		if (i <= 1) {
+			return 1
+		} else {
+			return i * g(i - 1)
+		}
+	}
+
+	return g
+}
+
+h := f()
+r := h(3)

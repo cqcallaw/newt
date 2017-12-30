@@ -13,7 +13,7 @@ list l:
 					list? tail:
 						{value}
 							int data: 2
-							list? tail: {empty}
+							list? tail: {nil}
 
 
 
@@ -26,5 +26,5 @@ list:
 	data:
 		int (0)
 	tail:
-		list? ({empty})
+		list? ({nil})
 

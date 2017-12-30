@@ -1,5 +1,5 @@
 Parsing file ../tests/t7301.nwt...
-Semantic error on line 6, column 3: Specification of containing type requires Maybe type specifier.
-Semantic error on line 10, column 7: Invalid type "list".
+Semantic error at ../tests/t7301.nwt:6.3: Specification of containing type requires Maybe type specifier.
+Semantic error at ../tests/t7301.nwt:10.7: Invalid type "list".
 Parsed file ../tests/t7301.nwt.
 2 errors found; giving up.

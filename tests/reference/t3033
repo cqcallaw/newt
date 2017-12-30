@@ -6,7 +6,7 @@ int outside: 3
 int r: 3
 a v:
 	() -> int f:
-		Body Location: 4.16-30
+		Body Location: ../tests/t3033.nwt:4.16-30
 
 
 Root Type Table:
@@ -15,6 +15,6 @@ a:
 	<record>
 	f:
 		() -> int (
-			Body Location: 4.16-30
+			Body Location: ../tests/t3033.nwt:4.16-30
 		)
 
