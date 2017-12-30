@@ -76,6 +76,11 @@ int main(int argc, char *argv[]) {
 	import_paths->push_back(make_shared<const string>("."));
 	int i = 1;
 	for (; i < argc - 1; i++) {
+		if (strcmp(argv[i], "--help") == 0) {
+			print_help();
+			return 0;
+		}
+
 		if (strcmp(argv[i], "--debug") == 0) {
 			debug = true;
 		}
@@ -92,10 +97,6 @@ int main(int argc, char *argv[]) {
 			trace = TRACE(trace | IMPORT);
 		}
 
-		if (strcmp(argv[i], "--help") == 0) {
-			print_help();
-			return 0;
-		}
 		if (strcmp(argv[i], "--include-paths") == 0) {
 			auto as_string = string(argv[++i]);
 			auto commandline_include_paths = Unique(Tokenize(as_string, "|"));
