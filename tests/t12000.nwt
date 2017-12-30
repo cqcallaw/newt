@@ -1,8 +1,9 @@
 # test file read with using block
 import io
 
-r := using open_byte_stream("../tests/files/abc.in", @stream_mode with { read = true }) as stream -> error_list? {
-	for value in read(stream) {
+path := "../tests/files/abc.in"
+r := using open_stream(path, binary_read_mode) as s -> error_list? {
+	for value in read(s) {
 		match(value)
 			data {
 				print(data)

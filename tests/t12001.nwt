@@ -1,17 +1,15 @@
 # test file read with using block
-
-import list
 import io
 
-file_name := "../tests/files/abc.inout"
+path := "../tests/files/abc.inout"
 
 data := @byte_list with { data = 0x63 }
 data = data with { data = 0x62, next = data }
 data = data with { data = 0x61, next = data }
 
-write_result := using open_byte_stream(file_name, @stream_mode with { write = true, trunc = true }) as stream -> error_list? {
+w := using open_stream(path, binary_overwrite_mode) as s -> error_list? {
 	for datum in data {
-		r := write(stream, datum)
+		r := write(s, datum)
 		match (r)
 			value {
 				return value # we have an error
@@ -21,8 +19,8 @@ write_result := using open_byte_stream(file_name, @stream_mode with { write = tr
 	return nil
 }
 
-read_result := using open_byte_stream(file_name, @stream_mode with { read = true }) as stream -> error_list? {
-	for value in read(stream) {
+r := using open_stream(path, binary_read_mode) as s -> error_list? {
+	for value in read(s) {
 		match(value)
 			data {
 				print(data)
