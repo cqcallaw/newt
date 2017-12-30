@@ -21,6 +21,7 @@
 #define DEFAULTS_H_
 
 #include <memory>
+#include <vector>
 
 template<class T>
 using const_shared_ptr = const std::shared_ptr<const T>;
