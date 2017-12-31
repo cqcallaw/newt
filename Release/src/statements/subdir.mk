@@ -13,7 +13,8 @@ CPP_SRCS += \
 ../src/statements/match_statement.cpp \
 ../src/statements/print_statement.cpp \
 ../src/statements/return_statement.cpp \
-../src/statements/statement_block.cpp 
+../src/statements/statement_block.cpp \
+../src/statements/while_statement.cpp 
 
 OBJS += \
 ./src/statements/assignment_statement.o \
@@ -25,7 +26,8 @@ OBJS += \
 ./src/statements/match_statement.o \
 ./src/statements/print_statement.o \
 ./src/statements/return_statement.o \
-./src/statements/statement_block.o 
+./src/statements/statement_block.o \
+./src/statements/while_statement.o 
 
 CPP_DEPS += \
 ./src/statements/assignment_statement.d \
@@ -37,7 +39,8 @@ CPP_DEPS += \
 ./src/statements/match_statement.d \
 ./src/statements/print_statement.d \
 ./src/statements/return_statement.d \
-./src/statements/statement_block.d 
+./src/statements/statement_block.d \
+./src/statements/while_statement.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
