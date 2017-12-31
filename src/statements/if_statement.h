@@ -24,8 +24,6 @@
 
 class Expression;
 class StatementBlock;
-class Error;
-class SymbolTable;
 
 class IfStatement: public Statement {
 public:
