@@ -186,8 +186,10 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 								execution_context);
 						errors = ErrorList::Concatenate(errors,
 								execution_result.GetErrors());
-						auto return_value = execution_result.GetReturnValue();
-						if (return_value != Symbol::GetDefaultSymbol()) {
+
+						if (execution_result.NeedsReturn()) {
+							auto return_value =
+									execution_result.GetReturnValue();
 							auto final_return_value_result =
 									Function::GetFinalReturnValue(
 											return_value->GetValue(),

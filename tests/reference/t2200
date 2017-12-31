@@ -1,0 +1,10 @@
+Parsing file ../tests/t2200.nwt...
+Parsed file ../tests/t2200.nwt.
+3
+4
+Root Symbol Table:
+----------------
+int i: 5
+
+Root Type Table:
+----------------

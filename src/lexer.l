@@ -127,8 +127,10 @@ import          BEGIN(import);
 "string"        return yy::newt_parser::make_STRING(loc);
 
 "if"            return yy::newt_parser::make_IF(loc);
-"for"           return yy::newt_parser::make_FOR(loc);
 "else"          return yy::newt_parser::make_ELSE(loc);
+"for"           return yy::newt_parser::make_FOR(loc);
+"while"         return yy::newt_parser::make_WHILE(loc);
+"do"            return yy::newt_parser::make_DO(loc);
 
 "exit"          return yy::newt_parser::make_EXIT(loc);
 "print"         return yy::newt_parser::make_PRINT(loc);

@@ -17,34 +17,23 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "if_statement.h"
-
 #include <expression.h>
 #include <statement_block.h>
-#include <defaults.h>
-#include <assert.h>
-#include <type.h>
-#include <error.h>
 #include <execution_context.h>
 #include <return_statement.h>
+#include <while_statement.h>
 
-IfStatement::IfStatement(const_shared_ptr<Expression> expression,
-		const_shared_ptr<StatementBlock> block) :
-		IfStatement(expression, block, nullptr) {
+WhileStatement::WhileStatement(const_shared_ptr<Expression> expression,
+		const_shared_ptr<StatementBlock> block, WhileMode mode) :
+		m_expression(expression), m_block(block), m_block_context(
+				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)), m_mode(
+				mode) {
 }
 
-IfStatement::IfStatement(const_shared_ptr<Expression> expression,
-		const_shared_ptr<StatementBlock> block,
-		const_shared_ptr<StatementBlock> else_block) :
-		m_expression(expression), m_block(block), m_else_block(else_block), m_block_context(
-				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)), m_else_block_context(
-				make_shared<ExecutionContext>(Modifier::Type::MUTABLE)) {
+WhileStatement::~WhileStatement() {
 }
 
-IfStatement::~IfStatement() {
-}
-
-const PreprocessResult IfStatement::Preprocess(
+const PreprocessResult WhileStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
@@ -79,24 +68,6 @@ const PreprocessResult IfStatement::Preprocess(
 				return_coverage = ReturnStatement::CoverageTransition(
 						return_coverage, block_return_coverage, true);
 				errors = block_result.GetErrors();
-				if (m_else_block) {
-					//pre-process else block
-					m_else_block_context->LinkToParent(context);
-
-					auto else_block_result = m_else_block->Preprocess(
-							m_else_block_context, closure,
-							return_type_specifier);
-					auto else_block_return_coverage =
-							else_block_result.GetReturnCoverage();
-					errors = ErrorList::Concatenate(errors,
-							else_block_result.GetErrors());
-
-					return_coverage = ReturnStatement::CoverageTransition(
-							return_coverage, else_block_return_coverage, false);
-				} else {
-					// an "if" block on its own can only provide partial coverage
-					return_coverage = PreprocessResult::ReturnCoverage::PARTIAL;
-				}
 			} else {
 				yy::location position = m_expression->GetLocation();
 				errors = ErrorList::From(
@@ -111,23 +82,24 @@ const PreprocessResult IfStatement::Preprocess(
 	return PreprocessResult(return_coverage, errors);
 }
 
-const ExecutionResult IfStatement::Execute(
+const ExecutionResult WhileStatement::Execute(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure) const {
-	auto evaluation = m_expression->Evaluate(context, closure);
-	// NOTE: we are relying on our preprocessing passing to guarantee that the previous evaluation returned no errors
-	bool test = *(evaluation->GetData<bool>());
+	auto execution_context = ExecutionContext::GetRuntimeInstance(
+			m_block_context, context);
 
-	if (test) {
-		auto execution_context = ExecutionContext::GetRuntimeInstance(
-				m_block_context, context);
+	if (m_mode == DO_WHILE) {
+		auto execution_result = m_block->Execute(execution_context, closure);
+		if (execution_result.NeedsReturn()) {
+			return execution_result;
+		}
+	}
 
-		return m_block->Execute(execution_context, closure);
-	} else if (m_else_block) {
-		auto execution_context = ExecutionContext::GetRuntimeInstance(
-				m_else_block_context, context);
-
-		return m_else_block->Execute(execution_context, closure);
+	while (*(m_expression->Evaluate(context, closure)->GetData<bool>())) {
+		auto execution_result = m_block->Execute(execution_context, closure);
+		if (execution_result.NeedsReturn()) {
+			return execution_result;
+		}
 	}
 
 	return ExecutionResult();

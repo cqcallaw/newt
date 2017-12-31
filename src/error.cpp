@@ -38,8 +38,7 @@ const string Error::ToString() const {
 		break;
 	}
 	case RUNTIME: {
-		os << "Runtime error at " << m_position << ": "
-				<< get_error_message();
+		os << "Runtime error at " << m_position << ": " << get_error_message();
 		break;
 	}
 	default:
@@ -104,13 +103,9 @@ const string Error::get_error_message() const {
 				<< "' cannot be assigned to an expression of type '" << m_s3
 				<< "'.";
 		break;
-	case INVALID_TYPE_FOR_FOR_STMT_EXPRESSION:
-		os << "Incorrect type for expression in for statement."
-				<< "  Expressions in for statements must be of type INT.";
-		break;
-	case INVALID_TYPE_FOR_IF_STMT_EXPRESSION:
-		os << "Incorrect type for expression in an if statement."
-				<< "  Expressions in if statements must be of type INT.";
+	case INVALID_CONDITIONAL_EXPRESSION_TYPE:
+		os << "Invalid type '" << m_s1
+				<< "' for conditional expression; conditional expressions must be assignable to type INT.";
 		break;
 	case INVALID_TYPE_FOR_PRINT_STMT_EXPRESSION:
 		os << "Incorrect type for expression in a print statement."

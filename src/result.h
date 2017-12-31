@@ -130,6 +130,13 @@ public:
 	virtual ~ExecutionResult() {
 	}
 
+	const bool NeedsReturn() const {
+		return m_return_value
+				!= Symbol::GetDefaultSymbol()
+				|| m_exit_code
+						!= ExecutionResult::GetDefaultExitCode();
+	}
+
 	const ErrorListRef GetErrors() const {
 		return m_errors;
 	}

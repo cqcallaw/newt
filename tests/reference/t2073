@@ -1,4 +1,4 @@
 Parsing file ../tests/t2073.nwt...
-Semantic error at ../tests/t2073.nwt:3.9: Incorrect type for expression in an if statement.  Expressions in if statements must be of type INT.
+Semantic error at ../tests/t2073.nwt:3.9: Invalid type 'string' for conditional expression; conditional expressions must be assignable to type INT.
 Parsed file ../tests/t2073.nwt.
 1 error found; giving up.

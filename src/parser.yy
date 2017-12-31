@@ -111,6 +111,7 @@ class Driver;
 #include <if_statement.h>
 #include <for_statement.h>
 #include <foreach_statement.h>
+#include <while_statement.h>
 #include <invoke_statement.h>
 #include <return_statement.h>
 #include <match_statement.h>
@@ -149,6 +150,8 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	IF                    "if"
 	FOR                   "for"
 	ELSE                  "else"
+	DO                    "do"
+	WHILE                 "while"
 
 	LPAREN              "("
 	RPAREN              ")"
@@ -254,9 +257,11 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <plain_shared_ptr<Statement>> statement
 %type <StatementListRef> statement_list
 %type <plain_shared_ptr<DeclarationStatement>> variable_declaration
-%type <plain_shared_ptr<StatementBlock>> if_block
+%type <plain_shared_ptr<StatementBlock>> conditional_block
 %type <plain_shared_ptr<StatementBlock>> statement_block
 %type <plain_shared_ptr<Statement>> if_statement
+%type <plain_shared_ptr<Statement>> do_statement
+%type <plain_shared_ptr<Statement>> while_statement
 %type <plain_shared_ptr<AssignmentStatement>> assign_statement
 %type <plain_shared_ptr<Statement>> print_statement
 %type <plain_shared_ptr<Statement>> for_statement
@@ -498,6 +503,14 @@ statement:
 	{
 		$$ = $1;
 	}
+	| do_statement
+	{
+		$$ = $1;
+	}
+	| while_statement
+	{
+		$$ = $1;
+	}
 	| for_statement
 	{
 		$$ = $1;
@@ -530,7 +543,7 @@ statement:
 	;
 
 //---------------------------------------------------------------------
-if_block:
+conditional_block:
 	statement
 	{
 		$$ = make_shared<StatementBlock>(StatementList::From($1, StatementList::GetTerminator()), @1);
@@ -540,16 +553,32 @@ if_block:
 		$$ = $1;
 	}
 	;
-	
+
 //---------------------------------------------------------------------
 if_statement:
-	IF LPAREN expression RPAREN if_block %prec IF_NO_ELSE
+	IF LPAREN expression RPAREN conditional_block %prec IF_NO_ELSE
 	{
 		$$ = make_shared<IfStatement>($3, $5);
 	}
-	| IF LPAREN expression RPAREN if_block ELSE if_block
+	| IF LPAREN expression RPAREN conditional_block ELSE conditional_block
 	{
 		$$ = make_shared<IfStatement>($3, $5, $7);
+	}
+	;
+
+//---------------------------------------------------------------------
+do_statement:
+	DO conditional_block WHILE LPAREN expression RPAREN
+	{
+		$$ = make_shared<WhileStatement>($5, $2, WhileStatement::WhileMode::DO_WHILE);
+	}
+	;
+
+//---------------------------------------------------------------------
+while_statement:
+	WHILE LPAREN expression RPAREN conditional_block
+	{
+		$$ = make_shared<WhileStatement>($3, $5, WhileStatement::WhileMode::WHILE);
 	}
 	;
 

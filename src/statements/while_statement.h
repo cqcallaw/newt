@@ -17,26 +17,23 @@
  along with newt.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IF_STATEMENT_H_
-#define IF_STATEMENT_H_
+#ifndef STATEMENTS_WHILE_STATEMENT_H_
+#define STATEMENTS_WHILE_STATEMENT_H_
 
 #include "statement.h"
 
 class Expression;
 class StatementBlock;
 
-class IfStatement: public Statement {
+class WhileStatement: public Statement {
 public:
-	IfStatement(const_shared_ptr<Expression> expression,
-			const_shared_ptr<StatementBlock> block);
-	IfStatement(const_shared_ptr<Expression> expression,
-			const_shared_ptr<StatementBlock> block,
-			const_shared_ptr<StatementBlock> else_block);
-	virtual ~IfStatement();
+	enum WhileMode {
+		WHILE, DO_WHILE
+	};
 
-	const_shared_ptr<Expression> GetExpression() const {
-		return m_expression;
-	}
+	WhileStatement(const_shared_ptr<Expression> expression,
+			const_shared_ptr<StatementBlock> block, WhileMode mode);
+	virtual ~WhileStatement();
 
 	virtual const PreprocessResult Preprocess(
 			const shared_ptr<ExecutionContext> context,
@@ -47,12 +44,19 @@ public:
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure) const;
 
+	const_shared_ptr<StatementBlock> GetBlock() const {
+		return m_block;
+	}
+
+	const_shared_ptr<Expression> GetExpression() const {
+		return m_expression;
+	}
+
 private:
 	const_shared_ptr<Expression> m_expression;
 	const_shared_ptr<StatementBlock> m_block;
-	const_shared_ptr<StatementBlock> m_else_block;
 	shared_ptr<ExecutionContext> m_block_context;
-	shared_ptr<ExecutionContext> m_else_block_context;
+	const WhileMode m_mode;
 };
 
-#endif /* IF_STATEMENT_H_ */
+#endif /* STATEMENTS_WHILE_STATEMENT_H_ */

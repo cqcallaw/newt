@@ -1,0 +1,36 @@
+Parsing file ../tests/t2028.nwt...
+Parsed file ../tests/t2028.nwt.
+61
+Root Symbol Table:
+----------------
+byte_list data:
+	byte data: 0x61
+	byte_list? next:
+		{value}
+			byte data: 0x62
+			byte_list? next:
+				{value}
+					byte data: 0x63
+					byte_list? next: {nil}
+
+
+
+
+Root Type Table:
+----------------
+byte_iter:
+	<record>
+	data:
+		byte_result ({data} 0x00)
+	next:
+		() -> byte_iter? (
+			Body Location: [default location]
+		)
+
+byte_list:
+	<record>
+	data:
+		byte (0x00)
+	next:
+		byte_list? ({nil})
+
