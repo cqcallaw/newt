@@ -101,9 +101,9 @@ const PreprocessResult IfStatement::Preprocess(
 				yy::location position = m_expression->GetLocation();
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::INVALID_TYPE_FOR_IF_STMT_EXPRESSION,
-								position.begin),
-						errors);
+								Error::INVALID_CONDITIONAL_EXPRESSION_TYPE,
+								position.begin,
+								expression_type_specifier->ToString()), errors);
 			}
 		}
 	}

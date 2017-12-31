@@ -92,8 +92,10 @@ const PreprocessResult ForStatement::Preprocess(
 				yy::location position = m_loop_expression->GetLocation();
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
-								Error::INVALID_TYPE_FOR_FOR_STMT_EXPRESSION,
-								position.begin), errors);
+								Error::INVALID_CONDITIONAL_EXPRESSION_TYPE,
+								position.begin,
+								loop_expression_type_specifier->ToString()),
+						errors);
 			}
 		}
 	}
