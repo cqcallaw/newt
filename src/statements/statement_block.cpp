@@ -81,10 +81,7 @@ const ExecutionResult StatementBlock::Execute(
 		auto execution_result = statement->Execute(context, closure_context);
 
 		if (!ErrorList::IsTerminator(execution_result.GetErrors())
-				|| execution_result.GetReturnValue()
-						!= Symbol::GetDefaultSymbol()
-				|| execution_result.GetExitCode()
-						!= ExecutionResult::GetDefaultExitCode()) {
+				|| execution_result.NeedsReturn()) {
 			// we've either encountered an error, a return value has been set,
 			// or an exit code has been set
 

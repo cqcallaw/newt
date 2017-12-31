@@ -1,0 +1,5 @@
+# test exit inside for loop
+for (i:= 0; i < 5; i += 1) {
+	print(i)
+	exit(0)
+}

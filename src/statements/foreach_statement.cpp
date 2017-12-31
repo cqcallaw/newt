@@ -270,9 +270,8 @@ const ExecutionResult ForeachStatement::Execute(
 					break;
 				}
 
-				auto return_value = execution_result.GetReturnValue();
-				if (return_value != Symbol::GetDefaultSymbol()) {
-					return ExecutionResult(return_value);
+				if (execution_result.NeedsReturn()) {
+					return execution_result;
 				}
 
 				auto definition = record->GetDefinition();

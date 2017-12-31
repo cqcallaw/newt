@@ -131,9 +131,8 @@ const ExecutionResult ForStatement::Execute(
 					break;
 				}
 
-				auto return_value = iteration_result.GetReturnValue();
-				if (return_value != Symbol::GetDefaultSymbol()) {
-					return ExecutionResult(return_value);
+				if (iteration_result.NeedsReturn()) {
+					return iteration_result;
 				}
 			}
 

@@ -1,0 +1,11 @@
+# test exit inside foreach loop
+import list
+
+data := @byte_list with { data = 0x63 }
+data = data with { data = 0x62, next = data }
+data = data with { data = 0x61, next = data }
+
+for datum in data {
+	print(datum)
+	exit(0)
+}
