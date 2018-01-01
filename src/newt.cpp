@@ -122,9 +122,6 @@ int main(int argc, char *argv[]) {
 #ifndef NEWT_DEFAULT_IMPORT_PATH
 #define NEWT_DEFAULT_IMPORT_PATH /usr/local/lib/newt
 #endif
-// ref: https://stackoverflow.com/a/5256500/577298
-#define STRINGIZE_NX(A) #A
-#define STRINGIZE(A) STRINGIZE_NX(A)
 	import_paths->push_back(
 			make_shared<const string>(STRINGIZE(NEWT_DEFAULT_IMPORT_PATH)));
 

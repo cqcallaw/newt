@@ -40,7 +40,7 @@
 									<listOptionValue builtIn="false" value="../src/variables"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.215959142" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="LANGUAGE_VERSION=&quot;\&quot;`git describe --long --tags`\&quot;&quot;"/>
+									<listOptionValue builtIn="false" value="LANGUAGE_VERSION=&quot;`git describe --long --tags`&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1157401231" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -125,8 +125,8 @@
 									<listOptionValue builtIn="false" value="../src/variables"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.std.349352185" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.option.preprocessor.def.223029052" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="LANGUAGE_VERSION=&quot;\&quot;`git describe --long --tags`\&quot;&quot;"/>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.223029052" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="LANGUAGE_VERSION=&quot;`git describe --long --tags`&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1497734038" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

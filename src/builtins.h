@@ -32,6 +32,10 @@ class MaybeTypeSpecifier;
 
 typedef map<const int, volatile_shared_ptr<fstream>> file_handle_map;
 
+// ref: https://stackoverflow.com/a/5256500/577298
+#define STRINGIZE_NX(A) #A
+#define STRINGIZE(A) STRINGIZE_NX(A)
+
 class Builtins {
 public:
 	/**
@@ -79,6 +83,8 @@ public:
 
 	static char get_path_separator();
 	static const_shared_ptr<std::string> PATH_SEPARATOR_NAME;
+
+	static const_shared_ptr<std::string> LANGUAGE_VERSION_NAME;
 
 	static volatile_shared_ptr<file_handle_map> get_file_handle_map();
 

@@ -141,7 +141,12 @@ volatile_shared_ptr<file_handle_map> Builtins::get_file_handle_map() {
 }
 
 const_shared_ptr<string> Builtins::get_builtin_definition() {
+#ifndef LANGUAGE_VERSION
+#define LANGUAGE_VERSION none
+#endif
 	ostringstream ss;
+	ss << *Builtins::LANGUAGE_VERSION_NAME << ":string = \""
+			<< STRINGIZE(LANGUAGE_VERSION) << "\"" << endl;
 	ss << *Builtins::ERROR_TYPE_NAME << " { " << *Builtins::ERROR_CODE_NAME
 			<< ":int, " << *Builtins::ERROR_MESSAGE_NAME << ":string }" << endl;
 	ss << *Builtins::ERROR_LIST_TYPE_NAME << " { "
@@ -190,3 +195,6 @@ char Builtins::get_path_separator() {
 
 const_shared_ptr<std::string> Builtins::PATH_SEPARATOR_NAME = make_shared<
 		std::string>("path_separator");
+
+const_shared_ptr<std::string> Builtins::LANGUAGE_VERSION_NAME = make_shared<
+		std::string>("language_version");
