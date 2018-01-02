@@ -23,7 +23,6 @@
 #include <fstream>
 
 #include "builtins.h"
-
 #include "driver.h"
 
 using namespace std;
@@ -32,9 +31,7 @@ void print_help() {
 	cout << "Usage: newt [options] file" << endl;
 	cout << "Options:" << endl;
 	cout << "  --help           : Display this information" << endl;
-	cout
-			<< "  --analyze        : Perform semantic analysis only"
-			<< endl;
+	cout << "  --analyze        : Perform semantic analysis only" << endl;
 	cout
 			<< "  --include-paths  : Specify a pipe-separated list of include paths"
 			<< endl;
@@ -230,7 +227,8 @@ int main(int argc, char *argv[]) {
 
 							return get_exit_code(debug,
 									has_execution_errors ?
-											EXIT_FAILURE : exit_code);
+									EXIT_FAILURE :
+															exit_code);
 						}
 					} else {
 						//reverse linked list of errors, which comes to us in reverse order
