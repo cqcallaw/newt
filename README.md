@@ -430,3 +430,5 @@ r := using get_disposable() as disposable -> result {
 ## Interpreter Targets
 
 newt supports specification of a target interpreter version for a given script via the directive `$target major.minor[.optional_patch]`. Compatibility between the interpeter and the script target is determined by the rules of [semantic versioning](https://semver.org/spec/v2.0.0.html); that is, the script target's major version must match the interpeter's, the target minor version must be greater than or equal to the interpreter's, and the target patch version must be greater than or equal to the interpreter's.
+
+The target version is generally not useful unless it is specified at the beginning of the input, but this best-practice is not enforced by the interpreter.
