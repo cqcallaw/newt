@@ -31,6 +31,7 @@ void print_help() {
 	cout << "Usage: newt [options] file" << endl;
 	cout << "Options:" << endl;
 	cout << "  --help           : Display this information" << endl;
+	cout << "  --version        : Display version information" << endl;
 	cout << "  --analyze        : Perform semantic analysis only" << endl;
 	cout
 			<< "  --include-paths  : Specify a pipe-separated list of include paths"
@@ -65,8 +66,13 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
+	// handle special, non-executing modes
 	if (strcmp(argv[1], "--help") == 0) {
 		print_help();
+		return EXIT_SUCCESS;
+	}
+	if (strcmp(argv[1], "--version") == 0) {
+		cout << *Builtins::LANGUAGE_VERSION_STRING << endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -77,11 +83,6 @@ int main(int argc, char *argv[]) {
 	import_paths->push_back(make_shared<const string>("."));
 	int i = 1;
 	for (; i < argc - 1; i++) {
-		if (strcmp(argv[i], "--help") == 0) {
-			print_help();
-			return 0;
-		}
-
 		if (strcmp(argv[i], "--debug") == 0) {
 			debug = true;
 		}

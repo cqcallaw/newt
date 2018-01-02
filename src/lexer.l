@@ -21,9 +21,12 @@
 #include <cerrno>
 #include <climits>
 #include <cfloat>
-#include <driver.h>
 #include <string.h>
+#include <regex>
+
+#include <driver.h>
 #include <builtins.h>
+#include <version.h>
 #include "parser.tab.hh"
 
 // The location of the current token.
@@ -48,6 +51,7 @@ blank   [ \t\r]
 %}
 
 %x import
+%x target
 
 %%
 
@@ -56,9 +60,27 @@ blank   [ \t\r]
   loc.step();
 %}
 
+\$target BEGIN(target);
+<target>{blank}+ //swallow whitespace
+<target>[^ \t\r\n]+ {
+	auto version_string = string(yytext);
+	if (std::regex_match (version_string, std::regex("(\\d+)\\.(\\d+)(\\.\\d+)?") ))
+	{
+		auto parsed_version = Version::Build(version_string);
+		if (parsed_version.IsVoidVersion()) {
+			driver.lexer_error(loc, "Invalid script target '" + string(yytext) + "'.");
+		} else if (!parsed_version.IsCompatible(Version::GetDefaultVersion())) {
+			driver.lexer_error(loc, "Unsupported script target '" + string(yytext) + "'.");
+		}
+	} else {
+		driver.lexer_error(loc, "Invalid script target '" + string(yytext) + "'.");
+	}
+
+	BEGIN(INITIAL);
+}
+
 {blank}+   loc.step();
 [\n]+      loc.lines(yyleng); loc.step();
-
 \/\/.+$         // ignore comments
 #.*$            // ignore comments
 

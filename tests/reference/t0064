@@ -1,0 +1,4 @@
+Parsing file ../tests/t0064.nwt...
+Lex error at ../tests/t0064.nwt:2.1-22: Invalid script target '-3.1.123456789'.
+Parsed file ../tests/t0064.nwt.
+1 error found; giving up.

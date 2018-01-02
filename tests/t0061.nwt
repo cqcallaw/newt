@@ -1,0 +1,2 @@
+# test required version with explicit patch rev
+$target 0.1.0

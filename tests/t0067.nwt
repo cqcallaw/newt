@@ -1,0 +1,2 @@
+# test unsupported minor version
+$target 0.123456789.0

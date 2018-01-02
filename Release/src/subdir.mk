@@ -26,7 +26,8 @@ CPP_SRCS += \
 ../src/type.cpp \
 ../src/type_table.cpp \
 ../src/unit.cpp \
-../src/utils.cpp 
+../src/utils.cpp \
+../src/version.cpp 
 
 OBJS += \
 ./src/array.o \
@@ -51,7 +52,8 @@ OBJS += \
 ./src/type.o \
 ./src/type_table.o \
 ./src/unit.o \
-./src/utils.o 
+./src/utils.o \
+./src/version.o 
 
 CPP_DEPS += \
 ./src/array.d \
@@ -76,7 +78,8 @@ CPP_DEPS += \
 ./src/type.d \
 ./src/type_table.d \
 ./src/unit.d \
-./src/utils.d 
+./src/utils.d \
+./src/version.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

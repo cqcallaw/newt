@@ -1,0 +1,2 @@
+# test unsupported major version
+$target 123456789.0.0

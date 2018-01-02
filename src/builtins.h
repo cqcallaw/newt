@@ -85,6 +85,7 @@ public:
 	static const_shared_ptr<std::string> PATH_SEPARATOR_NAME;
 
 	static const_shared_ptr<std::string> LANGUAGE_VERSION_NAME;
+	static const_shared_ptr<std::string> LANGUAGE_VERSION_STRING;
 
 	static volatile_shared_ptr<file_handle_map> get_file_handle_map();
 

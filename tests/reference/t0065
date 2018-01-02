@@ -1,0 +1,4 @@
+Parsing file ../tests/t0065.nwt...
+Lex error at ../tests/t0065.nwt:2.1-21: Invalid script target 'a.1.123456789'.
+Parsed file ../tests/t0065.nwt.
+1 error found; giving up.

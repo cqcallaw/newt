@@ -1,0 +1,2 @@
+# test invalid version number
+$target -3.1.123456789
