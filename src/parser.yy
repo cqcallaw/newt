@@ -313,7 +313,6 @@ program:
 		plain_shared_ptr<StatementBlock> main_statement_block = make_shared<const StatementBlock>(StatementList::Reverse($1), @1);
 		driver.SetStatementBlock(main_statement_block);
 	}
-	;
 
 //---------------------------------------------------------------------
 variable_declaration:
@@ -354,7 +353,6 @@ variable_declaration:
 	{
 		$$ = make_shared<InferredDeclarationStatement>(@$, $1, @1, $4);
 	}
-	;
 
 //---------------------------------------------------------------------
 optional_initializer:
@@ -365,7 +363,6 @@ optional_initializer:
 	| empty {
 		$$ = nullptr;
 	}
-	;
 
 //---------------------------------------------------------------------
 primitive_type_specifier:
@@ -389,7 +386,6 @@ primitive_type_specifier:
 	{
 		$$ = PrimitiveTypeSpecifier::GetString();
 	}
-	;
 
 //---------------------------------------------------------------------
 function_type_specifier:
@@ -398,7 +394,6 @@ function_type_specifier:
 		const TypeSpecifierListRef type_list = TypeSpecifierList::Reverse($2);
 		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @$);
 	}
-	;
 
 //---------------------------------------------------------------------
 complex_type_specifier:
@@ -411,7 +406,6 @@ complex_type_specifier:
 		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
 		$$ = make_shared<ComplexTypeSpecifier>($2, nullptr, namespace_qualifier_list, @$);
 	}
-	;
 
 //---------------------------------------------------------------------
 nested_type_specifier:
@@ -423,7 +417,6 @@ nested_type_specifier:
 	{
 		$$ = make_shared<NestedTypeSpecifier>($1, $3, @$);
 	}
-	;
 
 //---------------------------------------------------------------------
 maybe_type_specifier:
@@ -439,7 +432,6 @@ maybe_type_specifier:
 	{
 		$$ = make_shared<MaybeTypeSpecifier>($1, @$);
 	}
-	;
 
 //---------------------------------------------------------------------
 type_specifier:
@@ -463,7 +455,6 @@ type_specifier:
 	{
 		$$ = $1;
 	}
-	;
 
 //---------------------------------------------------------------------
 statement_block:
@@ -471,7 +462,6 @@ statement_block:
 	{
 		$$ = make_shared<StatementBlock>(StatementList::Reverse($2), @2); //statement list comes in reverse order
 	}
-	;
 
 //---------------------------------------------------------------------
 statement_list:
@@ -483,7 +473,6 @@ statement_list:
 	{
 		$$ = StatementList::GetTerminator();
 	}
-	;
 
 //---------------------------------------------------------------------
 statement:
@@ -540,7 +529,6 @@ statement:
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
 		$$ = make_shared<InvokeStatement>($1, argument_list, @3);
 	}
-	;
 
 //---------------------------------------------------------------------
 conditional_block:
@@ -552,7 +540,6 @@ conditional_block:
 	{
 		$$ = $1;
 	}
-	;
 
 //---------------------------------------------------------------------
 if_statement:
@@ -564,7 +551,6 @@ if_statement:
 	{
 		$$ = make_shared<IfStatement>($3, $5, $7);
 	}
-	;
 
 //---------------------------------------------------------------------
 do_statement:
@@ -572,7 +558,6 @@ do_statement:
 	{
 		$$ = make_shared<WhileStatement>($5, $2, WhileStatement::WhileMode::DO_WHILE);
 	}
-	;
 
 //---------------------------------------------------------------------
 while_statement:
@@ -580,7 +565,6 @@ while_statement:
 	{
 		$$ = make_shared<WhileStatement>($3, $5, WhileStatement::WhileMode::WHILE);
 	}
-	;
 
 //---------------------------------------------------------------------
 for_statement:
@@ -597,7 +581,6 @@ for_statement:
 	{
 		$$ = make_shared<ForeachStatement>($2, $4, $5);
 	}
-	;
 
 //---------------------------------------------------------------------
 print_statement:
@@ -605,7 +588,6 @@ print_statement:
 	{
 		$$ = make_shared<PrintStatement>($3);
 	}
-	;
 
 //---------------------------------------------------------------------
 exit_statement:
@@ -617,7 +599,6 @@ exit_statement:
 	{
 		$$ = make_shared<ExitStatement>();
 	}
-	;
 
 //---------------------------------------------------------------------
 assign_statement:
@@ -633,7 +614,6 @@ assign_statement:
 	{
 		$$ = make_shared<const AssignmentStatement>($1, AssignmentType::MINUS_ASSIGN, $3);
 	}
-	;
 
 //---------------------------------------------------------------------
 return_statement:
@@ -641,7 +621,6 @@ return_statement:
 	{
 		$$ = make_shared<ReturnStatement>($2);
 	}
-	;
 
 //---------------------------------------------------------------------
 match_statement:
@@ -650,7 +629,6 @@ match_statement:
 		auto reverse = MatchList::Reverse($5);
 		$$ = make_shared<MatchStatement>(@$, $3, reverse, @5);
 	}
-	;
 
 //---------------------------------------------------------------------
 match_condition_list:
@@ -662,7 +640,6 @@ match_condition_list:
 	{
 		$$ = MatchList::From($1, MatchList::GetTerminator());
 	}
-	;
 
 //---------------------------------------------------------------------
 match_condition:
@@ -678,8 +655,6 @@ match_condition:
 	{
 		$$ = make_shared<Match>(Match::DEFAULT_MATCH_NAME, @1, Match::DEFAULT_MATCH_NAME, GetDefaultLocation(), $2);
 	}
-	;
-	
 
 //---------------------------------------------------------------------
 variable_reference:
@@ -700,7 +675,6 @@ variable_reference:
 	{
 		$$ = make_shared<MemberVariable>($1, $3);
 	}
-	;
 
 //---------------------------------------------------------------------
 expression:
@@ -817,7 +791,6 @@ expression:
 	{
 		$$ = $1;
 	}
-	;
 
 //---------------------------------------------------------------------
 variable_expression:
@@ -825,7 +798,6 @@ variable_expression:
 	{
 		$$ = make_shared<VariableExpression>(@1, $1);
 	}
-	;
 
 //---------------------------------------------------------------------
 invoke_expression:
@@ -844,7 +816,6 @@ invoke_expression:
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
 		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
 	}
-	;
 
 //---------------------------------------------------------------------
 function_declaration:
@@ -853,7 +824,6 @@ function_declaration:
 		const DeclarationListRef parameter_list = DeclarationList::Reverse($2);
 		$$ = make_shared<FunctionDeclaration>(parameter_list, $5, @$);
 	}
-	;
 
 //---------------------------------------------------------------------
 function_expression:
@@ -863,7 +833,6 @@ function_expression:
 		const FunctionVariantListRef function_variant_list = FunctionVariantList::Reverse($1);
 		$$ = make_shared<FunctionExpression>(@$, function_variant_list);
 	}
-	;
 
 //---------------------------------------------------------------------
 function_variant:
@@ -873,7 +842,6 @@ function_variant:
 		$$ = variant; 
 		//$$ = FunctionVariantList::From(variant, FunctionVariantList::GetTerminator());
 	}
-	;
 
 //---------------------------------------------------------------------
 function_variant_list:
@@ -887,7 +855,6 @@ function_variant_list:
 		//auto variant = make_shared<FunctionVariant>(@$, $1, $2); 
 		$$ = FunctionVariantList::From($1, FunctionVariantList::GetTerminator());
 	}
-	;
 
 //---------------------------------------------------------------------
 using_expression:
@@ -895,7 +862,6 @@ using_expression:
 	{
 		$$ = make_shared<UsingExpression>(@$, $2, $4, $6, $7);
 	}
-	;
 
 //---------------------------------------------------------------------
 optional_parameter_list:
@@ -907,7 +873,6 @@ optional_parameter_list:
 	{
 		$$ = DeclarationList::GetTerminator();
 	}
-	;
 
 //---------------------------------------------------------------------
 parameter_list:
@@ -919,7 +884,6 @@ parameter_list:
 	{
 		$$ = DeclarationList::From($1, DeclarationList::GetTerminator());
 	}
-	;
 
 //---------------------------------------------------------------------
 optional_anonymous_parameter_list:
@@ -931,7 +895,6 @@ optional_anonymous_parameter_list:
 	{
 		$$ = TypeSpecifierList::GetTerminator();
 	}
-	;
 
 //---------------------------------------------------------------------
 anonymous_parameter_list:
@@ -943,7 +906,6 @@ anonymous_parameter_list:
 	{
 		$$ = TypeSpecifierList::From($1, TypeSpecifierList::GetTerminator());
 	}
-	;
 
 //---------------------------------------------------------------------
 optional_argument_list:
@@ -955,7 +917,6 @@ optional_argument_list:
 	{
 		$$ = ArgumentList::GetTerminator();
 	}
-	;
 
 //---------------------------------------------------------------------
 argument_list:
@@ -967,7 +928,6 @@ argument_list:
 	{
 		$$ = ArgumentList::From($1, ArgumentList::GetTerminator());
 	}
-	;
 
 //---------------------------------------------------------------------
 modifier_list:
@@ -998,7 +958,6 @@ struct_declaration_statement:
 	{
 		$$ = $1;
 	}
-	;
 
 //---------------------------------------------------------------------
 struct_body:
@@ -1039,7 +998,6 @@ declaration_list:
 	{
 		$$ = DeclarationList::GetTerminator();
 	}
-	;
 
 //---------------------------------------------------------------------
 member_instantiation_block:
@@ -1047,7 +1005,6 @@ member_instantiation_block:
 	{
 		$$ = $2;
 	}
-	;
 
 //---------------------------------------------------------------------
 optional_member_instantiation_list:
@@ -1059,7 +1016,6 @@ optional_member_instantiation_list:
 	{
 		$$ = MemberInstantiationList::GetTerminator();
 	}
-	;
 
 //---------------------------------------------------------------------
 member_instantiation_list:
@@ -1078,7 +1034,6 @@ member_instantiation:
 	{
 		$$ = make_shared<MemberInstantiation>(MemberInstantiation($1, @1, $3));
 	}
-	;
 
 //---------------------------------------------------------------------
 dimensions:
@@ -1090,7 +1045,6 @@ dimensions:
 	{
 		$$ = DimensionList::From($1, DimensionList::GetTerminator());
 	}
-	;
 
 //---------------------------------------------------------------------
 dimension:
@@ -1098,7 +1052,6 @@ dimension:
 	{
 		$$ = make_shared<Dimension>(Dimension(@$));
 	}
-	;
 
 //---------------------------------------------------------------------
 namespace_qualifier_list:
@@ -1110,7 +1063,6 @@ namespace_qualifier_list:
 	{
 		$$ = NamespaceQualifierList::From($1, NamespaceQualifierList::GetTerminator());
 	}
-	;
 
 //---------------------------------------------------------------------
 namespace_qualifier:
@@ -1118,7 +1070,6 @@ namespace_qualifier:
 	{
 		$$ = make_shared<NamespaceQualifier>($1);
 	}
-	;
 
 //---------------------------------------------------------------------
 sum_declaration_statement:
@@ -1126,7 +1077,6 @@ sum_declaration_statement:
 	{
 		$$ = $1;
 	}
-	;
 
 //---------------------------------------------------------------------
 sum_body:
@@ -1136,7 +1086,6 @@ sum_body:
 		const_shared_ptr<SumTypeSpecifier> type = make_shared<SumTypeSpecifier>($1);
 		$$ = make_shared<SumDeclarationStatement>(@$, type, $1, @1, variant_list, @3);
 	}
-	;
 
 //---------------------------------------------------------------------
 variant_list:
@@ -1149,7 +1098,6 @@ variant_list:
 		$$ = DeclarationList::From($3,
 			DeclarationList::From($1, DeclarationList::GetTerminator()));
 	}
-	;
 
 //---------------------------------------------------------------------
 variant:
@@ -1178,7 +1126,6 @@ variant:
 		const_shared_ptr<ComplexTypeSpecifier> type = make_shared<ComplexTypeSpecifier>($1);
 		$$ = make_shared<UnitDeclarationStatement>(@$, type, @1, $1, @1);
 	}
-	;
 
 empty:
 	;
