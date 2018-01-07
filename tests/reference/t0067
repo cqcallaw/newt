@@ -1,0 +1,4 @@
+Parsing file ../tests/t0067.nwt...
+Lex error at ../tests/t0067.nwt:2.1-21: Unsupported script target '0.123456789.0'.
+Parsed file ../tests/t0067.nwt.
+1 error found; giving up.
