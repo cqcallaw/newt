@@ -42,6 +42,7 @@
 								<option id="gnu.cpp.compiler.option.preprocessor.def.215959142" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="LANGUAGE_VERSION=&quot;`git describe --long --tags`&quot;"/>
 								</option>
+								<option id="gnu.cpp.compiler.option.other.other.971299394" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -fsanitize=address" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1157401231" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="$(CC)" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.296731996" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
@@ -64,6 +65,7 @@
 							<tool command="$(CXX)" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GLDErrorParser" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1498002116" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 								<option id="gnu.cpp.link.option.userobjs.53243205" name="Other objects" superClass="gnu.cpp.link.option.userobjs" useByScannerDiscovery="false"/>
 								<option id="gnu.cpp.link.option.libs.288012402" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false"/>
+								<option id="gnu.cpp.link.option.flags.383814116" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-fsanitize=address" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.680735110" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
