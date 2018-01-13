@@ -131,7 +131,7 @@ const ErrorListRef BasicVariable::AssignValue(
 		case BOOLEAN: {
 			const_shared_ptr<Result> result = AssignmentStatement::do_op(
 					variable_name, basic_type, GetLocation().begin,
-					*(static_pointer_cast<const int>(symbol_value)), expression,
+					*(static_pointer_cast<const bool>(symbol_value)), expression,
 					op, context);
 
 			errors = result->GetErrors();
