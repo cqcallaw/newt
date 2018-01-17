@@ -1,0 +1,4 @@
+Parsing file ../tests/t0400.nwt...
+Parse error at ../tests/t0400.nwt:1.1-3: syntax error, unexpected string constant, expecting end of file.
+Parsed file ../tests/t0400.nwt.
+1 error found; giving up.

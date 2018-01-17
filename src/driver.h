@@ -120,6 +120,14 @@ public:
 		return m_trace_level;
 	}
 
+	std::vector<char>* GetStringBuffer() const {
+		return m_string_buffer;
+	}
+
+	void SetStringBuffer(std::vector<char>* string_buffer) {
+		m_string_buffer = string_buffer;
+	}
+
 private:
 	std::string m_file_name;
 	plain_shared_ptr<StatementBlock> m_statement_block;
@@ -127,6 +135,7 @@ private:
 	volatile_shared_ptr<input_stack> m_input_stack;
 	const_shared_ptr<string_list> m_include_paths;
 	volatile_shared_ptr<string_list> m_included_file_names;
+	std::vector<char>* m_string_buffer;
 	const TRACE m_trace_level;
 };
 

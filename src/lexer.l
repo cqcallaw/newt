@@ -43,7 +43,6 @@ id      [_a-zA-Z][a-zA-Z_0-9]*
 byte    0x([0-9A-F]|([0-9A-F][0-9A-F]))
 int     [0-9]+
 double  ([0-9]+\.[0-9]+|[0-9]+\.|\.[0-9]+)
-str     \"(\\.|[^\"])*\"
 blank   [ \t\r]
 
 %{
@@ -52,6 +51,7 @@ blank   [ \t\r]
 
 %x import
 %x target
+%x str
 
 %%
 
@@ -264,10 +264,61 @@ import          BEGIN(import);
 	return yy::newt_parser::make_DOUBLE_CONSTANT(d, loc);
 }
 
-{str} {
-	uint len = strlen(yytext);
-	return yy::newt_parser::make_STRING_CONSTANT(make_shared<const std::string>(yytext + 1, len - 2), loc);
-} 
+\" {
+	// start string parsing
+	// ref: http://westes.github.io/flex/manual/Start-Conditions.html#Start-Conditions
+	driver.SetStringBuffer(new std::vector<char>());
+	BEGIN(str);
+}
+
+<str>{
+	\" {
+		// closing quote - all done
+		BEGIN(INITIAL);
+		auto string_buffer = driver.GetStringBuffer();
+		auto result = make_shared<const std::string>(string_buffer->begin(), string_buffer->end());
+		delete (string_buffer);
+		driver.SetStringBuffer(nullptr);
+		return yy::newt_parser::make_STRING_CONSTANT(result, loc);
+	}
+
+	\n {
+		driver.lexer_error(loc, "Unexpected newline in string constant.");
+	}
+
+	\\[0-7]{1,3} {
+		// octal escape sequence
+		int result;
+		(void) sscanf(yytext + 1, "%o", &result);
+
+		if (result > 0xff) {
+			driver.lexer_error(loc, "Error processing octal sequence: result > 0xff.");
+		}
+
+		driver.GetStringBuffer()->push_back(result);
+	}
+
+	\\[0-9]+ {
+		driver.lexer_error(loc, "Invalid escape sequence.");
+	}
+
+	\\n driver.GetStringBuffer()->push_back('\n');
+	\\t driver.GetStringBuffer()->push_back('\t');
+	\\r driver.GetStringBuffer()->push_back('\r');
+	\\b driver.GetStringBuffer()->push_back('\b');
+	\\f driver.GetStringBuffer()->push_back('\f');
+
+	\\(.|\n) driver.GetStringBuffer()->push_back(yytext[1]);
+
+	[^\\\n\"]+ {
+		char *yptr = yytext;
+
+		auto string_buffer = driver.GetStringBuffer();
+		while (*yptr) {
+			string_buffer->push_back(*yptr++);
+		}
+	}
+}
 
 {id} {
 	return yy::newt_parser::make_IDENTIFIER(make_shared<const std::string>(yytext), loc);
