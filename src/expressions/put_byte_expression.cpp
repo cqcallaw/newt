@@ -33,7 +33,8 @@ PutByteExpression::PutByteExpression(const yy::location location,
 		const ArgumentListRef argument_list,
 		const yy::location argument_list_location) :
 		InvokeExpression(location, expression, argument_list,
-				argument_list_location) {
+				argument_list_location, TypeSpecifierList::GetTerminator(),
+				GetDefaultLocation()) {
 }
 
 PutByteExpression::~PutByteExpression() {

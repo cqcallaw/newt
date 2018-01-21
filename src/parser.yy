@@ -185,7 +185,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	EQUAL               "=="
 	NOT_EQUAL           "!="
 
-	PIPE                 "|"
+	PIPE                "|"
 
 	AND                 "&&"
 	OR                  "||"
@@ -201,6 +201,7 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 	AS                  "as"
 	IN                  "in"
 	USING               "using"
+	OF                  "of"
 
 	RETURN              "return"
 	PRINT     "print"
@@ -276,6 +277,11 @@ void yy::newt_parser::error(const location_type& location, const std::string& me
 %type <DeclarationListRef> optional_parameter_list
 %type <TypeSpecifierListRef> anonymous_parameter_list
 %type <TypeSpecifierListRef> optional_anonymous_parameter_list
+%type <TypeSpecifierListRef> type_parameter_list
+%type <TypeSpecifierListRef> type_parameter_container
+%type <TypeSpecifierListRef> optional_type_parameter_container
+%type <TypeSpecifierListRef> type_argument_container
+%type <TypeSpecifierListRef> optional_type_argument_container
 %type <ArgumentListRef> argument_list
 %type <ArgumentListRef> optional_argument_list
 
@@ -389,10 +395,11 @@ primitive_type_specifier:
 
 //---------------------------------------------------------------------
 function_type_specifier:
-	LPAREN optional_anonymous_parameter_list RPAREN ARROW_RIGHT type_specifier
+	LPAREN optional_anonymous_parameter_list RPAREN optional_type_parameter_container ARROW_RIGHT type_specifier
 	{
 		const TypeSpecifierListRef type_list = TypeSpecifierList::Reverse($2);
-		$$ = make_shared<FunctionTypeSpecifier>(type_list, $5, @$);
+		const TypeSpecifierListRef type_parameter_list = TypeSpecifierList::Reverse($4);
+		$$ = make_shared<FunctionTypeSpecifier>(type_list, type_parameter_list, $6, @$);
 	}
 
 //---------------------------------------------------------------------
@@ -405,6 +412,11 @@ complex_type_specifier:
 	{
 		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
 		$$ = make_shared<ComplexTypeSpecifier>($2, nullptr, namespace_qualifier_list, @$);
+	}
+	| complex_type_specifier type_argument_container
+	{
+		// TODO: handle type arguments
+		$$ = $1;
 	}
 
 //---------------------------------------------------------------------
@@ -524,10 +536,10 @@ statement:
 	{
 		$$ = $1;
 	}
-	| variable_reference LPAREN optional_argument_list RPAREN
+	| variable_reference LPAREN optional_argument_list RPAREN optional_type_argument_container
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = make_shared<InvokeStatement>($1, argument_list, @3);
+		$$ = make_shared<InvokeStatement>($1, argument_list, @3, $5, @5);
 	}
 
 //---------------------------------------------------------------------
@@ -801,28 +813,29 @@ variable_expression:
 
 //---------------------------------------------------------------------
 invoke_expression:
-	variable_expression LPAREN optional_argument_list RPAREN
+	variable_expression LPAREN optional_argument_list RPAREN optional_type_argument_container
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = InvokeExpression::BuildInvokeExpression(@$, $1, argument_list, @3);
+		$$ = InvokeExpression::BuildInvokeExpression(@$, $1, argument_list, @3, $5, @5);
 	}
-	| invoke_expression LPAREN optional_argument_list RPAREN
+	| invoke_expression LPAREN optional_argument_list RPAREN optional_type_argument_container
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
+		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3, $5, @5);
 	}
-	| function_expression LPAREN optional_argument_list RPAREN
+	| function_expression LPAREN optional_argument_list RPAREN optional_type_argument_container
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3);
+		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3, $5, @5);
 	}
 
 //---------------------------------------------------------------------
 function_declaration:
-	LPAREN optional_parameter_list RPAREN ARROW_RIGHT type_specifier
+	LPAREN optional_parameter_list RPAREN optional_type_parameter_container ARROW_RIGHT type_specifier
 	{
 		const DeclarationListRef parameter_list = DeclarationList::Reverse($2);
-		$$ = make_shared<FunctionDeclaration>(parameter_list, $5, @$);
+		const TypeSpecifierListRef type_parameter_list = TypeSpecifierList::Reverse($4);
+		$$ = make_shared<FunctionDeclaration>(parameter_list, type_parameter_list, $6, @$);
 	}
 
 //---------------------------------------------------------------------
@@ -908,6 +921,53 @@ anonymous_parameter_list:
 	}
 
 //---------------------------------------------------------------------
+optional_type_parameter_container:
+	type_parameter_container
+	{
+		$$ = $1;
+	}
+	| empty
+	{
+		$$ = TypeSpecifierList::GetTerminator();
+	}
+
+//---------------------------------------------------------------------
+type_parameter_container:
+	OF LESS type_parameter_list GREATER
+	{
+	}
+
+//---------------------------------------------------------------------
+type_parameter_list:
+	type_parameter_list COMMA IDENTIFIER
+	{
+		auto specifier = make_shared<ComplexTypeSpecifier>($3, @3);
+		$$ = TypeSpecifierList::From(specifier, $1);
+	}
+	| IDENTIFIER
+	{
+		auto specifier = make_shared<ComplexTypeSpecifier>($1, @$);
+		$$ = TypeSpecifierList::From(specifier, TypeSpecifierList::GetTerminator());
+	}
+
+//---------------------------------------------------------------------
+optional_type_argument_container:
+	type_argument_container
+	{
+		$$ = $1;
+	}
+	| empty {
+		$$ = TypeSpecifierList::GetTerminator();
+	}
+
+//---------------------------------------------------------------------
+type_argument_container:
+	OF LESS anonymous_parameter_list GREATER
+	{
+		$$ = $3;
+	}
+
+//---------------------------------------------------------------------
 optional_argument_list:
 	argument_list
 	{
@@ -966,6 +1026,12 @@ struct_body:
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
 		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1, @$);
 		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
+	}
+	| IDENTIFIER type_parameter_container LBRACE declaration_list RBRACE
+	{
+		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
+		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1, @$);
+		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 
 //---------------------------------------------------------------------
@@ -1085,6 +1151,13 @@ sum_body:
 		const DeclarationListRef variant_list = DeclarationList::Reverse($3);
 		const_shared_ptr<SumTypeSpecifier> type = make_shared<SumTypeSpecifier>($1);
 		$$ = make_shared<SumDeclarationStatement>(@$, type, $1, @1, variant_list, @3);
+	}
+	| IDENTIFIER type_parameter_container LBRACE variant_list RBRACE
+	{
+		// TODO: respect type arguments
+		const DeclarationListRef variant_list = DeclarationList::Reverse($4);
+		const_shared_ptr<SumTypeSpecifier> type = make_shared<SumTypeSpecifier>($1);
+		$$ = make_shared<SumDeclarationStatement>(@$, type, $1, @1, variant_list, @4);
 	}
 
 //---------------------------------------------------------------------

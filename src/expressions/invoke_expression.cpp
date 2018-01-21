@@ -55,9 +55,14 @@ const vector<string> InvokeExpression::BuiltinFunctionList = vector<string> {
 InvokeExpression::InvokeExpression(const yy::location position,
 		const_shared_ptr<Expression> expression,
 		const ArgumentListRef argument_list,
-		const yy::location argument_list_location) :
+		const yy::location argument_list_location,
+		const TypeSpecifierListRef type_argument_list,
+		const yy::location type_argument_list_location) :
 		Expression(position), m_expression(expression), m_argument_list(
-				argument_list), m_argument_list_location(argument_list_location) {
+				argument_list), m_argument_list_location(
+				argument_list_location), m_type_argument_list(
+				type_argument_list), m_type_argument_list_location(
+				type_argument_list_location) {
 }
 
 InvokeExpression::~InvokeExpression() {
@@ -377,7 +382,9 @@ const ErrorListRef InvokeExpression::Validate(
 const_shared_ptr<InvokeExpression> InvokeExpression::BuildInvokeExpression(
 		const yy::location location, const_shared_ptr<Expression> expression,
 		const ArgumentListRef argument_list,
-		const yy::location argument_list_location) {
+		const yy::location argument_list_location,
+		const TypeSpecifierListRef type_argument_list,
+		const yy::location type_argument_list_location) {
 	auto variable_expression = dynamic_pointer_cast<const VariableExpression>(
 			expression);
 	if (variable_expression) {
@@ -398,5 +405,6 @@ const_shared_ptr<InvokeExpression> InvokeExpression::BuildInvokeExpression(
 	}
 
 	return make_shared<InvokeExpression>(location, expression, argument_list,
-			argument_list_location);
+			argument_list_location, type_argument_list,
+			type_argument_list_location);
 }

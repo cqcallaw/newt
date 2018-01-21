@@ -31,16 +31,17 @@
 #include <function_type.h>
 
 FunctionDeclaration::FunctionDeclaration(DeclarationListRef parameter_list,
+		TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type,
 		const yy::location location) :
-		FunctionTypeSpecifier(GetTypeList(parameter_list), return_type,
-				location), m_parameter_list(parameter_list) {
+		FunctionTypeSpecifier(GetTypeList(parameter_list), type_parameter_list,
+				return_type, location), m_parameter_list(parameter_list) {
 }
 
 FunctionDeclaration::FunctionDeclaration(const FunctionDeclaration& other) :
 		FunctionTypeSpecifier(other.GetParameterTypeList(),
-				other.GetReturnTypeSpecifier(), other.GetLocation()), m_parameter_list(
-				other.m_parameter_list) {
+				other.GetTypeParameterList(), other.GetReturnTypeSpecifier(),
+				other.GetLocation()), m_parameter_list(other.m_parameter_list) {
 }
 
 FunctionDeclaration::~FunctionDeclaration() {
@@ -80,6 +81,7 @@ const_shared_ptr<Result> FunctionDeclaration::FromTypeSpecifier(
 	if (ErrorList::IsTerminator(errors)) {
 		DeclarationListRef declaration_list = DeclarationList::Reverse(result);
 		declaration = make_shared<FunctionDeclaration>(declaration_list,
+				type_specifier.GetTypeParameterList(),
 				type_specifier.GetReturnTypeSpecifier(),
 				type_specifier.GetLocation());
 	}
@@ -125,7 +127,7 @@ TypeSpecifierListRef FunctionDeclaration::GetTypeList(
 const_shared_ptr<Result> FunctionDeclaration::GetType(
 		const TypeTable& type_table, AliasResolution resolution) const {
 	auto result = make_shared<const FunctionType>(m_parameter_list,
-			GetReturnTypeSpecifier());
+			GetTypeParameterList(), GetReturnTypeSpecifier());
 
 	return make_shared<Result>(result, ErrorList::GetTerminator());
 }

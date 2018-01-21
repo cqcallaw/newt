@@ -37,15 +37,16 @@
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
 		TypeSpecifierListRef parameter_type_list,
+		TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type,
 		const yy::location location) :
-		TypeSpecifier(location), m_parameter_type_list(parameter_type_list), m_return_type(
-				return_type) {
+		TypeSpecifier(location), m_parameter_type_list(parameter_type_list), m_type_parameter_list(
+				type_parameter_list), m_return_type(return_type) {
 }
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(const FunctionTypeSpecifier& other) :
-		m_parameter_type_list(other.m_parameter_type_list), m_return_type(
-				other.m_return_type) {
+		m_parameter_type_list(other.m_parameter_type_list), m_type_parameter_list(
+				other.m_type_parameter_list), m_return_type(other.m_return_type) {
 }
 
 FunctionTypeSpecifier::~FunctionTypeSpecifier() {
@@ -140,7 +141,8 @@ const_shared_ptr<Result> FunctionTypeSpecifier::GetType(
 		auto default_declaration = default_declaration_result->GetData<
 				FunctionDeclaration>();
 		type = make_shared<const FunctionType>(
-				default_declaration->GetParameterList(), m_return_type);
+				default_declaration->GetParameterList(),
+				default_declaration->GetTypeParameterList(), m_return_type);
 	}
 
 	return make_shared<Result>(type, errors);

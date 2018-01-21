@@ -82,19 +82,18 @@ TypedResult<Symbol> TypeAliasDeclarationStatement::GetTypeConstructor(
 	const_shared_ptr<PrimitiveDeclarationStatement> parameter_declaration =
 			make_shared<PrimitiveDeclarationStatement>(
 					alias_declaration_location, primitive_type_specifier,
-					alias_type_specifier_location,
-					alias_name,
+					alias_type_specifier_location, alias_name,
 					alias_name_location);
 	DeclarationListRef parameter = DeclarationList::From(parameter_declaration,
 			DeclarationList::GetTerminator());
 
 	auto function_signature = make_shared<FunctionDeclaration>(parameter,
-			result_type_specifier, GetDefaultLocation());
+			TypeSpecifierList::GetTerminator(), result_type_specifier,
+			GetDefaultLocation());
 
 	const_shared_ptr<Expression> return_expression = make_shared<
 			VariableExpression>(GetDefaultLocation(),
-			make_shared<BasicVariable>(alias_name,
-					GetDefaultLocation()));
+			make_shared<BasicVariable>(alias_name, GetDefaultLocation()));
 
 	const_shared_ptr<ReturnStatement> return_statement = make_shared<
 			ReturnStatement>(return_expression);
@@ -102,8 +101,7 @@ TypedResult<Symbol> TypeAliasDeclarationStatement::GetTypeConstructor(
 	const StatementListRef statement_list = StatementList::From(
 			return_statement, StatementList::GetTerminator());
 	const_shared_ptr<StatementBlock> statement_block = make_shared<
-			StatementBlock>(statement_list,
-					alias_name_location);
+			StatementBlock>(statement_list, alias_name_location);
 
 	auto weak = weak_ptr<ExecutionContext>(output);
 

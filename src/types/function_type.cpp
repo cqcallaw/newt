@@ -31,10 +31,12 @@
 #include <return_statement.h>
 
 FunctionType::FunctionType(DeclarationListRef parameter_type_list,
+		TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) :
 		m_type_specifier(
 				make_shared<FunctionDeclaration>(parameter_type_list,
-						return_type_specifier, GetDefaultLocation())) {
+						type_parameter_list, return_type_specifier,
+						GetDefaultLocation())) {
 }
 
 const_shared_ptr<void> FunctionType::GetDefaultValue(

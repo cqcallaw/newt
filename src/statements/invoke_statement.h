@@ -29,7 +29,9 @@ class InvokeStatement: public Statement {
 public:
 	InvokeStatement(const_shared_ptr<Variable> variable,
 			ArgumentListRef argument_list,
-			const yy::location argument_list_position);
+			const yy::location argument_list_position,
+			const TypeSpecifierListRef type_argument_list,
+			const yy::location type_argument_list_location);
 	virtual ~InvokeStatement();
 
 	virtual const PreprocessResult Preprocess(

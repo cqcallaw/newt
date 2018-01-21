@@ -25,14 +25,17 @@
 
 InvokeStatement::InvokeStatement(const_shared_ptr<Variable> variable,
 		ArgumentListRef argument_list,
-		const yy::location argument_list_position) :
+		const yy::location argument_list_position,
+		const TypeSpecifierListRef type_argument_list,
+		const yy::location type_argument_list_location) :
 		m_variable(variable), m_argument_list(argument_list), m_argument_list_position(
 				argument_list_position), m_expression(
 				InvokeExpression::BuildInvokeExpression(
 						m_variable->GetLocation(),
 						make_shared<VariableExpression>(
 								m_variable->GetLocation(), m_variable),
-						m_argument_list, m_argument_list_position)) {
+						m_argument_list, m_argument_list_position,
+						type_argument_list, type_argument_list_location)) {
 }
 
 InvokeStatement::~InvokeStatement() {
