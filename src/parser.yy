@@ -1021,13 +1021,7 @@ struct_declaration_statement:
 
 //---------------------------------------------------------------------
 struct_body:
-	IDENTIFIER LBRACE declaration_list RBRACE
-	{
-		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1, @$);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
-	}
-	| IDENTIFIER type_parameter_container LBRACE declaration_list RBRACE
+	IDENTIFIER optional_type_parameter_container LBRACE declaration_list RBRACE
 	{
 		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
 		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1, @$);
@@ -1146,13 +1140,7 @@ sum_declaration_statement:
 
 //---------------------------------------------------------------------
 sum_body:
-	IDENTIFIER LBRACE variant_list RBRACE
-	{
-		const DeclarationListRef variant_list = DeclarationList::Reverse($3);
-		const_shared_ptr<SumTypeSpecifier> type = make_shared<SumTypeSpecifier>($1);
-		$$ = make_shared<SumDeclarationStatement>(@$, type, $1, @1, variant_list, @3);
-	}
-	| IDENTIFIER type_parameter_container LBRACE variant_list RBRACE
+	IDENTIFIER optional_type_parameter_container LBRACE variant_list RBRACE
 	{
 		// TODO: respect type arguments
 		const DeclarationListRef variant_list = DeclarationList::Reverse($4);
