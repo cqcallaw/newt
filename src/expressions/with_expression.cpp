@@ -179,8 +179,6 @@ const ErrorListRef WithExpression::Validate(
 			shared_ptr<const TypeTable> type_table =
 					execution_context->GetTypeTable();
 			plain_shared_ptr<RecordType> source_type = nullptr;
-			plain_shared_ptr<RecordTypeSpecifier> record_type_specifier =
-					nullptr;
 			auto source_type_result = source_type_specifier->GetType(
 					*type_table, RESOLVE);
 
@@ -191,8 +189,6 @@ const ErrorListRef WithExpression::Validate(
 						base_type);
 				if (as_record) {
 					source_type = as_record;
-					record_type_specifier = static_pointer_cast<
-							const RecordTypeSpecifier>(source_type_specifier);
 				} else {
 					errors = ErrorList::From(
 							make_shared<Error>(Error::SEMANTIC,
@@ -203,86 +199,98 @@ const ErrorListRef WithExpression::Validate(
 			}
 
 			if (source_type && ErrorList::IsTerminator(errors)) {
-				MemberInstantiationListRef instantiation_list =
-						m_member_instantiation_list;
-				while (!MemberInstantiationList::IsTerminator(
-						instantiation_list)) {
-					const_shared_ptr<MemberInstantiation> instantiation =
-							instantiation_list->GetData();
-					auto member_name = instantiation->GetName();
+				auto source_resolution = NestedTypeSpecifier::Resolve(
+						source_type_specifier,
+						execution_context->GetTypeTable());
 
-					const_shared_ptr<TypeDefinition> member_definition =
-							source_type->GetMember(*member_name);
-					if (member_definition) {
-						auto expression = instantiation->GetExpression();
+				errors = source_resolution.GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					auto source_as_complex = dynamic_pointer_cast<
+							const ComplexTypeSpecifier>(
+							source_resolution.GetData());
+					assert(source_as_complex);
+					MemberInstantiationListRef instantiation_list =
+							m_member_instantiation_list;
+					while (!MemberInstantiationList::IsTerminator(
+							instantiation_list)) {
+						const_shared_ptr<MemberInstantiation> instantiation =
+								instantiation_list->GetData();
+						auto member_name = instantiation->GetName();
 
-						auto member_errors = expression->Validate(
-								execution_context);
-						if (ErrorList::IsTerminator(member_errors)) {
-							auto expression_type_specifier_result =
-									expression->GetTypeSpecifier(
-											execution_context);
+						const_shared_ptr<TypeDefinition> member_definition =
+								source_type->GetMember(*member_name);
+						if (member_definition) {
+							auto expression = instantiation->GetExpression();
 
-							auto expression_type_errors =
-									expression_type_specifier_result.GetErrors();
-							if (ErrorList::IsTerminator(
-									expression_type_errors)) {
-								auto expression_type_specifier =
-										expression_type_specifier_result.GetData();
+							auto member_errors = expression->Validate(
+									execution_context);
+							if (ErrorList::IsTerminator(member_errors)) {
+								auto expression_type_specifier_result =
+										expression->GetTypeSpecifier(
+												execution_context);
 
-								const_shared_ptr<TypeSpecifier> member_type_specifier =
-										member_definition->GetTypeSpecifier(
-												member_name,
-												record_type_specifier,
-												GetDefaultLocation());
+								auto expression_type_errors =
+										expression_type_specifier_result.GetErrors();
+								if (ErrorList::IsTerminator(
+										expression_type_errors)) {
+									auto expression_type_specifier =
+											expression_type_specifier_result.GetData();
 
-								auto assignability =
-										expression_type_specifier->AnalyzeAssignmentTo(
-												member_type_specifier,
-												*type_table);
-								if (assignability
-										== AnalysisResult::AMBIGUOUS) {
-									errors =
-											ErrorList::From(
-													make_shared<Error>(
-															Error::SEMANTIC,
-															Error::AMBIGUOUS_WIDENING_CONVERSION,
-															instantiation->GetExpression()->GetLocation().begin,
-															member_type_specifier->ToString(),
-															expression_type_specifier->ToString()),
-													errors);
-								} else if (assignability == INCOMPATIBLE) {
-									errors =
-											ErrorList::From(
-													make_shared<Error>(
-															Error::SEMANTIC,
-															Error::ASSIGNMENT_TYPE_ERROR,
-															instantiation->GetExpression()->GetLocation().begin,
-															member_type_specifier->ToString(),
-															expression_type_specifier->ToString()),
-													errors);
+									const_shared_ptr<TypeSpecifier> member_type_specifier =
+											member_definition->GetTypeSpecifier(
+													member_name,
+													source_as_complex,
+													GetDefaultLocation());
+
+									auto assignability =
+											expression_type_specifier->AnalyzeAssignmentTo(
+													member_type_specifier,
+													*type_table);
+									if (assignability
+											== AnalysisResult::AMBIGUOUS) {
+										errors =
+												ErrorList::From(
+														make_shared<Error>(
+																Error::SEMANTIC,
+																Error::AMBIGUOUS_WIDENING_CONVERSION,
+																instantiation->GetExpression()->GetLocation().begin,
+																member_type_specifier->ToString(),
+																expression_type_specifier->ToString()),
+														errors);
+									} else if (assignability == INCOMPATIBLE) {
+										errors =
+												ErrorList::From(
+														make_shared<Error>(
+																Error::SEMANTIC,
+																Error::ASSIGNMENT_TYPE_ERROR,
+																instantiation->GetExpression()->GetLocation().begin,
+																member_type_specifier->ToString(),
+																expression_type_specifier->ToString()),
+														errors);
+									}
+								} else {
+									errors = ErrorList::Concatenate(errors,
+											expression_type_errors);
 								}
 							} else {
 								errors = ErrorList::Concatenate(errors,
-										expression_type_errors);
+										member_errors);
 							}
 						} else {
-							errors = ErrorList::Concatenate(errors,
-									member_errors);
+							//undefined member
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::UNDECLARED_MEMBER,
+													instantiation->GetNamePosition().begin,
+													*member_name,
+													source_type_specifier->ToString()),
+											errors);
+
 						}
-					} else {
-						//undefined member
-						errors = ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::UNDECLARED_MEMBER,
-										instantiation->GetNamePosition().begin,
-										*member_name,
-										source_type_specifier->ToString()),
-								errors);
 
+						instantiation_list = instantiation_list->GetNext();
 					}
-
-					instantiation_list = instantiation_list->GetNext();
 				}
 			}
 		}

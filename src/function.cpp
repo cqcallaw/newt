@@ -519,10 +519,9 @@ const_shared_ptr<Result> Function::GetFinalReturnValue(
 						const ComplexTypeSpecifier>(return_type_specifier);
 				assert(return_type_specifier_as_complex);
 
-				auto as_sum_specifier = SumTypeSpecifier(
-						return_type_specifier_as_complex);
 				plain_shared_ptr<string> tag = as_sum->MapSpecifierToVariant(
-						as_sum_specifier, *value_type_specifier);
+						*return_type_specifier_as_complex,
+						*value_type_specifier);
 
 				final_result = make_shared<Sum>(tag, value);
 				break;
