@@ -49,8 +49,40 @@
 #include <get_byte_expression.h>
 #include <put_byte_expression.h>
 
-const vector<string> InvokeExpression::BuiltinFunctionList = vector<string> {
-		"open", "close", "get", "put" };
+const std::map<string, InvokeExpression::invoke_expression_generator> InvokeExpression::BuiltinFunctionGeneratorMap =
+		std::map<string, invoke_expression_generator> {
+				{ "open",
+						[](const yy::location location,
+								const_shared_ptr<Expression> expression,
+								const ArgumentListRef argument_list,
+								const yy::location argument_list_location) -> const_shared_ptr<InvokeExpression> {
+							return make_shared<OpenExpression>(location, expression,
+									argument_list, argument_list_location);
+						} },
+				{ "close",
+						[](const yy::location location,
+								const_shared_ptr<Expression> expression,
+								const ArgumentListRef argument_list,
+								const yy::location argument_list_location) -> const_shared_ptr<InvokeExpression> {
+							return make_shared<CloseExpression>(location, expression,
+									argument_list, argument_list_location);
+						} },
+				{ "get",
+						[](const yy::location location,
+								const_shared_ptr<Expression> expression,
+								const ArgumentListRef argument_list,
+								const yy::location argument_list_location) -> const_shared_ptr<InvokeExpression> {
+							return make_shared<GetByteExpression>(location, expression,
+									argument_list, argument_list_location);
+						} },
+				{ "put",
+						[](const yy::location location,
+								const_shared_ptr<Expression> expression,
+								const ArgumentListRef argument_list,
+								const yy::location argument_list_location) -> const_shared_ptr<InvokeExpression> {
+							return make_shared<PutByteExpression>(location, expression,
+									argument_list, argument_list_location);
+						} } };
 
 InvokeExpression::InvokeExpression(const yy::location position,
 		const_shared_ptr<Expression> expression,
@@ -389,18 +421,11 @@ const_shared_ptr<InvokeExpression> InvokeExpression::BuildInvokeExpression(
 			expression);
 	if (variable_expression) {
 		auto variable_name = variable_expression->GetVariable()->GetName();
-		if (*variable_name == "open") {
-			return make_shared<OpenExpression>(location, expression,
-					argument_list, argument_list_location);
-		} else if (*variable_name == "close") {
-			return make_shared<CloseExpression>(location, expression,
-					argument_list, argument_list_location);
-		} else if (*variable_name == "get") {
-			return make_shared<GetByteExpression>(location, expression,
-					argument_list, argument_list_location);
-		} else if (*variable_name == "put") {
-			return make_shared<PutByteExpression>(location, expression,
-					argument_list, argument_list_location);
+		auto builtin_entry = BuiltinFunctionGeneratorMap.find(*variable_name);
+		if (builtin_entry != BuiltinFunctionGeneratorMap.end()) {
+			auto generator = builtin_entry->second;
+			return generator(location, expression, argument_list,
+					argument_list_location);
 		}
 	}
 

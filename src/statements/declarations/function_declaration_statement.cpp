@@ -70,9 +70,8 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 	auto errors = ErrorList::GetTerminator();
 
 	// check for redeclaration of builtin
-	if (std::find(InvokeExpression::BuiltinFunctionList.begin(),
-			InvokeExpression::BuiltinFunctionList.end(), *GetName())
-			!= InvokeExpression::BuiltinFunctionList.end()) {
+	if (InvokeExpression::BuiltinFunctionGeneratorMap.find(*GetName())
+			!= InvokeExpression::BuiltinFunctionGeneratorMap.end()) {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC,
 						Error::BUILTIN_REDECLARATION, GetNameLocation().begin,

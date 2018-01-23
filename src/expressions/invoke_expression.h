@@ -78,7 +78,11 @@ public:
 		return m_type_argument_list_location;
 	}
 
-	static const vector<string> BuiltinFunctionList;
+	typedef std::function<
+			const_shared_ptr<InvokeExpression>(const yy::location,
+					const_shared_ptr<Expression>, const ArgumentListRef,
+					const yy::location)> invoke_expression_generator;
+	static const std::map<string, invoke_expression_generator> BuiltinFunctionGeneratorMap;
 
 private:
 	const_shared_ptr<Expression> m_expression;
