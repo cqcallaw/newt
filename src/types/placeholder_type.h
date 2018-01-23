@@ -43,7 +43,8 @@ public:
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			yy::location location) const {
-		return make_shared<ComplexTypeSpecifier>(name, container,
+		return make_shared<ComplexTypeSpecifier>(name,
+				TypeSpecifierList::GetTerminator(), container,
 				NamespaceQualifierList::GetTerminator(), location);
 	}
 

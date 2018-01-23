@@ -59,7 +59,8 @@ const_shared_ptr<TypeSpecifier> UnitType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
 		const_shared_ptr<ComplexTypeSpecifier> container,
 		yy::location location) const {
-	return make_shared<ComplexTypeSpecifier>(name, container,
+	return make_shared<ComplexTypeSpecifier>(name,
+			container->GetTypeParameterList(), container,
 			NamespaceQualifierList::GetTerminator(), location);
 }
 

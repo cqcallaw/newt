@@ -31,29 +31,36 @@ class SymbolContext;
 class RecordTypeSpecifier: public ComplexTypeSpecifier {
 public:
 	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const TypeSpecifierListRef type_parameter_list,
 			const yy::location location = GetDefaultLocation()) :
-			RecordTypeSpecifier(type_name, nullptr,
+			RecordTypeSpecifier(type_name, type_parameter_list, nullptr,
 					NamespaceQualifierList::GetTerminator(), location) {
 	}
 
 	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const TypeSpecifierListRef type_parameter_list,
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			const yy::location location = GetDefaultLocation()) :
-			RecordTypeSpecifier(type_name, container,
+			RecordTypeSpecifier(type_name, type_parameter_list, container,
 					NamespaceQualifierList::GetTerminator(), location) {
 	}
 
 	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const TypeSpecifierListRef type_parameter_list,
 			const NamespaceQualifierListRef space, const yy::location location =
 					GetDefaultLocation()) :
-			RecordTypeSpecifier(type_name, nullptr, space, location) {
+			RecordTypeSpecifier(type_name, type_parameter_list, nullptr, space,
+					location) {
 	}
 
 	RecordTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const TypeSpecifierListRef type_parameter_list,
 			const_shared_ptr<ComplexTypeSpecifier> container,
+
 			const NamespaceQualifierListRef space, const yy::location location =
 					GetDefaultLocation()) :
-			ComplexTypeSpecifier(type_name, container, space, location) {
+			ComplexTypeSpecifier(type_name, type_parameter_list, container,
+					space, location) {
 	}
 
 	virtual ~RecordTypeSpecifier() {

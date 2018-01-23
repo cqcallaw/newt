@@ -36,20 +36,21 @@ const_shared_ptr<ComplexTypeSpecifier> ComplexTypeSpecifier::Build(
 		return parent;
 	}
 
-	std::stack<shared_ptr<const std::string>> child_names;
-	shared_ptr<const ComplexTypeSpecifier> start = child;
-	child_names.push(start->GetTypeName());
-	while (start->GetContainer()) {
-		child_names.push(start->GetTypeName());
-		start = start->GetContainer();
+	std::stack<plain_shared_ptr<ComplexTypeSpecifier>> in_order_children;
+	plain_shared_ptr<ComplexTypeSpecifier> subject = child;
+	in_order_children.push(subject);
+	while (subject->GetContainer()) {
+		in_order_children.push(subject);
+		subject = subject->GetContainer();
 	}
 
 	shared_ptr<const ComplexTypeSpecifier> result = parent;
-	while (!child_names.empty()) {
-		auto name = child_names.top();
-		result = make_shared<ComplexTypeSpecifier>(name, result,
-				NamespaceQualifierList::GetTerminator());
-		child_names.pop();
+	while (!in_order_children.empty()) {
+		auto subject = in_order_children.top();
+		result = make_shared<ComplexTypeSpecifier>(subject->GetTypeName(),
+				subject->GetTypeParameterList(), result,
+				subject->GetNamespace());
+		in_order_children.pop();
 	}
 
 	return result;

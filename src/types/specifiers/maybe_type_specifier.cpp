@@ -33,7 +33,8 @@ MaybeTypeSpecifier::MaybeTypeSpecifier(
 		const yy::location location) :
 		SumTypeSpecifier(
 				make_shared<string>(base_type_specifier->ToString() + "?"),
-				location), m_base_type_specifier(base_type_specifier) {
+				TypeSpecifierList::GetTerminator(), location), m_base_type_specifier(
+				base_type_specifier) {
 }
 
 MaybeTypeSpecifier::~MaybeTypeSpecifier() {

@@ -438,7 +438,10 @@ const_shared_ptr<TypeSpecifier> RecordType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
 		const_shared_ptr<ComplexTypeSpecifier> container,
 		yy::location location) const {
-	return make_shared<RecordTypeSpecifier>(name, container, location);
+	return make_shared<RecordTypeSpecifier>(name,
+			container ?
+					container->GetTypeParameterList() :
+					TypeSpecifierList::GetTerminator(), container, location);
 }
 
 const SetResult RecordType::InstantiateCore(

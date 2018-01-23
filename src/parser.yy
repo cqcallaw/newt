@@ -406,17 +406,16 @@ function_type_specifier:
 complex_type_specifier:
 	IDENTIFIER
 	{
-		$$ = make_shared<ComplexTypeSpecifier>($1, @$);
+		$$ = make_shared<ComplexTypeSpecifier>($1, TypeSpecifierList::GetTerminator(), @$);
 	}
 	| namespace_qualifier_list IDENTIFIER
 	{
 		const NamespaceQualifierListRef namespace_qualifier_list = NamespaceQualifierList::Reverse($1);
-		$$ = make_shared<ComplexTypeSpecifier>($2, nullptr, namespace_qualifier_list, @$);
+		$$ = make_shared<ComplexTypeSpecifier>($2, TypeSpecifierList::GetTerminator(), nullptr, namespace_qualifier_list, @$);
 	}
 	| complex_type_specifier type_argument_container
 	{
-		// TODO: handle type arguments
-		$$ = $1;
+		$$ = make_shared<ComplexTypeSpecifier>($1->GetTypeName(), $2, @$);
 	}
 
 //---------------------------------------------------------------------
@@ -941,12 +940,12 @@ type_parameter_container:
 type_parameter_list:
 	type_parameter_list COMMA IDENTIFIER
 	{
-		auto specifier = make_shared<ComplexTypeSpecifier>($3, @3);
+		auto specifier = make_shared<ComplexTypeSpecifier>($3, TypeSpecifierList::GetTerminator(), @3);
 		$$ = TypeSpecifierList::From(specifier, $1);
 	}
 	| IDENTIFIER
 	{
-		auto specifier = make_shared<ComplexTypeSpecifier>($1, @$);
+		auto specifier = make_shared<ComplexTypeSpecifier>($1, TypeSpecifierList::GetTerminator(), @$);
 		$$ = TypeSpecifierList::From(specifier, TypeSpecifierList::GetTerminator());
 	}
 
@@ -1021,11 +1020,11 @@ struct_declaration_statement:
 
 //---------------------------------------------------------------------
 struct_body:
-	IDENTIFIER optional_type_parameter_container LBRACE declaration_list RBRACE
+	complex_type_specifier LBRACE declaration_list RBRACE
 	{
-		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
-		const_shared_ptr<RecordTypeSpecifier> type = make_shared<RecordTypeSpecifier>($1, @$);
-		$$ = make_shared<RecordDeclarationStatement>(@$, type, $1, @1, member_declaration_list, @4, ModifierList::GetTerminator(), GetDefaultLocation());
+		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
+		auto record_type_specifier = make_shared<RecordTypeSpecifier>($1->GetTypeName(), $1->GetTypeParameterList(), $1->GetLocation());
+		$$ = make_shared<RecordDeclarationStatement>(@$, record_type_specifier, record_type_specifier->GetTypeName(), @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 
 //---------------------------------------------------------------------
@@ -1140,12 +1139,10 @@ sum_declaration_statement:
 
 //---------------------------------------------------------------------
 sum_body:
-	IDENTIFIER optional_type_parameter_container LBRACE variant_list RBRACE
+	complex_type_specifier LBRACE variant_list RBRACE
 	{
-		// TODO: respect type arguments
-		const DeclarationListRef variant_list = DeclarationList::Reverse($4);
-		const_shared_ptr<SumTypeSpecifier> type = make_shared<SumTypeSpecifier>($1);
-		$$ = make_shared<SumDeclarationStatement>(@$, type, $1, @1, variant_list, @4);
+		const DeclarationListRef variant_list = DeclarationList::Reverse($3);
+		$$ = make_shared<SumDeclarationStatement>(@$, $1, $1->GetTypeName(), @1, variant_list, @3);
 	}
 
 //---------------------------------------------------------------------
@@ -1184,7 +1181,7 @@ variant:
 	}
 	| IDENTIFIER
 	{
-		const_shared_ptr<ComplexTypeSpecifier> type = make_shared<ComplexTypeSpecifier>($1);
+		const_shared_ptr<ComplexTypeSpecifier> type = make_shared<ComplexTypeSpecifier>($1, TypeSpecifierList::GetTerminator());
 		$$ = make_shared<UnitDeclarationStatement>(@$, type, @1, $1, @1);
 	}
 

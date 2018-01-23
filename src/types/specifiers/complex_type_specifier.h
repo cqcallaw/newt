@@ -28,17 +28,19 @@ class ComplexType;
 class ComplexTypeSpecifier: public TypeSpecifier {
 public:
 	ComplexTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const TypeSpecifierListRef type_parameter_list,
 			const yy::location location = GetDefaultLocation()) :
-			ComplexTypeSpecifier(type_name, nullptr,
+			ComplexTypeSpecifier(type_name, type_parameter_list, nullptr,
 					NamespaceQualifierList::GetTerminator(), location) {
 	}
 
 	ComplexTypeSpecifier(const_shared_ptr<std::string> type_name,
+			const TypeSpecifierListRef type_parameter_list,
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			const NamespaceQualifierListRef space, const yy::location location =
 					GetDefaultLocation()) :
-			TypeSpecifier(location), m_type_name(type_name), m_container(
-					container), m_space(space) {
+			TypeSpecifier(location), m_type_name(type_name), m_type_parameter_list(
+					type_parameter_list), m_container(container), m_space(space) {
 	}
 
 	~ComplexTypeSpecifier() {
@@ -77,6 +79,10 @@ public:
 		return m_type_name;
 	}
 
+	const TypeSpecifierListRef GetTypeParameterList() const {
+		return m_type_parameter_list;
+	}
+
 	virtual const NamespaceQualifierListRef GetNamespace() const {
 		return m_space;
 	}
@@ -87,6 +93,7 @@ public:
 
 private:
 	const_shared_ptr<std::string> m_type_name;
+	const TypeSpecifierListRef m_type_parameter_list;
 	const_shared_ptr<ComplexTypeSpecifier> m_container;
 	const NamespaceQualifierListRef m_space;
 };

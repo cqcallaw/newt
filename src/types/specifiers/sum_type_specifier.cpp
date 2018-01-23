@@ -25,8 +25,9 @@
 #include <sum_type.h>
 
 SumTypeSpecifier::SumTypeSpecifier(const ComplexTypeSpecifier& complex) :
-		SumTypeSpecifier(complex.GetTypeName(), complex.GetContainer(),
-				complex.GetNamespace(), complex.GetLocation()) {
+		SumTypeSpecifier(complex.GetTypeName(), complex.GetTypeParameterList(),
+				complex.GetContainer(), complex.GetNamespace(),
+				complex.GetLocation()) {
 }
 
 SumTypeSpecifier::SumTypeSpecifier(

@@ -255,6 +255,7 @@ const_shared_ptr<Symbol> SumType::GetSymbol(const TypeTable& type_table,
 				auto as_sum_type_specifier =
 						make_shared<const SumTypeSpecifier>(
 								original_as_complex->GetTypeName(),
+								original_as_complex->GetTypeParameterList(),
 								original_as_complex->GetContainer());
 				auto as_sum = static_pointer_cast<const Sum>(value);
 				return make_shared<Symbol>(as_sum_type_specifier, as_sum);
@@ -376,7 +377,10 @@ const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
 		const_shared_ptr<std::string> name,
 		const_shared_ptr<ComplexTypeSpecifier> container,
 		yy::location location) const {
-	return make_shared<SumTypeSpecifier>(name, container, location);
+	return make_shared<SumTypeSpecifier>(name,
+			container ?
+					container->GetTypeParameterList() :
+					TypeSpecifierList::GetTerminator(), container, location);
 }
 
 const std::string SumType::GetValueSeparator(const Indent& indent,

@@ -35,7 +35,8 @@ const_shared_ptr<std::string> Builtins::ERROR_MESSAGE_NAME = make_shared<
 
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_error_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
-			ComplexTypeSpecifier>(Builtins::ERROR_TYPE_NAME);
+			ComplexTypeSpecifier>(Builtins::ERROR_TYPE_NAME,
+			TypeSpecifierList::GetTerminator());
 	return instance;
 }
 
@@ -56,7 +57,8 @@ const_shared_ptr<std::string> Builtins::ERROR_LIST_NEXT_NAME = make_shared<
 
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_error_list_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
-			ComplexTypeSpecifier>(Builtins::ERROR_LIST_TYPE_NAME);
+			ComplexTypeSpecifier>(Builtins::ERROR_LIST_TYPE_NAME,
+			TypeSpecifierList::GetTerminator());
 	return instance;
 }
 
@@ -83,7 +85,8 @@ const_shared_ptr<std::string> Builtins::STREAM_MODE_TRUNC_NAME = make_shared<
 		std::string>("trunc");
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_stream_mode_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
-			ComplexTypeSpecifier>(Builtins::STREAM_MODE_TYPE_NAME);
+			ComplexTypeSpecifier>(Builtins::STREAM_MODE_TYPE_NAME,
+			TypeSpecifierList::GetTerminator());
 	return instance;
 }
 
@@ -97,7 +100,8 @@ const_shared_ptr<std::string> Builtins::BYTE_RESULT_ERRORS_NAME = make_shared<
 		std::string>("errors");
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_byte_result_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
-			ComplexTypeSpecifier>(Builtins::BYTE_RESULT_TYPE_NAME);
+			ComplexTypeSpecifier>(Builtins::BYTE_RESULT_TYPE_NAME,
+			TypeSpecifierList::GetTerminator());
 	return instance;
 }
 
@@ -109,7 +113,8 @@ const_shared_ptr<std::string> Builtins::INT_RESULT_ERRORS_NAME = make_shared<
 		std::string>("errors");
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_int_result_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
-			ComplexTypeSpecifier>(Builtins::INT_RESULT_TYPE_NAME);
+			ComplexTypeSpecifier>(Builtins::INT_RESULT_TYPE_NAME,
+			TypeSpecifierList::GetTerminator());
 	return instance;
 }
 
@@ -123,12 +128,14 @@ const_shared_ptr<std::string> Builtins::BYTE_READ_RESULT_ERRORS_NAME =
 		make_shared<std::string>("errors");
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_byte_read_result_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
-			ComplexTypeSpecifier>(Builtins::BYTE_READ_RESULT_TYPE_NAME);
+			ComplexTypeSpecifier>(Builtins::BYTE_READ_RESULT_TYPE_NAME,
+			TypeSpecifierList::GetTerminator());
 	return instance;
 }
 const_shared_ptr<ComplexTypeSpecifier> Builtins::get_byte_read_result_eof_type_specifier() {
 	static const_shared_ptr<ComplexTypeSpecifier> instance = make_shared<
 			ComplexTypeSpecifier>(Builtins::BYTE_READ_RESULT_EOF_NAME,
+			TypeSpecifierList::GetTerminator(),
 			get_byte_read_result_type_specifier(),
 			NamespaceQualifierList::GetTerminator());
 	return instance;

@@ -221,6 +221,7 @@ const_shared_ptr<UnitType> TypeTable::GetNilType() {
 
 const_shared_ptr<ComplexTypeSpecifier> TypeTable::GetNilTypeSpecifier() {
 	const static const_shared_ptr<ComplexTypeSpecifier> value = make_shared<
-			ComplexTypeSpecifier>(GetNilName());
+			ComplexTypeSpecifier>(GetNilName(),
+			TypeSpecifierList::GetTerminator());
 	return value;
 }
