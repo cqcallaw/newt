@@ -46,7 +46,7 @@ public:
 			const shared_ptr<ExecutionContext> closure) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier() const {
-		return m_type;
+		return m_type_specifier;
 	}
 
 	virtual const yy::location GetTypeSpecifierLocation() const {
@@ -71,7 +71,7 @@ public:
 private:
 	DeclarationListRef m_member_declaration_list;
 	const yy::location m_member_declaration_list_location;
-	const_shared_ptr<RecordTypeSpecifier> m_type;
+	const_shared_ptr<RecordTypeSpecifier> m_type_specifier;
 };
 
 #endif /* STATEMENTS_DECLARATIONS_RECORD_DECLARATION_STATEMENT_H_ */

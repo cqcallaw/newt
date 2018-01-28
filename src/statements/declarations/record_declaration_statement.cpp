@@ -41,7 +41,8 @@ RecordDeclarationStatement::RecordDeclarationStatement(
 						type_specifier, member_declaration_list_location),
 				modifier_list, modifiers_location), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_location(
-				member_declaration_list_location), m_type(type_specifier) {
+				member_declaration_list_location), m_type_specifier(
+				type_specifier) {
 }
 
 RecordDeclarationStatement::~RecordDeclarationStatement() {
@@ -64,9 +65,9 @@ const PreprocessResult RecordDeclarationStatement::Preprocess(
 		modifier_list = modifier_list->GetNext();
 	}
 
-	if (!type_table->ContainsType(*m_type)) {
+	if (!type_table->ContainsType(*m_type_specifier)) {
 		errors = RecordType::Build(GetName(), context, closure, modifiers,
-				m_member_declaration_list, m_type);
+				m_member_declaration_list, m_type_specifier);
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
@@ -85,8 +86,8 @@ const ExecutionResult RecordDeclarationStatement::Execute(
 const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	//no-op
-	return new RecordDeclarationStatement(GetLocation(), m_type, GetName(),
-			GetNameLocation(), m_member_declaration_list,
+	return new RecordDeclarationStatement(GetLocation(), m_type_specifier,
+			GetName(), GetNameLocation(), m_member_declaration_list,
 			m_member_declaration_list_location, GetModifierList(),
 			GetModifierListLocation());
 }
@@ -94,7 +95,8 @@ const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpressio
 const_shared_ptr<RecordDeclarationStatement> RecordDeclarationStatement::WithModifiers(
 		ModifierListRef modifiers,
 		const yy::location modifiers_location) const {
-	return make_shared<RecordDeclarationStatement>(GetLocation(), m_type,
-			GetName(), GetNameLocation(), m_member_declaration_list,
-			m_member_declaration_list_location, modifiers, modifiers_location);
+	return make_shared<RecordDeclarationStatement>(GetLocation(),
+			m_type_specifier, GetName(), GetNameLocation(),
+			m_member_declaration_list, m_member_declaration_list_location,
+			modifiers, modifiers_location);
 }
