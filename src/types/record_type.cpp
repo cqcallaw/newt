@@ -68,10 +68,10 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 		const_shared_ptr<RecordTypeSpecifier> type_specifier) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	const_shared_ptr<Record> default_value = make_shared<Record>(
+	auto placeholder_value = make_shared<Record>(
 			make_shared<SymbolContext>(Modifier::Type::NONE));
 	auto placeholder_symbol = make_shared<Symbol>(type_specifier,
-			default_value);
+			placeholder_value);
 	auto maybe_result = MaybeType::Build(closure, type_specifier);
 	errors = maybe_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
