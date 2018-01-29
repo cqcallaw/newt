@@ -1,4 +1,4 @@
 Parsing file ../tests/t0102.nwt...
-Semantic error at ../tests/t0102.nwt:3.1: 'str' has been already been declared in the current scope.
+Semantic error at ../tests/t0102.nwt:3.1: 'str' has already been declared in the current scope.
 Parsed file ../tests/t0102.nwt.
 1 error found; giving up.

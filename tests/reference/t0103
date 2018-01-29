@@ -1,5 +1,5 @@
 Parsing file ../tests/t0103.nwt...
-Semantic error at ../tests/t0103.nwt:3.1: 'a' has been already been declared in the current scope.
-Semantic error at ../tests/t0103.nwt:4.1: 'a' has been already been declared in the current scope.
+Semantic error at ../tests/t0103.nwt:3.1: 'a' has already been declared in the current scope.
+Semantic error at ../tests/t0103.nwt:4.1: 'a' has already been declared in the current scope.
 Parsed file ../tests/t0103.nwt.
 2 errors found; giving up.

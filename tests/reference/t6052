@@ -1,4 +1,4 @@
 Parsing file ../tests/t6052.nwt...
-Semantic error at ../tests/t6052.nwt:4.4: 'i' has been already been declared in the current scope.
+Semantic error at ../tests/t6052.nwt:4.4: 'i' has already been declared in the current scope.
 Parsed file ../tests/t6052.nwt.
 1 error found; giving up.

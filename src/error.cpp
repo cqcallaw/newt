@@ -126,7 +126,7 @@ const string Error::get_error_message() const {
 		break;
 	case PREVIOUS_DECLARATION:
 		os << "'" << m_s1 << "'"
-				<< " has been already been declared in the current scope.";
+				<< " has already been declared in the current scope.";
 		break;
 	case BUILTIN_REDECLARATION:
 		os << "Re-declaration of builtin '" << m_s1 << "'.";

@@ -1,4 +1,4 @@
 Parsing file ../tests/t1111.nwt...
-Semantic error at ../tests/t1111.nwt:2.1: 'values' has been already been declared in the current scope.
+Semantic error at ../tests/t1111.nwt:2.1: 'values' has already been declared in the current scope.
 Parsed file ../tests/t1111.nwt.
 1 error found; giving up.
