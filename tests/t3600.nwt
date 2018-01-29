@@ -1,0 +1,7 @@
+# test invalid repetition of type parameters
+result of <T, T> {
+	data:T,
+	errors:error_list
+}
+
+r1 := @result of <int>
