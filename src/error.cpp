@@ -260,6 +260,9 @@ const string Error::get_error_message() const {
 				<< "'cannot be unambiguously widened to block result type '"
 				<< m_s2 << "'.";
 		break;
+	case NO_TYPE_PARAMETER_INITIALIZERS:
+		os << "Initialization of generic members is semantically invalid.";
+		break;
 	default:
 		os << "Unknown error code " << m_code
 				<< " passed to Error::error_core.";

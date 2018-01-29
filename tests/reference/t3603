@@ -1,0 +1,4 @@
+Parsing file ../tests/t3603.nwt...
+Semantic error at ../tests/t3603.nwt:3.11: Initialization of generic members is semantically invalid.
+Parsed file ../tests/t3603.nwt.
+1 error found; giving up.

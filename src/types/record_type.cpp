@@ -178,11 +178,25 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 
 					if (type_parameter_alias
 							!= PrimitiveTypeSpecifier::GetNone()) {
-						auto alias = make_shared<AliasDefinition>(
-								closure_type_table, type_parameter_alias,
-								DIRECT, nullptr);
+						// we're aliasing a type parameter
 
-						type_table->AddType(*member_name, alias);
+						// check for erroneous initializers
+						auto initializer_expression =
+								declaration->GetInitializerExpression();
+						if (initializer_expression) {
+							member_declaration_errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::NO_TYPE_PARAMETER_INITIALIZERS,
+													initializer_expression->GetLocation().begin),
+											member_declaration_errors);
+						} else {
+							auto alias = make_shared<AliasDefinition>(
+									closure_type_table, type_parameter_alias,
+									DIRECT, nullptr);
+
+							type_table->AddType(*member_name, alias);
+						}
 					} else {
 						member_declaration_errors =
 								declaration_type_specifier->ValidateDeclaration(

@@ -1,0 +1,5 @@
+# test initialization of type parameter (this is semantically invalid)
+result of <T> {
+	data:T = 3,
+	errors:error_list
+}
