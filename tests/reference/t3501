@@ -1,0 +1,21 @@
+Parsing file ../tests/t3501.nwt...
+Parsed file ../tests/t3501.nwt.
+Root Symbol Table:
+----------------
+<empty>
+
+Root Type Table:
+----------------
+result:
+	<record of T, K>
+	data:
+		T
+	errors:
+		error_list (
+			error data:
+				int id: 0
+				string message: ""
+
+			error_list? next: {nil}
+		)
+

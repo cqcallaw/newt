@@ -38,6 +38,7 @@ class RecordType: public ComplexType {
 public:
 	RecordType(const_shared_ptr<TypeTable> definition,
 			const Modifier::Type modifiers,
+			const TypeSpecifierListRef type_parameter_list,
 			const_shared_ptr<MaybeType> maybe_type);
 
 	virtual ~RecordType();
@@ -101,6 +102,10 @@ public:
 		return m_maybe_type;
 	}
 
+	const TypeSpecifierListRef GetTypeParameterList() const {
+		return m_type_parameter_list;
+	}
+
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,
@@ -117,6 +122,7 @@ protected:
 private:
 	const_shared_ptr<TypeTable> m_definition;
 	const Modifier::Type m_modifiers;
+	const TypeSpecifierListRef m_type_parameter_list;
 	const_shared_ptr<MaybeType> m_maybe_type;
 };
 

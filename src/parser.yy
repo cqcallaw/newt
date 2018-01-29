@@ -415,7 +415,8 @@ complex_type_specifier:
 	}
 	| complex_type_specifier type_argument_container
 	{
-		$$ = make_shared<ComplexTypeSpecifier>($1->GetTypeName(), $2, @$);
+		auto in_order_type_arguments = TypeSpecifierList::Reverse($2);
+		$$ = make_shared<ComplexTypeSpecifier>($1->GetTypeName(), in_order_type_arguments, @$);
 	}
 
 //---------------------------------------------------------------------
@@ -538,7 +539,8 @@ statement:
 	| variable_reference LPAREN optional_argument_list RPAREN optional_type_argument_container
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = make_shared<InvokeStatement>($1, argument_list, @3, $5, @5);
+		auto in_order_type_arguments = TypeSpecifierList::Reverse($5);
+		$$ = make_shared<InvokeStatement>($1, argument_list, @3, in_order_type_arguments, @5);
 	}
 
 //---------------------------------------------------------------------
@@ -815,17 +817,20 @@ invoke_expression:
 	variable_expression LPAREN optional_argument_list RPAREN optional_type_argument_container
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = InvokeExpression::BuildInvokeExpression(@$, $1, argument_list, @3, $5, @5);
+		auto in_order_type_arguments = TypeSpecifierList::Reverse($5);
+		$$ = InvokeExpression::BuildInvokeExpression(@$, $1, argument_list, @3, in_order_type_arguments, @5);
 	}
 	| invoke_expression LPAREN optional_argument_list RPAREN optional_type_argument_container
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3, $5, @5);
+		auto in_order_type_arguments = TypeSpecifierList::Reverse($5);
+		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3, in_order_type_arguments, @5);
 	}
 	| function_expression LPAREN optional_argument_list RPAREN optional_type_argument_container
 	{
 		const ArgumentListRef argument_list = ArgumentList::Reverse($3);
-		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3, $5, @5);
+		auto in_order_type_arguments = TypeSpecifierList::Reverse($5);
+		$$ = make_shared<InvokeExpression>(@$, $1, argument_list, @3, in_order_type_arguments, @5);
 	}
 
 //---------------------------------------------------------------------
@@ -934,6 +939,7 @@ optional_type_parameter_container:
 type_parameter_container:
 	OF LESS type_parameter_list GREATER
 	{
+		//$$ = $3;
 	}
 
 //---------------------------------------------------------------------

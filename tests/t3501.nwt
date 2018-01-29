@@ -1,0 +1,5 @@
+# test generic record type with unused type parameter
+result of <T, K> {
+	data:T,
+	errors:error_list
+}
