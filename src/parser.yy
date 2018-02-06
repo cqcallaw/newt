@@ -939,7 +939,7 @@ optional_type_parameter_container:
 type_parameter_container:
 	OF LESS type_parameter_list GREATER
 	{
-		//$$ = $3;
+		$$ = $3;
 	}
 
 //---------------------------------------------------------------------
@@ -1026,11 +1026,12 @@ struct_declaration_statement:
 
 //---------------------------------------------------------------------
 struct_body:
-	complex_type_specifier LBRACE declaration_list RBRACE
+	IDENTIFIER optional_type_parameter_container LBRACE declaration_list RBRACE
 	{
-		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($3);
-		auto record_type_specifier = make_shared<RecordTypeSpecifier>($1->GetTypeName(), $1->GetTypeParameterList(), $1->GetLocation());
-		$$ = make_shared<RecordDeclarationStatement>(@$, record_type_specifier, record_type_specifier->GetTypeName(), @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
+		const DeclarationListRef member_declaration_list = DeclarationList::Reverse($4);
+		auto type_parameter_list = TypeSpecifierList::Reverse($2);
+		auto record_type_specifier = make_shared<RecordTypeSpecifier>($1, TypeSpecifierList::GetTerminator(), @1);
+		$$ = make_shared<RecordDeclarationStatement>(@$, record_type_specifier, type_parameter_list, @2, $1, @1, member_declaration_list, @3, ModifierList::GetTerminator(), GetDefaultLocation());
 	}
 
 //---------------------------------------------------------------------
@@ -1145,10 +1146,12 @@ sum_declaration_statement:
 
 //---------------------------------------------------------------------
 sum_body:
-	complex_type_specifier LBRACE variant_list RBRACE
+	IDENTIFIER optional_type_parameter_container LBRACE variant_list RBRACE
 	{
-		const DeclarationListRef variant_list = DeclarationList::Reverse($3);
-		$$ = make_shared<SumDeclarationStatement>(@$, $1, $1->GetTypeName(), @1, variant_list, @3);
+		const DeclarationListRef variant_list = DeclarationList::Reverse($4);
+		auto type_parameter_list = TypeSpecifierList::Reverse($2);
+		auto type_specifier = make_shared<SumTypeSpecifier>($1, TypeSpecifierList::GetTerminator(), @1);
+		$$ = make_shared<SumDeclarationStatement>(@$, type_specifier, type_parameter_list, @2, $1, @1, variant_list, @3);
 	}
 
 //---------------------------------------------------------------------

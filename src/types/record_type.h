@@ -87,7 +87,8 @@ public:
 			const shared_ptr<ExecutionContext> closure,
 			const Modifier::Type modifiers,
 			const DeclarationListRef member_declarations,
-			const_shared_ptr<RecordTypeSpecifier> type_specifier);
+			const_shared_ptr<RecordTypeSpecifier> type_specifier,
+			const TypeSpecifierListRef type_parameter_list);
 
 	const Modifier::Type GetModifiers() const {
 		return m_modifiers;

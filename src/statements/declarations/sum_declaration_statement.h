@@ -30,6 +30,8 @@ class SumDeclarationStatement: public DeclarationStatement {
 public:
 	SumDeclarationStatement(const yy::location position,
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+			const TypeSpecifierListRef type_parameters,
+			const yy::location type_parameter_location,
 			const_shared_ptr<string> name, const yy::location name_location,
 			const DeclarationListRef variant_list,
 			const yy::location variant_list_location);
@@ -53,7 +55,9 @@ public:
 private:
 	DeclarationListRef m_variant_list;
 	const yy::location m_variant_list_location;
-	const_shared_ptr<SumTypeSpecifier> m_type;
+	const TypeSpecifierListRef m_type_parameters;
+	const yy::location m_type_parameter_location;
+	const_shared_ptr<SumTypeSpecifier> m_type_specifier;
 };
 
 #endif /* STATEMENTS_DECLARATIONS_SUM_DECLARATION_STATEMENT_H_ */

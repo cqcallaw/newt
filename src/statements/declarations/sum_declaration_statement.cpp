@@ -44,6 +44,8 @@
 
 SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
+		const TypeSpecifierListRef type_parameters,
+		const yy::location type_parameter_location,
 		const_shared_ptr<string> name, const yy::location name_location,
 		const DeclarationListRef variant_list,
 		const yy::location variant_list_location) :
@@ -51,7 +53,9 @@ SumDeclarationStatement::SumDeclarationStatement(const yy::location position,
 				make_shared<DefaultValueExpression>(GetDefaultLocation(),
 						type_specifier, variant_list_location),
 				ModifierList::GetTerminator(), GetDefaultLocation()), m_variant_list(
-				variant_list), m_variant_list_location(variant_list_location), m_type(
+				variant_list), m_variant_list_location(variant_list_location), m_type_parameters(
+				type_parameters), m_type_parameter_location(
+				type_parameter_location), m_type_specifier(
 				make_shared<SumTypeSpecifier>(type_specifier)) {
 }
 
@@ -65,10 +69,11 @@ const PreprocessResult SumDeclarationStatement::Preprocess(
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto type_table = context->GetTypeTable();
 
-	if (!type_table->ContainsType(*m_type)) {
+	if (!type_table->ContainsType(*m_type_specifier)) {
 		const_shared_ptr<Sum> default_value = make_shared<Sum>(
 				make_shared<string>("placeholder tag"), make_shared<int>(0));
-		auto placeholder_symbol = make_shared<Symbol>(m_type, default_value);
+		auto placeholder_symbol = make_shared<Symbol>(m_type_specifier,
+				default_value);
 		auto placeholder_maybe_result = MaybeType::Build(closure,
 				GetTypeSpecifier());
 
@@ -80,7 +85,7 @@ const PreprocessResult SumDeclarationStatement::Preprocess(
 					placeholder_symbol, placeholder_maybe);
 			type_table->AddType(*GetName(), forward_declaration);
 			auto result = SumType::Build(context, closure, m_variant_list,
-					m_type);
+					m_type_specifier);
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
@@ -202,12 +207,13 @@ const ExecutionResult SumDeclarationStatement::Execute(
 const DeclarationStatement* SumDeclarationStatement::WithInitializerExpression(
 		const_shared_ptr<Expression> expression) const {
 	//no-op
-	return new SumDeclarationStatement(GetLocation(), m_type, GetName(),
+	return new SumDeclarationStatement(GetLocation(), m_type_specifier,
+			m_type_parameters, m_type_parameter_location, GetName(),
 			GetNameLocation(), m_variant_list, m_variant_list_location);
 }
 
 const_shared_ptr<TypeSpecifier> SumDeclarationStatement::GetTypeSpecifier() const {
-	return m_type;
+	return m_type_specifier;
 }
 
 const yy::location SumDeclarationStatement::GetTypeSpecifierLocation() const {

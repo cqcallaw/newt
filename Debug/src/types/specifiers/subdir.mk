@@ -13,6 +13,7 @@ CPP_SRCS += \
 ../src/types/specifiers/primitive_type_specifier.cpp \
 ../src/types/specifiers/record_type_specifier.cpp \
 ../src/types/specifiers/sum_type_specifier.cpp \
+../src/types/specifiers/type_specifier.cpp \
 ../src/types/specifiers/variant_function_specifier.cpp 
 
 OBJS += \
@@ -25,6 +26,7 @@ OBJS += \
 ./src/types/specifiers/primitive_type_specifier.o \
 ./src/types/specifiers/record_type_specifier.o \
 ./src/types/specifiers/sum_type_specifier.o \
+./src/types/specifiers/type_specifier.o \
 ./src/types/specifiers/variant_function_specifier.o 
 
 CPP_DEPS += \
@@ -37,6 +39,7 @@ CPP_DEPS += \
 ./src/types/specifiers/primitive_type_specifier.d \
 ./src/types/specifiers/record_type_specifier.d \
 ./src/types/specifiers/sum_type_specifier.d \
+./src/types/specifiers/type_specifier.d \
 ./src/types/specifiers/variant_function_specifier.d 
 
 

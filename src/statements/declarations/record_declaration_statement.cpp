@@ -32,6 +32,8 @@
 RecordDeclarationStatement::RecordDeclarationStatement(
 		const yy::location position,
 		const_shared_ptr<RecordTypeSpecifier> type_specifier,
+		const TypeSpecifierListRef type_parameters,
+		const yy::location type_parameter_location,
 		const_shared_ptr<string> name, const yy::location name_location,
 		DeclarationListRef member_declaration_list,
 		const yy::location member_declaration_list_location,
@@ -41,8 +43,9 @@ RecordDeclarationStatement::RecordDeclarationStatement(
 						type_specifier, member_declaration_list_location),
 				modifier_list, modifiers_location), m_member_declaration_list(
 				member_declaration_list), m_member_declaration_list_location(
-				member_declaration_list_location), m_type_specifier(
-				type_specifier) {
+				member_declaration_list_location), m_type_parameters(
+				type_parameters), m_type_parameter_location(
+				type_parameter_location), m_type_specifier(type_specifier) {
 }
 
 RecordDeclarationStatement::~RecordDeclarationStatement() {
@@ -67,7 +70,7 @@ const PreprocessResult RecordDeclarationStatement::Preprocess(
 
 	if (!type_table->ContainsType(*m_type_specifier)) {
 		errors = RecordType::Build(GetName(), context, closure, modifiers,
-				m_member_declaration_list, m_type_specifier);
+				m_member_declaration_list, m_type_specifier, m_type_parameters);
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,
@@ -87,7 +90,8 @@ const DeclarationStatement* RecordDeclarationStatement::WithInitializerExpressio
 		const_shared_ptr<Expression> expression) const {
 	//no-op
 	return new RecordDeclarationStatement(GetLocation(), m_type_specifier,
-			GetName(), GetNameLocation(), m_member_declaration_list,
+			m_type_parameters, m_type_parameter_location, GetName(),
+			GetNameLocation(), m_member_declaration_list,
 			m_member_declaration_list_location, GetModifierList(),
 			GetModifierListLocation());
 }
@@ -96,7 +100,7 @@ const_shared_ptr<RecordDeclarationStatement> RecordDeclarationStatement::WithMod
 		ModifierListRef modifiers,
 		const yy::location modifiers_location) const {
 	return make_shared<RecordDeclarationStatement>(GetLocation(),
-			m_type_specifier, GetName(), GetNameLocation(),
-			m_member_declaration_list, m_member_declaration_list_location,
-			modifiers, modifiers_location);
+			m_type_specifier, m_type_parameters, m_type_parameter_location,
+			GetName(), GetNameLocation(), m_member_declaration_list,
+			m_member_declaration_list_location, modifiers, modifiers_location);
 }

@@ -29,6 +29,8 @@ class RecordDeclarationStatement: public DeclarationStatement {
 public:
 	RecordDeclarationStatement(const yy::location position,
 			const_shared_ptr<RecordTypeSpecifier> type_specifier,
+			const TypeSpecifierListRef type_parameters,
+			const yy::location type_parameter_location,
 			const_shared_ptr<string> name, const yy::location name_location,
 			DeclarationListRef member_declaration_list,
 			const yy::location member_declaration_list_location,
@@ -71,6 +73,8 @@ public:
 private:
 	DeclarationListRef m_member_declaration_list;
 	const yy::location m_member_declaration_list_location;
+	const TypeSpecifierListRef m_type_parameters;
+	const yy::location m_type_parameter_location;
 	const_shared_ptr<RecordTypeSpecifier> m_type_specifier;
 };
 

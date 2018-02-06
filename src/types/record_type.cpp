@@ -80,23 +80,25 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 		const shared_ptr<ExecutionContext> closure,
 		const Modifier::Type modifiers,
 		const DeclarationListRef member_declarations,
-		const_shared_ptr<RecordTypeSpecifier> type_specifier) {
+		const_shared_ptr<RecordTypeSpecifier> type_specifier,
+		const TypeSpecifierListRef type_parameter_list) {
 	auto errors = ErrorList::GetTerminator();
 
 	auto output_type_table = output->GetTypeTable();
 
 	// validate type parameters
-	auto type_parameter_list = vector<string>();
-	auto type_parameter_subject = type_specifier->GetTypeParameterList();
+	auto type_parameter_vector = vector<string>();
+	auto type_parameter_subject = type_parameter_list;
 	while (type_parameter_subject != TypeSpecifierList::GetTerminator()) {
 		auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 				type_parameter_subject->GetData());
 		assert(as_complex);
 
 		auto as_string = as_complex->ToString();
-		if (std::find(type_parameter_list.begin(), type_parameter_list.end(),
-				as_string) == type_parameter_list.end()) {
-			type_parameter_list.push_back(as_string);
+		if (std::find(type_parameter_vector.begin(),
+				type_parameter_vector.end(), as_string)
+				== type_parameter_vector.end()) {
+			type_parameter_vector.push_back(as_string);
 		} else {
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
@@ -159,8 +161,7 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 							PrimitiveTypeSpecifier::GetNone();
 					auto type_specifier_string =
 							declaration_type_specifier->ToString();
-					auto type_parameter_subject =
-							type_specifier->GetTypeParameterList();
+					auto type_parameter_subject = type_parameter_list;
 					while (type_parameter_subject
 							!= TypeSpecifierList::GetTerminator()) {
 						auto as_complex = dynamic_pointer_cast<
@@ -398,8 +399,7 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 				// update output with what we have so far
 				auto type = const_shared_ptr<RecordType>(
 						new RecordType(type_table, modifiers,
-								type_specifier->GetTypeParameterList(),
-								maybe_type));
+								type_parameter_list, maybe_type));
 				output_type_table->ReplaceTypeDefinition<PlaceholderType>(*name,
 						type);
 
@@ -569,7 +569,7 @@ const_shared_ptr<TypeSpecifier> RecordType::GetTypeSpecifier(
 		yy::location location) const {
 	return make_shared<RecordTypeSpecifier>(name,
 			container ?
-					container->GetTypeParameterList() :
+					container->GetTypeArgumentList() :
 					TypeSpecifierList::GetTerminator(), container, location);
 }
 

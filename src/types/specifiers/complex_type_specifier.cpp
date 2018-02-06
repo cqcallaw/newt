@@ -48,7 +48,7 @@ const_shared_ptr<ComplexTypeSpecifier> ComplexTypeSpecifier::Build(
 	while (!in_order_children.empty()) {
 		auto subject = in_order_children.top();
 		result = make_shared<ComplexTypeSpecifier>(subject->GetTypeName(),
-				subject->GetTypeParameterList(), result,
+				subject->GetTypeArgumentList(), result,
 				subject->GetNamespace());
 		in_order_children.pop();
 	}
