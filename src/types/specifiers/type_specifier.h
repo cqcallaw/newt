@@ -24,8 +24,6 @@
 #include <string>
 #include <alias_resolution.h>
 #include <analysis_result.h>
-#include <type_definition.h>
-#include <error.h>
 #include <result.h>
 
 class Expression;

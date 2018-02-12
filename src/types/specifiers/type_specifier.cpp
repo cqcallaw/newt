@@ -18,6 +18,7 @@
  */
 
 #include <type_specifier.h>
+#include <type_definition.h>
 
 const_shared_ptr<void> TypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
