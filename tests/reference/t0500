@@ -1,0 +1,4 @@
+Parsing file ../tests/t0500.nwt...
+Semantic error at ../tests/t0500.nwt:2.5: No value specified for non-default parameter 'file_handle'.
+Parsed file ../tests/t0500.nwt.
+1 error found; giving up.

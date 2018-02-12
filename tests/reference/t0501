@@ -1,0 +1,4 @@
+Parsing file ../tests/t0501.nwt...
+Semantic error at ../tests/t0501.nwt:2.6: No value specified for non-default parameter 'data'.
+Parsed file ../tests/t0501.nwt.
+1 error found; giving up.

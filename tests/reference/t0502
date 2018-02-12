@@ -1,0 +1,4 @@
+Parsing file ../tests/t0502.nwt...
+Semantic error at ../tests/t0502.nwt:2.6: No value specified for non-default parameter 'path'.
+Parsed file ../tests/t0502.nwt.
+1 error found; giving up.

@@ -209,5 +209,11 @@ const ErrorListRef CloseExpression::Validate(
 		argument = argument->GetNext();
 	}
 
+	if (arg_count == 0) {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
+						GetArgumentListRefLocation().end, "file_handle"), errors);
+	}
+
 	return errors;
 }

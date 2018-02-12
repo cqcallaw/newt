@@ -1,0 +1,4 @@
+Parsing file ../tests/t0503.nwt...
+Semantic error at ../tests/t0503.nwt:2.13: No value specified for non-default parameter 'mode'.
+Parsed file ../tests/t0503.nwt.
+1 error found; giving up.

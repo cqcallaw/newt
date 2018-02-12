@@ -1,0 +1,2 @@
+# test too few arguments to builtin put() function
+put()

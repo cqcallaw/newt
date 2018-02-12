@@ -296,5 +296,18 @@ const ErrorListRef OpenExpression::Validate(
 		argument = argument->GetNext();
 	}
 
+	if (arg_count == 0) {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
+						GetArgumentListRefLocation().end, "path"),
+				errors);
+	}
+
+	if (arg_count == 1) {
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
+						GetArgumentListRefLocation().end, "mode"), errors);
+	}
+
 	return errors;
 }
