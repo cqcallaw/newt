@@ -66,17 +66,7 @@ public:
 		return INCOMPATIBLE;
 	}
 
-	virtual const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const {
-		auto type_result = GetType(type_table, RESOLVE);
-
-		auto errors = type_result->GetErrors();
-		if (ErrorList::IsTerminator(errors)) {
-			auto type = type_result->GetData<TypeDefinition>();
-			return type->GetDefaultValue(type_table);
-		}
-
-		return nullptr;
-	}
+	virtual const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const;
 
 	const yy::location GetLocation() const {
 		return m_location;
