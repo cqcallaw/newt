@@ -49,10 +49,8 @@ int i64: 0
 int i65: 0
 int i66: 0
 int i67: 0
-int i68: 0
+int i68: 1
 int i7: 1
-int i70: 1
-int i71: 1
 int i8: 0
 int i9: 0
 int ii: 1

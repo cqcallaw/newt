@@ -1,8 +1,8 @@
 // test the precedence of ! and && and ||
 // ! has a higher precedence than &&
 
-x: int = !0 && 1  // should be !(0 && 1) == 1
-y: int = !(0 && 1) // same as above
+x: int = !false && true  // should be !(false && true) == 1
+y: int = !(false && true) // same as above
 
-w: int = !0 || 1 // should be 1, if ! is not evaluated before || will get 0
-z: int = !(0 || 1) // should be 0
+w: int = !false || true // should be 1, if ! is not evaluated before || will get 0
+z: int = !(false || true) // should be 0

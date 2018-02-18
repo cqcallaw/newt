@@ -78,10 +78,35 @@ const ErrorListRef UnaryExpression::Validate(
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier =
 				expression_type_specifier_result.GetData();
-		auto operand_analysis = expression_type_specifier->AnalyzeAssignmentTo(
-				PrimitiveTypeSpecifier::GetDouble(),
-				execution_context->GetTypeTable());
-		if (operand_analysis != EQUIVALENT && operand_analysis != UNAMBIGUOUS) {
+		switch (m_operator) {
+		case UNARY_MINUS: {
+			if (expression_type_specifier->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetInt(),
+					execution_context->GetTypeTable()) != EQUIVALENT
+					&& expression_type_specifier->AnalyzeAssignmentTo(
+							PrimitiveTypeSpecifier::GetDouble(),
+							execution_context->GetTypeTable()) != EQUIVALENT) {
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::INVALID_RIGHT_OPERAND_TYPE,
+								m_expression->GetLocation().begin,
+								OperatorToString(op)), errors);
+			}
+			break;
+		}
+		case NOT: {
+			if (expression_type_specifier->AnalyzeAssignmentTo(
+					PrimitiveTypeSpecifier::GetBoolean(),
+					execution_context->GetTypeTable()) != EQUIVALENT) {
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::INVALID_RIGHT_OPERAND_TYPE,
+								m_expression->GetLocation().begin,
+								OperatorToString(op)), errors);
+			}
+			break;
+		}
+		default:
 			errors = ErrorList::From(
 					make_shared<Error>(Error::SEMANTIC,
 							Error::INVALID_RIGHT_OPERAND_TYPE,
@@ -113,17 +138,14 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 		} else {
 			switch (m_operator) {
 			case UNARY_MINUS: {
-				auto expression_analysis =
-						expression_type_specifier->AnalyzeAssignmentTo(
-								PrimitiveTypeSpecifier::GetInt(),
-								context->GetTypeTable());
-				if (expression_analysis == EQUIVALENT
-						|| expression_analysis == UNAMBIGUOUS) {
+				if (expression_type_specifier->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetInt(),
+						context->GetTypeTable()) == EQUIVALENT) {
 					int value = -(*(evaluation->GetData<int>()));
 					result = make_shared<int>(value);
 				} else if (expression_type_specifier->AnalyzeAssignmentTo(
 						PrimitiveTypeSpecifier::GetDouble(),
-						context->GetTypeTable())) {
+						context->GetTypeTable()) == EQUIVALENT) {
 					double value = -(*(evaluation->GetData<double>()));
 					result = make_shared<double>(value);
 				} else {
@@ -132,31 +154,10 @@ const_shared_ptr<Result> UnaryExpression::Evaluate(
 				break;
 			}
 			case NOT: {
-				if (expression_type_specifier->AnalyzeAssignmentTo(
-						PrimitiveTypeSpecifier::GetBoolean(),
-						context->GetTypeTable()) == EQUIVALENT) {
-					bool old_value = *(evaluation->GetData<bool>());
-					bool value = !old_value;
-					result = make_shared<bool>(value);
-				} else if (expression_type_specifier->AnalyzeAssignmentTo(
-						PrimitiveTypeSpecifier::GetInt(),
-						context->GetTypeTable()) == EQUIVALENT) {
-					int old_value = *(evaluation->GetData<int>());
-					bool value = !(old_value != 0);
-					result = make_shared<bool>(value);
-					break;
-				} else if (expression_type_specifier->AnalyzeAssignmentTo(
-						PrimitiveTypeSpecifier::GetDouble(),
-						context->GetTypeTable()) == EQUIVALENT) {
-					double old_value = *(evaluation->GetData<double>());
-					bool value = !(old_value != 0);
-					result = make_shared<bool>(value);
-					break;
-				} else {
-					assert(false);
-				}
+				bool old_value = *(evaluation->GetData<bool>());
+				bool value = !old_value;
+				result = make_shared<bool>(value);
 				break;
-
 			}
 			default:
 				assert(false);

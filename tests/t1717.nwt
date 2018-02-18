@@ -1,5 +1,0 @@
-four_point_two: double = 4.2
-not_four_point_two: int = !four_point_two
-
-zero: double = 0.0
-not_zero: int = !zero

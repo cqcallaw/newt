@@ -1,0 +1,2 @@
+// test incorrect application of unary negation
+-false

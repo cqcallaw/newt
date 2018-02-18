@@ -1,4 +1,3 @@
 // make sure we cast INT and DOUBLE expressions after evaluating them
 
 a: string = -0
-b: string = !0

@@ -68,8 +68,6 @@ i64: int = 42 < 3.14159
 i65: int = 42 < 42.0
 i66: int = 42.0 < 42
 
-i67: int = !42
-i68: int = !3.14159
+i67: int = !true
 
-i70: int = !0
-i71: int = !0.0
+i68: int = !false

@@ -1,0 +1,6 @@
+Parsing file ../tests/t1051.nwt...
+Semantic error at ../tests/t1051.nwt:2.9: Invalid right operand for operator '!'.
+Semantic error at ../tests/t1051.nwt:2.23: Invalid right operand for operator '!'.
+Semantic error at ../tests/t1051.nwt:2.38: Invalid right operand for operator '!'.
+Parsed file ../tests/t1051.nwt.
+3 errors found; giving up.
