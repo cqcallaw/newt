@@ -66,7 +66,8 @@ public:
 	Driver(const_shared_ptr<string_list> include_paths, const TRACE trace_level) :
 			m_input_stack(make_shared<input_stack>()), m_include_paths(
 					include_paths), m_included_file_names(
-					make_shared<string_list>()), m_trace_level(trace_level) {
+					make_shared<string_list>()), m_string_buffer(nullptr), m_trace_level(
+					trace_level) {
 	}
 
 	virtual ~Driver() {
