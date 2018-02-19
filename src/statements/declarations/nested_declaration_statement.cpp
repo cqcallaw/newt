@@ -62,7 +62,8 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 			if (initializer_expression) {
 				errors = initializer_expression->Validate(context);
 
-				if (ErrorList::IsTerminator(errors)) {
+				if (ErrorList::IsTerminator(errors)
+						&& GetInitializerExpression()->IsConstant()) {
 					auto result = initializer_expression->Evaluate(context,
 							closure);
 
