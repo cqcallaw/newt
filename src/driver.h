@@ -73,12 +73,12 @@ public:
 	virtual ~Driver() {
 	}
 
-	int scan_begin(volatile_shared_ptr<string>, const bool trace_scanning);
+	int scan_begin(volatile_shared_ptr<std::string>, const bool trace_scanning);
 	void scan_end();
 
 	// Run the parser on the file specified by <file_name>
 	// Return 0 on success.
-	int parse(volatile_shared_ptr<string> file_name);
+	int parse(volatile_shared_ptr<std::string> file_name);
 
 	// Run the parser on specified input string
 	// Return 0 on success.
