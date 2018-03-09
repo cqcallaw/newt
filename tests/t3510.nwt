@@ -1,0 +1,7 @@
+# test generic record type
+result of <T> {
+	data:T,
+	errors:error_list
+}
+
+r1 := @result of <int>

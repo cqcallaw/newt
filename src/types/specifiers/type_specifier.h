@@ -31,6 +31,9 @@ class DeclarationStatement;
 class TypeTable;
 class Symbol;
 
+typedef const LinkedList<const TypeSpecifier, ALLOW_DUPLICATES> TypeSpecifierList;
+typedef shared_ptr<const TypeSpecifierList> TypeSpecifierListRef;
+
 class TypeSpecifier {
 public:
 	TypeSpecifier(const yy::location location = GetDefaultLocation()) :
@@ -64,7 +67,12 @@ public:
 		return INCOMPATIBLE;
 	}
 
-	virtual const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const;
+	virtual const_shared_ptr<void> DefaultValue(
+			const TypeTable& type_table) const;
+
+	virtual const TypeSpecifierListRef GetTypeArgumentList() const {
+		return TypeSpecifierList::GetTerminator();
+	}
 
 	const yy::location GetLocation() const {
 		return m_location;
@@ -73,8 +81,5 @@ public:
 private:
 	const yy::location m_location;
 };
-
-typedef const LinkedList<const TypeSpecifier, ALLOW_DUPLICATES> TypeSpecifierList;
-typedef shared_ptr<TypeSpecifierList> TypeSpecifierListRef;
 
 #endif /* SPECIFIERS_TYPE_SPECIFIER_H_ */

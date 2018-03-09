@@ -242,7 +242,8 @@ const AnalysisResult SumType::AnalyzeConversion(
 
 const_shared_ptr<Symbol> SumType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value) const {
+		const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	auto original_as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 			type_specifier);
 	if (original_as_complex) {
@@ -280,9 +281,9 @@ const_shared_ptr<std::string> SumType::MapSpecifierToVariant(
 			m_definition->MapSpecifierToName(current, other));
 }
 
-const_shared_ptr<void> SumType::GetDefaultValue(
-		const TypeTable& type_table) const {
-	auto result = Sum::GetDefaultInstance(*this);
+const_shared_ptr<void> SumType::GetDefaultValue(const TypeTable& type_table,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
+	auto result = Sum::GetDefaultInstance(*this, type_mapping);
 	return result;
 }
 
@@ -291,86 +292,91 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 		const_shared_ptr<Expression> initializer) const {
 	auto type_table = execution_context->GetTypeTable();
-	plain_shared_ptr<const Sum> instance = static_pointer_cast<const Sum>(
-			GetDefaultValue(type_table));
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
-	auto initializer_expression_type_specifier_result =
-			initializer->GetTypeSpecifier(execution_context);
+	auto type_mapping_result = ComplexType::GetTypeParameterMap(
+			this->GetTypeParameterList(), type_specifier->GetTypeArgumentList(),
+			type_table);
 
-	auto errors = initializer_expression_type_specifier_result.GetErrors();
+	auto errors = type_mapping_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto initializer_expression_type_specifier =
-				initializer_expression_type_specifier_result.GetData();
-		auto conversion_analysis =
-				initializer_expression_type_specifier->AnalyzeAssignmentTo(
-						type_specifier, execution_context->GetTypeTable());
-		if (conversion_analysis == EQUIVALENT) {
-			auto expression_type_result =
-					initializer_expression_type_specifier->GetType(
-							execution_context->GetTypeTable(), RESOLVE);
+		auto type_mapping = type_mapping_result.GetData();
+		plain_shared_ptr<const Sum> instance = static_pointer_cast<const Sum>(
+				GetDefaultValue(type_table, type_mapping));
 
-			errors = expression_type_result->GetErrors();
-			if (ErrorList::IsTerminator(errors)) {
-				auto expression_type = expression_type_result->GetData<
-						TypeDefinition>();
-				auto as_sum = dynamic_pointer_cast<const SumType>(
-						expression_type);
-				if (as_sum) {
-					//generate default instance; actual assignment must be done in execute stage
-					//this is because assignment of constant expressions to sum types is only valid
-					//if the constant expression is narrower than the sum type
-					instance = Sum::GetDefaultInstance(*this);
-				} else {
-					assert(false);
-				}
-			}
-		} else if (conversion_analysis == UNAMBIGUOUS) {
-			if (initializer->IsConstant()) {
-				//assignment of constant expressions to sum types is only valid if constant expression is narrower than the sum type
-				//we can therefore assume that a new Sum must be created if we've hit this branch
-				//widening conversions of non-constant initializers must be handled in the execute stage
-				const_shared_ptr<Result> result = initializer->Evaluate(
-						execution_context, execution_context);
-				errors = result->GetErrors();
-				if (ErrorList::IsTerminator(errors)) {
-					auto variant_name = MapSpecifierToVariant(*type_specifier,
-							*initializer_expression_type_specifier);
-					instance = make_shared<Sum>(variant_name,
-							result->GetRawData());
-				}
-			}
-		} else if (conversion_analysis == AMBIGUOUS) {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::AMBIGUOUS_WIDENING_CONVERSION,
-							initializer->GetLocation().begin,
-							type_specifier->ToString(),
-							initializer_expression_type_specifier->ToString()),
-					errors);
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::ASSIGNMENT_TYPE_ERROR,
-							initializer->GetLocation().begin,
-							type_specifier->ToString(),
-							initializer_expression_type_specifier->ToString()),
-					errors);
-		}
+		auto initializer_expression_type_specifier_result =
+				initializer->GetTypeSpecifier(execution_context);
 
+		errors = initializer_expression_type_specifier_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			symbol = make_shared<Symbol>(type_specifier, instance);
+			auto initializer_expression_type_specifier =
+					initializer_expression_type_specifier_result.GetData();
+			auto conversion_analysis =
+					initializer_expression_type_specifier->AnalyzeAssignmentTo(
+							type_specifier, execution_context->GetTypeTable());
+			if (conversion_analysis == EQUIVALENT) {
+				auto expression_type_result =
+						initializer_expression_type_specifier->GetType(
+								execution_context->GetTypeTable(), RESOLVE);
+
+				errors = expression_type_result->GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					auto expression_type = expression_type_result->GetData<
+							TypeDefinition>();
+					auto as_sum = dynamic_pointer_cast<const SumType>(
+							expression_type);
+					if (as_sum) {
+						//generate default instance; actual assignment must be done in execute stage
+						//this is because assignment of constant expressions to sum types is only valid
+						//if the constant expression is narrower than the sum type
+						instance = Sum::GetDefaultInstance(*this, type_mapping);
+					} else {
+						assert(false);
+					}
+				}
+			} else if (conversion_analysis == UNAMBIGUOUS) {
+				if (initializer->IsConstant()) {
+					//assignment of constant expressions to sum types is only valid if constant expression is narrower than the sum type
+					//we can therefore assume that a new Sum must be created if we've hit this branch
+					//widening conversions of non-constant initializers must be handled in the execute stage
+					const_shared_ptr<Result> result = initializer->Evaluate(
+							execution_context, execution_context);
+					errors = result->GetErrors();
+					if (ErrorList::IsTerminator(errors)) {
+						auto variant_name = MapSpecifierToVariant(
+								*type_specifier,
+								*initializer_expression_type_specifier);
+						instance = make_shared<Sum>(variant_name,
+								result->GetRawData());
+					}
+				}
+			} else if (conversion_analysis == AMBIGUOUS) {
+				errors =
+						ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::AMBIGUOUS_WIDENING_CONVERSION,
+										initializer->GetLocation().begin,
+										type_specifier->ToString(),
+										initializer_expression_type_specifier->ToString()),
+								errors);
+			} else {
+				errors =
+						ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::ASSIGNMENT_TYPE_ERROR,
+										initializer->GetLocation().begin,
+										type_specifier->ToString(),
+										initializer_expression_type_specifier->ToString()),
+								errors);
+			}
+
+			if (ErrorList::IsTerminator(errors)) {
+				symbol = make_shared<Symbol>(type_specifier, instance);
+			}
 		}
 	}
 
 	return make_shared<Result>(symbol, errors);
-}
-
-const_shared_ptr<void> SumType::GetMemberDefaultValue(
-		const_shared_ptr<std::string> member_name) const {
-	auto definition = m_definition->GetType<TypeDefinition>(member_name,
-			SHALLOW, RESOLVE);
-	return definition->GetDefaultValue(*m_definition);
 }
 
 const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(

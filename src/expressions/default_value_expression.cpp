@@ -66,7 +66,15 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
-		return_value = type->GetDefaultValue(type_table);
+		auto type_mapping_result = ComplexType::GetTypeParameterMap(
+				type->GetTypeParameterList(),
+				m_type_specifier->GetTypeArgumentList(),
+				context->GetTypeTable());
+		errors = type_mapping_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type_mapping = type_mapping_result.GetData();
+			return_value = type->GetDefaultValue(type_table, type_mapping);
+		}
 	}
 
 	return make_shared<Result>(return_value, errors);

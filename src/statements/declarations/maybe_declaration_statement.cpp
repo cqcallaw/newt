@@ -93,9 +93,11 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 									}
 								}
 							} else {
-								value = static_pointer_cast<const Sum>(
-										m_type_specifier->DefaultValue(
-												type_table));
+								value =
+										static_pointer_cast<const Sum>(
+												m_type_specifier->DefaultValue(
+														type_table,
+														ComplexType::DefaultTypeParameterMap));
 							}
 						}
 					}

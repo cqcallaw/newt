@@ -77,9 +77,17 @@ const_shared_ptr<void> ComplexTypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
 	auto type_result = GetType(type_table, RESOLVE);
 
-	if (ErrorList::IsTerminator(type_result->GetErrors())) {
+	auto errors = type_result->GetErrors();
+	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
-		return type->GetDefaultValue(type_table);
+		auto type_mapping_result = ComplexType::GetTypeParameterMap(
+				type->GetTypeParameterList(), m_type_argument_list, type_table);
+
+		errors = type_mapping_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			return type->GetDefaultValue(type_table,
+					type_mapping_result.GetData());
+		}
 	}
 
 	return nullptr;

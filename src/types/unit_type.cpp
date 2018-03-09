@@ -31,8 +31,8 @@ UnitType::UnitType(const_shared_ptr<MaybeType> maybe_type) :
 UnitType::~UnitType() {
 }
 
-const_shared_ptr<void> UnitType::GetDefaultValue(
-		const TypeTable& type_table) const {
+const_shared_ptr<void> UnitType::GetDefaultValue(const TypeTable& type_table,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return m_value;
 }
 
@@ -66,7 +66,8 @@ const_shared_ptr<TypeSpecifier> UnitType::GetTypeSpecifier(
 
 const_shared_ptr<Symbol> UnitType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value) const {
+		const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return make_shared<Symbol>(type_specifier, m_value);
 }
 

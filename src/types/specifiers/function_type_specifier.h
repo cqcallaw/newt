@@ -48,7 +48,7 @@ public:
 	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
 			const yy::location position) const;
 
-	TypeSpecifierListRef GetParameterTypeList() const {
+	const TypeSpecifierListRef GetParameterTypeList() const {
 		return m_parameter_type_list;
 	}
 

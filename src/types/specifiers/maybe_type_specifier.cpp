@@ -100,9 +100,11 @@ const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
 }
 
 const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(
-		const TypeTable& type_table) const {
+		const TypeTable& type_table,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return make_shared<Sum>(TypeTable::GetNilName(),
-			TypeTable::GetNilType()->GetDefaultValue(type_table));
+			TypeTable::GetNilType()->GetDefaultValue(type_table,
+					ComplexType::DefaultTypeParameterMap));
 }
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(

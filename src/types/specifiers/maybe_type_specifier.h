@@ -21,6 +21,7 @@
 #define TYPES_SPECIFIERS_MAYBE_TYPE_SPECIFIER_H_ORIG_
 
 #include <sum_type_specifier.h>
+#include <type_definition.h>
 
 class MaybeType;
 
@@ -40,7 +41,8 @@ public:
 	virtual const AnalysisResult AnalyzeWidening(const TypeTable& type_table,
 			const TypeSpecifier& other) const;
 
-	const_shared_ptr<void> DefaultValue(const TypeTable& type_table) const;
+	const_shared_ptr<void> DefaultValue(const TypeTable& type_table,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	const_shared_ptr<TypeSpecifier> GetBaseTypeSpecifier() const {
 		return m_base_type_specifier;

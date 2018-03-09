@@ -60,16 +60,18 @@ const string RecordType::ToString(const TypeTable& type_table,
 	if (TypeSpecifierList::IsTerminator(m_type_parameter_list)) {
 		os << child_indent << "<record>" << endl;
 	} else {
-		os << child_indent << "<record of ";
-		auto type_parameter_subject = m_type_parameter_list;
-		while (!TypeSpecifierList::IsTerminator(type_parameter_subject)
-				&& !TypeSpecifierList::IsTerminator(
-						type_parameter_subject->GetNext())) {
-			os << type_parameter_subject->GetData()->ToString() << ", ";
-			type_parameter_subject = type_parameter_subject->GetNext();
-		}
-
-		os << type_parameter_subject->GetData()->ToString() << ">" << endl;
+		os << child_indent << "<record of "
+				<< ComplexType::TypeSpecifierListToString(m_type_parameter_list)
+				<< ">";
+//		auto type_parameter_subject = m_type_parameter_list;
+//		while (!TypeSpecifierList::IsTerminator(type_parameter_subject)
+//				&& !TypeSpecifierList::IsTerminator(
+//						type_parameter_subject->GetNext())) {
+//			os << type_parameter_subject->GetData()->ToString() << ", ";
+//			type_parameter_subject = type_parameter_subject->GetNext();
+//		}
+//
+//		os << type_parameter_subject->GetData()->ToString() << ">" << endl;
 	}
 	m_definition->print(os, child_indent);
 	return os.str();
@@ -486,11 +488,6 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 	return errors;
 }
 
-const_shared_ptr<void> RecordType::GetMemberDefaultValue(
-		const_shared_ptr<std::string> member_name) const {
-	return GetMember(*member_name)->GetDefaultValue(*m_definition);
-}
-
 const std::string RecordType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
@@ -499,14 +496,15 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 	return buffer.str();
 }
 
-const_shared_ptr<void> RecordType::GetDefaultValue(
-		const TypeTable& type_table) const {
-	return Record::GetDefaultInstance(*this);
+const_shared_ptr<void> RecordType::GetDefaultValue(const TypeTable& type_table,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
+	return Record::GetDefaultInstance(*this, type_mapping);
 }
 
 const_shared_ptr<Symbol> RecordType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value) const {
+		const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	auto as_complex_specifier =
 			dynamic_pointer_cast<const ComplexTypeSpecifier>(type_specifier);
 
@@ -544,7 +542,8 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 					instance = result->GetData<Record>();
 				}
 			} else {
-				instance = Record::GetDefaultInstance(*this);
+				instance = Record::GetDefaultInstance(*this,
+						ComplexType::DefaultTypeParameterMap);
 			}
 		} else {
 			errors = ErrorList::From(

@@ -57,6 +57,8 @@ public:
 		return m_member_name;
 	}
 
+	virtual const TypeSpecifierListRef GetTypeArgumentList() const;
+
 	static TypedResult<TypeSpecifier> Resolve(
 			const_shared_ptr<TypeSpecifier> source,
 			const TypeTable& type_table);

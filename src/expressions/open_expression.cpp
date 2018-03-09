@@ -27,6 +27,7 @@
 #include <cerrno>
 #include <cstring>
 #include <constant_expression.h>
+#include <complex_type.h>
 
 OpenExpression::OpenExpression(const yy::location location,
 		const_shared_ptr<Expression> expression,
@@ -169,7 +170,8 @@ const_shared_ptr<Result> OpenExpression::Evaluate(
 		assert(insert_result.second);
 
 		auto terminator = static_pointer_cast<const Record>(
-				error_list_type->GetDefaultValue(type_table));
+				error_list_type->GetDefaultValue(type_table,
+						ComplexType::DefaultTypeParameterMap));
 		auto error_list_sum = make_shared<Sum>(TypeTable::GetNilName(),
 				terminator);
 		insert_result = error_list_symbol_map->insert(
@@ -300,8 +302,7 @@ const ErrorListRef OpenExpression::Validate(
 	if (arg_count == 0) {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
-						GetArgumentListRefLocation().end, "path"),
-				errors);
+						GetArgumentListRefLocation().end, "path"), errors);
 	}
 
 	if (arg_count == 1) {

@@ -23,12 +23,13 @@
 #include <symbol_table.h>
 #include <record_type.h>
 
-const_shared_ptr<Record> Record::GetDefaultInstance(const RecordType& type) {
+const_shared_ptr<Record> Record::GetDefaultInstance(const RecordType& type,
+		const_shared_ptr<type_parameter_map> type_mapping) {
 	auto symbol_mapping = make_shared<symbol_map>();
 
 	auto type_definition = type.GetDefinition();
 	auto default_symbols = type_definition->GetDefaultSymbolContext(
-			type.GetModifiers(), nullptr);
+			type.GetModifiers(), nullptr, type_mapping);
 
 	return make_shared<Record>(default_symbols);
 }

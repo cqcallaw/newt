@@ -25,6 +25,7 @@
 #include <basic_variable.h>
 #include <primitive_declaration_statement.h>
 #include <variable_expression.h>
+#include <complex_type.h> // for the type mapping definitions
 
 PrimitiveDeclarationStatement::PrimitiveDeclarationStatement(
 		const yy::location position,
@@ -103,8 +104,10 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 		auto type_errors = type_result->GetErrors();
 		if (ErrorList::IsTerminator(type_errors)) {
 			auto type = type_result->GetData<TypeDefinition>();
-			auto value = type->GetDefaultValue(type_table);
-			symbol = type->GetSymbol(type_table, m_type_specifier, value);
+			auto value = type->GetDefaultValue(type_table,
+					ComplexType::DefaultTypeParameterMap);
+			symbol = type->GetSymbol(type_table, m_type_specifier, value,
+					ComplexType::DefaultTypeParameterMap);
 		} else {
 			errors = ErrorList::Concatenate(errors, type_errors);
 		}
@@ -117,8 +120,7 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								GetNameLocation().begin, *GetName()),
-						errors);
+								GetNameLocation().begin, *GetName()), errors);
 			}
 		}
 	}

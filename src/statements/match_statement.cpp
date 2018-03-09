@@ -52,6 +52,8 @@ const PreprocessResult MatchStatement::Preprocess(
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = m_source_expression->Validate(context);
 
+	auto type_table = context->GetTypeTable();
+
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier_result =
@@ -135,38 +137,51 @@ const PreprocessResult MatchStatement::Preprocess(
 														GetDefaultLocation());
 									}
 
-									const_shared_ptr<void> default_value =
-											variant_type->GetDefaultValue(
-													*type_definition);
-									const_shared_ptr<Symbol> default_symbol =
-											variant_type->GetSymbol(
-													context->GetTypeTable(),
-													variant_type_specifier,
-													default_value);
-									matched_context->InsertSymbol(*alias_name,
-											default_symbol);
+									auto type_mapping_result =
+											ComplexType::GetTypeParameterMap(
+													expression_type->GetTypeParameterList(),
+													expression_type_specifier->GetTypeArgumentList(),
+													type_table);
 
-									matched_context->LinkToParent(context);
-									// use match context as closure context so match variables are defined in closure
-									auto match_preprocess_result =
-											match_body->Preprocess(
-													matched_context,
-													matched_context,
-													return_type_specifier);
-									auto match_return_coverage =
-											match_preprocess_result.GetReturnCoverage();
+									errors = type_mapping_result.GetErrors();
+									if (ErrorList::IsTerminator(errors)) {
+										auto type_mapping =
+												type_mapping_result.GetData();
+										const_shared_ptr<void> default_value =
+												variant_type->GetDefaultValue(
+														*type_definition,
+														type_mapping);
+										const_shared_ptr<Symbol> default_symbol =
+												variant_type->GetSymbol(
+														type_table,
+														variant_type_specifier,
+														default_value,
+														type_mapping);
+										matched_context->InsertSymbol(
+												*alias_name, default_symbol);
 
-									return_coverage =
-											ReturnStatement::CoverageTransition(
-													return_coverage,
-													match_return_coverage,
-													initial_state);
+										matched_context->LinkToParent(context);
+										// use match context as closure context so match variables are defined in closure
+										auto match_preprocess_result =
+												match_body->Preprocess(
+														matched_context,
+														matched_context,
+														return_type_specifier);
+										auto match_return_coverage =
+												match_preprocess_result.GetReturnCoverage();
 
-									errors =
-											ErrorList::Concatenate(errors,
-													match_preprocess_result.GetErrors());
+										return_coverage =
+												ReturnStatement::CoverageTransition(
+														return_coverage,
+														match_return_coverage,
+														initial_state);
 
-									initial_state = false;
+										errors =
+												ErrorList::Concatenate(errors,
+														match_preprocess_result.GetErrors());
+
+										initial_state = false;
+									}
 								} else {
 									errors =
 											ErrorList::From(

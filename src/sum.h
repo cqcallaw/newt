@@ -21,6 +21,7 @@
 #define SUM_H_
 
 #include <sum_type_specifier.h>
+#include <type_definition.h>
 
 class Indent;
 class SumType;
@@ -30,7 +31,8 @@ public:
 	Sum(const_shared_ptr<std::string> tag, const_shared_ptr<void> value);
 	virtual ~Sum();
 
-	static const_shared_ptr<Sum> GetDefaultInstance(const SumType& type);
+	static const_shared_ptr<Sum> GetDefaultInstance(const SumType& type,
+			const_shared_ptr<type_parameter_map> type_mapping);
 
 	const_shared_ptr<void> GetValue() const {
 		return m_value;

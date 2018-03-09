@@ -19,6 +19,7 @@
 
 #include <type_specifier.h>
 #include <type_definition.h>
+#include <complex_type.h>
 
 const_shared_ptr<void> TypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
@@ -27,7 +28,8 @@ const_shared_ptr<void> TypeSpecifier::DefaultValue(
 	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
-		return type->GetDefaultValue(type_table);
+		return type->GetDefaultValue(type_table,
+				ComplexType::DefaultTypeParameterMap);
 	}
 
 	return nullptr;

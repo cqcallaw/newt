@@ -31,7 +31,7 @@
 #include <function_type.h>
 
 FunctionDeclaration::FunctionDeclaration(DeclarationListRef parameter_list,
-		TypeSpecifierListRef type_parameter_list,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type,
 		const yy::location location) :
 		FunctionTypeSpecifier(GetTypeList(parameter_list), type_parameter_list,
@@ -52,7 +52,7 @@ const_shared_ptr<Result> FunctionDeclaration::FromTypeSpecifier(
 		const TypeTable& type_table) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
-	TypeSpecifierListRef subject = type_specifier.GetParameterTypeList();
+	auto subject = type_specifier.GetParameterTypeList();
 	DeclarationListRef result = DeclarationList::GetTerminator();
 	int count = 1;
 	while (!TypeSpecifierList::IsTerminator(subject)) {
@@ -89,10 +89,10 @@ const_shared_ptr<Result> FunctionDeclaration::FromTypeSpecifier(
 	return make_shared<Result>(declaration, errors);
 }
 
-TypeSpecifierListRef FunctionDeclaration::GetTypeList(
+const TypeSpecifierListRef FunctionDeclaration::GetTypeList(
 		DeclarationListRef parameter_list) {
 	DeclarationListRef subject = parameter_list;
-	TypeSpecifierListRef result = TypeSpecifierList::GetTerminator();
+	auto result = TypeSpecifierList::GetTerminator();
 	while (!DeclarationList::IsTerminator(subject)) {
 		const_shared_ptr<DeclarationStatement> statement = subject->GetData();
 		auto type_specifier = statement->GetTypeSpecifier();

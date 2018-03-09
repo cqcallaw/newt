@@ -21,6 +21,7 @@
 #define STATEMENTS_FOREACH_STATEMENT_H_
 
 #include <statement.h>
+#include <complex_type.h>
 
 class Expression;
 class StatementBlock;
@@ -48,7 +49,8 @@ public:
 			const_shared_ptr<ComplexTypeSpecifier> record_type_specifier,
 			const_shared_ptr<std::string> member_name,
 			const shared_ptr<ExecutionContext> execution_context,
-			const shared_ptr<ExecutionContext> closure);
+			const shared_ptr<ExecutionContext> closure,
+			const_shared_ptr<type_parameter_map> type_mapping);
 
 	static const_shared_ptr<std::string> DATA_NAME;
 	static const_shared_ptr<std::string> NEXT_NAME;

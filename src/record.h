@@ -24,6 +24,8 @@
 #include <string>
 #include <linked_list.h>
 #include <type.h>
+#include <type_specifier.h>
+#include <complex_type.h>
 
 class RecordType;
 class RecordTypeSpecifier;
@@ -48,7 +50,8 @@ public:
 		return m_definition;
 	}
 
-	static const_shared_ptr<Record> GetDefaultInstance(const RecordType& type);
+	static const_shared_ptr<Record> GetDefaultInstance(const RecordType& type,
+			const_shared_ptr<type_parameter_map> type_mapping);
 
 	const string ToString(const TypeTable& type_table,
 			const Indent& indent) const;

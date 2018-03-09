@@ -179,6 +179,9 @@ const string Error::get_error_message() const {
 	case TOO_MANY_ARGUMENTS:
 		os << "Too many arguments for function of type '" << m_s1 << "'.";
 		break;
+	case TOO_FEW_ARGUMENTS:
+		os << "Too few arguments for function of type '" << m_s1 << "'.";
+		break;
 	case NO_PARAMETER_DEFAULT:
 		os << "No value specified for non-default parameter '" << m_s1 << "'.";
 		break;

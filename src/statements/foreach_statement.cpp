@@ -127,39 +127,52 @@ const PreprocessResult ForeachStatement::Preprocess(
 											expression_type_specifier,
 											context->GetTypeTable());
 							if (maybe_type_relation == EQUIVALENT) {
-								auto default_value =
-										expression_type->GetDefaultValue(
-												*type_table);
+								auto type_mapping_result =
+										ComplexType::GetTypeParameterMap(
+												expression_type->GetTypeParameterList(),
+												expression_type_specifier->GetTypeArgumentList(),
+												type_table);
+								errors = type_mapping_result.GetErrors();
+								if (ErrorList::IsTerminator(errors)) {
+									auto type_mapping =
+											type_mapping_result.GetData();
+									auto default_value =
+											expression_type->GetDefaultValue(
+													*type_table, type_mapping);
 
-								// get aliased definition, so the type specifier we get is the un-aliased definition
-								// this is weird, and probably not rigorously correct (the alias GetTypeSpecifier should
-								// probably return an _alias_ specifier, not a specifier for the original type),
-								// but this gets the job done
-								auto data_type =
-										as_record->GetDefinition()->GetType<
-												TypeDefinition>(
-												ForeachStatement::DATA_NAME,
-												SHALLOW, RETURN);
-								if (data_type) {
-									auto data_type_specifier =
-											data_type->GetTypeSpecifier(
+									// get aliased definition, so the type specifier we get is the un-aliased definition
+									// this is weird, and probably not rigorously correct (the alias GetTypeSpecifier should
+									// probably return an _alias_ specifier, not a specifier for the original type),
+									// but this gets the job done
+									auto data_type =
+											as_record->GetDefinition()->GetType<
+													TypeDefinition>(
 													ForeachStatement::DATA_NAME,
-													complex_expression_type_specifier,
-													GetDefaultLocation());
-									auto default_symbol = data_type->GetSymbol(
-											context->GetTypeTable(),
-											data_type_specifier, default_value);
-									m_block_context->InsertSymbol(
-											*m_evaluation_identifier,
-											default_symbol);
-								} else {
-									errors =
-											ErrorList::From(
-													make_shared<Error>(
-															Error::SEMANTIC,
-															Error::FOREACH_STMT_REQUIRES_DATA,
-															m_expression->GetLocation().begin),
-													errors);
+													SHALLOW, RETURN);
+									if (data_type) {
+										auto data_type_specifier =
+												data_type->GetTypeSpecifier(
+														ForeachStatement::DATA_NAME,
+														complex_expression_type_specifier,
+														GetDefaultLocation());
+										auto default_symbol =
+												data_type->GetSymbol(
+														context->GetTypeTable(),
+														data_type_specifier,
+														default_value,
+														type_mapping);
+										m_block_context->InsertSymbol(
+												*m_evaluation_identifier,
+												default_symbol);
+									} else {
+										errors =
+												ErrorList::From(
+														make_shared<Error>(
+																Error::SEMANTIC,
+																Error::FOREACH_STMT_REQUIRES_DATA,
+																m_expression->GetLocation().begin),
+														errors);
+									}
 								}
 							} else {
 								errors =
@@ -283,19 +296,48 @@ const ExecutionResult ForeachStatement::Execute(
 				auto as_function_type_specifier = dynamic_pointer_cast<
 						const FunctionTypeSpecifier>(member_type_specifier);
 				if (as_function_type_specifier) {
-					auto function_eval = EvaluateMemberFunction(record,
-							source_type_specifier, ForeachStatement::NEXT_NAME,
-							context, closure);
+					auto type_mapping = ComplexType::DefaultTypeParameterMap;
+					if (!TypeSpecifierList::IsTerminator(
+							expression_type_specifier->GetTypeArgumentList())) {
+						// member function evaluation depends on type parameters
+						auto type_table = context->GetTypeTable();
+						auto expression_type_result =
+								expression_type_specifier->GetType(type_table,
+										RESOLVE);
+						errors = expression_type_result->GetErrors();
+						if (ErrorList::IsTerminator(errors)) {
+							auto expression_type =
+									expression_type_result->GetData<
+											TypeDefinition>();
+							auto type_mapping_result =
+									ComplexType::GetTypeParameterMap(
+											expression_type->GetTypeParameterList(),
+											expression_type_specifier->GetTypeArgumentList(),
+											type_table);
+							errors = type_mapping_result.GetErrors();
+							if (ErrorList::IsTerminator(errors)) {
+								type_mapping = type_mapping_result.GetData();
+							}
+						}
+					}
 
-					auto function_eval_errors = function_eval->GetErrors();
-					if (ErrorList::IsTerminator(function_eval_errors)) {
-						next_value = function_eval->GetData<Sum>();
-						assert(next_value);
-						tag = next_value->GetTag();
-						raw_value = next_value->GetValue();
-					} else {
-						errors = ErrorList::Concatenate(errors,
-								function_eval_errors);
+					if (ErrorList::IsTerminator(errors)) {
+						auto function_eval =
+								ForeachStatement::EvaluateMemberFunction(record,
+										source_type_specifier,
+										ForeachStatement::NEXT_NAME, context,
+										closure, type_mapping);
+
+						auto function_eval_errors = function_eval->GetErrors();
+						if (ErrorList::IsTerminator(function_eval_errors)) {
+							next_value = function_eval->GetData<Sum>();
+							assert(next_value);
+							tag = next_value->GetTag();
+							raw_value = next_value->GetValue();
+						} else {
+							errors = ErrorList::Concatenate(errors,
+									function_eval_errors);
+						}
 					}
 				} else {
 					next_value = static_pointer_cast<const Sum>(
@@ -317,7 +359,8 @@ const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(
 		const_shared_ptr<ComplexTypeSpecifier> record_type_specifier,
 		const_shared_ptr<std::string> member_name,
 		const shared_ptr<ExecutionContext> execution_context,
-		const shared_ptr<ExecutionContext> closure) {
+		const shared_ptr<ExecutionContext> closure,
+		const_shared_ptr<type_parameter_map> type_mapping) {
 	auto errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> value = nullptr;
 
@@ -341,6 +384,7 @@ const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(
 
 			auto parameter_list = as_function_declaration->GetParameterList();
 			auto argument_list = ArgumentList::GetTerminator();
+			auto type_table = closure->GetTypeTable();
 			while (ErrorList::IsTerminator(errors)
 					&& !DeclarationList::IsTerminator(parameter_list)) {
 				auto parameter_declaration = parameter_list->GetData();
@@ -348,8 +392,7 @@ const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(
 				auto declaration_type_specifier =
 						parameter_declaration->GetTypeSpecifier();
 				auto declaration_type_result =
-						declaration_type_specifier->GetType(
-								closure->GetTypeTable(), RETURN);
+						declaration_type_specifier->GetType(type_table, RETURN);
 
 				auto type_lookup_errors = declaration_type_result->GetErrors();
 				if (ErrorList::IsTerminator(type_lookup_errors)) {
@@ -359,9 +402,10 @@ const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(
 					// set symbol
 					auto maybe_wrapper = make_shared<Sum>(
 							MaybeTypeSpecifier::VARIANT_NAME, record);
-					auto symbol = declaration_type->GetSymbol(
-							closure->GetTypeTable(), declaration_type_specifier,
-							maybe_wrapper);
+
+					auto symbol = declaration_type->GetSymbol(type_table,
+							declaration_type_specifier, maybe_wrapper,
+							type_mapping);
 					auto insert_result = invocation_context->InsertSymbol(
 							*parameter_declaration->GetName(), symbol);
 					assert(insert_result == INSERT_SUCCESS);

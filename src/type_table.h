@@ -28,7 +28,6 @@
 #include <search_type.h>
 #include <modifier.h>
 
-class TypeDefinition;
 class SymbolContext;
 class UnitType;
 
@@ -98,7 +97,7 @@ public:
 				auto as_alias =
 						std::dynamic_pointer_cast<const AliasDefinition>(value);
 				if (as_alias) {
-					value = as_alias->GetOrigin();
+					value = as_alias->GetOriginalType(nullptr);
 				}
 			}
 
@@ -147,7 +146,8 @@ public:
 
 	volatile_shared_ptr<SymbolContext> GetDefaultSymbolContext(
 			const Modifier::Type modifiers,
-			const_shared_ptr<ComplexTypeSpecifier> container) const;
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	const bool ContainsType(const ComplexTypeSpecifier& type_specifier);
 

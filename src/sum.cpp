@@ -47,12 +47,14 @@ const string Sum::ToString(const SumType& type, const TypeTable& type_table,
 	return buffer.str();
 }
 
-const_shared_ptr<Sum> Sum::GetDefaultInstance(const SumType& type) {
+const_shared_ptr<Sum> Sum::GetDefaultInstance(const SumType& type,
+		const_shared_ptr<type_parameter_map> type_mapping) {
 	auto type_table = type.GetDefinition();
 	auto variant_name = type.GetFirstVariantName();
 	auto variant_type = type_table->GetType<TypeDefinition>(variant_name,
 			SHALLOW, RESOLVE);
-	auto default_value = variant_type->GetDefaultValue(*type_table);
+	auto default_value = variant_type->GetDefaultValue(*type_table,
+			type_mapping);
 	auto result = make_shared<Sum>(variant_name, default_value);
 	return result;
 }

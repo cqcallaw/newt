@@ -26,7 +26,7 @@
 class FunctionDeclaration: public FunctionTypeSpecifier {
 public:
 	FunctionDeclaration(DeclarationListRef parameter_list,
-			TypeSpecifierListRef type_parameter_list,
+			const TypeSpecifierListRef type_parameter_list,
 			const_shared_ptr<TypeSpecifier> return_type,
 			const yy::location location);
 	FunctionDeclaration(const FunctionDeclaration& other);
@@ -43,7 +43,7 @@ public:
 		return m_parameter_list;
 	}
 
-	static TypeSpecifierListRef GetTypeList(DeclarationListRef parameter_list);
+	static const TypeSpecifierListRef GetTypeList(DeclarationListRef parameter_list);
 
 private:
 	DeclarationListRef m_parameter_list;

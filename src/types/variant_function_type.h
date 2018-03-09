@@ -30,8 +30,8 @@ public:
 	VariantFunctionType(const FunctionVariantListRef variant_list);
 	virtual ~VariantFunctionType();
 
-	virtual const_shared_ptr<void> GetDefaultValue(
-			const TypeTable& type_table) const;
+	virtual const_shared_ptr<void> GetDefaultValue(const TypeTable& type_table,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
@@ -49,7 +49,8 @@ public:
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void> value) const;
+			const_shared_ptr<void> value,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location location, const_shared_ptr<TypeSpecifier> type,
@@ -60,7 +61,8 @@ public:
 protected:
 	static const_shared_ptr<Function> GetDefaultFunction(
 			const FunctionVariantListRef variant_list,
-			const TypeTable& type_table);
+			const TypeTable& type_table,
+			const_shared_ptr<type_parameter_map> type_mapping);
 
 private:
 	const FunctionVariantListRef m_variant_list;

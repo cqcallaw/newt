@@ -28,20 +28,22 @@
 #include <primitive_type.h>
 
 AliasDefinition::AliasDefinition(const_shared_ptr<TypeTable> origin_table,
-		const_shared_ptr<TypeSpecifier> original, const AliasType alias_type,
-		const_shared_ptr<void> default_value) :
-		m_origin_table(origin_table), m_original(original), m_alias_type(
-				alias_type), m_default_value(default_value) {
+		const_shared_ptr<TypeSpecifier> original_type_specifier,
+		const AliasType alias_type, const_shared_ptr<void> default_value) :
+		m_origin_table(origin_table), m_original_type_specifier(
+				original_type_specifier), m_alias_type(alias_type), m_default_value(
+				default_value) {
 }
 
 const_shared_ptr<void> AliasDefinition::GetDefaultValue(
-		const TypeTable& type_table) const {
+		const TypeTable& type_table,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	if (m_default_value)
 		return m_default_value;
 	else {
-		auto origin = GetOrigin();
+		auto origin = GetOriginalType(type_mapping);
 		if (origin && m_alias_type == DIRECT) {
-			return origin->GetDefaultValue(type_table);
+			return origin->GetDefaultValue(type_table, type_mapping);
 		} else {
 			return const_shared_ptr<void>();
 		}
@@ -50,38 +52,54 @@ const_shared_ptr<void> AliasDefinition::GetDefaultValue(
 
 const std::string AliasDefinition::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value) const {
-	auto origin = GetOrigin();
+	auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
 	if (origin && m_alias_type == DIRECT) {
 		return origin->ValueToString(type_table, indent, value);
 	} else {
-		return "<No origin found for alias '" + m_original->ToString() + "'>";
+		return "<No origin found for alias '"
+				+ m_original_type_specifier->ToString() + "'>";
 	}
 }
 
 const std::string AliasDefinition::GetValueSeparator(const Indent& indent,
 		const void* value) const {
-	auto origin = GetOrigin();
+	auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
 	if (origin) {
 		return origin->GetValueSeparator(indent, value);
 	} else {
-		return "<No origin found for alias '" + m_original->ToString() + "'>";
+		return "<No origin found for alias '"
+				+ m_original_type_specifier->ToString() + "'>";
 	}
 }
 
 const std::string AliasDefinition::GetTagSeparator(const Indent& indent,
 		const void* value) const {
-	auto origin = GetOrigin();
+	auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
 	if (origin) {
 		return origin->GetValueSeparator(indent, value);
 	} else {
-		return "<No origin found for alias '" + m_original->ToString() + "'>";
+		return "<No origin found for alias '"
+				+ m_original_type_specifier->ToString() + "'>";
 	}
 }
 
-const_shared_ptr<TypeDefinition> AliasDefinition::GetOrigin() const {
+const_shared_ptr<TypeDefinition> AliasDefinition::GetOriginalType(
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	const_shared_ptr<TypeTable> ptr = m_origin_table.lock();
 	assert(ptr);
-	auto type_result = m_original->GetType(*ptr);
+
+	auto type_specifier = m_original_type_specifier;
+
+	// handle type parameter mapping if it's applicable
+	auto original_as_string = m_original_type_specifier->ToString();
+	for (auto const &type_map : *type_mapping) {
+		auto const type_parameter_name = type_map.first;
+		if (original_as_string == type_parameter_name) {
+			type_specifier = type_map.second;
+		}
+	}
+
+	auto type_result = type_specifier->GetType(*ptr);
 
 	if (ErrorList::IsTerminator(type_result->GetErrors())) {
 		return type_result->GetData<TypeDefinition>();
@@ -92,10 +110,12 @@ const_shared_ptr<TypeDefinition> AliasDefinition::GetOrigin() const {
 
 const_shared_ptr<Symbol> AliasDefinition::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value) const {
-	auto origin = GetOrigin();
+		const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
+	auto origin = GetOriginalType(type_mapping);
 	if (origin) {
-		return origin->GetSymbol(type_table, type_specifier, value);
+		return origin->GetSymbol(type_table, type_specifier, value,
+				type_mapping);
 	} else {
 		return Symbol::GetDefaultSymbol();
 	}
@@ -106,12 +126,12 @@ const std::string AliasDefinition::ToString(const TypeTable& type_table,
 	ostringstream os;
 	Indent child_indent = indent + 1;
 	os << child_indent;
-	os << m_original->ToString();
+	os << m_original_type_specifier->ToString();
 
 	if (m_default_value) {
 		os << " (";
 
-		auto origin = GetOrigin();
+		auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
 		auto as_record = dynamic_pointer_cast<const RecordType>(origin);
 		if (as_record) {
 			os << GetValueSeparator(child_indent, m_default_value.get());
@@ -142,4 +162,19 @@ const std::string AliasDefinition::ToString(const TypeTable& type_table,
 	}
 
 	return os.str();
+}
+
+const_shared_ptr<DeclarationStatement> AliasDefinition::GetDeclarationStatement(
+		const yy::location position, const_shared_ptr<TypeSpecifier> type,
+		const yy::location type_position, const_shared_ptr<std::string> name,
+		const yy::location name_position,
+		const_shared_ptr<Expression> initializer_expression) const {
+	auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
+	if (origin) {
+		return origin->GetDeclarationStatement(position, type, type_position,
+				name, name_position, initializer_expression);
+	} else {
+		assert(false);
+		return nullptr;
+	}
 }

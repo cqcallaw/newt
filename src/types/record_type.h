@@ -45,9 +45,6 @@ public:
 
 	const_shared_ptr<TypeDefinition> GetMember(const std::string& name) const;
 
-	virtual const_shared_ptr<void> GetMemberDefaultValue(
-			const_shared_ptr<std::string> member_name) const;
-
 	const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const;
 
@@ -60,8 +57,8 @@ public:
 	virtual const std::string GetTagSeparator(const Indent& indent,
 			const void* value) const;
 
-	virtual const_shared_ptr<void> GetDefaultValue(
-			const TypeTable& type_table) const;
+	virtual const_shared_ptr<void> GetDefaultValue(const TypeTable& type_table,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const AnalysisResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
@@ -69,7 +66,8 @@ public:
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void>) const;
+			const_shared_ptr<void>,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
@@ -103,7 +101,7 @@ public:
 		return m_maybe_type;
 	}
 
-	const TypeSpecifierListRef GetTypeParameterList() const {
+	virtual const TypeSpecifierListRef GetTypeParameterList() const {
 		return m_type_parameter_list;
 	}
 

@@ -25,6 +25,9 @@
 #include <expression.h>
 #include <unit_type.h>
 
+const_shared_ptr<type_parameter_map> ComplexType::DefaultTypeParameterMap =
+		make_shared<type_parameter_map>();
+
 ComplexType::~ComplexType() {
 }
 
@@ -49,13 +52,27 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 		errors = type_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = type_result->GetData<TypeDefinition>();
-			value = type->GetDefaultValue(type_table);
+			auto type_mapping_result = ComplexType::GetTypeParameterMap(
+					type->GetTypeParameterList(),
+					type_specifier->GetTypeArgumentList(), type_table);
+			errors = type_mapping_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				value = type->GetDefaultValue(type_table,
+						type_mapping_result.GetData());
+			}
 		}
 	}
 
 	if (ErrorList::IsTerminator(errors)) {
 		//we've been able to get a good initial value (that is, no errors have occurred)
-		symbol = GetSymbol(type_table, type_specifier, value);
+		auto type_mapping_result = ComplexType::GetTypeParameterMap(
+				this->GetTypeParameterList(),
+				type_specifier->GetTypeArgumentList(), type_table);
+		errors = type_mapping_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type_map = type_mapping_result.GetData();
+			symbol = GetSymbol(type_table, type_specifier, value, type_map);
+		}
 	}
 
 	return make_shared<Result>(symbol, errors);
@@ -99,4 +116,68 @@ const ErrorListRef ComplexType::Instantiate(
 	}
 
 	return errors;
+}
+
+TypedResult<type_parameter_map> ComplexType::GetTypeParameterMap(
+		const TypeSpecifierListRef type_parameters,
+		const TypeSpecifierListRef type_arguments,
+		const TypeTable& type_table) {
+	auto errors = ErrorList::GetTerminator();
+
+	auto parameter_subject = type_parameters;
+	auto argument_subject = type_arguments;
+	volatile_shared_ptr<type_parameter_map> result = make_shared<
+			type_parameter_map>();
+
+	while (!TypeSpecifierList::IsTerminator(argument_subject)
+			&& ErrorList::IsTerminator(errors)) {
+		auto type_argument = argument_subject->GetData();
+		if (!TypeSpecifierList::IsTerminator(parameter_subject)) {
+			auto type_parameter = parameter_subject->GetData();
+			auto type_parameter_string = type_parameter->ToString();
+			auto existing_entry = result->find(type_parameter_string);
+			if (existing_entry == result->end()) {
+				auto entry = std::pair<const string,
+						const_shared_ptr<TypeSpecifier>>(type_parameter_string,
+						type_argument);
+				result->insert(result->end(), entry);
+			} else {
+				// entry already exists
+			}
+		} else {
+			// too many arguments
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::TOO_MANY_ARGUMENTS,
+							type_argument->GetLocation().begin), errors);
+		}
+		argument_subject = argument_subject->GetNext();
+		parameter_subject = parameter_subject->GetNext();
+	}
+
+	if (!TypeSpecifierList::IsTerminator(parameter_subject)) {
+		// not enough arguments
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC, Error::TOO_FEW_ARGUMENTS,
+						argument_subject->GetData()->GetLocation().begin),
+				errors);
+	}
+
+	return TypedResult<type_parameter_map>(result, errors);
+}
+
+std::string ComplexType::TypeSpecifierListToString(
+		const TypeSpecifierListRef type_specifier_list) {
+	ostringstream os;
+	auto type_parameter_subject = type_specifier_list;
+	while (!TypeSpecifierList::IsTerminator(type_parameter_subject)
+			&& !TypeSpecifierList::IsTerminator(
+					type_parameter_subject->GetNext())) {
+		os << type_parameter_subject->GetData()->ToString() << ", ";
+		type_parameter_subject = type_parameter_subject->GetNext();
+	}
+
+	os << type_parameter_subject->GetData()->ToString();
+
+	return os.str();
 }

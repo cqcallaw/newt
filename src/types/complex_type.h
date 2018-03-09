@@ -25,7 +25,6 @@
 #include <error.h>
 #include <execution_context.h>
 
-class TypeSpecifier;
 class TypeTable;
 class Result;
 class ExecutionContext;
@@ -47,9 +46,6 @@ public:
 			const_shared_ptr<std::string> instance_name,
 			const_shared_ptr<Expression> initializer) const;
 
-	virtual const_shared_ptr<void> GetMemberDefaultValue(
-			const_shared_ptr<std::string> member_name) const = 0;
-
 	virtual const_shared_ptr<TypeTable> GetDefinition() const = 0;
 
 	virtual const AnalysisResult AnalyzeConversion(
@@ -58,6 +54,14 @@ public:
 
 	virtual const_shared_ptr<MaybeType> GetMaybeType() const = 0;
 
+	static std::string TypeSpecifierListToString(
+			const TypeSpecifierListRef type_specifier_list);
+
+	static TypedResult<type_parameter_map> GetTypeParameterMap(
+			const TypeSpecifierListRef type_parameters,
+			const TypeSpecifierListRef type_arguments, const TypeTable& type_table);
+
+	static const_shared_ptr<type_parameter_map> DefaultTypeParameterMap;
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(
 			const std::shared_ptr<ExecutionContext> execution_context,

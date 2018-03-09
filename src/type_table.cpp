@@ -174,7 +174,8 @@ const bool TypeTable::ContainsType(const string& name) {
 
 volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 		const Modifier::Type modifiers,
-		const_shared_ptr<ComplexTypeSpecifier> container) const {
+		const_shared_ptr<ComplexTypeSpecifier> container,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	volatile_shared_ptr<SymbolTable> result = make_shared<SymbolTable>(
 			modifiers);
 
@@ -182,11 +183,11 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 		auto name = entry.first;
 		auto type = entry.second;
 
-		auto default_value = type->GetDefaultValue(*this);
+		auto default_value = type->GetDefaultValue(*this, type_mapping);
 		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name),
 				container, GetDefaultLocation());
 		auto default_symbol = type->GetSymbol(*this, type_specifier,
-				default_value);
+				default_value, type_mapping);
 
 		InsertResult insert_result = result->InsertSymbol(name, default_symbol);
 		assert(insert_result == INSERT_SUCCESS);
@@ -225,3 +226,4 @@ const_shared_ptr<ComplexTypeSpecifier> TypeTable::GetNilTypeSpecifier() {
 			TypeSpecifierList::GetTerminator());
 	return value;
 }
+

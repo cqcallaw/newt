@@ -192,3 +192,9 @@ TypedResult<TypeSpecifier> NestedTypeSpecifier::Resolve(
 
 	return TypedResult<TypeSpecifier>(source);
 }
+
+const TypeSpecifierListRef NestedTypeSpecifier::GetTypeArgumentList() const {
+	// use parent type arguments
+	// it is assumed that type arguments on child types is a semantic error
+	return m_parent->GetTypeArgumentList();
+}

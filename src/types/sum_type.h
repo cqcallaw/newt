@@ -62,12 +62,13 @@ public:
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			yy::location location) const;
 
-	virtual const_shared_ptr<void> GetDefaultValue(
-			const TypeTable& type_table) const;
+	virtual const_shared_ptr<void> GetDefaultValue(const TypeTable& type_table,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void>) const;
+			const_shared_ptr<void>,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
@@ -101,9 +102,6 @@ public:
 	const_shared_ptr<std::string> MapSpecifierToVariant(
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& type_specifier) const;
-
-	virtual const_shared_ptr<void> GetMemberDefaultValue(
-			const_shared_ptr<std::string> member_name) const;
 
 	const_shared_ptr<MaybeType> GetMaybeType() const {
 		return m_maybe_type;

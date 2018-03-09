@@ -79,7 +79,7 @@ public:
 		return m_type_name;
 	}
 
-	const TypeSpecifierListRef GetTypeArgumentList() const {
+	virtual const TypeSpecifierListRef GetTypeArgumentList() const {
 		return m_type_argument_list;
 	}
 

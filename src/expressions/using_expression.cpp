@@ -96,163 +96,77 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type = expression_type_result->GetData<
 					TypeDefinition>();
-			auto default_value = expression_type->GetDefaultValue(*type_table);
-
-			auto eval = m_expression->Evaluate(context, closure);
-
-			errors = eval->GetErrors();
+			auto type_mapping_result = ComplexType::GetTypeParameterMap(
+					expression_type->GetTypeParameterList(),
+					expression_type_specifier->GetTypeArgumentList(),
+					type_table);
+			errors = type_mapping_result.GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				auto raw_value = eval->GetRawData();
+				auto type_mapping = type_mapping_result.GetData();
+				auto default_value = expression_type->GetDefaultValue(
+						*type_table, type_mapping);
 
-				auto expression_type_result =
-						expression_type_specifier->GetType(type_table,
-								AliasResolution::RESOLVE);
+				auto eval = m_expression->Evaluate(context, closure);
 
-				errors = expression_type_result->GetErrors();
+				errors = eval->GetErrors();
 				if (ErrorList::IsTerminator(errors)) {
-					auto expression_type = expression_type_result->GetData<
-							TypeDefinition>();
+					auto raw_value = eval->GetRawData();
 
-					auto as_sum_type = dynamic_pointer_cast<const SumType>(
-							expression_type);
-					if (as_sum_type) {
-						auto sum = static_pointer_cast<const Sum>(raw_value);
-						auto eval_result_tag = sum->GetTag();
+					auto expression_type_result =
+							expression_type_specifier->GetType(type_table,
+									AliasResolution::RESOLVE);
 
-						if (*eval_result_tag == *UsingExpression::VALUE_NAME) {
-							raw_value = sum->GetValue();
+					errors = expression_type_result->GetErrors();
+					if (ErrorList::IsTerminator(errors)) {
+						auto expression_type = expression_type_result->GetData<
+								TypeDefinition>();
 
-							auto value_type =
-									as_sum_type->GetDefinition()->GetType<
-											TypeDefinition>(
-											*UsingExpression::VALUE_NAME,
-											SHALLOW, RETURN);
+						auto as_sum_type = dynamic_pointer_cast<const SumType>(
+								expression_type);
+						if (as_sum_type) {
+							auto sum = static_pointer_cast<const Sum>(
+									raw_value);
+							auto eval_result_tag = sum->GetTag();
 
-							auto as_alias = dynamic_pointer_cast<
-									const AliasDefinition>(value_type);
-							assert(as_alias);
-							auto unalias_value_type = as_alias->GetOrigin();
+							if (*eval_result_tag
+									== *UsingExpression::VALUE_NAME) {
+								raw_value = sum->GetValue();
 
-							expression_type_specifier = as_alias->GetOriginal();
-							complex_expression_type_specifier =
-									dynamic_pointer_cast<
-											const ComplexTypeSpecifier>(
-											expression_type_specifier);
-						} else {
-							// in-band setup error; assign to using expression return value
-							auto errors_type =
-									as_sum_type->GetDefinition()->GetType<
-											TypeDefinition>(
-											*UsingExpression::ERRORS_NAME,
-											SHALLOW, RETURN);
-							auto as_alias = dynamic_pointer_cast<
-									const AliasDefinition>(errors_type);
-							assert(as_alias);
+								auto value_type =
+										as_sum_type->GetDefinition()->GetType<
+												TypeDefinition>(
+												*UsingExpression::VALUE_NAME,
+												SHALLOW, RETURN);
 
-							auto errors_specifier = as_alias->GetOriginal();
+								auto as_alias = dynamic_pointer_cast<
+										const AliasDefinition>(value_type);
+								assert(as_alias);
+								auto unalias_value_type =
+										as_alias->GetOriginalType(type_mapping);
 
-							auto final_return_value_result =
-									Function::GetFinalReturnValue(
-											sum->GetValue(), errors_specifier,
-											m_return_type_specifier,
-											context->GetTypeTable());
-							auto final_return_value_errors =
-									final_return_value_result->GetErrors();
-
-							if (ErrorList::IsTerminator(
-									final_return_value_errors)) {
-								value = final_return_value_result->GetRawData();
-							} else {
-								errors = ErrorList::Concatenate(errors,
-										final_return_value_errors);
-							}
-						}
-					}
-
-					if (ErrorList::IsTerminator(errors) && value == nullptr) {
-						auto record = static_pointer_cast<const Record>(
-								raw_value);
-						assert(record);
-
-						auto symbol = make_shared<const Symbol>(
-								complex_expression_type_specifier, record);
-						auto set_result = execution_context->SetSymbol(
-								*m_identifier,
-								complex_expression_type_specifier, record,
-								context->GetTypeTable());
-						assert(set_result == SET_SUCCESS);
-
-						auto execution_result = m_body->Execute(
-								execution_context);
-						errors = ErrorList::Concatenate(errors,
-								execution_result.GetErrors());
-
-						if (execution_result.NeedsReturn()) {
-							auto return_value =
-									execution_result.GetReturnValue();
-							auto final_return_value_result =
-									Function::GetFinalReturnValue(
-											return_value->GetValue(),
-											return_value->GetTypeSpecifier(),
-											m_return_type_specifier,
-											context->GetTypeTable());
-							auto final_return_value_errors =
-									final_return_value_result->GetErrors();
-
-							if (ErrorList::IsTerminator(
-									final_return_value_errors)) {
-								value = final_return_value_result->GetRawData();
-							} else {
-								errors = ErrorList::Concatenate(errors,
-										final_return_value_errors);
-							}
-						}
-
-						// call teardown
-						auto teardown_eval =
-								ForeachStatement::EvaluateMemberFunction(record,
-										complex_expression_type_specifier,
-										UsingExpression::TEARDOWN_NAME, context,
-										closure);
-						auto teardown_errors = teardown_eval->GetErrors();
-						if (ErrorList::IsTerminator(teardown_errors)) {
-							auto teardown_eval_value = teardown_eval->GetData<
-									Sum>();
-							auto tag = teardown_eval_value->GetTag();
-
-							if (tag != TypeTable::GetNilName()) {
-								// in-band teardown error
-								// N.B. that this will replace the output of the using block
-								auto teardown_symbol =
-										record->GetDefinition()->GetSymbol(
-												*UsingExpression::TEARDOWN_NAME);
-								assert(
-										teardown_symbol
-												!= Symbol::GetDefaultSymbol());
-
-								auto teardown_symbol_type =
-										teardown_symbol->GetTypeSpecifier();
-								auto teardown_type_as_function =
+								expression_type_specifier =
+										as_alias->GetOriginal();
+								complex_expression_type_specifier =
 										dynamic_pointer_cast<
-												const FunctionTypeSpecifier>(
-												teardown_symbol_type);
-								assert(teardown_type_as_function);
+												const ComplexTypeSpecifier>(
+												expression_type_specifier);
+							} else {
+								// in-band setup error; assign to using expression return value
+								auto errors_type =
+										as_sum_type->GetDefinition()->GetType<
+												TypeDefinition>(
+												*UsingExpression::ERRORS_NAME,
+												SHALLOW, RETURN);
+								auto as_alias = dynamic_pointer_cast<
+										const AliasDefinition>(errors_type);
+								assert(as_alias);
 
-								auto teardown_return_type_specifier =
-										teardown_type_as_function->GetReturnTypeSpecifier();
-								auto teardown_return_as_maybe =
-										dynamic_pointer_cast<
-												const MaybeTypeSpecifier>(
-												teardown_return_type_specifier);
-								assert(teardown_return_as_maybe);
-
-								auto teardown_return_base_type_specifier =
-										teardown_return_as_maybe->GetBaseTypeSpecifier();
+								auto errors_specifier = as_alias->GetOriginal();
 
 								auto final_return_value_result =
 										Function::GetFinalReturnValue(
-												teardown_eval_value->GetValue(),
-												teardown_return_base_type_specifier,
+												sum->GetValue(),
+												errors_specifier,
 												m_return_type_specifier,
 												context->GetTypeTable());
 								auto final_return_value_errors =
@@ -267,9 +181,113 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 											final_return_value_errors);
 								}
 							}
-						} else {
+						}
+
+						if (ErrorList::IsTerminator(errors)
+								&& value == nullptr) {
+							auto record = static_pointer_cast<const Record>(
+									raw_value);
+							assert(record);
+
+							auto symbol = make_shared<const Symbol>(
+									complex_expression_type_specifier, record);
+							auto set_result = execution_context->SetSymbol(
+									*m_identifier,
+									complex_expression_type_specifier, record,
+									context->GetTypeTable());
+							assert(set_result == SET_SUCCESS);
+
+							auto execution_result = m_body->Execute(
+									execution_context);
 							errors = ErrorList::Concatenate(errors,
-									teardown_errors);
+									execution_result.GetErrors());
+
+							if (execution_result.NeedsReturn()) {
+								auto return_value =
+										execution_result.GetReturnValue();
+								auto final_return_value_result =
+										Function::GetFinalReturnValue(
+												return_value->GetValue(),
+												return_value->GetTypeSpecifier(),
+												m_return_type_specifier,
+												context->GetTypeTable());
+								auto final_return_value_errors =
+										final_return_value_result->GetErrors();
+
+								if (ErrorList::IsTerminator(
+										final_return_value_errors)) {
+									value =
+											final_return_value_result->GetRawData();
+								} else {
+									errors = ErrorList::Concatenate(errors,
+											final_return_value_errors);
+								}
+							}
+
+							// call teardown
+							auto teardown_eval =
+									ForeachStatement::EvaluateMemberFunction(
+											record,
+											complex_expression_type_specifier,
+											UsingExpression::TEARDOWN_NAME,
+											context, closure, type_mapping);
+							auto teardown_errors = teardown_eval->GetErrors();
+							if (ErrorList::IsTerminator(teardown_errors)) {
+								auto teardown_eval_value =
+										teardown_eval->GetData<Sum>();
+								auto tag = teardown_eval_value->GetTag();
+
+								if (tag != TypeTable::GetNilName()) {
+									// in-band teardown error
+									// N.B. that this will replace the output of the using block
+									auto teardown_symbol =
+											record->GetDefinition()->GetSymbol(
+													*UsingExpression::TEARDOWN_NAME);
+									assert(
+											teardown_symbol
+													!= Symbol::GetDefaultSymbol());
+
+									auto teardown_symbol_type =
+											teardown_symbol->GetTypeSpecifier();
+									auto teardown_type_as_function =
+											dynamic_pointer_cast<
+													const FunctionTypeSpecifier>(
+													teardown_symbol_type);
+									assert(teardown_type_as_function);
+
+									auto teardown_return_type_specifier =
+											teardown_type_as_function->GetReturnTypeSpecifier();
+									auto teardown_return_as_maybe =
+											dynamic_pointer_cast<
+													const MaybeTypeSpecifier>(
+													teardown_return_type_specifier);
+									assert(teardown_return_as_maybe);
+
+									auto teardown_return_base_type_specifier =
+											teardown_return_as_maybe->GetBaseTypeSpecifier();
+
+									auto final_return_value_result =
+											Function::GetFinalReturnValue(
+													teardown_eval_value->GetValue(),
+													teardown_return_base_type_specifier,
+													m_return_type_specifier,
+													context->GetTypeTable());
+									auto final_return_value_errors =
+											final_return_value_result->GetErrors();
+
+									if (ErrorList::IsTerminator(
+											final_return_value_errors)) {
+										value =
+												final_return_value_result->GetRawData();
+									} else {
+										errors = ErrorList::Concatenate(errors,
+												final_return_value_errors);
+									}
+								}
+							} else {
+								errors = ErrorList::Concatenate(errors,
+										teardown_errors);
+							}
 						}
 					}
 				}
@@ -364,7 +382,8 @@ const ErrorListRef UsingExpression::Validate(
 								if (ErrorList::IsTerminator(errors)) {
 									// assign values type to expression type
 									expression_type =
-											values_as_alias->GetOrigin();
+											values_as_alias->GetOriginalType(
+													ComplexType::DefaultTypeParameterMap);
 									expression_type_specifier =
 											values_as_alias->GetOriginal();
 									complex_expression_type_specifier =
@@ -411,27 +430,43 @@ const ErrorListRef UsingExpression::Validate(
 						if (ErrorList::IsTerminator(errors)) {
 							// no source expression errors encountered; insert symbols into context
 							m_block_context->LinkToParent(execution_context);
-							auto default_value =
-									expression_type->GetDefaultValue(
-											*type_table);
+							auto type_mapping_result =
+									ComplexType::GetTypeParameterMap(
+											expression_type->GetTypeParameterList(),
+											expression_type_specifier->GetTypeArgumentList(),
+											type_table);
+							errors = type_mapping_result.GetErrors();
 
-							auto default_symbol = expression_type->GetSymbol(
-									type_table, expression_type_specifier,
-									default_value);
-							m_block_context->InsertSymbol(*m_identifier,
-									default_symbol);
+							if (ErrorList::IsTerminator(errors)) {
+								auto type_mapping =
+										type_mapping_result.GetData();
+								auto default_value =
+										expression_type->GetDefaultValue(
+												*type_table, type_mapping);
 
-							auto preprocess_result = m_body->Preprocess(
-									m_block_context, m_return_type_specifier);
+								auto default_symbol =
+										expression_type->GetSymbol(type_table,
+												expression_type_specifier,
+												default_value, type_mapping);
+								m_block_context->InsertSymbol(*m_identifier,
+										default_symbol);
 
-							errors = preprocess_result.GetErrors();
+								auto preprocess_result = m_body->Preprocess(
+										m_block_context,
+										m_return_type_specifier);
 
-							if (preprocess_result.GetReturnCoverage()
-									!= PreprocessResult::ReturnCoverage::FULL) {
-								errors = ErrorList::From(
-										make_shared<Error>(Error::SEMANTIC,
-												Error::MISSING_RETURN_COVERAGE,
-												GetLocation().end), errors);
+								errors = preprocess_result.GetErrors();
+
+								if (preprocess_result.GetReturnCoverage()
+										!= PreprocessResult::ReturnCoverage::FULL) {
+									errors =
+											ErrorList::From(
+													make_shared<Error>(
+															Error::SEMANTIC,
+															Error::MISSING_RETURN_COVERAGE,
+															GetLocation().end),
+													errors);
+								}
 							}
 						}
 					} else {
@@ -464,7 +499,8 @@ const ErrorListRef UsingExpression::ValidateMember(
 	if (member) {
 		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(member);
 		if (as_alias) {
-			member = as_alias->GetOrigin();
+			member = as_alias->GetOriginalType(
+					ComplexType::DefaultTypeParameterMap);
 		}
 
 		auto member_as_function = dynamic_pointer_cast<const FunctionType>(

@@ -20,8 +20,10 @@
 #ifndef TYPE_DEFINITION_H_
 #define TYPE_DEFINITION_H_
 
+#include <map>
 #include <string>
 #include <defaults.h>
+#include <type_specifier.h>
 
 class TypeTable;
 class Indent;
@@ -31,6 +33,8 @@ class Symbol;
 class DeclarationStatement;
 class Expression;
 
+typedef map<const string, const_shared_ptr<TypeSpecifier>> type_parameter_map;
+
 class TypeDefinition {
 public:
 	TypeDefinition() {
@@ -39,8 +43,8 @@ public:
 	virtual ~TypeDefinition() {
 	}
 
-	virtual const_shared_ptr<void> GetDefaultValue(
-			const TypeTable& type_table) const = 0;
+	virtual const_shared_ptr<void> GetDefaultValue(const TypeTable& type_table,
+			const_shared_ptr<type_parameter_map> type_mapping) const = 0;
 
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent) const = 0;
@@ -56,6 +60,10 @@ public:
 		return "";
 	}
 
+	virtual const TypeSpecifierListRef GetTypeParameterList() const {
+		return TypeSpecifierList::GetTerminator();
+	}
+
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
@@ -63,7 +71,8 @@ public:
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void> value) const = 0;
+			const_shared_ptr<void> value,
+			const_shared_ptr<type_parameter_map> type_mapping) const = 0;
 
 	/**
 	 * Return the concrete (un-inferred) declaration statement for this type

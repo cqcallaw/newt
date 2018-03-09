@@ -36,8 +36,8 @@
 #include <sum_type.h>
 
 FunctionTypeSpecifier::FunctionTypeSpecifier(
-		TypeSpecifierListRef parameter_type_list,
-		TypeSpecifierListRef type_parameter_list,
+		const TypeSpecifierListRef parameter_type_list,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type,
 		const yy::location location) :
 		TypeSpecifier(location), m_parameter_type_list(parameter_type_list), m_type_parameter_list(
@@ -55,9 +55,9 @@ FunctionTypeSpecifier::~FunctionTypeSpecifier() {
 const string FunctionTypeSpecifier::ToString() const {
 	ostringstream buffer;
 	buffer << "(";
-	TypeSpecifierListRef subject = m_parameter_type_list;
+	auto subject = m_parameter_type_list;
 	while (!TypeSpecifierList::IsTerminator(subject)) {
-		const_shared_ptr<TypeSpecifier> type = subject->GetData();
+		auto type = subject->GetData();
 		buffer << type->ToString();
 		subject = subject->GetNext();
 
@@ -99,9 +99,8 @@ bool FunctionTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 		const FunctionTypeSpecifier& as_function =
 				dynamic_cast<const FunctionTypeSpecifier&>(other);
 		if (*m_return_type == *as_function.GetReturnTypeSpecifier()) {
-			TypeSpecifierListRef subject = m_parameter_type_list;
-			TypeSpecifierListRef other_subject =
-					as_function.GetParameterTypeList();
+			auto subject = m_parameter_type_list;
+			auto other_subject = as_function.GetParameterTypeList();
 			while (!TypeSpecifierList::IsTerminator(subject)
 					&& !TypeSpecifierList::IsTerminator(other_subject)) {
 				const_shared_ptr<TypeSpecifier> type = subject->GetData();

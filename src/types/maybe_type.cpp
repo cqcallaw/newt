@@ -36,9 +36,10 @@ MaybeType::MaybeType(const_shared_ptr<TypeTable> type_table,
 MaybeType::~MaybeType() {
 }
 
-const_shared_ptr<void> MaybeType::GetDefaultValue(
-		const TypeTable& type_table) const {
-	auto value = TypeTable::GetNilType()->GetDefaultValue(type_table);
+const_shared_ptr<void> MaybeType::GetDefaultValue(const TypeTable& type_table,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
+	auto value = TypeTable::GetNilType()->GetDefaultValue(type_table,
+			ComplexType::DefaultTypeParameterMap);
 	return make_shared<Sum>(TypeTable::GetNilName(), value);
 }
 
@@ -88,7 +89,8 @@ const_shared_ptr<TypeSpecifier> MaybeType::GetTypeSpecifier(
 
 const_shared_ptr<Symbol> MaybeType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value) const {
+		const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	auto cast = static_pointer_cast<const Sum>(value);
 	const_shared_ptr<MaybeTypeSpecifier> specifier = make_shared<
 			MaybeTypeSpecifier>(m_base_type_specifier, GetDefaultLocation());

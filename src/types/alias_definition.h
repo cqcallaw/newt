@@ -31,7 +31,7 @@ enum AliasType {
 class AliasDefinition: public TypeDefinition {
 public:
 	AliasDefinition(const_shared_ptr<TypeTable> origin_table,
-			const_shared_ptr<TypeSpecifier> original,
+			const_shared_ptr<TypeSpecifier> original_type_specifier,
 			const AliasType alias_type, const_shared_ptr<void> default_value =
 					nullptr);
 
@@ -50,34 +50,26 @@ public:
 	virtual const std::string GetTagSeparator(const Indent& indent,
 			const void* value) const;
 
-	virtual const_shared_ptr<void> GetDefaultValue(
-			const TypeTable& type_table) const;
+	virtual const_shared_ptr<void> GetDefaultValue(const TypeTable& type_table,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void>) const;
+			const_shared_ptr<void>,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
 			const yy::location type_position,
 			const_shared_ptr<std::string> name,
 			const yy::location name_position,
-			const_shared_ptr<Expression> initializer_expression) const {
-		auto origin = GetOrigin();
-		if (origin) {
-			return origin->GetDeclarationStatement(position, type,
-					type_position, name, name_position, initializer_expression);
-		} else {
-			assert(false);
-			return nullptr;
-		}
-	}
+			const_shared_ptr<Expression> initializer_expression) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			yy::location location) const {
-		return m_original;
+		return m_original_type_specifier;
 	}
 
 	const weak_ptr<const TypeTable> GetOriginTable() const {
@@ -85,7 +77,7 @@ public:
 	}
 
 	const_shared_ptr<TypeSpecifier> GetOriginal() const {
-		return m_original;
+		return m_original_type_specifier;
 	}
 
 	const const_shared_ptr<void> GetDefaultValue() const {
@@ -96,11 +88,12 @@ public:
 		return m_alias_type;
 	}
 
-	const_shared_ptr<TypeDefinition> GetOrigin() const;
+	const_shared_ptr<TypeDefinition> GetOriginalType(
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 private:
 	const weak_ptr<const TypeTable> m_origin_table;
-	const_shared_ptr<TypeSpecifier> m_original;
+	const_shared_ptr<TypeSpecifier> m_original_type_specifier;
 	const AliasType m_alias_type;
 	const_shared_ptr<void> m_default_value;
 };

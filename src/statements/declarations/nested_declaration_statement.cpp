@@ -56,31 +56,42 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 		errors = type_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = type_result->GetData<TypeDefinition>();
-			shared_ptr<const Symbol> symbol = type->GetSymbol(type_table,
-					m_type_specifier, type->GetDefaultValue(type_table));
-			auto initializer_expression = GetInitializerExpression();
-			if (initializer_expression) {
-				errors = initializer_expression->Validate(context);
 
-				if (ErrorList::IsTerminator(errors)
-						&& GetInitializerExpression()->IsConstant()) {
-					auto result = initializer_expression->Evaluate(context,
-							closure);
+			auto type_mapping_result = ComplexType::GetTypeParameterMap(
+					type->GetTypeParameterList(),
+					m_type_specifier->GetTypeArgumentList(), type_table);
+			errors = type_mapping_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto type_mapping = type_mapping_result.GetData();
+				shared_ptr<const Symbol> symbol = type->GetSymbol(type_table,
+						m_type_specifier,
+						type->GetDefaultValue(type_table, type_mapping),
+						type_mapping);
+				auto initializer_expression = GetInitializerExpression();
+				if (initializer_expression) {
+					errors = initializer_expression->Validate(context);
 
-					errors = result->GetErrors();
-					if (ErrorList::IsTerminator(errors)) {
-						symbol = type->GetSymbol(type_table, m_type_specifier,
-								result->GetData<void>());
+					if (ErrorList::IsTerminator(errors)
+							&& GetInitializerExpression()->IsConstant()) {
+						auto result = initializer_expression->Evaluate(context,
+								closure);
+
+						errors = result->GetErrors();
+						if (ErrorList::IsTerminator(errors)) {
+							symbol = type->GetSymbol(type_table,
+									m_type_specifier, result->GetData<void>(),
+									type_mapping);
+						}
 					}
 				}
-			}
 
-			if (ErrorList::IsTerminator(errors)) {
-				InsertResult insert_result = context->InsertSymbol(*GetName(),
-						symbol);
+				if (ErrorList::IsTerminator(errors)) {
+					InsertResult insert_result = context->InsertSymbol(
+							*GetName(), symbol);
 
-				if (insert_result != INSERT_SUCCESS) {
-					assert(false);
+					if (insert_result != INSERT_SUCCESS) {
+						assert(false);
+					}
 				}
 			}
 		}

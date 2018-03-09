@@ -78,7 +78,8 @@ const_shared_ptr<Result> CloseExpression::Evaluate(
 	auto error_list_type = type_table->GetType<TypeDefinition>(
 			Builtins::get_error_list_type_specifier(), DEEP);
 	auto terminator = static_pointer_cast<const Record>(
-			error_list_type->GetDefaultValue(type_table));
+			error_list_type->GetDefaultValue(type_table,
+					ComplexType::DefaultTypeParameterMap));
 	if (result_code == 0) {
 		auto result = make_shared<Sum>(TypeTable::GetNilName(), terminator);
 		return make_shared<Result>(result, errors);
@@ -213,7 +214,8 @@ const ErrorListRef CloseExpression::Validate(
 	if (arg_count == 0) {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::NO_PARAMETER_DEFAULT,
-						GetArgumentListRefLocation().end, "file_handle"), errors);
+						GetArgumentListRefLocation().end, "file_handle"),
+				errors);
 	}
 
 	return errors;
