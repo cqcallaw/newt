@@ -143,8 +143,10 @@ const PreprocessResult MatchStatement::Preprocess(
 													expression_type_specifier->GetTypeArgumentList(),
 													type_table);
 
-									errors = type_mapping_result.GetErrors();
-									if (ErrorList::IsTerminator(errors)) {
+									auto type_mapping_errors =
+											type_mapping_result.GetErrors();
+									if (ErrorList::IsTerminator(
+											type_mapping_errors)) {
 										auto type_mapping =
 												type_mapping_result.GetData();
 										const_shared_ptr<void> default_value =
@@ -181,6 +183,9 @@ const PreprocessResult MatchStatement::Preprocess(
 														match_preprocess_result.GetErrors());
 
 										initial_state = false;
+									} else {
+										ErrorList::Concatenate(errors,
+												type_mapping_errors);
 									}
 								} else {
 									errors =

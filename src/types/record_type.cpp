@@ -62,16 +62,7 @@ const string RecordType::ToString(const TypeTable& type_table,
 	} else {
 		os << child_indent << "<record of "
 				<< ComplexType::TypeSpecifierListToString(m_type_parameter_list)
-				<< ">";
-//		auto type_parameter_subject = m_type_parameter_list;
-//		while (!TypeSpecifierList::IsTerminator(type_parameter_subject)
-//				&& !TypeSpecifierList::IsTerminator(
-//						type_parameter_subject->GetNext())) {
-//			os << type_parameter_subject->GetData()->ToString() << ", ";
-//			type_parameter_subject = type_parameter_subject->GetNext();
-//		}
-//
-//		os << type_parameter_subject->GetData()->ToString() << ">" << endl;
+				<< ">" << endl;
 	}
 	m_definition->print(os, child_indent);
 	return os.str();

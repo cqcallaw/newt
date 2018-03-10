@@ -16,7 +16,8 @@ result r1:
 Root Type Table:
 ----------------
 result:
-	<record of T>	data:
+	<record of T>
+	data:
 		T
 	errors:
 		error_list (
