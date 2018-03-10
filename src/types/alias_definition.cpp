@@ -92,10 +92,12 @@ const_shared_ptr<TypeDefinition> AliasDefinition::GetOriginalType(
 
 	// handle type parameter mapping if it's applicable
 	auto original_as_string = m_original_type_specifier->ToString();
-	for (auto const &type_map : *type_mapping) {
-		auto const type_parameter_name = type_map.first;
-		if (original_as_string == type_parameter_name) {
-			type_specifier = type_map.second;
+	if (type_mapping && type_mapping != ComplexType::DefaultTypeParameterMap) {
+		for (auto const &type_map : *type_mapping) {
+			auto const type_parameter_name = type_map.first;
+			if (original_as_string == type_parameter_name) {
+				type_specifier = type_map.second;
+			}
 		}
 	}
 
