@@ -37,21 +37,24 @@ const_shared_ptr<void> UnitType::GetDefaultValue(const TypeTable& type_table,
 }
 
 const std::string UnitType::ToString(const TypeTable& type_table,
-		const Indent& indent) const {
+		const Indent& indent,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream buffer;
 	buffer << indent + 1 << "<unit>";
 	return buffer.str();
 }
 
 const std::string UnitType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value) const {
+		const Indent& indent, const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream buffer;
 	buffer << "<unit>";
 	return buffer.str();
 }
 
 const std::string UnitType::GetValueSeparator(const Indent& indent,
-		const void* value) const {
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return " ";
 }
 

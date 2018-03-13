@@ -43,7 +43,8 @@ public:
 	}
 
 	const string ToString(const SumType& type, const TypeTable& type_table,
-			const Indent& indent) const;
+			const Indent& indent,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 private:
 	const_shared_ptr<std::string> m_tag;

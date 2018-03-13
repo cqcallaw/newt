@@ -28,7 +28,8 @@ PrimitiveType::~PrimitiveType() {
 }
 
 const std::string PrimitiveType::ToString(const TypeTable& type_table,
-		const Indent& indent) const {
+		const Indent& indent,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream os;
 	os << indent + 1;
 	os << m_type;
@@ -36,7 +37,8 @@ const std::string PrimitiveType::ToString(const TypeTable& type_table,
 }
 
 const std::string PrimitiveType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value) const {
+		const Indent& indent, const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream buffer;
 	buffer << PrimitiveTypeSpecifier::FromBasicType(m_type)->ToString(value);
 	auto result = buffer.str();
@@ -109,7 +111,8 @@ const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
 }
 
 const std::string PrimitiveType::GetValueSeparator(const Indent& indent,
-		const void* value) const {
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return " ";
 }
 

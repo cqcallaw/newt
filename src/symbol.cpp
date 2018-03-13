@@ -155,8 +155,25 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 			auto type_result = type_specifier->GetType(type_table, RESOLVE);
 			if (ErrorList::IsTerminator(type_result->GetErrors())) {
 				auto type = type_result->GetData<TypeDefinition>();
-				buffer << type->GetValueSeparator(indent, value.get());
-				buffer << type->ValueToString(type_table, indent, value);
+				auto type_map = ComplexType::DefaultTypeParameterMap;
+				if (!TypeSpecifierList::IsTerminator(
+						type_specifier->GetTypeArgumentList())) {
+					auto type_mapping_result = ComplexType::GetTypeParameterMap(
+							type->GetTypeParameterList(),
+							type_specifier->GetTypeArgumentList(), type_table);
+					auto errors = type_mapping_result.GetErrors();
+					if (ErrorList::IsTerminator(errors)) {
+						type_map = type_mapping_result.GetData();
+					} else {
+						buffer << "<error resolving type parameters>";
+					}
+				}
+				buffer
+						<< type->GetValueSeparator(indent, value.get(),
+								type_map);
+				buffer
+						<< type->ValueToString(type_table, indent, value,
+								type_map);
 			} else {
 				buffer << "UNDEFINED TYPE";
 			}

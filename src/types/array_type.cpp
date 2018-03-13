@@ -23,12 +23,14 @@
 #include <array_declaration_statement.h>
 
 const std::string ArrayType::ToString(const TypeTable& type_table,
-		const Indent& indent) const {
+		const Indent& indent,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return m_member_type_specifier->ToString() + "[]";
 }
 
 const std::string ArrayType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value) const {
+		const Indent& indent, const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	auto as_array = static_pointer_cast<const Array>(value);
 	return as_array->ToString(type_table, indent);
 }
@@ -56,7 +58,8 @@ const_shared_ptr<Symbol> ArrayType::GetSymbol(const TypeTable& type_table,
 }
 
 const std::string ArrayType::GetValueSeparator(const Indent& indent,
-		const void* value) const {
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return "\n";
 }
 

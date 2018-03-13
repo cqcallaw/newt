@@ -37,25 +37,31 @@ public:
 	SumType(const_shared_ptr<TypeTable> type_table,
 			const_shared_ptr<string> first_variant_name,
 			const_shared_ptr<SymbolTable> constructors,
-			const_shared_ptr<MaybeType> maybe_type) :
+			const_shared_ptr<MaybeType> maybe_type,
+			const TypeSpecifierListRef type_parameter_list) :
 			m_definition(type_table), m_first_variant_name(first_variant_name), m_constructors(
-					constructors), m_maybe_type(maybe_type) {
+					constructors), m_type_parameter_list(type_parameter_list), m_maybe_type(
+					maybe_type) {
 	}
 
 	virtual ~SumType() {
 	}
 
 	virtual const std::string ToString(const TypeTable& type_table,
-			const Indent& indent) const;
+			const Indent& indent,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
-			const Indent& indent, const_shared_ptr<void> value) const;
+			const Indent& indent, const_shared_ptr<void> value,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const std::string GetValueSeparator(const Indent& indent,
-			const void* value) const;
+			const void* value,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const std::string GetTagSeparator(const Indent& indent,
-			const void* value) const;
+			const void* value,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
@@ -93,7 +99,8 @@ public:
 			const shared_ptr<ExecutionContext> output,
 			const shared_ptr<ExecutionContext> closure,
 			const DeclarationListRef member_declarations,
-			const_shared_ptr<SumTypeSpecifier> sum_type_specifier);
+			const_shared_ptr<SumTypeSpecifier> sum_type_specifier,
+			const TypeSpecifierListRef type_parameter_list);
 
 	virtual const AnalysisResult AnalyzeConversion(
 			const ComplexTypeSpecifier& current,
@@ -102,6 +109,10 @@ public:
 	const_shared_ptr<std::string> MapSpecifierToVariant(
 			const ComplexTypeSpecifier& current,
 			const TypeSpecifier& type_specifier) const;
+
+	virtual const TypeSpecifierListRef GetTypeParameterList() const {
+		return m_type_parameter_list;
+	}
 
 	const_shared_ptr<MaybeType> GetMaybeType() const {
 		return m_maybe_type;
@@ -123,6 +134,7 @@ private:
 	const_shared_ptr<TypeTable> m_definition;
 	const_shared_ptr<string> m_first_variant_name;
 	const_shared_ptr<SymbolTable> m_constructors;
+	const TypeSpecifierListRef m_type_parameter_list;
 	const_shared_ptr<MaybeType> m_maybe_type;
 };
 

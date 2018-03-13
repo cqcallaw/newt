@@ -51,10 +51,11 @@ const_shared_ptr<void> AliasDefinition::GetDefaultValue(
 }
 
 const std::string AliasDefinition::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value) const {
-	auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
+		const Indent& indent, const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
+	auto origin = GetOriginalType(type_mapping);
 	if (origin && m_alias_type == DIRECT) {
-		return origin->ValueToString(type_table, indent, value);
+		return origin->ValueToString(type_table, indent, value, type_mapping);
 	} else {
 		return "<No origin found for alias '"
 				+ m_original_type_specifier->ToString() + "'>";
@@ -62,10 +63,11 @@ const std::string AliasDefinition::ValueToString(const TypeTable& type_table,
 }
 
 const std::string AliasDefinition::GetValueSeparator(const Indent& indent,
-		const void* value) const {
-	auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
+	auto origin = GetOriginalType(type_mapping);
 	if (origin) {
-		return origin->GetValueSeparator(indent, value);
+		return origin->GetValueSeparator(indent, value, type_mapping);
 	} else {
 		return "<No origin found for alias '"
 				+ m_original_type_specifier->ToString() + "'>";
@@ -73,10 +75,11 @@ const std::string AliasDefinition::GetValueSeparator(const Indent& indent,
 }
 
 const std::string AliasDefinition::GetTagSeparator(const Indent& indent,
-		const void* value) const {
-	auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
+	auto origin = GetOriginalType(type_mapping);
 	if (origin) {
-		return origin->GetValueSeparator(indent, value);
+		return origin->GetValueSeparator(indent, value, type_mapping);
 	} else {
 		return "<No origin found for alias '"
 				+ m_original_type_specifier->ToString() + "'>";
@@ -124,7 +127,8 @@ const_shared_ptr<Symbol> AliasDefinition::GetSymbol(const TypeTable& type_table,
 }
 
 const std::string AliasDefinition::ToString(const TypeTable& type_table,
-		const Indent& indent) const {
+		const Indent& indent,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
 	os << child_indent;
@@ -133,24 +137,32 @@ const std::string AliasDefinition::ToString(const TypeTable& type_table,
 	if (m_default_value) {
 		os << " (";
 
-		auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
+		auto origin = GetOriginalType(type_mapping);
 		auto as_record = dynamic_pointer_cast<const RecordType>(origin);
 		if (as_record) {
-			os << GetValueSeparator(child_indent, m_default_value.get());
+			os
+					<< GetValueSeparator(child_indent, m_default_value.get(),
+							type_mapping);
 		}
 
 		auto as_function = dynamic_pointer_cast<const FunctionType>(origin);
 		if (as_function) {
-			os << GetValueSeparator(child_indent, m_default_value.get());
+			os
+					<< GetValueSeparator(child_indent, m_default_value.get(),
+							type_mapping);
 		}
 
 		auto as_variant_function = dynamic_pointer_cast<
 				const VariantFunctionType>(origin);
 		if (as_variant_function) {
-			os << GetValueSeparator(child_indent, m_default_value.get());
+			os
+					<< GetValueSeparator(child_indent, m_default_value.get(),
+							type_mapping);
 		}
 
-		os << ValueToString(type_table, child_indent, m_default_value);
+		os
+				<< ValueToString(type_table, child_indent, m_default_value,
+						type_mapping);
 
 		if (as_record) {
 			os << child_indent;

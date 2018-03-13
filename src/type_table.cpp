@@ -77,7 +77,7 @@ const void TypeTable::print(ostream& os, const Indent& indent,
 		os << indent;
 		os << iter->first << ":" << endl;
 		const_shared_ptr<TypeDefinition> type = iter->second;
-		os << type->ToString(*this, indent);
+		os << type->ToString(*this, indent, nullptr); // we assume no parametrization occurs here; this may not be true for nested types
 		os << endl;
 	}
 

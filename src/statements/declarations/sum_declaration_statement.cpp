@@ -85,7 +85,7 @@ const PreprocessResult SumDeclarationStatement::Preprocess(
 					placeholder_symbol, placeholder_maybe);
 			type_table->AddType(*GetName(), forward_declaration);
 			auto result = SumType::Build(context, closure, m_variant_list,
-					m_type_specifier);
+					m_type_specifier, m_type_parameters);
 
 			errors = result->GetErrors();
 			if (ErrorList::IsTerminator(errors)) {

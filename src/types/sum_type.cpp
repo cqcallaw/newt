@@ -57,7 +57,8 @@
 #include <function_expression.h>
 
 const std::string SumType::ToString(const TypeTable& type_table,
-		const Indent& indent) const {
+		const Indent& indent,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
 	os << child_indent << "<sum>" << endl;
@@ -66,10 +67,13 @@ const std::string SumType::ToString(const TypeTable& type_table,
 }
 
 const std::string SumType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value) const {
+		const Indent& indent, const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream buffer;
 	auto sum_instance = static_pointer_cast<const Sum>(value);
-	buffer << sum_instance->ToString(*this, *m_definition, indent);
+	buffer
+			<< sum_instance->ToString(*this, *m_definition, indent,
+					type_mapping);
 	return buffer.str();
 }
 
@@ -77,7 +81,8 @@ const_shared_ptr<Result> SumType::Build(
 		const shared_ptr<ExecutionContext> output,
 		const shared_ptr<ExecutionContext> closure,
 		const DeclarationListRef member_declarations,
-		const_shared_ptr<SumTypeSpecifier> sum_type_specifier) {
+		const_shared_ptr<SumTypeSpecifier> sum_type_specifier,
+		const TypeSpecifierListRef type_parameter_list) {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto output_type_table = output->GetTypeTable();
@@ -146,56 +151,104 @@ const_shared_ptr<Result> SumType::Build(
 						|| !definition->ContainsType(alias_type_name)) {
 					auto alias_type_specifier = as_alias->GetTypeSpecifier();
 
-					//would be nice to abstract this casting logic into a helper function
-					auto alias_as_primitive = dynamic_pointer_cast<
-							const PrimitiveTypeSpecifier>(alias_type_specifier);
-					if (alias_as_primitive) {
-						auto alias = make_shared<AliasDefinition>(
-								closure_type_table, alias_as_primitive, DIRECT);
-						definition->AddType(alias_type_name, alias);
+					// check for type parameter alias
+					plain_shared_ptr<TypeSpecifier> type_parameter_alias =
+							PrimitiveTypeSpecifier::GetNone();
+					auto type_specifier_string =
+							declaration->GetTypeSpecifier()->ToString();
+					auto type_parameter_subject = type_parameter_list;
+					while (type_parameter_subject
+							!= TypeSpecifierList::GetTerminator()) {
+						auto as_complex = dynamic_pointer_cast<
+								const ComplexTypeSpecifier>(
+								type_parameter_subject->GetData());
+						assert(as_complex);
 
-						auto type_constructor_result =
-								TypeAliasDeclarationStatement::GetTypeConstructor(
-										as_alias->GetLocation(),
-										as_alias->GetName(),
-										as_alias->GetNameLocation(),
-										as_alias->GetTypeSpecifierLocation(),
-										alias_as_primitive, sum_type_specifier,
-										alias, output, closure);
-						errors = ErrorList::Concatenate(errors,
-								type_constructor_result.GetErrors());
-
-						auto symbol = type_constructor_result.GetData();
-						auto insert_result = constructors->InsertSymbol(
-								*variant_name, symbol);
-						// this should never happen because we already have an existence check on the variant type table,
-						// but it never hurts to be safe
-						if (insert_result == SYMBOL_EXISTS) {
-							errors = ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::PREVIOUS_DECLARATION,
-											as_alias->GetLocation().begin,
-											*variant_name), errors);
+						if (as_complex->ToString() == type_specifier_string) {
+							type_parameter_alias = as_complex;
+							break;
 						}
+						type_parameter_subject =
+								type_parameter_subject->GetNext();
 					}
 
-					auto original_as_complex = dynamic_pointer_cast<
-							const ComplexTypeSpecifier>(alias_type_specifier);
-					if (original_as_complex) {
-						auto original_name_result =
-								original_as_complex->GetType(closure_type_table,
-										RETURN);
-						auto original_name_result_errors =
-								original_name_result->GetErrors();
-						if (ErrorList::IsTerminator(
-								original_name_result_errors)) {
+					if (type_parameter_alias
+							!= PrimitiveTypeSpecifier::GetNone()) {
+						// we're aliasing a type parameter
+
+						// check for erroneous initializers
+						auto initializer_expression =
+								declaration->GetInitializerExpression();
+						if (initializer_expression) {
+							errors =
+									ErrorList::From(
+											make_shared<Error>(Error::SEMANTIC,
+													Error::NO_TYPE_PARAMETER_INITIALIZERS,
+													initializer_expression->GetLocation().begin),
+											errors);
+						} else {
 							auto alias = make_shared<AliasDefinition>(
-									closure_type_table, original_as_complex,
+									closure_type_table, type_parameter_alias,
+									DIRECT, nullptr);
+
+							definition->AddType(alias_type_name, alias);
+						}
+					} else {
+						//would be nice to abstract this casting logic into a helper function
+						auto alias_as_primitive = dynamic_pointer_cast<
+								const PrimitiveTypeSpecifier>(
+								alias_type_specifier);
+						if (alias_as_primitive) {
+							auto alias = make_shared<AliasDefinition>(
+									closure_type_table, alias_as_primitive,
 									DIRECT);
 							definition->AddType(alias_type_name, alias);
-						} else {
+
+							auto type_constructor_result =
+									TypeAliasDeclarationStatement::GetTypeConstructor(
+											as_alias->GetLocation(),
+											as_alias->GetName(),
+											as_alias->GetNameLocation(),
+											as_alias->GetTypeSpecifierLocation(),
+											alias_as_primitive,
+											sum_type_specifier, alias, output,
+											closure);
 							errors = ErrorList::Concatenate(errors,
-									original_name_result_errors);
+									type_constructor_result.GetErrors());
+
+							auto symbol = type_constructor_result.GetData();
+							auto insert_result = constructors->InsertSymbol(
+									*variant_name, symbol);
+							// this should never happen because we already have an existence check on the variant type table,
+							// but it never hurts to be safe
+							if (insert_result == SYMBOL_EXISTS) {
+								errors = ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::PREVIOUS_DECLARATION,
+												as_alias->GetLocation().begin,
+												*variant_name), errors);
+							}
+						}
+
+						auto original_as_complex = dynamic_pointer_cast<
+								const ComplexTypeSpecifier>(
+								alias_type_specifier);
+						if (original_as_complex) {
+							auto original_name_result =
+									original_as_complex->GetType(
+											closure_type_table, RETURN);
+							auto original_name_result_errors =
+									original_name_result->GetErrors();
+							if (ErrorList::IsTerminator(
+									original_name_result_errors)) {
+								auto alias = make_shared<AliasDefinition>(
+										closure_type_table, original_as_complex,
+										DIRECT);
+								definition->AddType(alias_type_name, alias);
+							} else {
+								errors = ErrorList::Concatenate(errors,
+										original_name_result_errors);
+							}
 						}
 					}
 				} else {
@@ -216,10 +269,9 @@ const_shared_ptr<Result> SumType::Build(
 		errors = maybe_type_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto maybe_type = maybe_type_result->GetData<MaybeType>();
-			auto type = const_shared_ptr<SumType>(
-					new SumType(definition,
-							member_declarations->GetData()->GetName(),
-							constructors, maybe_type));
+			auto type = make_shared<SumType>(definition,
+					member_declarations->GetData()->GetName(), constructors,
+					maybe_type, type_parameter_list);
 			return make_shared<Result>(type, errors);
 		}
 	}
@@ -390,35 +442,31 @@ const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
 }
 
 const std::string SumType::GetValueSeparator(const Indent& indent,
-		const void* value) const {
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	auto as_sum = static_cast<const Sum*>(value);
 	auto variant_name = *as_sum->GetTag();
 
 	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name,
-			SHALLOW, RESOLVE);
+			SHALLOW, RETURN);
 
-	if (variant_type) {
-		return variant_type->GetValueSeparator(indent, as_sum->GetValue().get());
-	} else {
-		assert(false);
-		return "";
-	}
+	assert(variant_type);
+	return variant_type->GetValueSeparator(indent, as_sum->GetValue().get(),
+			type_mapping);
 }
 
 const std::string SumType::GetTagSeparator(const Indent& indent,
-		const void* value) const {
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	auto as_sum = static_cast<const Sum*>(value);
 	auto variant_name = *as_sum->GetTag();
 
 	auto variant_type = m_definition->GetType<TypeDefinition>(variant_name,
-			SHALLOW, RESOLVE);
+			SHALLOW, RETURN);
 
-	if (variant_type) {
-		return variant_type->GetTagSeparator(indent, as_sum->GetValue().get());
-	} else {
-		assert(false);
-		return "";
-	}
+	assert(variant_type);
+	return variant_type->GetTagSeparator(indent, as_sum->GetValue().get(),
+			type_mapping);
 }
 
 const_shared_ptr<DeclarationStatement> SumType::GetDeclarationStatement(

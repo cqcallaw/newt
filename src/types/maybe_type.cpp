@@ -29,7 +29,8 @@ MaybeType::MaybeType(const_shared_ptr<TypeTable> type_table,
 		const_shared_ptr<string> first_variant_name,
 		const_shared_ptr<SymbolTable> constructors,
 		const_shared_ptr<TypeSpecifier> base_type_specifier) :
-		SumType(type_table, first_variant_name, constructors, nullptr), m_base_type_specifier(
+		SumType(type_table, first_variant_name, constructors, nullptr,
+				TypeSpecifierList::GetTerminator()), m_base_type_specifier(
 				base_type_specifier) {
 }
 
@@ -44,7 +45,8 @@ const_shared_ptr<void> MaybeType::GetDefaultValue(const TypeTable& type_table,
 }
 
 const std::string MaybeType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value) const {
+		const Indent& indent, const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream buffer;
 	auto sum_instance = static_pointer_cast<const Sum>(value);
 	auto tag = sum_instance->GetTag();
@@ -55,8 +57,12 @@ const std::string MaybeType::ValueToString(const TypeTable& type_table,
 		if (ErrorList::IsTerminator(type_result->GetErrors())) {
 			auto type = type_result->GetData<TypeDefinition>();
 			auto inner_value = sum_instance->GetValue();
-			buffer << type->GetValueSeparator(indent, inner_value.get());
-			buffer << type->ValueToString(type_table, indent + 1, inner_value);
+			buffer
+					<< type->GetValueSeparator(indent, inner_value.get(),
+							type_mapping);
+			buffer
+					<< type->ValueToString(type_table, indent + 1, inner_value,
+							type_mapping);
 		} else {
 			buffer << "<undefined type>";
 		}
@@ -67,7 +73,8 @@ const std::string MaybeType::ValueToString(const TypeTable& type_table,
 }
 
 const std::string MaybeType::GetValueSeparator(const Indent& indent,
-		const void* value) const {
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream buffer;
 	auto sum_instance = static_cast<const Sum*>(value);
 
@@ -98,7 +105,8 @@ const_shared_ptr<Symbol> MaybeType::GetSymbol(const TypeTable& type_table,
 }
 
 const std::string MaybeType::GetTagSeparator(const Indent& indent,
-		const void* value) const {
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return "";
 }
 

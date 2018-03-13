@@ -24,6 +24,7 @@
 #include "utils.h"
 #include <execution_context.h>
 #include <primitive_type.h>
+#include <complex_type.h>
 
 Expression::Expression(const yy::location location) :
 		m_location(location) {
@@ -79,10 +80,26 @@ TypedResult<string> Expression::ToString(
 						assert(false);
 					}
 				} else {
-					buffer
-							<< type->ValueToString(
-									execution_context->GetTypeTable(),
-									Indent(0), evaluation->GetRawData());
+					auto type_map = ComplexType::DefaultTypeParameterMap;
+					if (!TypeSpecifierList::IsTerminator(
+							type_specifier->GetTypeArgumentList())) {
+						auto type_mapping_result =
+								ComplexType::GetTypeParameterMap(
+										type->GetTypeParameterList(),
+										type_specifier->GetTypeArgumentList(),
+										execution_context->GetTypeTable());
+
+						errors = type_mapping_result.GetErrors();
+						type_map = type_mapping_result.GetData(); // this should be null if we have errors, but the next error list terminator check will handle this case
+					}
+
+					if (ErrorList::IsTerminator(errors)) {
+						buffer
+								<< type->ValueToString(
+										execution_context->GetTypeTable(),
+										Indent(0), evaluation->GetRawData(),
+										type_map);
+					}
 				}
 			}
 		}

@@ -54,7 +54,8 @@ RecordType::~RecordType() {
 }
 
 const string RecordType::ToString(const TypeTable& type_table,
-		const Indent& indent) const {
+		const Indent& indent,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
 	if (TypeSpecifierList::IsTerminator(m_type_parameter_list)) {
@@ -480,7 +481,8 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 }
 
 const std::string RecordType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value) const {
+		const Indent& indent, const_shared_ptr<void> value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream buffer;
 	auto record_type_instance = static_pointer_cast<const Record>(value);
 	buffer << record_type_instance->ToString(*m_definition, indent + 1);
@@ -581,12 +583,14 @@ const SetResult RecordType::InstantiateCore(
 }
 
 const std::string RecordType::GetValueSeparator(const Indent& indent,
-		const void* value) const {
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return "\n";
 }
 
 const std::string RecordType::GetTagSeparator(const Indent& indent,
-		const void* value) const {
+		const void* value,
+		const_shared_ptr<type_parameter_map> type_mapping) const {
 	return indent.ToString();
 }
 

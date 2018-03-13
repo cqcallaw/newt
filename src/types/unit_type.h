@@ -32,13 +32,16 @@ public:
 			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const std::string ToString(const TypeTable& type_table,
-			const Indent& indent) const;
+			const Indent& indent,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
-			const Indent& indent, const_shared_ptr<void> value) const;
+			const Indent& indent, const_shared_ptr<void> value,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const std::string GetValueSeparator(const Indent& indent,
-			const void* value) const;
+			const void* value,
+			const_shared_ptr<type_parameter_map> type_mapping) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
