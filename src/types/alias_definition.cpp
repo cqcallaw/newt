@@ -79,7 +79,7 @@ const std::string AliasDefinition::GetTagSeparator(const Indent& indent,
 		const_shared_ptr<type_parameter_map> type_mapping) const {
 	auto origin = GetOriginalType(type_mapping);
 	if (origin) {
-		return origin->GetValueSeparator(indent, value, type_mapping);
+		return origin->GetTagSeparator(indent, value, type_mapping);
 	} else {
 		return "<No origin found for alias '"
 				+ m_original_type_specifier->ToString() + "'>";
