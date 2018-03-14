@@ -47,6 +47,7 @@ IfStatement::~IfStatement() {
 const PreprocessResult IfStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	assert(m_expression);
 
@@ -73,7 +74,7 @@ const PreprocessResult IfStatement::Preprocess(
 				m_block_context->LinkToParent(context);
 
 				auto block_result = m_block->Preprocess(m_block_context,
-						closure, return_type_specifier);
+						closure, type_parameter_list, return_type_specifier);
 				auto block_return_coverage = block_result.GetReturnCoverage();
 
 				return_coverage = ReturnStatement::CoverageTransition(
@@ -84,7 +85,7 @@ const PreprocessResult IfStatement::Preprocess(
 					m_else_block_context->LinkToParent(context);
 
 					auto else_block_result = m_else_block->Preprocess(
-							m_else_block_context, closure,
+							m_else_block_context, closure, type_parameter_list,
 							return_type_specifier);
 					auto else_block_return_coverage =
 							else_block_result.GetReturnCoverage();

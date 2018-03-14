@@ -36,6 +36,7 @@ WhileStatement::~WhileStatement() {
 const PreprocessResult WhileStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	assert(m_expression);
 
@@ -62,7 +63,7 @@ const PreprocessResult WhileStatement::Preprocess(
 				m_block_context->LinkToParent(context);
 
 				auto block_result = m_block->Preprocess(m_block_context,
-						closure, return_type_specifier);
+						closure, type_parameter_list, return_type_specifier);
 				auto block_return_coverage = block_result.GetReturnCoverage();
 
 				return_coverage = ReturnStatement::CoverageTransition(

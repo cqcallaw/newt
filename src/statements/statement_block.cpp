@@ -38,14 +38,16 @@ StatementBlock::~StatementBlock() {
 
 const PreprocessResult StatementBlock::Preprocess(
 		const shared_ptr<ExecutionContext> execution_context,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	return Preprocess(execution_context, execution_context,
+	return Preprocess(execution_context, execution_context, type_parameter_list,
 			return_type_specifier);
 }
 
 const PreprocessResult StatementBlock::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure_context,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = ErrorList::GetTerminator();
 	auto subject = m_statements;
@@ -54,7 +56,7 @@ const PreprocessResult StatementBlock::Preprocess(
 		const_shared_ptr<Statement> statement = subject->GetData();
 		//TODO: handle nested statement blocks
 		auto statement_result = statement->Preprocess(context, closure_context,
-				return_type_specifier);
+				type_parameter_list, return_type_specifier);
 
 		auto statement_return_coverage = statement_result.GetReturnCoverage();
 		return_coverage = max(return_coverage, statement_return_coverage);

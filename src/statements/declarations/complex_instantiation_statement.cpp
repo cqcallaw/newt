@@ -51,6 +51,7 @@ ComplexInstantiationStatement::~ComplexInstantiationStatement() {
 const PreprocessResult ComplexInstantiationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto type_result = m_type_specifier->GetType(context->GetTypeTable());
 
@@ -84,8 +85,8 @@ const PreprocessResult ComplexInstantiationStatement::Preprocess(
 				errors = ErrorList::From(
 						make_shared<Error>(Error::SEMANTIC,
 								Error::PREVIOUS_DECLARATION,
-								m_type_specifier_location.begin,
-								*GetName()), errors);
+								m_type_specifier_location.begin, *GetName()),
+						errors);
 			}
 		} else {
 			errors = ErrorList::From(

@@ -49,6 +49,7 @@ public:
 			const TypeTable& type_table) const = 0;
 
 	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
+			const TypeSpecifierListRef type_parameter_list,
 			const yy::location position) const {
 		return ErrorList::GetTerminator();
 	}

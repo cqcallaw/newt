@@ -45,6 +45,7 @@ TypeAliasDeclarationStatement::~TypeAliasDeclarationStatement() {
 const PreprocessResult TypeAliasDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	//no-op
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE,
@@ -111,7 +112,8 @@ TypedResult<Symbol> TypeAliasDeclarationStatement::GetTypeConstructor(
 	auto variant_context = function->GetVariantList()->GetData()->GetContext();
 
 	auto parameter_preprocess_result = parameter_declaration->Preprocess(
-			variant_context, closure, result_type_specifier);
+			variant_context, closure, TypeSpecifierList::GetTerminator(),
+			result_type_specifier);
 	auto parameter_preprocess_errors = parameter_preprocess_result.GetErrors();
 	if (ErrorList::IsTerminator(parameter_preprocess_errors)) {
 		auto parameter_execute_errors = parameter_declaration->Execute(

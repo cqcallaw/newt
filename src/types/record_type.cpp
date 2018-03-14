@@ -195,7 +195,7 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 					} else {
 						member_declaration_errors =
 								declaration_type_specifier->ValidateDeclaration(
-										output_type_table,
+										output_type_table, type_parameter_list,
 										declaration->GetNameLocation());
 						if (ErrorList::IsTerminator(
 								member_declaration_errors)) {
@@ -283,7 +283,8 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 
 								auto preprocess_result =
 										declaration_subject->Preprocess(
-												member_tmp_context, closure);
+												member_tmp_context, closure,
+												type_parameter_list);
 								auto preprocess_errors =
 										preprocess_result.GetErrors();
 								member_declaration_errors =
@@ -410,7 +411,7 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 							split_declaration_subject_data->GetTypeSpecifier();
 					auto declaration_errors =
 							declaration_type_specifier->ValidateDeclaration(
-									output_type_table,
+									output_type_table, type_parameter_list,
 									split_declaration_subject_data->GetNameLocation());
 
 					const shared_ptr<symbol_map> values =
@@ -424,7 +425,8 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 
 					auto preprocess_result =
 							split_declaration_subject_data->Preprocess(
-									member_tmp_context, closure);
+									member_tmp_context, closure,
+									type_parameter_list);
 					auto preprocess_errors = preprocess_result.GetErrors();
 					declaration_errors = ErrorList::Concatenate(
 							declaration_errors, preprocess_errors);

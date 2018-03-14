@@ -148,20 +148,23 @@ const_shared_ptr<Result> FunctionTypeSpecifier::GetType(
 }
 
 const ErrorListRef FunctionTypeSpecifier::ValidateDeclaration(
-		const TypeTable& type_table, const yy::location position) const {
+		const TypeTable& type_table,
+		const TypeSpecifierListRef type_parameter_list,
+		const yy::location position) const {
 	auto errors = ErrorList::GetTerminator();
 
 	auto subject = GetParameterTypeList();
 	while (!TypeSpecifierList::IsTerminator(subject)) {
 		auto parameter_type_specifier = subject->GetData();
 		auto parameter_errors = parameter_type_specifier->ValidateDeclaration(
-				type_table, parameter_type_specifier->GetLocation());
+				type_table, type_parameter_list,
+				parameter_type_specifier->GetLocation());
 		errors = ErrorList::Concatenate(errors, parameter_errors);
 		subject = subject->GetNext();
 	}
 
 	auto return_type_errors = m_return_type->ValidateDeclaration(type_table,
-			m_return_type->GetLocation());
+			type_parameter_list, m_return_type->GetLocation());
 	errors = ErrorList::Concatenate(errors, return_type_errors);
 
 	return errors;

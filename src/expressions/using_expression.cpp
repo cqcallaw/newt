@@ -453,6 +453,7 @@ const ErrorListRef UsingExpression::Validate(
 
 								auto preprocess_result = m_body->Preprocess(
 										m_block_context,
+										TypeSpecifierList::GetTerminator(),
 										m_return_type_specifier);
 
 								errors = preprocess_result.GetErrors();

@@ -49,6 +49,7 @@ MatchStatement::~MatchStatement() {
 const PreprocessResult MatchStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = m_source_expression->Validate(context);
 
@@ -168,6 +169,7 @@ const PreprocessResult MatchStatement::Preprocess(
 												match_body->Preprocess(
 														matched_context,
 														matched_context,
+														type_parameter_list,
 														return_type_specifier);
 										auto match_return_coverage =
 												match_preprocess_result.GetReturnCoverage();
@@ -226,6 +228,7 @@ const PreprocessResult MatchStatement::Preprocess(
 									default_match_block->Preprocess(
 											default_match_context,
 											default_match_context,
+											type_parameter_list,
 											return_type_specifier);
 
 							return_coverage =

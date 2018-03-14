@@ -42,6 +42,7 @@ public:
 	virtual bool operator==(const TypeSpecifier& other) const;
 
 	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
+			const TypeSpecifierListRef type_parameter_list,
 			const yy::location position) const;
 
 	const_shared_ptr<TypeSpecifier> GetElementTypeSpecifier() const {

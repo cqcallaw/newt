@@ -42,6 +42,7 @@ public:
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
+			const TypeSpecifierListRef type_parameter_list,
 			const yy::location location) const;
 
 	const FunctionVariantListRef GetVariantList() const {

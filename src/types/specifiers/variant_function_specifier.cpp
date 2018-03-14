@@ -147,7 +147,9 @@ const_shared_ptr<Result> VariantFunctionSpecifier::GetType(
 }
 
 const ErrorListRef VariantFunctionSpecifier::ValidateDeclaration(
-		const TypeTable& type_table, const yy::location location) const {
+		const TypeTable& type_table,
+		const TypeSpecifierListRef type_parameter_list,
+		const yy::location location) const {
 	auto errors = ErrorList::GetTerminator();
 
 	auto subject = m_variant_list;
@@ -155,7 +157,7 @@ const ErrorListRef VariantFunctionSpecifier::ValidateDeclaration(
 		auto variant = subject->GetData();
 		auto declaration = variant->GetDeclaration();
 		auto declaration_errors = declaration->ValidateDeclaration(type_table,
-				location);
+				type_parameter_list, location);
 		errors = ErrorList::Concatenate(errors, declaration_errors);
 
 		auto duplication_errors = ErrorList::GetTerminator();

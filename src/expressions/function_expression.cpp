@@ -126,7 +126,8 @@ const ErrorListRef FunctionExpression::Validate(
 
 			if (ErrorList::IsTerminator(parameter_errors)) {
 				auto preprocess_result = declaration_statement->Preprocess(
-						variant_context, variant_context);
+						variant_context, variant_context,
+						variant->GetDeclaration()->GetTypeParameterList());
 				auto preprocess_errors = preprocess_result.GetErrors();
 
 				if (ErrorList::IsTerminator(preprocess_errors)) {
@@ -150,6 +151,7 @@ const ErrorListRef FunctionExpression::Validate(
 		if (ErrorList::IsTerminator(errors)) {
 			auto return_type_specifier = declaration->GetReturnTypeSpecifier();
 			auto body_process_result = body->Preprocess(variant_context,
+					variant->GetDeclaration()->GetTypeParameterList(),
 					return_type_specifier);
 			errors = ErrorList::Concatenate(errors,
 					body_process_result.GetErrors());

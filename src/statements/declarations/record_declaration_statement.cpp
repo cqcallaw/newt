@@ -54,6 +54,7 @@ RecordDeclarationStatement::~RecordDeclarationStatement() {
 const PreprocessResult RecordDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
@@ -70,7 +71,9 @@ const PreprocessResult RecordDeclarationStatement::Preprocess(
 
 	if (!type_table->ContainsType(*m_type_specifier)) {
 		errors = RecordType::Build(GetName(), context, closure, modifiers,
-				m_member_declaration_list, m_type_specifier, m_type_parameters);
+				m_member_declaration_list, m_type_specifier,
+				TypeSpecifierList::IsTerminator(type_parameter_list) ?
+						m_type_parameters : type_parameter_list);
 	} else {
 		errors = ErrorList::From(
 				make_shared<Error>(Error::SEMANTIC, Error::PREVIOUS_DECLARATION,

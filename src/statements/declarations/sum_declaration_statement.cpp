@@ -65,6 +65,7 @@ SumDeclarationStatement::~SumDeclarationStatement() {
 const PreprocessResult SumDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 	auto type_table = context->GetTypeTable();

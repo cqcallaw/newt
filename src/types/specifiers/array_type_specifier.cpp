@@ -70,6 +70,9 @@ const_shared_ptr<Result> ArrayTypeSpecifier::GetType(
 }
 
 const ErrorListRef ArrayTypeSpecifier::ValidateDeclaration(
-		const TypeTable& type_table, const yy::location position) const {
-	return m_element_type_specifier->ValidateDeclaration(type_table, position);
+		const TypeTable& type_table,
+		const TypeSpecifierListRef type_parameter_list,
+		const yy::location position) const {
+	return m_element_type_specifier->ValidateDeclaration(type_table,
+			type_parameter_list, position);
 }

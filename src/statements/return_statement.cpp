@@ -35,6 +35,7 @@ ReturnStatement::~ReturnStatement() {
 const PreprocessResult ReturnStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = m_expression->Validate(context);
 

@@ -24,6 +24,7 @@
 #include <defaults.h>
 #include <error.h>
 #include <result.h>
+#include <type_specifier.h>
 
 class ExecutionContext;
 class TypeSpecifier;
@@ -41,6 +42,7 @@ public:
 	virtual const PreprocessResult Preprocess(
 			const shared_ptr<ExecutionContext> context,
 			const shared_ptr<ExecutionContext> closure,
+			const TypeSpecifierListRef type_parameter_list,
 			const_shared_ptr<TypeSpecifier> return_type_specifier = nullptr) const = 0;
 
 	/**

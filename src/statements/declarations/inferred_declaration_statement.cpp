@@ -63,6 +63,7 @@ const yy::location InferredDeclarationStatement::GetTypeSpecifierLocation() cons
 const PreprocessResult InferredDeclarationStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto expression_type_specifier_result =
 			GetInitializerExpression()->GetTypeSpecifier(context,
@@ -87,7 +88,7 @@ const PreprocessResult InferredDeclarationStatement::Preprocess(
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
 			auto preprocess_result = temp_statement->Preprocess(context,
-					closure, return_type_specifier);
+					closure, type_parameter_list, return_type_specifier);
 			errors = preprocess_result.GetErrors();
 		}
 	}

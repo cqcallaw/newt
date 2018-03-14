@@ -386,9 +386,12 @@ const ErrorListRef InvokeExpression::Validate(
 					auto declaration = parameter_subject->GetData();
 
 					if (declaration->GetInitializerExpression()) {
-						errors = ErrorList::Concatenate(
-								declaration->Preprocess(tmp_context,
-										tmp_context).GetErrors(), errors);
+						errors =
+								ErrorList::Concatenate(
+										declaration->Preprocess(tmp_context,
+												tmp_context,
+												as_function_declaration->GetTypeParameterList()).GetErrors(),
+										errors);
 					} else {
 						errors = ErrorList::From(
 								make_shared<Error>(Error::SEMANTIC,

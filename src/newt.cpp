@@ -142,7 +142,8 @@ int main(int argc, char *argv[]) {
 		auto builtin_context = make_shared<ExecutionContext>(
 				Modifier::Type::MUTABLE);
 		auto builtin_preprocess_result = builtin_statements->Preprocess(
-				builtin_context, const_shared_ptr<TypeSpecifier>());
+				builtin_context, TypeSpecifierList::GetTerminator(),
+				const_shared_ptr<TypeSpecifier>());
 
 		auto builtin_errors = builtin_preprocess_result.GetErrors();
 		if (ErrorList::IsTerminator(builtin_errors)) {
@@ -173,9 +174,9 @@ int main(int argc, char *argv[]) {
 					auto root_context = make_shared<ExecutionContext>(
 							Modifier::Type::MUTABLE, LifeTime::ROOT);
 					root_context->LinkToParent(builtin_context);
-					auto semantic_errors =
-							main_statement_block->Preprocess(root_context,
-									TypeTable::GetNilTypeSpecifier()).GetErrors();
+					auto semantic_errors = main_statement_block->Preprocess(
+							root_context, TypeSpecifierList::GetTerminator(),
+							TypeTable::GetNilTypeSpecifier()).GetErrors();
 
 					if (ErrorList::IsTerminator(semantic_errors)) {
 						if (debug) {

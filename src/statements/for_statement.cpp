@@ -51,6 +51,7 @@ ForStatement::~ForStatement() {
 const PreprocessResult ForStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = ErrorList::GetTerminator();
 
@@ -58,7 +59,7 @@ const PreprocessResult ForStatement::Preprocess(
 
 	if (m_initial) {
 		auto initial_preprocess_result = m_initial->Preprocess(m_block_context,
-				closure, return_type_specifier);
+				closure, type_parameter_list, return_type_specifier);
 		errors = initial_preprocess_result.GetErrors();
 		if (!ErrorList::IsTerminator(errors)) {
 			return PreprocessResult(PreprocessResult::ReturnCoverage::NONE,
@@ -84,7 +85,7 @@ const PreprocessResult ForStatement::Preprocess(
 					|| loop_expression_analysis == UNAMBIGUOUS) {
 				// use block context for closure so internal function closures are correct
 				auto block_preprocess_result = m_statement_block->Preprocess(
-						m_block_context, m_block_context,
+						m_block_context, m_block_context, type_parameter_list,
 						return_type_specifier);
 				return_coverage = block_preprocess_result.GetReturnCoverage();
 				errors = block_preprocess_result.GetErrors();

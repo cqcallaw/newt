@@ -52,6 +52,7 @@ ForeachStatement::~ForeachStatement() {
 const PreprocessResult ForeachStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = ErrorList::GetTerminator();
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
@@ -216,7 +217,7 @@ const PreprocessResult ForeachStatement::Preprocess(
 	}
 
 	auto block_preprocess_result = m_statement_block->Preprocess(
-			m_block_context, return_type_specifier);
+			m_block_context, type_parameter_list, return_type_specifier);
 	return_coverage = block_preprocess_result.GetReturnCoverage();
 
 	errors = ErrorList::Concatenate(errors,

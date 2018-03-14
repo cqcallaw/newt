@@ -44,6 +44,7 @@ AssignmentStatement::~AssignmentStatement() {
 const PreprocessResult AssignmentStatement::Preprocess(
 		const shared_ptr<ExecutionContext> context,
 		const shared_ptr<ExecutionContext> closure,
+		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	const_shared_ptr<string> variable_name = m_variable->GetName();
 	auto symbol = context->GetSymbol(variable_name, DEEP);

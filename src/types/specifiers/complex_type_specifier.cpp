@@ -222,8 +222,21 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeWidening(
 }
 
 const ErrorListRef ComplexTypeSpecifier::ValidateDeclaration(
-		const TypeTable& type_table, const yy::location position) const {
+		const TypeTable& type_table,
+		const TypeSpecifierListRef type_parameter_list,
+		const yy::location position) const {
 	auto errors = ErrorList::GetTerminator();
+
+	auto this_as_string = this->ToString();
+	auto subject = type_parameter_list;
+	while (!TypeSpecifierList::IsTerminator(subject)) {
+		auto type_parameter = subject->GetData();
+		auto parameter_as_string = type_parameter->ToString();
+		if (this_as_string == parameter_as_string) {
+			return errors; // we have a parameterized member declaration
+		}
+		subject = subject->GetNext();
+	}
 
 	auto existing_type_result = GetType(type_table);
 	auto existing_type_errors = existing_type_result->GetErrors();
