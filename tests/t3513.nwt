@@ -1,0 +1,7 @@
+# test simple interior sum type variant
+t of <L> {
+	g {
+		h:L
+	}
+	| nil
+}

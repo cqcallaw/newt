@@ -61,7 +61,13 @@ const std::string SumType::ToString(const TypeTable& type_table,
 		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
-	os << child_indent << "<sum>" << endl;
+	if (TypeSpecifierList::IsTerminator(m_type_parameter_list)) {
+		os << child_indent << "<sum>" << endl;
+	} else {
+		os << child_indent << "<sum of "
+				<< ComplexType::TypeSpecifierListToString(m_type_parameter_list)
+				<< ">" << endl;
+	}
 	m_definition->print(os, child_indent);
 	return os.str();
 }
