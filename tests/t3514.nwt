@@ -1,0 +1,8 @@
+# test simple interior record type member
+t of <L> {
+	g {
+		h:L
+	}
+}
+
+r := @t of <int>
