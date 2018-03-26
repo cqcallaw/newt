@@ -1,0 +1,9 @@
+# test multiple type parameters
+t of <H, K> {
+	g {
+		h:H,
+		k:K
+	}
+}
+
+r := @t of <int, string>
