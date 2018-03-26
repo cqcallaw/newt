@@ -7,7 +7,7 @@ result r1: {data} 0
 Root Type Table:
 ----------------
 result:
-	<sum>
+	<sum of T>
 	data:
 		T
 	errors:
