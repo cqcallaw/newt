@@ -4,20 +4,21 @@
 
 [![Join the chat at https://gitter.im/cqcallaw/newt](https://badges.gitter.im/cqcallaw/newt.svg)](https://gitter.im/cqcallaw/newt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-newt is a study of type safety and immutability, aiming to combine the expressivenes of languages such as Python and Ruby with the type safety and semantic analysis found in "system" languages such as C and C++.
+newt is scripting language that aims to be simple and expressive, but also send signals about program correctness issues to the developer as quickly as possible. These goals are born of a dissatisfaction with both the relative verbosity of "system" programming languages such as C/C++, as well as the tendency among scripting languages such as Python or Ruby to defer detection of correctness issues until runtime.
 
 newt is derived from [a compilers class project](http://www.ecst.csuchico.edu/~tyson/classes/515.s15/), and is also a fulfillment of a project requirement for completion of a Bachelor's Degree of Science in Computer Science with Honors from CSU Chico.
 
 newt is [free software](http://www.gnu.org/philosophy/free-sw.en.html), licensed under the [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html).
 
 # Design Philosophy
+
 Software is valuable because there exists a class of computations for which machines are faster and more trustworthy than people, that is, software is valuable because automation is valuable. If we truly believe automation is valuable, we automate wherever possible, including the software tools with which we create software (with some [exceptions](https://xkcd.com/1205/)). newt exists because it is believed that software-crafting software can be improved through automation; the language specification and implementation are offered as evidence that an improved solution exists.
 
 Semantic analysis is a class of computations with ample opportunity for automation, and one where automation yields exceptional value; the sooner the programmer knows the program to be incorrect, the sooner the program can be fixed. In other words, semantic analysis helps detect more bugs and helps detect them faster, and the quality of the program is thereby improved. For this reason, newt strives to detect semantic errors as early in the program lifecycle as possible. In support of earliest-possible error detection, newt is statically typed; that is, a variable is associated with a type and this type association constrains the set of values which the variable may legally represent. This allows the language runtime to detect large numbers of semantic errors before the program executes, and automates much of the quality assurance work that must be done with hand-coded unit tests in a dynamically typed language.
 
 Syntatically, newt aims for pragmatism, avoiding "boilerplate" code (e.g. header files) and generally minimizing programmer input as long as readability is not impaired. It is understood that non-astonishing behavior is important, and that "non-astonishing" frequently just means "familiar", so existing conventions and well-known programming idioms are preserved where possible. newt does not adhere slavishly to existing structures, however; for example, the language introduces language constructs to automate use of immutable data structures, which have been observed to mitigate or obviate many classes of defects. Little prior art is known to exist for such language constructs, so new syntax is introduced to achieve this goal.
 
-The reference implementation of newt attempts to embody the language philosophy itself; no language construct is added without a working, tested implementation, and to the best of the authors' abilities, software engineering best-practice is followed. 
+The reference implementation of newt attempts to embody the language philosophy itself, placing particular priority on following software engineering best practices.
 
 # Building
 newt requires flex (tested with version 2.6.0), Bison (tested with version 3.0.4), and g++ (tested with 5.4.0) to build. To build a release binary, type the following from the commandline:
