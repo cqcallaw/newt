@@ -2,7 +2,7 @@ Parsing file ../tests/t3510.nwt...
 Parsed file ../tests/t3510.nwt.
 Root Symbol Table:
 ----------------
-result r1:
+result of <int> r1:
 	int data: 0
 	error_list errors:
 		error data:

@@ -1,6 +1,6 @@
 Parsing file ../tests/t3601.nwt...
 Semantic error at ../tests/t3601.nwt:2.15: 'T' has already been declared in the current scope.
 Semantic error at ../tests/t3601.nwt:2.18: 'T' has already been declared in the current scope.
-Semantic error at ../tests/t3601.nwt:7.8: Invalid type "result".
+Semantic error at ../tests/t3601.nwt:7.8: Invalid type "result of <int>".
 Parsed file ../tests/t3601.nwt.
 3 errors found; giving up.

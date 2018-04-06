@@ -192,8 +192,15 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 }
 
 const std::string ComplexTypeSpecifier::ToString() const {
-	return (GetContainer() ? GetContainer()->ToString() + "." : "")
+	auto base = (GetContainer() ? GetContainer()->ToString() + "." : "")
 			+ *m_type_name;
+	if (TypeSpecifierList::IsTerminator(m_type_argument_list)) {
+		return base;
+	} else {
+		return base + " of <"
+				+ ComplexType::TypeSpecifierListToString(m_type_argument_list)
+				+ ">";
+	}
 }
 
 bool ComplexTypeSpecifier::operator ==(const TypeSpecifier& other) const {

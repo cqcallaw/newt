@@ -2,7 +2,7 @@ Parsing file ../tests/t3516.nwt...
 Parsed file ../tests/t3516.nwt.
 Root Symbol Table:
 ----------------
-t r:
+t of <int, string> r:
 	int h: 0
 	string k: ""
 
