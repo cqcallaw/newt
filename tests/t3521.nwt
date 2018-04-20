@@ -1,0 +1,9 @@
+# interior type with multiple parameters
+t of <H, K> {
+	g {
+		a:H,
+		b:K
+	}
+}
+
+r := @t of <int, string>

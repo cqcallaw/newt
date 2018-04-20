@@ -7,5 +7,4 @@ g of <K> {
 	b:t of <K>
 }
 
-#r := @t of <int>
 r := @g of <int>

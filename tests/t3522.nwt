@@ -1,0 +1,8 @@
+# test type parameterization of a recursively defined type
+map of <T, K> {
+	key:T,
+	value:K,
+	next:map of <T, K>?
+}
+
+r := @map of <int, string>

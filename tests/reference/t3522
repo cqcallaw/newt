@@ -1,0 +1,21 @@
+Parsing file ../tests/t3522.nwt...
+Parsed file ../tests/t3522.nwt.
+Root Symbol Table:
+----------------
+map of <int, string> r:
+	int key: 0
+	map? next: {nil}
+	string value: ""
+
+
+Root Type Table:
+----------------
+map:
+	<record of T, K>
+	key:
+		T
+	next:
+		map of <T, K>? ({nil})
+	value:
+		K
+
