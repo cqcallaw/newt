@@ -58,6 +58,9 @@ public:
 		return m_basic_type;
 	}
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
+
 	static const_shared_ptr<PrimitiveTypeSpecifier> FromBasicType(
 			BasicType type);
 

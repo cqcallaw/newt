@@ -39,11 +39,15 @@ public:
 	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
+
 	DeclarationListRef GetParameterList() const {
 		return m_parameter_list;
 	}
 
-	static const TypeSpecifierListRef GetTypeList(DeclarationListRef parameter_list);
+	static const TypeSpecifierListRef GetTypeList(
+			DeclarationListRef parameter_list);
 
 private:
 	DeclarationListRef m_parameter_list;

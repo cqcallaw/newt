@@ -181,3 +181,9 @@ const_shared_ptr<Result> PrimitiveTypeSpecifier::GetType(
 	auto result_type = PrimitiveType::FromBasicType(basic_type);
 	return make_shared<Result>(result_type, ErrorList::GetTerminator());
 }
+
+const_shared_ptr<TypeSpecifier> PrimitiveTypeSpecifier::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<PrimitiveTypeSpecifier>(m_basic_type,
+			this->GetLocation());
+}

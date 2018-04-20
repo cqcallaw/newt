@@ -193,3 +193,9 @@ const ErrorListRef VariantFunctionSpecifier::ValidateDeclaration(
 
 	return errors;
 }
+
+const_shared_ptr<TypeSpecifier> VariantFunctionSpecifier::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<VariantFunctionSpecifier>(this->GetLocation(),
+			m_variant_list);
+}

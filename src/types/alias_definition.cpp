@@ -26,6 +26,7 @@
 #include <variant_function_type.h>
 #include <symbol.h>
 #include <primitive_type.h>
+#include <complex_type.h>
 
 AliasDefinition::AliasDefinition(const_shared_ptr<TypeTable> origin_table,
 		const_shared_ptr<TypeSpecifier> original_type_specifier,
@@ -43,10 +44,13 @@ const_shared_ptr<void> AliasDefinition::GetDefaultValue(
 	else {
 		auto origin = GetOriginalType(type_mapping);
 		if (origin && m_alias_type == DIRECT) {
-			return origin->GetDefaultValue(type_table, type_mapping);
-		} else {
-			return const_shared_ptr<void>();
+			auto remapping = Remap(type_mapping, m_original_type_specifier,
+					origin, type_table);
+			return origin->GetDefaultValue(type_table, remapping);
 		}
+
+		// default, un-desired behavior
+		return const_shared_ptr<void>();
 	}
 }
 
@@ -55,7 +59,9 @@ const std::string AliasDefinition::ValueToString(const TypeTable& type_table,
 		const_shared_ptr<type_parameter_map> type_mapping) const {
 	auto origin = GetOriginalType(type_mapping);
 	if (origin && m_alias_type == DIRECT) {
-		return origin->ValueToString(type_table, indent, value, type_mapping);
+		auto remapping = Remap(type_mapping, m_original_type_specifier, origin,
+				type_table);
+		return origin->ValueToString(type_table, indent, value, remapping);
 	} else {
 		return "<No origin found for alias '"
 				+ m_original_type_specifier->ToString() + "'>";
@@ -86,6 +92,30 @@ const std::string AliasDefinition::GetTagSeparator(const Indent& indent,
 	}
 }
 
+const_shared_ptr<TypeSpecifier> AliasDefinition::GetTypeSpecifier(
+		const_shared_ptr<std::string> name,
+		const_shared_ptr<ComplexTypeSpecifier> container,
+		const_shared_ptr<type_parameter_map> type_mapping,
+		yy::location location) const {
+	if (type_mapping) {
+		auto find_result = type_mapping->find(
+				m_original_type_specifier->ToString());
+		if (find_result != type_mapping->end()) {
+			// direct, un-parameterized mapping
+			return find_result->second;
+		}
+
+		auto new_type_arguments = ComplexType::TypeParameterSubstitution(
+				m_original_type_specifier->GetTypeArgumentList(), type_mapping);
+		auto new_type_specifier =
+				m_original_type_specifier->WithTypeArgumentList(
+						new_type_arguments);
+		return new_type_specifier;
+	} else {
+		return m_original_type_specifier;
+	}
+}
+
 const_shared_ptr<TypeDefinition> AliasDefinition::GetOriginalType(
 		const_shared_ptr<type_parameter_map> type_mapping) const {
 	const_shared_ptr<TypeTable> ptr = m_origin_table.lock();
@@ -105,7 +135,6 @@ const_shared_ptr<TypeDefinition> AliasDefinition::GetOriginalType(
 	}
 
 	auto type_result = type_specifier->GetType(*ptr);
-
 	if (ErrorList::IsTerminator(type_result->GetErrors())) {
 		return type_result->GetData<TypeDefinition>();
 	}
@@ -190,5 +219,47 @@ const_shared_ptr<DeclarationStatement> AliasDefinition::GetDeclarationStatement(
 	} else {
 		assert(false);
 		return nullptr;
+	}
+}
+
+const_shared_ptr<type_parameter_map> AliasDefinition::Remap(
+		const_shared_ptr<type_parameter_map> type_mapping,
+		const_shared_ptr<TypeSpecifier> type_specifier,
+		const_shared_ptr<TypeDefinition> type, const TypeTable& type_table) {
+	//			auto new_type_specifier = m_original_type_specifier;
+	//			if (!TypeSpecifierList::IsTerminator(
+	//					m_original_type_specifier->GetTypeArgumentList())) {
+	//				new_type_specifier =
+	//						m_original_type_specifier->WithTypeArgumentList(
+	//								ComplexType::TypeParameterSubstitution(
+	//										m_original_type_specifier->GetTypeArgumentList(),
+	//										type_mapping));
+	//			}
+	//
+	//			auto remapping_result = ComplexType::GetTypeParameterMap(
+	//					origin->GetTypeParameterList(),
+	//					new_type_specifier->GetTypeArgumentList(), type_table);
+	//			if (ErrorList::IsTerminator(remapping_result.GetErrors())) {
+	//				return origin->GetDefaultValue(type_table,
+	//						remapping_result.GetData());
+	//			}
+
+	if (TypeSpecifierList::IsTerminator(
+			type_specifier->GetTypeArgumentList())) {
+		return type_mapping;
+	}
+
+	auto new_type_specifier = type_specifier;
+	new_type_specifier = type_specifier->WithTypeArgumentList(
+			ComplexType::TypeParameterSubstitution(
+					type_specifier->GetTypeArgumentList(), type_mapping));
+
+	auto remapping_result = ComplexType::GetTypeParameterMap(
+			type->GetTypeParameterList(),
+			new_type_specifier->GetTypeArgumentList(), type_table);
+	if (ErrorList::IsTerminator(remapping_result.GetErrors())) {
+		return remapping_result.GetData();
+	} else {
+		return ComplexType::DefaultTypeParameterMap;
 	}
 }

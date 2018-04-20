@@ -103,7 +103,13 @@ const_shared_ptr<Symbol> SymbolContext::GetSymbol(
 	return result;
 }
 
+const void SymbolContext::print(ostream& os, const TypeTable& type_table,
+		const Indent& indent) const {
+	print(os, type_table, ComplexType::DefaultTypeParameterMap, indent);
+}
+
 const void SymbolContext::print(ostream &os, const TypeTable& type_table,
+		const_shared_ptr<type_parameter_map> type_mapping,
 		const Indent& indent) const {
 	if (m_table->size() > 0) {
 		symbol_map::iterator iter;
@@ -239,4 +245,3 @@ volatile_shared_ptr<SymbolContext> SymbolContext::Clone() const {
 SymbolContext::SymbolContext(const SymbolContext& other) :
 		m_modifiers(other.m_modifiers), m_table(other.m_table) {
 }
-

@@ -169,3 +169,9 @@ const ErrorListRef FunctionTypeSpecifier::ValidateDeclaration(
 
 	return errors;
 }
+
+const_shared_ptr<TypeSpecifier> FunctionTypeSpecifier::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<FunctionTypeSpecifier>(m_parameter_type_list,
+			m_type_parameter_list, m_return_type, this->GetLocation());
+}

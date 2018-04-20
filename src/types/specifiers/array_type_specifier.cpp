@@ -76,3 +76,8 @@ const ErrorListRef ArrayTypeSpecifier::ValidateDeclaration(
 	return m_element_type_specifier->ValidateDeclaration(type_table,
 			type_parameter_list, position);
 }
+
+const_shared_ptr<TypeSpecifier> ArrayTypeSpecifier::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<ArrayTypeSpecifier>(m_element_type_specifier);
+}

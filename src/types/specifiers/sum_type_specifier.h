@@ -64,6 +64,9 @@ public:
 	virtual ~SumTypeSpecifier() {
 	}
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
+
 	virtual const AnalysisResult AnalyzeAssignmentTo(
 			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const;

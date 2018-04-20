@@ -62,8 +62,21 @@ const PreprocessResult ComplexInstantiationStatement::Preprocess(
 		if (as_complex) {
 			auto existing = context->GetSymbol(GetName(), SHALLOW);
 			if (existing == Symbol::GetDefaultSymbol()) {
+				volatile_shared_ptr<type_parameter_map> type_map = make_shared<
+						type_parameter_map>();
+				if (!TypeSpecifierList::IsTerminator(type_parameter_list)) {
+					auto subject = type_parameter_list;
+					while (!TypeSpecifierList::IsTerminator(subject)) {
+						auto key = subject->GetData()->ToString();
+						auto new_entry = std::pair<const string,
+								const_shared_ptr<TypeSpecifier>>(key,
+								TypeTable::GetNilTypeSpecifier());
+						type_map->insert(type_map->end(), new_entry);
+						subject = subject->GetNext();
+					}
+				}
 				auto result = as_complex->PreprocessSymbol(context,
-						m_type_specifier, GetInitializerExpression());
+						m_type_specifier, GetInitializerExpression(), type_map);
 
 				errors = result->GetErrors();
 				if (ErrorList::IsTerminator(errors)) {

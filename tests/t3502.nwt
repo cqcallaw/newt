@@ -1,0 +1,6 @@
+# test generic record type
+t of <T> {
+	data:T
+}
+
+r := @t of <double>

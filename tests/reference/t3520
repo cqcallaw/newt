@@ -1,0 +1,22 @@
+Parsing file ../tests/t3520.nwt...
+Parsed file ../tests/t3520.nwt.
+Root Symbol Table:
+----------------
+g of <int> r:
+	t of <int> b:
+		int a: 0
+
+
+
+Root Type Table:
+----------------
+g:
+	<record of K>
+	b:
+		t of <K>
+
+t:
+	<record of H>
+	a:
+		H
+

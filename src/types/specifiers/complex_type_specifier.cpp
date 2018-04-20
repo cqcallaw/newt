@@ -276,3 +276,9 @@ const ErrorListRef ComplexTypeSpecifier::ValidateDeclaration(
 
 	return errors;
 }
+
+const_shared_ptr<TypeSpecifier> ComplexTypeSpecifier::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<ComplexTypeSpecifier>(m_type_name, type_arguments,
+			m_container, m_space, this->GetLocation());
+}

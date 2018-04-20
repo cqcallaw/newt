@@ -70,3 +70,9 @@ const AnalysisResult SumTypeSpecifier::AnalyzeAssignmentTo(
 
 	return AnalysisResult::INCOMPATIBLE;
 }
+
+const_shared_ptr<TypeSpecifier> SumTypeSpecifier::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<SumTypeSpecifier>(this->GetTypeName(), type_arguments,
+			this->GetContainer(), this->GetNamespace(), this->GetLocation());
+}

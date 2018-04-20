@@ -34,7 +34,8 @@ ComplexType::~ComplexType() {
 const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 		const std::shared_ptr<ExecutionContext> execution_context,
 		const_shared_ptr<ComplexTypeSpecifier> type_specifier,
-		const_shared_ptr<Expression> initializer) const {
+		const_shared_ptr<Expression> initializer,
+		const_shared_ptr<type_parameter_map> outer_type_mapping) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	plain_shared_ptr<void> value;
@@ -57,8 +58,29 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 					type_specifier->GetTypeArgumentList(), type_table);
 			errors = type_mapping_result.GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				value = type->GetDefaultValue(type_table,
-						type_mapping_result.GetData());
+				auto type_mapping = type_mapping_result.GetData();
+				// map to surrounding type parameters
+				if (!outer_type_mapping->empty()) {
+					volatile_shared_ptr<type_parameter_map> new_map =
+							make_shared<type_parameter_map>();
+
+					for (auto const &entry : *type_mapping) {
+						auto inner_key = entry.first;
+						auto outer_key = entry.second->ToString();
+						auto existing_entry_it = outer_type_mapping->find(
+								outer_key);
+						assert(existing_entry_it != outer_type_mapping->end());
+						auto new_entry = std::pair<const string,
+								const_shared_ptr<TypeSpecifier>>(inner_key,
+								existing_entry_it->second);
+						new_map->insert(new_map->end(), new_entry);
+					}
+
+					type_mapping = new_map;
+				}
+				if (ErrorList::IsTerminator(errors)) {
+					value = type->GetDefaultValue(type_table, type_mapping);
+				}
 			}
 		}
 	}
@@ -70,6 +92,7 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 				type_specifier->GetTypeArgumentList(), type_table);
 		errors = type_mapping_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
+			assert(value);
 			auto type_map = type_mapping_result.GetData();
 			symbol = GetSymbol(type_table, type_specifier, value, type_map);
 		}
@@ -180,4 +203,32 @@ std::string ComplexType::TypeSpecifierListToString(
 	os << type_parameter_subject->GetData()->ToString();
 
 	return os.str();
+}
+
+const TypeSpecifierListRef ComplexType::TypeParameterSubstitution(
+		const TypeSpecifierListRef original,
+		const_shared_ptr<type_parameter_map> type_mapping) {
+
+	auto new_type_arguments = TypeSpecifierList::GetTerminator();
+	auto type_argument_subject = original;
+	while (!TypeSpecifierList::IsTerminator(type_argument_subject)) {
+		auto type_argument = type_argument_subject->GetData();
+		auto key = type_argument->ToString();
+		// find entry in type mapping
+		auto find_result = type_mapping->find(key);
+		if (find_result != type_mapping->end()) {
+			// substitute type mapping value for type argument
+			new_type_arguments = TypeSpecifierList::From(find_result->second,
+					new_type_arguments);
+		} else {
+			// no mapping found, pass the existing type argument through
+			new_type_arguments = TypeSpecifierList::From(type_argument,
+					new_type_arguments);
+		}
+		type_argument_subject = type_argument_subject->GetNext();
+	}
+
+	// make sure the order of type argument is correct
+	new_type_arguments = TypeSpecifierList::Reverse(new_type_arguments);
+	return new_type_arguments;
 }

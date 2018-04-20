@@ -75,6 +75,9 @@ public:
 		return TypeSpecifierList::GetTerminator();
 	}
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const = 0;
+
 	const yy::location GetLocation() const {
 		return m_location;
 	}

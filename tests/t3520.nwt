@@ -1,0 +1,11 @@
+# test aliasing with type parameters
+t of <H> {
+	a:H
+}
+
+g of <K> {
+	b:t of <K>
+}
+
+#r := @t of <int>
+r := @g of <int>

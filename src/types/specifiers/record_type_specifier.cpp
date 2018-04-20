@@ -24,3 +24,9 @@
 #include <record.h>
 #include <record_type_specifier.h>
 #include <sum_type_specifier.h>
+
+const_shared_ptr<TypeSpecifier> RecordTypeSpecifier::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<RecordTypeSpecifier>(this->GetTypeName(), type_arguments,
+			this->GetContainer(), this->GetNamespace(), this->GetLocation());
+}

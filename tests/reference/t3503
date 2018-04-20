@@ -1,0 +1,22 @@
+Parsing file ../tests/t3503.nwt...
+Parsed file ../tests/t3503.nwt.
+Root Symbol Table:
+----------------
+t of <d> r:
+	d data:
+		int i: 0
+
+
+
+Root Type Table:
+----------------
+d:
+	<record>
+	i:
+		int (0)
+
+t:
+	<record of T>
+	data:
+		T
+

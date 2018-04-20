@@ -84,6 +84,9 @@ public:
 		return m_type_argument_list;
 	}
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
+
 	virtual const NamespaceQualifierListRef GetNamespace() const {
 		return m_space;
 	}

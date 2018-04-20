@@ -59,6 +59,9 @@ public:
 
 	virtual const TypeSpecifierListRef GetTypeArgumentList() const;
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
+
 	static TypedResult<TypeSpecifier> Resolve(
 			const_shared_ptr<TypeSpecifier> source,
 			const TypeTable& type_table);

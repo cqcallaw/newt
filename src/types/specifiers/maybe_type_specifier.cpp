@@ -180,3 +180,9 @@ const_shared_ptr<Result> MaybeTypeSpecifier::GetType(
 	}
 	return make_shared<Result>(result, errors);
 }
+
+const_shared_ptr<TypeSpecifier> MaybeTypeSpecifier::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<MaybeTypeSpecifier>(m_base_type_specifier,
+			this->GetLocation());
+}

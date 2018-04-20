@@ -77,7 +77,7 @@ const void TypeTable::print(ostream& os, const Indent& indent,
 		os << indent;
 		os << iter->first << ":" << endl;
 		const_shared_ptr<TypeDefinition> type = iter->second;
-		os << type->ToString(*this, indent, nullptr); // we assume no parametrization occurs here; this may not be true for nested types
+		os << type->ToString(*this, indent, nullptr); // no type mapping should occur for the generic type
 		os << endl;
 	}
 
@@ -179,13 +179,21 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 	volatile_shared_ptr<SymbolTable> result = make_shared<SymbolTable>(
 			modifiers);
 
+//	if (type_mapping) {
+//		for (auto const &entry : *type_mapping) {
+//			cout << "GetDefaultSymbolContext key: " << entry.first << " value: "
+//					<< entry.second->ToString() << endl;
+//		}
+//	}
+
 	for (const auto &entry : *m_table) {
 		auto name = entry.first;
 		auto type = entry.second;
 
 		auto default_value = type->GetDefaultValue(*this, type_mapping);
+		assert(default_value);
 		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name),
-				container, GetDefaultLocation());
+				container, type_mapping, GetDefaultLocation());
 		auto default_symbol = type->GetSymbol(*this, type_specifier,
 				default_value, type_mapping);
 

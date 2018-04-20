@@ -349,11 +349,21 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 											}
 										} else {
 											auto value = symbol->GetValue();
-											alias =
-													make_shared<AliasDefinition>(
-															closure_type_table,
-															type_specifier,
-															DIRECT, value);
+											if (TypeSpecifierList::IsTerminator(
+													declaration_type_specifier->GetTypeArgumentList())) {
+												alias = make_shared<
+														AliasDefinition>(
+														closure_type_table,
+														type_specifier, DIRECT,
+														value);
+											} else {
+												// the member is generic, but does not directly alias a type parameter
+												alias = make_shared<
+														AliasDefinition>(
+														closure_type_table,
+														type_specifier, DIRECT,
+														nullptr);
+											}
 										}
 
 										type_table->AddType(member_name, alias);
@@ -487,7 +497,9 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 		const_shared_ptr<type_parameter_map> type_mapping) const {
 	ostringstream buffer;
 	auto record_type_instance = static_pointer_cast<const Record>(value);
-	buffer << record_type_instance->ToString(*m_definition, indent + 1);
+	buffer
+			<< record_type_instance->ToString(*m_definition, type_mapping,
+					indent + 1);
 	return buffer.str();
 }
 

@@ -64,6 +64,9 @@ public:
 
 	virtual ~RecordTypeSpecifier() {
 	}
+
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
 };
 
 #endif /* SPECIFIERS_RECORD_TYPE_SPECIFIER_H_ */

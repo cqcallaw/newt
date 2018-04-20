@@ -73,6 +73,15 @@ public:
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			yy::location location) const = 0;
 
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			const_shared_ptr<type_parameter_map> type_mapping,
+			yy::location location) const {
+		// default behavior: ignore type mappings
+		return GetTypeSpecifier(name, container, location);
+	}
+
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void> value,

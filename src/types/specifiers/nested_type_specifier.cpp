@@ -198,3 +198,9 @@ const TypeSpecifierListRef NestedTypeSpecifier::GetTypeArgumentList() const {
 	// it is assumed that type arguments on child types is a semantic error
 	return m_parent->GetTypeArgumentList();
 }
+
+const_shared_ptr<TypeSpecifier> NestedTypeSpecifier::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<NestedTypeSpecifier>(m_parent, m_member_name,
+			this->GetLocation());
+}

@@ -55,6 +55,9 @@ public:
 			const TypeSpecifier& type_specifier,
 			const TypeTable& type_table) const;
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
+
 	static const_shared_ptr<std::string> VARIANT_NAME;
 
 private:

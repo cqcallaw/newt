@@ -35,9 +35,10 @@ const_shared_ptr<Record> Record::GetDefaultInstance(const RecordType& type,
 }
 
 const string Record::ToString(const TypeTable& type_table,
+		const_shared_ptr<type_parameter_map> type_mapping,
 		const Indent& indent) const {
 	ostringstream buffer;
-	m_definition->print(buffer, type_table, indent);
+	m_definition->print(buffer, type_table, type_mapping, indent);
 	string result = buffer.str();
 	return result;
 }

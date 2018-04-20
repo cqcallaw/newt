@@ -131,3 +131,9 @@ const_shared_ptr<Result> FunctionDeclaration::GetType(
 
 	return make_shared<Result>(result, ErrorList::GetTerminator());
 }
+
+const_shared_ptr<TypeSpecifier> FunctionDeclaration::WithTypeArgumentList(
+		TypeSpecifierListRef type_arguments) const {
+	return make_shared<FunctionDeclaration>(m_parameter_list, type_arguments,
+			this->GetReturnTypeSpecifier(), this->GetLocation());
+}

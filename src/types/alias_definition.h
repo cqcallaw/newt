@@ -73,8 +73,14 @@ public:
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
 			yy::location location) const {
-		return m_original_type_specifier;
+		return GetTypeSpecifier(name, container, nullptr, location);
 	}
+
+	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
+			const_shared_ptr<std::string> name,
+			const_shared_ptr<ComplexTypeSpecifier> container,
+			const_shared_ptr<type_parameter_map> type_mapping,
+			yy::location location) const;
 
 	const weak_ptr<const TypeTable> GetOriginTable() const {
 		return m_origin_table;
@@ -94,6 +100,11 @@ public:
 
 	const_shared_ptr<TypeDefinition> GetOriginalType(
 			const_shared_ptr<type_parameter_map> type_mapping) const;
+
+	static const_shared_ptr<type_parameter_map> Remap(
+			const_shared_ptr<type_parameter_map> type_mapping,
+			const_shared_ptr<TypeSpecifier> type_specifier,
+			const_shared_ptr<TypeDefinition> type, const TypeTable& type_table);
 
 private:
 	const weak_ptr<const TypeTable> m_origin_table;

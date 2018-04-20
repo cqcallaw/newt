@@ -49,6 +49,9 @@ public:
 		return m_variant_list;
 	}
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
+
 private:
 	const FunctionVariantListRef m_variant_list;
 };

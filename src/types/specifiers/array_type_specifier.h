@@ -52,6 +52,9 @@ public:
 	virtual const_shared_ptr<Result> GetType(const TypeTable& type_table,
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
+
 private:
 	const_shared_ptr<TypeSpecifier> m_element_type_specifier;
 	const_shared_ptr<ArrayType> m_type;

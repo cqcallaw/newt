@@ -54,6 +54,7 @@ public:
 			const_shared_ptr<type_parameter_map> type_mapping);
 
 	const string ToString(const TypeTable& type_table,
+			const_shared_ptr<type_parameter_map> type_mapping,
 			const Indent& indent) const;
 
 private:

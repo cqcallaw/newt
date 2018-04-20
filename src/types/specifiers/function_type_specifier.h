@@ -57,6 +57,9 @@ public:
 		return m_type_parameter_list;
 	}
 
+	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
+			TypeSpecifierListRef type_arguments) const;
+
 	const_shared_ptr<TypeSpecifier> GetReturnTypeSpecifier() const {
 		return m_return_type;
 	}

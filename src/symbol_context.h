@@ -73,6 +73,10 @@ public:
 	const void print(ostream &os, const TypeTable& type_table,
 			const Indent& indent) const;
 
+	const void print(ostream &os, const TypeTable& type_table,
+			const_shared_ptr<type_parameter_map> type_mapping,
+			const Indent& indent) const;
+
 	const_shared_ptr<Symbol> GetSymbol(
 			const_shared_ptr<string> identifier) const;
 	const_shared_ptr<Symbol> GetSymbol(const string& identifier) const;
