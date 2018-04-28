@@ -96,13 +96,15 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type = expression_type_result->GetData<
 					TypeDefinition>();
-			auto type_specifier_mapping_result = ComplexType::GetTypeParameterMap(
-					expression_type->GetTypeParameterList(),
-					expression_type_specifier->GetTypeArgumentList(),
-					type_table);
+			auto type_specifier_mapping_result =
+					ComplexType::GetTypeParameterMap(
+							expression_type->GetTypeParameterList(),
+							expression_type_specifier->GetTypeArgumentList(),
+							type_table);
 			errors = type_specifier_mapping_result.GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				auto type_specifier_mapping = type_specifier_mapping_result.GetData();
+				auto type_specifier_mapping =
+						type_specifier_mapping_result.GetData();
 				auto default_value = expression_type->GetDefaultValue(
 						*type_table, type_specifier_mapping);
 
@@ -142,7 +144,8 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 										const AliasDefinition>(value_type);
 								assert(as_alias);
 								auto unalias_value_type =
-										as_alias->GetOriginalType(type_specifier_mapping);
+										as_alias->GetOriginalType(
+												type_specifier_mapping);
 
 								expression_type_specifier =
 										as_alias->GetOriginal();
@@ -230,7 +233,8 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 											record,
 											complex_expression_type_specifier,
 											UsingExpression::TEARDOWN_NAME,
-											context, closure, type_specifier_mapping);
+											context, closure,
+											type_specifier_mapping);
 							auto teardown_errors = teardown_eval->GetErrors();
 							if (ErrorList::IsTerminator(teardown_errors)) {
 								auto teardown_eval_value =
@@ -303,11 +307,13 @@ const bool UsingExpression::IsConstant() const {
 }
 
 const ErrorListRef UsingExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 // check that expression generates valid disposable
 // check that return type includes the disposable method return types
 // validate body, including return type
-	auto errors = m_expression->Validate(execution_context);
+	auto errors = m_expression->Validate(execution_context,
+			type_specifier_mapping);
 
 	if (ErrorList::IsTerminator(errors)) {
 		auto type_table = execution_context->GetTypeTable();
@@ -383,7 +389,7 @@ const ErrorListRef UsingExpression::Validate(
 									// assign values type to expression type
 									expression_type =
 											values_as_alias->GetOriginalType(
-													ComplexType::DefaultTypeParameterMap);
+													type_specifier_mapping);
 									expression_type_specifier =
 											values_as_alias->GetOriginal();
 									complex_expression_type_specifier =
@@ -442,12 +448,14 @@ const ErrorListRef UsingExpression::Validate(
 										type_specifier_mapping_result.GetData();
 								auto default_value =
 										expression_type->GetDefaultValue(
-												*type_table, type_specifier_mapping);
+												*type_table,
+												type_specifier_mapping);
 
 								auto default_symbol =
 										expression_type->GetSymbol(type_table,
 												expression_type_specifier,
-												default_value, type_specifier_mapping);
+												default_value,
+												type_specifier_mapping);
 								m_block_context->InsertSymbol(*m_identifier,
 										default_symbol);
 
@@ -501,7 +509,7 @@ const ErrorListRef UsingExpression::ValidateMember(
 		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(member);
 		if (as_alias) {
 			member = as_alias->GetOriginalType(
-					ComplexType::DefaultTypeParameterMap);
+					ComplexType::DefaultTypeSpecifierMap);
 		}
 
 		auto member_as_function = dynamic_pointer_cast<const FunctionType>(

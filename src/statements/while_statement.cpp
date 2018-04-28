@@ -22,6 +22,7 @@
 #include <execution_context.h>
 #include <return_statement.h>
 #include <while_statement.h>
+#include <complex_type.h>
 
 WhileStatement::WhileStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block, WhileMode mode) :
@@ -46,7 +47,8 @@ const PreprocessResult WhileStatement::Preprocess(
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		errors = m_expression->Validate(context);
+		errors = m_expression->Validate(context,
+				ComplexType::DefaultTypeSpecifierMap);
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();

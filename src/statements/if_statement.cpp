@@ -27,6 +27,7 @@
 #include <error.h>
 #include <execution_context.h>
 #include <return_statement.h>
+#include <complex_type.h>
 
 IfStatement::IfStatement(const_shared_ptr<Expression> expression,
 		const_shared_ptr<StatementBlock> block) :
@@ -57,7 +58,8 @@ const PreprocessResult IfStatement::Preprocess(
 	auto return_coverage = PreprocessResult::ReturnCoverage::NONE;
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		errors = m_expression->Validate(context);
+		errors = m_expression->Validate(context,
+				ComplexType::DefaultTypeSpecifierMap);
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();

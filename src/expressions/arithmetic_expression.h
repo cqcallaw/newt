@@ -29,7 +29,8 @@ public:
 			const_shared_ptr<Expression> right);
 
 	virtual const ErrorListRef Validate(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 protected:
 	virtual const_shared_ptr<Result> compute(const bool& left,

@@ -38,6 +38,11 @@ public:
 
 	/**
 	 * Pre-process the statement. Here the symbol table is populated, and semantic verification is carried out.
+	 *
+	 * @context The context in which the statement will execute
+	 * @closure The closure context (this is often equivalent to the execution context)
+	 * @type_parameter_list A list of type parameters for statements that are processed as members of complex types
+	 * @return_type_specifier An optional return type specifier, for statements processed within a function block
 	 */
 	virtual const PreprocessResult Preprocess(
 			const shared_ptr<ExecutionContext> context,

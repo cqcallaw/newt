@@ -20,6 +20,7 @@
 #include <expression.h>
 #include "print_statement.h"
 #include <defaults.h>
+#include <complex_type.h>
 
 PrintStatement::PrintStatement(const_shared_ptr<Expression> expression) :
 		m_expression(expression) {
@@ -34,7 +35,8 @@ const PreprocessResult PrintStatement::Preprocess(
 		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE,
-			m_expression->Validate(context));
+			m_expression->Validate(context,
+					ComplexType::DefaultTypeSpecifierMap));
 }
 
 const ExecutionResult PrintStatement::Execute(

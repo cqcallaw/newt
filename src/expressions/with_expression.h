@@ -42,7 +42,8 @@ public:
 	virtual const bool IsConstant() const;
 
 	virtual const ErrorListRef Validate(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	MemberInstantiationListRef GetMemberInstantiationListRef() const {
 		return m_member_instantiation_list;

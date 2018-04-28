@@ -116,6 +116,7 @@ ConstantExpression::ConstantExpression(const yy::location position,
 }
 
 const ErrorListRef ConstantExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return ErrorList::GetTerminator();
 }

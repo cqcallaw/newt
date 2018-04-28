@@ -65,7 +65,8 @@ const bool FunctionExpression::IsConstant() const {
 }
 
 const ErrorListRef FunctionExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	auto subject = m_variant_list;

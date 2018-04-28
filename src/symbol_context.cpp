@@ -105,7 +105,7 @@ const_shared_ptr<Symbol> SymbolContext::GetSymbol(
 
 const void SymbolContext::print(ostream& os, const TypeTable& type_table,
 		const Indent& indent) const {
-	print(os, type_table, ComplexType::DefaultTypeParameterMap, indent);
+	print(os, type_table, ComplexType::DefaultTypeSpecifierMap, indent);
 }
 
 const void SymbolContext::print(ostream &os, const TypeTable& type_table,

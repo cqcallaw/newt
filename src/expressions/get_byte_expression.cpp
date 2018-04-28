@@ -84,12 +84,12 @@ const_shared_ptr<Result> GetByteExpression::Evaluate(
 			Builtins::get_error_list_type_specifier(), DEEP);
 	auto terminator = static_pointer_cast<const Record>(
 			error_list_type->GetDefaultValue(type_table,
-					ComplexType::DefaultTypeParameterMap));
+					ComplexType::DefaultTypeSpecifierMap));
 	if (at_eof) {
 		auto value =
 				Builtins::get_byte_read_result_eof_type_specifier()->GetType(
 						type_table, RETURN)->GetData<UnitType>()->GetDefaultValue(
-						type_table, ComplexType::DefaultTypeParameterMap);
+						type_table, ComplexType::DefaultTypeSpecifierMap);
 		auto result = make_shared<Sum>(Builtins::BYTE_READ_RESULT_EOF_NAME,
 				value);
 
@@ -126,7 +126,7 @@ const_shared_ptr<Result> GetByteExpression::Evaluate(
 
 		auto terminator = static_pointer_cast<const Record>(
 				error_list_type->GetDefaultValue(type_table,
-						ComplexType::DefaultTypeParameterMap));
+						ComplexType::DefaultTypeSpecifierMap));
 		auto error_list_sum = make_shared<Sum>(TypeTable::GetNilName(),
 				terminator);
 		insert_result = error_list_symbol_map->insert(
@@ -171,7 +171,8 @@ TypedResult<string> GetByteExpression::ToString(
 }
 
 const ErrorListRef GetByteExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto errors = ErrorList::GetTerminator();
 	auto type_table = execution_context->GetTypeTable();
 
@@ -179,7 +180,8 @@ const ErrorListRef GetByteExpression::Validate(
 	ArgumentListRef argument = GetArgumentListRef();
 	while (!ArgumentList::IsTerminator(argument)) {
 		auto argument_subject = argument->GetData();
-		auto validation = argument_subject->Validate(execution_context);
+		auto validation = argument_subject->Validate(execution_context,
+				type_specifier_mapping);
 		errors = ErrorList::Concatenate(errors, validation);
 
 		if (ErrorList::IsTerminator(errors)) {

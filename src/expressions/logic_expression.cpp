@@ -35,7 +35,8 @@ TypedResult<TypeSpecifier> LogicExpression::GetTypeSpecifier(
 }
 
 const ErrorListRef LogicExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return BinaryExpression::Validate(execution_context,
 			PrimitiveTypeSpecifier::GetDouble(),
 			PrimitiveTypeSpecifier::GetDouble());

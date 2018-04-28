@@ -40,7 +40,8 @@ public:
 	}
 
 	virtual const ErrorListRef Validate(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 private:
 	static TypedResult<TypeSpecifier> compute_result_type(

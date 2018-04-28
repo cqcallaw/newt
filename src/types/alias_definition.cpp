@@ -125,7 +125,7 @@ const_shared_ptr<TypeDefinition> AliasDefinition::GetOriginalType(
 
 	// handle type parameter mapping if it's applicable
 	auto original_as_string = m_original_type_specifier->ToString();
-	if (type_specifier_mapping && type_specifier_mapping != ComplexType::DefaultTypeParameterMap) {
+	if (type_specifier_mapping && type_specifier_mapping != ComplexType::DefaultTypeSpecifierMap) {
 		for (auto const &type_map : *type_specifier_mapping) {
 			auto const type_parameter_name = type_map.first;
 			if (original_as_string == type_parameter_name) {
@@ -212,7 +212,7 @@ const_shared_ptr<DeclarationStatement> AliasDefinition::GetDeclarationStatement(
 		const yy::location type_position, const_shared_ptr<std::string> name,
 		const yy::location name_position,
 		const_shared_ptr<Expression> initializer_expression) const {
-	auto origin = GetOriginalType(ComplexType::DefaultTypeParameterMap);
+	auto origin = GetOriginalType(ComplexType::DefaultTypeSpecifierMap);
 	if (origin) {
 		return origin->GetDeclarationStatement(position, type, type_position,
 				name, name_position, initializer_expression);
@@ -260,6 +260,6 @@ const_shared_ptr<type_specifier_map> AliasDefinition::Remap(
 	if (ErrorList::IsTerminator(remapping_result.GetErrors())) {
 		return remapping_result.GetData();
 	} else {
-		return ComplexType::DefaultTypeParameterMap;
+		return ComplexType::DefaultTypeSpecifierMap;
 	}
 }

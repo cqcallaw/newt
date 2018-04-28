@@ -63,7 +63,7 @@ public:
 			const TypeSpecifierListRef type_arguments,
 			const TypeTable& type_table);
 
-	static const_shared_ptr<type_specifier_map> DefaultTypeParameterMap;
+	static const_shared_ptr<type_specifier_map> DefaultTypeSpecifierMap;
 
 	static const TypeSpecifierListRef TypeParameterSubstitution(
 			const TypeSpecifierListRef original,

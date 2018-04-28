@@ -22,6 +22,7 @@
 #include <invoke_expression.h>
 #include <variable.h>
 #include <variable_expression.h>
+#include <complex_type.h>
 
 InvokeStatement::InvokeStatement(const_shared_ptr<Variable> variable,
 		ArgumentListRef argument_list,
@@ -46,9 +47,10 @@ const PreprocessResult InvokeStatement::Preprocess(
 		const shared_ptr<ExecutionContext> closure,
 		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	//variable reference must be a reference to a function
-	//argument list length and types must match
-	auto result = m_expression->Validate(context);
+	// variable reference must be a reference to a function
+	// argument list length and types must match
+	auto result = m_expression->Validate(context,
+			ComplexType::DefaultTypeSpecifierMap);
 
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, result);
 }

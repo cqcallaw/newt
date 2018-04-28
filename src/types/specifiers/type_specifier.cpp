@@ -29,7 +29,7 @@ const_shared_ptr<void> TypeSpecifier::DefaultValue(
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		return type->GetDefaultValue(type_table,
-				ComplexType::DefaultTypeParameterMap);
+				ComplexType::DefaultTypeSpecifierMap);
 	}
 
 	return nullptr;

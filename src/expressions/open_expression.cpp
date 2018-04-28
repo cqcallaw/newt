@@ -171,7 +171,7 @@ const_shared_ptr<Result> OpenExpression::Evaluate(
 
 		auto terminator = static_pointer_cast<const Record>(
 				error_list_type->GetDefaultValue(type_table,
-						ComplexType::DefaultTypeParameterMap));
+						ComplexType::DefaultTypeSpecifierMap));
 		auto error_list_sum = make_shared<Sum>(TypeTable::GetNilName(),
 				terminator);
 		insert_result = error_list_symbol_map->insert(
@@ -216,7 +216,8 @@ TypedResult<string> OpenExpression::ToString(
 }
 
 const ErrorListRef OpenExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	// check argument count
 	auto errors = ErrorList::GetTerminator();
 	auto type_table = execution_context->GetTypeTable();
@@ -225,7 +226,8 @@ const ErrorListRef OpenExpression::Validate(
 	ArgumentListRef argument = GetArgumentListRef();
 	while (!ArgumentList::IsTerminator(argument)) {
 		auto argument_subject = argument->GetData();
-		auto validation = argument_subject->Validate(execution_context);
+		auto validation = argument_subject->Validate(execution_context,
+				type_specifier_mapping);
 		errors = ErrorList::Concatenate(errors, validation);
 
 		if (ErrorList::IsTerminator(errors)) {

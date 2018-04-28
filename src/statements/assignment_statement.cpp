@@ -61,7 +61,9 @@ const PreprocessResult AssignmentStatement::Preprocess(
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();
-			errors = m_expression->Validate(context);
+
+			errors = m_expression->Validate(context,
+					ComplexType::DefaultTypeSpecifierMap);
 			if (ErrorList::IsTerminator(errors)) {
 				const_shared_ptr<BasicVariable> basic_variable =
 						dynamic_pointer_cast<const BasicVariable>(m_variable);

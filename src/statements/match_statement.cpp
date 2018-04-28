@@ -51,7 +51,8 @@ const PreprocessResult MatchStatement::Preprocess(
 		const shared_ptr<ExecutionContext> closure,
 		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	auto errors = m_source_expression->Validate(context);
+	auto errors = m_source_expression->Validate(context,
+			ComplexType::DefaultTypeSpecifierMap);
 
 	auto type_table = context->GetTypeTable();
 

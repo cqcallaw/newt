@@ -33,6 +33,8 @@ class Symbol;
 class DeclarationStatement;
 class Expression;
 
+// a map from string identifiers to type specifiers
+// this map is not the same as a type table of type alias, because type alias include a reference to the type table in which the aliased type is defined
 typedef map<const string, const_shared_ptr<TypeSpecifier>> type_specifier_map;
 
 class TypeDefinition {

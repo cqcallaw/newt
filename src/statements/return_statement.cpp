@@ -24,6 +24,7 @@
 #include <sum_type_specifier.h>
 #include <unit_type.h>
 #include <function_type_specifier.h>
+#include <complex_type.h>
 
 ReturnStatement::ReturnStatement(const_shared_ptr<Expression> expression) :
 		m_expression(expression) {
@@ -37,7 +38,8 @@ const PreprocessResult ReturnStatement::Preprocess(
 		const shared_ptr<ExecutionContext> closure,
 		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
-	auto errors = m_expression->Validate(context);
+	auto errors = m_expression->Validate(context,
+			ComplexType::DefaultTypeSpecifierMap);
 
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier_result = m_expression->GetTypeSpecifier(

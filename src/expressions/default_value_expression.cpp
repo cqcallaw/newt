@@ -81,7 +81,8 @@ const_shared_ptr<Result> DefaultValueExpression::Evaluate(
 }
 
 const ErrorListRef DefaultValueExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto type_table = *execution_context->GetTypeTable();
 	auto type_result = m_type_specifier->GetType(type_table, RESOLVE);
 

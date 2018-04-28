@@ -55,7 +55,8 @@ public:
 	virtual const bool IsConstant() const = 0;
 
 	virtual const ErrorListRef Validate(
-			const shared_ptr<ExecutionContext> execution_context) const = 0;
+			const shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
 
 private:
 	const yy::location m_location;

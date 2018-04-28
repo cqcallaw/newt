@@ -165,8 +165,10 @@ const bool WithExpression::IsConstant() const {
 }
 
 const ErrorListRef WithExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
-	ErrorListRef errors = m_source_expression->Validate(execution_context);
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+	ErrorListRef errors = m_source_expression->Validate(execution_context,
+			type_specifier_mapping);
 
 	if (ErrorList::IsTerminator(errors)) {
 		auto source_type_specifier_result =
@@ -223,7 +225,7 @@ const ErrorListRef WithExpression::Validate(
 							auto expression = instantiation->GetExpression();
 
 							auto member_errors = expression->Validate(
-									execution_context);
+									execution_context, type_specifier_mapping);
 							if (ErrorList::IsTerminator(member_errors)) {
 								auto expression_type_specifier_result =
 										expression->GetTypeSpecifier(

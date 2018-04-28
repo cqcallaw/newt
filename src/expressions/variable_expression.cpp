@@ -47,7 +47,8 @@ const_shared_ptr<Result> VariableExpression::Evaluate(
 }
 
 const ErrorListRef VariableExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	ErrorListRef errors = m_variable->Validate(execution_context);
 
 	return errors;

@@ -66,7 +66,8 @@ const PreprocessResult ForeachStatement::Preprocess(
 			expression_type_specifier_result.GetErrors();
 
 	if (ErrorList::IsTerminator(expression_type_specifier_errors)) {
-		auto validation_errors = m_expression->Validate(context);
+		auto validation_errors = m_expression->Validate(context,
+				ComplexType::DefaultTypeSpecifierMap);
 
 		if (ErrorList::IsTerminator(validation_errors)) {
 			auto expression_type_specifier =
@@ -133,13 +134,15 @@ const PreprocessResult ForeachStatement::Preprocess(
 												expression_type->GetTypeParameterList(),
 												expression_type_specifier->GetTypeArgumentList(),
 												type_table);
-								errors = type_specifier_mapping_result.GetErrors();
+								errors =
+										type_specifier_mapping_result.GetErrors();
 								if (ErrorList::IsTerminator(errors)) {
 									auto type_specifier_mapping =
 											type_specifier_mapping_result.GetData();
 									auto default_value =
 											expression_type->GetDefaultValue(
-													*type_table, type_specifier_mapping);
+													*type_table,
+													type_specifier_mapping);
 
 									// get aliased definition, so the type specifier we get is the un-aliased definition
 									// this is weird, and probably not rigorously correct (the alias GetTypeSpecifier should
@@ -297,7 +300,8 @@ const ExecutionResult ForeachStatement::Execute(
 				auto as_function_type_specifier = dynamic_pointer_cast<
 						const FunctionTypeSpecifier>(member_type_specifier);
 				if (as_function_type_specifier) {
-					auto type_specifier_mapping = ComplexType::DefaultTypeParameterMap;
+					auto type_specifier_mapping =
+							ComplexType::DefaultTypeSpecifierMap;
 					if (!TypeSpecifierList::IsTerminator(
 							expression_type_specifier->GetTypeArgumentList())) {
 						// member function evaluation depends on type parameters
@@ -317,7 +321,8 @@ const ExecutionResult ForeachStatement::Execute(
 											type_table);
 							errors = type_specifier_mapping_result.GetErrors();
 							if (ErrorList::IsTerminator(errors)) {
-								type_specifier_mapping = type_specifier_mapping_result.GetData();
+								type_specifier_mapping =
+										type_specifier_mapping_result.GetData();
 							}
 						}
 					}

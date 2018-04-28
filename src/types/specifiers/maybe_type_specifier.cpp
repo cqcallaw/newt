@@ -104,7 +104,7 @@ const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(
 		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return make_shared<Sum>(TypeTable::GetNilName(),
 			TypeTable::GetNilType()->GetDefaultValue(type_table,
-					ComplexType::DefaultTypeParameterMap));
+					ComplexType::DefaultTypeSpecifierMap));
 }
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(

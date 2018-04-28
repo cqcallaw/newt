@@ -56,7 +56,8 @@ public:
 	}
 
 	virtual const ErrorListRef Validate(
-			const shared_ptr<ExecutionContext> execution_context) const;
+			const shared_ptr<ExecutionContext> execution_context,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	const_shared_ptr<Expression> GetExpression() const {
 		return m_expression;

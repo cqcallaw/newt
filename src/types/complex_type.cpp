@@ -25,7 +25,7 @@
 #include <expression.h>
 #include <unit_type.h>
 
-const_shared_ptr<type_specifier_map> ComplexType::DefaultTypeParameterMap =
+const_shared_ptr<type_specifier_map> ComplexType::DefaultTypeSpecifierMap =
 		make_shared<type_specifier_map>();
 
 ComplexType::~ComplexType() {
@@ -43,7 +43,7 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 
 	auto type_table = execution_context->GetTypeTable();
 	if (initializer) {
-		errors = initializer->Validate(execution_context);
+		errors = initializer->Validate(execution_context, outer_type_specifier_mapping);
 		if (ErrorList::IsTerminator(errors)) {
 			return PreprocessSymbolCore(execution_context, type_specifier,
 					initializer);

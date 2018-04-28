@@ -233,7 +233,8 @@ TypedResult<string> InvokeExpression::ToString(
 }
 
 const ErrorListRef InvokeExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto expression_type_specifier_result = m_expression->GetTypeSpecifier(
 			execution_context);
 
@@ -242,7 +243,8 @@ const ErrorListRef InvokeExpression::Validate(
 		auto expression_type_specifier =
 				expression_type_specifier_result.GetData();
 
-		errors = m_expression->Validate(execution_context);
+		errors = m_expression->Validate(execution_context,
+				ComplexType::DefaultTypeSpecifierMap);
 		if (ErrorList::IsTerminator(errors)) {
 
 			auto is_function = false;
@@ -311,8 +313,8 @@ const ErrorListRef InvokeExpression::Validate(
 					auto argument_expression = argument_subject->GetData();
 					if (!DeclarationList::IsTerminator(parameter_subject)) {
 						auto argument_expression_errors =
-								argument_expression->Validate(
-										execution_context);
+								argument_expression->Validate(execution_context,
+										ComplexType::DefaultTypeSpecifierMap);
 
 						if (ErrorList::IsTerminator(
 								argument_expression_errors)) {

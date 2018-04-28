@@ -20,6 +20,7 @@
 #include "binary_expression.h"
 #include "error.h"
 #include <execution_context.h>
+#include <complex_type.h>
 
 BinaryExpression::BinaryExpression(const yy::location position,
 		const OperatorType op, const_shared_ptr<Expression> left,
@@ -338,7 +339,8 @@ const ErrorListRef BinaryExpression::Validate(
 	const OperatorType op = GetOperator();
 
 	auto left = GetLeft();
-	auto left_errors = left->Validate(execution_context);
+	auto left_errors = left->Validate(execution_context,
+			ComplexType::DefaultTypeSpecifierMap);
 	if (ErrorList::IsTerminator(left_errors)) {
 		auto left_type_specifier_result = left->GetTypeSpecifier(
 				execution_context);
@@ -363,7 +365,8 @@ const ErrorListRef BinaryExpression::Validate(
 	}
 
 	auto right = GetRight();
-	auto right_errors = right->Validate(execution_context);
+	auto right_errors = right->Validate(execution_context,
+			ComplexType::DefaultTypeSpecifierMap);
 	if (ErrorList::IsTerminator(right_errors)) {
 		auto right_type_specifier_result = GetRight()->GetTypeSpecifier(
 				execution_context);

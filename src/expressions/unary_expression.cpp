@@ -61,12 +61,14 @@ TypedResult<TypeSpecifier> UnaryExpression::GetTypeSpecifier(
 }
 
 const ErrorListRef UnaryExpression::Validate(
-		const shared_ptr<ExecutionContext> execution_context) const {
+		const shared_ptr<ExecutionContext> execution_context,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	ErrorListRef errors = ErrorList::GetTerminator();
 
 	const OperatorType op = m_operator;
 
-	ErrorListRef expression_errors = m_expression->Validate(execution_context);
+	ErrorListRef expression_errors = m_expression->Validate(execution_context,
+			type_specifier_mapping);
 	if (!ErrorList::IsTerminator(expression_errors)) {
 		errors = ErrorList::Concatenate(errors, expression_errors);
 		return errors;
