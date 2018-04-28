@@ -119,11 +119,6 @@ const ExecutionResult InferredDeclarationStatement::Execute(
 							GetName(), GetNameLocation(),
 							GetInitializerExpression());
 			errors = temp_statement->Execute(context, closure).GetErrors();
-		} else {
-			errors = type_errors;
-			auto initializer_errors = GetInitializerExpression()->Validate(
-					context);
-			errors = ErrorList::Concatenate(errors, initializer_errors);
 		}
 	}
 
