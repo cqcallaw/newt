@@ -40,27 +40,27 @@ public:
 
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent,
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value,
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual const std::string GetValueSeparator(const Indent& indent,
 			const void* value,
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual const std::string GetTagSeparator(const Indent& indent,
 			const void* value,
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual const_shared_ptr<void> GetDefaultValue(const TypeTable& type_table,
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void>,
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location position, const_shared_ptr<TypeSpecifier> type,
@@ -79,7 +79,7 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
-			const_shared_ptr<type_parameter_map> type_mapping,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			yy::location location) const;
 
 	const weak_ptr<const TypeTable> GetOriginTable() const {
@@ -99,10 +99,10 @@ public:
 	}
 
 	const_shared_ptr<TypeDefinition> GetOriginalType(
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
-	static const_shared_ptr<type_parameter_map> Remap(
-			const_shared_ptr<type_parameter_map> type_mapping,
+	static const_shared_ptr<type_specifier_map> Remap(
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<TypeDefinition> type, const TypeTable& type_table);
 

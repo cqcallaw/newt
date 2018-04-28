@@ -128,18 +128,18 @@ const PreprocessResult ForeachStatement::Preprocess(
 											expression_type_specifier,
 											context->GetTypeTable());
 							if (maybe_type_relation == EQUIVALENT) {
-								auto type_mapping_result =
+								auto type_specifier_mapping_result =
 										ComplexType::GetTypeParameterMap(
 												expression_type->GetTypeParameterList(),
 												expression_type_specifier->GetTypeArgumentList(),
 												type_table);
-								errors = type_mapping_result.GetErrors();
+								errors = type_specifier_mapping_result.GetErrors();
 								if (ErrorList::IsTerminator(errors)) {
-									auto type_mapping =
-											type_mapping_result.GetData();
+									auto type_specifier_mapping =
+											type_specifier_mapping_result.GetData();
 									auto default_value =
 											expression_type->GetDefaultValue(
-													*type_table, type_mapping);
+													*type_table, type_specifier_mapping);
 
 									// get aliased definition, so the type specifier we get is the un-aliased definition
 									// this is weird, and probably not rigorously correct (the alias GetTypeSpecifier should
@@ -161,7 +161,7 @@ const PreprocessResult ForeachStatement::Preprocess(
 														context->GetTypeTable(),
 														data_type_specifier,
 														default_value,
-														type_mapping);
+														type_specifier_mapping);
 										m_block_context->InsertSymbol(
 												*m_evaluation_identifier,
 												default_symbol);
@@ -297,7 +297,7 @@ const ExecutionResult ForeachStatement::Execute(
 				auto as_function_type_specifier = dynamic_pointer_cast<
 						const FunctionTypeSpecifier>(member_type_specifier);
 				if (as_function_type_specifier) {
-					auto type_mapping = ComplexType::DefaultTypeParameterMap;
+					auto type_specifier_mapping = ComplexType::DefaultTypeParameterMap;
 					if (!TypeSpecifierList::IsTerminator(
 							expression_type_specifier->GetTypeArgumentList())) {
 						// member function evaluation depends on type parameters
@@ -310,14 +310,14 @@ const ExecutionResult ForeachStatement::Execute(
 							auto expression_type =
 									expression_type_result->GetData<
 											TypeDefinition>();
-							auto type_mapping_result =
+							auto type_specifier_mapping_result =
 									ComplexType::GetTypeParameterMap(
 											expression_type->GetTypeParameterList(),
 											expression_type_specifier->GetTypeArgumentList(),
 											type_table);
-							errors = type_mapping_result.GetErrors();
+							errors = type_specifier_mapping_result.GetErrors();
 							if (ErrorList::IsTerminator(errors)) {
-								type_mapping = type_mapping_result.GetData();
+								type_specifier_mapping = type_specifier_mapping_result.GetData();
 							}
 						}
 					}
@@ -327,7 +327,7 @@ const ExecutionResult ForeachStatement::Execute(
 								ForeachStatement::EvaluateMemberFunction(record,
 										source_type_specifier,
 										ForeachStatement::NEXT_NAME, context,
-										closure, type_mapping);
+										closure, type_specifier_mapping);
 
 						auto function_eval_errors = function_eval->GetErrors();
 						if (ErrorList::IsTerminator(function_eval_errors)) {
@@ -361,7 +361,7 @@ const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(
 		const_shared_ptr<std::string> member_name,
 		const shared_ptr<ExecutionContext> execution_context,
 		const shared_ptr<ExecutionContext> closure,
-		const_shared_ptr<type_parameter_map> type_mapping) {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) {
 	auto errors = ErrorList::GetTerminator();
 	plain_shared_ptr<void> value = nullptr;
 
@@ -406,7 +406,7 @@ const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(
 
 					auto symbol = declaration_type->GetSymbol(type_table,
 							declaration_type_specifier, maybe_wrapper,
-							type_mapping);
+							type_specifier_mapping);
 					auto insert_result = invocation_context->InsertSymbol(
 							*parameter_declaration->GetName(), symbol);
 					assert(insert_result == INSERT_SUCCESS);

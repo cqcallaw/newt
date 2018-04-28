@@ -51,7 +51,7 @@ public:
 			const_shared_ptr<std::string> member_name,
 			const shared_ptr<ExecutionContext> execution_context,
 			const shared_ptr<ExecutionContext> closure,
-			const_shared_ptr<type_parameter_map> type_mapping);
+			const_shared_ptr<type_specifier_map> type_specifier_mapping);
 
 	static const_shared_ptr<std::string> DATA_NAME;
 	static const_shared_ptr<std::string> NEXT_NAME;

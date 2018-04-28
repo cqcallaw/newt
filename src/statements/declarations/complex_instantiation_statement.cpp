@@ -62,8 +62,8 @@ const PreprocessResult ComplexInstantiationStatement::Preprocess(
 		if (as_complex) {
 			auto existing = context->GetSymbol(GetName(), SHALLOW);
 			if (existing == Symbol::GetDefaultSymbol()) {
-				volatile_shared_ptr<type_parameter_map> type_map = make_shared<
-						type_parameter_map>();
+				volatile_shared_ptr<type_specifier_map> type_map = make_shared<
+						type_specifier_map>();
 				if (!TypeSpecifierList::IsTerminator(type_parameter_list)) {
 					auto subject = type_parameter_list;
 					while (!TypeSpecifierList::IsTerminator(subject)) {

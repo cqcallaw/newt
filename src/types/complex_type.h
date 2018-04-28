@@ -39,7 +39,7 @@ public:
 			const std::shared_ptr<ExecutionContext> execution_context,
 			const_shared_ptr<ComplexTypeSpecifier> type_specifier,
 			const_shared_ptr<Expression> initializer,
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	const ErrorListRef Instantiate(
 			const std::shared_ptr<ExecutionContext> execution_context,
@@ -58,16 +58,16 @@ public:
 	static std::string TypeSpecifierListToString(
 			const TypeSpecifierListRef type_specifier_list);
 
-	static TypedResult<type_parameter_map> GetTypeParameterMap(
+	static TypedResult<type_specifier_map> GetTypeParameterMap(
 			const TypeSpecifierListRef type_parameters,
 			const TypeSpecifierListRef type_arguments,
 			const TypeTable& type_table);
 
-	static const_shared_ptr<type_parameter_map> DefaultTypeParameterMap;
+	static const_shared_ptr<type_specifier_map> DefaultTypeParameterMap;
 
 	static const TypeSpecifierListRef TypeParameterSubstitution(
 			const TypeSpecifierListRef original,
-			const_shared_ptr<type_parameter_map> type_mapping);
+			const_shared_ptr<type_specifier_map> type_specifier_mapping);
 
 protected:
 	virtual const_shared_ptr<Result> PreprocessSymbolCore(

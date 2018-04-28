@@ -80,13 +80,13 @@ const_shared_ptr<void> ComplexTypeSpecifier::DefaultValue(
 	auto errors = type_result->GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
-		auto type_mapping_result = ComplexType::GetTypeParameterMap(
+		auto type_specifier_mapping_result = ComplexType::GetTypeParameterMap(
 				type->GetTypeParameterList(), m_type_argument_list, type_table);
 
-		errors = type_mapping_result.GetErrors();
+		errors = type_specifier_mapping_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			return type->GetDefaultValue(type_table,
-					type_mapping_result.GetData());
+					type_specifier_mapping_result.GetData());
 		}
 	}
 

@@ -41,7 +41,7 @@ FunctionType::FunctionType(DeclarationListRef parameter_type_list,
 
 const_shared_ptr<void> FunctionType::GetDefaultValue(
 		const TypeTable& type_table,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	const const_shared_ptr<void> default_value = GetDefaultFunction(
 			m_type_specifier, type_table);
 	return default_value;
@@ -49,13 +49,13 @@ const_shared_ptr<void> FunctionType::GetDefaultValue(
 
 const std::string FunctionType::ToString(const TypeTable& type_table,
 		const Indent& indent,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return m_type_specifier->ToString();
 }
 
 const std::string FunctionType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto as_function = static_pointer_cast<const Function>(value);
 	return as_function->ToString(type_table, Indent(0));
 }
@@ -69,14 +69,14 @@ const_shared_ptr<TypeSpecifier> FunctionType::GetTypeSpecifier(
 
 const std::string FunctionType::GetValueSeparator(const Indent& indent,
 		const void* value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return "\n" + (indent + 1).ToString();
 }
 
 const_shared_ptr<Symbol> FunctionType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return make_shared<Symbol>(static_pointer_cast<const Function>(value));
 }
 

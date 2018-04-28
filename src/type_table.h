@@ -147,7 +147,7 @@ public:
 	volatile_shared_ptr<SymbolContext> GetDefaultSymbolContext(
 			const Modifier::Type modifiers,
 			const_shared_ptr<ComplexTypeSpecifier> container,
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	const bool ContainsType(const ComplexTypeSpecifier& type_specifier);
 

@@ -51,10 +51,10 @@ public:
 	}
 
 	static const_shared_ptr<Record> GetDefaultInstance(const RecordType& type,
-			const_shared_ptr<type_parameter_map> type_mapping);
+			const_shared_ptr<type_specifier_map> type_specifier_mapping);
 
 	const string ToString(const TypeTable& type_table,
-			const_shared_ptr<type_parameter_map> type_mapping,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			const Indent& indent) const;
 
 private:

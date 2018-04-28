@@ -58,16 +58,16 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = type_result->GetData<TypeDefinition>();
 
-			auto type_mapping_result = ComplexType::GetTypeParameterMap(
+			auto type_specifier_mapping_result = ComplexType::GetTypeParameterMap(
 					type->GetTypeParameterList(),
 					m_type_specifier->GetTypeArgumentList(), type_table);
-			errors = type_mapping_result.GetErrors();
+			errors = type_specifier_mapping_result.GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				auto type_mapping = type_mapping_result.GetData();
+				auto type_specifier_mapping = type_specifier_mapping_result.GetData();
 				shared_ptr<const Symbol> symbol = type->GetSymbol(type_table,
 						m_type_specifier,
-						type->GetDefaultValue(type_table, type_mapping),
-						type_mapping);
+						type->GetDefaultValue(type_table, type_specifier_mapping),
+						type_specifier_mapping);
 				auto initializer_expression = GetInitializerExpression();
 				if (initializer_expression) {
 					errors = initializer_expression->Validate(context);
@@ -81,7 +81,7 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 						if (ErrorList::IsTerminator(errors)) {
 							symbol = type->GetSymbol(type_table,
 									m_type_specifier, result->GetData<void>(),
-									type_mapping);
+									type_specifier_mapping);
 						}
 					}
 				}

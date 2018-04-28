@@ -138,28 +138,28 @@ const PreprocessResult MatchStatement::Preprocess(
 														GetDefaultLocation());
 									}
 
-									auto type_mapping_result =
+									auto type_specifier_mapping_result =
 											ComplexType::GetTypeParameterMap(
 													expression_type->GetTypeParameterList(),
 													expression_type_specifier->GetTypeArgumentList(),
 													type_table);
 
-									auto type_mapping_errors =
-											type_mapping_result.GetErrors();
+									auto type_specifier_mapping_errors =
+											type_specifier_mapping_result.GetErrors();
 									if (ErrorList::IsTerminator(
-											type_mapping_errors)) {
-										auto type_mapping =
-												type_mapping_result.GetData();
+											type_specifier_mapping_errors)) {
+										auto type_specifier_mapping =
+												type_specifier_mapping_result.GetData();
 										const_shared_ptr<void> default_value =
 												variant_type->GetDefaultValue(
 														*type_definition,
-														type_mapping);
+														type_specifier_mapping);
 										const_shared_ptr<Symbol> default_symbol =
 												variant_type->GetSymbol(
 														type_table,
 														variant_type_specifier,
 														default_value,
-														type_mapping);
+														type_specifier_mapping);
 										matched_context->InsertSymbol(
 												*alias_name, default_symbol);
 
@@ -187,7 +187,7 @@ const PreprocessResult MatchStatement::Preprocess(
 										initial_state = false;
 									} else {
 										ErrorList::Concatenate(errors,
-												type_mapping_errors);
+												type_specifier_mapping_errors);
 									}
 								} else {
 									errors =

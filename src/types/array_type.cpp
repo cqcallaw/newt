@@ -24,13 +24,13 @@
 
 const std::string ArrayType::ToString(const TypeTable& type_table,
 		const Indent& indent,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return m_member_type_specifier->ToString() + "[]";
 }
 
 const std::string ArrayType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto as_array = static_pointer_cast<const Array>(value);
 	return as_array->ToString(type_table, indent);
 }
@@ -45,21 +45,21 @@ const_shared_ptr<TypeSpecifier> ArrayType::GetTypeSpecifier(
 }
 
 const_shared_ptr<void> ArrayType::GetDefaultValue(const TypeTable& type_table,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return make_shared<Array>(m_member_type_specifier, type_table);
 }
 
 const_shared_ptr<Symbol> ArrayType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto cast = static_pointer_cast<const Array>(value);
 	return make_shared<Symbol>(cast);
 }
 
 const std::string ArrayType::GetValueSeparator(const Indent& indent,
 		const void* value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return "\n";
 }
 

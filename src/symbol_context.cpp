@@ -109,7 +109,7 @@ const void SymbolContext::print(ostream& os, const TypeTable& type_table,
 }
 
 const void SymbolContext::print(ostream &os, const TypeTable& type_table,
-		const_shared_ptr<type_parameter_map> type_mapping,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
 		const Indent& indent) const {
 	if (m_table->size() > 0) {
 		symbol_map::iterator iter;

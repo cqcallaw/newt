@@ -158,12 +158,12 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 				auto type_map = ComplexType::DefaultTypeParameterMap;
 				if (!TypeSpecifierList::IsTerminator(
 						type_specifier->GetTypeArgumentList())) {
-					auto type_mapping_result = ComplexType::GetTypeParameterMap(
+					auto type_specifier_mapping_result = ComplexType::GetTypeParameterMap(
 							type->GetTypeParameterList(),
 							type_specifier->GetTypeArgumentList(), type_table);
-					auto errors = type_mapping_result.GetErrors();
+					auto errors = type_specifier_mapping_result.GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						type_map = type_mapping_result.GetData();
+						type_map = type_specifier_mapping_result.GetData();
 					} else {
 						buffer << "<error resolving type parameters>";
 					}

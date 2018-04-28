@@ -42,7 +42,7 @@ public:
 			const TypeSpecifier& other) const;
 
 	const_shared_ptr<void> DefaultValue(const TypeTable& type_table,
-			const_shared_ptr<type_parameter_map> type_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	const_shared_ptr<TypeSpecifier> GetBaseTypeSpecifier() const {
 		return m_base_type_specifier;

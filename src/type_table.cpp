@@ -175,12 +175,12 @@ const bool TypeTable::ContainsType(const string& name) {
 volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 		const Modifier::Type modifiers,
 		const_shared_ptr<ComplexTypeSpecifier> container,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	volatile_shared_ptr<SymbolTable> result = make_shared<SymbolTable>(
 			modifiers);
 
-//	if (type_mapping) {
-//		for (auto const &entry : *type_mapping) {
+//	if (type_specifier_mapping) {
+//		for (auto const &entry : *type_specifier_mapping) {
 //			cout << "GetDefaultSymbolContext key: " << entry.first << " value: "
 //					<< entry.second->ToString() << endl;
 //		}
@@ -190,12 +190,12 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 		auto name = entry.first;
 		auto type = entry.second;
 
-		auto default_value = type->GetDefaultValue(*this, type_mapping);
+		auto default_value = type->GetDefaultValue(*this, type_specifier_mapping);
 		assert(default_value);
 		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name),
-				container, type_mapping, GetDefaultLocation());
+				container, type_specifier_mapping, GetDefaultLocation());
 		auto default_symbol = type->GetSymbol(*this, type_specifier,
-				default_value, type_mapping);
+				default_value, type_specifier_mapping);
 
 		InsertResult insert_result = result->InsertSymbol(name, default_symbol);
 		assert(insert_result == INSERT_SUCCESS);

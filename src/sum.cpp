@@ -36,33 +36,33 @@ Sum::~Sum() {
 
 const string Sum::ToString(const SumType& type, const TypeTable& type_table,
 		const Indent& indent,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	ostringstream buffer;
 	auto type_definition = type.GetDefinition();
 	auto variant_definition = type_definition->GetType<TypeDefinition>(*m_tag,
 			SHALLOW, RETURN);
 	buffer
 			<< variant_definition->GetTagSeparator(indent, m_value.get(),
-					type_mapping);
+					type_specifier_mapping);
 	buffer << "{" << *m_tag << "}";
 	buffer
 			<< variant_definition->GetValueSeparator(indent, m_value.get(),
-					type_mapping);
+					type_specifier_mapping);
 	buffer
 			<< variant_definition->ValueToString(type_table, indent, m_value,
-					type_mapping);
+					type_specifier_mapping);
 	return buffer.str();
 }
 
 const_shared_ptr<Sum> Sum::GetDefaultInstance(const SumType& type,
-		const_shared_ptr<type_parameter_map> type_mapping) {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) {
 	auto type_table = type.GetDefinition();
 	auto variant_name = type.GetFirstVariantName();
 	auto variant_type = type_table->GetType<TypeDefinition>(variant_name,
 			SHALLOW, RETURN);
 	assert(variant_type);
 	auto default_value = variant_type->GetDefaultValue(*type_table,
-			type_mapping);
+			type_specifier_mapping);
 	auto result = make_shared<Sum>(variant_name, default_value);
 	return result;
 }

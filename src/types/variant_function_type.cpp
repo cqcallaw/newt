@@ -34,15 +34,15 @@ VariantFunctionType::~VariantFunctionType() {
 
 const_shared_ptr<void> VariantFunctionType::GetDefaultValue(
 		const TypeTable& type_table,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	const const_shared_ptr<void> default_value = GetDefaultFunction(
-			m_variant_list, type_table, type_mapping);
+			m_variant_list, type_table, type_specifier_mapping);
 	return default_value;
 }
 
 const std::string VariantFunctionType::ToString(const TypeTable& type_table,
 		const Indent& indent,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	ostringstream buffer;
 	auto subject = m_variant_list;
 	while (!FunctionVariantList::IsTerminator(subject)) {
@@ -56,14 +56,14 @@ const std::string VariantFunctionType::ToString(const TypeTable& type_table,
 const std::string VariantFunctionType::ValueToString(
 		const TypeTable& type_table, const Indent& indent,
 		const_shared_ptr<void> value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto as_function = static_pointer_cast<const Function>(value);
 	return as_function->ToString(type_table, indent + 1);
 }
 
 const std::string VariantFunctionType::GetValueSeparator(const Indent& indent,
 		const void* value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return "\n";
 }
 
@@ -79,7 +79,7 @@ const_shared_ptr<Symbol> VariantFunctionType::GetSymbol(
 		const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return make_shared<Symbol>(static_pointer_cast<const Function>(value));
 }
 
@@ -95,7 +95,7 @@ const_shared_ptr<DeclarationStatement> VariantFunctionType::GetDeclarationStatem
 
 const_shared_ptr<Function> VariantFunctionType::GetDefaultFunction(
 		const FunctionVariantListRef variant_list, const TypeTable& type_table,
-		const_shared_ptr<type_parameter_map> type_mapping) {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) {
 	// TODO: pass type arguments to function builder
 	return Function::Build(GetDefaultLocation(), variant_list,
 			ExecutionContext::GetDefault());

@@ -96,15 +96,15 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type = expression_type_result->GetData<
 					TypeDefinition>();
-			auto type_mapping_result = ComplexType::GetTypeParameterMap(
+			auto type_specifier_mapping_result = ComplexType::GetTypeParameterMap(
 					expression_type->GetTypeParameterList(),
 					expression_type_specifier->GetTypeArgumentList(),
 					type_table);
-			errors = type_mapping_result.GetErrors();
+			errors = type_specifier_mapping_result.GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				auto type_mapping = type_mapping_result.GetData();
+				auto type_specifier_mapping = type_specifier_mapping_result.GetData();
 				auto default_value = expression_type->GetDefaultValue(
-						*type_table, type_mapping);
+						*type_table, type_specifier_mapping);
 
 				auto eval = m_expression->Evaluate(context, closure);
 
@@ -142,7 +142,7 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 										const AliasDefinition>(value_type);
 								assert(as_alias);
 								auto unalias_value_type =
-										as_alias->GetOriginalType(type_mapping);
+										as_alias->GetOriginalType(type_specifier_mapping);
 
 								expression_type_specifier =
 										as_alias->GetOriginal();
@@ -230,7 +230,7 @@ const_shared_ptr<Result> UsingExpression::Evaluate(
 											record,
 											complex_expression_type_specifier,
 											UsingExpression::TEARDOWN_NAME,
-											context, closure, type_mapping);
+											context, closure, type_specifier_mapping);
 							auto teardown_errors = teardown_eval->GetErrors();
 							if (ErrorList::IsTerminator(teardown_errors)) {
 								auto teardown_eval_value =
@@ -430,24 +430,24 @@ const ErrorListRef UsingExpression::Validate(
 						if (ErrorList::IsTerminator(errors)) {
 							// no source expression errors encountered; insert symbols into context
 							m_block_context->LinkToParent(execution_context);
-							auto type_mapping_result =
+							auto type_specifier_mapping_result =
 									ComplexType::GetTypeParameterMap(
 											expression_type->GetTypeParameterList(),
 											expression_type_specifier->GetTypeArgumentList(),
 											type_table);
-							errors = type_mapping_result.GetErrors();
+							errors = type_specifier_mapping_result.GetErrors();
 
 							if (ErrorList::IsTerminator(errors)) {
-								auto type_mapping =
-										type_mapping_result.GetData();
+								auto type_specifier_mapping =
+										type_specifier_mapping_result.GetData();
 								auto default_value =
 										expression_type->GetDefaultValue(
-												*type_table, type_mapping);
+												*type_table, type_specifier_mapping);
 
 								auto default_symbol =
 										expression_type->GetSymbol(type_table,
 												expression_type_specifier,
-												default_value, type_mapping);
+												default_value, type_specifier_mapping);
 								m_block_context->InsertSymbol(*m_identifier,
 										default_symbol);
 

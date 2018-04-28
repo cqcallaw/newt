@@ -24,21 +24,21 @@
 #include <record_type.h>
 
 const_shared_ptr<Record> Record::GetDefaultInstance(const RecordType& type,
-		const_shared_ptr<type_parameter_map> type_mapping) {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) {
 	auto symbol_mapping = make_shared<symbol_map>();
 
 	auto type_definition = type.GetDefinition();
 	auto default_symbols = type_definition->GetDefaultSymbolContext(
-			type.GetModifiers(), nullptr, type_mapping);
+			type.GetModifiers(), nullptr, type_specifier_mapping);
 
 	return make_shared<Record>(default_symbols);
 }
 
 const string Record::ToString(const TypeTable& type_table,
-		const_shared_ptr<type_parameter_map> type_mapping,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
 		const Indent& indent) const {
 	ostringstream buffer;
-	m_definition->print(buffer, type_table, type_mapping, indent);
+	m_definition->print(buffer, type_table, type_specifier_mapping, indent);
 	string result = buffer.str();
 	return result;
 }

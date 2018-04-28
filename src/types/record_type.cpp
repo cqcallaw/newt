@@ -55,7 +55,7 @@ RecordType::~RecordType() {
 
 const string RecordType::ToString(const TypeTable& type_table,
 		const Indent& indent,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
 	if (TypeSpecifierList::IsTerminator(m_type_parameter_list)) {
@@ -494,24 +494,24 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 
 const std::string RecordType::ValueToString(const TypeTable& type_table,
 		const Indent& indent, const_shared_ptr<void> value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	ostringstream buffer;
 	auto record_type_instance = static_pointer_cast<const Record>(value);
 	buffer
-			<< record_type_instance->ToString(*m_definition, type_mapping,
+			<< record_type_instance->ToString(*m_definition, type_specifier_mapping,
 					indent + 1);
 	return buffer.str();
 }
 
 const_shared_ptr<void> RecordType::GetDefaultValue(const TypeTable& type_table,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
-	return Record::GetDefaultInstance(*this, type_mapping);
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+	return Record::GetDefaultInstance(*this, type_specifier_mapping);
 }
 
 const_shared_ptr<Symbol> RecordType::GetSymbol(const TypeTable& type_table,
 		const_shared_ptr<TypeSpecifier> type_specifier,
 		const_shared_ptr<void> value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto as_complex_specifier =
 			dynamic_pointer_cast<const ComplexTypeSpecifier>(type_specifier);
 
@@ -598,13 +598,13 @@ const SetResult RecordType::InstantiateCore(
 
 const std::string RecordType::GetValueSeparator(const Indent& indent,
 		const void* value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return "\n";
 }
 
 const std::string RecordType::GetTagSeparator(const Indent& indent,
 		const void* value,
-		const_shared_ptr<type_parameter_map> type_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	return indent.ToString();
 }
 

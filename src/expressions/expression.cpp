@@ -83,14 +83,14 @@ TypedResult<string> Expression::ToString(
 					auto type_map = ComplexType::DefaultTypeParameterMap;
 					if (!TypeSpecifierList::IsTerminator(
 							type_specifier->GetTypeArgumentList())) {
-						auto type_mapping_result =
+						auto type_specifier_mapping_result =
 								ComplexType::GetTypeParameterMap(
 										type->GetTypeParameterList(),
 										type_specifier->GetTypeArgumentList(),
 										execution_context->GetTypeTable());
 
-						errors = type_mapping_result.GetErrors();
-						type_map = type_mapping_result.GetData(); // this should be null if we have errors, but the next error list terminator check will handle this case
+						errors = type_specifier_mapping_result.GetErrors();
+						type_map = type_specifier_mapping_result.GetData(); // this should be null if we have errors, but the next error list terminator check will handle this case
 					}
 
 					if (ErrorList::IsTerminator(errors)) {

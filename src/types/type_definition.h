@@ -33,7 +33,7 @@ class Symbol;
 class DeclarationStatement;
 class Expression;
 
-typedef map<const string, const_shared_ptr<TypeSpecifier>> type_parameter_map;
+typedef map<const string, const_shared_ptr<TypeSpecifier>> type_specifier_map;
 
 class TypeDefinition {
 public:
@@ -44,23 +44,23 @@ public:
 	}
 
 	virtual const_shared_ptr<void> GetDefaultValue(const TypeTable& type_table,
-			const_shared_ptr<type_parameter_map> type_mapping) const = 0;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
 
 	virtual const std::string ToString(const TypeTable& type_table,
 			const Indent& indent,
-			const_shared_ptr<type_parameter_map> type_mapping) const = 0;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
 			const Indent& indent, const_shared_ptr<void> value,
-			const_shared_ptr<type_parameter_map> type_mapping) const = 0;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
 
 	virtual const std::string GetValueSeparator(const Indent& indent,
 			const void* value,
-			const_shared_ptr<type_parameter_map> type_mapping) const = 0;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
 
 	virtual const std::string GetTagSeparator(const Indent& indent,
 			const void* value,
-			const_shared_ptr<type_parameter_map> type_mapping) const {
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 		return "";
 	}
 
@@ -76,7 +76,7 @@ public:
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
 			const_shared_ptr<ComplexTypeSpecifier> container,
-			const_shared_ptr<type_parameter_map> type_mapping,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			yy::location location) const {
 		// default behavior: ignore type mappings
 		return GetTypeSpecifier(name, container, location);
@@ -85,7 +85,7 @@ public:
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
 			const_shared_ptr<TypeSpecifier> type_specifier,
 			const_shared_ptr<void> value,
-			const_shared_ptr<type_parameter_map> type_mapping) const = 0;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
 
 	/**
 	 * Return the concrete (un-inferred) declaration statement for this type
