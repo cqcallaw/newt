@@ -52,7 +52,7 @@ const PreprocessResult MatchStatement::Preprocess(
 		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = m_source_expression->Validate(context,
-			ComplexType::DefaultTypeSpecifierMap);
+			TypeSpecifier::DefaultTypeSpecifierMap);
 
 	auto type_table = context->GetTypeTable();
 

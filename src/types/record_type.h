@@ -26,11 +26,11 @@
 #include <symbol_context.h>
 #include <modifier.h>
 #include <complex_type.h>
+#include <complex_type_specifier.h>
 #include <declaration_statement.h>
 
 class MemberDefinition;
 class Result;
-class ComplexTypeSpecifier;
 class TypeTable;
 
 using namespace std;

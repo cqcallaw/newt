@@ -86,7 +86,7 @@ const_shared_ptr<Result> PutByteExpression::Evaluate(
 			Builtins::get_error_list_type_specifier(), DEEP);
 	auto terminator = static_pointer_cast<const Record>(
 			error_list_type->GetDefaultValue(type_table,
-					ComplexType::DefaultTypeSpecifierMap));
+					TypeSpecifier::DefaultTypeSpecifierMap));
 	if (result_code == 0) {
 		auto result = make_shared<Sum>(TypeTable::GetNilName(), terminator);
 		return make_shared<Result>(result, errors);

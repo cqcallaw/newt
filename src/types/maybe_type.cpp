@@ -40,7 +40,7 @@ MaybeType::~MaybeType() {
 const_shared_ptr<void> MaybeType::GetDefaultValue(const TypeTable& type_table,
 		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto value = TypeTable::GetNilType()->GetDefaultValue(type_table,
-			ComplexType::DefaultTypeSpecifierMap);
+			TypeSpecifier::DefaultTypeSpecifierMap);
 	return make_shared<Sum>(TypeTable::GetNilName(), value);
 }
 

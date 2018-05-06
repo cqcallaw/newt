@@ -155,7 +155,7 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 			auto type_result = type_specifier->GetType(type_table, RESOLVE);
 			if (ErrorList::IsTerminator(type_result->GetErrors())) {
 				auto type = type_result->GetData<TypeDefinition>();
-				auto type_map = ComplexType::DefaultTypeSpecifierMap;
+				auto type_map = TypeSpecifier::DefaultTypeSpecifierMap;
 				if (!TypeSpecifierList::IsTerminator(
 						type_specifier->GetTypeArgumentList())) {
 					auto type_specifier_mapping_result = ComplexType::GetTypeParameterMap(

@@ -244,7 +244,7 @@ const ErrorListRef InvokeExpression::Validate(
 				expression_type_specifier_result.GetData();
 
 		errors = m_expression->Validate(execution_context,
-				ComplexType::DefaultTypeSpecifierMap);
+				TypeSpecifier::DefaultTypeSpecifierMap);
 		if (ErrorList::IsTerminator(errors)) {
 
 			auto is_function = false;
@@ -314,7 +314,7 @@ const ErrorListRef InvokeExpression::Validate(
 					if (!DeclarationList::IsTerminator(parameter_subject)) {
 						auto argument_expression_errors =
 								argument_expression->Validate(execution_context,
-										ComplexType::DefaultTypeSpecifierMap);
+										TypeSpecifier::DefaultTypeSpecifierMap);
 
 						if (ErrorList::IsTerminator(
 								argument_expression_errors)) {

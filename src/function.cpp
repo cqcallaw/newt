@@ -197,7 +197,7 @@ const_shared_ptr<Result> Function::Evaluate(ArgumentListRef argument_list,
 				return make_shared<Result>(
 						TypeTable::GetNilType()->GetDefaultValue(
 								closure_reference->GetTypeTable(),
-								ComplexType::DefaultTypeSpecifierMap), errors);
+								TypeSpecifier::DefaultTypeSpecifierMap), errors);
 			} else {
 				plain_shared_ptr<Symbol> evaluation_result =
 						execute_result.GetReturnValue();

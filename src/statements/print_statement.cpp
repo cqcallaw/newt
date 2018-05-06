@@ -36,7 +36,7 @@ const PreprocessResult PrintStatement::Preprocess(
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE,
 			m_expression->Validate(context,
-					ComplexType::DefaultTypeSpecifierMap));
+					TypeSpecifier::DefaultTypeSpecifierMap));
 }
 
 const ExecutionResult PrintStatement::Execute(

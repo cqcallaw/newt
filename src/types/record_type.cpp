@@ -550,7 +550,7 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 				}
 			} else {
 				instance = Record::GetDefaultInstance(*this,
-						ComplexType::DefaultTypeSpecifierMap);
+						TypeSpecifier::DefaultTypeSpecifierMap);
 			}
 		} else {
 			errors = ErrorList::From(

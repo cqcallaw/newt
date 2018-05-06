@@ -50,7 +50,7 @@ const PreprocessResult InvokeStatement::Preprocess(
 	// variable reference must be a reference to a function
 	// argument list length and types must match
 	auto result = m_expression->Validate(context,
-			ComplexType::DefaultTypeSpecifierMap);
+			TypeSpecifier::DefaultTypeSpecifierMap);
 
 	return PreprocessResult(PreprocessResult::ReturnCoverage::NONE, result);
 }

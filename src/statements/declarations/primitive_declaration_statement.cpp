@@ -116,9 +116,9 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 			if (ErrorList::IsTerminator(type_errors)) {
 				auto type = type_result->GetData<TypeDefinition>();
 				auto value = type->GetDefaultValue(type_table,
-						ComplexType::DefaultTypeSpecifierMap);
+						TypeSpecifier::DefaultTypeSpecifierMap);
 				symbol = type->GetSymbol(type_table, m_type_specifier, value,
-						ComplexType::DefaultTypeSpecifierMap);
+						TypeSpecifier::DefaultTypeSpecifierMap);
 			} else {
 				errors = ErrorList::Concatenate(errors, type_errors);
 			}

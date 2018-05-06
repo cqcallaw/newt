@@ -84,12 +84,12 @@ const_shared_ptr<Result> GetByteExpression::Evaluate(
 			Builtins::get_error_list_type_specifier(), DEEP);
 	auto terminator = static_pointer_cast<const Record>(
 			error_list_type->GetDefaultValue(type_table,
-					ComplexType::DefaultTypeSpecifierMap));
+					TypeSpecifier::DefaultTypeSpecifierMap));
 	if (at_eof) {
 		auto value =
 				Builtins::get_byte_read_result_eof_type_specifier()->GetType(
 						type_table, RETURN)->GetData<UnitType>()->GetDefaultValue(
-						type_table, ComplexType::DefaultTypeSpecifierMap);
+						type_table, TypeSpecifier::DefaultTypeSpecifierMap);
 		auto result = make_shared<Sum>(Builtins::BYTE_READ_RESULT_EOF_NAME,
 				value);
 
@@ -126,7 +126,7 @@ const_shared_ptr<Result> GetByteExpression::Evaluate(
 
 		auto terminator = static_pointer_cast<const Record>(
 				error_list_type->GetDefaultValue(type_table,
-						ComplexType::DefaultTypeSpecifierMap));
+						TypeSpecifier::DefaultTypeSpecifierMap));
 		auto error_list_sum = make_shared<Sum>(TypeTable::GetNilName(),
 				terminator);
 		insert_result = error_list_symbol_map->insert(

@@ -48,7 +48,7 @@ const PreprocessResult WhileStatement::Preprocess(
 	auto errors = expression_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
 		errors = m_expression->Validate(context,
-				ComplexType::DefaultTypeSpecifierMap);
+				TypeSpecifier::DefaultTypeSpecifierMap);
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();

@@ -171,7 +171,7 @@ const_shared_ptr<Result> OpenExpression::Evaluate(
 
 		auto terminator = static_pointer_cast<const Record>(
 				error_list_type->GetDefaultValue(type_table,
-						ComplexType::DefaultTypeSpecifierMap));
+						TypeSpecifier::DefaultTypeSpecifierMap));
 		auto error_list_sum = make_shared<Sum>(TypeTable::GetNilName(),
 				terminator);
 		insert_result = error_list_symbol_map->insert(

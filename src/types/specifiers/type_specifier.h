@@ -20,6 +20,7 @@
 #ifndef SPECIFIERS_TYPE_SPECIFIER_H_
 #define SPECIFIERS_TYPE_SPECIFIER_H_
 
+#include <map>
 #include <defaults.h>
 #include <string>
 #include <alias_resolution.h>
@@ -33,6 +34,10 @@ class Symbol;
 
 typedef const LinkedList<const TypeSpecifier, ALLOW_DUPLICATES> TypeSpecifierList;
 typedef shared_ptr<const TypeSpecifierList> TypeSpecifierListRef;
+
+// a map from string identifiers to type specifiers
+// this map is not the same as a type table of type alias, because type alias include a reference to the type table in which the aliased type is defined
+typedef map<const string, const_shared_ptr<TypeSpecifier>> type_specifier_map;
 
 class TypeSpecifier {
 public:
@@ -81,6 +86,8 @@ public:
 	const yy::location GetLocation() const {
 		return m_location;
 	}
+
+	static const_shared_ptr<type_specifier_map> DefaultTypeSpecifierMap;
 
 private:
 	const yy::location m_location;

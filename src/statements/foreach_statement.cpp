@@ -67,7 +67,7 @@ const PreprocessResult ForeachStatement::Preprocess(
 
 	if (ErrorList::IsTerminator(expression_type_specifier_errors)) {
 		auto validation_errors = m_expression->Validate(context,
-				ComplexType::DefaultTypeSpecifierMap);
+				TypeSpecifier::DefaultTypeSpecifierMap);
 
 		if (ErrorList::IsTerminator(validation_errors)) {
 			auto expression_type_specifier =
@@ -301,7 +301,7 @@ const ExecutionResult ForeachStatement::Execute(
 						const FunctionTypeSpecifier>(member_type_specifier);
 				if (as_function_type_specifier) {
 					auto type_specifier_mapping =
-							ComplexType::DefaultTypeSpecifierMap;
+							TypeSpecifier::DefaultTypeSpecifierMap;
 					if (!TypeSpecifierList::IsTerminator(
 							expression_type_specifier->GetTypeArgumentList())) {
 						// member function evaluation depends on type parameters

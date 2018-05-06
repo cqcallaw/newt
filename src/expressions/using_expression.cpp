@@ -509,7 +509,7 @@ const ErrorListRef UsingExpression::ValidateMember(
 		auto as_alias = dynamic_pointer_cast<const AliasDefinition>(member);
 		if (as_alias) {
 			member = as_alias->GetOriginalType(
-					ComplexType::DefaultTypeSpecifierMap);
+					TypeSpecifier::DefaultTypeSpecifierMap);
 		}
 
 		auto member_as_function = dynamic_pointer_cast<const FunctionType>(

@@ -340,7 +340,7 @@ const ErrorListRef BinaryExpression::Validate(
 
 	auto left = GetLeft();
 	auto left_errors = left->Validate(execution_context,
-			ComplexType::DefaultTypeSpecifierMap);
+			TypeSpecifier::DefaultTypeSpecifierMap);
 	if (ErrorList::IsTerminator(left_errors)) {
 		auto left_type_specifier_result = left->GetTypeSpecifier(
 				execution_context);
@@ -366,7 +366,7 @@ const ErrorListRef BinaryExpression::Validate(
 
 	auto right = GetRight();
 	auto right_errors = right->Validate(execution_context,
-			ComplexType::DefaultTypeSpecifierMap);
+			TypeSpecifier::DefaultTypeSpecifierMap);
 	if (ErrorList::IsTerminator(right_errors)) {
 		auto right_type_specifier_result = GetRight()->GetTypeSpecifier(
 				execution_context);

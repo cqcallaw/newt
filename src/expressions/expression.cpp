@@ -80,7 +80,7 @@ TypedResult<string> Expression::ToString(
 						assert(false);
 					}
 				} else {
-					auto type_map = ComplexType::DefaultTypeSpecifierMap;
+					auto type_map = TypeSpecifier::DefaultTypeSpecifierMap;
 					if (!TypeSpecifierList::IsTerminator(
 							type_specifier->GetTypeArgumentList())) {
 						auto type_specifier_mapping_result =

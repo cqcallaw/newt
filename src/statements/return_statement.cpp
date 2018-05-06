@@ -39,7 +39,7 @@ const PreprocessResult ReturnStatement::Preprocess(
 		const TypeSpecifierListRef type_parameter_list,
 		const_shared_ptr<TypeSpecifier> return_type_specifier) const {
 	auto errors = m_expression->Validate(context,
-			ComplexType::DefaultTypeSpecifierMap);
+			TypeSpecifier::DefaultTypeSpecifierMap);
 
 	if (ErrorList::IsTerminator(errors)) {
 		auto expression_type_specifier_result = m_expression->GetTypeSpecifier(

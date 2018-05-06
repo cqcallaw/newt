@@ -25,9 +25,6 @@
 #include <expression.h>
 #include <unit_type.h>
 
-const_shared_ptr<type_specifier_map> ComplexType::DefaultTypeSpecifierMap =
-		make_shared<type_specifier_map>();
-
 ComplexType::~ComplexType() {
 }
 

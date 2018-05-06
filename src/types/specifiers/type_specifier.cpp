@@ -21,6 +21,9 @@
 #include <type_definition.h>
 #include <complex_type.h>
 
+const_shared_ptr<type_specifier_map> TypeSpecifier::DefaultTypeSpecifierMap =
+		make_shared<type_specifier_map>();
+
 const_shared_ptr<void> TypeSpecifier::DefaultValue(
 		const TypeTable& type_table) const {
 	auto type_result = GetType(type_table, RESOLVE);
@@ -29,7 +32,7 @@ const_shared_ptr<void> TypeSpecifier::DefaultValue(
 	if (ErrorList::IsTerminator(errors)) {
 		auto type = type_result->GetData<TypeDefinition>();
 		return type->GetDefaultValue(type_table,
-				ComplexType::DefaultTypeSpecifierMap);
+				TypeSpecifier::DefaultTypeSpecifierMap);
 	}
 
 	return nullptr;

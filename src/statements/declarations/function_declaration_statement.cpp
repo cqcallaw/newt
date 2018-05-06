@@ -165,7 +165,7 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 
 							errors = GetInitializerExpression()->Validate(
 									validation_context,
-									ComplexType::DefaultTypeSpecifierMap); // use default parameter map for function declarations, for now
+									TypeSpecifier::DefaultTypeSpecifierMap); // use default parameter map for function declarations, for now
 
 							if (ErrorList::IsTerminator(errors)) {
 								auto assignment_analysis =
@@ -210,7 +210,7 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 							GetDefaultLocation(),
 							as_function->GetVariantList());
 					auto validation_errors = expression->Validate(closure,
-							ComplexType::DefaultTypeSpecifierMap); // mostly want the side-effects (e.g. variant context setup) here
+							TypeSpecifier::DefaultTypeSpecifierMap); // mostly want the side-effects (e.g. variant context setup) here
 
 					if (ErrorList::IsTerminator(validation_errors)) {
 						auto eval = expression->Evaluate(context, closure);
