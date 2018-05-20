@@ -68,10 +68,9 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 				auto type_specifier_mapping =
 						type_specifier_mapping_result.GetData();
 				shared_ptr<const Symbol> symbol = type->GetSymbol(type_table,
-						m_type_specifier,
+						type_specifier_mapping, m_type_specifier,
 						type->GetDefaultValue(type_table,
-								type_specifier_mapping),
-						type_specifier_mapping);
+								type_specifier_mapping));
 				auto initializer_expression = GetInitializerExpression();
 				if (initializer_expression) {
 					errors = initializer_expression->Validate(context,
@@ -85,8 +84,8 @@ const PreprocessResult NestedDeclarationStatement::Preprocess(
 						errors = result->GetErrors();
 						if (ErrorList::IsTerminator(errors)) {
 							symbol = type->GetSymbol(type_table,
-									m_type_specifier, result->GetData<void>(),
-									type_specifier_mapping);
+									type_specifier_mapping, m_type_specifier,
+									result->GetData<void>());
 						}
 					}
 				}

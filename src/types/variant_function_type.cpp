@@ -41,8 +41,8 @@ const_shared_ptr<void> VariantFunctionType::GetDefaultValue(
 }
 
 const std::string VariantFunctionType::ToString(const TypeTable& type_table,
-		const Indent& indent,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent) const {
 	ostringstream buffer;
 	auto subject = m_variant_list;
 	while (!FunctionVariantList::IsTerminator(subject)) {
@@ -54,16 +54,16 @@ const std::string VariantFunctionType::ToString(const TypeTable& type_table,
 }
 
 const std::string VariantFunctionType::ValueToString(
-		const TypeTable& type_table, const Indent& indent,
-		const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent, const_shared_ptr<void> value) const {
 	auto as_function = static_pointer_cast<const Function>(value);
 	return as_function->ToString(type_table, indent + 1);
 }
 
 const std::string VariantFunctionType::GetValueSeparator(const Indent& indent,
-		const void* value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const void* value) const {
 	return "\n";
 }
 
@@ -77,9 +77,9 @@ const_shared_ptr<TypeSpecifier> VariantFunctionType::GetTypeSpecifier(
 
 const_shared_ptr<Symbol> VariantFunctionType::GetSymbol(
 		const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<void> value) const {
 	return make_shared<Symbol>(static_pointer_cast<const Function>(value));
 }
 

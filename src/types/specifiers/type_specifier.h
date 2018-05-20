@@ -53,6 +53,13 @@ public:
 			const_shared_ptr<TypeSpecifier> other,
 			const TypeTable& type_table) const = 0;
 
+	/**
+	 * Validate a declaration
+	 *
+	 * @type_table The type table for the declaration's context
+	 * @type_parameter_list A list of type parameters that may legally be referenced by the declaration
+	 * @position The position of the declaration, for error reporting purposes
+	 */
 	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
 			const TypeSpecifierListRef type_parameter_list,
 			const yy::location position) const {
@@ -86,6 +93,11 @@ public:
 	const yy::location GetLocation() const {
 		return m_location;
 	}
+
+	static TypedResult<TypeTable> GetTypeParameterMap(
+			const TypeSpecifierListRef type_parameters,
+			const TypeSpecifierListRef type_arguments,
+			const shared_ptr<TypeTable> type_table);
 
 	static const_shared_ptr<type_specifier_map> DefaultTypeSpecifierMap;
 

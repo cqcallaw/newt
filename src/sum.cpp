@@ -35,22 +35,22 @@ Sum::~Sum() {
 }
 
 const string Sum::ToString(const SumType& type, const TypeTable& type_table,
-		const Indent& indent,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent) const {
 	ostringstream buffer;
 	auto type_definition = type.GetDefinition();
 	auto variant_definition = type_definition->GetType<TypeDefinition>(*m_tag,
 			SHALLOW, RETURN);
 	buffer
-			<< variant_definition->GetTagSeparator(indent, m_value.get(),
-					type_specifier_mapping);
+			<< variant_definition->GetTagSeparator(indent,
+					type_specifier_mapping, m_value.get());
 	buffer << "{" << *m_tag << "}";
 	buffer
-			<< variant_definition->GetValueSeparator(indent, m_value.get(),
-					type_specifier_mapping);
+			<< variant_definition->GetValueSeparator(indent,
+					type_specifier_mapping, m_value.get());
 	buffer
-			<< variant_definition->ValueToString(type_table, indent, m_value,
-					type_specifier_mapping);
+			<< variant_definition->ValueToString(type_table,
+					type_specifier_mapping, indent, m_value);
 	return buffer.str();
 }
 

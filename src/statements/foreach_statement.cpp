@@ -162,9 +162,9 @@ const PreprocessResult ForeachStatement::Preprocess(
 										auto default_symbol =
 												data_type->GetSymbol(
 														context->GetTypeTable(),
+														type_specifier_mapping,
 														data_type_specifier,
-														default_value,
-														type_specifier_mapping);
+														default_value);
 										m_block_context->InsertSymbol(
 												*m_evaluation_identifier,
 												default_symbol);
@@ -410,8 +410,8 @@ const_shared_ptr<Result> ForeachStatement::EvaluateMemberFunction(
 							MaybeTypeSpecifier::VARIANT_NAME, record);
 
 					auto symbol = declaration_type->GetSymbol(type_table,
-							declaration_type_specifier, maybe_wrapper,
-							type_specifier_mapping);
+							type_specifier_mapping, declaration_type_specifier,
+							maybe_wrapper);
 					auto insert_result = invocation_context->InsertSymbol(
 							*parameter_declaration->GetName(), symbol);
 					assert(insert_result == INSERT_SUCCESS);

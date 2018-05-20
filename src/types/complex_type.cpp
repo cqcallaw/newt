@@ -40,7 +40,8 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 
 	auto type_table = execution_context->GetTypeTable();
 	if (initializer) {
-		errors = initializer->Validate(execution_context, outer_type_specifier_mapping);
+		errors = initializer->Validate(execution_context,
+				outer_type_specifier_mapping);
 		if (ErrorList::IsTerminator(errors)) {
 			return PreprocessSymbolCore(execution_context, type_specifier,
 					initializer);
@@ -50,12 +51,14 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 		errors = type_result->GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			auto type = type_result->GetData<TypeDefinition>();
-			auto type_specifier_mapping_result = ComplexType::GetTypeParameterMap(
-					type->GetTypeParameterList(),
-					type_specifier->GetTypeArgumentList(), type_table);
+			auto type_specifier_mapping_result =
+					ComplexType::GetTypeParameterMap(
+							type->GetTypeParameterList(),
+							type_specifier->GetTypeArgumentList(), type_table);
 			errors = type_specifier_mapping_result.GetErrors();
 			if (ErrorList::IsTerminator(errors)) {
-				auto type_specifier_mapping = type_specifier_mapping_result.GetData();
+				auto type_specifier_mapping =
+						type_specifier_mapping_result.GetData();
 				// map to surrounding type parameters
 				if (!outer_type_specifier_mapping->empty()) {
 					volatile_shared_ptr<type_specifier_map> new_map =
@@ -64,9 +67,11 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 					for (auto const &entry : *type_specifier_mapping) {
 						auto inner_key = entry.first;
 						auto outer_key = entry.second->ToString();
-						auto existing_entry_it = outer_type_specifier_mapping->find(
-								outer_key);
-						assert(existing_entry_it != outer_type_specifier_mapping->end());
+						auto existing_entry_it =
+								outer_type_specifier_mapping->find(outer_key);
+						assert(
+								existing_entry_it
+										!= outer_type_specifier_mapping->end());
 						auto new_entry = std::pair<const string,
 								const_shared_ptr<TypeSpecifier>>(inner_key,
 								existing_entry_it->second);
@@ -76,7 +81,8 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 					type_specifier_mapping = new_map;
 				}
 				if (ErrorList::IsTerminator(errors)) {
-					value = type->GetDefaultValue(type_table, type_specifier_mapping);
+					value = type->GetDefaultValue(type_table,
+							type_specifier_mapping);
 				}
 			}
 		}
@@ -90,8 +96,10 @@ const_shared_ptr<Result> ComplexType::PreprocessSymbol(
 		errors = type_specifier_mapping_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
 			assert(value);
-			auto type_map = type_specifier_mapping_result.GetData();
-			symbol = GetSymbol(type_table, type_specifier, value, type_map);
+			auto type_specifier_mapping =
+					type_specifier_mapping_result.GetData();
+			symbol = GetSymbol(type_table, type_specifier_mapping,
+					type_specifier, value);
 		}
 	}
 
@@ -225,7 +233,7 @@ const TypeSpecifierListRef ComplexType::TypeParameterSubstitution(
 		type_argument_subject = type_argument_subject->GetNext();
 	}
 
-	// make sure the order of type argument is correct
+// make sure the order of type argument is correct
 	new_type_arguments = TypeSpecifierList::Reverse(new_type_arguments);
 	return new_type_arguments;
 }

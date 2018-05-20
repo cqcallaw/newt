@@ -28,8 +28,8 @@ PrimitiveType::~PrimitiveType() {
 }
 
 const std::string PrimitiveType::ToString(const TypeTable& type_table,
-		const Indent& indent,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent) const {
 	ostringstream os;
 	os << indent + 1;
 	os << m_type;
@@ -37,8 +37,8 @@ const std::string PrimitiveType::ToString(const TypeTable& type_table,
 }
 
 const std::string PrimitiveType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
 	buffer << PrimitiveTypeSpecifier::FromBasicType(m_type)->ToString(value);
 	auto result = buffer.str();
@@ -52,9 +52,9 @@ const_shared_ptr<void> PrimitiveType::GetDefaultValue(
 }
 
 const_shared_ptr<Symbol> PrimitiveType::GetSymbol(const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<void> value) const {
 	switch (m_type) {
 	case BasicType::BOOLEAN:
 		return make_shared<Symbol>(static_pointer_cast<const bool>(value));
@@ -111,8 +111,8 @@ const_shared_ptr<TypeSpecifier> PrimitiveType::GetTypeSpecifier(
 }
 
 const std::string PrimitiveType::GetValueSeparator(const Indent& indent,
-		const void* value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const void* value) const {
 	return " ";
 }
 

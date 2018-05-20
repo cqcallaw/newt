@@ -39,11 +39,13 @@ const string Array::ToString(const TypeTable& type_table,
 		for (int i = 0; i < size; i++) {
 			auto value = GetValue<void>(i, type_table);
 			auto value_string = element_type->ValueToString(type_table,
-					child_indent, value, TypeSpecifier::DefaultTypeSpecifierMap); // array type parameters are not yet supported
+					TypeSpecifier::DefaultTypeSpecifierMap, child_indent,
+					value); // array type parameters are not yet supported
 			os << child_indent << "[" << i << "]";
 			os
 					<< element_type->GetValueSeparator(child_indent,
-							value.get(), TypeSpecifier::DefaultTypeSpecifierMap); // array type parameters are not yet supported
+							TypeSpecifier::DefaultTypeSpecifierMap,
+							value.get()); // array type parameters are not yet supported
 			os << value_string << endl;
 		}
 	}

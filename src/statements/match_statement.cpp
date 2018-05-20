@@ -158,9 +158,9 @@ const PreprocessResult MatchStatement::Preprocess(
 										const_shared_ptr<Symbol> default_symbol =
 												variant_type->GetSymbol(
 														type_table,
+														type_specifier_mapping,
 														variant_type_specifier,
-														default_value,
-														type_specifier_mapping);
+														default_value);
 										matched_context->InsertSymbol(
 												*alias_name, default_symbol);
 

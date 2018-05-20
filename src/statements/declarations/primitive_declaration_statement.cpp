@@ -117,8 +117,9 @@ const PreprocessResult PrimitiveDeclarationStatement::Preprocess(
 				auto type = type_result->GetData<TypeDefinition>();
 				auto value = type->GetDefaultValue(type_table,
 						TypeSpecifier::DefaultTypeSpecifierMap);
-				symbol = type->GetSymbol(type_table, m_type_specifier, value,
-						TypeSpecifier::DefaultTypeSpecifierMap);
+				symbol = type->GetSymbol(type_table,
+						TypeSpecifier::DefaultTypeSpecifierMap,
+						m_type_specifier, value);
 			} else {
 				errors = ErrorList::Concatenate(errors, type_errors);
 			}

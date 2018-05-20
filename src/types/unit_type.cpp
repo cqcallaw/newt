@@ -37,24 +37,24 @@ const_shared_ptr<void> UnitType::GetDefaultValue(const TypeTable& type_table,
 }
 
 const std::string UnitType::ToString(const TypeTable& type_table,
-		const Indent& indent,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent) const {
 	ostringstream buffer;
 	buffer << indent + 1 << "<unit>";
 	return buffer.str();
 }
 
 const std::string UnitType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
 	buffer << "<unit>";
 	return buffer.str();
 }
 
 const std::string UnitType::GetValueSeparator(const Indent& indent,
-		const void* value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const void* value) const {
 	return " ";
 }
 
@@ -68,9 +68,9 @@ const_shared_ptr<TypeSpecifier> UnitType::GetTypeSpecifier(
 }
 
 const_shared_ptr<Symbol> UnitType::GetSymbol(const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<void> value) const {
 	return make_shared<Symbol>(type_specifier, m_value);
 }
 

@@ -453,9 +453,9 @@ const ErrorListRef UsingExpression::Validate(
 
 								auto default_symbol =
 										expression_type->GetSymbol(type_table,
+												type_specifier_mapping,
 												expression_type_specifier,
-												default_value,
-												type_specifier_mapping);
+												default_value);
 								m_block_context->InsertSymbol(*m_identifier,
 										default_symbol);
 

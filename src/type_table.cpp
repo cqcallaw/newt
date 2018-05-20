@@ -77,7 +77,7 @@ const void TypeTable::print(ostream& os, const Indent& indent,
 		os << indent;
 		os << iter->first << ":" << endl;
 		const_shared_ptr<TypeDefinition> type = iter->second;
-		os << type->ToString(*this, indent, nullptr); // no type mapping should occur for the generic type
+		os << type->ToString(*this, nullptr, indent); // no type mapping should occur for the generic type
 		os << endl;
 	}
 
@@ -190,12 +190,13 @@ volatile_shared_ptr<SymbolContext> TypeTable::GetDefaultSymbolContext(
 		auto name = entry.first;
 		auto type = entry.second;
 
-		auto default_value = type->GetDefaultValue(*this, type_specifier_mapping);
+		auto default_value = type->GetDefaultValue(*this,
+				type_specifier_mapping);
 		assert(default_value);
 		auto type_specifier = type->GetTypeSpecifier(make_shared<string>(name),
 				container, type_specifier_mapping, GetDefaultLocation());
-		auto default_symbol = type->GetSymbol(*this, type_specifier,
-				default_value, type_specifier_mapping);
+		auto default_symbol = type->GetSymbol(*this, type_specifier_mapping,
+				type_specifier, default_value);
 
 		InsertResult insert_result = result->InsertSymbol(name, default_symbol);
 		assert(insert_result == INSERT_SUCCESS);

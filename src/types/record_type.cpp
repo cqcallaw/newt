@@ -54,8 +54,8 @@ RecordType::~RecordType() {
 }
 
 const string RecordType::ToString(const TypeTable& type_table,
-		const Indent& indent,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
 	if (TypeSpecifierList::IsTerminator(m_type_parameter_list)) {
@@ -493,8 +493,8 @@ const ErrorListRef RecordType::Build(const_shared_ptr<string> name,
 }
 
 const std::string RecordType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
 	auto record_type_instance = static_pointer_cast<const Record>(value);
 	buffer
@@ -509,9 +509,9 @@ const_shared_ptr<void> RecordType::GetDefaultValue(const TypeTable& type_table,
 }
 
 const_shared_ptr<Symbol> RecordType::GetSymbol(const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<void> value) const {
 	auto as_complex_specifier =
 			dynamic_pointer_cast<const ComplexTypeSpecifier>(type_specifier);
 
@@ -597,14 +597,14 @@ const SetResult RecordType::InstantiateCore(
 }
 
 const std::string RecordType::GetValueSeparator(const Indent& indent,
-		const void* value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const void* value) const {
 	return "\n";
 }
 
 const std::string RecordType::GetTagSeparator(const Indent& indent,
-		const void* value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const void* value) const {
 	return indent.ToString();
 }
 

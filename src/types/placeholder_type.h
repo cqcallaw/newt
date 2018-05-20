@@ -49,8 +49,8 @@ public:
 	}
 
 	virtual const std::string ToString(const TypeTable& type_table,
-			const Indent& indent,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const Indent& indent) const {
 		ostringstream os;
 		os << indent + 1;
 		os << "<placeholder for " << *m_type_name << ">" << endl;
@@ -58,14 +58,14 @@ public:
 	}
 
 	virtual const std::string GetValueSeparator(const Indent& indent,
-			const void* value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const void* value) const {
 		return "";
 	}
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
-			const Indent& indent, const_shared_ptr<void> value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const Indent& indent, const_shared_ptr<void> value) const {
 		ostringstream os;
 		os << indent + 1;
 		os << "<placeholder value for " << *m_type_name << ">" << endl;
@@ -78,9 +78,9 @@ public:
 	}
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void> value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+			const_shared_ptr<void> value) const {
 		return m_symbol;
 	}
 

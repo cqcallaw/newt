@@ -80,7 +80,8 @@ TypedResult<string> Expression::ToString(
 						assert(false);
 					}
 				} else {
-					auto type_map = TypeSpecifier::DefaultTypeSpecifierMap;
+					auto type_specifier_mapping =
+							TypeSpecifier::DefaultTypeSpecifierMap;
 					if (!TypeSpecifierList::IsTerminator(
 							type_specifier->GetTypeArgumentList())) {
 						auto type_specifier_mapping_result =
@@ -90,15 +91,16 @@ TypedResult<string> Expression::ToString(
 										execution_context->GetTypeTable());
 
 						errors = type_specifier_mapping_result.GetErrors();
-						type_map = type_specifier_mapping_result.GetData(); // this should be null if we have errors, but the next error list terminator check will handle this case
+						type_specifier_mapping =
+								type_specifier_mapping_result.GetData(); // this should be null if we have errors, but the next error list terminator check will handle this case
 					}
 
 					if (ErrorList::IsTerminator(errors)) {
 						buffer
 								<< type->ValueToString(
 										execution_context->GetTypeTable(),
-										Indent(0), evaluation->GetRawData(),
-										type_map);
+										type_specifier_mapping, Indent(0),
+										evaluation->GetRawData());
 					}
 				}
 			}

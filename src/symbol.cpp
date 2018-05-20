@@ -155,25 +155,29 @@ const string Symbol::ToString(const_shared_ptr<TypeSpecifier> type_specifier,
 			auto type_result = type_specifier->GetType(type_table, RESOLVE);
 			if (ErrorList::IsTerminator(type_result->GetErrors())) {
 				auto type = type_result->GetData<TypeDefinition>();
-				auto type_map = TypeSpecifier::DefaultTypeSpecifierMap;
+				auto type_specifier_mapping =
+						TypeSpecifier::DefaultTypeSpecifierMap;
 				if (!TypeSpecifierList::IsTerminator(
 						type_specifier->GetTypeArgumentList())) {
-					auto type_specifier_mapping_result = ComplexType::GetTypeParameterMap(
-							type->GetTypeParameterList(),
-							type_specifier->GetTypeArgumentList(), type_table);
+					auto type_specifier_mapping_result =
+							ComplexType::GetTypeParameterMap(
+									type->GetTypeParameterList(),
+									type_specifier->GetTypeArgumentList(),
+									type_table);
 					auto errors = type_specifier_mapping_result.GetErrors();
 					if (ErrorList::IsTerminator(errors)) {
-						type_map = type_specifier_mapping_result.GetData();
+						type_specifier_mapping =
+								type_specifier_mapping_result.GetData();
 					} else {
 						buffer << "<error resolving type parameters>";
 					}
 				}
 				buffer
-						<< type->GetValueSeparator(indent, value.get(),
-								type_map);
+						<< type->GetValueSeparator(indent,
+								type_specifier_mapping, value.get());
 				buffer
-						<< type->ValueToString(type_table, indent, value,
-								type_map);
+						<< type->ValueToString(type_table,
+								type_specifier_mapping, indent, value);
 			} else {
 				buffer << "UNDEFINED TYPE";
 			}

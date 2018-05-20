@@ -45,20 +45,20 @@ public:
 			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
 
 	virtual const std::string ToString(const TypeTable& type_table,
-			const Indent& indent,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const Indent& indent) const = 0;
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
-			const Indent& indent, const_shared_ptr<void> value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const Indent& indent, const_shared_ptr<void> value) const = 0;
 
 	virtual const std::string GetValueSeparator(const Indent& indent,
-			const void* value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const void* value) const = 0;
 
 	virtual const std::string GetTagSeparator(const Indent& indent,
-			const void* value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const void* value) const {
 		return "";
 	}
 
@@ -81,9 +81,9 @@ public:
 	}
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void> value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
+			const_shared_ptr<void> value) const = 0;
 
 	/**
 	 * Return the concrete (un-inferred) declaration statement for this type

@@ -20,6 +20,7 @@
 #include <type_specifier.h>
 #include <type_definition.h>
 #include <complex_type.h>
+#include <unit_type.h>
 
 const_shared_ptr<type_specifier_map> TypeSpecifier::DefaultTypeSpecifierMap =
 		make_shared<type_specifier_map>();
@@ -36,4 +37,60 @@ const_shared_ptr<void> TypeSpecifier::DefaultValue(
 	}
 
 	return nullptr;
+}
+
+TypedResult<TypeTable> TypeSpecifier::GetTypeParameterMap(
+		const TypeSpecifierListRef type_parameters,
+		const TypeSpecifierListRef type_arguments,
+		const shared_ptr<TypeTable> type_table) {
+	auto errors = ErrorList::GetTerminator();
+
+	auto parameter_subject = type_parameters;
+	auto argument_subject = type_arguments;
+	volatile_shared_ptr<TypeTable> result = make_shared<TypeTable>(type_table);
+
+	while (!TypeSpecifierList::IsTerminator(argument_subject)
+			&& ErrorList::IsTerminator(errors)) {
+		auto type_argument = argument_subject->GetData();
+		if (!TypeSpecifierList::IsTerminator(parameter_subject)) {
+			auto type_parameter = parameter_subject->GetData();
+			auto as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
+					type_parameter);
+			assert(as_complex);
+			auto type_parameter_string = as_complex->ToString();
+
+			auto existing_entry = result->GetType<TypeDefinition>(
+					type_parameter_string, SHALLOW, RETURN);
+			if (!existing_entry) {
+				auto entry = make_shared<AliasDefinition>(type_table,
+						type_argument, DIRECT, nullptr);
+				result->AddType(type_parameter_string, entry);
+			} else {
+				// duplicate entry
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::PREVIOUS_DECLARATION,
+								type_parameter->GetLocation().begin,
+								type_parameter_string), errors);
+			}
+		} else {
+			// too many arguments
+			errors = ErrorList::From(
+					make_shared<Error>(Error::SEMANTIC,
+							Error::TOO_MANY_ARGUMENTS,
+							type_argument->GetLocation().begin), errors);
+		}
+		argument_subject = argument_subject->GetNext();
+		parameter_subject = parameter_subject->GetNext();
+	}
+
+	if (!TypeSpecifierList::IsTerminator(parameter_subject)) {
+		// not enough arguments
+		errors = ErrorList::From(
+				make_shared<Error>(Error::SEMANTIC, Error::TOO_FEW_ARGUMENTS,
+						argument_subject->GetData()->GetLocation().begin),
+				errors);
+	}
+
+	return TypedResult<TypeTable>(result, errors);
 }

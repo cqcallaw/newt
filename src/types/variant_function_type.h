@@ -34,16 +34,16 @@ public:
 			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual const std::string ToString(const TypeTable& type_table,
-			const Indent& indent,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const Indent& indent) const;
 
 	virtual const std::string ValueToString(const TypeTable& type_table,
-			const Indent& indent, const_shared_ptr<void> value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const Indent& indent, const_shared_ptr<void> value) const;
 
 	virtual const std::string GetValueSeparator(const Indent& indent,
-			const void* value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
+			const void* value) const;
 
 	virtual const_shared_ptr<TypeSpecifier> GetTypeSpecifier(
 			const_shared_ptr<std::string> name,
@@ -51,9 +51,9 @@ public:
 			yy::location location) const;
 
 	virtual const_shared_ptr<Symbol> GetSymbol(const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			const_shared_ptr<TypeSpecifier> type_specifier,
-			const_shared_ptr<void> value,
-			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
+			const_shared_ptr<void> value) const;
 
 	virtual const_shared_ptr<DeclarationStatement> GetDeclarationStatement(
 			const yy::location location, const_shared_ptr<TypeSpecifier> type,

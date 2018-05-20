@@ -57,8 +57,8 @@
 #include <function_expression.h>
 
 const std::string SumType::ToString(const TypeTable& type_table,
-		const Indent& indent,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent) const {
 	ostringstream os;
 	Indent child_indent = indent + 1;
 	if (TypeSpecifierList::IsTerminator(m_type_parameter_list)) {
@@ -73,13 +73,13 @@ const std::string SumType::ToString(const TypeTable& type_table,
 }
 
 const std::string SumType::ValueToString(const TypeTable& type_table,
-		const Indent& indent, const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const Indent& indent, const_shared_ptr<void> value) const {
 	ostringstream buffer;
 	auto sum_instance = static_pointer_cast<const Sum>(value);
 	buffer
-			<< sum_instance->ToString(*this, *m_definition, indent,
-					type_specifier_mapping);
+			<< sum_instance->ToString(*this, *m_definition,
+					type_specifier_mapping, indent);
 	return buffer.str();
 }
 
@@ -299,9 +299,9 @@ const AnalysisResult SumType::AnalyzeConversion(
 }
 
 const_shared_ptr<Symbol> SumType::GetSymbol(const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
 		const_shared_ptr<TypeSpecifier> type_specifier,
-		const_shared_ptr<void> value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<void> value) const {
 	auto original_as_complex = dynamic_pointer_cast<const ComplexTypeSpecifier>(
 			type_specifier);
 	if (original_as_complex) {
@@ -387,7 +387,8 @@ const_shared_ptr<Result> SumType::PreprocessSymbolCore(
 						//generate default instance; actual assignment must be done in execute stage
 						//this is because assignment of constant expressions to sum types is only valid
 						//if the constant expression is narrower than the sum type
-						instance = Sum::GetDefaultInstance(*this, type_specifier_mapping);
+						instance = Sum::GetDefaultInstance(*this,
+								type_specifier_mapping);
 					} else {
 						assert(false);
 					}
@@ -448,8 +449,8 @@ const_shared_ptr<TypeSpecifier> SumType::GetTypeSpecifier(
 }
 
 const std::string SumType::GetValueSeparator(const Indent& indent,
-		const void* value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const void* value) const {
 	auto as_sum = static_cast<const Sum*>(value);
 	auto variant_name = *as_sum->GetTag();
 
@@ -457,13 +458,13 @@ const std::string SumType::GetValueSeparator(const Indent& indent,
 			SHALLOW, RETURN);
 
 	assert(variant_type);
-	return variant_type->GetValueSeparator(indent, as_sum->GetValue().get(),
-			type_specifier_mapping);
+	return variant_type->GetValueSeparator(indent, type_specifier_mapping,
+			as_sum->GetValue().get());
 }
 
 const std::string SumType::GetTagSeparator(const Indent& indent,
-		const void* value,
-		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const void* value) const {
 	auto as_sum = static_cast<const Sum*>(value);
 	auto variant_name = *as_sum->GetTag();
 
@@ -471,8 +472,8 @@ const std::string SumType::GetTagSeparator(const Indent& indent,
 			SHALLOW, RETURN);
 
 	assert(variant_type);
-	return variant_type->GetTagSeparator(indent, as_sum->GetValue().get(),
-			type_specifier_mapping);
+	return variant_type->GetTagSeparator(indent, type_specifier_mapping,
+			as_sum->GetValue().get());
 }
 
 const_shared_ptr<DeclarationStatement> SumType::GetDeclarationStatement(
