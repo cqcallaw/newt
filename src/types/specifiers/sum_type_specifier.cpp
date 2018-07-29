@@ -36,10 +36,10 @@ SumTypeSpecifier::SumTypeSpecifier(
 }
 
 const AnalysisResult SumTypeSpecifier::AnalyzeAssignmentTo(
-		const_shared_ptr<TypeSpecifier> other,
-		const TypeTable& type_table) const {
+		const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto complex_result = ComplexTypeSpecifier::AnalyzeAssignmentTo(other,
-			type_table);
+			type_table, type_specifier_mapping);
 	if (complex_result) {
 		return complex_result;
 	}
@@ -63,7 +63,7 @@ const AnalysisResult SumTypeSpecifier::AnalyzeAssignmentTo(
 			if (other_specifier_as_maybe) {
 				return AnalyzeAssignmentTo(
 						other_specifier_as_maybe->GetBaseTypeSpecifier(),
-						type_table);
+						type_table, type_specifier_mapping);
 			}
 		}
 	}

@@ -39,7 +39,7 @@ const_shared_ptr<void> TypeSpecifier::DefaultValue(
 	return nullptr;
 }
 
-TypedResult<TypeTable> TypeSpecifier::GetTypeParameterMap(
+/*TypedResult<TypeTable> TypeSpecifier::GetTypeParameterMap(
 		const TypeSpecifierListRef type_parameters,
 		const TypeSpecifierListRef type_arguments,
 		const shared_ptr<TypeTable> type_table) {
@@ -93,4 +93,4 @@ TypedResult<TypeTable> TypeSpecifier::GetTypeParameterMap(
 	}
 
 	return TypedResult<TypeTable>(result, errors);
-}
+}*/

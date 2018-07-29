@@ -120,22 +120,35 @@ const_shared_ptr<Result> UnitType::PreprocessSymbolCore(
 	if (ErrorList::IsTerminator(errors)) {
 		auto initializer_expression_type =
 				initializer_expression_type_result.GetData();
-		auto initializer_analysis =
-				initializer_expression_type->AnalyzeAssignmentTo(type_specifier,
-						execution_context->GetTypeTable());
-		if (initializer_analysis == EQUIVALENT) {
-			instance = m_value;
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::ASSIGNMENT_TYPE_ERROR,
-							initializer->GetLocation().begin,
-							type_specifier->ToString(),
-							initializer_expression_type->ToString()), errors);
-		}
 
+		auto type_parameter_mapping_result = ComplexType::GetTypeParameterMap(
+				this->GetTypeParameterList(),
+				type_specifier->GetTypeArgumentList(),
+				execution_context->GetTypeTable());
+
+		errors = type_parameter_mapping_result.GetErrors();
 		if (ErrorList::IsTerminator(errors)) {
-			symbol = make_shared<Symbol>(type_specifier, instance);
+			auto type_parameter_mapping =
+					type_parameter_mapping_result.GetData();
+			auto initializer_analysis =
+					initializer_expression_type->AnalyzeAssignmentTo(
+							type_specifier, execution_context->GetTypeTable(),
+							type_parameter_mapping);
+			if (initializer_analysis == EQUIVALENT) {
+				instance = m_value;
+			} else {
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::ASSIGNMENT_TYPE_ERROR,
+								initializer->GetLocation().begin,
+								type_specifier->ToString(),
+								initializer_expression_type->ToString()),
+						errors);
+			}
+
+			if (ErrorList::IsTerminator(errors)) {
+				symbol = make_shared<Symbol>(type_specifier, instance);
+			}
 		}
 	}
 
@@ -149,14 +162,23 @@ const SetResult UnitType::InstantiateCore(
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Unit>(data);
 
-	if (value_type_specifier->AnalyzeAssignmentTo(type_specifier,
-			execution_context->GetTypeTable())) {
-		auto set_result = execution_context->SetSymbol(instance_name,
-				type_specifier, instance, execution_context->GetTypeTable());
-		return set_result;
-	} else {
-		return SetResult::INCOMPATIBLE_TYPE;
+	auto type_parameter_map_result = ComplexType::GetTypeParameterMap(
+			this->GetTypeParameterList(), type_specifier->GetTypeArgumentList(),
+			execution_context->GetTypeTable());
+
+	if (ErrorList::IsTerminator(type_parameter_map_result.GetErrors())) {
+		auto type_parameter_map = type_parameter_map_result.GetData();
+
+		if (value_type_specifier->AnalyzeAssignmentTo(type_specifier,
+				execution_context->GetTypeTable(), type_parameter_map)) {
+			auto set_result = execution_context->SetSymbol(instance_name,
+					type_specifier, instance,
+					execution_context->GetTypeTable());
+			return set_result;
+		}
 	}
+
+	return SetResult::INCOMPATIBLE_TYPE;
 }
 
 const_shared_ptr<MaybeType> UnitType::GetMaybeType() const {

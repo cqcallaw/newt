@@ -46,8 +46,8 @@ public:
 	const string ToString(const_shared_ptr<void> value) const;
 
 	virtual const AnalysisResult AnalyzeAssignmentTo(
-			const_shared_ptr<TypeSpecifier> other,
-			const TypeTable& type_table) const;
+			const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 

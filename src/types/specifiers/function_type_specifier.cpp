@@ -71,8 +71,8 @@ const string FunctionTypeSpecifier::ToString() const {
 }
 
 const AnalysisResult FunctionTypeSpecifier::AnalyzeAssignmentTo(
-		const_shared_ptr<TypeSpecifier> other,
-		const TypeTable& type_table) const {
+		const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	if (*this == *other) {
 		return EQUIVALENT;
 	} else {
@@ -85,7 +85,8 @@ const AnalysisResult FunctionTypeSpecifier::AnalyzeAssignmentTo(
 				auto variant = variant_list->GetData();
 				auto declaration = variant->GetDeclaration();
 
-				auto result = AnalyzeAssignmentTo(declaration, type_table);
+				auto result = AnalyzeAssignmentTo(declaration, type_table,
+						type_specifier_mapping);
 				return result;
 			}
 		}

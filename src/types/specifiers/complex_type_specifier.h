@@ -54,8 +54,8 @@ public:
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	virtual const AnalysisResult AnalyzeAssignmentTo(
-			const_shared_ptr<TypeSpecifier> other,
-			const TypeTable& type_table) const;
+			const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual const ErrorListRef ValidateDeclaration(const TypeTable& type_table,
 			const TypeSpecifierListRef type_parameter_list,
@@ -70,6 +70,7 @@ public:
 	virtual const std::string ToString() const;
 
 	virtual const AnalysisResult AnalyzeWidening(const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			const TypeSpecifier& other) const;
 
 	virtual bool operator==(const TypeSpecifier& other) const;

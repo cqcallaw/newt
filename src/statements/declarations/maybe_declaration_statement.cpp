@@ -66,64 +66,76 @@ const PreprocessResult MaybeDeclarationStatement::Preprocess(
 				auto initializer_type_specifier =
 						initializer_type_specifier_result.GetData();
 
-				if (initializer_type_specifier->AnalyzeAssignmentTo(
-						m_type_specifier, *type_table)) {
-					if (*initializer_type_specifier
-							!= *TypeTable::GetNilTypeSpecifier()) {
-						auto type_specifier_mapping_result =
-								ComplexType::GetTypeParameterMap(
-										type_parameter_list,
-										m_type_specifier->GetTypeArgumentList(),
-										type_table);
-						errors = type_specifier_mapping_result.GetErrors();
-						if (ErrorList::IsTerminator(errors)) {
-							auto type_specifier_mapping =
-									type_specifier_mapping_result.GetData();
-							errors = initializer->Validate(context,
-									type_specifier_mapping);
-							if (ErrorList::IsTerminator(errors)) {
-								if (initializer->IsConstant()) {
-									auto result = initializer->Evaluate(context,
-											closure);
-									errors = result->GetErrors();
-									if (ErrorList::IsTerminator(errors)) {
-										if (*initializer_type_specifier
-												== *m_type_specifier) {
-											//direct assignment
-											value = result->GetData<Sum>();
-										} else {
-											//widening conversion
-											value =
-													make_shared<Sum>(
-															MaybeTypeSpecifier::VARIANT_NAME,
-															result->GetRawData());
+				auto type_parameter_mapping_result =
+						ComplexType::GetTypeParameterMap(type_parameter_list,
+								m_type_specifier->GetTypeArgumentList(),
+								type_table);
 
-											auto type =
-													m_type_specifier->GetType(
-															type_table, RESOLVE)->GetData<
-															SumType>();
+				errors = type_parameter_mapping_result.GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					auto type_parameter_mapping =
+							type_parameter_mapping_result.GetData();
+					if (initializer_type_specifier->AnalyzeAssignmentTo(
+							m_type_specifier, *type_table,
+							type_parameter_mapping)) {
+						if (*initializer_type_specifier
+								!= *TypeTable::GetNilTypeSpecifier()) {
+							auto type_specifier_mapping_result =
+									ComplexType::GetTypeParameterMap(
+											type_parameter_list,
+											m_type_specifier->GetTypeArgumentList(),
+											type_table);
+							errors = type_specifier_mapping_result.GetErrors();
+							if (ErrorList::IsTerminator(errors)) {
+								auto type_specifier_mapping =
+										type_specifier_mapping_result.GetData();
+								errors = initializer->Validate(context,
+										type_specifier_mapping);
+								if (ErrorList::IsTerminator(errors)) {
+									if (initializer->IsConstant()) {
+										auto result = initializer->Evaluate(
+												context, closure);
+										errors = result->GetErrors();
+										if (ErrorList::IsTerminator(errors)) {
+											if (*initializer_type_specifier
+													== *m_type_specifier) {
+												//direct assignment
+												value = result->GetData<Sum>();
+											} else {
+												//widening conversion
+												value =
+														make_shared<Sum>(
+																MaybeTypeSpecifier::VARIANT_NAME,
+																result->GetRawData());
+
+												auto type =
+														m_type_specifier->GetType(
+																type_table,
+																RESOLVE)->GetData<
+																SumType>();
+											}
 										}
+									} else {
+										value =
+												static_pointer_cast<const Sum>(
+														m_type_specifier->DefaultValue(
+																type_table,
+																TypeSpecifier::DefaultTypeSpecifierMap));
 									}
-								} else {
-									value =
-											static_pointer_cast<const Sum>(
-													m_type_specifier->DefaultValue(
-															type_table,
-															TypeSpecifier::DefaultTypeSpecifierMap));
 								}
 							}
 						}
+					} else {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::INVALID_INITIALIZER_TYPE,
+												GetInitializerExpression()->GetLocation().begin,
+												*GetName(),
+												m_type_specifier->ToString(),
+												initializer_type_specifier->ToString()),
+										errors);
 					}
-				} else {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::SEMANTIC,
-											Error::INVALID_INITIALIZER_TYPE,
-											GetInitializerExpression()->GetLocation().begin,
-											*GetName(),
-											m_type_specifier->ToString(),
-											initializer_type_specifier->ToString()),
-									errors);
 				}
 			}
 		}

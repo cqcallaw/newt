@@ -25,6 +25,7 @@
 #include <function_declaration.h>
 #include <iterator>
 #include <variant_function_type.h>
+#include <complex_type.h>
 
 VariantFunctionSpecifier::VariantFunctionSpecifier(const yy::location location,
 		const FunctionVariantListRef variant_list) :
@@ -74,8 +75,8 @@ const string VariantFunctionSpecifier::ToString() const {
 }
 
 const AnalysisResult VariantFunctionSpecifier::AnalyzeAssignmentTo(
-		const_shared_ptr<TypeSpecifier> other,
-		const TypeTable& type_table) const {
+		const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	if (*this == *other) {
 		return EQUIVALENT;
 	} else {
@@ -90,7 +91,8 @@ const AnalysisResult VariantFunctionSpecifier::AnalyzeAssignmentTo(
 
 				auto result =
 						as_variant_function_specifier->AnalyzeAssignmentTo(
-								declaration, type_table);
+								declaration, type_table,
+								type_specifier_mapping);
 				return result;
 			}
 		}
@@ -168,20 +170,35 @@ const ErrorListRef VariantFunctionSpecifier::ValidateDeclaration(
 			auto duplication_subject_variant = duplication_subject->GetData();
 			auto duplication_subject_declaration =
 					duplication_subject_variant->GetDeclaration();
-			auto assignment_result =
-					duplication_subject_declaration->AnalyzeAssignmentTo(
-							declaration, type_table);
+			auto type_specifier_mapping_result =
+					ComplexType::GetTypeParameterMap(type_parameter_list,
+							duplication_subject_declaration->GetTypeArgumentList(),
+							type_table);
 
-			if (assignment_result == EQUIVALENT) {
-				ostringstream out;
-				out << declaration->GetLocation();
-				duplication_errors =
-						ErrorList::From(
-								make_shared<Error>(Error::SEMANTIC,
-										Error::FUNCTION_VARIANT_WITH_DUPLICATE_SIGNATURE,
-										duplication_subject_variant->GetLocation().begin,
-										declaration->ToString(), out.str()),
-								duplication_errors);
+			auto type_specifier_mapping_errors =
+					type_specifier_mapping_result.GetErrors();
+			if (ErrorList::IsTerminator(type_specifier_mapping_errors)) {
+				auto type_specifier_mapping =
+						type_specifier_mapping_result.GetData();
+				auto assignment_result =
+						duplication_subject_declaration->AnalyzeAssignmentTo(
+								declaration, type_table,
+								type_specifier_mapping);
+
+				if (assignment_result == EQUIVALENT) {
+					ostringstream out;
+					out << declaration->GetLocation();
+					duplication_errors =
+							ErrorList::From(
+									make_shared<Error>(Error::SEMANTIC,
+											Error::FUNCTION_VARIANT_WITH_DUPLICATE_SIGNATURE,
+											duplication_subject_variant->GetLocation().begin,
+											declaration->ToString(), out.str()),
+									duplication_errors);
+				}
+			} else {
+				errors = ErrorList::Concatenate(errors,
+						type_specifier_mapping_errors);
 			}
 
 			duplication_subject = duplication_subject->GetNext();

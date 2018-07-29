@@ -84,19 +84,31 @@ const PreprocessResult ArrayDeclarationStatement::Preprocess(
 				auto initializer_expression_type =
 						initializer_expression_type_result.GetData();
 
-				const_shared_ptr<ArrayTypeSpecifier> as_array =
-						std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
-								initializer_expression_type);
-				if (!as_array
-						|| !initializer_expression_type->AnalyzeAssignmentTo(
-								m_type_specifier, *type_table)) {
-					errors = ErrorList::From(
-							make_shared<Error>(Error::SEMANTIC,
-									Error::ASSIGNMENT_TYPE_ERROR,
-									initializer_expression->GetLocation().begin,
-									m_type_specifier->ToString(),
-									initializer_expression_type->ToString()),
-							errors);
+				auto type_parameter_mapping_result =
+						ComplexType::GetTypeParameterMap(type_parameter_list,
+								m_type_specifier->GetTypeArgumentList(),
+								*type_table);
+
+				errors = type_parameter_mapping_result.GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					auto type_parameter_mapping =
+							type_parameter_mapping_result.GetData();
+					const_shared_ptr<ArrayTypeSpecifier> as_array =
+							std::dynamic_pointer_cast<const ArrayTypeSpecifier>(
+									initializer_expression_type);
+					if (!as_array
+							|| !initializer_expression_type->AnalyzeAssignmentTo(
+									m_type_specifier, *type_table,
+									type_parameter_mapping)) {
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::ASSIGNMENT_TYPE_ERROR,
+												initializer_expression->GetLocation().begin,
+												m_type_specifier->ToString(),
+												initializer_expression_type->ToString()),
+										errors);
+					}
 				}
 			}
 		}

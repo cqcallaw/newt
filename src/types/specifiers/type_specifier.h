@@ -49,9 +49,17 @@ public:
 	}
 
 	virtual const std::string ToString() const = 0;
+
+	/**
+	 * Analyze assignment of this type specifier to another type specifier
+	 *
+	 * @other The other type specifier
+	 * @type_table The type table hierarchy in which the other type is defined
+	 * @type_specifier_mapping A mapping of type parameters to type arguments for the other type (TODO: determine if this for the source or target type)
+	 */
 	virtual const AnalysisResult AnalyzeAssignmentTo(
-			const_shared_ptr<TypeSpecifier> other,
-			const TypeTable& type_table) const = 0;
+			const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const = 0;
 
 	/**
 	 * Validate a declaration
@@ -76,6 +84,7 @@ public:
 			AliasResolution resolution = AliasResolution::RESOLVE) const = 0;
 
 	virtual const AnalysisResult AnalyzeWidening(const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			const TypeSpecifier& other) const {
 		return INCOMPATIBLE;
 	}
@@ -94,10 +103,10 @@ public:
 		return m_location;
 	}
 
-	static TypedResult<TypeTable> GetTypeParameterMap(
-			const TypeSpecifierListRef type_parameters,
-			const TypeSpecifierListRef type_arguments,
-			const shared_ptr<TypeTable> type_table);
+	/*static TypedResult<TypeTable> GetTypeParameterMap(
+	 const TypeSpecifierListRef type_parameters,
+	 const TypeSpecifierListRef type_arguments,
+	 const shared_ptr<TypeTable> type_table);*/
 
 	static const_shared_ptr<type_specifier_map> DefaultTypeSpecifierMap;
 

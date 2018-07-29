@@ -75,8 +75,8 @@ const string PrimitiveTypeSpecifier::ToString(
 }
 
 const AnalysisResult PrimitiveTypeSpecifier::AnalyzeAssignmentTo(
-		const_shared_ptr<TypeSpecifier> other,
-		const TypeTable& type_table) const {
+		const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto resolved_other_result = NestedTypeSpecifier::Resolve(other,
 			type_table);
 
@@ -84,7 +84,7 @@ const AnalysisResult PrimitiveTypeSpecifier::AnalyzeAssignmentTo(
 		auto resolved_other = resolved_other_result.GetData();
 
 		auto widening_analysis = resolved_other->AnalyzeWidening(type_table,
-				*this);
+				type_specifier_mapping, *this);
 		if (widening_analysis != AnalysisResult::INCOMPATIBLE) {
 			return widening_analysis;
 		}

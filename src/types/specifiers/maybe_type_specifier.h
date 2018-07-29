@@ -33,12 +33,13 @@ public:
 
 	virtual const std::string ToString() const;
 	virtual const AnalysisResult AnalyzeAssignmentTo(
-			const_shared_ptr<TypeSpecifier> other,
-			const TypeTable& type_table) const;
+			const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual bool operator==(const TypeSpecifier &other) const;
 
 	virtual const AnalysisResult AnalyzeWidening(const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping,
 			const TypeSpecifier& other) const;
 
 	const_shared_ptr<void> DefaultValue(const TypeTable& type_table,
@@ -52,8 +53,8 @@ public:
 			AliasResolution resolution = AliasResolution::RESOLVE) const;
 
 	const_shared_ptr<std::string> MapSpecifierToVariant(
-			const TypeSpecifier& type_specifier,
-			const TypeTable& type_table) const;
+			const TypeSpecifier& type_specifier, const TypeTable& type_table,
+			const_shared_ptr<type_specifier_map> type_specifier_mapping) const;
 
 	virtual const_shared_ptr<TypeSpecifier> WithTypeArgumentList(
 			TypeSpecifierListRef type_arguments) const;

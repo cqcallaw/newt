@@ -138,8 +138,8 @@ const_shared_ptr<Result> ComplexTypeSpecifier::GetType(
 }
 
 const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
-		const_shared_ptr<TypeSpecifier> other,
-		const TypeTable& type_table) const {
+		const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	auto resolved_other_result = NestedTypeSpecifier::Resolve(other,
 			type_table);
 
@@ -156,7 +156,8 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 			}
 
 			auto base_analysis = AnalyzeAssignmentTo(
-					as_maybe->GetBaseTypeSpecifier(), type_table);
+					as_maybe->GetBaseTypeSpecifier(), type_table,
+					type_specifier_mapping);
 			if (base_analysis == EQUIVALENT) {
 				return UNAMBIGUOUS;
 			} else if (base_analysis == UNAMBIGUOUS) {
@@ -181,7 +182,8 @@ const AnalysisResult ComplexTypeSpecifier::AnalyzeAssignmentTo(
 					return AnalysisResult::EQUIVALENT;
 				}
 
-				return as_complex->AnalyzeWidening(type_table, *this);
+				return as_complex->AnalyzeWidening(type_table,
+						type_specifier_mapping, *this);
 
 			} catch (std::bad_cast& e) {
 			}
@@ -215,7 +217,9 @@ bool ComplexTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 }
 
 const AnalysisResult ComplexTypeSpecifier::AnalyzeWidening(
-		const TypeTable& type_table, const TypeSpecifier& other) const {
+		const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const TypeSpecifier& other) const {
 	auto type_result = GetType(type_table);
 
 	if (ErrorList::IsTerminator(type_result->GetErrors())) {

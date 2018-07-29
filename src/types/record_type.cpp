@@ -498,8 +498,8 @@ const std::string RecordType::ValueToString(const TypeTable& type_table,
 	ostringstream buffer;
 	auto record_type_instance = static_pointer_cast<const Record>(value);
 	buffer
-			<< record_type_instance->ToString(*m_definition, type_specifier_mapping,
-					indent + 1);
+			<< record_type_instance->ToString(*m_definition,
+					type_specifier_mapping, indent + 1);
 	return buffer.str();
 }
 
@@ -530,39 +530,51 @@ const_shared_ptr<Result> RecordType::PreprocessSymbolCore(
 	plain_shared_ptr<Record> instance = nullptr;
 	plain_shared_ptr<Symbol> symbol = Symbol::GetDefaultSymbol();
 
-	auto initializer_expression_type_result = initializer->GetTypeSpecifier(
+	auto type_table = execution_context->GetTypeTable();
+
+	auto initializer_type_specifier_result = initializer->GetTypeSpecifier(
 			execution_context);
 
-	auto errors = initializer_expression_type_result.GetErrors();
+	auto errors = initializer_type_specifier_result.GetErrors();
 	if (ErrorList::IsTerminator(errors)) {
-		auto initializer_expression_type =
-				initializer_expression_type_result.GetData();
-		auto initializer_analysis =
-				initializer_expression_type->AnalyzeAssignmentTo(type_specifier,
-						execution_context->GetTypeTable());
-		if (initializer_analysis == EQUIVALENT) {
-			if (initializer->IsConstant()) {
-				const_shared_ptr<Result> result = initializer->Evaluate(
-						execution_context, execution_context);
-				errors = result->GetErrors();
-				if (ErrorList::IsTerminator(errors)) {
-					instance = result->GetData<Record>();
+		auto initializer_type_specifier =
+				initializer_type_specifier_result.GetData();
+		auto type_parameter_mapping_result = ComplexType::GetTypeParameterMap(
+				this->GetTypeParameterList(),
+				type_specifier->GetTypeArgumentList(), type_table);
+
+		errors = type_parameter_mapping_result.GetErrors();
+		if (ErrorList::IsTerminator(errors)) {
+			auto type_parameter_mapping =
+					type_parameter_mapping_result.GetData();
+			auto initializer_analysis =
+					initializer_type_specifier->AnalyzeAssignmentTo(
+							type_specifier, type_table, type_parameter_mapping);
+			if (initializer_analysis == EQUIVALENT) {
+				if (initializer->IsConstant()) {
+					const_shared_ptr<Result> result = initializer->Evaluate(
+							execution_context, execution_context);
+					errors = result->GetErrors();
+					if (ErrorList::IsTerminator(errors)) {
+						instance = result->GetData<Record>();
+					}
+				} else {
+					instance = Record::GetDefaultInstance(*this,
+							TypeSpecifier::DefaultTypeSpecifierMap);
 				}
 			} else {
-				instance = Record::GetDefaultInstance(*this,
-						TypeSpecifier::DefaultTypeSpecifierMap);
+				errors = ErrorList::From(
+						make_shared<Error>(Error::SEMANTIC,
+								Error::ASSIGNMENT_TYPE_ERROR,
+								initializer->GetLocation().begin,
+								type_specifier->ToString(),
+								initializer_type_specifier->ToString()),
+						errors);
 			}
-		} else {
-			errors = ErrorList::From(
-					make_shared<Error>(Error::SEMANTIC,
-							Error::ASSIGNMENT_TYPE_ERROR,
-							initializer->GetLocation().begin,
-							type_specifier->ToString(),
-							initializer_expression_type->ToString()), errors);
-		}
 
-		if (ErrorList::IsTerminator(errors)) {
-			symbol = make_shared<Symbol>(type_specifier, instance);
+			if (ErrorList::IsTerminator(errors)) {
+				symbol = make_shared<Symbol>(type_specifier, instance);
+			}
 		}
 	}
 
@@ -586,14 +598,21 @@ const SetResult RecordType::InstantiateCore(
 		const std::string& instance_name, const_shared_ptr<void> data) const {
 	auto instance = static_pointer_cast<const Record>(data);
 
-	if (value_type_specifier->AnalyzeAssignmentTo(type_specifier,
-			execution_context->GetTypeTable())) {
-		auto set_result = execution_context->SetSymbol(instance_name,
-				type_specifier, instance, execution_context->GetTypeTable());
-		return set_result;
-	} else {
-		return SetResult::INCOMPATIBLE_TYPE;
+	auto type_table = execution_context->GetTypeTable();
+	auto type_parameter_map_result = ComplexType::GetTypeParameterMap(
+			this->GetTypeParameterList(), type_specifier->GetTypeArgumentList(),
+			type_table);
+	if (ErrorList::IsTerminator(type_parameter_map_result.GetErrors())) {
+		auto type_parameter_map = type_parameter_map_result.GetData();
+		if (value_type_specifier->AnalyzeAssignmentTo(type_specifier,
+				execution_context->GetTypeTable(), type_parameter_map)) {
+			auto set_result = execution_context->SetSymbol(instance_name,
+					type_specifier, instance, type_table);
+			return set_result;
+		}
 	}
+
+	return SetResult::INCOMPATIBLE_TYPE;
 }
 
 const std::string RecordType::GetValueSeparator(const Indent& indent,

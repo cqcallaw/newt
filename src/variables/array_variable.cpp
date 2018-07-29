@@ -123,7 +123,8 @@ const_shared_ptr<ArrayVariable::ValidationResult> ArrayVariable::ValidateOperati
 						auto index_analysis =
 								index_expression_type->AnalyzeAssignmentTo(
 										PrimitiveTypeSpecifier::GetInt(),
-										context->GetTypeTable());
+										context->GetTypeTable(),
+										TypeSpecifier::DefaultTypeSpecifierMap);
 						auto expression_location = m_expression->GetLocation();
 						if (index_analysis == EQUIVALENT
 								|| index_analysis == UNAMBIGUOUS) {
@@ -199,19 +200,22 @@ const_shared_ptr<Result> ArrayVariable::Evaluate(
 					array->GetElementTypeSpecifier();
 			if (element_type_specifier->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetBoolean(),
-					context->GetTypeTable()) == EQUIVALENT) {
+					context->GetTypeTable(),
+					TypeSpecifier::DefaultTypeSpecifierMap) == EQUIVALENT) {
 				result_value = array->GetValue<bool>(index, *type_table);
 			} else if (element_type_specifier->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())
-					== EQUIVALENT) {
+					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable(),
+					TypeSpecifier::DefaultTypeSpecifierMap) == EQUIVALENT) {
 				result_value = array->GetValue<int>(index, *type_table);
 			} else if (element_type_specifier->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetDouble(),
-					context->GetTypeTable()) == EQUIVALENT) {
+					context->GetTypeTable(),
+					TypeSpecifier::DefaultTypeSpecifierMap) == EQUIVALENT) {
 				result_value = array->GetValue<double>(index, *type_table);
 			} else if (element_type_specifier->AnalyzeAssignmentTo(
 					PrimitiveTypeSpecifier::GetString(),
-					context->GetTypeTable()) == EQUIVALENT) {
+					context->GetTypeTable(),
+					TypeSpecifier::DefaultTypeSpecifierMap) == EQUIVALENT) {
 				result_value = array->GetValue<string>(index, *type_table);
 			} else {
 				auto element_type_result = element_type_specifier->GetType(
@@ -498,20 +502,23 @@ const ErrorListRef ArrayVariable::SetSymbolCore(
 		shared_ptr<const Array> new_array = nullptr;
 
 		if (element_type_specifier->AnalyzeAssignmentTo(
-				PrimitiveTypeSpecifier::GetBoolean(),
-				context->GetTypeTable())) {
+				PrimitiveTypeSpecifier::GetBoolean(), context->GetTypeTable(),
+				TypeSpecifier::DefaultTypeSpecifierMap)) {
 			new_array = array->WithValue<bool>(index,
 					static_pointer_cast<const bool>(value), *type_table);
 		} else if (element_type_specifier->AnalyzeAssignmentTo(
-				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable())) {
+				PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable(),
+				TypeSpecifier::DefaultTypeSpecifierMap)) {
 			new_array = array->WithValue<int>(index,
 					static_pointer_cast<const int>(value), *type_table);
 		} else if (element_type_specifier->AnalyzeAssignmentTo(
-				PrimitiveTypeSpecifier::GetDouble(), context->GetTypeTable())) {
+				PrimitiveTypeSpecifier::GetDouble(), context->GetTypeTable(),
+				TypeSpecifier::DefaultTypeSpecifierMap)) {
 			new_array = array->WithValue<double>(index,
 					static_pointer_cast<const double>(value), *type_table);
 		} else if (element_type_specifier->AnalyzeAssignmentTo(
-				PrimitiveTypeSpecifier::GetString(), context->GetTypeTable())) {
+				PrimitiveTypeSpecifier::GetString(), context->GetTypeTable(),
+				TypeSpecifier::DefaultTypeSpecifierMap)) {
 			new_array = array->WithValue<string>(index,
 					static_pointer_cast<const string>(value), *type_table);
 		} else {
@@ -563,7 +570,8 @@ const ErrorListRef ArrayVariable::Validate(
 		if (ErrorList::IsTerminator(errors)) {
 			auto index_expression_type = index_expression_type_result.GetData();
 			auto index_analysis = index_expression_type->AnalyzeAssignmentTo(
-					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable());
+					PrimitiveTypeSpecifier::GetInt(), context->GetTypeTable(),
+					TypeSpecifier::DefaultTypeSpecifierMap);
 			if (index_analysis == EQUIVALENT || index_analysis == UNAMBIGUOUS) {
 				auto base_type_specifier_result =
 						m_base_variable->GetTypeSpecifier(context);

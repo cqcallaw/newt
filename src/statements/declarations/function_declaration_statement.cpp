@@ -163,14 +163,18 @@ const PreprocessResult FunctionDeclarationStatement::Preprocess(
 											symbol);
 							assert(insert_result == INSERT_SUCCESS);
 
+							// use default parameter map for function declarations, for now
+							// TODO: use function type parameter map
 							errors = GetInitializerExpression()->Validate(
 									validation_context,
-									TypeSpecifier::DefaultTypeSpecifierMap); // use default parameter map for function declarations, for now
+									TypeSpecifier::DefaultTypeSpecifierMap);
 
 							if (ErrorList::IsTerminator(errors)) {
+								// TODO: use function type parameter map
 								auto assignment_analysis =
 										expression_type_specifier->AnalyzeAssignmentTo(
-												m_type_specifier, type_table);
+												m_type_specifier, type_table,
+												TypeSpecifier::DefaultTypeSpecifierMap);
 								if (assignment_analysis == EQUIVALENT) {
 									// passed validation; insert into output context
 									InsertResult insert_result =

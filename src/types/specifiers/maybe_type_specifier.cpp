@@ -45,12 +45,12 @@ const std::string MaybeTypeSpecifier::ToString() const {
 }
 
 const AnalysisResult MaybeTypeSpecifier::AnalyzeAssignmentTo(
-		const_shared_ptr<TypeSpecifier> other,
-		const TypeTable& type_table) const {
+		const_shared_ptr<TypeSpecifier> other, const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
 	if (*this == *other) {
 		return AnalysisResult::EQUIVALENT;
 	} else if (TypeTable::GetNilTypeSpecifier()->AnalyzeAssignmentTo(other,
-			type_table) >= UNAMBIGUOUS) {
+			type_table, type_specifier_mapping) >= UNAMBIGUOUS) {
 		return AnalysisResult::UNAMBIGUOUS;
 	} else {
 		return AnalysisResult::INCOMPATIBLE;
@@ -68,7 +68,9 @@ bool MaybeTypeSpecifier::operator ==(const TypeSpecifier& other) const {
 }
 
 const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
-		const TypeTable& type_table, const TypeSpecifier& other) const {
+		const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping,
+		const TypeSpecifier& other) const {
 	auto resolved_result = NestedTypeSpecifier::Resolve(m_base_type_specifier,
 			type_table);
 
@@ -84,9 +86,11 @@ const AnalysisResult MaybeTypeSpecifier::AnalyzeWidening(
 			return UNAMBIGUOUS;
 		}
 
-		auto base_analysis = resolved->AnalyzeWidening(type_table, other);
+		auto base_analysis = resolved->AnalyzeWidening(type_table,
+				type_specifier_mapping, other);
 		auto nil_analysis = other.AnalyzeAssignmentTo(
-				TypeTable::GetNilTypeSpecifier(), type_table);
+				TypeTable::GetNilTypeSpecifier(), type_table,
+				type_specifier_mapping);
 		if (base_analysis && nil_analysis) {
 			return AMBIGUOUS;
 		} else if (base_analysis) {
@@ -108,12 +112,14 @@ const_shared_ptr<void> MaybeTypeSpecifier::DefaultValue(
 }
 
 const_shared_ptr<std::string> MaybeTypeSpecifier::MapSpecifierToVariant(
-		const TypeSpecifier& type_specifier,
-		const TypeTable& type_table) const {
-	if (type_specifier.AnalyzeAssignmentTo(m_base_type_specifier, type_table)) {
+		const TypeSpecifier& type_specifier, const TypeTable& type_table,
+		const_shared_ptr<type_specifier_map> type_specifier_mapping) const {
+	if (type_specifier.AnalyzeAssignmentTo(m_base_type_specifier, type_table,
+			type_specifier_mapping)) {
 		return VARIANT_NAME;
 	} else if (type_specifier.AnalyzeAssignmentTo(
-			TypeTable::GetNilTypeSpecifier(), type_table)) {
+			TypeTable::GetNilTypeSpecifier(), type_table,
+			type_specifier_mapping)) {
 		return TypeTable::GetNilName();
 	}
 	return const_shared_ptr<std::string>();
