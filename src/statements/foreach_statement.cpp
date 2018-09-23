@@ -124,21 +124,23 @@ const PreprocessResult ForeachStatement::Preprocess(
 						if (member_as_maybe_specifier) {
 							auto member_base_specifier =
 									member_as_maybe_specifier->GetBaseTypeSpecifier();
-							auto maybe_type_relation =
-									member_base_specifier->AnalyzeAssignmentTo(
-											expression_type_specifier,
-											context->GetTypeTable());
-							if (maybe_type_relation == EQUIVALENT) {
-								auto type_specifier_mapping_result =
-										ComplexType::GetTypeParameterMap(
-												expression_type->GetTypeParameterList(),
-												expression_type_specifier->GetTypeArgumentList(),
-												type_table);
-								errors =
-										type_specifier_mapping_result.GetErrors();
-								if (ErrorList::IsTerminator(errors)) {
-									auto type_specifier_mapping =
-											type_specifier_mapping_result.GetData();
+
+							auto type_specifier_mapping_result =
+									ComplexType::GetTypeParameterMap(
+											expression_type->GetTypeParameterList(),
+											expression_type_specifier->GetTypeArgumentList(),
+											type_table);
+							errors = type_specifier_mapping_result.GetErrors();
+							if (ErrorList::IsTerminator(errors)) {
+								auto type_specifier_mapping =
+										type_specifier_mapping_result.GetData();
+
+								auto maybe_type_relation =
+										member_base_specifier->AnalyzeAssignmentTo(
+												expression_type_specifier,
+												type_table,
+												type_specifier_mapping);
+								if (maybe_type_relation == EQUIVALENT) {
 									auto default_value =
 											expression_type->GetDefaultValue(
 													*type_table,
@@ -177,15 +179,15 @@ const PreprocessResult ForeachStatement::Preprocess(
 																m_expression->GetLocation().begin),
 														errors);
 									}
+								} else {
+									errors =
+											ErrorList::From(
+													make_shared<Error>(
+															Error::SEMANTIC,
+															Error::FOREACH_NEXT_MUST_EVALUATE_TO_BASE_TYPE,
+															m_expression->GetLocation().begin),
+													errors);
 								}
-							} else {
-								errors =
-										ErrorList::From(
-												make_shared<Error>(
-														Error::SEMANTIC,
-														Error::FOREACH_NEXT_MUST_EVALUATE_TO_BASE_TYPE,
-														m_expression->GetLocation().begin),
-												errors);
 							}
 						} else {
 							errors = ErrorList::From(

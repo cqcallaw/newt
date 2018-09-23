@@ -63,50 +63,78 @@ const PreprocessResult IfStatement::Preprocess(
 		if (ErrorList::IsTerminator(errors)) {
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();
-			auto expression_analysis =
-					expression_type_specifier->AnalyzeAssignmentTo(
-							PrimitiveTypeSpecifier::GetInt(),
-							context->GetTypeTable());
-			if (expression_analysis == EQUIVALENT
-					|| expression_analysis == UNAMBIGUOUS) {
 
-				// the preprocessed statement block context must persist, as it will contain initialized variables, etc.
-				// thus we have the context member variables, but these cannot be linked to a context until preprocessing begins
-				// N.B. that this linkage setup introduces a dependency between preprocess and execute stages
-				m_block_context->LinkToParent(context);
+			auto type_table = context->GetTypeTable();
 
-				auto block_result = m_block->Preprocess(m_block_context,
-						closure, type_parameter_list, return_type_specifier);
-				auto block_return_coverage = block_result.GetReturnCoverage();
+			auto expression_type_result = expression_type_specifier->GetType(
+					type_table, RESOLVE);
+			errors = expression_type_result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto expression_type = expression_type_result->GetData<
+						TypeDefinition>();
+				auto type_parameter_mapping_result =
+						ComplexType::GetTypeParameterMap(
+								expression_type->GetTypeParameterList(),
+								expression_type_specifier->GetTypeArgumentList(),
+								type_table);
 
-				return_coverage = ReturnStatement::CoverageTransition(
-						return_coverage, block_return_coverage, true);
-				errors = block_result.GetErrors();
-				if (m_else_block) {
-					//pre-process else block
-					m_else_block_context->LinkToParent(context);
+				errors = type_parameter_mapping_result.GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					auto type_parameter_mapping =
+							type_parameter_mapping_result.GetData();
+					auto expression_analysis =
+							expression_type_specifier->AnalyzeAssignmentTo(
+									PrimitiveTypeSpecifier::GetInt(),
+									type_table, type_parameter_mapping);
+					if (expression_analysis == EQUIVALENT
+							|| expression_analysis == UNAMBIGUOUS) {
 
-					auto else_block_result = m_else_block->Preprocess(
-							m_else_block_context, closure, type_parameter_list,
-							return_type_specifier);
-					auto else_block_return_coverage =
-							else_block_result.GetReturnCoverage();
-					errors = ErrorList::Concatenate(errors,
-							else_block_result.GetErrors());
+						// the preprocessed statement block context must persist, as it will contain initialized variables, etc.
+						// thus we have the context member variables, but these cannot be linked to a context until preprocessing begins
+						// N.B. that this linkage setup introduces a dependency between preprocess and execute stages
+						m_block_context->LinkToParent(context);
 
-					return_coverage = ReturnStatement::CoverageTransition(
-							return_coverage, else_block_return_coverage, false);
-				} else {
-					// an "if" block on its own can only provide partial coverage
-					return_coverage = PreprocessResult::ReturnCoverage::PARTIAL;
+						auto block_result = m_block->Preprocess(m_block_context,
+								closure, type_parameter_list,
+								return_type_specifier);
+						auto block_return_coverage =
+								block_result.GetReturnCoverage();
+
+						return_coverage = ReturnStatement::CoverageTransition(
+								return_coverage, block_return_coverage, true);
+						errors = block_result.GetErrors();
+						if (m_else_block) {
+							//pre-process else block
+							m_else_block_context->LinkToParent(context);
+
+							auto else_block_result = m_else_block->Preprocess(
+									m_else_block_context, closure,
+									type_parameter_list, return_type_specifier);
+							auto else_block_return_coverage =
+									else_block_result.GetReturnCoverage();
+							errors = ErrorList::Concatenate(errors,
+									else_block_result.GetErrors());
+
+							return_coverage =
+									ReturnStatement::CoverageTransition(
+											return_coverage,
+											else_block_return_coverage, false);
+						} else {
+							// an "if" block on its own can only provide partial coverage
+							return_coverage =
+									PreprocessResult::ReturnCoverage::PARTIAL;
+						}
+					} else {
+						yy::location position = m_expression->GetLocation();
+						errors =
+								ErrorList::From(
+										make_shared<Error>(Error::SEMANTIC,
+												Error::INVALID_CONDITIONAL_EXPRESSION_TYPE,
+												position.begin,
+												expression_type_specifier->ToString()),
+										errors);
+					}
 				}
-			} else {
-				yy::location position = m_expression->GetLocation();
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::INVALID_CONDITIONAL_EXPRESSION_TYPE,
-								position.begin,
-								expression_type_specifier->ToString()), errors);
 			}
 		}
 	}

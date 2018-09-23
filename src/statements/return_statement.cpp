@@ -49,21 +49,45 @@ const PreprocessResult ReturnStatement::Preprocess(
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();
 
-			auto assignment_analysis =
-					expression_type_specifier->AnalyzeAssignmentTo(
-							return_type_specifier, context->GetTypeTable());
-			if (assignment_analysis == AnalysisResult::AMBIGUOUS) {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::AMBIGUOUS_WIDENING_CONVERSION,
-								m_expression->GetLocation().begin,
-								return_type_specifier->ToString(),
-								expression_type_specifier->ToString()), errors);
-			} else if (assignment_analysis == AnalysisResult::INCOMPATIBLE) {
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::FUNCTION_RETURN_MISMATCH,
-								m_expression->GetLocation().begin), errors);
+			auto type_table = context->GetTypeTable();
+
+			auto expression_type_result = expression_type_specifier->GetType(
+					type_table, RESOLVE);
+			errors = expression_type_result->GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto expression_type = expression_type_result->GetData<
+						TypeDefinition>();
+				auto type_parameter_mapping_result =
+						ComplexType::GetTypeParameterMap(
+								expression_type->GetTypeParameterList(),
+								expression_type_specifier->GetTypeArgumentList(),
+								type_table);
+
+				errors = type_parameter_mapping_result.GetErrors();
+				if (ErrorList::IsTerminator(errors)) {
+					auto type_parameter_mapping =
+							type_parameter_mapping_result.GetData();
+					auto assignment_analysis =
+							expression_type_specifier->AnalyzeAssignmentTo(
+									return_type_specifier, type_table,
+									type_parameter_mapping);
+					if (assignment_analysis == AnalysisResult::AMBIGUOUS) {
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::AMBIGUOUS_WIDENING_CONVERSION,
+										m_expression->GetLocation().begin,
+										return_type_specifier->ToString(),
+										expression_type_specifier->ToString()),
+								errors);
+					} else if (assignment_analysis
+							== AnalysisResult::INCOMPATIBLE) {
+						errors = ErrorList::From(
+								make_shared<Error>(Error::SEMANTIC,
+										Error::FUNCTION_RETURN_MISMATCH,
+										m_expression->GetLocation().begin),
+								errors);
+					}
+				}
 			}
 		}
 	}
