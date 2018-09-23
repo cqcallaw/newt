@@ -28,6 +28,7 @@
 #include <symbol_table.h>
 #include <execution_context.h>
 #include <specifiers/type_specifier.h>
+#include <complex_type.h>
 
 ForStatement::ForStatement(const_shared_ptr<AssignmentStatement> initial,
 		const_shared_ptr<Expression> loop_expression,
@@ -77,26 +78,41 @@ const PreprocessResult ForStatement::Preprocess(
 		if (ErrorList::IsTerminator(errors)) {
 			auto loop_expression_type_specifier =
 					loop_expression_type_specifier_result.GetData();
-			auto loop_expression_analysis =
-					loop_expression_type_specifier->AnalyzeAssignmentTo(
-							PrimitiveTypeSpecifier::GetInt(),
-							context->GetTypeTable());
-			if (loop_expression_analysis == EQUIVALENT
-					|| loop_expression_analysis == UNAMBIGUOUS) {
-				// use block context for closure so internal function closures are correct
-				auto block_preprocess_result = m_statement_block->Preprocess(
-						m_block_context, m_block_context, type_parameter_list,
-						return_type_specifier);
-				return_coverage = block_preprocess_result.GetReturnCoverage();
-				errors = block_preprocess_result.GetErrors();
-			} else {
-				yy::location position = m_loop_expression->GetLocation();
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::INVALID_CONDITIONAL_EXPRESSION_TYPE,
-								position.begin,
-								loop_expression_type_specifier->ToString()),
-						errors);
+
+			auto type_table = context->GetTypeTable();
+			auto type_parameter_mapping_result =
+					ComplexType::GetTypeParameterMap(type_parameter_list,
+							loop_expression_type_specifier->GetTypeArgumentList(),
+							type_table);
+
+			errors = type_parameter_mapping_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto type_parameter_mapping =
+						type_parameter_mapping_result.GetData();
+
+				auto loop_expression_analysis =
+						loop_expression_type_specifier->AnalyzeAssignmentTo(
+								PrimitiveTypeSpecifier::GetInt(), type_table,
+								type_parameter_mapping);
+				if (loop_expression_analysis == EQUIVALENT
+						|| loop_expression_analysis == UNAMBIGUOUS) {
+					// use block context for closure so internal function closures are correct
+					auto block_preprocess_result =
+							m_statement_block->Preprocess(m_block_context,
+									m_block_context, type_parameter_list,
+									return_type_specifier);
+					return_coverage =
+							block_preprocess_result.GetReturnCoverage();
+					errors = block_preprocess_result.GetErrors();
+				} else {
+					yy::location position = m_loop_expression->GetLocation();
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::INVALID_CONDITIONAL_EXPRESSION_TYPE,
+									position.begin,
+									loop_expression_type_specifier->ToString()),
+							errors);
+				}
 			}
 		}
 	}

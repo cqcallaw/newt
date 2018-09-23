@@ -182,36 +182,37 @@ const ExecutionResult MaybeDeclarationStatement::Execute(
 			if (ErrorList::IsTerminator(errors)) {
 				auto initializer_type_specifier =
 						initializer_type_specifier_result.GetData();
-				if (initializer_type_specifier->AnalyzeAssignmentTo(
-						m_type_specifier, *type_table)) {
-					if (*initializer_type_specifier
-							!= *TypeTable::GetNilTypeSpecifier()) {
-						auto result = initializer->Evaluate(context, closure);
-						errors = result->GetErrors();
-						if (ErrorList::IsTerminator(errors)) {
-							if (*initializer_type_specifier
-									== *maybe_type_specifier) {
-								//direct assignment
-								value = result->GetData<Sum>();
-							} else {
-								//widening conversion
-								value = make_shared<Sum>(
-										MaybeTypeSpecifier::VARIANT_NAME,
-										result->GetRawData());
-							}
+
+//				if (initializer_type_specifier->AnalyzeAssignmentTo(
+//						m_type_specifier, *type_table)) {
+				if (*initializer_type_specifier
+						!= *TypeTable::GetNilTypeSpecifier()) {
+					auto result = initializer->Evaluate(context, closure);
+					errors = result->GetErrors();
+					if (ErrorList::IsTerminator(errors)) {
+						if (*initializer_type_specifier
+								== *maybe_type_specifier) {
+							//direct assignment
+							value = result->GetData<Sum>();
+						} else {
+							//widening conversion
+							value = make_shared<Sum>(
+									MaybeTypeSpecifier::VARIANT_NAME,
+									result->GetRawData());
 						}
 					}
-				} else {
-					errors =
-							ErrorList::From(
-									make_shared<Error>(Error::RUNTIME,
-											Error::INVALID_INITIALIZER_TYPE,
-											GetInitializerExpression()->GetLocation().begin,
-											*GetName(),
-											maybe_type_specifier->ToString(),
-											initializer_type_specifier->ToString()),
-									errors);
 				}
+//				} else {
+//					errors =
+//							ErrorList::From(
+//									make_shared<Error>(Error::RUNTIME,
+//											Error::INVALID_INITIALIZER_TYPE,
+//											GetInitializerExpression()->GetLocation().begin,
+//											*GetName(),
+//											maybe_type_specifier->ToString(),
+//											initializer_type_specifier->ToString()),
+//									errors);
+//				}
 
 				if (ErrorList::IsTerminator(errors) && value) {
 					auto set_result = context->SetSymbol(*GetName(),

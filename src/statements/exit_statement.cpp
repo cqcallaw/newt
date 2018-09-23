@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <error.h>
 #include <execution_context.h>
+#include <complex_type.h>
 
 ExitStatement::ExitStatement() :
 		m_exit_expression(nullptr) {
@@ -50,20 +51,27 @@ const PreprocessResult ExitStatement::Preprocess(
 			auto expression_type_specifier =
 					expression_type_specifier_result.GetData();
 
-			const_shared_ptr<PrimitiveTypeSpecifier> expression_as_primitive =
-					std::dynamic_pointer_cast<const PrimitiveTypeSpecifier>(
-							expression_type_specifier);
+			auto type_table = context->GetTypeTable();
+			auto type_parameter_mapping_result =
+					ComplexType::GetTypeParameterMap(type_parameter_list,
+							expression_type_specifier->GetTypeArgumentList(),
+							type_table);
 
-			if (expression_as_primitive == nullptr
-					|| !(expression_as_primitive->AnalyzeAssignmentTo(
-							PrimitiveTypeSpecifier::GetInt(),
-							context->GetTypeTable()))) {
-				yy::location position = m_exit_expression->GetLocation();
-				errors = ErrorList::From(
-						make_shared<Error>(Error::SEMANTIC,
-								Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
-								position.begin,
-								expression_type_specifier->ToString()), errors);
+			errors = type_parameter_mapping_result.GetErrors();
+			if (ErrorList::IsTerminator(errors)) {
+				auto type_parameter_mapping =
+						type_parameter_mapping_result.GetData();
+				if (expression_type_specifier->AnalyzeAssignmentTo(
+						PrimitiveTypeSpecifier::GetInt(), type_table,
+						type_parameter_mapping)) {
+					yy::location position = m_exit_expression->GetLocation();
+					errors = ErrorList::From(
+							make_shared<Error>(Error::SEMANTIC,
+									Error::EXIT_STATUS_MUST_BE_AN_INTEGER,
+									position.begin,
+									expression_type_specifier->ToString()),
+							errors);
+				}
 			}
 		}
 	}
